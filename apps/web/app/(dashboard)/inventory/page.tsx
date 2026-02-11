@@ -1,0 +1,157 @@
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import {
+  Warehouse as WarehouseIcon,
+  AlertTriangle,
+  ArrowUpDown,
+  MapPin,
+  Star,
+} from 'lucide-react';
+import { auth } from '@/lib/auth';
+import { db } from '@/lib/db';
+import { listWarehouses, getLowStockProducts } from '@kivvi/core';
+import { AddWarehouseForm } from './add-warehouse-form';
+
+export default async function InventoryPage() {
+  const session = await auth();
+  if (!session?.user?.companyId) redirect('/login');
+
+  const [warehouses, lowStockProducts] = await Promise.all([
+    listWarehouses(db, session.user.companyId),
+    getLowStockProducts(db, session.user.companyId),
+  ]);
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Inventory</h1>
+          <p className="text-muted-foreground">
+            Manage warehouses, stock levels, and movements.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/inventory/movements"
+            className="inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium hover:bg-muted transition-colors"
+          >
+            <ArrowUpDown className="h-4 w-4" />
+            Movements
+          </Link>
+          <AddWarehouseForm />
+        </div>
+      </div>
+
+      {/* Low Stock Alerts */}
+      {lowStockProducts.length > 0 && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-950/20">
+          <div className="flex items-center gap-2 border-b border-amber-200 p-4 dark:border-amber-900/50">
+            <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+            <h2 className="font-semibold text-amber-800 dark:text-amber-300">
+              Low Stock Alerts
+            </h2>
+            <span className="ml-auto inline-flex items-center rounded-full bg-amber-200 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/50 dark:text-amber-300">
+              {lowStockProducts.length} product{lowStockProducts.length !== 1 ? 's' : ''}
+            </span>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-amber-200 text-left text-sm text-amber-700 dark:border-amber-900/50 dark:text-amber-400">
+                  <th className="whitespace-nowrap px-4 py-3 font-medium">Product</th>
+                  <th className="whitespace-nowrap px-4 py-3 font-medium">Article Number</th>
+                  <th className="whitespace-nowrap px-4 py-3 font-medium text-right">Current Stock</th>
+                  <th className="whitespace-nowrap px-4 py-3 font-medium text-right">Min Stock</th>
+                  <th className="whitespace-nowrap px-4 py-3 font-medium text-right">Deficit</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-amber-200 dark:divide-amber-900/50">
+                {lowStockProducts.map((product) => {
+                  const deficit = product.minStock - product.totalStock;
+                  return (
+                    <tr key={product.productId}>
+                      <td className="whitespace-nowrap px-4 py-3">
+                        <Link
+                          href={`/products/${product.productId}`}
+                          className="font-medium text-amber-900 hover:underline dark:text-amber-200"
+                        >
+                          {product.productName}
+                        </Link>
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3 font-mono text-sm text-amber-700 dark:text-amber-400">
+                        {product.articleNumber || '-'}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3 text-right font-medium text-red-600 dark:text-red-400">
+                        {product.totalStock}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3 text-right text-sm text-amber-700 dark:text-amber-400">
+                        {product.minStock}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3 text-right">
+                        <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/30 dark:text-red-400">
+                          -{deficit}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Warehouse Cards */}
+      {warehouses.length === 0 ? (
+        <div className="rounded-xl border bg-card">
+          <div className="flex flex-col items-center justify-center py-16">
+            <WarehouseIcon className="h-12 w-12 text-muted-foreground/50" />
+            <h3 className="mt-4 text-lg font-medium">No warehouses</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Add your first warehouse to start tracking inventory.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div>
+          <h2 className="mb-4 text-lg font-semibold">Warehouses</h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {warehouses.map((warehouse) => (
+              <Link
+                key={warehouse.id}
+                href={`/inventory/${warehouse.id}`}
+                className="group rounded-xl border bg-card p-6 transition-colors hover:bg-muted/50"
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-lg bg-primary/10 p-2">
+                      <WarehouseIcon className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold group-hover:text-primary transition-colors">
+                        {warehouse.name}
+                      </h3>
+                      {warehouse.address && (
+                        <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <MapPin className="h-3 w-3" />
+                          {warehouse.address}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  {warehouse.isDefault && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                      <Star className="h-3 w-3" />
+                      Default
+                    </span>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

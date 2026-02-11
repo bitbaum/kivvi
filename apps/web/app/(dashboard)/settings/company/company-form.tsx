@@ -1,0 +1,254 @@
+'use client';
+
+import { useState } from 'react';
+import { Loader2, CheckCircle2 } from 'lucide-react';
+import { updateCompanyAction } from '@/app/actions/settings';
+import { cn } from '@/lib/utils';
+
+const COUNTRIES = [
+  { value: 'CH', label: 'Switzerland' },
+  { value: 'DE', label: 'Germany' },
+  { value: 'AT', label: 'Austria' },
+  { value: 'FR', label: 'France' },
+  { value: 'IT', label: 'Italy' },
+  { value: 'LI', label: 'Liechtenstein' },
+] as const;
+
+const CURRENCIES = [
+  { value: 'CHF', label: 'CHF - Swiss Franc' },
+  { value: 'EUR', label: 'EUR - Euro' },
+  { value: 'USD', label: 'USD - US Dollar' },
+] as const;
+
+interface CompanyFormProps {
+  initialData: {
+    name: string;
+    legalName: string;
+    vatNumber: string;
+    address: string;
+    city: string;
+    postalCode: string;
+    country: string;
+    currency: string;
+  };
+}
+
+export function CompanyForm({ initialData }: CompanyFormProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
+    setSuccess(false);
+
+    try {
+      const formData = new FormData(e.currentTarget);
+      const input = {
+        name: formData.get('name') as string,
+        legalName: (formData.get('legalName') as string) || null,
+        vatNumber: (formData.get('vatNumber') as string) || null,
+        address: (formData.get('address') as string) || null,
+        city: (formData.get('city') as string) || null,
+        postalCode: (formData.get('postalCode') as string) || null,
+        country: formData.get('country') as string,
+        currency: formData.get('currency') as string,
+      };
+
+      const result = await updateCompanyAction(input);
+
+      if (result.success) {
+        setSuccess(true);
+        setTimeout(() => setSuccess(false), 3000);
+      } else {
+        setError(result.error || 'Failed to update company settings');
+      }
+    } catch {
+      setError('An unexpected error occurred');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-8">
+      {/* Error banner */}
+      {error && (
+        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
+          {error}
+        </div>
+      )}
+
+      {/* Success banner */}
+      {success && (
+        <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-400">
+          <CheckCircle2 className="h-4 w-4" />
+          Company settings updated successfully.
+        </div>
+      )}
+
+      {/* Company Information */}
+      <section className="rounded-xl border bg-card">
+        <div className="border-b px-6 py-4">
+          <h2 className="font-semibold">Company Information</h2>
+        </div>
+        <div className="grid gap-6 p-6 sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
+              Company Name <span className="text-destructive">*</span>
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              required
+              maxLength={200}
+              defaultValue={initialData.name}
+              className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+
+          <div className="sm:col-span-2">
+            <label htmlFor="legalName" className="mb-1.5 block text-sm font-medium">
+              Legal Name
+            </label>
+            <input
+              type="text"
+              id="legalName"
+              name="legalName"
+              maxLength={200}
+              defaultValue={initialData.legalName}
+              className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="vatNumber" className="mb-1.5 block text-sm font-medium">
+              VAT Number
+            </label>
+            <input
+              type="text"
+              id="vatNumber"
+              name="vatNumber"
+              maxLength={50}
+              placeholder="CHE-123.456.789 MWST"
+              defaultValue={initialData.vatNumber}
+              className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Address */}
+      <section className="rounded-xl border bg-card">
+        <div className="border-b px-6 py-4">
+          <h2 className="font-semibold">Address</h2>
+        </div>
+        <div className="grid gap-6 p-6 sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <label htmlFor="address" className="mb-1.5 block text-sm font-medium">
+              Street Address
+            </label>
+            <input
+              type="text"
+              id="address"
+              name="address"
+              maxLength={500}
+              defaultValue={initialData.address}
+              className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="postalCode" className="mb-1.5 block text-sm font-medium">
+              Postal Code
+            </label>
+            <input
+              type="text"
+              id="postalCode"
+              name="postalCode"
+              maxLength={20}
+              defaultValue={initialData.postalCode}
+              className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="city" className="mb-1.5 block text-sm font-medium">
+              City
+            </label>
+            <input
+              type="text"
+              id="city"
+              name="city"
+              maxLength={100}
+              defaultValue={initialData.city}
+              className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="country" className="mb-1.5 block text-sm font-medium">
+              Country
+            </label>
+            <select
+              id="country"
+              name="country"
+              defaultValue={initialData.country}
+              className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              {COUNTRIES.map((c) => (
+                <option key={c.value} value={c.value}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </section>
+
+      {/* Preferences */}
+      <section className="rounded-xl border bg-card">
+        <div className="border-b px-6 py-4">
+          <h2 className="font-semibold">Preferences</h2>
+        </div>
+        <div className="grid gap-6 p-6 sm:grid-cols-2">
+          <div>
+            <label htmlFor="currency" className="mb-1.5 block text-sm font-medium">
+              Default Currency
+            </label>
+            <select
+              id="currency"
+              name="currency"
+              defaultValue={initialData.currency}
+              className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              {CURRENCIES.map((c) => (
+                <option key={c.value} value={c.value}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </section>
+
+      {/* Submit */}
+      <div className="flex items-center justify-end">
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className={cn(
+            'inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors',
+            isSubmitting && 'opacity-50 cursor-not-allowed'
+          )}
+        >
+          {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+          {isSubmitting ? 'Saving...' : 'Save Changes'}
+        </button>
+      </div>
+    </form>
+  );
+}

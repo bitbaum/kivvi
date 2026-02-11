@@ -1,0 +1,301 @@
+'use client';
+
+import { useState, useEffect, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { Plus, X, Search } from 'lucide-react';
+import { createStockMovementAction } from '@/app/actions/inventory';
+
+const MOVEMENT_TYPES = [
+  { value: 'purchase', label: 'Purchase (IN)' },
+  { value: 'sale', label: 'Sale (OUT)' },
+  { value: 'adjustment', label: 'Adjustment' },
+  { value: 'transfer', label: 'Transfer' },
+  { value: 'return', label: 'Return (IN)' },
+] as const;
+
+interface Warehouse {
+  id: string;
+  name: string;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  articleNumber: string | null;
+  sku: string | null;
+}
+
+export function RecordMovementForm({
+  warehouses,
+}: {
+  warehouses: Warehouse[];
+}) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [isOpen, setIsOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Product picker state
+  const [products, setProducts] = useState<Product[]>([]);
+  const [productsLoading, setProductsLoading] = useState(false);
+  const [productSearch, setProductSearch] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [showProductDropdown, setShowProductDropdown] = useState(false);
+
+  useEffect(() => {
+    if (isOpen && products.length === 0) {
+      setProductsLoading(true);
+      fetch('/api/products')
+        .then((res) => res.json())
+        .then((data) => setProducts(data))
+        .catch(() => setError('Failed to load products'))
+        .finally(() => setProductsLoading(false));
+    }
+  }, [isOpen, products.length]);
+
+  const filteredProducts = products.filter((p) => {
+    const q = productSearch.toLowerCase();
+    return (
+      p.name.toLowerCase().includes(q) ||
+      (p.articleNumber && p.articleNumber.toLowerCase().includes(q)) ||
+      (p.sku && p.sku.toLowerCase().includes(q))
+    );
+  });
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+
+    if (!selectedProduct) {
+      setError('Please select a product');
+      return;
+    }
+
+    const formData = new FormData(e.currentTarget);
+    const input = {
+      productId: selectedProduct.id,
+      warehouseId: formData.get('warehouseId') as string,
+      type: formData.get('type') as string,
+      quantity: formData.get('quantity') as string,
+      reference: (formData.get('reference') as string) || undefined,
+    };
+
+    if (!input.warehouseId || !input.type || !input.quantity) {
+      setError('All required fields must be filled in');
+      return;
+    }
+
+    startTransition(async () => {
+      const result = await createStockMovementAction(input);
+      if (result.success) {
+        setIsOpen(false);
+        setSelectedProduct(null);
+        setProductSearch('');
+        router.refresh();
+      } else {
+        setError(result.error || 'Failed to record movement');
+      }
+    });
+  }
+
+  function handleClose() {
+    setIsOpen(false);
+    setError(null);
+    setSelectedProduct(null);
+    setProductSearch('');
+  }
+
+  if (!isOpen) {
+    return (
+      <button
+        onClick={() => setIsOpen(true)}
+        className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+      >
+        <Plus className="h-4 w-4" />
+        Record Movement
+      </button>
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="w-full max-w-md rounded-xl border bg-card p-6 shadow-lg">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Record Stock Movement</h2>
+          <button
+            onClick={handleClose}
+            className="rounded-lg p-1 hover:bg-muted transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Product Picker */}
+          <div className="relative">
+            <label className="mb-1 block text-sm font-medium">
+              Product <span className="text-red-500">*</span>
+            </label>
+            {selectedProduct ? (
+              <div className="flex items-center justify-between rounded-lg border bg-background px-3 py-2">
+                <div>
+                  <p className="text-sm font-medium">{selectedProduct.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {selectedProduct.articleNumber || selectedProduct.sku || ''}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedProduct(null);
+                    setProductSearch('');
+                  }}
+                  className="rounded p-0.5 hover:bg-muted"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <input
+                    type="text"
+                    value={productSearch}
+                    onChange={(e) => {
+                      setProductSearch(e.target.value);
+                      setShowProductDropdown(true);
+                    }}
+                    onFocus={() => setShowProductDropdown(true)}
+                    placeholder={
+                      productsLoading
+                        ? 'Loading products...'
+                        : 'Search products...'
+                    }
+                    className="w-full rounded-lg border bg-background py-2 pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-primary"
+                    disabled={productsLoading}
+                  />
+                </div>
+                {showProductDropdown && !productsLoading && (
+                  <div className="absolute left-0 right-0 z-10 mt-1 max-h-48 overflow-y-auto rounded-lg border bg-card shadow-lg">
+                    {filteredProducts.length === 0 ? (
+                      <p className="p-3 text-center text-sm text-muted-foreground">
+                        No products found.
+                      </p>
+                    ) : (
+                      filteredProducts.slice(0, 20).map((product) => (
+                        <button
+                          key={product.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedProduct(product);
+                            setShowProductDropdown(false);
+                            setProductSearch('');
+                          }}
+                          className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
+                        >
+                          <span className="font-medium">{product.name}</span>
+                          <span className="ml-2 text-xs text-muted-foreground">
+                            {product.articleNumber || ''}
+                          </span>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* Warehouse */}
+          <div>
+            <label className="mb-1 block text-sm font-medium">
+              Warehouse <span className="text-red-500">*</span>
+            </label>
+            <select
+              name="warehouseId"
+              required
+              className="w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+            >
+              <option value="">Select warehouse...</option>
+              {warehouses.map((wh) => (
+                <option key={wh.id} value={wh.id}>
+                  {wh.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Movement Type */}
+          <div>
+            <label className="mb-1 block text-sm font-medium">
+              Movement Type <span className="text-red-500">*</span>
+            </label>
+            <select
+              name="type"
+              required
+              className="w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+            >
+              <option value="">Select type...</option>
+              {MOVEMENT_TYPES.map((t) => (
+                <option key={t.value} value={t.value}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Quantity */}
+          <div>
+            <label className="mb-1 block text-sm font-medium">
+              Quantity <span className="text-red-500">*</span>
+            </label>
+            <input
+              name="quantity"
+              type="number"
+              required
+              min="0.01"
+              step="0.01"
+              placeholder="e.g. 10"
+              className="w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+            />
+            <p className="mt-1 text-xs text-muted-foreground">
+              Enter a positive number. Direction is determined by the movement
+              type.
+            </p>
+          </div>
+
+          {/* Reference */}
+          <div>
+            <label className="mb-1 block text-sm font-medium">Reference</label>
+            <input
+              name="reference"
+              type="text"
+              placeholder="e.g. PO-2026-001 or manual adjustment"
+              className="w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+
+          {error && <p className="text-sm text-red-600">{error}</p>}
+
+          <div className="flex gap-2 pt-2">
+            <button
+              type="submit"
+              disabled={isPending}
+              className="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+            >
+              {isPending ? 'Recording...' : 'Record Movement'}
+            </button>
+            <button
+              type="button"
+              onClick={handleClose}
+              className="rounded-lg border px-4 py-2 text-sm hover:bg-muted transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

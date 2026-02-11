@@ -1,0 +1,370 @@
+import Link from 'next/link';
+import { redirect, notFound } from 'next/navigation';
+import {
+  ArrowLeft,
+  CreditCard,
+  CheckCircle2,
+  AlertCircle,
+  FileText,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
+import { auth } from '@/lib/auth';
+import { db } from '@/lib/db';
+import {
+  getBankAccount,
+  listTransactions,
+  getReconciliationSummary,
+} from '@kivvi/core';
+import { formatCurrency, formatDate, cn } from '@/lib/utils';
+import { AutoMatchButton } from './auto-match-button';
+import { ImportCsv } from './import-csv';
+import { ReconcileButton } from './reconcile-button';
+
+interface PageProps {
+  params: Promise<{ bankAccountId: string }>;
+  searchParams: Promise<{
+    filter?: string;
+    search?: string;
+    page?: string;
+  }>;
+}
+
+export default async function BankAccountDetailPage({ params, searchParams }: PageProps) {
+  const session = await auth();
+  if (!session?.user?.companyId) redirect('/login');
+
+  const { bankAccountId } = await params;
+  const sp = await searchParams;
+
+  const account = await getBankAccount(db, session.user.companyId, bankAccountId);
+  if (!account) notFound();
+
+  const filter = sp.filter;
+  const search = sp.search;
+  const page = parseInt(sp.page || '1', 10);
+
+  const isReconciled =
+    filter === 'reconciled' ? true : filter === 'unreconciled' ? false : undefined;
+
+  const [transactions, summary] = await Promise.all([
+    listTransactions(db, session.user.companyId, {
+      bankAccountId,
+      isReconciled,
+      search,
+      page,
+      pageSize: 50,
+    }),
+    getReconciliationSummary(db, session.user.companyId, bankAccountId),
+  ]);
+
+  return (
+    <div className="space-y-6">
+      {/* Back + Header */}
+      <div>
+        <Link
+          href="/banking"
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Banking
+        </Link>
+
+        <div className="flex items-start justify-between">
+          <div>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-bold">{account.name}</h1>
+              {account.currency && (
+                <span className="inline-block rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium">
+                  {account.currency}
+                </span>
+              )}
+            </div>
+            {account.iban && (
+              <p className="mt-1 font-mono text-sm text-muted-foreground">{account.iban}</p>
+            )}
+            {account.bankName && (
+              <p className="text-sm text-muted-foreground">{account.bankName}</p>
+            )}
+          </div>
+          <div className="text-right">
+            <p className="text-xs text-muted-foreground">Balance</p>
+            <p className="text-2xl font-bold">
+              {account.balance
+                ? formatCurrency(Number(account.balance), account.currency || 'CHF')
+                : formatCurrency(0, account.currency || 'CHF')}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Reconciliation Summary */}
+      <div className="grid gap-4 sm:grid-cols-4">
+        <SummaryCard
+          label="Total Transactions"
+          value={summary.totalTransactions.toString()}
+          icon={<FileText className="h-4 w-4" />}
+        />
+        <SummaryCard
+          label="Reconciled"
+          value={summary.reconciled.toString()}
+          icon={<CheckCircle2 className="h-4 w-4 text-green-600" />}
+          className="border-green-200 dark:border-green-900/50"
+        />
+        <SummaryCard
+          label="Unreconciled"
+          value={summary.unreconciled.toString()}
+          icon={<AlertCircle className="h-4 w-4 text-amber-600" />}
+          className="border-amber-200 dark:border-amber-900/50"
+        />
+        <SummaryCard
+          label="Unreconciled Amount"
+          value={formatCurrency(summary.totalUnreconciledAmount, account.currency || 'CHF')}
+          icon={<CreditCard className="h-4 w-4 text-red-600" />}
+          className="border-red-200 dark:border-red-900/50"
+        />
+      </div>
+
+      {/* Actions */}
+      <div className="flex flex-wrap items-center gap-3">
+        <AutoMatchButton bankAccountId={bankAccountId} />
+        <ImportCsv bankAccountId={bankAccountId} />
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-3">
+        <form className="relative flex-1 min-w-[200px] max-w-md">
+          <input
+            name="search"
+            type="text"
+            placeholder="Search transactions..."
+            defaultValue={search}
+            className="w-full rounded-lg border bg-background py-2 pl-3 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary"
+          />
+          {filter && <input type="hidden" name="filter" value={filter} />}
+        </form>
+
+        <div className="flex gap-2">
+          {(['all', 'unreconciled', 'reconciled'] as const).map((f) => {
+            const isActive = f === 'all' ? !filter : filter === f;
+            const href = buildFilterUrl(bankAccountId, f === 'all' ? undefined : f, search);
+            return (
+              <Link
+                key={f}
+                href={href}
+                className={cn(
+                  'rounded-lg px-3 py-1.5 text-sm font-medium transition-colors',
+                  isActive
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                )}
+              >
+                {f === 'all' ? 'All' : f === 'unreconciled' ? 'Unreconciled' : 'Reconciled'}
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Transactions Table */}
+      <div className="rounded-xl border bg-card">
+        {transactions.data.length === 0 ? (
+          <div className="p-12 text-center text-muted-foreground">
+            <FileText className="mx-auto mb-3 h-10 w-10" />
+            <p className="text-lg font-medium">No transactions found</p>
+            <p className="mt-1 text-sm">
+              {search || filter
+                ? 'Try adjusting your filters.'
+                : 'Import a CSV file to get started.'}
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* Table header */}
+            <div className="hidden border-b px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground sm:grid sm:grid-cols-[100px_1fr_150px_120px_120px_180px]">
+              <span>Date</span>
+              <span>Description</span>
+              <span>Reference</span>
+              <span className="text-right">Amount</span>
+              <span className="text-right">Balance</span>
+              <span className="text-center">Status</span>
+            </div>
+
+            {/* Rows */}
+            <div className="divide-y">
+              {transactions.data.map((txn) => {
+                const amount = Number(txn.amount);
+                const isPositive = amount >= 0;
+
+                return (
+                  <div
+                    key={txn.id}
+                    className="flex flex-col gap-2 p-4 sm:grid sm:grid-cols-[100px_1fr_150px_120px_120px_180px] sm:items-center sm:gap-4"
+                  >
+                    <div className="text-sm text-muted-foreground">
+                      {formatDate(txn.date)}
+                    </div>
+                    <div className="text-sm">
+                      {txn.description || '-'}
+                    </div>
+                    <div className="truncate text-sm font-mono text-muted-foreground">
+                      {txn.reference || '-'}
+                    </div>
+                    <div
+                      className={cn(
+                        'text-right text-sm font-medium',
+                        isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                      )}
+                    >
+                      {isPositive ? '+' : ''}
+                      {formatCurrency(amount, account.currency || 'CHF')}
+                    </div>
+                    <div className="text-right text-sm text-muted-foreground">
+                      {txn.balance
+                        ? formatCurrency(Number(txn.balance), account.currency || 'CHF')
+                        : '-'}
+                    </div>
+                    <div className="flex items-center justify-center">
+                      {txn.isReconciled && txn.matchedDocument ? (
+                        <div className="flex items-center gap-2">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                            <CheckCircle2 className="h-3 w-3" />
+                            Reconciled
+                          </span>
+                          <Link
+                            href={`/sales/invoices/${txn.matchedDocument.id}`}
+                            className="text-xs text-primary hover:underline"
+                          >
+                            {txn.matchedDocument.number}
+                          </Link>
+                          <ReconcileButton
+                            transactionId={txn.id}
+                            isReconciled={true}
+                            matchedDocument={txn.matchedDocument}
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
+                            <AlertCircle className="h-3 w-3" />
+                            Unreconciled
+                          </span>
+                          <ReconcileButton
+                            transactionId={txn.id}
+                            isReconciled={false}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Pagination */}
+      {transactions.totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            Showing {(transactions.page - 1) * transactions.pageSize + 1}-
+            {Math.min(transactions.page * transactions.pageSize, transactions.total)} of{' '}
+            {transactions.total} transactions
+          </p>
+          <div className="flex items-center gap-2">
+            {transactions.page > 1 ? (
+              <Link
+                href={buildPageUrl(bankAccountId, transactions.page - 1, filter, search)}
+                className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm hover:bg-muted transition-colors"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Previous
+              </Link>
+            ) : (
+              <span className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm text-muted-foreground opacity-50">
+                <ChevronLeft className="h-4 w-4" />
+                Previous
+              </span>
+            )}
+
+            <span className="text-sm text-muted-foreground">
+              Page {transactions.page} of {transactions.totalPages}
+            </span>
+
+            {transactions.page < transactions.totalPages ? (
+              <Link
+                href={buildPageUrl(bankAccountId, transactions.page + 1, filter, search)}
+                className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm hover:bg-muted transition-colors"
+              >
+                Next
+                <ChevronRight className="h-4 w-4" />
+              </Link>
+            ) : (
+              <span className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm text-muted-foreground opacity-50">
+                Next
+                <ChevronRight className="h-4 w-4" />
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================================
+// HELPER COMPONENTS
+// ============================================================================
+
+function SummaryCard({
+  label,
+  value,
+  icon,
+  className,
+}: {
+  label: string;
+  value: string;
+  icon: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn('rounded-xl border bg-card p-4', className)}>
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        {icon}
+        {label}
+      </div>
+      <p className="mt-2 text-xl font-semibold">{value}</p>
+    </div>
+  );
+}
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+function buildFilterUrl(
+  bankAccountId: string,
+  filter?: string,
+  search?: string
+): string {
+  const params = new URLSearchParams();
+  if (filter) params.set('filter', filter);
+  if (search) params.set('search', search);
+  const qs = params.toString();
+  return `/banking/${bankAccountId}${qs ? `?${qs}` : ''}`;
+}
+
+function buildPageUrl(
+  bankAccountId: string,
+  page: number,
+  filter?: string,
+  search?: string
+): string {
+  const params = new URLSearchParams();
+  if (filter) params.set('filter', filter);
+  if (search) params.set('search', search);
+  if (page > 1) params.set('page', page.toString());
+  const qs = params.toString();
+  return `/banking/${bankAccountId}${qs ? `?${qs}` : ''}`;
+}

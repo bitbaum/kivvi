@@ -1,0 +1,398 @@
+'use client';
+
+import { useState, useCallback } from 'react';
+import { Database, Rocket, Upload, Loader2 } from 'lucide-react';
+import { detectMappingProfile, applyMapping, applyTransform, isSubtotalRow } from '@kivvi/core/src/domain/import-mappings';
+import type { MappingProfile, MappingField } from '@kivvi/core/src/domain/import-mappings';
+import { executeImportAction, completeOnboardingAction } from '@/app/actions/onboarding';
+import { CsvUploader } from './CsvUploader';
+import { ColumnMapper } from './ColumnMapper';
+import { ImportPreview } from './ImportPreview';
+import { ImportProgress, type ImportStatus } from './ImportProgress';
+
+interface StepDataImportProps {
+  onComplete: () => void;
+}
+
+// Entity import categories
+const IMPORT_CATEGORIES = [
+  {
+    id: 'contacts',
+    label: 'Contacts',
+    description: 'Customers & vendors',
+    entityTypes: [
+      { type: 'customer', label: 'Customers' },
+      { type: 'vendor', label: 'Vendors' },
+    ],
+  },
+  {
+    id: 'products',
+    label: 'Products',
+    description: 'Products & services',
+    entityTypes: [{ type: 'product', label: 'Products' }],
+  },
+  {
+    id: 'documents',
+    label: 'Documents',
+    description: 'Invoices & purchase invoices',
+    entityTypes: [
+      { type: 'invoice', label: 'Sales Invoices' },
+      { type: 'purchase_invoice', label: 'Purchase Invoices' },
+    ],
+  },
+  {
+    id: 'accounting',
+    label: 'Accounting',
+    description: 'Journal entries & stock levels',
+    entityTypes: [
+      { type: 'journal_entry', label: 'Journal Entries' },
+      { type: 'stock', label: 'Stock Levels' },
+    ],
+  },
+];
+
+type ImportMode = 'choice' | 'import';
+
+interface PendingImport {
+  entityType: string;
+  label: string;
+  rawRows: Record<string, string>[];
+  headers: string[];
+  profile: MappingProfile | null;
+  mappedRows: Array<Record<string, string | null>> | null;
+  confirmed: boolean;
+}
+
+export function StepDataImport({ onComplete }: StepDataImportProps) {
+  const [mode, setMode] = useState<ImportMode>('choice');
+  const [pendingImports, setPendingImports] = useState<Map<string, PendingImport>>(new Map());
+  const [importStatuses, setImportStatuses] = useState<ImportStatus[]>([]);
+  const [isImporting, setIsImporting] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleStartFresh = async () => {
+    setIsCompleting(true);
+    const result = await completeOnboardingAction();
+    if (result.success) {
+      onComplete();
+    } else {
+      setError(result.error || 'Failed');
+      setIsCompleting(false);
+    }
+  };
+
+  const handleCsvParsed = useCallback(
+    (entityType: string, label: string, headers: string[], rows: Record<string, string>[]) => {
+      const profile = detectMappingProfile(headers, entityType);
+
+      setPendingImports((prev) => {
+        const next = new Map(prev);
+        next.set(entityType, {
+          entityType,
+          label,
+          rawRows: rows,
+          headers,
+          profile,
+          mappedRows: null,
+          confirmed: false,
+        });
+        return next;
+      });
+    },
+    []
+  );
+
+  const handleMappingConfirmed = useCallback(
+    (entityType: string, mapping: MappingField[]) => {
+      setPendingImports((prev) => {
+        const next = new Map(prev);
+        const pending = next.get(entityType);
+        if (!pending) return prev;
+
+        // Apply mapping to all rows, filter out subtotal rows
+        const keyColumn = pending.headers[0] || '';
+        const mappedRows = pending.rawRows
+          .filter((row) => !isSubtotalRow(row, keyColumn))
+          .map((row) => {
+            const result: Record<string, string | null> = {};
+            for (const field of mapping) {
+              const rawValue = row[field.source] ?? '';
+              result[field.target] = applyTransform(rawValue, field.transform);
+            }
+            return result;
+          })
+          .filter((row) => {
+            // Filter rows with no meaningful data
+            const values = Object.values(row).filter(Boolean);
+            return values.length >= 1;
+          });
+
+        next.set(entityType, {
+          ...pending,
+          mappedRows,
+          confirmed: true,
+        });
+        return next;
+      });
+    },
+    []
+  );
+
+  const handleRunImport = async () => {
+    setIsImporting(true);
+    setError('');
+
+    // Build import order: contacts → products → documents → accounting
+    const importOrder = ['customer', 'vendor', 'product', 'invoice', 'purchase_invoice', 'journal_entry', 'stock'];
+    const toImport = importOrder
+      .filter((type) => pendingImports.has(type) && pendingImports.get(type)!.confirmed)
+      .map((type) => pendingImports.get(type)!);
+
+    // Initialize statuses
+    const initialStatuses: ImportStatus[] = toImport.map((imp) => ({
+      entityType: imp.entityType,
+      label: imp.label,
+      state: 'pending',
+    }));
+    setImportStatuses(initialStatuses);
+
+    // Execute sequentially
+    for (let i = 0; i < toImport.length; i++) {
+      const imp = toImport[i];
+
+      setImportStatuses((prev) =>
+        prev.map((s, idx) =>
+          idx === i ? { ...s, state: 'importing' } : s
+        )
+      );
+
+      const result = await executeImportAction(imp.entityType, imp.mappedRows!);
+
+      setImportStatuses((prev) =>
+        prev.map((s, idx) =>
+          idx === i
+            ? {
+                ...s,
+                state: result.success ? 'done' : 'error',
+                inserted: result.data?.inserted,
+                skipped: result.data?.skipped,
+                errors: result.success ? result.data?.errors : [result.error || 'Failed'],
+              }
+            : s
+        )
+      );
+    }
+
+    setIsImporting(false);
+  };
+
+  const handleCompleteSetup = async () => {
+    setIsCompleting(true);
+    const result = await completeOnboardingAction();
+    if (result.success) {
+      onComplete();
+    } else {
+      setError(result.error || 'Failed');
+      setIsCompleting(false);
+    }
+  };
+
+  const confirmedCount = Array.from(pendingImports.values()).filter((p) => p.confirmed).length;
+  const allImportsDone = importStatuses.length > 0 && importStatuses.every((s) => s.state === 'done' || s.state === 'error');
+
+  // Choice screen
+  if (mode === 'choice') {
+    return (
+      <div className="rounded-xl border bg-background p-6 shadow-sm md:p-8">
+        <div className="mb-6">
+          <div className="mb-2 flex items-center gap-2">
+            <Database className="h-5 w-5 text-primary" />
+            <h2 className="text-xl font-semibold">Data Import</h2>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Would you like to import data from a previous system, or start fresh?
+          </p>
+        </div>
+
+        {error && (
+          <div className="mb-4 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+            {error}
+          </div>
+        )}
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <button
+            onClick={() => setMode('import')}
+            className="flex flex-col items-center gap-3 rounded-xl border-2 border-dashed p-8 text-center transition-colors hover:border-primary hover:bg-primary/5"
+          >
+            <Upload className="h-10 w-10 text-muted-foreground" />
+            <div>
+              <div className="font-semibold">Import data</div>
+              <div className="mt-1 text-sm text-muted-foreground">
+                Upload CSV files from kivitendo or another system
+              </div>
+            </div>
+          </button>
+
+          <button
+            onClick={handleStartFresh}
+            disabled={isCompleting}
+            className="flex flex-col items-center gap-3 rounded-xl border-2 border-dashed p-8 text-center transition-colors hover:border-primary hover:bg-primary/5 disabled:opacity-50"
+          >
+            {isCompleting ? (
+              <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
+            ) : (
+              <Rocket className="h-10 w-10 text-muted-foreground" />
+            )}
+            <div>
+              <div className="font-semibold">Start fresh</div>
+              <div className="mt-1 text-sm text-muted-foreground">
+                Begin with an empty system, add data manually later
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Import interface
+  return (
+    <div className="space-y-6">
+      <div className="rounded-xl border bg-background p-6 shadow-sm md:p-8">
+        <div className="mb-6">
+          <div className="mb-2 flex items-center gap-2">
+            <Database className="h-5 w-5 text-primary" />
+            <h2 className="text-xl font-semibold">Import Data</h2>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Upload CSV files for each data type. Import order is enforced (contacts first, then products, then documents).
+          </p>
+        </div>
+
+        {error && (
+          <div className="mb-4 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+            {error}
+          </div>
+        )}
+
+        {/* Import progress (when running) */}
+        {importStatuses.length > 0 && (
+          <div className="mb-6">
+            <ImportProgress statuses={importStatuses} />
+          </div>
+        )}
+
+        {/* Upload sections (when not running) */}
+        {!isImporting && importStatuses.length === 0 && (
+          <div className="space-y-6">
+            {IMPORT_CATEGORIES.map((category) => (
+              <div key={category.id} className="rounded-lg border p-4">
+                <h3 className="mb-1 font-medium">{category.label}</h3>
+                <p className="mb-3 text-xs text-muted-foreground">{category.description}</p>
+
+                <div className="space-y-4">
+                  {category.entityTypes.map((et) => {
+                    const pending = pendingImports.get(et.type);
+
+                    return (
+                      <div key={et.type}>
+                        <div className="mb-2 text-sm font-medium">{et.label}</div>
+
+                        {!pending && (
+                          <CsvUploader
+                            label={`Upload ${et.label} CSV`}
+                            onParsed={(headers, rows) =>
+                              handleCsvParsed(et.type, et.label, headers, rows)
+                            }
+                          />
+                        )}
+
+                        {pending && !pending.confirmed && pending.profile && (
+                          <ColumnMapper
+                            headers={pending.headers}
+                            profile={pending.profile}
+                            onMappingConfirmed={(mapping) =>
+                              handleMappingConfirmed(et.type, mapping)
+                            }
+                          />
+                        )}
+
+                        {pending && !pending.confirmed && !pending.profile && (
+                          <div className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
+                            Could not auto-detect column mapping for this file.
+                            The CSV headers don&apos;t match any known format.
+                          </div>
+                        )}
+
+                        {pending?.confirmed && pending.mappedRows && (
+                          <div>
+                            <div className="mb-2 flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
+                              <span className="inline-block h-2 w-2 rounded-full bg-green-500" />
+                              Ready to import ({pending.mappedRows.length} rows)
+                            </div>
+                            <ImportPreview rows={pending.mappedRows} maxRows={3} />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Action buttons */}
+        <div className="mt-6 flex items-center justify-between">
+          <button
+            onClick={() => {
+              setMode('choice');
+              setPendingImports(new Map());
+              setImportStatuses([]);
+            }}
+            disabled={isImporting}
+            className="rounded-lg border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
+          >
+            Back
+          </button>
+
+          <div className="flex gap-3">
+            {!allImportsDone && importStatuses.length === 0 && confirmedCount > 0 && (
+              <button
+                onClick={handleRunImport}
+                disabled={isImporting}
+                className="flex items-center gap-2 rounded-lg bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              >
+                {isImporting && <Loader2 className="h-4 w-4 animate-spin" />}
+                Import {confirmedCount} {confirmedCount === 1 ? 'file' : 'files'}
+              </button>
+            )}
+
+            {allImportsDone && (
+              <button
+                onClick={handleCompleteSetup}
+                disabled={isCompleting}
+                className="flex items-center gap-2 rounded-lg bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              >
+                {isCompleting && <Loader2 className="h-4 w-4 animate-spin" />}
+                Complete setup
+              </button>
+            )}
+
+            {!allImportsDone && importStatuses.length === 0 && confirmedCount === 0 && (
+              <button
+                onClick={handleCompleteSetup}
+                disabled={isCompleting}
+                className="rounded-lg border px-5 py-2 text-sm font-medium hover:bg-muted/50 disabled:opacity-50"
+              >
+                {isCompleting ? 'Completing...' : 'Skip & finish'}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
