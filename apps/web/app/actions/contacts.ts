@@ -10,7 +10,7 @@ import {
   createContactSchema,
   updateContactSchema,
 } from '@kivvi/core';
-import { type ActionResult, getSession, safeErrorMessage } from './utils';
+import { type ActionResult, getSession, safeErrorMessage, formatZodError } from './utils';
 
 // ============================================================================
 // HELPERS
@@ -66,9 +66,8 @@ export async function createContactAction(
     // Validate before calling domain function
     const parsed = createContactSchema.safeParse(input);
     if (!parsed.success) {
-      const errors = parsed.error.flatten().fieldErrors;
-      const firstError = Object.values(errors).flat()[0];
-      return { success: false, error: firstError || 'Validation failed' };
+      const { error, fieldErrors } = formatZodError(parsed.error);
+      return { success: false, error, fieldErrors };
     }
 
     const contact = await createContact(db, companyId, parsed.data);
@@ -117,9 +116,8 @@ export async function updateContactAction(
     // Validate
     const parsed = updateContactSchema.safeParse(input);
     if (!parsed.success) {
-      const errors = parsed.error.flatten().fieldErrors;
-      const firstError = Object.values(errors).flat()[0];
-      return { success: false, error: firstError || 'Validation failed' };
+      const { error, fieldErrors } = formatZodError(parsed.error);
+      return { success: false, error, fieldErrors };
     }
 
     const contact = await updateContact(db, companyId, id, parsed.data);

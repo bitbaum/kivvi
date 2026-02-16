@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Trash2, Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { deleteContactAction } from '@/app/actions/contacts';
 import { cn } from '@/lib/utils';
 
@@ -16,6 +17,9 @@ export function DeleteContactButton({ contactId, contactName }: DeleteContactBut
   const [isDeleting, setIsDeleting] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
+  const t = useTranslations('contacts');
+  const tc = useTranslations('common');
+
   async function handleDelete() {
     setIsDeleting(true);
     try {
@@ -23,10 +27,10 @@ export function DeleteContactButton({ contactId, contactName }: DeleteContactBut
       if (result.success) {
         router.push('/contacts');
       } else {
-        alert(result.error || 'Failed to delete contact');
+        alert(result.error || tc('error'));
       }
     } catch {
-      alert('An unexpected error occurred');
+      alert(tc('error'));
     } finally {
       setIsDeleting(false);
       setShowConfirm(false);
@@ -37,7 +41,7 @@ export function DeleteContactButton({ contactId, contactName }: DeleteContactBut
     return (
       <div className="flex items-center gap-2">
         <span className="text-sm text-muted-foreground">
-          Deactivate &quot;{contactName}&quot;?
+          {t('deleteConfirm', { name: contactName })}
         </span>
         <button
           onClick={handleDelete}
@@ -48,14 +52,14 @@ export function DeleteContactButton({ contactId, contactName }: DeleteContactBut
           )}
         >
           {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-          Yes
+          {tc('yes')}
         </button>
         <button
           onClick={() => setShowConfirm(false)}
           disabled={isDeleting}
           className="rounded-lg border px-3 py-2 text-sm font-medium hover:bg-muted transition-colors"
         >
-          Cancel
+          {tc('cancel')}
         </button>
       </div>
     );
@@ -67,7 +71,7 @@ export function DeleteContactButton({ contactId, contactName }: DeleteContactBut
       className="inline-flex items-center gap-2 rounded-lg border border-destructive/30 px-4 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
     >
       <Trash2 className="h-4 w-4" />
-      Delete
+      {tc('delete')}
     </button>
   );
 }

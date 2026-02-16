@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import { db } from '@/lib/db';
 import { users, companies } from '@kivvi/database';
 import { eq } from 'drizzle-orm';
+import { DEFAULT_VAT_RATE } from '@/lib/config/vat-rates';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -49,14 +50,14 @@ export async function POST(request: NextRequest) {
         currency: 'CHF',
         country: 'CH',
         settings: {
-          defaultVatRate: 8.1,
+          defaultVatRate: Number(DEFAULT_VAT_RATE),
           invoicePrefix: 'INV',
           invoiceNextNumber: 1,
         },
       })
       .returning();
 
-    // Create user
+    // Then create user
     const [user] = await db
       .insert(users)
       .values({

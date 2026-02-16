@@ -1,9 +1,11 @@
-import { ArrowLeft, Pencil, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Pencil, AlertTriangle, CheckCircle2, Download } from 'lucide-react';
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { StatusBadge } from './status-badge';
 import { DocumentStatusActions, DocumentConvertActions } from './document-actions';
 import { DocumentDeleteButton } from './document-delete';
+import { SendEmailButton } from './send-email-dialog';
 import { PaymentForm } from './payment-form';
 import type { DocumentTypeConfig } from '@/lib/config/document-types';
 
@@ -12,7 +14,10 @@ interface DocumentDetailProps {
   config: DocumentTypeConfig;
 }
 
-export function DocumentDetail({ doc, config }: DocumentDetailProps) {
+export async function DocumentDetail({ doc, config }: DocumentDetailProps) {
+  const t = await getTranslations('documents');
+  const tc = await getTranslations('common');
+
   const totalPaid = config.hasPayments
     ? doc.payments?.reduce((sum: number, p: any) => sum + Number(p.amount), 0) || 0
     : 0;
@@ -45,13 +50,28 @@ export function DocumentDetail({ doc, config }: DocumentDetailProps) {
         </div>
 
         <div className="flex items-center gap-2">
+          <a
+            href={`/api/documents/${doc.id}/pdf`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm hover:bg-muted"
+          >
+            <Download className="h-4 w-4" />
+            PDF
+          </a>
+          {doc.status !== 'draft' && doc.status !== 'cancelled' && (
+            <SendEmailButton
+              documentId={doc.id}
+              defaultEmail={doc.contact?.email || undefined}
+            />
+          )}
           {doc.status === 'draft' && (
             <Link
               href={`${config.basePath}/${doc.id}/edit`}
               className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm hover:bg-muted"
             >
               <Pencil className="h-4 w-4" />
-              Edit
+              {tc('edit')}
             </Link>
           )}
           <DocumentStatusActions documentId={doc.id} currentStatus={doc.status} config={config} />
@@ -70,10 +90,10 @@ export function DocumentDetail({ doc, config }: DocumentDetailProps) {
           <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
           <div>
             <p className="font-medium text-red-800 dark:text-red-300">
-              This {config.label.toLowerCase()} is {daysOverdue} days overdue
+              {t('overdueAlert', { type: t(config.label), days: daysOverdue })}
             </p>
             <p className="text-sm text-red-600 dark:text-red-400">
-              Due date was {formatDate(doc.dueDate!)}. Outstanding: {formatCurrency(outstanding)}
+              {t('overdueDetail', { date: formatDate(doc.dueDate!), amount: formatCurrency(outstanding) })}
             </p>
           </div>
         </div>
@@ -86,26 +106,26 @@ export function DocumentDetail({ doc, config }: DocumentDetailProps) {
           <div className="rounded-xl border bg-card p-6">
             <div className="grid gap-4 sm:grid-cols-3">
               <div>
-                <p className="text-sm text-muted-foreground">Issue Date</p>
+                <p className="text-sm text-muted-foreground">{t('issueDate')}</p>
                 <p className="font-medium">{formatDate(doc.issueDate)}</p>
               </div>
               {config.hasDueDate && (
                 <div>
-                  <p className="text-sm text-muted-foreground">Due Date</p>
-                  <p className="font-medium">{doc.dueDate ? formatDate(doc.dueDate) : 'Not set'}</p>
+                  <p className="text-sm text-muted-foreground">{t(config.dueDateLabel)}</p>
+                  <p className="font-medium">{doc.dueDate ? formatDate(doc.dueDate) : tc('notSet')}</p>
                 </div>
               )}
               {config.hasDeliveryDate && (
                 <div>
-                  <p className="text-sm text-muted-foreground">Delivery Date</p>
-                  <p className="font-medium">{doc.deliveryDate ? formatDate(doc.deliveryDate) : 'Not set'}</p>
+                  <p className="text-sm text-muted-foreground">{t('deliveryDate')}</p>
+                  <p className="font-medium">{doc.deliveryDate ? formatDate(doc.deliveryDate) : tc('notSet')}</p>
                 </div>
               )}
             </div>
             {doc.convertedFrom && (
               <div className="mt-4 pt-4 border-t">
                 <p className="text-sm text-muted-foreground">
-                  Converted from{' '}
+                  {t('sourceDocument')}{' '}
                   <Link href={`${config.basePath}/${doc.convertedFrom.id}`} className="text-primary hover:underline">
                     {doc.convertedFrom.number}
                   </Link>
@@ -117,19 +137,19 @@ export function DocumentDetail({ doc, config }: DocumentDetailProps) {
           {/* Line items */}
           <div className="rounded-xl border bg-card">
             <div className="border-b p-4">
-              <h2 className="font-semibold">Line Items</h2>
+              <h2 className="font-semibold">{t('lineItems')}</h2>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b text-muted-foreground">
                     <th className="px-4 py-3 text-left font-medium">#</th>
-                    <th className="px-4 py-3 text-left font-medium">Description</th>
-                    <th className="px-4 py-3 text-right font-medium">Qty</th>
-                    <th className="px-4 py-3 text-right font-medium">Unit Price</th>
-                    <th className="px-4 py-3 text-right font-medium">Discount</th>
-                    <th className="px-4 py-3 text-right font-medium">VAT</th>
-                    <th className="px-4 py-3 text-right font-medium">Total</th>
+                    <th className="px-4 py-3 text-left font-medium">{tc('description')}</th>
+                    <th className="px-4 py-3 text-right font-medium">{t('quantity')}</th>
+                    <th className="px-4 py-3 text-right font-medium">{t('unitPrice')}</th>
+                    <th className="px-4 py-3 text-right font-medium">{t('discount')}</th>
+                    <th className="px-4 py-3 text-right font-medium">{t('vat')}</th>
+                    <th className="px-4 py-3 text-right font-medium">{tc('total')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
@@ -157,13 +177,13 @@ export function DocumentDetail({ doc, config }: DocumentDetailProps) {
             <div className="rounded-xl border bg-card p-6 space-y-4">
               {doc.notes && (
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Notes</p>
+                  <p className="text-sm font-medium text-muted-foreground">{tc('notes')}</p>
                   <p className="mt-1 whitespace-pre-wrap">{doc.notes}</p>
                 </div>
               )}
               {doc.internalNotes && (
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Internal Notes</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t('internalNotes')}</p>
                   <p className="mt-1 whitespace-pre-wrap text-muted-foreground">{doc.internalNotes}</p>
                 </div>
               )}
@@ -175,28 +195,28 @@ export function DocumentDetail({ doc, config }: DocumentDetailProps) {
         <div className="space-y-6">
           {/* Totals */}
           <div className="rounded-xl border bg-card p-6">
-            <h2 className="mb-4 font-semibold">Summary</h2>
+            <h2 className="mb-4 font-semibold">{t('summary')}</h2>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Subtotal</span>
+                <span className="text-muted-foreground">{tc('subtotal')}</span>
                 <span>{formatCurrency(Number(doc.subtotal))}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">VAT</span>
+                <span className="text-muted-foreground">{t('vat')}</span>
                 <span>{formatCurrency(Number(doc.vatAmount))}</span>
               </div>
               <div className="flex justify-between border-t pt-2 text-base font-bold">
-                <span>Total</span>
+                <span>{tc('total')}</span>
                 <span>{formatCurrency(Number(doc.total))}</span>
               </div>
               {config.hasPayments && doc.payments?.length > 0 && (
                 <>
                   <div className="flex justify-between text-green-600 dark:text-green-400">
-                    <span>Paid</span>
+                    <span>{t('paidLabel')}</span>
                     <span>-{formatCurrency(totalPaid)}</span>
                   </div>
                   <div className="flex justify-between border-t pt-2 font-bold">
-                    <span>Outstanding</span>
+                    <span>{t('outstanding')}</span>
                     <span className={outstanding > 0 ? 'text-red-600 dark:text-red-400' : ''}>
                       {formatCurrency(outstanding)}
                     </span>
@@ -209,9 +229,9 @@ export function DocumentDetail({ doc, config }: DocumentDetailProps) {
           {/* Payments section */}
           {config.hasPayments && (
             <div className="rounded-xl border bg-card p-6">
-              <h2 className="mb-4 font-semibold">Payments</h2>
+              <h2 className="mb-4 font-semibold">{t('payments')}</h2>
               {(!doc.payments || doc.payments.length === 0) ? (
-                <p className="text-sm text-muted-foreground">No payments recorded yet.</p>
+                <p className="text-sm text-muted-foreground">{t('noPaymentsYet')}</p>
               ) : (
                 <div className="space-y-3">
                   {doc.payments.map((payment: any) => (
@@ -240,7 +260,7 @@ export function DocumentDetail({ doc, config }: DocumentDetailProps) {
           {doc.contact && (
             <div className="rounded-xl border bg-card p-6">
               <h2 className="mb-4 font-semibold">
-                {config.contactFilter === 'vendor' ? 'Vendor' : 'Customer'}
+                {config.contactFilter === 'vendor' ? t('vendor') : t('customer')}
               </h2>
               <div className="space-y-1 text-sm">
                 <p className="font-medium">{doc.contact.name}</p>
@@ -251,7 +271,7 @@ export function DocumentDetail({ doc, config }: DocumentDetailProps) {
                 )}
               </div>
               <Link href={`/contacts/${doc.contact.id}`} className="mt-3 inline-block text-sm text-primary hover:underline">
-                View contact
+                {t('viewContact')}
               </Link>
             </div>
           )}

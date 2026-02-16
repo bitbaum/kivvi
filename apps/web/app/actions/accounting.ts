@@ -89,9 +89,7 @@ export async function createJournalEntryAction(input: unknown): Promise<ActionRe
     if (!parsed.success) {
       return { success: false, error: parsed.error.errors[0]?.message || 'Invalid input' };
     }
-    const entry = await db.transaction(async (tx) => {
-      return createJournalEntry(tx, companyId, userId, parsed.data);
-    });
+    const entry = await createJournalEntry(db, companyId, userId, parsed.data);
     revalidatePath('/accounting/journal');
     return { success: true, data: entry };
   } catch (error) {
@@ -121,9 +119,7 @@ export async function createFiscalYearAction(input: unknown): Promise<ActionResu
     if (!parsed.success) {
       return { success: false, error: parsed.error.errors[0]?.message || 'Invalid input' };
     }
-    const year = await db.transaction(async (tx) => {
-      return createFiscalYear(tx, companyId, parsed.data);
-    });
+    const year = await createFiscalYear(db, companyId, parsed.data);
     revalidatePath('/accounting/fiscal-years');
     return { success: true, data: year };
   } catch (error) {
@@ -145,9 +141,7 @@ export async function closeFiscalPeriodAction(periodId: string): Promise<ActionR
 export async function closeFiscalYearAction(yearId: string): Promise<ActionResult> {
   try {
     const { companyId } = await getSession();
-    const year = await db.transaction(async (tx) => {
-      return closeFiscalYear(tx, companyId, yearId);
-    });
+    const year = await closeFiscalYear(db, companyId, yearId);
     revalidatePath('/accounting/fiscal-years');
     return { success: true, data: year };
   } catch (error) {

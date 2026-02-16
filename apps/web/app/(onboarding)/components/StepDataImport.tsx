@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { Database, Rocket, Upload, Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { detectMappingProfile, applyMapping, applyTransform, isSubtotalRow } from '@kivvi/core/src/domain/import-mappings';
 import type { MappingProfile, MappingField } from '@kivvi/core/src/domain/import-mappings';
 import { executeImportAction, completeOnboardingAction } from '@/app/actions/onboarding';
@@ -64,6 +65,8 @@ interface PendingImport {
 }
 
 export function StepDataImport({ onComplete }: StepDataImportProps) {
+  const t = useTranslations('onboarding');
+  const tc = useTranslations('common');
   const [mode, setMode] = useState<ImportMode>('choice');
   const [pendingImports, setPendingImports] = useState<Map<string, PendingImport>>(new Map());
   const [importStatuses, setImportStatuses] = useState<ImportStatus[]>([]);
@@ -208,10 +211,10 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
         <div className="mb-6">
           <div className="mb-2 flex items-center gap-2">
             <Database className="h-5 w-5 text-primary" />
-            <h2 className="text-xl font-semibold">Data Import</h2>
+            <h2 className="text-xl font-semibold">{t('dataImport')}</h2>
           </div>
           <p className="text-sm text-muted-foreground">
-            Would you like to import data from a previous system, or start fresh?
+            {t('importDataQuestion')}
           </p>
         </div>
 
@@ -228,9 +231,9 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
           >
             <Upload className="h-10 w-10 text-muted-foreground" />
             <div>
-              <div className="font-semibold">Import data</div>
+              <div className="font-semibold">{t('importData')}</div>
               <div className="mt-1 text-sm text-muted-foreground">
-                Upload CSV files from kivitendo or another system
+                {t('importDataDesc')}
               </div>
             </div>
           </button>
@@ -246,9 +249,9 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
               <Rocket className="h-10 w-10 text-muted-foreground" />
             )}
             <div>
-              <div className="font-semibold">Start fresh</div>
+              <div className="font-semibold">{t('startFresh')}</div>
               <div className="mt-1 text-sm text-muted-foreground">
-                Begin with an empty system, add data manually later
+                {t('startFreshDesc')}
               </div>
             </div>
           </button>
@@ -264,10 +267,10 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
         <div className="mb-6">
           <div className="mb-2 flex items-center gap-2">
             <Database className="h-5 w-5 text-primary" />
-            <h2 className="text-xl font-semibold">Import Data</h2>
+            <h2 className="text-xl font-semibold">{t('importData')}</h2>
           </div>
           <p className="text-sm text-muted-foreground">
-            Upload CSV files for each data type. Import order is enforced (contacts first, then products, then documents).
+            {t('importOrder')}
           </p>
         </div>
 
@@ -321,8 +324,7 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
 
                         {pending && !pending.confirmed && !pending.profile && (
                           <div className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
-                            Could not auto-detect column mapping for this file.
-                            The CSV headers don&apos;t match any known format.
+                            {t('noAutoDetect')}
                           </div>
                         )}
 
@@ -330,7 +332,7 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
                           <div>
                             <div className="mb-2 flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
                               <span className="inline-block h-2 w-2 rounded-full bg-green-500" />
-                              Ready to import ({pending.mappedRows.length} rows)
+                              {t('readyToImport', { count: pending.mappedRows.length })}
                             </div>
                             <ImportPreview rows={pending.mappedRows} maxRows={3} />
                           </div>
@@ -355,7 +357,7 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
             disabled={isImporting}
             className="rounded-lg border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
           >
-            Back
+            {t('back')}
           </button>
 
           <div className="flex gap-3">
@@ -366,7 +368,7 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
                 className="flex items-center gap-2 rounded-lg bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
               >
                 {isImporting && <Loader2 className="h-4 w-4 animate-spin" />}
-                Import {confirmedCount} {confirmedCount === 1 ? 'file' : 'files'}
+                {t('importFiles', { count: confirmedCount })}
               </button>
             )}
 
@@ -377,7 +379,7 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
                 className="flex items-center gap-2 rounded-lg bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
               >
                 {isCompleting && <Loader2 className="h-4 w-4 animate-spin" />}
-                Complete setup
+                {t('completeSetup')}
               </button>
             )}
 
@@ -387,7 +389,7 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
                 disabled={isCompleting}
                 className="rounded-lg border px-5 py-2 text-sm font-medium hover:bg-muted/50 disabled:opacity-50"
               >
-                {isCompleting ? 'Completing...' : 'Skip & finish'}
+                {isCompleting ? t('completing') : t('skipAndFinish')}
               </button>
             )}
           </div>

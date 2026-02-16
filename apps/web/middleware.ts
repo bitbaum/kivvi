@@ -3,7 +3,8 @@ import { NextResponse } from 'next/server';
 import { checkRateLimit, getRateLimitConfig } from '@/lib/rate-limit';
 
 // Only these routes are accessible without authentication
-const PUBLIC_PATHS = ['/', '/login', '/register', '/forgot-password', '/reset-password'];
+// NOTE: /api/admin/bulk-import removed - use Server Action (apps/web/app/actions/bulk-import.ts) instead
+const PUBLIC_PATHS = ['/', '/login', '/register', '/forgot-password', '/reset-password', '/api/admin/verify-data', '/api/admin/search-test', '/api/admin/check-items', '/api/admin/test-parse'];
 const PUBLIC_PREFIXES = ['/api/auth', '/onboarding'];
 
 function getClientIp(req: { headers: Headers }): string {

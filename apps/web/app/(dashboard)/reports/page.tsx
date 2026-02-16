@@ -9,66 +9,64 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { auth } from '@/lib/auth';
-
-const REPORT_CARDS = [
-  {
-    href: '/reports/profit-loss',
-    icon: TrendingUp,
-    title: 'Profit & Loss',
-    subtitle: 'Erfolgsrechnung',
-    description: 'Revenue and expense summary',
-    color: 'text-green-600 dark:text-green-400',
-    bgColor: 'bg-green-100 dark:bg-green-900/30',
-  },
-  {
-    href: '/reports/balance-sheet',
-    icon: Scale,
-    title: 'Balance Sheet',
-    subtitle: 'Bilanz',
-    description: 'Assets, liabilities, and equity',
-    color: 'text-blue-600 dark:text-blue-400',
-    bgColor: 'bg-blue-100 dark:bg-blue-900/30',
-  },
-  {
-    href: '/reports/vat',
-    icon: Receipt,
-    title: 'VAT Report',
-    subtitle: 'MWST-Abrechnung',
-    description: 'VAT summary for tax filing',
-    color: 'text-purple-600 dark:text-purple-400',
-    bgColor: 'bg-purple-100 dark:bg-purple-900/30',
-  },
-  {
-    href: '/reports/aging',
-    icon: Clock,
-    title: 'Aging Report',
-    subtitle: 'Altersanalyse',
-    description: 'Outstanding receivables by age',
-    color: 'text-amber-600 dark:text-amber-400',
-    bgColor: 'bg-amber-100 dark:bg-amber-900/30',
-  },
-  {
-    href: '/reports/sales',
-    icon: BarChart3,
-    title: 'Sales Report',
-    subtitle: 'Umsatzbericht',
-    description: 'Monthly sales breakdown',
-    color: 'text-red-600 dark:text-red-400',
-    bgColor: 'bg-red-100 dark:bg-red-900/30',
-  },
-] as const;
+import { getTranslations } from 'next-intl/server';
 
 export default async function ReportsPage() {
   const session = await auth();
   if (!session?.user?.companyId) redirect('/login');
 
+  const t = await getTranslations('reports');
+
+  const REPORT_CARDS = [
+    {
+      href: '/reports/profit-loss',
+      icon: TrendingUp,
+      title: t('profitAndLoss'),
+      description: t('profitAndLossDesc'),
+      color: 'text-green-600 dark:text-green-400',
+      bgColor: 'bg-green-100 dark:bg-green-900/30',
+    },
+    {
+      href: '/reports/balance-sheet',
+      icon: Scale,
+      title: t('balanceSheet'),
+      description: t('balanceSheetDesc'),
+      color: 'text-blue-600 dark:text-blue-400',
+      bgColor: 'bg-blue-100 dark:bg-blue-900/30',
+    },
+    {
+      href: '/reports/vat',
+      icon: Receipt,
+      title: t('vatReport'),
+      description: t('vatReportDesc'),
+      color: 'text-purple-600 dark:text-purple-400',
+      bgColor: 'bg-purple-100 dark:bg-purple-900/30',
+    },
+    {
+      href: '/reports/aging',
+      icon: Clock,
+      title: t('agingReport'),
+      description: t('agingReportDesc'),
+      color: 'text-amber-600 dark:text-amber-400',
+      bgColor: 'bg-amber-100 dark:bg-amber-900/30',
+    },
+    {
+      href: '/reports/sales',
+      icon: BarChart3,
+      title: t('salesReport'),
+      description: t('salesReportDesc'),
+      color: 'text-red-600 dark:text-red-400',
+      bgColor: 'bg-red-100 dark:bg-red-900/30',
+    },
+  ] as const;
+
   return (
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Reports</h1>
+        <h1 className="text-3xl font-bold">{t('title')}</h1>
         <p className="text-muted-foreground">
-          Financial reports and analytics for your business.
+          {t('subtitle')}
         </p>
       </div>
 
@@ -88,7 +86,6 @@ export default async function ReportsPage() {
                 <h3 className="font-semibold group-hover:text-primary transition-colors">
                   {card.title}
                 </h3>
-                <p className="text-xs text-muted-foreground">{card.subtitle}</p>
                 <p className="mt-2 text-sm text-muted-foreground">
                   {card.description}
                 </p>

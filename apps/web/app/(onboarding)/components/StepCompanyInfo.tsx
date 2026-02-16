@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Loader2, Building2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { updateCompanyInfoAction } from '@/app/actions/onboarding';
 
 interface StepCompanyInfoProps {
@@ -10,6 +11,9 @@ interface StepCompanyInfoProps {
 }
 
 export function StepCompanyInfo({ companyData, onComplete }: StepCompanyInfoProps) {
+  const t = useTranslations('onboarding');
+  const ts = useTranslations('settings');
+  const tc = useTranslations('common');
   const [formData, setFormData] = useState({
     name: companyData?.name || '',
     legalName: companyData?.legalName || '',
@@ -45,7 +49,7 @@ export function StepCompanyInfo({ companyData, onComplete }: StepCompanyInfoProp
       <div className="mb-6">
         <div className="mb-2 flex items-center gap-2">
           <Building2 className="h-5 w-5 text-primary" />
-          <h2 className="text-xl font-semibold">Company Information</h2>
+          <h2 className="text-xl font-semibold">{t('step1Title')}</h2>
         </div>
         <p className="text-sm text-muted-foreground">
           Tell us about your company. This information will appear on invoices and documents.
@@ -62,7 +66,7 @@ export function StepCompanyInfo({ companyData, onComplete }: StepCompanyInfoProp
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
-              Company name *
+              {t('companyName')} *
             </label>
             <input
               id="name"
@@ -77,7 +81,7 @@ export function StepCompanyInfo({ companyData, onComplete }: StepCompanyInfoProp
 
           <div className="sm:col-span-2">
             <label htmlFor="legalName" className="mb-1.5 block text-sm font-medium">
-              Legal name
+              {ts('company.legalName')}
             </label>
             <input
               id="legalName"
@@ -92,7 +96,7 @@ export function StepCompanyInfo({ companyData, onComplete }: StepCompanyInfoProp
 
           <div className="sm:col-span-2">
             <label htmlFor="address" className="mb-1.5 block text-sm font-medium">
-              Address
+              {t('companyAddress')}
             </label>
             <input
               id="address"
@@ -155,7 +159,7 @@ export function StepCompanyInfo({ companyData, onComplete }: StepCompanyInfoProp
 
           <div>
             <label htmlFor="vatNumber" className="mb-1.5 block text-sm font-medium">
-              VAT number
+              {t('vatNumber')}
             </label>
             <input
               id="vatNumber"
@@ -176,7 +180,7 @@ export function StepCompanyInfo({ companyData, onComplete }: StepCompanyInfoProp
             className="flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
             {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-            {isLoading ? 'Saving...' : 'Continue'}
+            {isLoading ? tc('saving') : tc('next')}
           </button>
         </div>
       </form>

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import Decimal from 'decimal.js';
 import { eq, and, asc, desc, sql } from 'drizzle-orm';
 import {
   bankAccounts,
@@ -218,7 +219,10 @@ export async function importTransactions(
     await db
       .update(bankAccounts)
       .set({ balance: lastBalance, lastSyncAt: new Date() })
-      .where(eq(bankAccounts.id, bankAccountId));
+      .where(and(
+        eq(bankAccounts.id, bankAccountId),
+        eq(bankAccounts.companyId, companyId)
+      ));
   }
 
   return { imported: values.length };
@@ -263,7 +267,7 @@ export async function reconcileTransaction(
 
   // Auto-record payment (idempotent — skips if bankTransactionId already used)
   try {
-    const txnAmount = Math.abs(parseFloat(txn.transaction.amount));
+    const txnAmount = new Decimal(txn.transaction.amount).abs();
     await recordPayment(db, companyId, documentId, {
       amount: txnAmount.toFixed(2),
       date: txn.transaction.date.toISOString().split('T')[0],
@@ -346,7 +350,7 @@ export async function autoMatchTransactions(
   let matched = 0;
 
   for (const txn of unreconciledTxns) {
-    const txnAmount = parseFloat(txn.amount);
+    const txnAmount = new Decimal(txn.amount);
 
     // Try matching by QR reference
     if (txn.reference) {
@@ -362,7 +366,7 @@ export async function autoMatchTransactions(
 
     // Try matching by exact amount
     const matchByAmount = openInvoices.find(
-      (inv) => Math.abs(parseFloat(inv.total!) - txnAmount) < 0.01
+      (inv) => new Decimal(inv.total!).minus(txnAmount).abs().lt('0.01')
     );
     if (matchByAmount) {
       await reconcileTransaction(db, companyId, txn.id, matchByAmount.id);

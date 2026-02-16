@@ -1,6 +1,6 @@
-// @ts-nocheck
 import { z } from 'zod';
 import type { Tool, ExecutionContext, ToolResult } from '../types';
+import { getContact } from '@kivvi/core';
 
 const getCustomerDetailsSchema = z.object({
   customerId: z.string().uuid().describe('The UUID of the customer/contact to retrieve'),
@@ -12,36 +12,23 @@ export const getCustomerDetailsTool: Tool = {
   parameters: getCustomerDetailsSchema,
   execute: async (params: z.infer<typeof getCustomerDetailsSchema>, context: ExecutionContext): Promise<ToolResult> => {
     try {
-      const { createDb, contacts, documents } = await import('@kivvi/database');
-      const { eq, and, desc } = await import('drizzle-orm');
+      const db = context.db as any;
 
-      const db = createDb(process.env.DATABASE_URL!);
+      const result = await getContact(db, context.companyId, params.customerId);
 
-      const contact = await db.query.contacts.findFirst({
-        where: and(
-          eq(contacts.id, params.customerId),
-          eq(contacts.companyId, context.companyId)
-        ),
-        with: {
-          documents: {
-            orderBy: [desc(documents.issueDate)],
-            limit: 10,
-          },
-          addresses: true,
-        },
-      });
-
-      if (!contact) {
+      if (!result) {
         return {
           success: false,
           error: 'Customer not found or you do not have access.',
         };
       }
 
-      const invoices = contact.documents.filter((d) => d.type === 'invoice');
-      const totalRevenue = invoices.reduce((sum, inv) => sum + Number(inv.total), 0);
-      const unpaidInvoices = invoices.filter((inv) => inv.status !== 'paid' && inv.status !== 'cancelled');
-      const overdueInvoices = unpaidInvoices.filter((inv) => inv.dueDate && new Date(inv.dueDate) < new Date());
+      const { contact, addresses, recentDocuments } = result;
+
+      const invoices = recentDocuments.filter((d: any) => d.type === 'invoice');
+      const totalRevenue = invoices.reduce((sum: number, inv: any) => sum + Number(inv.total), 0);
+      const unpaidInvoices = invoices.filter((inv: any) => inv.status !== 'paid' && inv.status !== 'cancelled');
+      const overdueInvoices = unpaidInvoices.filter((inv: any) => inv.issueDate && new Date(inv.issueDate) < new Date());
 
       return {
         success: true,
@@ -65,7 +52,7 @@ export const getCustomerDetailsTool: Tool = {
             postalCode: contact.postalCode,
             country: contact.country,
           },
-          additionalAddresses: contact.addresses.map((a) => ({
+          additionalAddresses: addresses.map((a: any) => ({
             type: a.type,
             name: a.name,
             address: a.address,
@@ -85,13 +72,13 @@ export const getCustomerDetailsTool: Tool = {
             unpaidCount: unpaidInvoices.length,
             overdueCount: overdueInvoices.length,
           },
-          recentDocuments: contact.documents.slice(0, 5).map((doc) => ({
+          recentDocuments: recentDocuments.slice(0, 5).map((doc: any) => ({
             id: doc.id,
             number: doc.number,
             type: doc.type,
             status: doc.status,
             date: doc.issueDate.toISOString().split('T')[0],
-            total: `${doc.currency} ${Number(doc.total).toFixed(2)}`,
+            total: `${context.defaultCurrency} ${Number(doc.total).toFixed(2)}`,
           })),
           notes: contact.notes,
           language: contact.language,

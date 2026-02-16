@@ -8,14 +8,7 @@ import { cn } from '@/lib/utils';
 import { SeedButton } from './seed-button';
 import { AccountForm } from './account-form';
 import { ToggleButton } from './toggle-button';
-
-const TYPE_LABELS: Record<string, string> = {
-  asset: 'Asset',
-  liability: 'Liability',
-  equity: 'Equity',
-  revenue: 'Revenue',
-  expense: 'Expense',
-};
+import { getTranslations } from 'next-intl/server';
 
 const TYPE_STYLES: Record<string, string> = {
   asset: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
@@ -24,15 +17,6 @@ const TYPE_STYLES: Record<string, string> = {
   revenue: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
   expense: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
 };
-
-const TYPE_FILTER_OPTIONS = [
-  { label: 'All', value: '' },
-  { label: 'Assets', value: 'asset' },
-  { label: 'Liabilities', value: 'liability' },
-  { label: 'Equity', value: 'equity' },
-  { label: 'Revenue', value: 'revenue' },
-  { label: 'Expenses', value: 'expense' },
-] as const;
 
 interface PageProps {
   searchParams: Promise<{
@@ -46,6 +30,26 @@ interface PageProps {
 export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
   const session = await auth();
   if (!session?.user?.companyId) redirect('/login');
+
+  const t = await getTranslations('accounting');
+  const tc = await getTranslations('common');
+
+  const TYPE_LABELS: Record<string, string> = {
+    asset: t('assets'),
+    liability: t('liabilities'),
+    equity: t('equity'),
+    revenue: t('revenue'),
+    expense: t('expenses'),
+  };
+
+  const TYPE_FILTER_OPTIONS = [
+    { label: tc('all'), value: '' },
+    { label: t('assets'), value: 'asset' },
+    { label: t('liabilities'), value: 'liability' },
+    { label: t('equity'), value: 'equity' },
+    { label: t('revenue'), value: 'revenue' },
+    { label: t('expenses'), value: 'expense' },
+  ] as const;
 
   const params = await searchParams;
   const typeFilter = params.type;
@@ -77,10 +81,10 @@ export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div>
-            <h1 className="text-3xl font-bold">Chart of Accounts</h1>
+            <h1 className="text-3xl font-bold">{t('chartOfAccounts')}</h1>
             <p className="text-muted-foreground">
               {isEmpty
-                ? 'Set up your chart of accounts to get started.'
+                ? t('noAccounts')
                 : `${allAccounts.length} accounts configured`}
             </p>
           </div>
@@ -92,7 +96,7 @@ export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
           >
             <Plus className="h-4 w-4" />
-            Add Account
+            {t('addAccount')}
           </Link>
         </div>
       </div>
@@ -110,10 +114,9 @@ export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
         <div className="rounded-xl border bg-card">
           <div className="flex flex-col items-center justify-center py-16">
             <BookOpen className="h-12 w-12 text-muted-foreground/50" />
-            <h3 className="mt-4 text-lg font-medium">No accounts yet</h3>
+            <h3 className="mt-4 text-lg font-medium">{t('noAccounts')}</h3>
             <p className="mt-1 max-w-md text-center text-sm text-muted-foreground">
-              Start by seeding the Swiss KMU Kontenrahmen for a standard chart of
-              accounts, or add accounts manually.
+              {t('seedConfirm')}
             </p>
             <div className="mt-6 flex items-center gap-3">
               <SeedButton />
@@ -122,7 +125,7 @@ export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
                 className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted transition-colors"
               >
                 <Plus className="h-4 w-4" />
-                Add Manually
+                {t('addAccount')}
               </Link>
             </div>
           </div>
@@ -141,7 +144,7 @@ export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
               <input
                 type="text"
                 name="search"
-                placeholder="Search by code or name..."
+                placeholder={t('searchAccounts')}
                 defaultValue={search}
                 className="w-full rounded-lg border bg-background py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
@@ -182,20 +185,20 @@ export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
             {accounts.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16">
                 <BookOpen className="h-12 w-12 text-muted-foreground/50" />
-                <h3 className="mt-4 text-lg font-medium">No accounts found</h3>
+                <h3 className="mt-4 text-lg font-medium">{tc('noResults')}</h3>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Try adjusting your search or filters.
+                  {t('searchAccounts')}
                 </p>
               </div>
             ) : (
               <>
                 {/* Table header */}
                 <div className="grid grid-cols-[80px_1fr_auto_auto_auto] gap-4 border-b px-6 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  <div>Code</div>
-                  <div>Name</div>
-                  <div>Type</div>
-                  <div className="text-center">Status</div>
-                  <div className="text-right">Actions</div>
+                  <div>{t('accountCode')}</div>
+                  <div>{tc('name')}</div>
+                  <div>{tc('type')}</div>
+                  <div className="text-center">{tc('status')}</div>
+                  <div className="text-right">{tc('edit')}</div>
                 </div>
 
                 {/* Table rows */}
@@ -244,7 +247,7 @@ export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
                                 : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
                             )}
                           >
-                            {account.isActive ? 'Active' : 'Inactive'}
+                            {account.isActive ? tc('active') : tc('inactive')}
                           </span>
                         </div>
                         <div className="flex items-center justify-end gap-2">
@@ -260,7 +263,7 @@ export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
                             }
                             className="rounded-md px-2.5 py-1 text-xs font-medium text-primary hover:bg-primary/10 transition-colors"
                           >
-                            {isEditing ? 'Cancel' : 'Edit'}
+                            {isEditing ? tc('cancel') : tc('edit')}
                           </Link>
                         </div>
                       </div>

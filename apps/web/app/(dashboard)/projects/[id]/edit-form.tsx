@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ChevronDown, ChevronUp, Loader2, Pencil } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { updateProjectAction } from '@/app/actions/projects';
 import { cn } from '@/lib/utils';
 
@@ -28,6 +29,8 @@ interface ProjectEditFormProps {
 
 export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps) {
   const router = useRouter();
+  const t = useTranslations('projects');
+  const tc = useTranslations('common');
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,7 +50,7 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
         contactId: (formData.get('contactId') as string) || undefined,
         status: formData.get('status') as string,
         budget: formData.get('budget')
-          ? parseFloat(formData.get('budget') as string)
+          ? Number(formData.get('budget') as string)
           : undefined,
         startDate: (formData.get('startDate') as string) || undefined,
         endDate: (formData.get('endDate') as string) || undefined,
@@ -80,7 +83,7 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
       >
         <span className="flex items-center gap-2 font-semibold">
           <Pencil className="h-4 w-4 text-muted-foreground" />
-          Edit Project
+          {t('editProject')}
         </span>
         {isOpen ? (
           <ChevronUp className="h-4 w-4 text-muted-foreground" />
@@ -101,7 +104,7 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
           {/* Success banner */}
           {success && (
             <div className="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800 dark:border-green-900/50 dark:bg-green-900/20 dark:text-green-400">
-              Project updated successfully.
+              {tc('saveChanges')}
             </div>
           )}
 
@@ -110,7 +113,7 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
               {/* Name */}
               <div className="sm:col-span-2">
                 <label htmlFor="edit-name" className="mb-1.5 block text-sm font-medium">
-                  Project Name <span className="text-destructive">*</span>
+                  {t('projectName')} <span className="text-destructive">*</span>
                 </label>
                 <input
                   type="text"
@@ -126,7 +129,7 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
               {/* Description */}
               <div className="sm:col-span-2">
                 <label htmlFor="edit-description" className="mb-1.5 block text-sm font-medium">
-                  Description
+                  {tc('description')}
                 </label>
                 <textarea
                   id="edit-description"
@@ -141,7 +144,7 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
               {/* Status */}
               <div>
                 <label htmlFor="edit-status" className="mb-1.5 block text-sm font-medium">
-                  Status
+                  {tc('status')}
                 </label>
                 <select
                   id="edit-status"
@@ -160,7 +163,7 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
               {/* Budget */}
               <div>
                 <label htmlFor="edit-budget" className="mb-1.5 block text-sm font-medium">
-                  Budget (CHF)
+                  {t('budget')} (CHF)
                 </label>
                 <input
                   type="number"
@@ -190,7 +193,7 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
               {/* Start Date */}
               <div>
                 <label htmlFor="edit-startDate" className="mb-1.5 block text-sm font-medium">
-                  Start Date
+                  {t('startDate')}
                 </label>
                 <input
                   type="date"
@@ -204,7 +207,7 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
               {/* End Date */}
               <div>
                 <label htmlFor="edit-endDate" className="mb-1.5 block text-sm font-medium">
-                  End Date
+                  {t('endDate')}
                 </label>
                 <input
                   type="date"
@@ -223,7 +226,7 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
                 onClick={() => setIsOpen(false)}
                 className="rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted transition-colors"
               >
-                Cancel
+                {tc('cancel')}
               </button>
               <button
                 type="submit"
@@ -234,7 +237,7 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
                 )}
               >
                 {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-                {isSubmitting ? 'Saving...' : 'Save Changes'}
+                {isSubmitting ? tc('saving') : tc('saveChanges')}
               </button>
             </div>
           </form>

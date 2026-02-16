@@ -10,15 +10,8 @@ import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { listStockMovements, listWarehouses } from '@kivvi/core';
 import { formatDate, cn } from '@/lib/utils';
+import { getTranslations } from 'next-intl/server';
 import { RecordMovementForm } from './record-movement-form';
-
-const TYPE_LABELS: Record<string, string> = {
-  purchase: 'Purchase',
-  sale: 'Sale',
-  adjustment: 'Adjustment',
-  transfer: 'Transfer',
-  return: 'Return',
-};
 
 const TYPE_STYLES: Record<string, string> = {
   purchase: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
@@ -39,6 +32,17 @@ interface PageProps {
 export default async function MovementsPage({ searchParams }: PageProps) {
   const session = await auth();
   if (!session?.user?.companyId) redirect('/login');
+
+  const t = await getTranslations('inventory');
+  const tc = await getTranslations('common');
+
+  const TYPE_LABELS: Record<string, string> = {
+    purchase: t('purchase'),
+    sale: t('sale'),
+    adjustment: t('adjustment'),
+    transfer: t('transfer'),
+    return: t('movementType'),
+  };
 
   const params = await searchParams;
   const warehouseFilter = params.warehouseId;
@@ -64,14 +68,14 @@ export default async function MovementsPage({ searchParams }: PageProps) {
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Inventory
+          {tc('back')}
         </Link>
 
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Stock Movements</h1>
+            <h1 className="text-3xl font-bold">{t('stockMovements')}</h1>
             <p className="text-muted-foreground">
-              Track all inventory movements across warehouses.
+              {t('subtitle')}
             </p>
           </div>
           <RecordMovementForm warehouses={warehouses} />
@@ -82,12 +86,12 @@ export default async function MovementsPage({ searchParams }: PageProps) {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         {/* Warehouse filter */}
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-muted-foreground">Warehouse:</label>
+          <label className="text-sm font-medium text-muted-foreground">{t('warehouses')}:</label>
           <div className="flex items-center gap-1 rounded-lg border bg-card p-1">
             <FilterLink
               href={buildFilterUrl({ type: typeFilter })}
               active={!warehouseFilter}
-              label="All"
+              label={tc('all')}
             />
             {warehouses.map((wh) => (
               <FilterLink
@@ -102,12 +106,12 @@ export default async function MovementsPage({ searchParams }: PageProps) {
 
         {/* Type filter */}
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-muted-foreground">Type:</label>
+          <label className="text-sm font-medium text-muted-foreground">{tc('type')}:</label>
           <div className="flex items-center gap-1 rounded-lg border bg-card p-1">
             <FilterLink
               href={buildFilterUrl({ warehouseId: warehouseFilter })}
               active={!typeFilter}
-              label="All"
+              label={tc('all')}
             />
             {Object.entries(TYPE_LABELS).map(([value, label]) => (
               <FilterLink
@@ -126,7 +130,7 @@ export default async function MovementsPage({ searchParams }: PageProps) {
         {movements.data.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
             <ArrowUpDown className="h-12 w-12 text-muted-foreground/50" />
-            <h3 className="mt-4 text-lg font-medium">No movements found</h3>
+            <h3 className="mt-4 text-lg font-medium">{t('noMovements')}</h3>
             <p className="mt-1 text-sm text-muted-foreground">
               {warehouseFilter || typeFilter
                 ? 'Try adjusting your filters.'
@@ -139,17 +143,17 @@ export default async function MovementsPage({ searchParams }: PageProps) {
               <table className="w-full">
                 <thead>
                   <tr className="border-b text-left text-sm text-muted-foreground">
-                    <th className="whitespace-nowrap px-4 py-3 font-medium">Date</th>
-                    <th className="whitespace-nowrap px-4 py-3 font-medium">Product</th>
-                    <th className="whitespace-nowrap px-4 py-3 font-medium">Warehouse</th>
-                    <th className="whitespace-nowrap px-4 py-3 font-medium">Type</th>
-                    <th className="whitespace-nowrap px-4 py-3 font-medium text-right">Quantity</th>
-                    <th className="whitespace-nowrap px-4 py-3 font-medium">Reference</th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">{tc('date')}</th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">{tc('name')}</th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">{t('warehouses')}</th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">{tc('type')}</th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium text-right">{tc('amount')}</th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">{tc('number')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
                   {movements.data.map((movement) => {
-                    const qty = parseFloat(movement.quantity);
+                    const qty = Number(movement.quantity);
                     const isPositive = movement.type === 'purchase' || movement.type === 'return';
 
                     return (
@@ -215,12 +219,12 @@ export default async function MovementsPage({ searchParams }: PageProps) {
                       className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm hover:bg-muted transition-colors"
                     >
                       <ChevronLeft className="h-4 w-4" />
-                      Previous
+                      {tc('previous')}
                     </Link>
                   ) : (
                     <span className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm text-muted-foreground opacity-50">
                       <ChevronLeft className="h-4 w-4" />
-                      Previous
+                      {tc('previous')}
                     </span>
                   )}
 
@@ -237,12 +241,12 @@ export default async function MovementsPage({ searchParams }: PageProps) {
                       })}
                       className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm hover:bg-muted transition-colors"
                     >
-                      Next
+                      {tc('next')}
                       <ChevronRight className="h-4 w-4" />
                     </Link>
                   ) : (
                     <span className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm text-muted-foreground opacity-50">
-                      Next
+                      {tc('next')}
                       <ChevronRight className="h-4 w-4" />
                     </span>
                   )}

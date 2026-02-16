@@ -1,3 +1,4 @@
+import Decimal from 'decimal.js';
 import type { Database } from '@kivvi/database';
 import { createAutoJournalEntry } from './accounting';
 
@@ -40,14 +41,13 @@ export async function createInvoiceSentJournalEntry(
   doc: { id: string; number: string; total: string; vatAmount: string; subtotal: string; issueDate: Date }
 ) {
   const { debitAccount, revenueAccount, vatAccount } = ACCOUNT_MAPPINGS.invoiceSent;
-  const vatAmount = parseFloat(doc.vatAmount);
 
   const lines: Array<{ accountCode: string; debit?: string; credit?: string; description?: string }> = [
     { accountCode: debitAccount, debit: doc.total, description: `Invoice ${doc.number}` },
     { accountCode: revenueAccount, credit: doc.subtotal, description: `Revenue ${doc.number}` },
   ];
 
-  if (vatAmount > 0) {
+  if (new Decimal(doc.vatAmount).gt(0)) {
     lines.push({
       accountCode: vatAccount,
       credit: doc.vatAmount,
@@ -101,14 +101,13 @@ export async function createPurchaseInvoiceJournalEntry(
   doc: { id: string; number: string; total: string; vatAmount: string; subtotal: string; issueDate: Date }
 ) {
   const { expenseAccount, creditAccount, vatAccount } = ACCOUNT_MAPPINGS.purchaseInvoiceConfirmed;
-  const vatAmount = parseFloat(doc.vatAmount);
 
   const lines: Array<{ accountCode: string; debit?: string; credit?: string; description?: string }> = [
     { accountCode: expenseAccount, debit: doc.subtotal, description: `Purchase ${doc.number}` },
     { accountCode: creditAccount, credit: doc.total, description: `Purchase ${doc.number}` },
   ];
 
-  if (vatAmount > 0) {
+  if (new Decimal(doc.vatAmount).gt(0)) {
     lines.push({
       accountCode: vatAccount,
       debit: doc.vatAmount,

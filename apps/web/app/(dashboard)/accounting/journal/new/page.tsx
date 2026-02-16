@@ -1,10 +1,12 @@
 'use client';
 
+import Decimal from 'decimal.js';
 import { useState, useEffect, useTransition, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Plus, Trash2, Search, AlertCircle } from 'lucide-react';
 import { createJournalEntryAction } from '@/app/actions/accounting';
+import { useTranslations } from 'next-intl';
 
 interface Account {
   id: string;
@@ -35,6 +37,8 @@ export default function NewJournalEntryPage() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const t = useTranslations('accounting');
+  const tc = useTranslations('common');
 
   // Accounts data
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -104,10 +108,10 @@ export default function NewJournalEntryPage() {
   };
 
   // Totals
-  const totalDebits = lines.reduce((sum, l) => sum + (parseFloat(l.debit) || 0), 0);
-  const totalCredits = lines.reduce((sum, l) => sum + (parseFloat(l.credit) || 0), 0);
-  const isBalanced = Math.abs(totalDebits - totalCredits) < 0.005;
-  const hasAmounts = totalDebits > 0 || totalCredits > 0;
+  const totalDebits = lines.reduce((sum, l) => sum.plus(l.debit ? new Decimal(l.debit) : new Decimal(0)), new Decimal(0));
+  const totalCredits = lines.reduce((sum, l) => sum.plus(l.credit ? new Decimal(l.credit) : new Decimal(0)), new Decimal(0));
+  const isBalanced = totalDebits.minus(totalCredits).abs().lessThan(0.005);
+  const hasAmounts = totalDebits.greaterThan(0) || totalCredits.greaterThan(0);
 
   // Submit
   async function handleSubmit() {
@@ -160,8 +164,8 @@ export default function NewJournalEntryPage() {
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <div>
-          <h1 className="text-3xl font-bold">New Journal Entry</h1>
-          <p className="text-muted-foreground">Create a manual journal entry.</p>
+          <h1 className="text-3xl font-bold">{t('newJournalEntry')}</h1>
+          <p className="text-muted-foreground">{t('journalEntry')}</p>
         </div>
       </div>
 
@@ -172,7 +176,7 @@ export default function NewJournalEntryPage() {
           <div className="rounded-xl border bg-card p-6 space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium">Date</label>
+                <label className="block text-sm font-medium">{tc('date')}</label>
                 <input
                   type="date"
                   value={date}
@@ -181,7 +185,7 @@ export default function NewJournalEntryPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium">Reference</label>
+                <label className="block text-sm font-medium">{t('reference')}</label>
                 <input
                   type="text"
                   value={reference}
@@ -192,7 +196,7 @@ export default function NewJournalEntryPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium">Description</label>
+              <label className="block text-sm font-medium">{tc('description')}</label>
               <input
                 type="text"
                 value={description}
@@ -206,14 +210,14 @@ export default function NewJournalEntryPage() {
           {/* Line items */}
           <div className="rounded-xl border bg-card">
             <div className="flex items-center justify-between border-b p-4">
-              <h2 className="font-semibold">Journal Lines</h2>
+              <h2 className="font-semibold">{t('journalEntry')}</h2>
               <button
                 type="button"
                 onClick={addLine}
                 className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
               >
                 <Plus className="h-4 w-4" />
-                Add Line
+                {t('addLine')}
               </button>
             </div>
 
@@ -228,7 +232,7 @@ export default function NewJournalEntryPage() {
                       {/* Account picker */}
                       <div className="relative">
                         <label className="block text-xs text-muted-foreground">
-                          Account
+                          {t('account')}
                         </label>
                         <div className="relative mt-1">
                           {activeAccountPicker === line.id ? (
@@ -246,7 +250,7 @@ export default function NewJournalEntryPage() {
                                     setAccountSearch('');
                                   }, 200);
                                 }}
-                                placeholder="Search accounts..."
+                                placeholder={t('searchAccounts')}
                                 className="w-full rounded-lg border bg-background py-2 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary"
                               />
                               {filteredAccounts.length > 0 && (
@@ -282,7 +286,7 @@ export default function NewJournalEntryPage() {
                                 <span>{getAccountDisplay(line.accountId)}</span>
                               ) : (
                                 <span className="text-muted-foreground">
-                                  {accountsLoading ? 'Loading accounts...' : 'Select account...'}
+                                  {accountsLoading ? tc('loading') : t('account') + '...'}
                                 </span>
                               )}
                             </button>
@@ -293,7 +297,7 @@ export default function NewJournalEntryPage() {
                       <div className="grid grid-cols-3 gap-3">
                         <div>
                           <label className="block text-xs text-muted-foreground">
-                            Debit
+                            {t('debit')}
                           </label>
                           <input
                             type="number"
@@ -313,7 +317,7 @@ export default function NewJournalEntryPage() {
                         </div>
                         <div>
                           <label className="block text-xs text-muted-foreground">
-                            Credit
+                            {t('credit')}
                           </label>
                           <input
                             type="number"
@@ -333,7 +337,7 @@ export default function NewJournalEntryPage() {
                         </div>
                         <div>
                           <label className="block text-xs text-muted-foreground">
-                            Description
+                            {tc('description')}
                           </label>
                           <input
                             type="text"
@@ -366,18 +370,18 @@ export default function NewJournalEntryPage() {
         {/* Right: summary */}
         <div className="space-y-6">
           <div className="sticky top-6 rounded-xl border bg-card p-6">
-            <h2 className="mb-4 font-semibold">Summary</h2>
+            <h2 className="mb-4 font-semibold">{tc('total')}</h2>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Total Debits</span>
+                <span className="text-muted-foreground">{t('debit')}</span>
                 <span className="font-medium">CHF {totalDebits.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Total Credits</span>
+                <span className="text-muted-foreground">{t('credit')}</span>
                 <span className="font-medium">CHF {totalCredits.toFixed(2)}</span>
               </div>
               <div className="flex justify-between border-t pt-2">
-                <span className="text-muted-foreground">Difference</span>
+                <span className="text-muted-foreground">{t('difference')}</span>
                 <span
                   className={`font-bold ${
                     hasAmounts && !isBalanced
@@ -387,7 +391,7 @@ export default function NewJournalEntryPage() {
                         : ''
                   }`}
                 >
-                  CHF {Math.abs(totalDebits - totalCredits).toFixed(2)}
+                  CHF {totalDebits.minus(totalCredits).abs().toFixed(2)}
                 </span>
               </div>
             </div>
@@ -396,7 +400,7 @@ export default function NewJournalEntryPage() {
               <div className="mt-4 flex items-start gap-2 rounded-lg bg-red-50 p-3 dark:bg-red-900/20">
                 <AlertCircle className="h-4 w-4 mt-0.5 text-red-600 dark:text-red-400" />
                 <p className="text-sm text-red-600 dark:text-red-400">
-                  Debits must equal credits before submitting.
+                  {t('entryMustBalance')}
                 </p>
               </div>
             )}
@@ -413,7 +417,7 @@ export default function NewJournalEntryPage() {
               disabled={isPending || !isBalanced || !hasAmounts}
               className="mt-6 w-full rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isPending ? 'Creating...' : 'Create Journal Entry'}
+              {isPending ? tc('creating') : t('createEntry')}
             </button>
 
             <p className="mt-2 text-center text-xs text-muted-foreground">

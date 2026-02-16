@@ -10,11 +10,14 @@ import {
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { listWarehouses, getLowStockProducts } from '@kivvi/core';
+import { getTranslations } from 'next-intl/server';
 import { AddWarehouseForm } from './add-warehouse-form';
 
 export default async function InventoryPage() {
   const session = await auth();
   if (!session?.user?.companyId) redirect('/login');
+
+  const t = await getTranslations('inventory');
 
   const [warehouses, lowStockProducts] = await Promise.all([
     listWarehouses(db, session.user.companyId),
@@ -26,9 +29,9 @@ export default async function InventoryPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Inventory</h1>
+          <h1 className="text-3xl font-bold">{t('title')}</h1>
           <p className="text-muted-foreground">
-            Manage warehouses, stock levels, and movements.
+            {t('subtitle')}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -37,7 +40,7 @@ export default async function InventoryPage() {
             className="inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium hover:bg-muted transition-colors"
           >
             <ArrowUpDown className="h-4 w-4" />
-            Movements
+            {t('stockMovements')}
           </Link>
           <AddWarehouseForm />
         </div>
@@ -49,21 +52,21 @@ export default async function InventoryPage() {
           <div className="flex items-center gap-2 border-b border-amber-200 p-4 dark:border-amber-900/50">
             <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
             <h2 className="font-semibold text-amber-800 dark:text-amber-300">
-              Low Stock Alerts
+              {t('lowStockAlerts')}
             </h2>
             <span className="ml-auto inline-flex items-center rounded-full bg-amber-200 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/50 dark:text-amber-300">
-              {lowStockProducts.length} product{lowStockProducts.length !== 1 ? 's' : ''}
+              {t('lowStockCount', { count: lowStockProducts.length })}
             </span>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-amber-200 text-left text-sm text-amber-700 dark:border-amber-900/50 dark:text-amber-400">
-                  <th className="whitespace-nowrap px-4 py-3 font-medium">Product</th>
-                  <th className="whitespace-nowrap px-4 py-3 font-medium">Article Number</th>
-                  <th className="whitespace-nowrap px-4 py-3 font-medium text-right">Current Stock</th>
-                  <th className="whitespace-nowrap px-4 py-3 font-medium text-right">Min Stock</th>
-                  <th className="whitespace-nowrap px-4 py-3 font-medium text-right">Deficit</th>
+                  <th className="whitespace-nowrap px-4 py-3 font-medium">{t('productColumn')}</th>
+                  <th className="whitespace-nowrap px-4 py-3 font-medium">{t('articleNumberColumn')}</th>
+                  <th className="whitespace-nowrap px-4 py-3 font-medium text-right">{t('currentStock')}</th>
+                  <th className="whitespace-nowrap px-4 py-3 font-medium text-right">{t('minStockColumn')}</th>
+                  <th className="whitespace-nowrap px-4 py-3 font-medium text-right">{t('deficitColumn')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-amber-200 dark:divide-amber-900/50">
@@ -107,15 +110,15 @@ export default async function InventoryPage() {
         <div className="rounded-xl border bg-card">
           <div className="flex flex-col items-center justify-center py-16">
             <WarehouseIcon className="h-12 w-12 text-muted-foreground/50" />
-            <h3 className="mt-4 text-lg font-medium">No warehouses</h3>
+            <h3 className="mt-4 text-lg font-medium">{t('noWarehouses')}</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Add your first warehouse to start tracking inventory.
+              {t('noWarehouses')}
             </p>
           </div>
         </div>
       ) : (
         <div>
-          <h2 className="mb-4 text-lg font-semibold">Warehouses</h2>
+          <h2 className="mb-4 text-lg font-semibold">{t('warehouses')}</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {warehouses.map((warehouse) => (
               <Link
@@ -143,7 +146,7 @@ export default async function InventoryPage() {
                   {warehouse.isDefault && (
                     <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
                       <Star className="h-3 w-3" />
-                      Default
+                      {t('defaultWarehouse')}
                     </span>
                   )}
                 </div>

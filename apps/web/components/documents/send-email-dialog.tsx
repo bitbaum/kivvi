@@ -1,0 +1,91 @@
+'use client';
+
+import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { Send, CheckCircle2 } from 'lucide-react';
+import { sendDocumentEmailAction } from '@/app/actions/email';
+
+interface SendEmailButtonProps {
+  documentId: string;
+  defaultEmail?: string;
+}
+
+export function SendEmailButton({ documentId, defaultEmail }: SendEmailButtonProps) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [isOpen, setIsOpen] = useState(false);
+  const [email, setEmail] = useState(defaultEmail || '');
+  const [error, setError] = useState<string | null>(null);
+  const [sent, setSent] = useState(false);
+
+  if (!isOpen) {
+    return (
+      <button
+        onClick={() => setIsOpen(true)}
+        className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm hover:bg-muted"
+      >
+        <Send className="h-4 w-4" />
+        E-Mail
+      </button>
+    );
+  }
+
+  if (sent) {
+    return (
+      <div className="inline-flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-400">
+        <CheckCircle2 className="h-4 w-4" />
+        Gesendet
+      </div>
+    );
+  }
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+
+    startTransition(async () => {
+      const result = await sendDocumentEmailAction(documentId, email);
+      if (result.success) {
+        setSent(true);
+        router.refresh();
+        setTimeout(() => {
+          setSent(false);
+          setIsOpen(false);
+        }, 2500);
+      } else {
+        setError(result.error || 'E-Mail konnte nicht gesendet werden');
+      }
+    });
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <form onSubmit={handleSubmit} className="flex items-center gap-2">
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="E-Mail-Adresse"
+          required
+          className="w-56 rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+        />
+        <button
+          type="submit"
+          disabled={isPending || !email}
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+        >
+          <Send className="h-4 w-4" />
+          {isPending ? 'Senden...' : 'Senden'}
+        </button>
+        <button
+          type="button"
+          onClick={() => { setIsOpen(false); setError(null); }}
+          className="rounded-lg border px-3 py-2 text-sm hover:bg-muted"
+        >
+          Abbrechen
+        </button>
+      </form>
+      {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+    </div>
+  );
+}

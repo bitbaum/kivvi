@@ -6,10 +6,13 @@ import { db } from '@/lib/db';
 import { listBankAccounts } from '@kivvi/core';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { AddAccountForm } from './add-account-form';
+import { getTranslations } from 'next-intl/server';
 
 export default async function BankingPage() {
   const session = await auth();
   if (!session?.user?.companyId) redirect('/login');
+
+  const t = await getTranslations('banking');
 
   const accounts = await listBankAccounts(db, session.user.companyId);
 
@@ -18,9 +21,9 @@ export default async function BankingPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Banking</h1>
+          <h1 className="text-3xl font-bold">{t('title')}</h1>
           <p className="text-muted-foreground">
-            Manage your bank accounts and reconcile transactions.
+            {t('subtitle')}
           </p>
         </div>
         <AddAccountForm />
@@ -31,9 +34,9 @@ export default async function BankingPage() {
         <div className="rounded-xl border bg-card">
           <div className="flex flex-col items-center justify-center py-16">
             <Landmark className="h-12 w-12 text-muted-foreground/50" />
-            <h3 className="mt-4 text-lg font-medium">No bank accounts</h3>
+            <h3 className="mt-4 text-lg font-medium">{t('noBankAccounts')}</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Add your first bank account to start tracking transactions.
+              {t('addFirstAccount')}
             </p>
           </div>
         </div>
@@ -69,7 +72,7 @@ export default async function BankingPage() {
 
               <div className="mt-4 flex items-end justify-between">
                 <div>
-                  <p className="text-xs text-muted-foreground">Balance</p>
+                  <p className="text-xs text-muted-foreground">{t('balance')}</p>
                   <p className="text-lg font-semibold">
                     {account.balance
                       ? formatCurrency(Number(account.balance), account.currency || 'CHF')
@@ -78,7 +81,7 @@ export default async function BankingPage() {
                 </div>
                 {account.lastSyncAt && (
                   <p className="text-xs text-muted-foreground">
-                    Last sync: {formatDate(account.lastSyncAt)}
+                    {t('lastSync')}: {formatDate(account.lastSyncAt)}
                   </p>
                 )}
               </div>

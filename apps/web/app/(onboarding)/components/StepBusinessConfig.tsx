@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import { Loader2, Settings, Check } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { initializeCompanyAction } from '@/app/actions/onboarding';
+import { SWISS_VAT_RATES, DEFAULT_VAT_RATE } from '@/lib/config/vat-rates';
 
 interface StepBusinessConfigProps {
   onComplete: () => void;
@@ -10,7 +12,9 @@ interface StepBusinessConfigProps {
 }
 
 export function StepBusinessConfig({ onComplete, onBack }: StepBusinessConfigProps) {
-  const [vatRate, setVatRate] = useState(8.1);
+  const t = useTranslations('onboarding');
+  const tc = useTranslations('common');
+  const [vatRate, setVatRate] = useState(DEFAULT_VAT_RATE);
   const [paymentTerms, setPaymentTerms] = useState(30);
   const [bankIban, setBankIban] = useState('');
   const [bankName, setBankName] = useState('');
@@ -64,7 +68,7 @@ export function StepBusinessConfig({ onComplete, onBack }: StepBusinessConfigPro
       <div className="mb-6">
         <div className="mb-2 flex items-center gap-2">
           <Settings className="h-5 w-5 text-primary" />
-          <h2 className="text-xl font-semibold">Business Configuration</h2>
+          <h2 className="text-xl font-semibold">{t('step2Title')}</h2>
         </div>
         <p className="text-sm text-muted-foreground">
           Configure your defaults. This will set up your chart of accounts, number sequences, and warehouse.
@@ -80,13 +84,9 @@ export function StepBusinessConfig({ onComplete, onBack }: StepBusinessConfigPro
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* VAT Rate */}
         <div>
-          <label className="mb-3 block text-sm font-medium">Default VAT rate</label>
+          <label className="mb-3 block text-sm font-medium">{t('defaultVatRate')}</label>
           <div className="grid gap-3 sm:grid-cols-3">
-            {[
-              { value: 8.1, label: '8.1%', desc: 'Standard rate' },
-              { value: 2.6, label: '2.6%', desc: 'Reduced rate' },
-              { value: 0, label: '0%', desc: 'Exempt' },
-            ].map((option) => (
+            {SWISS_VAT_RATES.map((rate) => ({ value: rate.value, label: `${rate.value}%`, desc: rate.labelKey.charAt(0).toUpperCase() + rate.labelKey.slice(1) + ' rate' })).map((option) => (
               <label
                 key={option.value}
                 className={`flex cursor-pointer items-center gap-3 rounded-lg border p-4 transition-colors ${
@@ -124,7 +124,7 @@ export function StepBusinessConfig({ onComplete, onBack }: StepBusinessConfigPro
         {/* Payment Terms */}
         <div>
           <label htmlFor="paymentTerms" className="mb-1.5 block text-sm font-medium">
-            Default payment terms (days)
+            {t('paymentTermsDays')}
           </label>
           <input
             id="paymentTerms"
@@ -142,7 +142,7 @@ export function StepBusinessConfig({ onComplete, onBack }: StepBusinessConfigPro
 
         {/* Bank Details */}
         <div>
-          <h3 className="mb-3 text-sm font-medium">Bank account (for QR-bills)</h3>
+          <h3 className="mb-3 text-sm font-medium">{t('bankIban')}</h3>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label htmlFor="bankIban" className="mb-1.5 block text-sm text-muted-foreground">
@@ -191,7 +191,7 @@ export function StepBusinessConfig({ onComplete, onBack }: StepBusinessConfigPro
             disabled={isLoading}
             className="rounded-lg border px-6 py-2.5 font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
           >
-            Back
+            {t('back')}
           </button>
           <button
             type="submit"
@@ -199,7 +199,7 @@ export function StepBusinessConfig({ onComplete, onBack }: StepBusinessConfigPro
             className="flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
             {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-            {isLoading ? 'Setting up your business...' : 'Set up business'}
+            {isLoading ? t('completing') : t('completeSetup')}
           </button>
         </div>
       </form>

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import Decimal from 'decimal.js';
 import { eq, and, asc, desc, sql, ilike, between } from 'drizzle-orm';
 import {
   accounts,
@@ -309,44 +310,47 @@ export async function createJournalEntry(
 
   // Validate debits = credits
   const totalDebits = validated.lines.reduce(
-    (sum, l) => sum + (parseFloat(l.debit || '0') || 0),
-    0
+    (sum, l) => sum.plus(new Decimal(l.debit || '0')),
+    new Decimal(0)
   );
   const totalCredits = validated.lines.reduce(
-    (sum, l) => sum + (parseFloat(l.credit || '0') || 0),
-    0
+    (sum, l) => sum.plus(new Decimal(l.credit || '0')),
+    new Decimal(0)
   );
 
-  if (Math.abs(totalDebits - totalCredits) > 0.005) {
+  if (totalDebits.minus(totalCredits).abs().gt('0.005')) {
     throw new Error(
       `Journal entry must balance. Debits: ${totalDebits.toFixed(2)}, Credits: ${totalCredits.toFixed(2)}`
     );
   }
 
-  const [entry] = await db
-    .insert(journalEntries)
-    .values({
-      companyId,
-      date: new Date(validated.date),
-      reference: validated.reference || null,
-      description: validated.description,
-      sourceType: 'manual',
-      createdBy: userId,
-    })
-    .returning();
+  // Wrap journal entry + lines insert in transaction
+  return db.transaction(async (tx) => {
+    const [entry] = await tx
+      .insert(journalEntries)
+      .values({
+        companyId,
+        date: new Date(validated.date),
+        reference: validated.reference || null,
+        description: validated.description,
+        sourceType: 'manual',
+        createdBy: userId,
+      })
+      .returning();
 
-  // Insert lines
-  await db.insert(journalLines).values(
-    validated.lines.map((line) => ({
-      journalEntryId: entry.id,
-      accountId: line.accountId,
-      debit: line.debit || null,
-      credit: line.credit || null,
-      description: line.description || null,
-    }))
-  );
+    // Insert lines
+    await tx.insert(journalLines).values(
+      validated.lines.map((line) => ({
+        journalEntryId: entry.id,
+        accountId: line.accountId,
+        debit: line.debit || null,
+        credit: line.credit || null,
+        description: line.description || null,
+      }))
+    );
 
-  return entry;
+    return entry;
+  });
 }
 
 /**
@@ -380,29 +384,32 @@ export async function createAutoJournalEntry(
     }
   }
 
-  const [entry] = await db
-    .insert(journalEntries)
-    .values({
-      companyId,
-      date: input.date,
-      reference: input.reference,
-      description: input.description,
-      sourceType: input.sourceType,
-      sourceId: input.sourceId,
-    })
-    .returning();
+  // Wrap journal entry + lines insert in transaction
+  return db.transaction(async (tx) => {
+    const [entry] = await tx
+      .insert(journalEntries)
+      .values({
+        companyId,
+        date: input.date,
+        reference: input.reference,
+        description: input.description,
+        sourceType: input.sourceType,
+        sourceId: input.sourceId,
+      })
+      .returning();
 
-  await db.insert(journalLines).values(
-    input.lines.map((line) => ({
-      journalEntryId: entry.id,
-      accountId: codeToId.get(line.accountCode)!,
-      debit: line.debit || null,
-      credit: line.credit || null,
-      description: line.description || null,
-    }))
-  );
+    await tx.insert(journalLines).values(
+      input.lines.map((line) => ({
+        journalEntryId: entry.id,
+        accountId: codeToId.get(line.accountCode)!,
+        debit: line.debit || null,
+        credit: line.credit || null,
+        description: line.description || null,
+      }))
+    );
 
-  return entry;
+    return entry;
+  });
 }
 
 export async function deleteJournalEntry(
@@ -484,7 +491,7 @@ export async function getTrialBalance(
       ...r,
       totalDebit: Number(r.totalDebit),
       totalCredit: Number(r.totalCredit),
-      balance: Number(r.totalDebit) - Number(r.totalCredit),
+      balance: new Decimal(r.totalDebit).minus(r.totalCredit).toNumber(),
     }))
     .filter((r) => r.totalDebit !== 0 || r.totalCredit !== 0);
 }
@@ -532,40 +539,43 @@ export async function createFiscalYear(
 ): Promise<FiscalYear> {
   const validated = createFiscalYearSchema.parse(input);
 
-  const [year] = await db
-    .insert(fiscalYears)
-    .values({
-      companyId,
-      name: validated.name,
-      startDate: validated.startDate,
-      endDate: validated.endDate,
-    })
-    .returning();
+  // Wrap fiscal year + periods insert in transaction
+  return db.transaction(async (tx) => {
+    const [year] = await tx
+      .insert(fiscalYears)
+      .values({
+        companyId,
+        name: validated.name,
+        startDate: validated.startDate,
+        endDate: validated.endDate,
+      })
+      .returning();
 
-  // Auto-create 12 monthly periods
-  const start = new Date(validated.startDate);
-  const periodValues: Array<{ fiscalYearId: string; name: string; startDate: string; endDate: string }> = [];
+    // Auto-create 12 monthly periods
+    const start = new Date(validated.startDate);
+    const periodValues: Array<{ fiscalYearId: string; name: string; startDate: string; endDate: string }> = [];
 
-  for (let i = 0; i < 12; i++) {
-    const periodStart = new Date(start.getFullYear(), start.getMonth() + i, 1);
-    const periodEnd = new Date(start.getFullYear(), start.getMonth() + i + 1, 0);
+    for (let i = 0; i < 12; i++) {
+      const periodStart = new Date(start.getFullYear(), start.getMonth() + i, 1);
+      const periodEnd = new Date(start.getFullYear(), start.getMonth() + i + 1, 0);
 
-    const monthNames = [
-      'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
-      'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember',
-    ];
+      const monthNames = [
+        'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
+        'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember',
+      ];
 
-    periodValues.push({
-      fiscalYearId: year.id,
-      name: `${monthNames[periodStart.getMonth()]} ${periodStart.getFullYear()}`,
-      startDate: periodStart.toISOString().split('T')[0],
-      endDate: periodEnd.toISOString().split('T')[0],
-    });
-  }
+      periodValues.push({
+        fiscalYearId: year.id,
+        name: `${monthNames[periodStart.getMonth()]} ${periodStart.getFullYear()}`,
+        startDate: periodStart.toISOString().split('T')[0],
+        endDate: periodEnd.toISOString().split('T')[0],
+      });
+    }
 
-  await db.insert(fiscalPeriods).values(periodValues);
+    await tx.insert(fiscalPeriods).values(periodValues);
 
-  return year;
+    return year;
+  });
 }
 
 export async function closeFiscalPeriod(
@@ -604,17 +614,20 @@ export async function closeFiscalYear(
   if (!year) throw new Error('Fiscal year not found');
   if (year.isClosed) throw new Error('Fiscal year is already closed');
 
-  // Close all open periods
-  await db
-    .update(fiscalPeriods)
-    .set({ isClosed: true })
-    .where(and(eq(fiscalPeriods.fiscalYearId, yearId), eq(fiscalPeriods.isClosed, false)));
+  // Wrap period updates + year update in transaction
+  return db.transaction(async (tx) => {
+    // Close all open periods
+    await tx
+      .update(fiscalPeriods)
+      .set({ isClosed: true })
+      .where(and(eq(fiscalPeriods.fiscalYearId, yearId), eq(fiscalPeriods.isClosed, false)));
 
-  const [updated] = await db
-    .update(fiscalYears)
-    .set({ isClosed: true })
-    .where(and(eq(fiscalYears.id, yearId), eq(fiscalYears.companyId, companyId)))
-    .returning();
+    const [updated] = await tx
+      .update(fiscalYears)
+      .set({ isClosed: true })
+      .where(and(eq(fiscalYears.id, yearId), eq(fiscalYears.companyId, companyId)))
+      .returning();
 
-  return updated;
+    return updated;
+  });
 }

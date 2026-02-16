@@ -1,6 +1,6 @@
-// @ts-nocheck
 import { z } from 'zod';
 import type { Tool, ExecutionContext, ToolResult } from '../types';
+import { getDocument } from '@kivvi/core';
 
 const getInvoiceDetailsSchema = z.object({
   invoiceId: z.string().uuid().describe('The UUID of the invoice to retrieve'),
@@ -12,29 +12,18 @@ export const getInvoiceDetailsTool: Tool = {
   parameters: getInvoiceDetailsSchema,
   execute: async (params: z.infer<typeof getInvoiceDetailsSchema>, context: ExecutionContext): Promise<ToolResult> => {
     try {
-      const { createDb, documents } = await import('@kivvi/database');
-      const { eq, and } = await import('drizzle-orm');
+      const db = context.db as any;
 
-      const db = createDb(process.env.DATABASE_URL!);
-
-      const doc = await db.query.documents.findFirst({
-        where: and(
-          eq(documents.id, params.invoiceId),
-          eq(documents.companyId, context.companyId),
-          eq(documents.type, 'invoice')
-        ),
-        with: {
-          contact: true,
-          items: {
-            with: {
-              product: true,
-            },
-          },
-          payments: true,
-        },
-      });
+      const doc = await getDocument(db, context.companyId, params.invoiceId);
 
       if (!doc) {
+        return {
+          success: false,
+          error: 'Invoice not found or you do not have access to it.',
+        };
+      }
+
+      if (doc.type !== 'invoice') {
         return {
           success: false,
           error: 'Invoice not found or you do not have access to it.',
@@ -46,7 +35,7 @@ export const getInvoiceDetailsTool: Tool = {
         ? Math.floor((Date.now() - new Date(doc.dueDate).getTime()) / (1000 * 60 * 60 * 24))
         : 0;
 
-      const totalPaid = doc.payments.reduce((sum, p) => sum + Number(p.amount), 0);
+      const totalPaid = (doc.payments || []).reduce((sum: number, p: any) => sum + Number(p.amount), 0);
 
       return {
         success: true,
@@ -69,7 +58,7 @@ export const getInvoiceDetailsTool: Tool = {
           },
           isOverdue,
           daysOverdue,
-          items: doc.items.map((item) => ({
+          items: (doc.items || []).map((item: any) => ({
             description: item.description,
             quantity: Number(item.quantity),
             unitPrice: Number(item.unitPrice),

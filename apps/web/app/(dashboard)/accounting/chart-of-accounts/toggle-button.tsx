@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Power, Loader2 } from 'lucide-react';
 import { toggleAccountAction } from '@/app/actions/accounting';
+import { useTranslations } from 'next-intl';
 
 interface ToggleButtonProps {
   accountId: string;
@@ -14,6 +15,7 @@ export function ToggleButton({ accountId, isActive }: ToggleButtonProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const tc = useTranslations('common');
 
   function handleToggle() {
     setError(null);
@@ -44,7 +46,7 @@ export function ToggleButton({ accountId, isActive }: ToggleButtonProps) {
         ) : (
           <Power className="h-3 w-3" />
         )}
-        {isActive ? 'Deactivate' : 'Activate'}
+        {isActive ? tc('inactive') : tc('active')}
       </button>
       {error && (
         <p className="absolute right-0 top-full mt-1 whitespace-nowrap rounded bg-red-50 px-2 py-1 text-xs text-red-600 shadow-sm dark:bg-red-900/30 dark:text-red-400">

@@ -1,3 +1,4 @@
+import Decimal from 'decimal.js';
 import { eq, and, lt, sql, desc, count } from 'drizzle-orm';
 import { documents, documentItems, documentPayments, contacts } from '@kivvi/database';
 import type { Database, DocumentStatus } from '@kivvi/database';
@@ -108,8 +109,8 @@ export async function getDunningStats(
       .from(documentPayments)
       .where(eq(documentPayments.documentId, inv.id));
 
-    const outstanding = Number(inv.total) - parseFloat(paymentsResult?.totalPaid || '0');
-    totalOverdueAmount += Math.max(0, outstanding);
+    const outstanding = new Decimal(inv.total).minus(new Decimal(paymentsResult?.totalPaid || '0'));
+    totalOverdueAmount += Math.max(0, outstanding.toNumber());
   }
 
   return {
@@ -167,54 +168,60 @@ export async function createDunning(
     .from(documentPayments)
     .where(eq(documentPayments.documentId, invoiceId));
 
-  const totalPaid = parseFloat(paymentsResult?.totalPaid || '0');
-  const outstanding = (parseFloat(invoice.total) - totalPaid).toFixed(2);
+  const totalPaid = new Decimal(paymentsResult?.totalPaid || '0');
+  const outstanding = new Decimal(invoice.total).minus(totalPaid).toFixed(2);
 
   // Generate dunning document number
   const number = await getNextNumber(db, companyId, 'dunning');
 
-  // Create dunning document
-  const [dunningDoc] = await db
-    .insert(documents)
-    .values({
-      companyId,
-      type: 'dunning',
-      status: 'draft',
-      number,
-      contactId: invoice.contactId,
-      issueDate: new Date(),
-      currency: invoice.currency,
-      subtotal: outstanding,
-      vatAmount: '0',
+  // Wrap dunning document + item + invoice status update in transaction
+  return db.transaction(async (tx) => {
+    // Create dunning document
+    const [dunningDoc] = await tx
+      .insert(documents)
+      .values({
+        companyId,
+        type: 'dunning',
+        status: 'draft',
+        number,
+        contactId: invoice.contactId,
+        issueDate: new Date(),
+        currency: invoice.currency,
+        subtotal: outstanding,
+        vatAmount: '0',
+        total: outstanding,
+        notes: `Dunning notice for invoice ${invoice.number}. Payment was due on ${invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString('de-CH') : 'unknown'}. Outstanding amount: CHF ${outstanding}.`,
+        convertedFromId: invoice.id,
+        createdBy: userId,
+      })
+      .returning();
+
+    // Create a single line item referencing the outstanding amount
+    await tx.insert(documentItems).values({
+      documentId: dunningDoc.id,
+      position: 0,
+      description: `Outstanding amount for invoice ${invoice.number}`,
+      quantity: '1',
+      unitPrice: outstanding,
+      discount: '0',
+      vatRate: '0',
       total: outstanding,
-      notes: `Dunning notice for invoice ${invoice.number}. Payment was due on ${invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString('de-CH') : 'unknown'}. Outstanding amount: CHF ${outstanding}.`,
-      convertedFromId: invoice.id,
-      createdBy: userId,
-    })
-    .returning();
+    });
 
-  // Create a single line item referencing the outstanding amount
-  await db.insert(documentItems).values({
-    documentId: dunningDoc.id,
-    position: 0,
-    description: `Outstanding amount for invoice ${invoice.number}`,
-    quantity: '1',
-    unitPrice: outstanding,
-    discount: '0',
-    vatRate: '0',
-    total: outstanding,
+    // Escalate the invoice status
+    await tx
+      .update(documents)
+      .set({
+        status: nextStatus,
+        updatedAt: new Date(),
+      })
+      .where(and(
+        eq(documents.id, invoiceId),
+        eq(documents.companyId, companyId)
+      ));
+
+    return { dunningDoc, newLevel: nextStatus };
   });
-
-  // Escalate the invoice status
-  await db
-    .update(documents)
-    .set({
-      status: nextStatus,
-      updatedAt: new Date(),
-    })
-    .where(eq(documents.id, invoiceId));
-
-  return { dunningDoc, newLevel: nextStatus };
 }
 
 /**

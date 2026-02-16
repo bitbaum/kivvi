@@ -5,6 +5,7 @@ import { aiConversations, aiMessages } from '@kivvi/database';
 import { ConversationEngine, createProvider, getToolsForPermissions, type ExecutionContext, type Message, type ProviderType } from '@kivvi/ai';
 import { eq, and, desc } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
+import { DEFAULT_VAT_RATE } from '@/lib/config/vat-rates';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -106,7 +107,8 @@ export async function POST(request: NextRequest) {
       ],
       conversationId: conversation.id,
       defaultCurrency: 'CHF',
-      defaultVatRate: 8.1,
+      defaultVatRate: Number(DEFAULT_VAT_RATE),
+      db,
     };
 
     // Initialize AI provider based on selection

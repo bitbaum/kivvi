@@ -1,11 +1,14 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { ArrowLeft, TrendingUp, FileText } from 'lucide-react';
+import { ArrowLeft, TrendingUp, FileText, Calendar } from 'lucide-react';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { getProfitAndLoss } from '@kivvi/core';
 import { formatCurrency } from '@/lib/utils';
 import { DateRangeForm } from '../date-range-form';
+import { ExportButton } from '../export-button';
+import { EmptyState } from '@/components/empty-state';
+import { getTranslations } from 'next-intl/server';
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -14,6 +17,10 @@ interface PageProps {
 export default async function ProfitLossPage({ searchParams }: PageProps) {
   const session = await auth();
   if (!session?.user?.companyId) redirect('/login');
+
+  const t = await getTranslations('reports');
+  const tc = await getTranslations('common');
+  const ta = await getTranslations('accounting');
 
   const params = await searchParams;
   const now = new Date();
@@ -38,13 +45,22 @@ export default async function ProfitLossPage({ searchParams }: PageProps) {
           className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Reports
+          {tc('back')} {t('title')}
         </Link>
-        <h1 className="text-3xl font-bold">Profit & Loss</h1>
-        <p className="text-muted-foreground">
-          Erfolgsrechnung &mdash; Revenue and expense summary for the selected
-          period.
-        </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold">{t('profitAndLoss')}</h1>
+            <p className="text-muted-foreground">
+              {t('profitAndLossDesc')}
+            </p>
+          </div>
+          <ExportButton
+            reportType="profit-loss"
+            startDate={startDate}
+            endDate={endDate}
+            disabled={!hasData}
+          />
+        </div>
       </div>
 
       {/* Date Range Filter */}
@@ -53,30 +69,30 @@ export default async function ProfitLossPage({ searchParams }: PageProps) {
       </div>
 
       {!hasData ? (
-        <div className="rounded-xl border bg-card p-12 text-center text-muted-foreground">
-          <FileText className="mx-auto mb-3 h-10 w-10" />
-          <p className="text-lg font-medium">No data for this period</p>
-          <p className="mt-1 text-sm">
-            There are no journal entries between {startDate} and {endDate}. Try
-            adjusting the date range.
-          </p>
-        </div>
+        <EmptyState
+          icon={Calendar}
+          title={t('noDataForPeriod')}
+          description={t('noJournalEntriesBetween', { start: startDate, end: endDate })}
+          actionLabel={tc('adjustDateRange')}
+          secondaryActionLabel={tc('viewDashboard')}
+          secondaryActionHref="/dashboard"
+        />
       ) : (
         <>
           {/* Revenue Section */}
           <div className="rounded-xl border bg-card">
             <div className="flex items-center gap-2 border-b p-4">
               <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
-              <h2 className="font-semibold">Revenue</h2>
+              <h2 className="font-semibold">{ta('revenue')}</h2>
             </div>
             {report.revenue.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      <th className="px-6 py-3">Account</th>
-                      <th className="px-6 py-3">Name</th>
-                      <th className="px-6 py-3 text-right">Amount</th>
+                      <th className="px-6 py-3">{ta('account')}</th>
+                      <th className="px-6 py-3">{tc('name')}</th>
+                      <th className="px-6 py-3 text-right">{tc('amount')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
@@ -95,7 +111,7 @@ export default async function ProfitLossPage({ searchParams }: PageProps) {
                   <tfoot>
                     <tr className="border-t-2 font-semibold">
                       <td className="px-6 py-3" colSpan={2}>
-                        Total Revenue
+                        {ta('revenue')} {tc('total')}
                       </td>
                       <td className="px-6 py-3 text-right text-green-600 dark:text-green-400">
                         {formatCurrency(report.totalRevenue)}
@@ -106,7 +122,7 @@ export default async function ProfitLossPage({ searchParams }: PageProps) {
               </div>
             ) : (
               <p className="p-6 text-sm text-muted-foreground">
-                No revenue entries for this period.
+                {t('noRevenueEntries')}
               </p>
             )}
           </div>
@@ -115,16 +131,16 @@ export default async function ProfitLossPage({ searchParams }: PageProps) {
           <div className="rounded-xl border bg-card">
             <div className="flex items-center gap-2 border-b p-4">
               <TrendingUp className="h-5 w-5 rotate-180 text-red-600 dark:text-red-400" />
-              <h2 className="font-semibold">Expenses</h2>
+              <h2 className="font-semibold">{ta('expenses')}</h2>
             </div>
             {report.expenses.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      <th className="px-6 py-3">Account</th>
-                      <th className="px-6 py-3">Name</th>
-                      <th className="px-6 py-3 text-right">Amount</th>
+                      <th className="px-6 py-3">{ta('account')}</th>
+                      <th className="px-6 py-3">{tc('name')}</th>
+                      <th className="px-6 py-3 text-right">{tc('amount')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
@@ -143,7 +159,7 @@ export default async function ProfitLossPage({ searchParams }: PageProps) {
                   <tfoot>
                     <tr className="border-t-2 font-semibold">
                       <td className="px-6 py-3" colSpan={2}>
-                        Total Expenses
+                        {ta('expenses')} {tc('total')}
                       </td>
                       <td className="px-6 py-3 text-right text-red-600 dark:text-red-400">
                         {formatCurrency(report.totalExpenses)}
@@ -154,7 +170,7 @@ export default async function ProfitLossPage({ searchParams }: PageProps) {
               </div>
             ) : (
               <p className="p-6 text-sm text-muted-foreground">
-                No expense entries for this period.
+                {t('noExpenseEntries')}
               </p>
             )}
           </div>
@@ -163,20 +179,20 @@ export default async function ProfitLossPage({ searchParams }: PageProps) {
           <div className="rounded-xl border bg-card p-6">
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="rounded-lg border bg-background p-4">
-                <p className="text-sm text-muted-foreground">Total Revenue</p>
+                <p className="text-sm text-muted-foreground">{ta('revenue')} {tc('total')}</p>
                 <p className="mt-1 text-xl font-bold text-green-600 dark:text-green-400">
                   {formatCurrency(report.totalRevenue)}
                 </p>
               </div>
               <div className="rounded-lg border bg-background p-4">
-                <p className="text-sm text-muted-foreground">Total Expenses</p>
+                <p className="text-sm text-muted-foreground">{ta('expenses')} {tc('total')}</p>
                 <p className="mt-1 text-xl font-bold text-red-600 dark:text-red-400">
                   {formatCurrency(report.totalExpenses)}
                 </p>
               </div>
               <div className="rounded-lg border-2 border-primary/20 bg-primary/5 p-4">
                 <p className="text-sm font-medium text-muted-foreground">
-                  Net Income
+                  {t('netIncome')}
                 </p>
                 <p
                   className={`mt-1 text-2xl font-bold ${

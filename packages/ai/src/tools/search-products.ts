@@ -1,6 +1,6 @@
-// @ts-nocheck
 import { z } from 'zod';
 import type { Tool, ExecutionContext, ToolResult } from '../types';
+import { listProducts } from '@kivvi/core';
 
 const searchProductsSchema = z.object({
   query: z.string().optional().describe('Search query for product name, SKU, or article number'),
@@ -14,40 +14,15 @@ export const searchProductsTool: Tool = {
   parameters: searchProductsSchema,
   execute: async (params: z.infer<typeof searchProductsSchema>, context: ExecutionContext): Promise<ToolResult> => {
     try {
-      const { createDb, products } = await import('@kivvi/database');
-      const { eq, and, or, ilike, desc } = await import('drizzle-orm');
+      const db = context.db as any;
 
-      const db = createDb(process.env.DATABASE_URL!);
+      const result = await listProducts(db, context.companyId, {
+        type: params.type,
+        search: params.query,
+        pageSize: params.limit,
+      });
 
-      const conditions: any[] = [
-        eq(products.companyId, context.companyId),
-        eq(products.isActive, true),
-      ];
-
-      if (params.type) {
-        conditions.push(eq(products.type, params.type));
-      }
-
-      if (params.query) {
-        conditions.push(
-          or(
-            ilike(products.name, `%${params.query}%`),
-            ilike(products.sku, `%${params.query}%`),
-            ilike(products.articleNumber, `%${params.query}%`),
-            ilike(products.ean, `%${params.query}%`),
-            ilike(products.description, `%${params.query}%`)
-          )
-        );
-      }
-
-      const results = await db
-        .select()
-        .from(products)
-        .where(and(...conditions))
-        .orderBy(desc(products.updatedAt))
-        .limit(params.limit);
-
-      const productList = results.map((p) => ({
+      const productList = result.data.map((p: any) => ({
         id: p.id,
         articleNumber: p.articleNumber || null,
         sku: p.sku || null,

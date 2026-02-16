@@ -1,16 +1,11 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { Plus, Search, BookOpen, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Search, BookOpen, ChevronLeft, ChevronRight, Download } from 'lucide-react';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { listJournalEntries } from '@kivvi/core';
 import { formatCurrency, formatDate, cn } from '@/lib/utils';
-
-const SOURCE_TYPE_LABELS: Record<string, string> = {
-  manual: 'Manual',
-  invoice: 'Invoice',
-  payment: 'Payment',
-};
+import { getTranslations } from 'next-intl/server';
 
 const SOURCE_TYPE_STYLES: Record<string, string> = {
   manual: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400',
@@ -31,6 +26,15 @@ interface PageProps {
 export default async function JournalPage({ searchParams }: PageProps) {
   const session = await auth();
   if (!session?.user?.companyId) redirect('/login');
+
+  const t = await getTranslations('accounting');
+  const tc = await getTranslations('common');
+
+  const SOURCE_TYPE_LABELS: Record<string, string> = {
+    manual: t('manual'),
+    invoice: 'Invoice',
+    payment: 'Payment',
+  };
 
   const params = await searchParams;
   const page = parseInt(params.page || '1', 10);
@@ -53,18 +57,27 @@ export default async function JournalPage({ searchParams }: PageProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Journal</h1>
+          <h1 className="text-3xl font-bold">{t('journal')}</h1>
           <p className="text-muted-foreground">
-            View and manage journal entries.
+            {t('viewJournalEntries')}
           </p>
         </div>
-        <Link
-          href="/accounting/journal/new"
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-        >
-          <Plus className="h-4 w-4" />
-          New Entry
-        </Link>
+        <div className="flex items-center gap-2">
+          <a
+            href="/api/export/journal"
+            className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2.5 text-sm font-medium hover:bg-accent transition-colors"
+          >
+            <Download className="h-4 w-4" />
+            Export CSV
+          </a>
+          <Link
+            href="/accounting/journal/new"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+            {t('newJournalEntry')}
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}
@@ -75,7 +88,7 @@ export default async function JournalPage({ searchParams }: PageProps) {
           <input
             type="text"
             name="search"
-            placeholder="Search entries..."
+            placeholder={tc('search') + '...'}
             defaultValue={search}
             className="w-full rounded-lg border bg-background py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           />
@@ -86,8 +99,8 @@ export default async function JournalPage({ searchParams }: PageProps) {
 
         {/* Source type filter */}
         <div className="flex items-center gap-1 rounded-lg border bg-card p-1">
-          <SourceTypeFilterLink label="All" value="" current={sourceType} search={search} dateFrom={dateFrom} dateTo={dateTo} />
-          <SourceTypeFilterLink label="Manual" value="manual" current={sourceType} search={search} dateFrom={dateFrom} dateTo={dateTo} />
+          <SourceTypeFilterLink label={tc('all')} value="" current={sourceType} search={search} dateFrom={dateFrom} dateTo={dateTo} />
+          <SourceTypeFilterLink label={t('manual')} value="manual" current={sourceType} search={search} dateFrom={dateFrom} dateTo={dateTo} />
           <SourceTypeFilterLink label="Invoice" value="invoice" current={sourceType} search={search} dateFrom={dateFrom} dateTo={dateTo} />
           <SourceTypeFilterLink label="Payment" value="payment" current={sourceType} search={search} dateFrom={dateFrom} dateTo={dateTo} />
         </div>
@@ -98,7 +111,7 @@ export default async function JournalPage({ searchParams }: PageProps) {
         {search && <input type="hidden" name="search" value={search} />}
         {sourceType && <input type="hidden" name="sourceType" value={sourceType} />}
         <div>
-          <label className="block text-xs text-muted-foreground mb-1">From</label>
+          <label className="block text-xs text-muted-foreground mb-1">{tc('date')}</label>
           <input
             type="date"
             name="dateFrom"
@@ -107,7 +120,7 @@ export default async function JournalPage({ searchParams }: PageProps) {
           />
         </div>
         <div>
-          <label className="block text-xs text-muted-foreground mb-1">To</label>
+          <label className="block text-xs text-muted-foreground mb-1">{tc('date')}</label>
           <input
             type="date"
             name="dateTo"
@@ -119,7 +132,7 @@ export default async function JournalPage({ searchParams }: PageProps) {
           type="submit"
           className="rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-muted transition-colors"
         >
-          Filter
+          {tc('filter')}
         </button>
         {(dateFrom || dateTo) && (
           <Link
@@ -136,7 +149,7 @@ export default async function JournalPage({ searchParams }: PageProps) {
         {result.data.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
             <BookOpen className="h-12 w-12 text-muted-foreground/50" />
-            <h3 className="mt-4 text-lg font-medium">No journal entries found</h3>
+            <h3 className="mt-4 text-lg font-medium">{t('noJournalEntries')}</h3>
             <p className="mt-1 text-sm text-muted-foreground">
               {search || sourceType || dateFrom || dateTo
                 ? 'Try adjusting your search or filters.'
@@ -148,7 +161,7 @@ export default async function JournalPage({ searchParams }: PageProps) {
                 className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
               >
                 <Plus className="h-4 w-4" />
-                New Entry
+                {t('newJournalEntry')}
               </Link>
             )}
           </div>
@@ -156,11 +169,11 @@ export default async function JournalPage({ searchParams }: PageProps) {
           <>
             {/* Table header */}
             <div className="hidden border-b px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground sm:grid sm:grid-cols-[auto_1fr_2fr_auto_auto]">
-              <span className="w-24">Date</span>
-              <span>Reference</span>
-              <span>Description</span>
-              <span className="px-4 text-center">Source</span>
-              <span className="w-28 text-right">Total</span>
+              <span className="w-24">{tc('date')}</span>
+              <span>{t('reference')}</span>
+              <span>{tc('description')}</span>
+              <span className="px-4 text-center">{t('sourceType')}</span>
+              <span className="w-28 text-right">{tc('total')}</span>
             </div>
 
             {/* Rows */}
@@ -204,9 +217,7 @@ export default async function JournalPage({ searchParams }: PageProps) {
             {result.totalPages > 1 && (
               <div className="flex items-center justify-between border-t px-6 py-4">
                 <p className="text-sm text-muted-foreground">
-                  Showing {(result.page - 1) * result.pageSize + 1} to{' '}
-                  {Math.min(result.page * result.pageSize, result.total)} of{' '}
-                  {result.total} entries
+                  {tc('showing', { from: (result.page - 1) * result.pageSize + 1, to: Math.min(result.page * result.pageSize, result.total), total: result.total })}
                 </p>
                 <div className="flex items-center gap-2">
                   {result.page > 1 ? (
@@ -215,12 +226,12 @@ export default async function JournalPage({ searchParams }: PageProps) {
                       className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm hover:bg-muted transition-colors"
                     >
                       <ChevronLeft className="h-4 w-4" />
-                      Previous
+                      {tc('previous')}
                     </Link>
                   ) : (
                     <span className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm text-muted-foreground opacity-50">
                       <ChevronLeft className="h-4 w-4" />
-                      Previous
+                      {tc('previous')}
                     </span>
                   )}
 
@@ -233,12 +244,12 @@ export default async function JournalPage({ searchParams }: PageProps) {
                       href={buildPageUrl(result.page + 1, { search, sourceType, dateFrom, dateTo })}
                       className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm hover:bg-muted transition-colors"
                     >
-                      Next
+                      {tc('next')}
                       <ChevronRight className="h-4 w-4" />
                     </Link>
                   ) : (
                     <span className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm text-muted-foreground opacity-50">
-                      Next
+                      {tc('next')}
                       <ChevronRight className="h-4 w-4" />
                     </span>
                   )}

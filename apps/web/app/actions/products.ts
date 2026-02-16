@@ -1,7 +1,6 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import {
   createProduct,
@@ -10,13 +9,7 @@ import {
   createProductSchema,
   updateProductSchema,
 } from '@kivvi/core';
-import { safeErrorMessage } from './utils';
-
-interface ActionResult {
-  success: boolean;
-  data?: { id: string };
-  error?: string;
-}
+import { type ActionResult, getSession, safeErrorMessage } from './utils';
 
 /**
  * Parse form data into a plain object, handling checkboxes and empty strings.
@@ -46,12 +39,9 @@ function parseProductFormData(formData: FormData) {
   };
 }
 
-export async function createProductAction(formData: FormData): Promise<ActionResult> {
+export async function createProductAction(formData: FormData): Promise<ActionResult<{ id: string }>> {
   try {
-    const session = await auth();
-    if (!session?.user?.companyId) {
-      return { success: false, error: 'Unauthorized' };
-    }
+    const { companyId } = await getSession();
 
     const input = parseProductFormData(formData);
 
@@ -65,7 +55,7 @@ export async function createProductAction(formData: FormData): Promise<ActionRes
       };
     }
 
-    const product = await createProduct(db, session.user.companyId, parsed.data);
+    const product = await createProduct(db, companyId, parsed.data);
 
     revalidatePath('/products');
 
@@ -82,12 +72,9 @@ export async function createProductAction(formData: FormData): Promise<ActionRes
 export async function updateProductAction(
   productId: string,
   formData: FormData
-): Promise<ActionResult> {
+): Promise<ActionResult<{ id: string }>> {
   try {
-    const session = await auth();
-    if (!session?.user?.companyId) {
-      return { success: false, error: 'Unauthorized' };
-    }
+    const { companyId } = await getSession();
 
     const input = parseProductFormData(formData);
 
@@ -101,7 +88,7 @@ export async function updateProductAction(
       };
     }
 
-    const product = await updateProduct(db, session.user.companyId, productId, parsed.data);
+    const product = await updateProduct(db, companyId, productId, parsed.data);
 
     revalidatePath('/products');
     revalidatePath(`/products/${productId}`);
@@ -116,14 +103,11 @@ export async function updateProductAction(
   }
 }
 
-export async function deleteProductAction(productId: string): Promise<ActionResult> {
+export async function deleteProductAction(productId: string): Promise<ActionResult<{ id: string }>> {
   try {
-    const session = await auth();
-    if (!session?.user?.companyId) {
-      return { success: false, error: 'Unauthorized' };
-    }
+    const { companyId } = await getSession();
 
-    const product = await deleteProduct(db, session.user.companyId, productId);
+    const product = await deleteProduct(db, companyId, productId);
 
     revalidatePath('/products');
     revalidatePath(`/products/${productId}`);

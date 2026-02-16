@@ -3,10 +3,13 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { createWarehouseAction } from '@/app/actions/inventory';
 
 export function AddWarehouseForm() {
   const router = useRouter();
+  const t = useTranslations('inventory');
+  const tc = useTranslations('common');
   const [isPending, startTransition] = useTransition();
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +43,7 @@ export function AddWarehouseForm() {
         className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
       >
         <Plus className="h-4 w-4" />
-        Add Warehouse
+        {t('addWarehouse')}
       </button>
     );
   }
@@ -49,7 +52,7 @@ export function AddWarehouseForm() {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="w-full max-w-md rounded-xl border bg-card p-6 shadow-lg">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Add Warehouse</h2>
+          <h2 className="text-lg font-semibold">{t('addWarehouse')}</h2>
           <button
             onClick={() => setIsOpen(false)}
             className="rounded-lg p-1 hover:bg-muted transition-colors"
@@ -61,23 +64,23 @@ export function AddWarehouseForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-1">
-              Warehouse Name <span className="text-red-500">*</span>
+              {t('warehouseName')} <span className="text-red-500">*</span>
             </label>
             <input
               name="name"
               type="text"
               required
-              placeholder="e.g. Main Warehouse"
+              placeholder={t('warehouseNamePlaceholder')}
               className="w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Address</label>
+            <label className="block text-sm font-medium mb-1">{t('location')}</label>
             <input
               name="address"
               type="text"
-              placeholder="e.g. Bahnhofstrasse 1, 8001 Zurich"
+              placeholder={t('locationPlaceholder')}
               className="w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
@@ -90,7 +93,7 @@ export function AddWarehouseForm() {
               className="h-4 w-4 rounded border-gray-300"
             />
             <label htmlFor="isDefault" className="text-sm font-medium">
-              Set as default warehouse
+              {t('defaultWarehouse')}
             </label>
           </div>
 
@@ -102,14 +105,14 @@ export function AddWarehouseForm() {
               disabled={isPending}
               className="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
-              {isPending ? 'Creating...' : 'Create Warehouse'}
+              {isPending ? tc('creating') : tc('create')}
             </button>
             <button
               type="button"
               onClick={() => setIsOpen(false)}
               className="rounded-lg border px-4 py-2 text-sm hover:bg-muted transition-colors"
             >
-              Cancel
+              {tc('cancel')}
             </button>
           </div>
         </form>

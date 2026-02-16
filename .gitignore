@@ -39,3 +39,4 @@ drizzle/
 
 # Vercel
 .vercel/
+.vercel

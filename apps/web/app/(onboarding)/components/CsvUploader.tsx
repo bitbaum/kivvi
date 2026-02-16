@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef } from 'react';
 import { Upload, FileText, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Papa from 'papaparse';
 import { cleanHeaders } from '@kivvi/core/src/domain/import-mappings';
 
@@ -12,6 +13,7 @@ interface CsvUploaderProps {
 }
 
 export function CsvUploader({ onParsed, label = 'Upload CSV', accept = '.csv' }: CsvUploaderProps) {
+  const t = useTranslations('onboarding');
   const [fileName, setFileName] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState('');
@@ -87,7 +89,7 @@ export function CsvUploader({ onParsed, label = 'Upload CSV', accept = '.csv' }:
           <Upload className="mb-2 h-8 w-8 text-muted-foreground" />
           <span className="text-sm font-medium">{label}</span>
           <span className="mt-1 text-xs text-muted-foreground">
-            Drag & drop or click to browse
+            {t('dragAndDrop')}
           </span>
         </div>
       ) : (

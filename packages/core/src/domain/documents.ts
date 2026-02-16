@@ -8,12 +8,14 @@ import {
 } from '@kivvi/database';
 import type { Database, DocumentType, DocumentStatus } from '@kivvi/database';
 import type { PaginatedResult } from './contacts';
+import { rappenRound } from '../utils/swiss-currency';
 import { getNextNumber } from './number-sequences';
 import {
   createInvoiceSentJournalEntry,
   createPurchaseInvoiceJournalEntry,
   createPaymentReceivedJournalEntry,
 } from './accounting-integration';
+import { DEFAULT_VAT_RATE } from '../config/vat-rates';
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -26,7 +28,7 @@ const documentItemSchema = z.object({
   quantity: z.string().regex(/^\d+(\.\d{1,4})?$/, 'Invalid quantity'),
   unitPrice: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Invalid unit price'),
   discount: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Invalid discount').default('0'),
-  vatRate: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Invalid VAT rate').default('8.1'),
+  vatRate: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Invalid VAT rate').default(DEFAULT_VAT_RATE),
 });
 
 export const createDocumentSchema = z.object({
@@ -95,13 +97,6 @@ export interface CalculatedTotals {
 }
 
 /**
- * Round CHF amounts to nearest 0.05 (Swiss Rappen rounding).
- */
-export function rappenRound(amount: Decimal): Decimal {
-  return amount.times(20).round().div(20);
-}
-
-/**
  * Calculate line item totals, subtotal, VAT, and grand total.
  * Uses decimal.js for exact arithmetic. Rounds per line item (Swiss standard).
  */
@@ -114,7 +109,7 @@ export function calculateTotals(items: DocumentItemInput[]): CalculatedTotals {
     const qty = new Decimal(item.quantity || '0');
     const price = new Decimal(item.unitPrice || '0');
     const discountPct = new Decimal(item.discount || '0');
-    const vatPct = new Decimal(item.vatRate || '8.1');
+    const vatPct = new Decimal(item.vatRate || DEFAULT_VAT_RATE);
 
     const lineGross = qty.times(price);
     const discountAmount = lineGross.times(discountPct).div(100);
@@ -138,6 +133,68 @@ export function calculateTotals(items: DocumentItemInput[]): CalculatedTotals {
     total: total.toFixed(2),
     itemTotals,
   };
+}
+
+// ============================================================================
+// QR REFERENCE GENERATION (Swiss QR-Bill Legal Requirement)
+// ============================================================================
+
+/**
+ * Hash a string (company ID) to a fixed-length numeric string.
+ * Used to generate unique QR references per company.
+ */
+function hashToDigits(input: string, length: number): string {
+  let hash = 0;
+  for (let i = 0; i < input.length; i++) {
+    const char = input.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  // Convert to positive and pad to desired length
+  const digits = Math.abs(hash).toString().padStart(length, '0');
+  return digits.slice(0, length);
+}
+
+/**
+ * Calculate MOD-10 recursive check digit (Swiss QR-bill standard).
+ * Algorithm used for QR reference validation.
+ */
+function calculateMod10CheckDigit(input: string): string {
+  const table = [0, 9, 4, 6, 8, 2, 7, 1, 3, 5];
+  let carry = 0;
+
+  for (let i = 0; i < input.length; i++) {
+    const digit = parseInt(input[i], 10);
+    carry = table[(carry + digit) % 10];
+  }
+
+  return ((10 - carry) % 10).toString();
+}
+
+/**
+ * Generate Swiss QR reference number for invoices (27 digits with check digit).
+ * Format: Company ID hash (10 digits) + Document number (16 digits) + Check digit (1)
+ *
+ * Swiss QR-bill has been legally required since June 30, 2020, with the grace period
+ * ending October 1, 2022. All invoices must include a valid QR reference.
+ */
+export function generateQRReference(companyId: string, documentNumber: string): string {
+  // Generate 10-digit company identifier from company ID hash
+  const companyHash = hashToDigits(companyId, 10);
+
+  // Extract numeric part from document number and pad to 16 digits
+  // Example: "RE-2026-00123" -> "202600123"
+  const numericPart = documentNumber.replace(/\D/g, '');
+  const docNum = numericPart.padStart(16, '0').slice(-16);
+
+  // Combine company hash + document number (26 digits)
+  const baseReference = companyHash + docNum;
+
+  // Calculate check digit
+  const checkDigit = calculateMod10CheckDigit(baseReference);
+
+  // Return 27-digit QR reference
+  return baseReference + checkDigit;
 }
 
 // ============================================================================
@@ -277,6 +334,7 @@ export async function getDocument(
 
 /**
  * Create a new document with items. Auto-generates document number and calculates totals.
+ * Wraps document + items insertion in a transaction to ensure atomicity.
  */
 export async function createDocument(
   db: Database,
@@ -286,58 +344,68 @@ export async function createDocument(
 ) {
   const validated = createDocumentSchema.parse(input);
 
-  // Generate document number
-  const number = await getNextNumber(db, companyId, validated.type);
+  // Wrap entire operation in transaction for atomicity
+  return db.transaction(async (tx) => {
+    // Generate document number
+    const number = await getNextNumber(tx, companyId, validated.type);
 
-  // Calculate totals
-  const totals = calculateTotals(validated.items);
+    // Calculate totals
+    const totals = calculateTotals(validated.items);
 
-  // Insert document
-  const [doc] = await db
-    .insert(documents)
-    .values({
-      companyId,
-      type: validated.type,
-      status: 'draft',
-      number,
-      contactId: validated.contactId ?? null,
-      projectId: validated.projectId ?? null,
-      issueDate: validated.issueDate ? new Date(validated.issueDate) : new Date(),
-      dueDate: validated.dueDate ? new Date(validated.dueDate) : null,
-      deliveryDate: validated.deliveryDate ? new Date(validated.deliveryDate) : null,
-      currency: validated.currency,
-      subtotal: totals.subtotal,
-      vatAmount: totals.vatAmount,
-      total: totals.total,
-      notes: validated.notes ?? null,
-      internalNotes: validated.internalNotes ?? null,
-      createdBy: userId,
-    })
-    .returning();
+    // Generate QR reference for invoices (Swiss legal requirement)
+    const qrReference = validated.type === 'invoice'
+      ? generateQRReference(companyId, number)
+      : null;
 
-  // Insert items
-  if (validated.items.length > 0) {
-    await db.insert(documentItems).values(
-      validated.items.map((item, index) => ({
-        documentId: doc.id,
-        productId: item.productId ?? null,
-        position: item.position ?? index,
-        description: item.description,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice,
-        discount: item.discount || '0',
-        vatRate: item.vatRate || '8.1',
-        total: totals.itemTotals[index],
-      }))
-    );
-  }
+    // Insert document
+    const [doc] = await tx
+      .insert(documents)
+      .values({
+        companyId,
+        type: validated.type,
+        status: 'draft',
+        number,
+        contactId: validated.contactId ?? null,
+        projectId: validated.projectId ?? null,
+        issueDate: validated.issueDate ? new Date(validated.issueDate) : new Date(),
+        dueDate: validated.dueDate ? new Date(validated.dueDate) : null,
+        deliveryDate: validated.deliveryDate ? new Date(validated.deliveryDate) : null,
+        currency: validated.currency,
+        subtotal: totals.subtotal,
+        vatAmount: totals.vatAmount,
+        total: totals.total,
+        notes: validated.notes ?? null,
+        internalNotes: validated.internalNotes ?? null,
+        qrReference,
+        createdBy: userId,
+      })
+      .returning();
 
-  return doc;
+    // Insert items (in same transaction)
+    if (validated.items.length > 0) {
+      await tx.insert(documentItems).values(
+        validated.items.map((item, index) => ({
+          documentId: doc.id,
+          productId: item.productId ?? null,
+          position: item.position ?? index,
+          description: item.description,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          discount: item.discount || '0',
+          vatRate: item.vatRate || DEFAULT_VAT_RATE,
+          total: totals.itemTotals[index],
+        }))
+      );
+    }
+
+    return doc;
+  });
 }
 
 /**
  * Update a document (only drafts can be fully edited).
  * For non-draft documents, only notes/internalNotes can be updated.
+ * Uses transaction when updating items to ensure atomicity.
  */
 export async function updateDocument(
   db: Database,
@@ -362,7 +430,7 @@ export async function updateDocument(
 
   // Only drafts can have items/contact/dates modified
   if (doc.status !== 'draft') {
-    // Non-draft: only allow notes updates
+    // Non-draft: only allow notes updates (no transaction needed)
     const [updated] = await db
       .update(documents)
       .set({
@@ -370,13 +438,66 @@ export async function updateDocument(
         internalNotes: validated.internalNotes !== undefined ? validated.internalNotes : doc.internalNotes,
         updatedAt: new Date(),
       })
-      .where(eq(documents.id, documentId))
+      .where(and(
+        eq(documents.id, documentId),
+        eq(documents.companyId, companyId)
+      ))
       .returning();
 
     return updated;
   }
 
-  // Draft: full update
+  // Draft: full update (wrap in transaction if items are being updated)
+  const items = validated.items;
+  if (items) {
+    return db.transaction(async (tx) => {
+      const updateValues: Record<string, unknown> = { updatedAt: new Date() };
+
+      if (validated.contactId !== undefined) updateValues.contactId = validated.contactId;
+      if (validated.projectId !== undefined) updateValues.projectId = validated.projectId;
+      if (validated.issueDate) updateValues.issueDate = new Date(validated.issueDate);
+      if (validated.dueDate !== undefined) updateValues.dueDate = validated.dueDate ? new Date(validated.dueDate) : null;
+      if (validated.deliveryDate !== undefined) updateValues.deliveryDate = validated.deliveryDate ? new Date(validated.deliveryDate) : null;
+      if (validated.currency) updateValues.currency = validated.currency;
+      if (validated.notes !== undefined) updateValues.notes = validated.notes;
+      if (validated.internalNotes !== undefined) updateValues.internalNotes = validated.internalNotes;
+
+      // Recalculate totals
+      const totals = calculateTotals(items);
+      updateValues.subtotal = totals.subtotal;
+      updateValues.vatAmount = totals.vatAmount;
+      updateValues.total = totals.total;
+
+      // Delete existing items and re-insert (in same transaction)
+      await tx.delete(documentItems).where(eq(documentItems.documentId, documentId));
+      await tx.insert(documentItems).values(
+        items.map((item, index) => ({
+          documentId,
+          productId: item.productId ?? null,
+          position: item.position ?? index,
+          description: item.description,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          discount: item.discount || '0',
+          vatRate: item.vatRate || DEFAULT_VAT_RATE,
+          total: totals.itemTotals[index],
+        }))
+      );
+
+      const [updated] = await tx
+        .update(documents)
+        .set(updateValues)
+        .where(and(
+          eq(documents.id, documentId),
+          eq(documents.companyId, companyId)
+        ))
+        .returning();
+
+      return updated;
+    });
+  }
+
+  // No items update: simple field updates (no transaction needed)
   const updateValues: Record<string, unknown> = { updatedAt: new Date() };
 
   if (validated.contactId !== undefined) updateValues.contactId = validated.contactId;
@@ -388,34 +509,13 @@ export async function updateDocument(
   if (validated.notes !== undefined) updateValues.notes = validated.notes;
   if (validated.internalNotes !== undefined) updateValues.internalNotes = validated.internalNotes;
 
-  // Recalculate totals if items provided
-  if (validated.items) {
-    const totals = calculateTotals(validated.items);
-    updateValues.subtotal = totals.subtotal;
-    updateValues.vatAmount = totals.vatAmount;
-    updateValues.total = totals.total;
-
-    // Delete existing items and re-insert
-    await db.delete(documentItems).where(eq(documentItems.documentId, documentId));
-    await db.insert(documentItems).values(
-      validated.items.map((item, index) => ({
-        documentId,
-        productId: item.productId ?? null,
-        position: item.position ?? index,
-        description: item.description,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice,
-        discount: item.discount || '0',
-        vatRate: item.vatRate || '8.1',
-        total: totals.itemTotals[index],
-      }))
-    );
-  }
-
   const [updated] = await db
     .update(documents)
     .set(updateValues)
-    .where(eq(documents.id, documentId))
+    .where(and(
+      eq(documents.id, documentId),
+      eq(documents.companyId, companyId)
+    ))
     .returning();
 
   return updated;
@@ -459,7 +559,10 @@ export async function updateDocumentStatus(
   const [updated] = await db
     .update(documents)
     .set(updateValues)
-    .where(eq(documents.id, documentId))
+    .where(and(
+      eq(documents.id, documentId),
+      eq(documents.companyId, companyId)
+    ))
     .returning();
 
   // Auto-create journal entries for status transitions
@@ -501,7 +604,10 @@ export async function deleteDocument(
   }
 
   // Items and payments cascade-delete via FK
-  await db.delete(documents).where(eq(documents.id, documentId));
+  await db.delete(documents).where(and(
+    eq(documents.id, documentId),
+    eq(documents.companyId, companyId)
+  ));
 
   return existing[0];
 }
@@ -509,6 +615,7 @@ export async function deleteDocument(
 /**
  * Record a payment against a document.
  * Auto-updates document status to paid/partially_paid.
+ * Wraps payment insertion + status update in a transaction for atomicity.
  */
 export async function recordPayment(
   db: Database,
@@ -522,7 +629,7 @@ export async function recordPayment(
     bankTransactionId?: string;
   }
 ) {
-  // Verify document
+  // Verify document (outside transaction - read-only)
   const [doc] = await db
     .select()
     .from(documents)
@@ -549,63 +656,70 @@ export async function recordPayment(
     }
   }
 
-  // Insert payment
-  const [payment] = await db
-    .insert(documentPayments)
-    .values({
-      documentId,
-      amount: input.amount,
-      date: new Date(input.date),
-      method: input.method ?? 'bank_transfer',
-      reference: input.reference ?? null,
-      bankTransactionId: input.bankTransactionId ?? null,
-    })
-    .returning();
+  // Wrap payment + status update in transaction
+  return db.transaction(async (tx) => {
+    // Insert payment
+    const [payment] = await tx
+      .insert(documentPayments)
+      .values({
+        documentId,
+        amount: input.amount,
+        date: new Date(input.date),
+        method: input.method ?? 'bank_transfer',
+        reference: input.reference ?? null,
+        bankTransactionId: input.bankTransactionId ?? null,
+      })
+      .returning();
 
-  // Calculate total paid using Decimal for exact comparison
-  const paymentsResult = await db
-    .select({
-      totalPaid: sql<string>`COALESCE(SUM(${documentPayments.amount}::numeric), 0)`,
-    })
-    .from(documentPayments)
-    .where(eq(documentPayments.documentId, documentId));
+    // Calculate total paid using Decimal for exact comparison
+    const paymentsResult = await tx
+      .select({
+        totalPaid: sql<string>`COALESCE(SUM(${documentPayments.amount}::numeric), 0)`,
+      })
+      .from(documentPayments)
+      .where(eq(documentPayments.documentId, documentId));
 
-  const totalPaid = new Decimal(paymentsResult[0]?.totalPaid || '0');
-  const docTotal = new Decimal(doc.total);
+    const totalPaid = new Decimal(paymentsResult[0]?.totalPaid || '0');
+    const docTotal = new Decimal(doc.total);
 
-  // Update document status
-  let newStatus: DocumentStatus;
-  if (totalPaid.gte(docTotal)) {
-    newStatus = 'paid';
-  } else {
-    newStatus = 'partially_paid';
-  }
+    // Update document status (in same transaction)
+    let newStatus: DocumentStatus;
+    if (totalPaid.gte(docTotal)) {
+      newStatus = 'paid';
+    } else {
+      newStatus = 'partially_paid';
+    }
 
-  await db
-    .update(documents)
-    .set({
-      status: newStatus,
-      paidDate: newStatus === 'paid' ? new Date() : null,
-      updatedAt: new Date(),
-    })
-    .where(eq(documents.id, documentId));
+    await tx
+      .update(documents)
+      .set({
+        status: newStatus,
+        paidDate: newStatus === 'paid' ? new Date() : null,
+        updatedAt: new Date(),
+      })
+      .where(and(
+        eq(documents.id, documentId),
+        eq(documents.companyId, companyId)
+      ));
 
-  // Auto-create journal entry for the payment
-  try {
-    await createPaymentReceivedJournalEntry(db, companyId, doc, {
-      amount: input.amount,
-      date: new Date(input.date),
-    });
-  } catch (e) {
-    console.error('Auto journal entry for payment failed:', e);
-  }
+    // Auto-create journal entry for the payment (best effort - don't fail transaction)
+    try {
+      await createPaymentReceivedJournalEntry(tx, companyId, doc, {
+        amount: input.amount,
+        date: new Date(input.date),
+      });
+    } catch (e) {
+      console.error('Auto journal entry for payment failed:', e);
+    }
 
-  return payment;
+    return payment;
+  });
 }
 
 /**
  * Convert a document to another type (e.g., Quote → Order → Invoice).
  * Creates a copy with new type, number, and links to the original via convertedFromId.
+ * Wraps document + items creation in a transaction for atomicity.
  */
 export async function convertDocument(
   db: Database,
@@ -614,7 +728,7 @@ export async function convertDocument(
   sourceDocumentId: string,
   targetType: DocumentType
 ) {
-  // Get the source document with items
+  // Get the source document with items (outside transaction - read-only)
   const source = await db.query.documents.findFirst({
     where: and(
       eq(documents.id, sourceDocumentId),
@@ -644,51 +758,60 @@ export async function convertDocument(
     throw new Error(`Cannot convert ${source.type} to ${targetType}`);
   }
 
-  // Generate new number
-  const number = await getNextNumber(db, companyId, targetType);
+  // Wrap conversion in transaction
+  return db.transaction(async (tx) => {
+    // Generate new number
+    const number = await getNextNumber(tx, companyId, targetType);
 
-  // Create new document
-  const [newDoc] = await db
-    .insert(documents)
-    .values({
-      companyId,
-      type: targetType,
-      status: 'draft',
-      number,
-      contactId: source.contactId,
-      projectId: source.projectId,
-      issueDate: new Date(),
-      dueDate: null, // User should set for the new document
-      deliveryDate: null,
-      currency: source.currency,
-      subtotal: source.subtotal,
-      vatAmount: source.vatAmount,
-      total: source.total,
-      notes: source.notes,
-      internalNotes: null,
-      convertedFromId: source.id,
-      createdBy: userId,
-    })
-    .returning();
+    // Generate QR reference if converting to invoice
+    const qrReference = targetType === 'invoice'
+      ? generateQRReference(companyId, number)
+      : null;
 
-  // Copy items
-  if (source.items.length > 0) {
-    await db.insert(documentItems).values(
-      source.items.map((item: any) => ({
-        documentId: newDoc.id,
-        productId: item.productId,
-        position: item.position,
-        description: item.description,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice,
-        discount: item.discount,
-        vatRate: item.vatRate,
-        total: item.total,
-      }))
-    );
-  }
+    // Create new document
+    const [newDoc] = await tx
+      .insert(documents)
+      .values({
+        companyId,
+        type: targetType,
+        status: 'draft',
+        number,
+        contactId: source.contactId,
+        projectId: source.projectId,
+        issueDate: new Date(),
+        dueDate: null, // User should set for the new document
+        deliveryDate: null,
+        currency: source.currency,
+        subtotal: source.subtotal,
+        vatAmount: source.vatAmount,
+        total: source.total,
+        notes: source.notes,
+        internalNotes: null,
+        qrReference,
+        convertedFromId: source.id,
+        createdBy: userId,
+      })
+      .returning();
 
-  return newDoc;
+    // Copy items (in same transaction)
+    if (source.items.length > 0) {
+      await tx.insert(documentItems).values(
+        source.items.map((item: any) => ({
+          documentId: newDoc.id,
+          productId: item.productId,
+          position: item.position,
+          description: item.description,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          discount: item.discount,
+          vatRate: item.vatRate,
+          total: item.total,
+        }))
+      );
+    }
+
+    return newDoc;
+  });
 }
 
 /**

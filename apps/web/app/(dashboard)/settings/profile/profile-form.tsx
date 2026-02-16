@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Loader2, CheckCircle2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { updateProfileAction } from '@/app/actions/settings';
 import { cn } from '@/lib/utils';
 
@@ -13,6 +14,8 @@ interface ProfileFormProps {
 }
 
 export function ProfileForm({ initialData }: ProfileFormProps) {
+  const t = useTranslations('settings');
+  const tc = useTranslations('common');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -58,19 +61,19 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
       {success && (
         <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-400">
           <CheckCircle2 className="h-4 w-4" />
-          Profile updated successfully.
+          {t('profileSection.savedSuccessfully')}
         </div>
       )}
 
       {/* Personal Information */}
       <section className="rounded-xl border bg-card">
         <div className="border-b px-6 py-4">
-          <h2 className="font-semibold">Personal Information</h2>
+          <h2 className="font-semibold">{t('profileSection.title')}</h2>
         </div>
         <div className="grid gap-6 p-6 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
-              Full Name <span className="text-destructive">*</span>
+              {t('profileSection.fullName')} <span className="text-destructive">*</span>
             </label>
             <input
               type="text"
@@ -85,7 +88,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
 
           <div className="sm:col-span-2">
             <label htmlFor="email" className="mb-1.5 block text-sm font-medium">
-              Email Address <span className="text-destructive">*</span>
+              {t('profileSection.emailAddress')} <span className="text-destructive">*</span>
             </label>
             <input
               type="email"
@@ -110,7 +113,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
           )}
         >
           {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-          {isSubmitting ? 'Saving...' : 'Save Changes'}
+          {isSubmitting ? tc('saving') : tc('saveChanges')}
         </button>
       </div>
     </form>

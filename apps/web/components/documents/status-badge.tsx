@@ -1,6 +1,7 @@
-import { STATUS_STYLES, STATUS_LABELS } from '@/lib/config/document-types';
+import { getTranslations } from 'next-intl/server';
+import { STATUS_STYLES, toCamelCase } from '@/lib/config/document-types';
 
-export function StatusBadge({
+export async function StatusBadge({
   status,
   isOverdue,
   size = 'sm',
@@ -9,6 +10,7 @@ export function StatusBadge({
   isOverdue?: boolean;
   size?: 'sm' | 'md';
 }) {
+  const t = await getTranslations('status');
   const displayStatus = isOverdue && status !== 'overdue' ? 'overdue' : status;
   const sizeClasses = size === 'md' ? 'px-3 py-1 text-xs' : 'px-2.5 py-0.5 text-xs';
 
@@ -18,7 +20,7 @@ export function StatusBadge({
         STATUS_STYLES[displayStatus] || STATUS_STYLES.draft
       }`}
     >
-      {STATUS_LABELS[displayStatus] || status.replace(/_/g, ' ')}
+      {t(toCamelCase(displayStatus))}
     </span>
   );
 }

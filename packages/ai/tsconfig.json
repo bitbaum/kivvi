@@ -8,7 +8,13 @@
     "skipLibCheck": true,
     "declaration": true,
     "declarationMap": true,
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "paths": {
+      "@kivvi/core": ["../core/src"],
+      "@kivvi/core/*": ["../core/*"],
+      "@kivvi/database": ["../database/src"],
+      "@kivvi/database/*": ["../database/*"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

@@ -1,14 +1,17 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { Building2, User, Hash, ArrowRight } from 'lucide-react';
+import { Building2, User, Hash, ArrowRight, RepeatIcon } from 'lucide-react';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { companies, users } from '@kivvi/database';
 import { eq } from 'drizzle-orm';
+import { getTranslations } from 'next-intl/server';
 
 export default async function SettingsPage() {
   const session = await auth();
   if (!session?.user?.companyId) redirect('/login');
+
+  const t = await getTranslations('settings');
 
   const [company] = await db
     .select()
@@ -22,22 +25,28 @@ export default async function SettingsPage() {
 
   const sections = [
     {
-      title: 'Company Settings',
-      subtitle: company?.name || 'Configure your company',
+      title: t('companySettings'),
+      subtitle: company?.name || t('companySettingsDesc'),
       href: '/settings/company',
       icon: Building2,
     },
     {
-      title: 'User Profile',
-      subtitle: user?.email || 'Manage your account',
+      title: t('userProfile'),
+      subtitle: user?.email || t('userProfileDesc'),
       href: '/settings/profile',
       icon: User,
     },
     {
-      title: 'Number Sequences',
-      subtitle: 'Document numbering formats',
+      title: t('numberSequences'),
+      subtitle: t('numberSequencesDesc'),
       href: '/settings/sequences',
       icon: Hash,
+    },
+    {
+      title: t('recurring.title'),
+      subtitle: t('recurring.settingsDesc'),
+      href: '/settings/recurring-invoices',
+      icon: RepeatIcon,
     },
   ];
 
@@ -45,9 +54,9 @@ export default async function SettingsPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Settings</h1>
+        <h1 className="text-3xl font-bold">{t('title')}</h1>
         <p className="text-muted-foreground">
-          Manage your company, profile, and system settings.
+          {t('subtitle')}
         </p>
       </div>
 

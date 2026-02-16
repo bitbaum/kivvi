@@ -1,7 +1,11 @@
 import Link from 'next/link';
 import { ArrowRight, Bot, Zap, Shield, Globe } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
+import { LanguageSwitcher } from '@/components/language-switcher';
 
-export default function Home() {
+export default async function Home() {
+  const t = await getTranslations('landing');
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
       {/* Header */}
@@ -12,17 +16,18 @@ export default function Home() {
             <span className="text-xl font-bold">Kivvi</span>
           </div>
           <div className="flex items-center gap-4">
+            <LanguageSwitcher />
             <Link
               href="/login"
               className="text-sm font-medium text-muted-foreground hover:text-foreground"
             >
-              Sign in
+              {t('signIn')}
             </Link>
             <Link
               href="/register"
               className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
             >
-              Get Started
+              {t('getStarted')}
             </Link>
           </div>
         </nav>
@@ -33,19 +38,18 @@ export default function Home() {
         <div className="mx-auto max-w-3xl text-center">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border bg-muted/50 px-4 py-1.5 text-sm">
             <Bot className="h-4 w-4" />
-            <span>AI-First ERP for Swiss Businesses</span>
+            <span>{t('aiFirstErp')}</span>
           </div>
 
           <h1 className="mb-6 text-5xl font-bold tracking-tight sm:text-6xl">
-            Business on{' '}
+            {t('heroTitle')}{' '}
             <span className="bg-gradient-to-r from-blue-500 to-indigo-600 bg-clip-text text-transparent">
-              Autopilot
+              {t('heroTitleHighlight')}
             </span>
           </h1>
 
           <p className="mb-10 text-xl text-muted-foreground">
-            Kivvi handles your invoices, reconciles your bank transactions, and runs
-            your business operations automatically. You focus on what matters.
+            {t('heroDescription')}
           </p>
 
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -53,14 +57,14 @@ export default function Home() {
               href="/register"
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-primary-foreground hover:bg-primary/90"
             >
-              Start Free Trial
+              {t('startFreeTrial')}
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
               href="/demo"
               className="inline-flex items-center gap-2 rounded-lg border px-6 py-3 font-medium hover:bg-muted"
             >
-              Watch Demo
+              {t('watchDemo')}
             </Link>
           </div>
         </div>
@@ -70,56 +74,56 @@ export default function Home() {
           <div className="grid gap-8 md:grid-cols-3">
             <FeatureCard
               icon={<Bot className="h-6 w-6" />}
-              title="AI That Acts"
-              description="Not just a chatbot. Kivvi observes your business, makes decisions, and executes tasks autonomously."
+              title={t('featureAiTitle')}
+              description={t('featureAiDesc')}
             />
             <FeatureCard
               icon={<Zap className="h-6 w-6" />}
-              title="Swiss Compliant"
-              description="QR-bills, Swiss VAT rates, and local banking integrations built-in from day one."
+              title={t('featureSwissTitle')}
+              description={t('featureSwissDesc')}
             />
             <FeatureCard
               icon={<Shield className="h-6 w-6" />}
-              title="Your Data, Your AI"
-              description="Self-host your own AI model. We support Claude, GPT-4, or run Llama locally."
+              title={t('featureDataTitle')}
+              description={t('featureDataDesc')}
             />
           </div>
         </div>
 
         {/* How it works */}
         <div className="mx-auto mt-32 max-w-3xl">
-          <h2 className="mb-12 text-center text-3xl font-bold">How Kivvi Works</h2>
+          <h2 className="mb-12 text-center text-3xl font-bold">{t('howItWorks')}</h2>
 
           <div className="space-y-8">
             <Step
               number={1}
-              title="Connect your calendar and bank"
-              description="Kivvi watches for meetings, invoices, and payments."
+              title={t('step1Title')}
+              description={t('step1Desc')}
             />
             <Step
               number={2}
-              title="AI learns your patterns"
-              description="Who you bill, how much, what terms. It picks up your workflow."
+              title={t('step2Title')}
+              description={t('step2Desc')}
             />
             <Step
               number={3}
-              title="Business runs itself"
-              description="Invoices sent, payments matched, follow-ups scheduled. You just review."
+              title={t('step3Title')}
+              description={t('step3Desc')}
             />
           </div>
         </div>
 
         {/* CTA */}
         <div className="mx-auto mt-32 max-w-2xl text-center">
-          <h2 className="mb-4 text-3xl font-bold">Ready to automate?</h2>
+          <h2 className="mb-4 text-3xl font-bold">{t('readyToAutomate')}</h2>
           <p className="mb-8 text-muted-foreground">
-            Join Swiss businesses running on autopilot.
+            {t('joinSwissBusiness')}
           </p>
           <Link
             href="/register"
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-4 text-lg font-medium text-primary-foreground hover:bg-primary/90"
           >
-            Get Started Free
+            {t('getStartedFree')}
             <ArrowRight className="h-5 w-5" />
           </Link>
         </div>
@@ -133,7 +137,7 @@ export default function Home() {
             <span className="font-semibold">Kivvi</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            Built by RevampIT. Open source under MIT license.
+            {t('footer')}
           </p>
         </div>
       </footer>

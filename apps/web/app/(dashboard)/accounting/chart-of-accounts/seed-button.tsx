@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Database, Loader2 } from 'lucide-react';
 import { seedChartOfAccountsAction } from '@/app/actions/accounting';
+import { useTranslations } from 'next-intl';
 
 export function SeedButton() {
   const router = useRouter();
@@ -11,6 +12,8 @@ export function SeedButton() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const t = useTranslations('accounting');
+  const tc = useTranslations('common');
 
   function handleSeed() {
     setError(null);
@@ -18,7 +21,7 @@ export function SeedButton() {
     startTransition(async () => {
       const result = await seedChartOfAccountsAction();
       if (result.success) {
-        setSuccess(`${result.data?.count} accounts created successfully.`);
+        setSuccess(t('seedSuccess', { count: result.data?.count ?? 0 }));
         setShowConfirm(false);
         router.refresh();
       } else {
@@ -31,7 +34,7 @@ export function SeedButton() {
     return (
       <div className="flex items-center gap-2">
         <p className="text-sm text-muted-foreground">
-          This will create the Swiss KMU Kontenrahmen. Continue?
+          {t('seedConfirm')}
         </p>
         <button
           onClick={handleSeed}
@@ -41,10 +44,10 @@ export function SeedButton() {
           {isPending ? (
             <>
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              Seeding...
+              {tc('saving')}
             </>
           ) : (
-            'Yes, seed accounts'
+            t('seedAccounts')
           )}
         </button>
         <button
@@ -52,7 +55,7 @@ export function SeedButton() {
           disabled={isPending}
           className="rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-muted disabled:opacity-50 transition-colors"
         >
-          Cancel
+          {tc('cancel')}
         </button>
         {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
       </div>
@@ -66,7 +69,7 @@ export function SeedButton() {
         className="inline-flex items-center gap-2 rounded-lg border bg-card px-4 py-2.5 text-sm font-medium hover:bg-muted transition-colors"
       >
         <Database className="h-4 w-4" />
-        Seed Swiss KMU
+        {t('seedAccounts')}
       </button>
       {success && (
         <p className="mt-1 text-sm text-green-600 dark:text-green-400">{success}</p>

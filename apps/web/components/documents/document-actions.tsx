@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { ArrowRightLeft } from 'lucide-react';
 import { updateDocumentStatusAction, convertDocumentAction } from '@/app/actions/documents';
 import type { DocumentTypeConfig, StatusAction } from '@/lib/config/document-types';
@@ -18,6 +19,7 @@ export function DocumentStatusActions({
   config: DocumentTypeConfig;
 }) {
   const router = useRouter();
+  const t = useTranslations('statusActions');
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -52,7 +54,7 @@ export function DocumentStatusActions({
               : 'border hover:bg-muted'
           }`}
         >
-          {action.label}
+          {t(action.label)}
         </button>
       ))}
       {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
@@ -68,6 +70,7 @@ export function DocumentConvertActions({
   config: DocumentTypeConfig;
 }) {
   const router = useRouter();
+  const t = useTranslations('documents');
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -98,7 +101,7 @@ export function DocumentConvertActions({
             className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium hover:bg-muted disabled:opacity-50"
           >
             <ArrowRightLeft className="h-4 w-4" />
-            Convert to {targetConfig.label}
+            {t('convertTo')} {t(targetConfig.label)}
           </button>
         );
       })}

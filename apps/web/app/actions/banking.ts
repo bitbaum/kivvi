@@ -66,9 +66,7 @@ export async function importTransactionsAction(
     if (!parsed.success) {
       return { success: false, error: 'Invalid transaction data' };
     }
-    const result = await db.transaction(async (tx) => {
-      return importTransactions(tx, companyId, bankAccountId, parsed.data);
-    });
+    const result = await importTransactions(db, companyId, bankAccountId, parsed.data);
     revalidatePath('/banking');
     return { success: true, data: result };
   } catch (error) {
@@ -82,9 +80,7 @@ export async function reconcileTransactionAction(
 ): Promise<ActionResult> {
   try {
     const { companyId } = await getSession();
-    const txn = await db.transaction(async (tx) => {
-      return reconcileTransaction(tx, companyId, transactionId, documentId);
-    });
+    const txn = await reconcileTransaction(db, companyId, transactionId, documentId);
     revalidatePath('/banking');
     return { success: true, data: txn };
   } catch (error) {
@@ -110,9 +106,7 @@ export async function autoMatchTransactionsAction(
 ): Promise<ActionResult<{ matched: number }>> {
   try {
     const { companyId } = await getSession();
-    const result = await db.transaction(async (tx) => {
-      return autoMatchTransactions(tx, companyId, bankAccountId);
-    });
+    const result = await autoMatchTransactions(db, companyId, bankAccountId);
     revalidatePath('/banking');
     return { success: true, data: result };
   } catch (error) {

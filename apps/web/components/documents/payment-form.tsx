@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { CreditCard } from 'lucide-react';
 import { recordPaymentAction } from '@/app/actions/documents';
 
@@ -15,6 +16,8 @@ export function PaymentForm({
   currency: string;
 }) {
   const router = useRouter();
+  const t = useTranslations('documents');
+  const tc = useTranslations('common');
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -26,7 +29,7 @@ export function PaymentForm({
         className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700"
       >
         <CreditCard className="h-4 w-4" />
-        Record Payment
+        {t('recordPayment')}
       </button>
     );
   }
@@ -57,7 +60,7 @@ export function PaymentForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
       <div>
-        <label className="block text-xs font-medium text-muted-foreground">Amount ({currency})</label>
+        <label className="block text-xs font-medium text-muted-foreground">{t('paymentAmount')} ({currency})</label>
         <input
           name="amount"
           type="number"
@@ -68,7 +71,7 @@ export function PaymentForm({
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-muted-foreground">Date</label>
+        <label className="block text-xs font-medium text-muted-foreground">{t('paymentDate')}</label>
         <input
           name="date"
           type="date"
@@ -78,23 +81,23 @@ export function PaymentForm({
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-muted-foreground">Method</label>
+        <label className="block text-xs font-medium text-muted-foreground">{t('paymentMethod')}</label>
         <select
           name="method"
           className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
         >
-          <option value="bank_transfer">Bank Transfer</option>
-          <option value="cash">Cash</option>
-          <option value="card">Card</option>
-          <option value="other">Other</option>
+          <option value="bank_transfer">{t('paymentMethods.bank_transfer')}</option>
+          <option value="cash">{t('paymentMethods.cash')}</option>
+          <option value="card">{t('paymentMethods.card')}</option>
+          <option value="other">{t('paymentMethods.other')}</option>
         </select>
       </div>
       <div>
-        <label className="block text-xs font-medium text-muted-foreground">Reference</label>
+        <label className="block text-xs font-medium text-muted-foreground">{tc('notes')}</label>
         <input
           name="reference"
           type="text"
-          placeholder="Payment reference..."
+          placeholder={t('paymentReference')}
           className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
         />
       </div>
@@ -105,14 +108,14 @@ export function PaymentForm({
           disabled={isPending}
           className="flex-1 rounded-lg bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
         >
-          {isPending ? 'Saving...' : 'Save Payment'}
+          {isPending ? tc('saving') : t('savePayment')}
         </button>
         <button
           type="button"
           onClick={() => setIsOpen(false)}
           className="rounded-lg border px-3 py-2 text-sm hover:bg-muted"
         >
-          Cancel
+          {tc('cancel')}
         </button>
       </div>
     </form>

@@ -1,11 +1,15 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 interface ImportPreviewProps {
   rows: Array<Record<string, string | null>>;
   maxRows?: number;
 }
 
 export function ImportPreview({ rows, maxRows = 5 }: ImportPreviewProps) {
+  const t = useTranslations('onboarding');
+
   if (rows.length === 0) return null;
 
   const previewRows = rows.slice(0, maxRows);
@@ -21,11 +25,11 @@ export function ImportPreview({ rows, maxRows = 5 }: ImportPreviewProps) {
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium">
-          Preview ({rows.length} rows total)
+          {t('preview', { rows: rows.length })}
         </span>
         {hasMore && (
           <span className="text-xs text-muted-foreground">
-            Showing {displayKeys.length} of {allKeys.length} columns
+            {t('showingColumns', { shown: displayKeys.length, total: allKeys.length })}
           </span>
         )}
       </div>

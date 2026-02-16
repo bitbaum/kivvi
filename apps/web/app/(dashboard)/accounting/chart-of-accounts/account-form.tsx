@@ -5,14 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Save, X, Loader2 } from 'lucide-react';
 import { createAccountAction, updateAccountAction } from '@/app/actions/accounting';
 import type { Account } from '@kivvi/database';
-
-const ACCOUNT_TYPES = [
-  { value: 'asset', label: 'Asset' },
-  { value: 'liability', label: 'Liability' },
-  { value: 'equity', label: 'Equity' },
-  { value: 'revenue', label: 'Revenue' },
-  { value: 'expense', label: 'Expense' },
-] as const;
+import { useTranslations } from 'next-intl';
 
 interface AccountFormProps {
   account?: Account;
@@ -23,6 +16,16 @@ export function AccountForm({ account, parentAccounts }: AccountFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const t = useTranslations('accounting');
+  const tc = useTranslations('common');
+
+  const ACCOUNT_TYPES = [
+    { value: 'asset', label: t('assets') },
+    { value: 'liability', label: t('liabilities') },
+    { value: 'equity', label: t('equity') },
+    { value: 'revenue', label: t('revenue') },
+    { value: 'expense', label: t('expenses') },
+  ] as const;
 
   const isEditing = !!account;
 
@@ -63,7 +66,7 @@ export function AccountForm({ account, parentAccounts }: AccountFormProps) {
     <div className="rounded-xl border bg-card">
       <div className="flex items-center justify-between border-b p-4">
         <h2 className="font-semibold">
-          {isEditing ? `Edit Account: ${account.code} ${account.name}` : 'Add New Account'}
+          {isEditing ? `${t('editAccount')}: ${account.code} ${account.name}` : t('addAccount')}
         </h2>
         <button
           onClick={handleCancel}
@@ -78,7 +81,7 @@ export function AccountForm({ account, parentAccounts }: AccountFormProps) {
           {/* Code */}
           <div>
             <label htmlFor="code" className="mb-1.5 block text-sm font-medium">
-              Code
+              {t('accountCode')}
             </label>
             <input
               id="code"
@@ -95,7 +98,7 @@ export function AccountForm({ account, parentAccounts }: AccountFormProps) {
           {/* Name */}
           <div>
             <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
-              Name
+              {t('accountName')}
             </label>
             <input
               id="name"
@@ -112,7 +115,7 @@ export function AccountForm({ account, parentAccounts }: AccountFormProps) {
           {/* Type */}
           <div>
             <label htmlFor="type" className="mb-1.5 block text-sm font-medium">
-              Type
+              {t('accountType')}
             </label>
             <select
               id="type"
@@ -122,7 +125,7 @@ export function AccountForm({ account, parentAccounts }: AccountFormProps) {
               className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="" disabled>
-                Select type...
+                {t('accountType')}...
               </option>
               {ACCOUNT_TYPES.map((t) => (
                 <option key={t.value} value={t.value}>
@@ -135,8 +138,8 @@ export function AccountForm({ account, parentAccounts }: AccountFormProps) {
           {/* Parent Account */}
           <div>
             <label htmlFor="parentId" className="mb-1.5 block text-sm font-medium">
-              Parent Account
-              <span className="ml-1 text-xs text-muted-foreground">(optional)</span>
+              {t('parentAccount')}
+              <span className="ml-1 text-xs text-muted-foreground">{tc('optional')}</span>
             </label>
             <select
               id="parentId"
@@ -144,7 +147,7 @@ export function AccountForm({ account, parentAccounts }: AccountFormProps) {
               defaultValue={account?.parentId || ''}
               className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >
-              <option value="">None</option>
+              <option value="">{tc('none')}</option>
               {availableParents.map((a) => (
                 <option key={a.id} value={a.id}>
                   {a.code} - {a.name}
@@ -171,12 +174,12 @@ export function AccountForm({ account, parentAccounts }: AccountFormProps) {
             {isPending ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                {isEditing ? 'Updating...' : 'Creating...'}
+                {tc('saving')}
               </>
             ) : (
               <>
                 <Save className="h-4 w-4" />
-                {isEditing ? 'Update Account' : 'Create Account'}
+                {isEditing ? t('editAccount') : t('addAccount')}
               </>
             )}
           </button>
@@ -186,7 +189,7 @@ export function AccountForm({ account, parentAccounts }: AccountFormProps) {
             disabled={isPending}
             className="rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted disabled:opacity-50 transition-colors"
           >
-            Cancel
+            {tc('cancel')}
           </button>
         </div>
       </form>

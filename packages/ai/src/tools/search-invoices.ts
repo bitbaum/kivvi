@@ -1,6 +1,6 @@
-// @ts-nocheck
 import { z } from 'zod';
 import type { Tool, ExecutionContext, ToolResult } from '../types';
+import { listDocuments } from '@kivvi/core';
 
 const searchInvoicesSchema = z.object({
   query: z.string().optional().describe('Search query for invoice number, customer name, or notes'),
@@ -18,49 +18,22 @@ export const searchInvoicesTool: Tool = {
   parameters: searchInvoicesSchema,
   execute: async (params: z.infer<typeof searchInvoicesSchema>, context: ExecutionContext): Promise<ToolResult> => {
     try {
-      const { createDb, documents, contacts } = await import('@kivvi/database');
-      const { eq, and, or, gte, lte, ilike, desc } = await import('drizzle-orm');
+      const db = context.db as any;
 
-      const db = createDb(process.env.DATABASE_URL!);
-
-      const conditions: any[] = [
-        eq(documents.companyId, context.companyId),
-        eq(documents.type, 'invoice'),
-      ];
-
-      if (params.status) {
-        conditions.push(eq(documents.status, params.status));
-      }
-
-      if (params.dateFrom) {
-        conditions.push(gte(documents.issueDate, new Date(params.dateFrom)));
-      }
-
-      if (params.dateTo) {
-        conditions.push(lte(documents.issueDate, new Date(params.dateTo)));
-      }
-
-      if (params.query) {
-        conditions.push(
-          or(
-            ilike(documents.number, `%${params.query}%`),
-            ilike(documents.notes, `%${params.query}%`)
-          )
-        );
-      }
-
-      const results = await db.query.documents.findMany({
-        where: and(...conditions),
-        with: { contact: true },
-        orderBy: [desc(documents.issueDate)],
-        limit: params.limit,
+      const result = await listDocuments(db, context.companyId, {
+        type: 'invoice',
+        status: params.status,
+        search: params.query,
+        dateFrom: params.dateFrom,
+        dateTo: params.dateTo,
+        pageSize: params.limit,
       });
 
-      // Also filter by contact name if query provided
-      let filteredResults = results;
+      // Filter by contact name if query provided (listDocuments only searches number/notes)
+      let filteredData = result.data;
       if (params.query) {
         const queryLower = params.query.toLowerCase();
-        filteredResults = results.filter((doc) => {
+        filteredData = result.data.filter((doc: any) => {
           const matchesNumber = doc.number.toLowerCase().includes(queryLower);
           const matchesCustomer = doc.contact?.name?.toLowerCase().includes(queryLower);
           const matchesNotes = doc.notes?.toLowerCase().includes(queryLower);
@@ -68,7 +41,7 @@ export const searchInvoicesTool: Tool = {
         });
       }
 
-      const invoiceList = filteredResults.map((doc) => ({
+      const invoiceList = filteredData.map((doc: any) => ({
         id: doc.id,
         number: doc.number,
         customer: doc.contact?.name || 'Unknown',
@@ -87,8 +60,8 @@ export const searchInvoicesTool: Tool = {
         };
       }
 
-      const totalAmount = filteredResults.reduce((sum, doc) => sum + Number(doc.total), 0);
-      const unpaidCount = filteredResults.filter((doc) => doc.status !== 'paid').length;
+      const totalAmount = filteredData.reduce((sum: number, doc: any) => sum + Number(doc.total), 0);
+      const unpaidCount = filteredData.filter((doc: any) => doc.status !== 'paid').length;
 
       return {
         success: true,

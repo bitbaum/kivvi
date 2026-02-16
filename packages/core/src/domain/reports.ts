@@ -1,3 +1,4 @@
+import Decimal from 'decimal.js';
 import { eq, and, sql, gte, lte, desc, asc } from 'drizzle-orm';
 import {
   accounts,
@@ -89,8 +90,8 @@ export async function getProfitAndLoss(
     amount: Number(r.amount),
   }));
 
-  const totalRevenue = revenue.reduce((sum, r) => sum + r.amount, 0);
-  const totalExpenses = expenses.reduce((sum, r) => sum + r.amount, 0);
+  const totalRevenue = revenue.reduce((sum, r) => sum.plus(r.amount), new Decimal(0)).toNumber();
+  const totalExpenses = expenses.reduce((sum, r) => sum.plus(r.amount), new Decimal(0)).toNumber();
 
   return {
     revenue,
@@ -167,12 +168,12 @@ export async function getBalanceSheet(
   const liabilities = await getBalances('liability', false);
   const equity = await getBalances('equity', false);
 
-  const totalAssets = assets.reduce((sum, r) => sum + r.balance, 0);
-  const totalLiabilities = liabilities.reduce((sum, r) => sum + r.balance, 0);
-  const totalEquity = equity.reduce((sum, r) => sum + r.balance, 0);
+  const totalAssets = assets.reduce((sum, r) => sum.plus(r.balance), new Decimal(0)).toNumber();
+  const totalLiabilities = liabilities.reduce((sum, r) => sum.plus(r.balance), new Decimal(0)).toNumber();
+  const totalEquity = equity.reduce((sum, r) => sum.plus(r.balance), new Decimal(0)).toNumber();
 
   // Retained earnings = Total Assets - Total Liabilities - Equity from accounts
-  const retainedEarnings = totalAssets - totalLiabilities - totalEquity;
+  const retainedEarnings = new Decimal(totalAssets).minus(totalLiabilities).minus(totalEquity).toNumber();
 
   return {
     assets,
@@ -235,13 +236,13 @@ export async function getVatReport(
     .orderBy(desc(documentItems.vatRate));
 
   const salesVat: VatReportRow[] = salesRows.map((r) => {
-    const taxable = Number(r.taxableAmount);
-    const rate = parseFloat(r.rate || '0');
+    const taxable = new Decimal(r.taxableAmount);
+    const rate = new Decimal(r.rate || '0');
     // For credit notes, amounts would be negative, so VAT computation handles both
     return {
       rate: r.rate || '0',
-      taxableAmount: taxable,
-      vatAmount: taxable * (rate / 100),
+      taxableAmount: taxable.toNumber(),
+      vatAmount: taxable.times(rate.div(100)).toNumber(),
       documentCount: r.documentCount,
     };
   });
@@ -268,25 +269,25 @@ export async function getVatReport(
     .orderBy(desc(documentItems.vatRate));
 
   const purchaseVat: VatReportRow[] = purchaseRows.map((r) => {
-    const taxable = Number(r.taxableAmount);
-    const rate = parseFloat(r.rate || '0');
+    const taxable = new Decimal(r.taxableAmount);
+    const rate = new Decimal(r.rate || '0');
     return {
       rate: r.rate || '0',
-      taxableAmount: taxable,
-      vatAmount: taxable * (rate / 100),
+      taxableAmount: taxable.toNumber(),
+      vatAmount: taxable.times(rate.div(100)).toNumber(),
       documentCount: r.documentCount,
     };
   });
 
-  const totalSalesVat = salesVat.reduce((sum, r) => sum + r.vatAmount, 0);
-  const totalPurchaseVat = purchaseVat.reduce((sum, r) => sum + r.vatAmount, 0);
+  const totalSalesVat = salesVat.reduce((sum, r) => sum.plus(r.vatAmount), new Decimal(0)).toNumber();
+  const totalPurchaseVat = purchaseVat.reduce((sum, r) => sum.plus(r.vatAmount), new Decimal(0)).toNumber();
 
   return {
     salesVat,
     purchaseVat,
     totalSalesVat,
     totalPurchaseVat,
-    vatPayable: totalSalesVat - totalPurchaseVat,
+    vatPayable: new Decimal(totalSalesVat).minus(totalPurchaseVat).toNumber(),
     periodStart: startDate,
     periodEnd: endDate,
   };
@@ -343,7 +344,7 @@ export async function getAgingReport(
   for (const inv of unpaidInvoices) {
     const contactId = inv.contactId || 'unknown';
     const contactName = inv.contactName || 'Unknown Contact';
-    const total = parseFloat(inv.total);
+    const total = new Decimal(inv.total);
 
     if (!contactMap.has(contactId)) {
       contactMap.set(contactId, {
@@ -359,10 +360,10 @@ export async function getAgingReport(
     }
 
     const row = contactMap.get(contactId)!;
-    row.total += total;
+    row.total = new Decimal(row.total).plus(total).toNumber();
 
     if (!inv.dueDate) {
-      row.current += total;
+      row.current = new Decimal(row.current).plus(total).toNumber();
       continue;
     }
 
@@ -370,15 +371,15 @@ export async function getAgingReport(
     const daysOverdue = Math.floor((asOf.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
 
     if (daysOverdue <= 0) {
-      row.current += total;
+      row.current = new Decimal(row.current).plus(total).toNumber();
     } else if (daysOverdue <= 30) {
-      row.days30 += total;
+      row.days30 = new Decimal(row.days30).plus(total).toNumber();
     } else if (daysOverdue <= 60) {
-      row.days60 += total;
+      row.days60 = new Decimal(row.days60).plus(total).toNumber();
     } else if (daysOverdue <= 90) {
-      row.days90 += total;
+      row.days90 = new Decimal(row.days90).plus(total).toNumber();
     } else {
-      row.over90 += total;
+      row.over90 = new Decimal(row.over90).plus(total).toNumber();
     }
   }
 
@@ -386,12 +387,12 @@ export async function getAgingReport(
 
   const totals = rows.reduce(
     (acc, r) => ({
-      current: acc.current + r.current,
-      days30: acc.days30 + r.days30,
-      days60: acc.days60 + r.days60,
-      days90: acc.days90 + r.days90,
-      over90: acc.over90 + r.over90,
-      total: acc.total + r.total,
+      current: new Decimal(acc.current).plus(r.current).toNumber(),
+      days30: new Decimal(acc.days30).plus(r.days30).toNumber(),
+      days60: new Decimal(acc.days60).plus(r.days60).toNumber(),
+      days90: new Decimal(acc.days90).plus(r.days90).toNumber(),
+      over90: new Decimal(acc.over90).plus(r.over90).toNumber(),
+      total: new Decimal(acc.total).plus(r.total).toNumber(),
     }),
     { current: 0, days30: 0, days60: 0, days90: 0, over90: 0, total: 0 }
   );
@@ -488,18 +489,18 @@ export async function getSalesReport(
         vatAmount: Number(inv?.vatAmount || 0),
         creditNoteCount: cn?.count || 0,
         creditNoteAmount: creditAmount,
-        netRevenue: revenue - creditAmount,
+        netRevenue: new Decimal(revenue).minus(creditAmount).toNumber(),
       };
     });
 
   const totals = rows.reduce(
     (acc, r) => ({
       invoiceCount: acc.invoiceCount + r.invoiceCount,
-      revenue: acc.revenue + r.revenue,
-      vatAmount: acc.vatAmount + r.vatAmount,
+      revenue: new Decimal(acc.revenue).plus(r.revenue).toNumber(),
+      vatAmount: new Decimal(acc.vatAmount).plus(r.vatAmount).toNumber(),
       creditNoteCount: acc.creditNoteCount + r.creditNoteCount,
-      creditNoteAmount: acc.creditNoteAmount + r.creditNoteAmount,
-      netRevenue: acc.netRevenue + r.netRevenue,
+      creditNoteAmount: new Decimal(acc.creditNoteAmount).plus(r.creditNoteAmount).toNumber(),
+      netRevenue: new Decimal(acc.netRevenue).plus(r.netRevenue).toNumber(),
     }),
     { invoiceCount: 0, revenue: 0, vatAmount: 0, creditNoteCount: 0, creditNoteAmount: 0, netRevenue: 0 }
   );

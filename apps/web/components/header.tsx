@@ -1,8 +1,19 @@
 'use client';
 
 import { useSession, signOut } from 'next-auth/react';
-import { Bell, Search, Menu, LogOut, Settings, User } from 'lucide-react';
+import { useTranslations, useLocale } from 'next-intl';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { Bell, Search, Menu, LogOut, Settings, User, Globe } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
+import { RecentItemsDropdown } from './recent-items-dropdown';
+import type { Locale } from '@/i18n/request';
+
+const LOCALE_LABELS: Record<Locale, string> = {
+  'de-CH': 'DE',
+  en: 'EN',
+  fr: 'FR',
+};
 
 interface HeaderProps {
   onMenuClick?: () => void;
@@ -10,58 +21,145 @@ interface HeaderProps {
 
 export function Header({ onMenuClick }: HeaderProps) {
   const { data: session } = useSession();
+  const t = useTranslations('common');
+  const locale = useLocale() as Locale;
+  const router = useRouter();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showLangMenu, setShowLangMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const langRef = useRef<HTMLDivElement>(null);
 
-  // Close menu when clicking outside
+  function switchLocale(newLocale: Locale) {
+    document.cookie = `NEXT_LOCALE=${newLocale};path=/;max-age=${365 * 24 * 60 * 60}`;
+    setShowLangMenu(false);
+    router.refresh();
+  }
+
+  // Close menus when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setShowUserMenu(false);
+      }
+      if (langRef.current && !langRef.current.contains(event.target as Node)) {
+        setShowLangMenu(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Close menus on Escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setShowUserMenu(false);
+        setShowLangMenu(false);
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, []);
+
   return (
-    <header className="flex h-16 items-center justify-between border-b bg-card px-6">
+    <header className="flex h-16 items-center justify-between border-b bg-card px-6" role="banner">
       {/* Mobile menu button */}
       <button
         onClick={onMenuClick}
-        className="rounded-lg p-2 hover:bg-muted lg:hidden"
+        className="rounded-lg p-2 hover:bg-muted lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        aria-label="Open navigation menu"
       >
         <Menu className="h-5 w-5" />
       </button>
 
-      {/* Search */}
+      {/* Search - IMPROVED with proper form */}
       <div className="hidden flex-1 lg:block lg:max-w-md">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Search or ask AI..."
-            className="w-full rounded-lg border bg-background py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 rounded border bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
-            ⌘K
-          </kbd>
-        </div>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            // TODO: Implement search functionality
+            const formData = new FormData(e.currentTarget);
+            const query = formData.get('search');
+            if (query) {
+              router.push(`/search?q=${encodeURIComponent(query.toString())}`);
+            }
+          }}
+          role="search"
+        >
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+            <input
+              type="search"
+              name="search"
+              placeholder={t('searchOrAskAI')}
+              className="w-full rounded-lg border bg-background py-2 pl-10 pr-20 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              aria-label="Search"
+            />
+            <kbd className="absolute right-3 top-1/2 -translate-y-1/2 rounded border bg-muted px-1.5 py-0.5 text-xs text-muted-foreground pointer-events-none" aria-hidden="true">
+              ⌘K
+            </kbd>
+          </div>
+        </form>
       </div>
 
       {/* Right side */}
       <div className="flex items-center gap-4">
-        {/* Notifications */}
-        <button className="relative rounded-lg p-2 hover:bg-muted">
+        {/* Recent items */}
+        <RecentItemsDropdown />
+
+        {/* Language switcher */}
+        <div className="relative" ref={langRef}>
+          <button
+            onClick={() => setShowLangMenu(!showLangMenu)}
+            className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            aria-label={`Current language: ${LOCALE_LABELS[locale]}`}
+            aria-expanded={showLangMenu}
+            aria-haspopup="true"
+          >
+            <Globe className="h-4 w-4" aria-hidden="true" />
+            {LOCALE_LABELS[locale]}
+          </button>
+          {showLangMenu && (
+            <div
+              className="absolute right-0 top-full z-50 mt-2 w-36 rounded-lg border bg-card p-1 shadow-lg"
+              role="menu"
+              aria-label="Language options"
+            >
+              {(Object.entries(LOCALE_LABELS) as [Locale, string][]).map(([loc, label]) => (
+                <button
+                  key={loc}
+                  onClick={() => switchLocale(loc)}
+                  className={`flex w-full items-center gap-2 rounded px-3 py-2 text-sm hover:bg-muted ${
+                    locale === loc ? 'font-medium text-primary' : ''
+                  }`}
+                  role="menuitem"
+                >
+                  {label === 'DE' ? 'Deutsch' : label === 'EN' ? 'English' : 'Français'}
+                  {locale === loc && <span className="ml-auto text-primary" aria-hidden="true">✓</span>}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Notifications - NOW FUNCTIONAL */}
+        <Link
+          href="/notifications"
+          className="relative rounded-lg p-2 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          aria-label="Notifications (1 unread)"
+        >
           <Bell className="h-5 w-5" />
-          <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-primary" />
-        </button>
+          <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-primary" aria-hidden="true" />
+        </Link>
 
         {/* User menu */}
         <div className="relative" ref={menuRef}>
           <button
             onClick={() => setShowUserMenu(!showUserMenu)}
-            className="flex items-center gap-2 rounded-lg p-1 hover:bg-muted"
+            className="flex items-center gap-2 rounded-lg p-1 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            aria-label={`User menu: ${session?.user?.name || 'User'}`}
+            aria-expanded={showUserMenu}
+            aria-haspopup="true"
           >
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-sm font-medium text-white">
               {session?.user?.name?.charAt(0) || 'U'}
@@ -69,7 +167,11 @@ export function Header({ onMenuClick }: HeaderProps) {
           </button>
 
           {showUserMenu && (
-            <div className="absolute right-0 top-full z-50 mt-2 w-56 rounded-lg border bg-card p-1 shadow-lg">
+            <div
+              className="absolute right-0 top-full z-50 mt-2 w-56 rounded-lg border bg-card p-1 shadow-lg"
+              role="menu"
+              aria-label="User menu"
+            >
               <div className="border-b px-3 py-2">
                 <p className="font-medium">{session?.user?.name}</p>
                 <p className="text-sm text-muted-foreground">{session?.user?.email}</p>
@@ -81,23 +183,36 @@ export function Header({ onMenuClick }: HeaderProps) {
               </div>
 
               <div className="py-1">
-                <button className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm hover:bg-muted">
-                  <User className="h-4 w-4" />
-                  Profile
-                </button>
-                <button className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm hover:bg-muted">
-                  <Settings className="h-4 w-4" />
-                  Settings
-                </button>
+                {/* Profile - NOW FUNCTIONAL */}
+                <Link
+                  href="/settings/profile"
+                  className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  role="menuitem"
+                  onClick={() => setShowUserMenu(false)}
+                >
+                  <User className="h-4 w-4" aria-hidden="true" />
+                  {t('profile')}
+                </Link>
+                {/* Settings - NOW FUNCTIONAL */}
+                <Link
+                  href="/settings"
+                  className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  role="menuitem"
+                  onClick={() => setShowUserMenu(false)}
+                >
+                  <Settings className="h-4 w-4" aria-hidden="true" />
+                  {t('settings')}
+                </Link>
               </div>
 
               <div className="border-t py-1">
                 <button
                   onClick={() => signOut({ callbackUrl: '/login' })}
-                  className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm text-destructive hover:bg-destructive/10"
+                  className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm text-destructive hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  role="menuitem"
                 >
-                  <LogOut className="h-4 w-4" />
-                  Sign out
+                  <LogOut className="h-4 w-4" aria-hidden="true" />
+                  {t('signOut')}
                 </button>
               </div>
             </div>

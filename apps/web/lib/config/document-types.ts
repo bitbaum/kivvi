@@ -6,7 +6,9 @@ import type { DocumentType, DocumentStatus } from '@kivvi/database';
 
 export interface DocumentTypeConfig {
   type: DocumentType;
+  /** Translation key within 'documents' namespace — use t(config.label) */
   label: string;
+  /** Translation key within 'documents' namespace — use t(config.labelPlural) */
   labelPlural: string;
   basePath: string;
   /** Which contact types can be selected (customer for sales, vendor for purchasing) */
@@ -25,14 +27,27 @@ export interface DocumentTypeConfig {
   hasPayments: boolean;
   /** Whether this type can be created directly (false = created via conversion only) */
   canCreate: boolean;
-  /** Label for the due/validity date field */
+  /** Translation key within 'documents' namespace for the due/validity date field */
   dueDateLabel: string;
 }
 
 export interface StatusAction {
+  /** Translation key within 'statusActions' namespace — use t(action.label) */
   label: string;
   targetStatus: DocumentStatus;
   variant: 'primary' | 'default' | 'destructive';
+}
+
+// ============================================================================
+// UTILITIES
+// ============================================================================
+
+/**
+ * Convert snake_case DB values to camelCase translation keys.
+ * e.g., 'partially_paid' → 'partiallyPaid', 'dunning_1' → 'dunning1'
+ */
+export function toCamelCase(snakeCase: string): string {
+  return snakeCase.replace(/_([a-z0-9])/g, (_, c) => c.toUpperCase());
 }
 
 // ============================================================================
@@ -53,19 +68,8 @@ export const STATUS_STYLES: Record<string, string> = {
   dunning_3: 'bg-red-300 text-red-900 dark:bg-red-900/50 dark:text-red-200',
 };
 
-export const STATUS_LABELS: Record<string, string> = {
-  draft: 'Draft',
-  sent: 'Sent',
-  confirmed: 'Confirmed',
-  delivered: 'Delivered',
-  paid: 'Paid',
-  partially_paid: 'Partially Paid',
-  overdue: 'Overdue',
-  cancelled: 'Cancelled',
-  dunning_1: 'Dunning 1',
-  dunning_2: 'Dunning 2',
-  dunning_3: 'Dunning 3',
-};
+// Status labels are in translation files under the 'status' namespace.
+// Usage: t(toCamelCase(status)) where t = useTranslations('status') or getTranslations('status')
 
 // ============================================================================
 // DOCUMENT TYPE CONFIGS
@@ -73,41 +77,41 @@ export const STATUS_LABELS: Record<string, string> = {
 
 const COMMON_SALES_ACTIONS: Partial<Record<DocumentStatus, StatusAction[]>> = {
   draft: [
-    { label: 'Mark as Sent', targetStatus: 'sent', variant: 'primary' },
-    { label: 'Cancel', targetStatus: 'cancelled', variant: 'destructive' },
+    { label: 'markAsSent', targetStatus: 'sent', variant: 'primary' },
+    { label: 'cancel', targetStatus: 'cancelled', variant: 'destructive' },
   ],
   sent: [
-    { label: 'Confirm', targetStatus: 'confirmed', variant: 'primary' },
-    { label: 'Cancel', targetStatus: 'cancelled', variant: 'destructive' },
+    { label: 'confirm', targetStatus: 'confirmed', variant: 'primary' },
+    { label: 'cancel', targetStatus: 'cancelled', variant: 'destructive' },
   ],
   confirmed: [
-    { label: 'Mark Delivered', targetStatus: 'delivered', variant: 'primary' },
-    { label: 'Cancel', targetStatus: 'cancelled', variant: 'destructive' },
+    { label: 'markDelivered', targetStatus: 'delivered', variant: 'primary' },
+    { label: 'cancel', targetStatus: 'cancelled', variant: 'destructive' },
   ],
   delivered: [
-    { label: 'Cancel', targetStatus: 'cancelled', variant: 'destructive' },
+    { label: 'cancel', targetStatus: 'cancelled', variant: 'destructive' },
   ],
   overdue: [
-    { label: 'Cancel', targetStatus: 'cancelled', variant: 'destructive' },
+    { label: 'cancel', targetStatus: 'cancelled', variant: 'destructive' },
   ],
 };
 
 export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
   quote: {
     type: 'quote',
-    label: 'Quote',
-    labelPlural: 'Quotes',
+    label: 'quote',
+    labelPlural: 'quotePlural',
     basePath: '/sales/quotes',
     contactFilter: 'customer',
     statuses: ['draft', 'sent', 'confirmed', 'cancelled'],
     actions: {
       draft: [
-        { label: 'Mark as Sent', targetStatus: 'sent', variant: 'primary' },
-        { label: 'Cancel', targetStatus: 'cancelled', variant: 'destructive' },
+        { label: 'markAsSent', targetStatus: 'sent', variant: 'primary' },
+        { label: 'cancel', targetStatus: 'cancelled', variant: 'destructive' },
       ],
       sent: [
-        { label: 'Confirm', targetStatus: 'confirmed', variant: 'primary' },
-        { label: 'Cancel', targetStatus: 'cancelled', variant: 'destructive' },
+        { label: 'confirm', targetStatus: 'confirmed', variant: 'primary' },
+        { label: 'cancel', targetStatus: 'cancelled', variant: 'destructive' },
       ],
     },
     conversionTargets: ['order', 'invoice'],
@@ -115,12 +119,12 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
     hasDeliveryDate: false,
     hasPayments: false,
     canCreate: true,
-    dueDateLabel: 'Valid Until',
+    dueDateLabel: 'validUntil',
   },
   order: {
     type: 'order',
-    label: 'Order',
-    labelPlural: 'Orders',
+    label: 'order',
+    labelPlural: 'orderPlural',
     basePath: '/sales/orders',
     contactFilter: 'customer',
     statuses: ['draft', 'sent', 'confirmed', 'delivered', 'cancelled'],
@@ -130,21 +134,21 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
     hasDeliveryDate: true,
     hasPayments: false,
     canCreate: true,
-    dueDateLabel: 'Delivery Date',
+    dueDateLabel: 'deliveryDate',
   },
   order_confirmation: {
     type: 'order_confirmation',
-    label: 'Order Confirmation',
-    labelPlural: 'Order Confirmations',
+    label: 'orderConfirmation',
+    labelPlural: 'orderConfirmationPlural',
     basePath: '/sales/orders',
     contactFilter: 'customer',
     statuses: ['draft', 'sent', 'confirmed', 'cancelled'],
     actions: {
       draft: [
-        { label: 'Mark as Sent', targetStatus: 'sent', variant: 'primary' },
+        { label: 'markAsSent', targetStatus: 'sent', variant: 'primary' },
       ],
       sent: [
-        { label: 'Confirm', targetStatus: 'confirmed', variant: 'primary' },
+        { label: 'confirm', targetStatus: 'confirmed', variant: 'primary' },
       ],
     },
     conversionTargets: ['delivery_note', 'invoice'],
@@ -152,21 +156,21 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
     hasDeliveryDate: true,
     hasPayments: false,
     canCreate: false,
-    dueDateLabel: 'Delivery Date',
+    dueDateLabel: 'deliveryDate',
   },
   delivery_note: {
     type: 'delivery_note',
-    label: 'Delivery Note',
-    labelPlural: 'Delivery Notes',
+    label: 'deliveryNote',
+    labelPlural: 'deliveryNotePlural',
     basePath: '/sales/delivery-notes',
     contactFilter: 'customer',
     statuses: ['draft', 'sent', 'delivered', 'cancelled'],
     actions: {
       draft: [
-        { label: 'Mark as Sent', targetStatus: 'sent', variant: 'primary' },
+        { label: 'markAsSent', targetStatus: 'sent', variant: 'primary' },
       ],
       sent: [
-        { label: 'Mark Delivered', targetStatus: 'delivered', variant: 'primary' },
+        { label: 'markDelivered', targetStatus: 'delivered', variant: 'primary' },
       ],
     },
     conversionTargets: ['invoice'],
@@ -174,12 +178,12 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
     hasDeliveryDate: true,
     hasPayments: false,
     canCreate: false,
-    dueDateLabel: 'Delivery Date',
+    dueDateLabel: 'deliveryDate',
   },
   invoice: {
     type: 'invoice',
-    label: 'Invoice',
-    labelPlural: 'Invoices',
+    label: 'invoice',
+    labelPlural: 'invoicePlural',
     basePath: '/sales/invoices',
     contactFilter: 'customer',
     statuses: ['draft', 'sent', 'confirmed', 'delivered', 'paid', 'partially_paid', 'overdue', 'cancelled', 'dunning_1', 'dunning_2', 'dunning_3'],
@@ -189,23 +193,23 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
     hasDeliveryDate: false,
     hasPayments: true,
     canCreate: true,
-    dueDateLabel: 'Due Date',
+    dueDateLabel: 'dueDate',
   },
   credit_note: {
     type: 'credit_note',
-    label: 'Credit Note',
-    labelPlural: 'Credit Notes',
+    label: 'creditNote',
+    labelPlural: 'creditNotePlural',
     basePath: '/sales/credit-notes',
     contactFilter: 'customer',
     statuses: ['draft', 'sent', 'paid', 'cancelled'],
     actions: {
       draft: [
-        { label: 'Mark as Sent', targetStatus: 'sent', variant: 'primary' },
-        { label: 'Cancel', targetStatus: 'cancelled', variant: 'destructive' },
+        { label: 'markAsSent', targetStatus: 'sent', variant: 'primary' },
+        { label: 'cancel', targetStatus: 'cancelled', variant: 'destructive' },
       ],
       sent: [
-        { label: 'Mark as Paid', targetStatus: 'paid', variant: 'primary' },
-        { label: 'Cancel', targetStatus: 'cancelled', variant: 'destructive' },
+        { label: 'markAsPaid', targetStatus: 'paid', variant: 'primary' },
+        { label: 'cancel', targetStatus: 'cancelled', variant: 'destructive' },
       ],
     },
     conversionTargets: [],
@@ -213,18 +217,18 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
     hasDeliveryDate: false,
     hasPayments: false,
     canCreate: false,
-    dueDateLabel: 'Due Date',
+    dueDateLabel: 'dueDate',
   },
   dunning: {
     type: 'dunning',
-    label: 'Dunning',
-    labelPlural: 'Dunning',
+    label: 'dunning',
+    labelPlural: 'dunningPlural',
     basePath: '/sales/dunning',
     contactFilter: 'customer',
     statuses: ['draft', 'sent', 'cancelled'],
     actions: {
       draft: [
-        { label: 'Mark as Sent', targetStatus: 'sent', variant: 'primary' },
+        { label: 'markAsSent', targetStatus: 'sent', variant: 'primary' },
       ],
     },
     conversionTargets: [],
@@ -232,12 +236,12 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
     hasDeliveryDate: false,
     hasPayments: false,
     canCreate: false,
-    dueDateLabel: 'Due Date',
+    dueDateLabel: 'dueDate',
   },
   purchase_order: {
     type: 'purchase_order',
-    label: 'Purchase Order',
-    labelPlural: 'Purchase Orders',
+    label: 'purchaseOrder',
+    labelPlural: 'purchaseOrderPlural',
     basePath: '/purchasing/purchase-orders',
     contactFilter: 'vendor',
     statuses: ['draft', 'sent', 'confirmed', 'delivered', 'cancelled'],
@@ -247,25 +251,25 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
     hasDeliveryDate: true,
     hasPayments: false,
     canCreate: true,
-    dueDateLabel: 'Expected Delivery',
+    dueDateLabel: 'expectedDelivery',
   },
   purchase_invoice: {
     type: 'purchase_invoice',
-    label: 'Purchase Invoice',
-    labelPlural: 'Purchase Invoices',
+    label: 'purchaseInvoice',
+    labelPlural: 'purchaseInvoicePlural',
     basePath: '/purchasing/purchase-invoices',
     contactFilter: 'vendor',
     statuses: ['draft', 'confirmed', 'paid', 'partially_paid', 'overdue', 'cancelled'],
     actions: {
       draft: [
-        { label: 'Confirm', targetStatus: 'confirmed', variant: 'primary' },
-        { label: 'Cancel', targetStatus: 'cancelled', variant: 'destructive' },
+        { label: 'confirm', targetStatus: 'confirmed', variant: 'primary' },
+        { label: 'cancel', targetStatus: 'cancelled', variant: 'destructive' },
       ],
       confirmed: [
-        { label: 'Cancel', targetStatus: 'cancelled', variant: 'destructive' },
+        { label: 'cancel', targetStatus: 'cancelled', variant: 'destructive' },
       ],
       overdue: [
-        { label: 'Cancel', targetStatus: 'cancelled', variant: 'destructive' },
+        { label: 'cancel', targetStatus: 'cancelled', variant: 'destructive' },
       ],
     },
     conversionTargets: [],
@@ -273,7 +277,7 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
     hasDeliveryDate: false,
     hasPayments: true,
     canCreate: true,
-    dueDateLabel: 'Due Date',
+    dueDateLabel: 'dueDate',
   },
 };
 

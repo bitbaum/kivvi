@@ -11,9 +11,7 @@ export async function createDunningAction(
   try {
     const { companyId, userId } = await getSession();
 
-    const { dunningDoc, newLevel } = await db.transaction(async (tx) => {
-      return createDunning(tx, companyId, userId, invoiceId);
-    });
+    const { dunningDoc, newLevel } = await createDunning(db, companyId, userId, invoiceId);
 
     revalidatePath('/sales/dunning');
     revalidatePath('/sales/invoices');

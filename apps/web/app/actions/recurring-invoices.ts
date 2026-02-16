@@ -1,0 +1,112 @@
+'use server';
+
+import { z } from 'zod';
+import { revalidatePath } from 'next/cache';
+import { db } from '@/lib/db';
+import {
+  createRecurringConfig,
+  updateRecurringConfig,
+  deleteRecurringConfig,
+  listRecurringConfigs,
+  getRecurringConfig,
+  createRecurringConfigSchema,
+  updateRecurringConfigSchema,
+} from '@kivvi/core';
+import { type ActionResult, getSession, safeErrorMessage } from './utils';
+
+// ============================================================================
+// SERVER ACTIONS
+// ============================================================================
+
+export async function createRecurringConfigAction(
+  input: unknown
+): Promise<ActionResult<{ id: string }>> {
+  try {
+    const { companyId } = await getSession();
+
+    const parsed = createRecurringConfigSchema.safeParse(input);
+    if (!parsed.success) {
+      const firstError = parsed.error.errors[0];
+      return {
+        success: false,
+        error: `${firstError.path.join('.')}: ${firstError.message}`,
+      };
+    }
+
+    const config = await createRecurringConfig(db, companyId, parsed.data);
+
+    revalidatePath('/settings/recurring-invoices');
+    return { success: true, data: { id: config.id } };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, 'Failed to create recurring invoice config'),
+    };
+  }
+}
+
+export async function updateRecurringConfigAction(
+  configId: string,
+  input: unknown
+): Promise<ActionResult<{ id: string }>> {
+  try {
+    const { companyId } = await getSession();
+
+    const parsed = updateRecurringConfigSchema.safeParse(input);
+    if (!parsed.success) {
+      const firstError = parsed.error.errors[0];
+      return {
+        success: false,
+        error: `${firstError.path.join('.')}: ${firstError.message}`,
+      };
+    }
+
+    const config = await updateRecurringConfig(db, companyId, configId, parsed.data);
+
+    revalidatePath('/settings/recurring-invoices');
+    revalidatePath(`/settings/recurring-invoices/${configId}`);
+    return { success: true, data: { id: config.id } };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, 'Failed to update recurring invoice config'),
+    };
+  }
+}
+
+export async function deleteRecurringConfigAction(
+  configId: string
+): Promise<ActionResult<void>> {
+  try {
+    const { companyId } = await getSession();
+
+    await deleteRecurringConfig(db, companyId, configId);
+
+    revalidatePath('/settings/recurring-invoices');
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, 'Failed to delete recurring invoice config'),
+    };
+  }
+}
+
+export async function toggleRecurringConfigAction(
+  configId: string,
+  isActive: boolean
+): Promise<ActionResult<void>> {
+  try {
+    const { companyId } = await getSession();
+
+    await updateRecurringConfig(db, companyId, configId, { isActive });
+
+    revalidatePath('/settings/recurring-invoices');
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, 'Failed to toggle recurring invoice config'),
+    };
+  }
+}

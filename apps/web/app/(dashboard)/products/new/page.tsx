@@ -4,35 +4,39 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { createProductAction } from '@/app/actions/products';
+import { SWISS_VAT_RATES, DEFAULT_VAT_RATE } from '@/lib/config/vat-rates';
 import { cn } from '@/lib/utils';
-
-const VAT_RATE_OPTIONS = [
-  { value: '8.1', label: '8.1% (Standard)' },
-  { value: '2.6', label: '2.6% (Reduced)' },
-  { value: '0', label: '0% (Exempt)' },
-];
-
-const UNIT_OPTIONS = [
-  { value: 'piece', label: 'Piece' },
-  { value: 'hour', label: 'Hour' },
-  { value: 'kg', label: 'Kilogram' },
-  { value: 'm', label: 'Meter' },
-  { value: 'm2', label: 'Square Meter' },
-  { value: 'm3', label: 'Cubic Meter' },
-  { value: 'liter', label: 'Liter' },
-];
-
-const TYPE_OPTIONS = [
-  { value: 'product', label: 'Product' },
-  { value: 'service', label: 'Service' },
-];
 
 export default function NewProductPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [productType, setProductType] = useState('product');
+
+  const t = useTranslations('products');
+  const tc = useTranslations('common');
+
+  const VAT_RATE_OPTIONS = SWISS_VAT_RATES.map((rate) => ({
+    value: rate.value,
+    label: t(`vatRates.${rate.labelKey}`),
+  }));
+
+  const UNIT_OPTIONS = [
+    { value: 'piece', label: t('units.piece') },
+    { value: 'hour', label: t('units.hour') },
+    { value: 'kg', label: t('units.kg') },
+    { value: 'm', label: t('units.m') },
+    { value: 'm2', label: t('units.m2') },
+    { value: 'm3', label: t('units.m3') },
+    { value: 'liter', label: t('units.liter') },
+  ];
+
+  const TYPE_OPTIONS = [
+    { value: 'product', label: t('product') },
+    { value: 'service', label: t('service') },
+  ];
 
   async function handleSubmit(formData: FormData) {
     setIsSubmitting(true);
@@ -44,11 +48,11 @@ export default function NewProductPage() {
       if (result.success && result.data) {
         router.push(`/products/${result.data.id}`);
       } else {
-        setError(result.error || 'Failed to create product');
+        setError(result.error || tc('error'));
         setIsSubmitting(false);
       }
     } catch (err) {
-      setError('An unexpected error occurred');
+      setError(tc('error'));
       setIsSubmitting(false);
     }
   }
@@ -64,9 +68,9 @@ export default function NewProductPage() {
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <div>
-          <h1 className="text-3xl font-bold">New Product</h1>
+          <h1 className="text-3xl font-bold">{t('newProduct')}</h1>
           <p className="text-muted-foreground">
-            Add a new product or service to your catalog.
+            {t('subtitle')}
           </p>
         </div>
       </div>
@@ -83,13 +87,13 @@ export default function NewProductPage() {
         {/* Basic Information */}
         <div className="rounded-xl border bg-card">
           <div className="border-b px-6 py-4">
-            <h2 className="font-semibold">Basic Information</h2>
+            <h2 className="font-semibold">{t('basicInformation')}</h2>
           </div>
           <div className="space-y-4 p-6">
             {/* Type */}
             <div>
               <label htmlFor="type" className="mb-1.5 block text-sm font-medium">
-                Type <span className="text-destructive">*</span>
+                {tc('type')} <span className="text-destructive">*</span>
               </label>
               <select
                 id="type"
@@ -110,7 +114,7 @@ export default function NewProductPage() {
             {/* Name */}
             <div>
               <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
-                Name <span className="text-destructive">*</span>
+                {tc('name')} <span className="text-destructive">*</span>
               </label>
               <input
                 type="text"
@@ -118,7 +122,7 @@ export default function NewProductPage() {
                 name="name"
                 required
                 maxLength={255}
-                placeholder="Product name"
+                placeholder={tc('name')}
                 className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               />
             </div>
@@ -129,14 +133,13 @@ export default function NewProductPage() {
                 htmlFor="description"
                 className="mb-1.5 block text-sm font-medium"
               >
-                Description
+                {tc('description')}
               </label>
               <textarea
                 id="description"
                 name="description"
                 rows={3}
                 maxLength={5000}
-                placeholder="Optional description"
                 className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               />
             </div>
@@ -145,7 +148,7 @@ export default function NewProductPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label htmlFor="sku" className="mb-1.5 block text-sm font-medium">
-                  SKU
+                  {t('sku')}
                 </label>
                 <input
                   type="text"
@@ -158,7 +161,7 @@ export default function NewProductPage() {
               </div>
               <div>
                 <label htmlFor="ean" className="mb-1.5 block text-sm font-medium">
-                  EAN / Barcode
+                  {t('ean')}
                 </label>
                 <input
                   type="text"
@@ -176,7 +179,7 @@ export default function NewProductPage() {
         {/* Pricing */}
         <div className="rounded-xl border bg-card">
           <div className="border-b px-6 py-4">
-            <h2 className="font-semibold">Pricing</h2>
+            <h2 className="font-semibold">{t('pricing')}</h2>
           </div>
           <div className="space-y-4 p-6">
             <div className="grid gap-4 sm:grid-cols-2">
@@ -186,7 +189,7 @@ export default function NewProductPage() {
                   htmlFor="unitPrice"
                   className="mb-1.5 block text-sm font-medium"
                 >
-                  Unit Price (CHF) <span className="text-destructive">*</span>
+                  {t('unitPrice')} (CHF) <span className="text-destructive">*</span>
                 </label>
                 <input
                   type="text"
@@ -205,7 +208,7 @@ export default function NewProductPage() {
                   htmlFor="purchasePrice"
                   className="mb-1.5 block text-sm font-medium"
                 >
-                  Purchase Price (CHF)
+                  {t('purchasePrice')} (CHF)
                 </label>
                 <input
                   type="text"
@@ -228,13 +231,13 @@ export default function NewProductPage() {
                   htmlFor="vatRate"
                   className="mb-1.5 block text-sm font-medium"
                 >
-                  VAT Rate <span className="text-destructive">*</span>
+                  {t('vatRate')} <span className="text-destructive">*</span>
                 </label>
                 <select
                   id="vatRate"
                   name="vatRate"
                   required
-                  defaultValue="8.1"
+                  defaultValue={DEFAULT_VAT_RATE}
                   className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 >
                   {VAT_RATE_OPTIONS.map((opt) => (
@@ -251,7 +254,7 @@ export default function NewProductPage() {
                   htmlFor="unit"
                   className="mb-1.5 block text-sm font-medium"
                 >
-                  Unit
+                  {t('unit')}
                 </label>
                 <select
                   id="unit"
@@ -274,7 +277,7 @@ export default function NewProductPage() {
         {productType === 'product' && (
           <div className="rounded-xl border bg-card">
             <div className="border-b px-6 py-4">
-              <h2 className="font-semibold">Inventory</h2>
+              <h2 className="font-semibold">{t('inventorySection')}</h2>
             </div>
             <div className="space-y-4 p-6">
               {/* Min Stock */}
@@ -283,7 +286,7 @@ export default function NewProductPage() {
                   htmlFor="minStock"
                   className="mb-1.5 block text-sm font-medium"
                 >
-                  Minimum Stock (Reorder Point)
+                  {t('minStock')}
                 </label>
                 <input
                   type="number"
@@ -308,7 +311,7 @@ export default function NewProductPage() {
                   htmlFor="serialNumberTracking"
                   className="text-sm font-medium"
                 >
-                  Enable serial number tracking
+                  {t('serialNumberTracking')}
                 </label>
               </div>
             </div>
@@ -318,7 +321,7 @@ export default function NewProductPage() {
         {/* Visibility */}
         <div className="rounded-xl border bg-card">
           <div className="border-b px-6 py-4">
-            <h2 className="font-semibold">Visibility</h2>
+            <h2 className="font-semibold">{t('visibility')}</h2>
           </div>
           <div className="space-y-4 p-6">
             <div className="flex items-center gap-3">
@@ -330,10 +333,10 @@ export default function NewProductPage() {
               />
               <div>
                 <label htmlFor="shopVisible" className="text-sm font-medium">
-                  Visible in shop
+                  {t('visibleInShop')}
                 </label>
                 <p className="text-xs text-muted-foreground">
-                  Make this product available in the online shop.
+                  {t('shopVisibleDescription')}
                 </p>
               </div>
             </div>
@@ -343,7 +346,7 @@ export default function NewProductPage() {
         {/* Notes */}
         <div className="rounded-xl border bg-card">
           <div className="border-b px-6 py-4">
-            <h2 className="font-semibold">Notes</h2>
+            <h2 className="font-semibold">{tc('notes')}</h2>
           </div>
           <div className="p-6">
             <textarea
@@ -351,7 +354,7 @@ export default function NewProductPage() {
               name="notes"
               rows={3}
               maxLength={5000}
-              placeholder="Internal notes (not visible to customers)"
+              placeholder={t('internalNotes')}
               className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
             />
           </div>
@@ -363,7 +366,7 @@ export default function NewProductPage() {
             href="/products"
             className="rounded-lg border px-4 py-2.5 text-sm font-medium hover:bg-muted transition-colors"
           >
-            Cancel
+            {tc('cancel')}
           </Link>
           <button
             type="submit"
@@ -376,7 +379,7 @@ export default function NewProductPage() {
             )}
           >
             {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-            {isSubmitting ? 'Creating...' : 'Create Product'}
+            {isSubmitting ? tc('creating') : t('createProduct')}
           </button>
         </div>
       </form>

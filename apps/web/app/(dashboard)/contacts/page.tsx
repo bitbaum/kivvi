@@ -1,16 +1,11 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { Plus, Search, Users, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Search, Users, ChevronLeft, ChevronRight, Download } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { listContacts } from '@kivvi/core';
 import { cn } from '@/lib/utils';
-
-const TYPE_LABELS: Record<string, string> = {
-  customer: 'Customer',
-  vendor: 'Vendor',
-  both: 'Both',
-};
 
 const TYPE_STYLES: Record<string, string> = {
   customer: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
@@ -32,6 +27,9 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
     redirect('/login');
   }
 
+  const t = await getTranslations('contacts');
+  const tc = await getTranslations('common');
+
   const companyId = session.user.companyId;
   const search = searchParams.search || '';
   const typeFilter = searchParams.type as 'customer' | 'vendor' | 'both' | undefined;
@@ -44,23 +42,38 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
     pageSize: 25,
   });
 
+  const TYPE_LABELS: Record<string, string> = {
+    customer: t('customer'),
+    vendor: t('vendor'),
+    both: t('both'),
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Contacts</h1>
+          <h1 className="text-3xl font-bold">{t('title')}</h1>
           <p className="text-muted-foreground">
-            Manage your customers and vendors
+            {t('subtitle')}
           </p>
         </div>
-        <Link
-          href="/contacts/new"
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-        >
-          <Plus className="h-4 w-4" />
-          New Contact
-        </Link>
+        <div className="flex items-center gap-2">
+          <a
+            href="/api/export/contacts"
+            className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2.5 text-sm font-medium hover:bg-accent transition-colors"
+          >
+            <Download className="h-4 w-4" />
+            {t('exportCsv')}
+          </a>
+          <Link
+            href="/contacts/new"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+            {t('newContact')}
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}
@@ -71,7 +84,7 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
           <input
             type="text"
             name="search"
-            placeholder="Search contacts..."
+            placeholder={t('searchContacts')}
             defaultValue={search}
             className="w-full rounded-lg border bg-background py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           />
@@ -82,10 +95,10 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
 
         {/* Type filter */}
         <div className="flex items-center gap-1 rounded-lg border bg-card p-1">
-          <TypeFilterLink label="All" value="" current={typeFilter} search={search} />
-          <TypeFilterLink label="Customers" value="customer" current={typeFilter} search={search} />
-          <TypeFilterLink label="Vendors" value="vendor" current={typeFilter} search={search} />
-          <TypeFilterLink label="Both" value="both" current={typeFilter} search={search} />
+          <TypeFilterLink label={tc('all')} value="" current={typeFilter} search={search} />
+          <TypeFilterLink label={t('customer')} value="customer" current={typeFilter} search={search} />
+          <TypeFilterLink label={t('vendor')} value="vendor" current={typeFilter} search={search} />
+          <TypeFilterLink label={t('both')} value="both" current={typeFilter} search={search} />
         </div>
       </div>
 
@@ -94,11 +107,11 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
         {result.data.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
             <Users className="h-12 w-12 text-muted-foreground/50" />
-            <h3 className="mt-4 text-lg font-medium">No contacts found</h3>
+            <h3 className="mt-4 text-lg font-medium">{t('noContacts')}</h3>
             <p className="mt-1 text-sm text-muted-foreground">
               {search
-                ? 'Try adjusting your search or filters.'
-                : 'Get started by creating your first contact.'}
+                ? tc('noResults')
+                : t('createFirstContact')}
             </p>
             {!search && (
               <Link
@@ -106,7 +119,7 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
                 className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
               >
                 <Plus className="h-4 w-4" />
-                New Contact
+                {t('newContact')}
               </Link>
             )}
           </div>
@@ -114,13 +127,13 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
           <>
             {/* Table header */}
             <div className="grid grid-cols-[1fr_2fr_auto_1.5fr_1fr_1fr_auto] gap-4 border-b px-6 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              <div>Number</div>
-              <div>Name</div>
-              <div>Type</div>
-              <div>Email</div>
-              <div>Phone</div>
-              <div>City</div>
-              <div>Status</div>
+              <div>{tc('number')}</div>
+              <div>{tc('name')}</div>
+              <div>{tc('type')}</div>
+              <div>{tc('email')}</div>
+              <div>{tc('phone')}</div>
+              <div>{t('city')}</div>
+              <div>{tc('status')}</div>
             </div>
 
             {/* Table rows */}
@@ -170,7 +183,7 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
                           : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
                       )}
                     >
-                      {contact.isActive ? 'Active' : 'Inactive'}
+                      {contact.isActive ? tc('active') : tc('inactive')}
                     </span>
                   </div>
                 </Link>
@@ -181,9 +194,11 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
             {result.totalPages > 1 && (
               <div className="flex items-center justify-between border-t px-6 py-4">
                 <p className="text-sm text-muted-foreground">
-                  Showing {(result.page - 1) * result.pageSize + 1} to{' '}
-                  {Math.min(result.page * result.pageSize, result.total)} of{' '}
-                  {result.total} contacts
+                  {tc('showing', {
+                    from: (result.page - 1) * result.pageSize + 1,
+                    to: Math.min(result.page * result.pageSize, result.total),
+                    total: result.total,
+                  })}
                 </p>
                 <div className="flex items-center gap-2">
                   {result.page > 1 ? (
@@ -192,17 +207,17 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
                       className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm hover:bg-muted transition-colors"
                     >
                       <ChevronLeft className="h-4 w-4" />
-                      Previous
+                      {tc('previous')}
                     </Link>
                   ) : (
                     <span className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm text-muted-foreground opacity-50">
                       <ChevronLeft className="h-4 w-4" />
-                      Previous
+                      {tc('previous')}
                     </span>
                   )}
 
                   <span className="text-sm text-muted-foreground">
-                    Page {result.page} of {result.totalPages}
+                    {tc('pageOf', { page: result.page, totalPages: result.totalPages })}
                   </span>
 
                   {result.page < result.totalPages ? (
@@ -210,12 +225,12 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
                       href={buildPageUrl(result.page + 1, search, typeFilter)}
                       className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm hover:bg-muted transition-colors"
                     >
-                      Next
+                      {tc('next')}
                       <ChevronRight className="h-4 w-4" />
                     </Link>
                   ) : (
                     <span className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm text-muted-foreground opacity-50">
-                      Next
+                      {tc('next')}
                       <ChevronRight className="h-4 w-4" />
                     </span>
                   )}

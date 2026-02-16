@@ -1,11 +1,14 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { ArrowLeft, Clock, FileText } from 'lucide-react';
+import { ArrowLeft, Clock, FileText, CheckCircle } from 'lucide-react';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { getAgingReport } from '@kivvi/core';
 import { formatCurrency } from '@/lib/utils';
 import { DatePickerForm } from '../date-picker-form';
+import { ExportButton } from '../export-button';
+import { EmptyState } from '@/components/empty-state';
+import { getTranslations } from 'next-intl/server';
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -14,6 +17,9 @@ interface PageProps {
 export default async function AgingReportPage({ searchParams }: PageProps) {
   const session = await auth();
   if (!session?.user?.companyId) redirect('/login');
+
+  const t = await getTranslations('reports');
+  const tc = await getTranslations('common');
 
   const params = await searchParams;
   const asOfDate =
@@ -32,12 +38,21 @@ export default async function AgingReportPage({ searchParams }: PageProps) {
           className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Reports
+          {tc('back')} {t('title')}
         </Link>
-        <h1 className="text-3xl font-bold">Aging Report</h1>
-        <p className="text-muted-foreground">
-          Altersanalyse &mdash; Outstanding receivables broken down by age.
-        </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold">{t('agingReport')}</h1>
+            <p className="text-muted-foreground">
+              {t('agingReportDesc')}
+            </p>
+          </div>
+          <ExportButton
+            reportType="aging"
+            asOfDate={asOfDate}
+            disabled={!hasData}
+          />
+        </div>
       </div>
 
       {/* Date Picker */}
@@ -46,52 +61,54 @@ export default async function AgingReportPage({ searchParams }: PageProps) {
       </div>
 
       {!hasData ? (
-        <div className="rounded-xl border bg-card p-12 text-center text-muted-foreground">
-          <FileText className="mx-auto mb-3 h-10 w-10" />
-          <p className="text-lg font-medium">No outstanding receivables</p>
-          <p className="mt-1 text-sm">
-            There are no unpaid invoices as of {asOfDate}.
-          </p>
-        </div>
+        <EmptyState
+          icon={CheckCircle}
+          title={t('noOutstandingReceivables')}
+          description={t('noOutstandingReceivablesDesc', { date: asOfDate })}
+          actionLabel={tc('createInvoice')}
+          actionHref="/sales/invoices/new"
+          secondaryActionLabel={tc('viewInvoices')}
+          secondaryActionHref="/sales/invoices"
+        />
       ) : (
         <div className="rounded-xl border bg-card">
           <div className="flex items-center gap-2 border-b p-4">
             <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
             <h2 className="font-semibold">
-              Receivables as of {asOfDate}
+              {t('receivablesAsOf', { date: asOfDate })}
             </h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  <th className="px-6 py-3">Contact</th>
+                  <th className="px-6 py-3">{t('contact')}</th>
                   <th className="px-6 py-3 text-right">
                     <span className="text-green-600 dark:text-green-400">
-                      Current
+                      {t('current')}
                     </span>
                   </th>
                   <th className="px-6 py-3 text-right">
                     <span className="text-yellow-600 dark:text-yellow-400">
-                      1-30 days
+                      {t('days1to30')}
                     </span>
                   </th>
                   <th className="px-6 py-3 text-right">
                     <span className="text-orange-600 dark:text-orange-400">
-                      31-60 days
+                      {t('days31to60')}
                     </span>
                   </th>
                   <th className="px-6 py-3 text-right">
                     <span className="text-red-500 dark:text-red-400">
-                      61-90 days
+                      {t('days61to90')}
                     </span>
                   </th>
                   <th className="px-6 py-3 text-right">
                     <span className="text-red-700 dark:text-red-300">
-                      &gt;90 days
+                      {t('days90plus')}
                     </span>
                   </th>
-                  <th className="px-6 py-3 text-right">Total</th>
+                  <th className="px-6 py-3 text-right">{t('totalOutstanding')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
@@ -128,7 +145,7 @@ export default async function AgingReportPage({ searchParams }: PageProps) {
               </tbody>
               <tfoot>
                 <tr className="border-t-2 font-semibold">
-                  <td className="px-6 py-3">Totals</td>
+                  <td className="px-6 py-3">{tc('totals')}</td>
                   <td className="px-6 py-3 text-right text-green-600 dark:text-green-400">
                     {report.totals.current > 0
                       ? formatCurrency(report.totals.current)

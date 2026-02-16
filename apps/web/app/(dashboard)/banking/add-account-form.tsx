@@ -4,12 +4,15 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, X } from 'lucide-react';
 import { createBankAccountAction } from '@/app/actions/banking';
+import { useTranslations } from 'next-intl';
 
 export function AddAccountForm() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const t = useTranslations('banking');
+  const tc = useTranslations('common');
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -41,7 +44,7 @@ export function AddAccountForm() {
         className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
       >
         <Plus className="h-4 w-4" />
-        Add Bank Account
+        {t('addAccount')}
       </button>
     );
   }
@@ -50,7 +53,7 @@ export function AddAccountForm() {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="w-full max-w-md rounded-xl border bg-card p-6 shadow-lg">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Add Bank Account</h2>
+          <h2 className="text-lg font-semibold">{t('addAccount')}</h2>
           <button
             onClick={() => setIsOpen(false)}
             className="rounded-lg p-1 hover:bg-muted transition-colors"
@@ -62,7 +65,7 @@ export function AddAccountForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-1">
-              Account Name <span className="text-red-500">*</span>
+              {t('accountName')} <span className="text-red-500">*</span>
             </label>
             <input
               name="name"
@@ -84,7 +87,7 @@ export function AddAccountForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Bank Name</label>
+            <label className="block text-sm font-medium mb-1">{t('bankName')}</label>
             <input
               name="bankName"
               type="text"
@@ -94,7 +97,7 @@ export function AddAccountForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Currency</label>
+            <label className="block text-sm font-medium mb-1">{tc('currency')}</label>
             <select
               name="currency"
               defaultValue="CHF"
@@ -115,14 +118,14 @@ export function AddAccountForm() {
               disabled={isPending}
               className="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
-              {isPending ? 'Creating...' : 'Create Account'}
+              {isPending ? tc('creating') : tc('create')}
             </button>
             <button
               type="button"
               onClick={() => setIsOpen(false)}
               className="rounded-lg border px-4 py-2 text-sm hover:bg-muted transition-colors"
             >
-              Cancel
+              {tc('cancel')}
             </button>
           </div>
         </form>

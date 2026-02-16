@@ -20,6 +20,7 @@ import { formatCurrency, formatDate, cn } from '@/lib/utils';
 import { AutoMatchButton } from './auto-match-button';
 import { ImportCsv } from './import-csv';
 import { ReconcileButton } from './reconcile-button';
+import { getTranslations } from 'next-intl/server';
 
 interface PageProps {
   params: Promise<{ bankAccountId: string }>;
@@ -33,6 +34,9 @@ interface PageProps {
 export default async function BankAccountDetailPage({ params, searchParams }: PageProps) {
   const session = await auth();
   if (!session?.user?.companyId) redirect('/login');
+
+  const t = await getTranslations('banking');
+  const tc = await getTranslations('common');
 
   const { bankAccountId } = await params;
   const sp = await searchParams;
@@ -67,7 +71,7 @@ export default async function BankAccountDetailPage({ params, searchParams }: Pa
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Banking
+          {tc('back')} {t('title')}
         </Link>
 
         <div className="flex items-start justify-between">
@@ -88,7 +92,7 @@ export default async function BankAccountDetailPage({ params, searchParams }: Pa
             )}
           </div>
           <div className="text-right">
-            <p className="text-xs text-muted-foreground">Balance</p>
+            <p className="text-xs text-muted-foreground">{t('balance')}</p>
             <p className="text-2xl font-bold">
               {account.balance
                 ? formatCurrency(Number(account.balance), account.currency || 'CHF')
@@ -101,24 +105,24 @@ export default async function BankAccountDetailPage({ params, searchParams }: Pa
       {/* Reconciliation Summary */}
       <div className="grid gap-4 sm:grid-cols-4">
         <SummaryCard
-          label="Total Transactions"
+          label={t('totalTransactions')}
           value={summary.totalTransactions.toString()}
           icon={<FileText className="h-4 w-4" />}
         />
         <SummaryCard
-          label="Reconciled"
+          label={t('reconciled')}
           value={summary.reconciled.toString()}
           icon={<CheckCircle2 className="h-4 w-4 text-green-600" />}
           className="border-green-200 dark:border-green-900/50"
         />
         <SummaryCard
-          label="Unreconciled"
+          label={t('unreconciled')}
           value={summary.unreconciled.toString()}
           icon={<AlertCircle className="h-4 w-4 text-amber-600" />}
           className="border-amber-200 dark:border-amber-900/50"
         />
         <SummaryCard
-          label="Unreconciled Amount"
+          label={t('unreconciledAmount')}
           value={formatCurrency(summary.totalUnreconciledAmount, account.currency || 'CHF')}
           icon={<CreditCard className="h-4 w-4 text-red-600" />}
           className="border-red-200 dark:border-red-900/50"
@@ -137,7 +141,7 @@ export default async function BankAccountDetailPage({ params, searchParams }: Pa
           <input
             name="search"
             type="text"
-            placeholder="Search transactions..."
+            placeholder={t('searchTransactions')}
             defaultValue={search}
             className="w-full rounded-lg border bg-background py-2 pl-3 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary"
           />
@@ -159,7 +163,7 @@ export default async function BankAccountDetailPage({ params, searchParams }: Pa
                     : 'bg-muted text-muted-foreground hover:bg-muted/80'
                 )}
               >
-                {f === 'all' ? 'All' : f === 'unreconciled' ? 'Unreconciled' : 'Reconciled'}
+                {f === 'all' ? tc('all') : f === 'unreconciled' ? t('unreconciled') : t('reconciled')}
               </Link>
             );
           })}
@@ -171,7 +175,7 @@ export default async function BankAccountDetailPage({ params, searchParams }: Pa
         {transactions.data.length === 0 ? (
           <div className="p-12 text-center text-muted-foreground">
             <FileText className="mx-auto mb-3 h-10 w-10" />
-            <p className="text-lg font-medium">No transactions found</p>
+            <p className="text-lg font-medium">{tc('noResults')}</p>
             <p className="mt-1 text-sm">
               {search || filter
                 ? 'Try adjusting your filters.'
@@ -182,12 +186,12 @@ export default async function BankAccountDetailPage({ params, searchParams }: Pa
           <>
             {/* Table header */}
             <div className="hidden border-b px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground sm:grid sm:grid-cols-[100px_1fr_150px_120px_120px_180px]">
-              <span>Date</span>
-              <span>Description</span>
-              <span>Reference</span>
-              <span className="text-right">Amount</span>
-              <span className="text-right">Balance</span>
-              <span className="text-center">Status</span>
+              <span>{tc('date')}</span>
+              <span>{tc('description')}</span>
+              <span>{t('reference')}</span>
+              <span className="text-right">{tc('amount')}</span>
+              <span className="text-right">{t('balance')}</span>
+              <span className="text-center">{tc('status')}</span>
             </div>
 
             {/* Rows */}
@@ -229,7 +233,7 @@ export default async function BankAccountDetailPage({ params, searchParams }: Pa
                         <div className="flex items-center gap-2">
                           <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400">
                             <CheckCircle2 className="h-3 w-3" />
-                            Reconciled
+                            {t('reconciled')}
                           </span>
                           <Link
                             href={`/sales/invoices/${txn.matchedDocument.id}`}
@@ -247,7 +251,7 @@ export default async function BankAccountDetailPage({ params, searchParams }: Pa
                         <div className="flex items-center gap-2">
                           <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
                             <AlertCircle className="h-3 w-3" />
-                            Unreconciled
+                            {t('unreconciled')}
                           </span>
                           <ReconcileButton
                             transactionId={txn.id}
@@ -268,9 +272,7 @@ export default async function BankAccountDetailPage({ params, searchParams }: Pa
       {transactions.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            Showing {(transactions.page - 1) * transactions.pageSize + 1}-
-            {Math.min(transactions.page * transactions.pageSize, transactions.total)} of{' '}
-            {transactions.total} transactions
+            {tc('showing', { from: (transactions.page - 1) * transactions.pageSize + 1, to: Math.min(transactions.page * transactions.pageSize, transactions.total), total: transactions.total })}
           </p>
           <div className="flex items-center gap-2">
             {transactions.page > 1 ? (
@@ -279,12 +281,12 @@ export default async function BankAccountDetailPage({ params, searchParams }: Pa
                 className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm hover:bg-muted transition-colors"
               >
                 <ChevronLeft className="h-4 w-4" />
-                Previous
+                {tc('previous')}
               </Link>
             ) : (
               <span className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm text-muted-foreground opacity-50">
                 <ChevronLeft className="h-4 w-4" />
-                Previous
+                {tc('previous')}
               </span>
             )}
 
@@ -297,12 +299,12 @@ export default async function BankAccountDetailPage({ params, searchParams }: Pa
                 href={buildPageUrl(bankAccountId, transactions.page + 1, filter, search)}
                 className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm hover:bg-muted transition-colors"
               >
-                Next
+                {tc('next')}
                 <ChevronRight className="h-4 w-4" />
               </Link>
             ) : (
               <span className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm text-muted-foreground opacity-50">
-                Next
+                {tc('next')}
                 <ChevronRight className="h-4 w-4" />
               </span>
             )}

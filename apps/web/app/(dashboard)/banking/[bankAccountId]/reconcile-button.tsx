@@ -7,6 +7,7 @@ import {
   reconcileTransactionAction,
   unreconcileTransactionAction,
 } from '@/app/actions/banking';
+import { useTranslations } from 'next-intl';
 
 interface MatchedDocument {
   id: string;
@@ -41,6 +42,7 @@ export function ReconcileButton({
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const t = useTranslations('banking');
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -124,7 +126,7 @@ export function ReconcileButton({
           title="Unreconcile"
         >
           <Unlink className="h-3 w-3" />
-          {isPending ? '...' : 'Unlink'}
+          {isPending ? '...' : t('unlink')}
         </button>
         {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
       </div>
@@ -139,7 +141,7 @@ export function ReconcileButton({
         className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary hover:bg-primary/20 transition-colors disabled:opacity-50"
       >
         <Link2 className="h-3 w-3" />
-        Match
+        {t('match')}
       </button>
 
       {isOpen && (
@@ -151,7 +153,7 @@ export function ReconcileButton({
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search invoices by number or contact..."
+                placeholder={t('searchInvoices')}
                 autoFocus
                 className="w-full rounded-lg border bg-background py-1.5 pl-8 pr-3 text-sm outline-none focus:ring-2 focus:ring-primary"
               />
@@ -161,15 +163,15 @@ export function ReconcileButton({
           <div className="max-h-48 overflow-y-auto border-t">
             {isSearching ? (
               <p className="p-3 text-center text-xs text-muted-foreground">
-                Searching...
+                {t('searching')}
               </p>
             ) : search.length < 2 ? (
               <p className="p-3 text-center text-xs text-muted-foreground">
-                Type at least 2 characters to search
+                {t('typeAtLeast')}
               </p>
             ) : results.length === 0 ? (
               <p className="p-3 text-center text-xs text-muted-foreground">
-                No documents found
+                {t('noDocumentsFound')}
               </p>
             ) : (
               <div className="divide-y">

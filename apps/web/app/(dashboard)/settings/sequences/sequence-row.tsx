@@ -20,6 +20,7 @@ export function SequenceRow({ sequence, typeLabel }: SequenceRowProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showWarning, setShowWarning] = useState(false);
 
   const [prefix, setPrefix] = useState(sequence.prefix);
   const [nextNumber, setNextNumber] = useState(sequence.nextNumber);
@@ -31,6 +32,19 @@ export function SequenceRow({ sequence, typeLabel }: SequenceRowProps) {
     setFormat(sequence.format);
     setIsEditing(false);
     setError(null);
+    setShowWarning(false);
+  }
+
+  function handleNextNumberChange(value: string) {
+    const num = parseInt(value, 10) || 1;
+    setNextNumber(num);
+
+    // Show warning if setting to lower value (risk of duplicate numbers)
+    if (num < sequence.nextNumber) {
+      setShowWarning(true);
+    } else {
+      setShowWarning(false);
+    }
   }
 
   async function handleSave() {
@@ -46,6 +60,7 @@ export function SequenceRow({ sequence, typeLabel }: SequenceRowProps) {
 
       if (result.success) {
         setIsEditing(false);
+        setShowWarning(false);
       } else {
         setError(result.error || 'Failed to update sequence');
       }
@@ -74,9 +89,12 @@ export function SequenceRow({ sequence, typeLabel }: SequenceRowProps) {
             <input
               type="number"
               value={nextNumber}
-              onChange={(e) => setNextNumber(parseInt(e.target.value, 10) || 1)}
+              onChange={(e) => handleNextNumberChange(e.target.value)}
               min={1}
-              className="w-full rounded-lg border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              className={cn(
+                "w-full rounded-lg border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary",
+                showWarning && "border-yellow-500"
+              )}
             />
           </div>
           <div>
@@ -114,6 +132,11 @@ export function SequenceRow({ sequence, typeLabel }: SequenceRowProps) {
             </button>
           </div>
         </div>
+        {showWarning && (
+          <div className="rounded-lg border border-yellow-500/50 bg-yellow-500/10 px-3 py-2 text-xs text-yellow-700 dark:text-yellow-400">
+            ⚠️ Warning: Setting next number to a lower value may create duplicate numbers if documents already exist.
+          </div>
+        )}
         {error && (
           <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-3 py-2 text-xs text-destructive">
             {error}

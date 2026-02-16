@@ -6,6 +6,7 @@ import { db } from '@/lib/db';
 import { getFiscalYear } from '@kivvi/core';
 import { formatDate } from '@/lib/utils';
 import { CloseYearButton, ClosePeriodButton } from './close-buttons';
+import { getTranslations } from 'next-intl/server';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -14,6 +15,9 @@ interface PageProps {
 export default async function FiscalYearDetailPage({ params }: PageProps) {
   const session = await auth();
   if (!session?.user?.companyId) redirect('/login');
+
+  const t = await getTranslations('accounting');
+  const tc = await getTranslations('common');
 
   const { id } = await params;
   const fiscalYear = await getFiscalYear(db, session.user.companyId, id);
@@ -31,7 +35,7 @@ export default async function FiscalYearDetailPage({ params }: PageProps) {
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Fiscal Years
+          {tc('back')} {t('fiscalYears')}
         </Link>
 
         <div className="flex items-start justify-between">
@@ -64,7 +68,7 @@ export default async function FiscalYearDetailPage({ params }: PageProps) {
         <div className="border-b px-6 py-4">
           <h2 className="font-semibold flex items-center gap-2">
             <Calendar className="h-4 w-4" />
-            Periods ({fiscalYear.periods.length})
+            {t('periods')} ({fiscalYear.periods.length})
           </h2>
         </div>
 
@@ -72,7 +76,7 @@ export default async function FiscalYearDetailPage({ params }: PageProps) {
           <div className="flex flex-col items-center justify-center py-12">
             <Calendar className="h-8 w-8 text-muted-foreground/50" />
             <p className="mt-2 text-sm text-muted-foreground">
-              No periods found.
+              {t('noPeriods')}
             </p>
           </div>
         ) : (
@@ -80,11 +84,11 @@ export default async function FiscalYearDetailPage({ params }: PageProps) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b text-left text-muted-foreground">
-                  <th className="whitespace-nowrap px-6 py-3 font-medium">Name</th>
-                  <th className="whitespace-nowrap px-6 py-3 font-medium">Start Date</th>
-                  <th className="whitespace-nowrap px-6 py-3 font-medium">End Date</th>
-                  <th className="whitespace-nowrap px-6 py-3 font-medium">Status</th>
-                  <th className="whitespace-nowrap px-6 py-3 font-medium text-right">Actions</th>
+                  <th className="whitespace-nowrap px-6 py-3 font-medium">{tc('name')}</th>
+                  <th className="whitespace-nowrap px-6 py-3 font-medium">{t('startDate')}</th>
+                  <th className="whitespace-nowrap px-6 py-3 font-medium">{t('endDate')}</th>
+                  <th className="whitespace-nowrap px-6 py-3 font-medium">{tc('status')}</th>
+                  <th className="whitespace-nowrap px-6 py-3 font-medium text-right">{tc('edit')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y">

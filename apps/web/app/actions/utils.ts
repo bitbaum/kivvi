@@ -4,6 +4,7 @@ export interface ActionResult<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
+  fieldErrors?: Record<string, string[]>;
 }
 
 export async function getSession() {
@@ -47,4 +48,17 @@ export function safeErrorMessage(error: unknown, fallback: string): string {
   }
   console.error('Unexpected error:', error);
   return fallback;
+}
+
+/**
+ * Format Zod validation errors into field-specific error messages.
+ * Returns both a general error message and a map of field errors.
+ */
+export function formatZodError(error: any): { error: string; fieldErrors: Record<string, string[]> } {
+  const fieldErrors = error.flatten().fieldErrors as Record<string, string[]>;
+  const firstError = Object.values(fieldErrors)[0]?.[0];
+  return {
+    error: firstError || 'Validation failed',
+    fieldErrors,
+  };
 }

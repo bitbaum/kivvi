@@ -6,12 +6,16 @@ import { db } from '@/lib/db';
 import { listFiscalYears } from '@kivvi/core';
 import { formatDate } from '@/lib/utils';
 import { NewYearForm } from './new-year-form';
+import { getTranslations } from 'next-intl/server';
 
 export default async function FiscalYearsPage() {
   const session = await auth();
   if (!session?.user?.companyId) {
     redirect('/login');
   }
+
+  const t = await getTranslations('accounting');
+  const tc = await getTranslations('common');
 
   const fiscalYears = await listFiscalYears(db, session.user.companyId);
 
@@ -20,9 +24,9 @@ export default async function FiscalYearsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Fiscal Years</h1>
+          <h1 className="text-3xl font-bold">{t('fiscalYears')}</h1>
           <p className="text-muted-foreground">
-            Manage your fiscal years and accounting periods.
+            {t('manageFiscalYears')}
           </p>
         </div>
       </div>
@@ -35,19 +39,19 @@ export default async function FiscalYearsPage() {
         {fiscalYears.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
             <Calendar className="h-12 w-12 text-muted-foreground/50" />
-            <h3 className="mt-4 text-lg font-medium">No fiscal years</h3>
+            <h3 className="mt-4 text-lg font-medium">{t('noFiscalYears')}</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Create your first fiscal year to get started with accounting.
+              {t('manageFiscalYears')}
             </p>
           </div>
         ) : (
           <>
             {/* Table header */}
             <div className="grid grid-cols-[2fr_1fr_1fr_auto] gap-4 border-b px-6 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              <div>Name</div>
-              <div>Start Date</div>
-              <div>End Date</div>
-              <div>Status</div>
+              <div>{tc('name')}</div>
+              <div>{t('startDate')}</div>
+              <div>{t('endDate')}</div>
+              <div>{tc('status')}</div>
             </div>
 
             {/* Table rows */}

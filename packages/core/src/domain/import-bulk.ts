@@ -14,6 +14,7 @@ import {
   numberSequences,
 } from '@kivvi/database';
 import type { Database } from '@kivvi/database';
+import { DEFAULT_VAT_RATE } from '../config/vat-rates';
 
 // ============================================================================
 // TYPES
@@ -256,7 +257,7 @@ export async function bulkInsertProducts(
         unitPrice: row.unitPrice || '0',
         purchasePrice: row.purchasePrice || null,
         unit: row.unit || 'piece',
-        vatRate: '8.1',
+        vatRate: DEFAULT_VAT_RATE,
         weight: row.weight || null,
         minStock: row.minStock ? parseInt(row.minStock, 10) || null : null,
         shopVisible: row.shopVisible === 'J' || row.shopVisible === 'true',
@@ -352,51 +353,53 @@ export async function bulkInsertDocuments(
       const deliveryDate = firstRow.deliveryDate ? new Date(firstRow.deliveryDate) : null;
       const paidDate = firstRow.paidDate ? new Date(firstRow.paidDate) : null;
 
-      // Insert document
-      const [doc] = await db
-        .insert(documents)
-        .values({
-          companyId,
-          contactId,
-          type: documentType,
-          status,
-          number: docNumber,
-          issueDate,
-          dueDate,
-          deliveryDate,
-          paidDate: status === 'paid' ? paidDate : null,
-          subtotal: firstRow.subtotal || '0',
-          vatAmount: firstRow.vatAmount || '0',
-          total: firstRow.total || '0',
-          notes: firstRow.notes || null,
-          createdBy: userId,
-        })
-        .onConflictDoNothing()
-        .returning();
+      // Wrap document + items insert in transaction
+      await db.transaction(async (tx) => {
+        // Insert document
+        const [doc] = await tx
+          .insert(documents)
+          .values({
+            companyId,
+            contactId,
+            type: documentType,
+            status,
+            number: docNumber,
+            issueDate,
+            dueDate,
+            deliveryDate,
+            paidDate: status === 'paid' ? paidDate : null,
+            subtotal: firstRow.subtotal || '0',
+            vatAmount: firstRow.vatAmount || '0',
+            total: firstRow.total || '0',
+            notes: firstRow.notes || null,
+            createdBy: userId,
+          })
+          .onConflictDoNothing()
+          .returning();
 
-      if (!doc) {
-        skipped++;
-        continue;
-      }
-
-      // Parse line items from positions field if available
-      const positions = firstRow.positions;
-      if (positions) {
-        const items = parsePositions(positions, firstRow.vatRate || '8.1');
-        if (items.length > 0) {
-          await db.insert(documentItems).values(
-            items.map((item, idx) => ({
-              documentId: doc.id,
-              position: idx + 1,
-              description: item.description,
-              quantity: item.quantity,
-              unitPrice: item.unitPrice,
-              vatRate: item.vatRate,
-              total: item.total,
-            }))
-          );
+        if (!doc) {
+          throw new Error('Document already exists');
         }
-      }
+
+        // Parse line items from positions field if available
+        const positions = firstRow.positions;
+        if (positions) {
+          const items = parsePositions(positions, firstRow.vatRate || DEFAULT_VAT_RATE);
+          if (items.length > 0) {
+            await tx.insert(documentItems).values(
+              items.map((item, idx) => ({
+                documentId: doc.id,
+                position: idx + 1,
+                description: item.description,
+                quantity: item.quantity,
+                unitPrice: item.unitPrice,
+                vatRate: item.vatRate,
+                total: item.total,
+              }))
+            );
+          }
+        }
+      });
 
       inserted++;
     } catch (err) {
@@ -493,42 +496,45 @@ export async function bulkInsertJournalEntries(
 
         const entryDate = row.date ? new Date(row.date) : new Date();
 
-        // Create journal entry
-        const [entry] = await db
-          .insert(journalEntries)
-          .values({
-            companyId,
-            date: entryDate,
-            reference: row.reference || null,
-            description: row.description || row.notes || 'Imported from kivitendo',
-            sourceType: 'manual',
-          })
-          .returning();
+        // Wrap journal entry + lines insert in transaction
+        await db.transaction(async (tx) => {
+          // Create journal entry
+          const [entry] = await tx
+            .insert(journalEntries)
+            .values({
+              companyId,
+              date: entryDate,
+              reference: row.reference || null,
+              description: row.description || row.notes || 'Imported from kivitendo',
+              sourceType: 'manual',
+            })
+            .returning();
 
-        // Create 2 journal lines (debit + credit)
-        const lines = [];
-        if (debitAmount && new Decimal(debitAmount || '0').gt(0)) {
-          lines.push({
-            journalEntryId: entry.id,
-            accountId: debitAccountId,
-            debit: debitAmount,
-            credit: null,
-            description: row.voucher || null,
-          });
-        }
-        if (creditAmount && new Decimal(creditAmount || '0').gt(0)) {
-          lines.push({
-            journalEntryId: entry.id,
-            accountId: creditAccountId,
-            debit: null,
-            credit: creditAmount,
-            description: row.voucher || null,
-          });
-        }
+          // Create 2 journal lines (debit + credit)
+          const lines = [];
+          if (debitAmount && new Decimal(debitAmount || '0').gt(0)) {
+            lines.push({
+              journalEntryId: entry.id,
+              accountId: debitAccountId,
+              debit: debitAmount,
+              credit: null,
+              description: row.voucher || null,
+            });
+          }
+          if (creditAmount && new Decimal(creditAmount || '0').gt(0)) {
+            lines.push({
+              journalEntryId: entry.id,
+              accountId: creditAccountId,
+              debit: null,
+              credit: creditAmount,
+              description: row.voucher || null,
+            });
+          }
 
-        if (lines.length > 0) {
-          await db.insert(journalLines).values(lines);
-        }
+          if (lines.length > 0) {
+            await tx.insert(journalLines).values(lines);
+          }
+        });
 
         inserted++;
       } catch (err) {
@@ -575,25 +581,31 @@ export async function bulkInsertStockLevels(
       }
 
       try {
-        // Upsert stock level
-        await db
-          .insert(stockLevels)
-          .values({
-            productId,
-            warehouseId,
-            quantity,
-            reservedQuantity: '0',
-          })
-          .onConflictDoUpdate({
-            target: [stockLevels.productId, stockLevels.warehouseId],
-            set: { quantity },
-          });
+        // Wrap stock level + product update in transaction
+        await db.transaction(async (tx) => {
+          // Upsert stock level
+          await tx
+            .insert(stockLevels)
+            .values({
+              productId,
+              warehouseId,
+              quantity,
+              reservedQuantity: '0',
+            })
+            .onConflictDoUpdate({
+              target: [stockLevels.productId, stockLevels.warehouseId],
+              set: { quantity },
+            });
 
-        // Update cached product stock quantity
-        await db
-          .update(products)
-          .set({ stockQuantity: quantity })
-          .where(eq(products.id, productId));
+          // Update cached product stock quantity
+          await tx
+            .update(products)
+            .set({ stockQuantity: quantity })
+            .where(and(
+              eq(products.id, productId),
+              eq(products.companyId, companyId)
+            ));
+        });
 
         inserted++;
       } catch (err) {

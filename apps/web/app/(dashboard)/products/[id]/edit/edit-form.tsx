@@ -4,29 +4,10 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { updateProductAction } from '@/app/actions/products';
+import { SWISS_VAT_RATES, DEFAULT_VAT_RATE } from '@/lib/config/vat-rates';
 import type { Product } from '@kivvi/database';
-
-const VAT_RATE_OPTIONS = [
-  { value: '8.1', label: '8.1% (Standard)' },
-  { value: '2.6', label: '2.6% (Reduced)' },
-  { value: '0', label: '0% (Exempt)' },
-];
-
-const UNIT_OPTIONS = [
-  { value: 'piece', label: 'Piece' },
-  { value: 'hour', label: 'Hour' },
-  { value: 'kg', label: 'Kilogram' },
-  { value: 'm', label: 'Meter' },
-  { value: 'm2', label: 'Square Meter' },
-  { value: 'm3', label: 'Cubic Meter' },
-  { value: 'liter', label: 'Liter' },
-];
-
-const TYPE_OPTIONS = [
-  { value: 'product', label: 'Product' },
-  { value: 'service', label: 'Service' },
-];
 
 interface EditProductFormProps {
   product: Product;
@@ -38,6 +19,29 @@ export function EditProductForm({ product }: EditProductFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [productType, setProductType] = useState(product.type);
 
+  const t = useTranslations('products');
+  const tc = useTranslations('common');
+
+  const VAT_RATE_OPTIONS = SWISS_VAT_RATES.map((rate) => ({
+    value: rate.value,
+    label: t(`vatRates.${rate.labelKey}`),
+  }));
+
+  const UNIT_OPTIONS = [
+    { value: 'piece', label: t('units.piece') },
+    { value: 'hour', label: t('units.hour') },
+    { value: 'kg', label: t('units.kg') },
+    { value: 'm', label: t('units.m') },
+    { value: 'm2', label: t('units.m2') },
+    { value: 'm3', label: t('units.m3') },
+    { value: 'liter', label: t('units.liter') },
+  ];
+
+  const TYPE_OPTIONS = [
+    { value: 'product', label: t('product') },
+    { value: 'service', label: t('service') },
+  ];
+
   async function handleSubmit(formData: FormData) {
     setIsSubmitting(true);
     setError(null);
@@ -48,11 +52,11 @@ export function EditProductForm({ product }: EditProductFormProps) {
       if (result.success) {
         router.push(`/products/${product.id}`);
       } else {
-        setError(result.error || 'Failed to update product');
+        setError(result.error || tc('error'));
         setIsSubmitting(false);
       }
     } catch {
-      setError('An unexpected error occurred');
+      setError(tc('error'));
       setIsSubmitting(false);
     }
   }
@@ -68,9 +72,9 @@ export function EditProductForm({ product }: EditProductFormProps) {
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <div>
-          <h1 className="text-3xl font-bold">Edit Product</h1>
+          <h1 className="text-3xl font-bold">{t('editProduct')}</h1>
           <p className="text-muted-foreground">
-            Update {product.name}
+            {product.name}
             {product.articleNumber ? ` (${product.articleNumber})` : ''}
           </p>
         </div>
@@ -86,12 +90,12 @@ export function EditProductForm({ product }: EditProductFormProps) {
         {/* Basic Information */}
         <div className="rounded-xl border bg-card">
           <div className="border-b px-6 py-4">
-            <h2 className="font-semibold">Basic Information</h2>
+            <h2 className="font-semibold">{t('basicInformation')}</h2>
           </div>
           <div className="space-y-4 p-6">
             <div>
               <label htmlFor="type" className="mb-1.5 block text-sm font-medium">
-                Type <span className="text-destructive">*</span>
+                {tc('type')} <span className="text-destructive">*</span>
               </label>
               <select
                 id="type"
@@ -109,7 +113,7 @@ export function EditProductForm({ product }: EditProductFormProps) {
 
             <div>
               <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
-                Name <span className="text-destructive">*</span>
+                {tc('name')} <span className="text-destructive">*</span>
               </label>
               <input
                 type="text"
@@ -123,7 +127,7 @@ export function EditProductForm({ product }: EditProductFormProps) {
             </div>
 
             <div>
-              <label htmlFor="description" className="mb-1.5 block text-sm font-medium">Description</label>
+              <label htmlFor="description" className="mb-1.5 block text-sm font-medium">{tc('description')}</label>
               <textarea
                 id="description"
                 name="description"
@@ -136,11 +140,11 @@ export function EditProductForm({ product }: EditProductFormProps) {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label htmlFor="sku" className="mb-1.5 block text-sm font-medium">SKU</label>
+                <label htmlFor="sku" className="mb-1.5 block text-sm font-medium">{t('sku')}</label>
                 <input type="text" id="sku" name="sku" maxLength={100} defaultValue={product.sku || ''} className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" />
               </div>
               <div>
-                <label htmlFor="ean" className="mb-1.5 block text-sm font-medium">EAN / Barcode</label>
+                <label htmlFor="ean" className="mb-1.5 block text-sm font-medium">{t('ean')}</label>
                 <input type="text" id="ean" name="ean" maxLength={50} defaultValue={product.ean || ''} className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" />
               </div>
             </div>
@@ -150,18 +154,18 @@ export function EditProductForm({ product }: EditProductFormProps) {
         {/* Pricing */}
         <div className="rounded-xl border bg-card">
           <div className="border-b px-6 py-4">
-            <h2 className="font-semibold">Pricing</h2>
+            <h2 className="font-semibold">{t('pricing')}</h2>
           </div>
           <div className="space-y-4 p-6">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label htmlFor="unitPrice" className="mb-1.5 block text-sm font-medium">
-                  Unit Price (CHF) <span className="text-destructive">*</span>
+                  {t('unitPrice')} (CHF) <span className="text-destructive">*</span>
                 </label>
                 <input type="text" id="unitPrice" name="unitPrice" required defaultValue={product.unitPrice} className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" />
               </div>
               <div>
-                <label htmlFor="purchasePrice" className="mb-1.5 block text-sm font-medium">Purchase Price (CHF)</label>
+                <label htmlFor="purchasePrice" className="mb-1.5 block text-sm font-medium">{t('purchasePrice')} (CHF)</label>
                 <input type="text" id="purchasePrice" name="purchasePrice" defaultValue={product.purchasePrice || ''} className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" />
               </div>
             </div>
@@ -171,16 +175,16 @@ export function EditProductForm({ product }: EditProductFormProps) {
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label htmlFor="vatRate" className="mb-1.5 block text-sm font-medium">
-                  VAT Rate <span className="text-destructive">*</span>
+                  {t('vatRate')} <span className="text-destructive">*</span>
                 </label>
-                <select id="vatRate" name="vatRate" required defaultValue={product.vatRate || '8.1'} className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                <select id="vatRate" name="vatRate" required defaultValue={product.vatRate || DEFAULT_VAT_RATE} className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
                   {VAT_RATE_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>{opt.label}</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label htmlFor="unit" className="mb-1.5 block text-sm font-medium">Unit</label>
+                <label htmlFor="unit" className="mb-1.5 block text-sm font-medium">{t('unit')}</label>
                 <select id="unit" name="unit" defaultValue={product.unit || 'piece'} className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
                   {UNIT_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -195,16 +199,16 @@ export function EditProductForm({ product }: EditProductFormProps) {
         {productType === 'product' && (
           <div className="rounded-xl border bg-card">
             <div className="border-b px-6 py-4">
-              <h2 className="font-semibold">Inventory</h2>
+              <h2 className="font-semibold">{t('inventorySection')}</h2>
             </div>
             <div className="space-y-4 p-6">
               <div className="max-w-xs">
-                <label htmlFor="minStock" className="mb-1.5 block text-sm font-medium">Minimum Stock (Reorder Point)</label>
+                <label htmlFor="minStock" className="mb-1.5 block text-sm font-medium">{t('minStock')}</label>
                 <input type="number" id="minStock" name="minStock" min={0} step={1} defaultValue={product.minStock ?? ''} className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" />
               </div>
               <div className="flex items-center gap-3">
                 <input type="checkbox" id="serialNumberTracking" name="serialNumberTracking" defaultChecked={product.serialNumberTracking ?? false} className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
-                <label htmlFor="serialNumberTracking" className="text-sm font-medium">Enable serial number tracking</label>
+                <label htmlFor="serialNumberTracking" className="text-sm font-medium">{t('serialNumberTracking')}</label>
               </div>
             </div>
           </div>
@@ -213,14 +217,14 @@ export function EditProductForm({ product }: EditProductFormProps) {
         {/* Visibility */}
         <div className="rounded-xl border bg-card">
           <div className="border-b px-6 py-4">
-            <h2 className="font-semibold">Visibility</h2>
+            <h2 className="font-semibold">{t('visibility')}</h2>
           </div>
           <div className="space-y-4 p-6">
             <div className="flex items-center gap-3">
               <input type="checkbox" id="shopVisible" name="shopVisible" defaultChecked={product.shopVisible ?? false} className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />
               <div>
-                <label htmlFor="shopVisible" className="text-sm font-medium">Visible in shop</label>
-                <p className="text-xs text-muted-foreground">Make this product available in the online shop.</p>
+                <label htmlFor="shopVisible" className="text-sm font-medium">{t('visibleInShop')}</label>
+                <p className="text-xs text-muted-foreground">{t('shopVisibleDescription')}</p>
               </div>
             </div>
           </div>
@@ -229,7 +233,7 @@ export function EditProductForm({ product }: EditProductFormProps) {
         {/* Submit */}
         <div className="flex items-center justify-end gap-3">
           <Link href={`/products/${product.id}`} className="rounded-lg border px-4 py-2.5 text-sm font-medium hover:bg-muted transition-colors">
-            Cancel
+            {tc('cancel')}
           </Link>
           <button
             type="submit"
@@ -237,7 +241,7 @@ export function EditProductForm({ product }: EditProductFormProps) {
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-            {isSubmitting ? 'Saving...' : 'Save Changes'}
+            {isSubmitting ? tc('saving') : tc('saveChanges')}
           </button>
         </div>
       </form>

@@ -4,18 +4,21 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { createProjectAction } from '@/app/actions/projects';
 import { cn } from '@/lib/utils';
 
-const PROJECT_STATUSES = [
-  { value: 'active', label: 'Active' },
-  { value: 'completed', label: 'Completed' },
-  { value: 'on_hold', label: 'On Hold' },
-  { value: 'cancelled', label: 'Cancelled' },
-] as const;
-
 export default function NewProjectPage() {
   const router = useRouter();
+  const t = useTranslations('projects');
+  const tc = useTranslations('common');
+
+  const PROJECT_STATUSES = [
+    { value: 'active', label: t('statusActive') },
+    { value: 'completed', label: t('statusCompleted') },
+    { value: 'on_hold', label: t('statusOnHold') },
+    { value: 'cancelled', label: t('statusCancelled') },
+  ];
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,7 +35,7 @@ export default function NewProjectPage() {
         contactId: (formData.get('contactId') as string) || undefined,
         status: (formData.get('status') as string) || 'active',
         budget: formData.get('budget')
-          ? parseFloat(formData.get('budget') as string)
+          ? Number(formData.get('budget') as string)
           : undefined,
         startDate: (formData.get('startDate') as string) || undefined,
         endDate: (formData.get('endDate') as string) || undefined,
@@ -43,10 +46,10 @@ export default function NewProjectPage() {
       if (result.success && result.data) {
         router.push(`/projects/${(result.data as { id: string }).id}`);
       } else {
-        setError(result.error || 'Failed to create project');
+        setError(result.error || tc('error'));
       }
     } catch {
-      setError('An unexpected error occurred');
+      setError(tc('error'));
     } finally {
       setIsSubmitting(false);
     }
@@ -60,14 +63,14 @@ export default function NewProjectPage() {
         className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to Projects
+        {tc('back')}
       </Link>
 
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">New Project</h1>
+        <h1 className="text-3xl font-bold">{t('newProject')}</h1>
         <p className="text-muted-foreground">
-          Create a new project to track work and documents.
+          {t('subtitle')}
         </p>
       </div>
 
@@ -83,13 +86,13 @@ export default function NewProjectPage() {
         {/* Basic Information */}
         <section className="rounded-xl border bg-card">
           <div className="border-b px-6 py-4">
-            <h2 className="font-semibold">Basic Information</h2>
+            <h2 className="font-semibold">{t('basicInformation')}</h2>
           </div>
           <div className="grid gap-6 p-6 sm:grid-cols-2">
             {/* Name */}
             <div className="sm:col-span-2">
               <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
-                Project Name <span className="text-destructive">*</span>
+                {t('projectName')} <span className="text-destructive">*</span>
               </label>
               <input
                 type="text"
@@ -105,14 +108,14 @@ export default function NewProjectPage() {
             {/* Description */}
             <div className="sm:col-span-2">
               <label htmlFor="description" className="mb-1.5 block text-sm font-medium">
-                Description
+                {tc('description')}
               </label>
               <textarea
                 id="description"
                 name="description"
                 rows={3}
                 maxLength={5000}
-                placeholder="Project description..."
+                placeholder={t('descriptionPlaceholder')}
                 className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-y"
               />
             </div>
@@ -120,7 +123,7 @@ export default function NewProjectPage() {
             {/* Status */}
             <div>
               <label htmlFor="status" className="mb-1.5 block text-sm font-medium">
-                Status
+                {tc('status')}
               </label>
               <select
                 id="status"
@@ -139,7 +142,7 @@ export default function NewProjectPage() {
             {/* Budget */}
             <div>
               <label htmlFor="budget" className="mb-1.5 block text-sm font-medium">
-                Budget (CHF)
+                {t('budget')}
               </label>
               <input
                 type="number"
@@ -157,30 +160,30 @@ export default function NewProjectPage() {
         {/* Client & Dates */}
         <section className="rounded-xl border bg-card">
           <div className="border-b px-6 py-4">
-            <h2 className="font-semibold">Client & Schedule</h2>
+            <h2 className="font-semibold">{t('clientAndSchedule')}</h2>
           </div>
           <div className="grid gap-6 p-6 sm:grid-cols-2">
             {/* Contact ID */}
             <div className="sm:col-span-2">
               <label htmlFor="contactId" className="mb-1.5 block text-sm font-medium">
-                Client (Contact ID)
+                {t('clientContactId')}
               </label>
               <input
                 type="text"
                 id="contactId"
                 name="contactId"
-                placeholder="Contact UUID"
+                placeholder={t('contactPlaceholder')}
                 className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
               <p className="mt-1 text-xs text-muted-foreground">
-                Enter the contact ID to link this project to a client.
+                {t('contactIdHint')}
               </p>
             </div>
 
             {/* Start Date */}
             <div>
               <label htmlFor="startDate" className="mb-1.5 block text-sm font-medium">
-                Start Date
+                {t('startDate')}
               </label>
               <input
                 type="date"
@@ -193,7 +196,7 @@ export default function NewProjectPage() {
             {/* End Date */}
             <div>
               <label htmlFor="endDate" className="mb-1.5 block text-sm font-medium">
-                End Date
+                {t('endDate')}
               </label>
               <input
                 type="date"
@@ -211,7 +214,7 @@ export default function NewProjectPage() {
             href="/projects"
             className="rounded-lg border px-4 py-2.5 text-sm font-medium hover:bg-muted transition-colors"
           >
-            Cancel
+            {tc('cancel')}
           </Link>
           <button
             type="submit"
@@ -222,7 +225,7 @@ export default function NewProjectPage() {
             )}
           >
             {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-            {isSubmitting ? 'Creating...' : 'Create Project'}
+            {isSubmitting ? tc('creating') : t('createProject')}
           </button>
         </div>
       </form>

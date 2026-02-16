@@ -5,9 +5,13 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Loader2, Check } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { LanguageSwitcher } from '@/components/language-switcher';
+import { registerAction } from '@/app/actions/auth';
 
 export default function RegisterPage() {
   const router = useRouter();
+  const t = useTranslations('auth');
 
   const [formData, setFormData] = useState({
     name: '',
@@ -31,17 +35,11 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      // Register
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
+      // Register using Server Action
+      const result = await registerAction(formData);
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || 'Failed to create account');
+      if (!result.success) {
+        setError(result.error || t('errorGeneric'));
         setIsLoading(false);
         return;
       }
@@ -62,13 +60,18 @@ export default function RegisterPage() {
       router.push('/onboarding');
       router.refresh();
     } catch (err) {
-      setError('Something went wrong. Please try again.');
+      setError(t('errorGeneric'));
       setIsLoading(false);
     }
   };
 
   return (
     <div className="flex min-h-screen bg-muted/30">
+      {/* Language switcher in top-right corner */}
+      <div className="fixed right-4 top-4">
+        <LanguageSwitcher />
+      </div>
+
       {/* Left side - Form */}
       <div className="flex flex-1 items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
@@ -80,9 +83,9 @@ export default function RegisterPage() {
             </Link>
           </div>
 
-          <h1 className="mb-2 text-2xl font-semibold">Create your account</h1>
+          <h1 className="mb-2 text-2xl font-semibold">{t('register')}</h1>
           <p className="mb-6 text-muted-foreground">
-            Start running your business on autopilot
+            {t('registerSubtitle')}
           </p>
 
           {error && (
@@ -94,7 +97,7 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
-                Your name
+                {t('fullName')}
               </label>
               <input
                 id="name"
@@ -110,7 +113,7 @@ export default function RegisterPage() {
 
             <div>
               <label htmlFor="email" className="mb-1.5 block text-sm font-medium">
-                Email
+                {t('emailAddress')}
               </label>
               <input
                 id="email"
@@ -126,7 +129,7 @@ export default function RegisterPage() {
 
             <div>
               <label htmlFor="companyName" className="mb-1.5 block text-sm font-medium">
-                Company name
+                {t('companyName')}
               </label>
               <input
                 id="companyName"
@@ -142,7 +145,7 @@ export default function RegisterPage() {
 
             <div>
               <label htmlFor="password" className="mb-1.5 block text-sm font-medium">
-                Password
+                {t('password')}
               </label>
               <input
                 id="password"
@@ -156,7 +159,7 @@ export default function RegisterPage() {
                 className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
               />
               <p className="mt-1 text-xs text-muted-foreground">
-                Must be at least 8 characters
+                {t('passwordMinLength')}
               </p>
             </div>
 
@@ -166,14 +169,14 @@ export default function RegisterPage() {
               className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
               {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-              {isLoading ? 'Creating account...' : 'Create account'}
+              {isLoading ? t('creatingAccount') : t('createAccount')}
             </button>
           </form>
 
           <div className="mt-6 text-center text-sm text-muted-foreground">
-            Already have an account?{' '}
+            {t('hasAccount')}{' '}
             <Link href="/login" className="font-medium text-primary hover:underline">
-              Sign in
+              {t('signIn')}
             </Link>
           </div>
         </div>
@@ -183,14 +186,14 @@ export default function RegisterPage() {
       <div className="hidden flex-1 items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 p-12 lg:flex">
         <div className="max-w-md text-white">
           <h2 className="mb-6 text-3xl font-bold">
-            Business on Autopilot
+            {t('businessOnAutopilot')}
           </h2>
           <ul className="space-y-4">
-            <Feature text="AI creates and sends invoices automatically" />
-            <Feature text="Bank transactions matched and reconciled" />
-            <Feature text="Payment reminders sent without lifting a finger" />
-            <Feature text="Swiss QR-bills generated instantly" />
-            <Feature text="Your data stays yours - self-host your AI" />
+            <Feature text={t('features.aiInvoices')} />
+            <Feature text={t('features.bankMatching')} />
+            <Feature text={t('features.paymentReminders')} />
+            <Feature text={t('features.qrBills')} />
+            <Feature text={t('features.selfHostAI')} />
           </ul>
         </div>
       </div>

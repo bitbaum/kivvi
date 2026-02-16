@@ -62,9 +62,7 @@ export async function createStockMovementAction(input: unknown): Promise<ActionR
     if (!parsed.success) {
       return { success: false, error: parsed.error.errors[0]?.message || 'Invalid input' };
     }
-    const movement = await db.transaction(async (tx) => {
-      return createStockMovement(tx, companyId, parsed.data);
-    });
+    const movement = await createStockMovement(db, companyId, parsed.data);
     revalidatePath('/inventory');
     return { success: true, data: movement };
   } catch (error) {

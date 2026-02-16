@@ -5,11 +5,14 @@ import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { LanguageSwitcher } from '@/components/language-switcher';
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+  const t = useTranslations('auth');
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -29,7 +32,7 @@ function LoginForm() {
       });
 
       if (result?.error) {
-        setError('Invalid email or password');
+        setError(t('invalidCredentials'));
         setIsLoading(false);
         return;
       }
@@ -37,13 +40,18 @@ function LoginForm() {
       router.push(callbackUrl);
       router.refresh();
     } catch (err) {
-      setError('Something went wrong. Please try again.');
+      setError(t('errorGeneric'));
       setIsLoading(false);
     }
   };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4">
+      {/* Language switcher in top-right corner */}
+      <div className="fixed right-4 top-4">
+        <LanguageSwitcher />
+      </div>
+
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="mb-8 text-center">
@@ -55,9 +63,9 @@ function LoginForm() {
 
         {/* Card */}
         <div className="rounded-xl border bg-card p-8 shadow-sm">
-          <h1 className="mb-2 text-2xl font-semibold">Welcome back</h1>
+          <h1 className="mb-2 text-2xl font-semibold">{t('signIn')}</h1>
           <p className="mb-6 text-muted-foreground">
-            Sign in to your account to continue
+            {t('signInSubtitle')}
           </p>
 
           {error && (
@@ -69,7 +77,7 @@ function LoginForm() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="email" className="mb-1.5 block text-sm font-medium">
-                Email
+                {t('emailAddress')}
               </label>
               <input
                 id="email"
@@ -85,13 +93,13 @@ function LoginForm() {
             <div>
               <div className="mb-1.5 flex items-center justify-between">
                 <label htmlFor="password" className="text-sm font-medium">
-                  Password
+                  {t('password')}
                 </label>
                 <Link
                   href="/forgot-password"
                   className="text-sm text-primary hover:underline"
                 >
-                  Forgot password?
+                  {t('forgotPassword')}
                 </Link>
               </div>
               <input
@@ -111,27 +119,23 @@ function LoginForm() {
               className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
               {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-              {isLoading ? 'Signing in...' : 'Sign in'}
+              {isLoading ? t('signingIn') : t('signIn')}
             </button>
           </form>
 
           <div className="mt-6 text-center text-sm text-muted-foreground">
-            Don't have an account?{' '}
+            {t('noAccount')}{' '}
             <Link href="/register" className="font-medium text-primary hover:underline">
-              Create one
+              {t('createAccount')}
             </Link>
           </div>
         </div>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          By continuing, you agree to our{' '}
-          <Link href="/terms" className="hover:underline">
-            Terms of Service
-          </Link>{' '}
-          and{' '}
-          <Link href="/privacy" className="hover:underline">
-            Privacy Policy
-          </Link>
+          {t.rich('termsAndPrivacy', {
+            terms: (chunks) => <Link href="/terms" className="hover:underline">{chunks}</Link>,
+            privacy: (chunks) => <Link href="/privacy" className="hover:underline">{chunks}</Link>,
+          })}
         </p>
       </div>
     </div>

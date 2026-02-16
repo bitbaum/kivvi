@@ -1,3 +1,4 @@
+import Decimal from 'decimal.js';
 import Link from 'next/link';
 import { redirect, notFound } from 'next/navigation';
 import {
@@ -14,6 +15,7 @@ import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { getWarehouse, getStockLevelsByWarehouse } from '@kivvi/core';
 import { cn } from '@/lib/utils';
+import { getTranslations } from 'next-intl/server';
 import { AddMovementForm } from './add-movement-form';
 
 interface PageProps {
@@ -26,6 +28,9 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
 
   const { warehouseId } = await params;
 
+  const t = await getTranslations('inventory');
+  const tc = await getTranslations('common');
+
   const warehouse = await getWarehouse(db, session.user.companyId, warehouseId);
   if (!warehouse) notFound();
 
@@ -37,11 +42,11 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
 
   const totalProducts = stockLevels.length;
   const totalItems = stockLevels.reduce(
-    (sum, sl) => sum + parseFloat(sl.quantity),
-    0
+    (sum, sl) => sum.plus(new Decimal(sl.quantity)),
+    new Decimal(0)
   );
   const lowStockCount = stockLevels.filter(
-    (sl) => sl.minStock !== null && parseFloat(sl.quantity) < sl.minStock
+    (sl) => sl.minStock !== null && new Decimal(sl.quantity).lessThan(sl.minStock)
   ).length;
 
   return (
@@ -53,7 +58,7 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
           className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Inventory
+          {tc('back')}
         </Link>
 
         <div className="flex items-start justify-between">
@@ -67,7 +72,7 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                 {warehouse.isDefault && (
                   <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
                     <Star className="h-3 w-3" />
-                    Default
+                    {t('defaultWarehouse')}
                   </span>
                 )}
               </div>
@@ -97,7 +102,7 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
             <span className="text-sm text-muted-foreground">Total Items</span>
             <Boxes className="h-5 w-5 text-muted-foreground" />
           </div>
-          <p className="mt-2 text-2xl font-bold">{totalItems}</p>
+          <p className="mt-2 text-2xl font-bold">{totalItems.toString()}</p>
         </div>
         <div className="rounded-xl border bg-card p-6">
           <div className="flex items-center justify-between">
@@ -127,13 +132,13 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
       {/* Stock Levels Table */}
       <div className="rounded-xl border bg-card">
         <div className="flex items-center justify-between border-b p-4">
-          <h2 className="font-semibold">Stock Levels</h2>
+          <h2 className="font-semibold">{t('stockLevels')}</h2>
           <Link
             href={`/inventory/movements?warehouseId=${warehouseId}`}
             className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
           >
             <ArrowUpDown className="h-3.5 w-3.5" />
-            View movements
+            {t('stockMovements')}
           </Link>
         </div>
 
@@ -162,29 +167,29 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                     Quantity
                   </th>
                   <th className="whitespace-nowrap px-4 py-3 font-medium text-right">
-                    Reserved
+                    {t('reserved')}
                   </th>
                   <th className="whitespace-nowrap px-4 py-3 font-medium text-right">
-                    Available
+                    {t('available')}
                   </th>
                   <th className="whitespace-nowrap px-4 py-3 font-medium text-right">
                     Min Stock
                   </th>
                   <th className="whitespace-nowrap px-4 py-3 font-medium">
-                    Status
+                    {tc('status')}
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y">
                 {stockLevels.map((item) => {
-                  const quantity = parseFloat(item.quantity);
-                  const reserved = parseFloat(item.reservedQuantity || '0');
-                  const available = quantity - reserved;
+                  const quantity = new Decimal(item.quantity);
+                  const reserved = new Decimal(item.reservedQuantity || '0');
+                  const available = quantity.minus(reserved);
                   const isLow =
                     item.minStock !== null &&
-                    quantity <= item.minStock &&
-                    quantity > 0;
-                  const isOut = quantity <= 0;
+                    quantity.lessThanOrEqualTo(item.minStock) &&
+                    quantity.greaterThan(0);
+                  const isOut = quantity.lessThanOrEqualTo(0);
 
                   return (
                     <tr
@@ -207,13 +212,13 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                         {item.articleNumber || '-'}
                       </td>
                       <td className="whitespace-nowrap px-4 py-3 text-right font-medium">
-                        {quantity}
+                        {quantity.toString()}
                       </td>
                       <td className="whitespace-nowrap px-4 py-3 text-right text-sm text-muted-foreground">
-                        {reserved > 0 ? reserved : '-'}
+                        {reserved.greaterThan(0) ? reserved.toString() : '-'}
                       </td>
                       <td className="whitespace-nowrap px-4 py-3 text-right font-medium">
-                        {available}
+                        {available.toString()}
                       </td>
                       <td className="whitespace-nowrap px-4 py-3 text-right text-sm text-muted-foreground">
                         {item.minStock !== null ? item.minStock : '-'}

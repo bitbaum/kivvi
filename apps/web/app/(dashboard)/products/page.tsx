@@ -1,15 +1,11 @@
 import Link from 'next/link';
-import { Plus, Search, Package, Wrench } from 'lucide-react';
+import { Plus, Search, Package, Wrench, Download } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
 import { listProducts } from '@kivvi/core';
 import { formatCurrency } from '@/lib/utils';
-
-const TYPE_LABELS: Record<string, string> = {
-  product: 'Product',
-  service: 'Service',
-};
 
 const UNIT_LABELS: Record<string, string> = {
   piece: 'pc',
@@ -35,6 +31,9 @@ export default async function ProductsPage({ searchParams }: PageProps) {
     redirect('/login');
   }
 
+  const t = await getTranslations('products');
+  const tc = await getTranslations('common');
+
   const params = await searchParams;
   const search = params.search || '';
   const typeFilter = params.type as 'product' | 'service' | undefined;
@@ -49,23 +48,37 @@ export default async function ProductsPage({ searchParams }: PageProps) {
     sortOrder: 'desc',
   });
 
+  const TYPE_LABELS: Record<string, string> = {
+    product: t('product'),
+    service: t('service'),
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Products</h1>
+          <h1 className="text-3xl font-bold">{t('title')}</h1>
           <p className="text-muted-foreground">
-            Manage your products and services.
+            {t('subtitle')}
           </p>
         </div>
-        <Link
-          href="/products/new"
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-        >
-          <Plus className="h-4 w-4" />
-          New Product
-        </Link>
+        <div className="flex items-center gap-2">
+          <a
+            href="/api/export/products"
+            className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2.5 text-sm font-medium hover:bg-accent transition-colors"
+          >
+            <Download className="h-4 w-4" />
+            Export CSV
+          </a>
+          <Link
+            href="/products/new"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+            {t('newProduct')}
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}
@@ -79,7 +92,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
           <input
             type="text"
             name="search"
-            placeholder="Search by name, article number, SKU, or EAN..."
+            placeholder={t('searchProducts')}
             defaultValue={search}
             className="w-full rounded-lg border bg-card py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
           />
@@ -90,17 +103,17 @@ export default async function ProductsPage({ searchParams }: PageProps) {
           <TypeFilterLink
             href={buildFilterUrl({ search, type: undefined })}
             active={!typeFilter}
-            label="All"
+            label={tc('all')}
           />
           <TypeFilterLink
             href={buildFilterUrl({ search, type: 'product' })}
             active={typeFilter === 'product'}
-            label="Products"
+            label={t('product')}
           />
           <TypeFilterLink
             href={buildFilterUrl({ search, type: 'service' })}
             active={typeFilter === 'service'}
-            label="Services"
+            label={t('service')}
           />
         </div>
       </div>
@@ -110,11 +123,11 @@ export default async function ProductsPage({ searchParams }: PageProps) {
         {result.data.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
             <Package className="h-12 w-12 text-muted-foreground/50" />
-            <h3 className="mt-4 text-lg font-medium">No products found</h3>
+            <h3 className="mt-4 text-lg font-medium">{t('noProducts')}</h3>
             <p className="mt-1 text-sm text-muted-foreground">
               {search
-                ? 'Try a different search term.'
-                : 'Get started by adding your first product.'}
+                ? tc('noResults')
+                : t('createFirstProduct')}
             </p>
             {!search && (
               <Link
@@ -122,7 +135,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                 className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
               >
                 <Plus className="h-4 w-4" />
-                New Product
+                {t('newProduct')}
               </Link>
             )}
           </div>
@@ -133,25 +146,25 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                 <thead>
                   <tr className="border-b text-left text-sm text-muted-foreground">
                     <th className="whitespace-nowrap px-4 py-3 font-medium">
-                      Article Number
+                      {t('articleNumber')}
                     </th>
                     <th className="whitespace-nowrap px-4 py-3 font-medium">
-                      Name
+                      {tc('name')}
                     </th>
                     <th className="whitespace-nowrap px-4 py-3 font-medium">
-                      Type
+                      {tc('type')}
                     </th>
                     <th className="whitespace-nowrap px-4 py-3 font-medium text-right">
-                      Unit Price
+                      {t('unitPrice')}
                     </th>
                     <th className="whitespace-nowrap px-4 py-3 font-medium text-right">
-                      VAT
+                      {t('vatRate')}
                     </th>
                     <th className="whitespace-nowrap px-4 py-3 font-medium text-right">
-                      Stock
+                      {t('stock')}
                     </th>
                     <th className="whitespace-nowrap px-4 py-3 font-medium">
-                      Status
+                      {tc('status')}
                     </th>
                   </tr>
                 </thead>
@@ -178,7 +191,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                         </Link>
                         {product.sku && (
                           <p className="text-xs text-muted-foreground">
-                            SKU: {product.sku}
+                            {t('sku')}: {product.sku}
                           </p>
                         )}
                       </td>
@@ -194,7 +207,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                       </td>
                       <td className="whitespace-nowrap px-4 py-3 text-right font-medium">
                         {formatCurrency(
-                          parseFloat(product.unitPrice),
+                          Number(product.unitPrice),
                           product.currency || 'CHF'
                         )}
                         <span className="ml-1 text-xs text-muted-foreground">
@@ -207,8 +220,10 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                       <td className="whitespace-nowrap px-4 py-3 text-right">
                         {product.type === 'product' ? (
                           <StockBadge
-                            quantity={parseFloat(product.stockQuantity || '0')}
+                            quantity={Number(product.stockQuantity || '0')}
                             minStock={product.minStock}
+                            outOfStockLabel={t('outOfStock')}
+                            lowStockLabel={t('lowStock')}
                           />
                         ) : (
                           <span className="text-sm text-muted-foreground">-</span>
@@ -222,7 +237,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                               : 'inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-800 dark:text-gray-400'
                           }
                         >
-                          {product.isActive ? 'Active' : 'Inactive'}
+                          {product.isActive ? tc('active') : tc('inactive')}
                         </span>
                       </td>
                     </tr>
@@ -235,9 +250,11 @@ export default async function ProductsPage({ searchParams }: PageProps) {
             {result.totalPages > 1 && (
               <div className="flex items-center justify-between border-t px-4 py-3">
                 <p className="text-sm text-muted-foreground">
-                  Showing {(result.page - 1) * result.pageSize + 1} to{' '}
-                  {Math.min(result.page * result.pageSize, result.total)} of{' '}
-                  {result.total} results
+                  {tc('showing', {
+                    from: (result.page - 1) * result.pageSize + 1,
+                    to: Math.min(result.page * result.pageSize, result.total),
+                    total: result.total,
+                  })}
                 </p>
                 <div className="flex items-center gap-2">
                   {result.page > 1 && (
@@ -249,7 +266,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                       })}
                       className="rounded-lg border px-3 py-1.5 text-sm hover:bg-muted transition-colors"
                     >
-                      Previous
+                      {tc('previous')}
                     </Link>
                   )}
                   <span className="px-2 text-sm text-muted-foreground">
@@ -264,7 +281,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                       })}
                       className="rounded-lg border px-3 py-1.5 text-sm hover:bg-muted transition-colors"
                     >
-                      Next
+                      {tc('next')}
                     </Link>
                   )}
                 </div>
@@ -307,9 +324,13 @@ function TypeFilterLink({
 function StockBadge({
   quantity,
   minStock,
+  outOfStockLabel,
+  lowStockLabel,
 }: {
   quantity: number;
   minStock: number | null;
+  outOfStockLabel: string;
+  lowStockLabel: string;
 }) {
   const isLow = minStock !== null && quantity <= minStock && quantity > 0;
   const isOut = quantity <= 0;
@@ -317,7 +338,7 @@ function StockBadge({
   if (isOut) {
     return (
       <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/30 dark:text-red-400">
-        Out of stock
+        {outOfStockLabel}
       </span>
     );
   }
@@ -325,7 +346,7 @@ function StockBadge({
   if (isLow) {
     return (
       <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
-        {quantity} (low)
+        {quantity} ({lowStockLabel})
       </span>
     );
   }

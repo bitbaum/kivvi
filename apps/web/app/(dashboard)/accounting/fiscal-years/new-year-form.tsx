@@ -4,12 +4,15 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import { createFiscalYearAction } from '@/app/actions/accounting';
+import { useTranslations } from 'next-intl';
 
 export function NewYearForm() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const t = useTranslations('accounting');
+  const tc = useTranslations('common');
 
   const currentYear = new Date().getFullYear();
   const [name, setName] = useState(String(currentYear));
@@ -43,7 +46,7 @@ export function NewYearForm() {
       >
         <span className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
-          New Fiscal Year
+          {t('newFiscalYear')}
         </span>
         {isOpen ? (
           <ChevronUp className="h-4 w-4 text-muted-foreground" />
@@ -66,7 +69,7 @@ export function NewYearForm() {
                 htmlFor="fiscal-year-name"
                 className="mb-1.5 block text-sm font-medium"
               >
-                Name
+                {tc('name')}
               </label>
               <input
                 id="fiscal-year-name"
@@ -84,7 +87,7 @@ export function NewYearForm() {
                 htmlFor="fiscal-year-start"
                 className="mb-1.5 block text-sm font-medium"
               >
-                Start Date
+                {t('startDate')}
               </label>
               <input
                 id="fiscal-year-start"
@@ -101,7 +104,7 @@ export function NewYearForm() {
                 htmlFor="fiscal-year-end"
                 className="mb-1.5 block text-sm font-medium"
               >
-                End Date
+                {t('endDate')}
               </label>
               <input
                 id="fiscal-year-end"
@@ -115,7 +118,7 @@ export function NewYearForm() {
           </div>
 
           <p className="text-xs text-muted-foreground">
-            12 monthly periods will be automatically created.
+            {t('periodsAutoCreated')}
           </p>
 
           <div className="flex items-center gap-3">
@@ -125,7 +128,7 @@ export function NewYearForm() {
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-              Create Fiscal Year
+              {t('newFiscalYear')}
             </button>
             <button
               type="button"
@@ -133,7 +136,7 @@ export function NewYearForm() {
               disabled={isPending}
               className="rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted transition-colors"
             >
-              Cancel
+              {tc('cancel')}
             </button>
           </div>
         </form>

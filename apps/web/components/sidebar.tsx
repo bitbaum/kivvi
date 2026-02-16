@@ -3,8 +3,9 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
   MessageSquare,
@@ -28,98 +29,102 @@ import {
   ArrowUpDown,
   ChevronDown,
   ChevronRight,
+  X,
 } from 'lucide-react';
 
 interface NavItem {
-  name: string;
+  nameKey: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
 }
 
 interface NavGroup {
-  name: string;
+  nameKey: string;
   icon: React.ComponentType<{ className?: string }>;
   items: NavItem[];
 }
 
 const topNavigation: NavItem[] = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'AI Assistant', href: '/chat', icon: MessageSquare },
+  { nameKey: 'dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { nameKey: 'aiAssistant', href: '/chat', icon: MessageSquare },
 ];
 
 const navGroups: NavGroup[] = [
   {
-    name: 'Sales',
+    nameKey: 'sales',
     icon: ShoppingCart,
     items: [
-      { name: 'Quotes', href: '/sales/quotes', icon: FileText },
-      { name: 'Orders', href: '/sales/orders', icon: ClipboardList },
-      { name: 'Invoices', href: '/sales/invoices', icon: Receipt },
-      { name: 'Credit Notes', href: '/sales/credit-notes', icon: CreditCard },
-      { name: 'Dunning', href: '/sales/dunning', icon: AlertTriangle },
+      { nameKey: 'quotes', href: '/sales/quotes', icon: FileText },
+      { nameKey: 'orders', href: '/sales/orders', icon: ClipboardList },
+      { nameKey: 'invoices', href: '/sales/invoices', icon: Receipt },
+      { nameKey: 'deliveryNotes', href: '/sales/delivery-notes', icon: Truck },
+      { nameKey: 'creditNotes', href: '/sales/credit-notes', icon: CreditCard },
+      { nameKey: 'dunning', href: '/sales/dunning', icon: AlertTriangle },
     ],
   },
   {
-    name: 'Purchasing',
+    nameKey: 'purchasing',
     icon: Truck,
     items: [
-      { name: 'Purchase Orders', href: '/purchasing/purchase-orders', icon: ClipboardList },
-      { name: 'Purchase Invoices', href: '/purchasing/purchase-invoices', icon: Receipt },
+      { nameKey: 'purchaseOrders', href: '/purchasing/purchase-orders', icon: ClipboardList },
+      { nameKey: 'purchaseInvoices', href: '/purchasing/purchase-invoices', icon: Receipt },
     ],
   },
   {
-    name: 'Accounting',
+    nameKey: 'accounting',
     icon: BookOpen,
     items: [
-      { name: 'Overview', href: '/accounting', icon: BookOpen },
-      { name: 'Chart of Accounts', href: '/accounting/chart-of-accounts', icon: FileText },
-      { name: 'Journal', href: '/accounting/journal', icon: ClipboardList },
-      { name: 'Fiscal Years', href: '/accounting/fiscal-years', icon: BarChart3 },
+      { nameKey: 'overview', href: '/accounting', icon: BookOpen },
+      { nameKey: 'chartOfAccounts', href: '/accounting/chart-of-accounts', icon: FileText },
+      { nameKey: 'journal', href: '/accounting/journal', icon: ClipboardList },
+      { nameKey: 'fiscalYears', href: '/accounting/fiscal-years', icon: BarChart3 },
     ],
   },
   {
-    name: 'Inventory',
+    nameKey: 'inventory',
     icon: Warehouse,
     items: [
-      { name: 'Warehouses', href: '/inventory', icon: Warehouse },
-      { name: 'Stock Movements', href: '/inventory/movements', icon: ArrowUpDown },
+      { nameKey: 'warehouses', href: '/inventory', icon: Warehouse },
+      { nameKey: 'stockMovements', href: '/inventory/movements', icon: ArrowUpDown },
     ],
   },
 ];
 
 const standaloneNavigation: NavItem[] = [
-  { name: 'Contacts', href: '/contacts', icon: Users },
-  { name: 'Products', href: '/products', icon: Package },
-  { name: 'Banking', href: '/banking', icon: Wallet },
-  { name: 'Reports', href: '/reports', icon: BarChart3 },
-  { name: 'Projects', href: '/projects', icon: FolderKanban },
+  { nameKey: 'contacts', href: '/contacts', icon: Users },
+  { nameKey: 'products', href: '/products', icon: Package },
+  { nameKey: 'banking', href: '/banking', icon: Wallet },
+  { nameKey: 'reports', href: '/reports', icon: BarChart3 },
+  { nameKey: 'projects', href: '/projects', icon: FolderKanban },
 ];
 
 const secondaryNavigation: NavItem[] = [
-  { name: 'Settings', href: '/settings', icon: Settings },
-  { name: 'Help', href: '/help', icon: HelpCircle },
+  { nameKey: 'settings', href: '/settings', icon: Settings },
+  { nameKey: 'help', href: '/help', icon: HelpCircle },
 ];
 
-function NavLink({ item, pathname, onClick }: { item: NavItem; pathname: string; onClick?: () => void }) {
+function NavLink({ item, pathname, onClick, t }: { item: NavItem; pathname: string; onClick?: () => void; t: (key: string) => string }) {
   const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
   return (
     <Link
       href={item.href}
       onClick={onClick}
       className={cn(
-        'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+        'flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
         isActive
           ? 'bg-primary text-primary-foreground'
           : 'text-muted-foreground hover:bg-muted hover:text-foreground'
       )}
+      aria-current={isActive ? 'page' : undefined}
     >
-      <item.icon className="h-4 w-4" />
-      {item.name}
+      <item.icon className="h-4 w-4" aria-hidden="true" />
+      {t(item.nameKey)}
     </Link>
   );
 }
 
-function CollapsibleGroup({ group, pathname, onNavClick }: { group: NavGroup; pathname: string; onNavClick?: () => void }) {
+function CollapsibleGroup({ group, pathname, onNavClick, t }: { group: NavGroup; pathname: string; onNavClick?: () => void; t: (key: string) => string }) {
   const isAnyActive = group.items.some(
     (item) => pathname === item.href || pathname.startsWith(item.href + '/')
   );
@@ -129,27 +134,30 @@ function CollapsibleGroup({ group, pathname, onNavClick }: { group: NavGroup; pa
     <div>
       <button
         onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
+        aria-label={`${t(group.nameKey)} ${isOpen ? 'collapse' : 'expand'}`}
         className={cn(
-          'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+          'flex w-full min-h-[44px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
           isAnyActive
             ? 'text-foreground'
             : 'text-muted-foreground hover:bg-muted hover:text-foreground'
         )}
       >
-        <group.icon className="h-4 w-4" />
-        <span className="flex-1 text-left">{group.name}</span>
+        <group.icon className="h-4 w-4" aria-hidden="true" />
+        <span className="flex-1 text-left">{t(group.nameKey)}</span>
         {isOpen ? (
-          <ChevronDown className="h-3 w-3" />
+          <ChevronDown className="h-3 w-3" aria-hidden="true" />
         ) : (
-          <ChevronRight className="h-3 w-3" />
+          <ChevronRight className="h-3 w-3" aria-hidden="true" />
         )}
       </button>
       {isOpen && (
-        <div className="ml-4 mt-1 space-y-0.5 border-l pl-3">
+        <nav className="ml-4 mt-1 space-y-0.5 border-l pl-3" aria-label={t(group.nameKey)}>
           {group.items.map((item) => (
-            <NavLink key={item.href} item={item} pathname={pathname} onClick={onNavClick} />
+            <NavLink key={item.href} item={item} pathname={pathname} onClick={onNavClick} t={t} />
           ))}
-        </div>
+        </nav>
       )}
     </div>
   );
@@ -163,74 +171,104 @@ interface SidebarProps {
 export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const t = useTranslations('nav');
+  const tc = useTranslations('common');
+
+  // Close sidebar on Escape key
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen && onClose) {
+        onClose();
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [isOpen, onClose]);
 
   const sidebarContent = (
-    <aside className="flex w-64 flex-shrink-0 flex-col border-r bg-card h-full">
-      {/* Logo */}
+    <aside className="flex w-64 flex-shrink-0 flex-col border-r bg-card h-full" role="navigation" aria-label="Main navigation">
+      {/* Logo - NOW CLICKABLE */}
       <div className="flex h-16 items-center gap-2 border-b px-6">
-        <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600" />
-        <span className="text-xl font-bold">Kivvi</span>
+        <Link
+          href="/dashboard"
+          className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
+          aria-label="Kivvi Home"
+        >
+          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600" aria-hidden="true" />
+          <span className="text-xl font-bold">Kivvi</span>
+        </Link>
+        {/* Mobile close button */}
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="ml-auto rounded-lg p-2 hover:bg-muted lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            aria-label="Close menu"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        )}
       </div>
 
-      {/* Company selector */}
+      {/* Company selector - NOW FUNCTIONAL */}
       <div className="border-b p-4">
-        <button className="flex w-full items-center gap-3 rounded-lg bg-muted p-3 text-left hover:bg-muted/80">
-          <Building2 className="h-5 w-5 text-muted-foreground" />
+        <Link
+          href="/settings/company"
+          className="flex w-full items-center gap-3 rounded-lg bg-muted p-3 text-left hover:bg-muted/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          aria-label="Company settings"
+        >
+          <Building2 className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
           <div className="flex-1 truncate">
             <p className="text-sm font-medium">
-              {session?.user?.companyName || 'My Company'}
+              {session?.user?.companyName || tc('myCompany')}
             </p>
-            <p className="text-xs text-muted-foreground">Free Plan</p>
+            <p className="text-xs text-muted-foreground">{tc('freePlan')}</p>
           </div>
-        </button>
+        </Link>
       </div>
 
       {/* Main navigation */}
-      <nav className="flex-1 space-y-1 overflow-y-auto p-4">
-        {/* Top-level items */}
+      <nav className="flex-1 space-y-1 overflow-y-auto p-4" aria-label="Primary navigation">
         {topNavigation.map((item) => (
-          <NavLink key={item.href} item={item} pathname={pathname} onClick={onClose} />
+          <NavLink key={item.href} item={item} pathname={pathname} onClick={onClose} t={t} />
         ))}
 
-        {/* Separator */}
-        <div className="my-3 border-t" />
+        <div className="my-3 border-t" role="separator" />
 
-        {/* Collapsible groups */}
         {navGroups.map((group) => (
-          <CollapsibleGroup key={group.name} group={group} pathname={pathname} onNavClick={onClose} />
+          <CollapsibleGroup key={group.nameKey} group={group} pathname={pathname} onNavClick={onClose} t={t} />
         ))}
 
-        {/* Separator */}
-        <div className="my-3 border-t" />
+        <div className="my-3 border-t" role="separator" />
 
-        {/* Standalone items */}
         {standaloneNavigation.map((item) => (
-          <NavLink key={item.href} item={item} pathname={pathname} onClick={onClose} />
+          <NavLink key={item.href} item={item} pathname={pathname} onClick={onClose} t={t} />
         ))}
       </nav>
 
       {/* Secondary navigation */}
-      <div className="border-t p-4">
+      <nav className="border-t p-4" aria-label="Secondary navigation">
         {secondaryNavigation.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
           return (
             <Link
-              key={item.name}
+              key={item.nameKey}
               href={item.href}
               onClick={onClose}
               className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                'flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
                 isActive
                   ? 'bg-muted text-foreground'
                   : 'text-muted-foreground hover:bg-muted hover:text-foreground'
               )}
+              aria-current={isActive ? 'page' : undefined}
             >
-              <item.icon className="h-4 w-4" />
-              {item.name}
+              <item.icon className="h-4 w-4" aria-hidden="true" />
+              {t(item.nameKey)}
             </Link>
           );
         })}
-      </div>
+      </nav>
     </aside>
   );
 
@@ -242,13 +280,12 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
       {/* Mobile overlay */}
       {isOpen && (
         <>
-          {/* Backdrop */}
           <div
             className="fixed inset-0 z-40 bg-black/50 lg:hidden"
             onClick={onClose}
+            aria-hidden="true"
           />
-          {/* Slide-over sidebar */}
-          <div className="fixed inset-y-0 left-0 z-50 lg:hidden">
+          <div className="fixed inset-y-0 left-0 z-50 lg:hidden" role="dialog" aria-modal="true">
             {sidebarContent}
           </div>
         </>

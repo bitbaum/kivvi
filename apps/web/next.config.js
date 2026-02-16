@@ -1,3 +1,6 @@
+const createNextIntlPlugin = require('next-intl/plugin');
+const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   transpilePackages: [
@@ -8,7 +11,7 @@ const nextConfig = {
     '@kivvi/ui',
   ],
   experimental: {
-    serverComponentsExternalPackages: ['@anthropic-ai/sdk'],
+    serverComponentsExternalPackages: ['@anthropic-ai/sdk', 'pdfkit', 'swissqrbill'],
   },
   async headers() {
     return [
@@ -25,4 +28,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+module.exports = withNextIntl(nextConfig);

@@ -113,6 +113,7 @@ export interface ExecutionContext {
   conversationId: string;
   defaultCurrency: string;
   defaultVatRate: number;
+  db: unknown; // Database instance — typed as unknown to avoid coupling ai package to database package
 }
 
 export type VerticalType =

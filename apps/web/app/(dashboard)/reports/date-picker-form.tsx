@@ -3,6 +3,7 @@
 import { useRouter, usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { Search } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export function DatePickerForm({
   defaultDate,
@@ -12,6 +13,7 @@ export function DatePickerForm({
   const router = useRouter();
   const pathname = usePathname();
   const [date, setDate] = useState(defaultDate);
+  const t = useTranslations('reports');
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -27,7 +29,7 @@ export function DatePickerForm({
           htmlFor="asOfDate"
           className="mb-1 block text-sm font-medium text-muted-foreground"
         >
-          As of Date
+          {t('asOfDate')}
         </label>
         <input
           id="asOfDate"
@@ -42,7 +44,7 @@ export function DatePickerForm({
         className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
       >
         <Search className="h-4 w-4" />
-        Generate
+        {t('generate')}
       </button>
     </form>
   );

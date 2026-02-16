@@ -3,20 +3,22 @@
 import { useRef, useEffect, useState } from 'react';
 import { Send, Paperclip, Sparkles, Bot, User, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslations } from 'next-intl';
 import { useChat } from '@/hooks/use-chat';
 import { useModelSelection } from '@/hooks/use-model-selection';
 import { ModelSelector, type ModelOption } from '@/components/model-selector';
 
-const suggestions = [
-  'Show me unpaid invoices',
-  'Create an invoice for my last meeting',
-  "What's my revenue this month?",
-  'Reconcile bank transactions',
-];
-
 export default function ChatPage() {
+  const t = useTranslations('chat');
   const [models, setModels] = useState<ModelOption[]>([]);
   const { selection, selectModel, isLoaded } = useModelSelection();
+
+  const suggestions = [
+    t('suggestions.unpaidInvoices'),
+    t('suggestions.createInvoice'),
+    t('suggestions.revenueThisMonth'),
+    t('suggestions.reconcileTransactions'),
+  ];
 
   const {
     messages,
@@ -67,10 +69,9 @@ export default function ChatPage() {
             <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600">
               <Sparkles className="h-8 w-8 text-white" />
             </div>
-            <h2 className="mb-2 text-2xl font-semibold">How can I help you?</h2>
+            <h2 className="mb-2 text-2xl font-semibold">{t('howCanIHelp')}</h2>
             <p className="mb-8 text-center text-muted-foreground">
-              Ask me to create invoices, check payments, generate reports, or
-              manage your business.
+              {t('askDescription')}
             </p>
 
             <div className="grid w-full max-w-lg gap-2 sm:grid-cols-2">
@@ -123,7 +124,7 @@ export default function ChatPage() {
                   ) : message.isStreaming ? (
                     <div className="flex items-center gap-1">
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      <span className="text-sm text-muted-foreground">Thinking...</span>
+                      <span className="text-sm text-muted-foreground">{t('thinking')}</span>
                     </div>
                   ) : null}
                   {message.isStreaming && message.content && (
@@ -176,8 +177,8 @@ export default function ChatPage() {
           />
           <p className="text-xs text-muted-foreground">
             {models.find((m) => m.modelId === selection.modelId)?.isFree
-              ? '✓ Free model selected'
-              : 'Paid model - API key required'}
+              ? t('freeModelSelected')
+              : t('paidModel')}
           </p>
         </div>
         <form onSubmit={handleSubmit} className="flex gap-2">
@@ -191,7 +192,7 @@ export default function ChatPage() {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask Kivvi anything..."
+            placeholder={t('askKivvi')}
             className="flex-1 rounded-lg border bg-background px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
             disabled={isLoading}
           />
@@ -208,7 +209,7 @@ export default function ChatPage() {
           </button>
         </form>
         <p className="mt-2 text-center text-xs text-muted-foreground">
-          Kivvi can make mistakes. Review important information.
+          {t('canMakeMistakes')}
         </p>
       </div>
     </div>

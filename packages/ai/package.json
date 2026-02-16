@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.24.0",
+    "@kivvi/core": "workspace:*",
     "@kivvi/database": "workspace:*",
     "drizzle-orm": "^0.29.3",
     "openai": "^4.28.0",

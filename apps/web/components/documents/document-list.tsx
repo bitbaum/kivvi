@@ -1,9 +1,10 @@
 import { FileText, Plus, Search } from 'lucide-react';
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { StatusBadge } from './status-badge';
 import type { DocumentTypeConfig } from '@/lib/config/document-types';
-import { getFilterStatuses, STATUS_LABELS } from '@/lib/config/document-types';
+import { getFilterStatuses, toCamelCase } from '@/lib/config/document-types';
 import type { PaginatedResult } from '@kivvi/core';
 
 interface DocumentListProps {
@@ -13,7 +14,10 @@ interface DocumentListProps {
   status?: string;
 }
 
-export function DocumentList({ config, result, search, status }: DocumentListProps) {
+export async function DocumentList({ config, result, search, status }: DocumentListProps) {
+  const t = await getTranslations('documents');
+  const ts = await getTranslations('status');
+  const tc = await getTranslations('common');
   const filterStatuses = getFilterStatuses(config.type);
 
   return (
@@ -21,9 +25,9 @@ export function DocumentList({ config, result, search, status }: DocumentListPro
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">{config.labelPlural}</h1>
+          <h1 className="text-3xl font-bold">{t(config.labelPlural)}</h1>
           <p className="text-muted-foreground">
-            Manage your {config.labelPlural.toLowerCase()}.
+            {t('manageAndTrack', { type: t(config.labelPlural) })}
           </p>
         </div>
         {config.canCreate && (
@@ -32,7 +36,7 @@ export function DocumentList({ config, result, search, status }: DocumentListPro
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
             <Plus className="h-4 w-4" />
-            New {config.label}
+            {t('newDocument', { type: t(config.label) })}
           </Link>
         )}
       </div>
@@ -44,7 +48,7 @@ export function DocumentList({ config, result, search, status }: DocumentListPro
           <input
             name="search"
             type="text"
-            placeholder={`Search ${config.labelPlural.toLowerCase()}...`}
+            placeholder={t('searchDocuments', { type: t(config.labelPlural) })}
             defaultValue={search}
             className="w-full rounded-lg border bg-background py-2 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary"
           />
@@ -67,7 +71,7 @@ export function DocumentList({ config, result, search, status }: DocumentListPro
                     : 'bg-muted text-muted-foreground hover:bg-muted/80'
                 }`}
               >
-                {s === 'all' ? 'All' : STATUS_LABELS[s] || s}
+                {s === 'all' ? tc('all') : ts(toCamelCase(s))}
               </Link>
             );
           })}
@@ -79,11 +83,11 @@ export function DocumentList({ config, result, search, status }: DocumentListPro
         {result.data.length === 0 ? (
           <div className="p-12 text-center text-muted-foreground">
             <FileText className="mx-auto mb-3 h-10 w-10" />
-            <p className="text-lg font-medium">No {config.labelPlural.toLowerCase()} found</p>
+            <p className="text-lg font-medium">{t('noDocumentsFound', { type: t(config.labelPlural) })}</p>
             <p className="mt-1 text-sm">
               {search || status
-                ? 'Try adjusting your filters.'
-                : `Create your first ${config.label.toLowerCase()} to get started.`}
+                ? t('adjustFilters')
+                : t('createFirst', { type: t(config.label) })}
             </p>
             {!search && !status && config.canCreate && (
               <Link
@@ -91,18 +95,18 @@ export function DocumentList({ config, result, search, status }: DocumentListPro
                 className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
               >
                 <Plus className="h-4 w-4" />
-                New {config.label}
+                {t('newDocument', { type: t(config.label) })}
               </Link>
             )}
           </div>
         ) : (
           <>
             <div className="hidden border-b px-4 py-3 text-sm font-medium text-muted-foreground sm:grid sm:grid-cols-[1fr_1.5fr_auto_auto_auto]">
-              <span>Number</span>
-              <span>{config.contactFilter === 'vendor' ? 'Vendor' : 'Customer'}</span>
-              <span className="text-right">Total</span>
-              <span className="px-4 text-center">Status</span>
-              <span className="text-right">Date</span>
+              <span>{tc('number')}</span>
+              <span>{config.contactFilter === 'vendor' ? t('vendor') : t('customer')}</span>
+              <span className="text-right">{tc('total')}</span>
+              <span className="px-4 text-center">{tc('status')}</span>
+              <span className="text-right">{tc('date')}</span>
             </div>
 
             <div className="divide-y">
@@ -119,7 +123,7 @@ export function DocumentList({ config, result, search, status }: DocumentListPro
                       <span className="font-medium">{doc.number}</span>
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      {doc.contact?.name || 'No contact'}
+                      {doc.contact?.name || (config.contactFilter === 'vendor' ? t('noVendor') : t('noCustomer'))}
                     </div>
                     <div className="text-right font-medium">
                       {formatCurrency(Number(doc.total))}
@@ -142,8 +146,11 @@ export function DocumentList({ config, result, search, status }: DocumentListPro
       {result.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            Showing {(result.page - 1) * result.pageSize + 1}-
-            {Math.min(result.page * result.pageSize, result.total)} of {result.total}
+            {tc('showing', {
+              from: (result.page - 1) * result.pageSize + 1,
+              to: Math.min(result.page * result.pageSize, result.total),
+              total: result.total,
+            })}
           </p>
           <div className="flex gap-2">
             {result.page > 1 && (
@@ -151,7 +158,7 @@ export function DocumentList({ config, result, search, status }: DocumentListPro
                 href={`${config.basePath}?page=${result.page - 1}${status ? `&status=${status}` : ''}${search ? `&search=${search}` : ''}`}
                 className="rounded-lg border px-3 py-1.5 text-sm hover:bg-muted"
               >
-                Previous
+                {tc('previous')}
               </Link>
             )}
             {result.page < result.totalPages && (
@@ -159,7 +166,7 @@ export function DocumentList({ config, result, search, status }: DocumentListPro
                 href={`${config.basePath}?page=${result.page + 1}${status ? `&status=${status}` : ''}${search ? `&search=${search}` : ''}`}
                 className="rounded-lg border px-3 py-1.5 text-sm hover:bg-muted"
               >
-                Next
+                {tc('next')}
               </Link>
             )}
           </div>

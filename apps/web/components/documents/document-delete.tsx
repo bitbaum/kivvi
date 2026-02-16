@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Trash2 } from 'lucide-react';
 import { deleteDocumentAction } from '@/app/actions/documents';
 
@@ -13,6 +14,7 @@ export function DocumentDeleteButton({
   redirectTo: string;
 }) {
   const router = useRouter();
+  const tc = useTranslations('common');
   const [isPending, startTransition] = useTransition();
   const [confirming, setConfirming] = useState(false);
 
@@ -29,7 +31,7 @@ export function DocumentDeleteButton({
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm text-red-600 dark:text-red-400">Delete?</span>
+      <span className="text-sm text-red-600 dark:text-red-400">{tc('delete')}?</span>
       <button
         onClick={() => {
           startTransition(async () => {
@@ -40,13 +42,13 @@ export function DocumentDeleteButton({
         disabled={isPending}
         className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
       >
-        {isPending ? 'Deleting...' : 'Yes'}
+        {isPending ? tc('deleting') : tc('yes')}
       </button>
       <button
         onClick={() => setConfirming(false)}
         className="rounded-lg border px-3 py-1.5 text-sm hover:bg-muted"
       >
-        No
+        {tc('no')}
       </button>
     </div>
   );

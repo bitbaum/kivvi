@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import type { MappingProfile, MappingField } from '@kivvi/core/src/domain/import-mappings';
 
 interface ColumnMapperProps {
@@ -10,6 +11,7 @@ interface ColumnMapperProps {
 }
 
 export function ColumnMapper({ headers, profile, onMappingConfirmed }: ColumnMapperProps) {
+  const t = useTranslations('onboarding');
   const [mapping, setMapping] = useState<MappingField[]>(profile.fields);
 
   // Auto-set initial mapping from profile
@@ -34,16 +36,15 @@ export function ColumnMapper({ headers, profile, onMappingConfirmed }: ColumnMap
   return (
     <div className="space-y-4">
       <div className="text-sm text-muted-foreground">
-        Auto-detected: <span className="font-medium text-foreground">{profile.name}</span>.
-        Adjust column mappings if needed.
+        {t('autoDetected', { name: profile.name })}
       </div>
 
       <div className="max-h-80 overflow-y-auto rounded-lg border">
         <table className="w-full text-sm">
           <thead className="sticky top-0 bg-muted">
             <tr>
-              <th className="px-3 py-2 text-left font-medium">Target field</th>
-              <th className="px-3 py-2 text-left font-medium">Source column</th>
+              <th className="px-3 py-2 text-left font-medium">{t('targetField')}</th>
+              <th className="px-3 py-2 text-left font-medium">{t('sourceColumn')}</th>
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -63,7 +64,7 @@ export function ColumnMapper({ headers, profile, onMappingConfirmed }: ColumnMap
                     onChange={(e) => handleSourceChange(field.target, e.target.value)}
                     className="w-full rounded border bg-background px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                   >
-                    <option value="">-- skip --</option>
+                    <option value="">-- {t('skip')} --</option>
                     {headers.map((h) => (
                       <option key={h} value={h}>
                         {h}
@@ -82,7 +83,7 @@ export function ColumnMapper({ headers, profile, onMappingConfirmed }: ColumnMap
           onClick={handleConfirm}
           className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
         >
-          Confirm mapping
+          {t('confirmMapping')}
         </button>
       </div>
     </div>

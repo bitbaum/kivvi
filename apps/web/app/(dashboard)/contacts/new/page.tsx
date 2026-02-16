@@ -3,15 +3,10 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { createContactAction } from '@/app/actions/contacts';
 import { cn } from '@/lib/utils';
-
-const CONTACT_TYPES = [
-  { value: 'customer', label: 'Customer' },
-  { value: 'vendor', label: 'Vendor' },
-  { value: 'both', label: 'Both' },
-] as const;
 
 const LANGUAGES = [
   { value: 'de', label: 'Deutsch' },
@@ -33,6 +28,16 @@ export default function NewContactPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+
+  const t = useTranslations('contacts');
+  const tc = useTranslations('common');
+
+  const CONTACT_TYPES = [
+    { value: 'customer', label: t('customer') },
+    { value: 'vendor', label: t('vendor') },
+    { value: 'both', label: t('both') },
+  ] as const;
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -46,10 +51,10 @@ export default function NewContactPage() {
       if (result.success && result.data) {
         router.push(`/contacts/${result.data.id}`);
       } else {
-        setError(result.error || 'Failed to create contact');
+        setError(result.error || tc('error'));
       }
     } catch (err) {
-      setError('An unexpected error occurred');
+      setError(tc('error'));
     } finally {
       setIsSubmitting(false);
     }
@@ -63,14 +68,14 @@ export default function NewContactPage() {
         className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to Contacts
+        {tc('back')} {t('title')}
       </Link>
 
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">New Contact</h1>
+        <h1 className="text-3xl font-bold">{t('newContact')}</h1>
         <p className="text-muted-foreground">
-          Create a new customer or vendor contact.
+          {t('subtitle')}
         </p>
       </div>
 
@@ -86,13 +91,13 @@ export default function NewContactPage() {
         {/* Basic Information */}
         <section className="rounded-xl border bg-card">
           <div className="border-b px-6 py-4">
-            <h2 className="font-semibold">Basic Information</h2>
+            <h2 className="font-semibold">{t('basicInformation')}</h2>
           </div>
           <div className="grid gap-6 p-6 sm:grid-cols-2">
             {/* Type */}
             <div className="sm:col-span-2">
               <label htmlFor="type" className="mb-1.5 block text-sm font-medium">
-                Type <span className="text-destructive">*</span>
+                {tc('type')} <span className="text-destructive">*</span>
               </label>
               <select
                 id="type"
@@ -101,9 +106,9 @@ export default function NewContactPage() {
                 defaultValue="customer"
                 className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               >
-                {CONTACT_TYPES.map((t) => (
-                  <option key={t.value} value={t.value}>
-                    {t.label}
+                {CONTACT_TYPES.map((ct) => (
+                  <option key={ct.value} value={ct.value}>
+                    {ct.label}
                   </option>
                 ))}
               </select>
@@ -112,7 +117,7 @@ export default function NewContactPage() {
             {/* Name (company/display name) */}
             <div className="sm:col-span-2">
               <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
-                Company / Display Name <span className="text-destructive">*</span>
+                {t('companyName')} <span className="text-destructive">*</span>
               </label>
               <input
                 type="text"
@@ -120,7 +125,7 @@ export default function NewContactPage() {
                 name="name"
                 required
                 maxLength={200}
-                placeholder="e.g. Müller AG"
+                placeholder="e.g. Muller AG"
                 className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
@@ -128,7 +133,7 @@ export default function NewContactPage() {
             {/* First Name */}
             <div>
               <label htmlFor="firstName" className="mb-1.5 block text-sm font-medium">
-                First Name
+                {t('firstName')}
               </label>
               <input
                 type="text"
@@ -143,14 +148,14 @@ export default function NewContactPage() {
             {/* Last Name */}
             <div>
               <label htmlFor="lastName" className="mb-1.5 block text-sm font-medium">
-                Last Name
+                {t('lastName')}
               </label>
               <input
                 type="text"
                 id="lastName"
                 name="lastName"
                 maxLength={100}
-                placeholder="Müller"
+                placeholder="Muller"
                 className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
@@ -160,13 +165,13 @@ export default function NewContactPage() {
         {/* Contact Details */}
         <section className="rounded-xl border bg-card">
           <div className="border-b px-6 py-4">
-            <h2 className="font-semibold">Contact Details</h2>
+            <h2 className="font-semibold">{t('contactDetails')}</h2>
           </div>
           <div className="grid gap-6 p-6 sm:grid-cols-2">
             {/* Email */}
             <div>
               <label htmlFor="email" className="mb-1.5 block text-sm font-medium">
-                Email
+                {tc('email')}
               </label>
               <input
                 type="email"
@@ -180,7 +185,7 @@ export default function NewContactPage() {
             {/* Phone */}
             <div>
               <label htmlFor="phone" className="mb-1.5 block text-sm font-medium">
-                Phone
+                {tc('phone')}
               </label>
               <input
                 type="tel"
@@ -195,7 +200,7 @@ export default function NewContactPage() {
             {/* Mobile */}
             <div>
               <label htmlFor="mobile" className="mb-1.5 block text-sm font-medium">
-                Mobile
+                {t('mobile')}
               </label>
               <input
                 type="tel"
@@ -210,7 +215,7 @@ export default function NewContactPage() {
             {/* Website */}
             <div>
               <label htmlFor="website" className="mb-1.5 block text-sm font-medium">
-                Website
+                {t('website')}
               </label>
               <input
                 type="text"
@@ -227,13 +232,13 @@ export default function NewContactPage() {
         {/* Address */}
         <section className="rounded-xl border bg-card">
           <div className="border-b px-6 py-4">
-            <h2 className="font-semibold">Address</h2>
+            <h2 className="font-semibold">{t('address')}</h2>
           </div>
           <div className="grid gap-6 p-6 sm:grid-cols-2">
             {/* Street */}
             <div className="sm:col-span-2">
               <label htmlFor="address" className="mb-1.5 block text-sm font-medium">
-                Street Address
+                {t('street')}
               </label>
               <input
                 type="text"
@@ -248,7 +253,7 @@ export default function NewContactPage() {
             {/* Postal Code */}
             <div>
               <label htmlFor="postalCode" className="mb-1.5 block text-sm font-medium">
-                Postal Code
+                {t('postalCode')}
               </label>
               <input
                 type="text"
@@ -263,14 +268,14 @@ export default function NewContactPage() {
             {/* City */}
             <div>
               <label htmlFor="city" className="mb-1.5 block text-sm font-medium">
-                City
+                {t('city')}
               </label>
               <input
                 type="text"
                 id="city"
                 name="city"
                 maxLength={100}
-                placeholder="Zürich"
+                placeholder="Zurich"
                 className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
@@ -278,7 +283,7 @@ export default function NewContactPage() {
             {/* Country */}
             <div>
               <label htmlFor="country" className="mb-1.5 block text-sm font-medium">
-                Country
+                {t('country')}
               </label>
               <select
                 id="country"
@@ -296,16 +301,37 @@ export default function NewContactPage() {
           </div>
         </section>
 
-        {/* Financial */}
-        <section className="rounded-xl border bg-card">
+        {/* Advanced Options Toggle */}
+        <button
+          type="button"
+          onClick={() => setShowAdvanced(!showAdvanced)}
+          className="flex w-full items-center justify-center gap-2 rounded-lg border bg-card px-4 py-3 text-sm font-medium hover:bg-muted transition-colors"
+        >
+          {showAdvanced ? (
+            <>
+              <ChevronUp className="h-4 w-4" />
+              {tc('hideAdvanced') || 'Hide Advanced Options'}
+            </>
+          ) : (
+            <>
+              <ChevronDown className="h-4 w-4" />
+              {tc('showAdvanced') || 'Show Advanced Options'}
+            </>
+          )}
+        </button>
+
+        {showAdvanced && (
+          <>
+            {/* Financial */}
+            <section className="rounded-xl border bg-card">
           <div className="border-b px-6 py-4">
-            <h2 className="font-semibold">Financial Details</h2>
+            <h2 className="font-semibold">{t('financialDetails')}</h2>
           </div>
           <div className="grid gap-6 p-6 sm:grid-cols-2">
             {/* VAT Number */}
             <div>
               <label htmlFor="vatNumber" className="mb-1.5 block text-sm font-medium">
-                VAT Number
+                {t('vatNumber')}
               </label>
               <input
                 type="text"
@@ -320,7 +346,7 @@ export default function NewContactPage() {
             {/* IBAN */}
             <div>
               <label htmlFor="iban" className="mb-1.5 block text-sm font-medium">
-                IBAN
+                {t('iban')}
               </label>
               <input
                 type="text"
@@ -335,7 +361,7 @@ export default function NewContactPage() {
             {/* Payment Terms */}
             <div>
               <label htmlFor="paymentTermsDays" className="mb-1.5 block text-sm font-medium">
-                Payment Terms (days)
+                {t('paymentTerms')} ({t('days')})
               </label>
               <input
                 type="number"
@@ -351,7 +377,7 @@ export default function NewContactPage() {
             {/* Credit Limit */}
             <div>
               <label htmlFor="creditLimit" className="mb-1.5 block text-sm font-medium">
-                Credit Limit (CHF)
+                {t('creditLimit')} (CHF)
               </label>
               <input
                 type="text"
@@ -367,13 +393,13 @@ export default function NewContactPage() {
         {/* Settings */}
         <section className="rounded-xl border bg-card">
           <div className="border-b px-6 py-4">
-            <h2 className="font-semibold">Settings</h2>
+            <h2 className="font-semibold">{tc('settings')}</h2>
           </div>
           <div className="grid gap-6 p-6 sm:grid-cols-2">
             {/* Language */}
             <div>
               <label htmlFor="language" className="mb-1.5 block text-sm font-medium">
-                Language
+                {t('language')}
               </label>
               <select
                 id="language"
@@ -392,19 +418,21 @@ export default function NewContactPage() {
             {/* Notes */}
             <div className="sm:col-span-2">
               <label htmlFor="notes" className="mb-1.5 block text-sm font-medium">
-                Notes
+                {tc('notes')}
               </label>
               <textarea
                 id="notes"
                 name="notes"
                 rows={4}
                 maxLength={5000}
-                placeholder="Internal notes about this contact..."
+                placeholder={t('internalNotes')}
                 className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-y"
               />
             </div>
           </div>
         </section>
+          </>
+        )}
 
         {/* Submit */}
         <div className="flex items-center justify-end gap-4">
@@ -412,7 +440,7 @@ export default function NewContactPage() {
             href="/contacts"
             className="rounded-lg border px-4 py-2.5 text-sm font-medium hover:bg-muted transition-colors"
           >
-            Cancel
+            {tc('cancel')}
           </Link>
           <button
             type="submit"
@@ -423,7 +451,7 @@ export default function NewContactPage() {
             )}
           >
             {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-            {isSubmitting ? 'Creating...' : 'Create Contact'}
+            {isSubmitting ? tc('creating') : t('newContact')}
           </button>
         </div>
       </form>

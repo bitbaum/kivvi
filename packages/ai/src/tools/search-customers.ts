@@ -1,6 +1,6 @@
-// @ts-nocheck
 import { z } from 'zod';
 import type { Tool, ExecutionContext, ToolResult } from '../types';
+import { listContacts } from '@kivvi/core';
 
 const searchCustomersSchema = z.object({
   query: z.string().optional().describe('Search query for customer name, email, or contact number'),
@@ -14,39 +14,15 @@ export const searchCustomersTool: Tool = {
   parameters: searchCustomersSchema,
   execute: async (params: z.infer<typeof searchCustomersSchema>, context: ExecutionContext): Promise<ToolResult> => {
     try {
-      const { createDb, contacts } = await import('@kivvi/database');
-      const { eq, and, or, ilike, desc } = await import('drizzle-orm');
+      const db = context.db as any;
 
-      const db = createDb(process.env.DATABASE_URL!);
+      const result = await listContacts(db, context.companyId, {
+        type: params.type,
+        search: params.query,
+        pageSize: params.limit,
+      });
 
-      const conditions: any[] = [
-        eq(contacts.companyId, context.companyId),
-        eq(contacts.isActive, true),
-      ];
-
-      if (params.type) {
-        conditions.push(eq(contacts.type, params.type));
-      }
-
-      if (params.query) {
-        conditions.push(
-          or(
-            ilike(contacts.name, `%${params.query}%`),
-            ilike(contacts.email, `%${params.query}%`),
-            ilike(contacts.phone, `%${params.query}%`),
-            ilike(contacts.contactNumber, `%${params.query}%`)
-          )
-        );
-      }
-
-      const results = await db
-        .select()
-        .from(contacts)
-        .where(and(...conditions))
-        .orderBy(desc(contacts.updatedAt))
-        .limit(params.limit);
-
-      const customerList = results.map((c) => ({
+      const customerList = result.data.map((c: any) => ({
         id: c.id,
         contactNumber: c.contactNumber,
         name: c.name,

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Loader2, CheckCircle2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { updateCompanyAction } from '@/app/actions/settings';
 import { cn } from '@/lib/utils';
 
@@ -34,6 +35,8 @@ interface CompanyFormProps {
 }
 
 export function CompanyForm({ initialData }: CompanyFormProps) {
+  const t = useTranslations('settings');
+  const tc = useTranslations('common');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -85,19 +88,19 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
       {success && (
         <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-400">
           <CheckCircle2 className="h-4 w-4" />
-          Company settings updated successfully.
+          {t('company.savedSuccessfully')}
         </div>
       )}
 
       {/* Company Information */}
       <section className="rounded-xl border bg-card">
         <div className="border-b px-6 py-4">
-          <h2 className="font-semibold">Company Information</h2>
+          <h2 className="font-semibold">{t('company.companyInfo')}</h2>
         </div>
         <div className="grid gap-6 p-6 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
-              Company Name <span className="text-destructive">*</span>
+              {t('company.companyName')} <span className="text-destructive">*</span>
             </label>
             <input
               type="text"
@@ -112,7 +115,7 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
 
           <div className="sm:col-span-2">
             <label htmlFor="legalName" className="mb-1.5 block text-sm font-medium">
-              Legal Name
+              {t('company.legalName')}
             </label>
             <input
               type="text"
@@ -126,7 +129,7 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
 
           <div>
             <label htmlFor="vatNumber" className="mb-1.5 block text-sm font-medium">
-              VAT Number
+              {t('company.vatNumber')}
             </label>
             <input
               type="text"
@@ -144,7 +147,7 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
       {/* Address */}
       <section className="rounded-xl border bg-card">
         <div className="border-b px-6 py-4">
-          <h2 className="font-semibold">Address</h2>
+          <h2 className="font-semibold">{t('company.address')}</h2>
         </div>
         <div className="grid gap-6 p-6 sm:grid-cols-2">
           <div className="sm:col-span-2">
@@ -212,12 +215,12 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
       {/* Preferences */}
       <section className="rounded-xl border bg-card">
         <div className="border-b px-6 py-4">
-          <h2 className="font-semibold">Preferences</h2>
+          <h2 className="font-semibold">{t('company.preferences')}</h2>
         </div>
         <div className="grid gap-6 p-6 sm:grid-cols-2">
           <div>
             <label htmlFor="currency" className="mb-1.5 block text-sm font-medium">
-              Default Currency
+              {t('company.defaultCurrency')}
             </label>
             <select
               id="currency"
@@ -246,7 +249,7 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
           )}
         >
           {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-          {isSubmitting ? 'Saving...' : 'Save Changes'}
+          {isSubmitting ? tc('saving') : tc('saveChanges')}
         </button>
       </div>
     </form>

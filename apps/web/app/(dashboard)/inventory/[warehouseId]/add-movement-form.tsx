@@ -3,15 +3,8 @@
 import { useState, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, X, Search } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { createStockMovementAction } from '@/app/actions/inventory';
-
-const MOVEMENT_TYPES = [
-  { value: 'purchase', label: 'Purchase (IN)' },
-  { value: 'sale', label: 'Sale (OUT)' },
-  { value: 'adjustment', label: 'Adjustment' },
-  { value: 'transfer', label: 'Transfer' },
-  { value: 'return', label: 'Return (IN)' },
-] as const;
 
 interface Product {
   id: string;
@@ -22,9 +15,18 @@ interface Product {
 
 export function AddMovementForm({ warehouseId }: { warehouseId: string }) {
   const router = useRouter();
+  const t = useTranslations('inventory');
+  const tc = useTranslations('common');
   const [isPending, startTransition] = useTransition();
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const MOVEMENT_TYPES = [
+    { value: 'purchase', label: t('purchase') },
+    { value: 'sale', label: t('sale') },
+    { value: 'adjustment', label: t('adjustment') },
+    { value: 'transfer', label: t('transfer') },
+  ] as const;
 
   // Product picker state
   const [products, setProducts] = useState<Product[]>([]);
@@ -103,7 +105,7 @@ export function AddMovementForm({ warehouseId }: { warehouseId: string }) {
         className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
       >
         <Plus className="h-4 w-4" />
-        Record Movement
+        {t('recordMovement')}
       </button>
     );
   }
@@ -112,7 +114,7 @@ export function AddMovementForm({ warehouseId }: { warehouseId: string }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="w-full max-w-md rounded-xl border bg-card p-6 shadow-lg">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Record Stock Movement</h2>
+          <h2 className="text-lg font-semibold">{t('recordMovement')}</h2>
           <button
             onClick={handleClose}
             className="rounded-lg p-1 hover:bg-muted transition-colors"
@@ -160,8 +162,8 @@ export function AddMovementForm({ warehouseId }: { warehouseId: string }) {
                     onFocus={() => setShowProductDropdown(true)}
                     placeholder={
                       productsLoading
-                        ? 'Loading products...'
-                        : 'Search products...'
+                        ? `${tc('loading')}...`
+                        : `${tc('search')}...`
                     }
                     className="w-full rounded-lg border bg-background py-2 pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-primary"
                     disabled={productsLoading}
@@ -171,7 +173,7 @@ export function AddMovementForm({ warehouseId }: { warehouseId: string }) {
                   <div className="absolute left-0 right-0 z-10 mt-1 max-h-48 overflow-y-auto rounded-lg border bg-card shadow-lg">
                     {filteredProducts.length === 0 ? (
                       <p className="p-3 text-center text-sm text-muted-foreground">
-                        No products found.
+                        {tc('noResults')}
                       </p>
                     ) : (
                       filteredProducts.slice(0, 20).map((product) => (
@@ -201,7 +203,7 @@ export function AddMovementForm({ warehouseId }: { warehouseId: string }) {
           {/* Movement Type */}
           <div>
             <label className="mb-1 block text-sm font-medium">
-              Movement Type <span className="text-red-500">*</span>
+              {t('movementType')} <span className="text-red-500">*</span>
             </label>
             <select
               name="type"
@@ -256,14 +258,14 @@ export function AddMovementForm({ warehouseId }: { warehouseId: string }) {
               disabled={isPending}
               className="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
-              {isPending ? 'Recording...' : 'Record Movement'}
+              {isPending ? tc('saving') : t('recordMovement')}
             </button>
             <button
               type="button"
               onClick={handleClose}
               className="rounded-lg border px-4 py-2 text-sm hover:bg-muted transition-colors"
             >
-              Cancel
+              {tc('cancel')}
             </button>
           </div>
         </form>

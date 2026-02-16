@@ -4,6 +4,7 @@ import { useState, useTransition, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Upload, X, FileSpreadsheet, AlertCircle } from 'lucide-react';
 import { importTransactionsAction } from '@/app/actions/banking';
+import { useTranslations } from 'next-intl';
 
 interface ParsedTransaction {
   date: string;
@@ -21,6 +22,8 @@ export function ImportCsv({ bankAccountId }: { bankAccountId: string }) {
   const [transactions, setTransactions] = useState<ParsedTransaction[]>([]);
   const [result, setResult] = useState<{ imported: number } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const t = useTranslations('banking');
+  const tc = useTranslations('common');
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -35,12 +38,12 @@ export function ImportCsv({ bankAccountId }: { bankAccountId: string }) {
         const text = event.target?.result as string;
         const parsed = parseCsv(text);
         if (parsed.length === 0) {
-          setError('No valid transactions found in CSV. Expected columns: date, description, reference, amount, balance');
+          setError(t('csvParseError'));
           return;
         }
         setTransactions(parsed);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to parse CSV');
+        setError(err instanceof Error ? err.message : t('csvParseFailed'));
       }
     };
     reader.readAsText(file);
@@ -75,7 +78,7 @@ export function ImportCsv({ bankAccountId }: { bankAccountId: string }) {
         className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted transition-colors"
       >
         <Upload className="h-4 w-4" />
-        Import CSV
+        {t('importCsv')}
       </button>
     );
   }
@@ -84,7 +87,7 @@ export function ImportCsv({ bankAccountId }: { bankAccountId: string }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="w-full max-w-2xl max-h-[80vh] overflow-hidden rounded-xl border bg-card shadow-lg flex flex-col">
         <div className="flex items-center justify-between border-b px-6 py-4">
-          <h2 className="text-lg font-semibold">Import Transactions from CSV</h2>
+          <h2 className="text-lg font-semibold">{t('importCsv')}</h2>
           <button
             onClick={handleClose}
             className="rounded-lg p-1 hover:bg-muted transition-colors"
@@ -98,7 +101,7 @@ export function ImportCsv({ bankAccountId }: { bankAccountId: string }) {
             <div className="flex flex-col items-center py-8">
               <FileSpreadsheet className="h-12 w-12 text-green-600" />
               <p className="mt-4 text-lg font-medium">
-                Successfully imported {result.imported} transactions
+                {t('importTransactions', { count: result.imported })}
               </p>
               <button
                 onClick={handleClose}
@@ -111,7 +114,7 @@ export function ImportCsv({ bankAccountId }: { bankAccountId: string }) {
             <>
               <div>
                 <p className="text-sm text-muted-foreground mb-2">
-                  Upload a CSV file with the columns: <span className="font-mono text-xs">date, description, reference, amount, balance</span>
+                  {t('csvRequirement')}
                 </p>
                 <input
                   ref={fileRef}
@@ -133,22 +136,22 @@ export function ImportCsv({ bankAccountId }: { bankAccountId: string }) {
                 <>
                   <div>
                     <p className="text-sm font-medium mb-2">
-                      Preview ({transactions.length} transactions)
+                      {t('preview', { count: transactions.length })}
                     </p>
                     <div className="max-h-64 overflow-auto rounded-lg border">
                       <table className="w-full text-sm">
                         <thead className="sticky top-0 bg-muted">
                           <tr className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                            <th className="px-3 py-2">Date</th>
-                            <th className="px-3 py-2">Description</th>
-                            <th className="px-3 py-2">Reference</th>
-                            <th className="px-3 py-2 text-right">Amount</th>
-                            <th className="px-3 py-2 text-right">Balance</th>
+                            <th className="px-3 py-2">{tc('date')}</th>
+                            <th className="px-3 py-2">{tc('description')}</th>
+                            <th className="px-3 py-2">{t('reference')}</th>
+                            <th className="px-3 py-2 text-right">{tc('amount')}</th>
+                            <th className="px-3 py-2 text-right">{t('balance')}</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y">
                           {transactions.slice(0, 50).map((txn, i) => {
-                            const amt = parseFloat(txn.amount);
+                            const amt = Number(txn.amount);
                             return (
                               <tr key={i} className="hover:bg-muted/50">
                                 <td className="whitespace-nowrap px-3 py-2">{txn.date}</td>
@@ -165,7 +168,7 @@ export function ImportCsv({ bankAccountId }: { bankAccountId: string }) {
                       </table>
                       {transactions.length > 50 && (
                         <p className="px-3 py-2 text-xs text-muted-foreground">
-                          ...and {transactions.length - 50} more
+                          {t('andMore', { count: transactions.length - 50 })}
                         </p>
                       )}
                     </div>
@@ -178,14 +181,14 @@ export function ImportCsv({ bankAccountId }: { bankAccountId: string }) {
                       className="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
                     >
                       {isPending
-                        ? 'Importing...'
-                        : `Import ${transactions.length} Transactions`}
+                        ? t('importing')
+                        : t('importTransactions', { count: transactions.length })}
                     </button>
                     <button
                       onClick={handleClose}
                       className="rounded-lg border px-4 py-2 text-sm hover:bg-muted transition-colors"
                     >
-                      Cancel
+                      {tc('cancel')}
                     </button>
                   </div>
                 </>

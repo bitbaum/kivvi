@@ -1,3 +1,4 @@
+import Decimal from 'decimal.js';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import {
@@ -9,32 +10,13 @@ import {
   Warehouse,
   Info,
 } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { getProduct } from '@kivvi/core';
 import { formatCurrency, formatDate } from '@/lib/utils';
+import { SWISS_VAT_RATES, DEFAULT_VAT_RATE } from '@/lib/config/vat-rates';
 import { deleteProductAction } from '@/app/actions/products';
-
-const TYPE_LABELS: Record<string, string> = {
-  product: 'Product',
-  service: 'Service',
-};
-
-const UNIT_LABELS: Record<string, string> = {
-  piece: 'Piece',
-  hour: 'Hour',
-  kg: 'Kilogram',
-  m: 'Meter',
-  m2: 'Square Meter',
-  m3: 'Cubic Meter',
-  liter: 'Liter',
-};
-
-const VAT_LABELS: Record<string, string> = {
-  '8.1': '8.1% (Standard)',
-  '2.6': '2.6% (Reduced)',
-  '0': '0% (Exempt)',
-};
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -46,6 +28,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
     redirect('/login');
   }
 
+  const t = await getTranslations('products');
+  const tc = await getTranslations('common');
+
   const { id } = await params;
   const product = await getProduct(db, session.user.companyId, id);
 
@@ -53,13 +38,32 @@ export default async function ProductDetailPage({ params }: PageProps) {
     notFound();
   }
 
+  const TYPE_LABELS: Record<string, string> = {
+    product: t('product'),
+    service: t('service'),
+  };
+
+  const UNIT_LABELS: Record<string, string> = {
+    piece: t('units.piece'),
+    hour: t('units.hour'),
+    kg: t('units.kg'),
+    m: t('units.m'),
+    m2: t('units.m2'),
+    m3: t('units.m3'),
+    liter: t('units.liter'),
+  };
+
+  const VAT_LABELS: Record<string, string> = Object.fromEntries(
+    SWISS_VAT_RATES.map((rate) => [rate.value, t(`vatRates.${rate.labelKey}`)])
+  );
+
   const margin =
-    product.purchasePrice && parseFloat(product.purchasePrice) > 0
-      ? (
-          ((parseFloat(product.unitPrice) - parseFloat(product.purchasePrice)) /
-            parseFloat(product.unitPrice)) *
-          100
-        ).toFixed(1)
+    product.purchasePrice && new Decimal(product.purchasePrice).greaterThan(0)
+      ? new Decimal(product.unitPrice)
+          .minus(new Decimal(product.purchasePrice))
+          .div(new Decimal(product.unitPrice))
+          .times(100)
+          .toFixed(1)
       : null;
 
   return (
@@ -83,7 +87,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
                     : 'inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-800 dark:text-gray-400'
                 }
               >
-                {product.isActive ? 'Active' : 'Inactive'}
+                {product.isActive ? tc('active') : tc('inactive')}
               </span>
             </div>
             <div className="mt-1 flex items-center gap-3 text-sm text-muted-foreground">
@@ -91,13 +95,13 @@ export default async function ProductDetailPage({ params }: PageProps) {
               {product.sku && (
                 <>
                   <span>-</span>
-                  <span>SKU: {product.sku}</span>
+                  <span>{t('sku')}: {product.sku}</span>
                 </>
               )}
               {product.ean && (
                 <>
                   <span>-</span>
-                  <span>EAN: {product.ean}</span>
+                  <span>{t('ean')}: {product.ean}</span>
                 </>
               )}
             </div>
@@ -109,26 +113,26 @@ export default async function ProductDetailPage({ params }: PageProps) {
             className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted transition-colors"
           >
             <Pencil className="h-4 w-4" />
-            Edit
+            {tc('edit')}
           </Link>
-          <DeleteButton productId={product.id} productName={product.name} />
+          <DeleteButton productId={product.id} productName={product.name} deleteLabel={tc('delete')} />
         </div>
       </div>
 
       {/* Content Grid */}
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Main Info — 2 columns */}
+        {/* Main Info -- 2 columns */}
         <div className="space-y-6 lg:col-span-2">
           {/* Overview Card */}
           <div className="rounded-xl border bg-card">
             <div className="flex items-center gap-2 border-b px-6 py-4">
               <Info className="h-4 w-4 text-muted-foreground" />
-              <h2 className="font-semibold">Overview</h2>
+              <h2 className="font-semibold">{t('overview')}</h2>
             </div>
             <div className="p-6">
               <dl className="grid gap-x-8 gap-y-4 sm:grid-cols-2">
                 <div>
-                  <dt className="text-sm text-muted-foreground">Type</dt>
+                  <dt className="text-sm text-muted-foreground">{tc('type')}</dt>
                   <dd className="mt-1 flex items-center gap-1.5 font-medium">
                     {product.type === 'product' ? (
                       <Package className="h-4 w-4 text-muted-foreground" />
@@ -140,7 +144,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
                 </div>
 
                 <div>
-                  <dt className="text-sm text-muted-foreground">Unit</dt>
+                  <dt className="text-sm text-muted-foreground">{t('unit')}</dt>
                   <dd className="mt-1 font-medium">
                     {UNIT_LABELS[product.unit || 'piece'] || product.unit}
                   </dd>
@@ -148,21 +152,21 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
                 {product.manufacturer && (
                   <div>
-                    <dt className="text-sm text-muted-foreground">Manufacturer</dt>
+                    <dt className="text-sm text-muted-foreground">{t('manufacturer')}</dt>
                     <dd className="mt-1 font-medium">{(product.manufacturer as { name: string }).name}</dd>
                   </div>
                 )}
 
                 {product.productGroup && (
                   <div>
-                    <dt className="text-sm text-muted-foreground">Product Group</dt>
+                    <dt className="text-sm text-muted-foreground">{t('productGroup')}</dt>
                     <dd className="mt-1 font-medium">{(product.productGroup as { name: string }).name}</dd>
                   </div>
                 )}
 
                 {product.description && (
                   <div className="sm:col-span-2">
-                    <dt className="text-sm text-muted-foreground">Description</dt>
+                    <dt className="text-sm text-muted-foreground">{tc('description')}</dt>
                     <dd className="mt-1 whitespace-pre-wrap text-sm">
                       {product.description}
                     </dd>
@@ -175,26 +179,26 @@ export default async function ProductDetailPage({ params }: PageProps) {
           {/* Pricing Card */}
           <div className="rounded-xl border bg-card">
             <div className="border-b px-6 py-4">
-              <h2 className="font-semibold">Pricing</h2>
+              <h2 className="font-semibold">{t('pricing')}</h2>
             </div>
             <div className="p-6">
               <dl className="grid gap-x-8 gap-y-4 sm:grid-cols-3">
                 <div>
-                  <dt className="text-sm text-muted-foreground">Unit Price</dt>
+                  <dt className="text-sm text-muted-foreground">{t('unitPrice')}</dt>
                   <dd className="mt-1 text-2xl font-bold">
                     {formatCurrency(
-                      parseFloat(product.unitPrice),
+                      Number(product.unitPrice),
                       product.currency || 'CHF'
                     )}
                   </dd>
                 </div>
 
                 <div>
-                  <dt className="text-sm text-muted-foreground">Purchase Price</dt>
+                  <dt className="text-sm text-muted-foreground">{t('purchasePrice')}</dt>
                   <dd className="mt-1 text-2xl font-bold">
                     {product.purchasePrice
                       ? formatCurrency(
-                          parseFloat(product.purchasePrice),
+                          Number(product.purchasePrice),
                           product.currency || 'CHF'
                         )
                       : '-'}
@@ -202,21 +206,21 @@ export default async function ProductDetailPage({ params }: PageProps) {
                 </div>
 
                 <div>
-                  <dt className="text-sm text-muted-foreground">Margin</dt>
+                  <dt className="text-sm text-muted-foreground">{t('margin')}</dt>
                   <dd className="mt-1 text-2xl font-bold">
                     {margin ? `${margin}%` : '-'}
                   </dd>
                 </div>
 
                 <div>
-                  <dt className="text-sm text-muted-foreground">VAT Rate</dt>
+                  <dt className="text-sm text-muted-foreground">{t('vatRate')}</dt>
                   <dd className="mt-1 font-medium">
-                    {VAT_LABELS[product.vatRate || '8.1'] || `${product.vatRate}%`}
+                    {VAT_LABELS[product.vatRate || DEFAULT_VAT_RATE] || `${product.vatRate}%`}
                   </dd>
                 </div>
 
                 <div>
-                  <dt className="text-sm text-muted-foreground">Currency</dt>
+                  <dt className="text-sm text-muted-foreground">{tc('currency')}</dt>
                   <dd className="mt-1 font-medium">{product.currency || 'CHF'}</dd>
                 </div>
               </dl>
@@ -228,31 +232,31 @@ export default async function ProductDetailPage({ params }: PageProps) {
             (product.weight || product.width || product.height || product.depth) && (
               <div className="rounded-xl border bg-card">
                 <div className="border-b px-6 py-4">
-                  <h2 className="font-semibold">Dimensions & Weight</h2>
+                  <h2 className="font-semibold">{t('dimensions')}</h2>
                 </div>
                 <div className="p-6">
                   <dl className="grid gap-x-8 gap-y-4 sm:grid-cols-4">
                     {product.weight && (
                       <div>
-                        <dt className="text-sm text-muted-foreground">Weight</dt>
+                        <dt className="text-sm text-muted-foreground">{t('weight')}</dt>
                         <dd className="mt-1 font-medium">{product.weight} kg</dd>
                       </div>
                     )}
                     {product.width && (
                       <div>
-                        <dt className="text-sm text-muted-foreground">Width</dt>
+                        <dt className="text-sm text-muted-foreground">{t('width')}</dt>
                         <dd className="mt-1 font-medium">{product.width} cm</dd>
                       </div>
                     )}
                     {product.height && (
                       <div>
-                        <dt className="text-sm text-muted-foreground">Height</dt>
+                        <dt className="text-sm text-muted-foreground">{t('height')}</dt>
                         <dd className="mt-1 font-medium">{product.height} cm</dd>
                       </div>
                     )}
                     {product.depth && (
                       <div>
-                        <dt className="text-sm text-muted-foreground">Depth</dt>
+                        <dt className="text-sm text-muted-foreground">{t('depth')}</dt>
                         <dd className="mt-1 font-medium">{product.depth} cm</dd>
                       </div>
                     )}
@@ -262,24 +266,24 @@ export default async function ProductDetailPage({ params }: PageProps) {
             )}
         </div>
 
-        {/* Sidebar — 1 column */}
+        {/* Sidebar -- 1 column */}
         <div className="space-y-6">
           {/* Stock Card (only for products) */}
           {product.type === 'product' && (
             <div className="rounded-xl border bg-card">
               <div className="flex items-center gap-2 border-b px-6 py-4">
                 <Warehouse className="h-4 w-4 text-muted-foreground" />
-                <h2 className="font-semibold">Stock</h2>
+                <h2 className="font-semibold">{t('stock')}</h2>
               </div>
               <div className="p-6">
                 <div className="mb-4">
-                  <p className="text-sm text-muted-foreground">Total Stock</p>
+                  <p className="text-sm text-muted-foreground">{t('totalStock')}</p>
                   <p className="text-3xl font-bold">
-                    {parseFloat(product.stockQuantity || '0')}
+                    {Number(product.stockQuantity || '0')}
                   </p>
                   {product.minStock !== null && (
                     <p className="mt-1 text-sm text-muted-foreground">
-                      Min. stock: {product.minStock}
+                      {t('minStock')}: {product.minStock}
                     </p>
                   )}
                 </div>
@@ -287,7 +291,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
                 {product.stockLevels && product.stockLevels.length > 0 ? (
                   <div className="space-y-3">
                     <p className="text-sm font-medium text-muted-foreground">
-                      Per Warehouse
+                      {t('perWarehouse')}
                     </p>
                     {product.stockLevels.map((sl) => (
                       <div
@@ -299,11 +303,11 @@ export default async function ProductDetailPage({ params }: PageProps) {
                         </span>
                         <div className="text-right text-sm">
                           <span className="font-medium">
-                            {parseFloat(sl.quantity)}
+                            {Number(sl.quantity)}
                           </span>
-                          {parseFloat(sl.reservedQuantity) > 0 && (
+                          {Number(sl.reservedQuantity) > 0 && (
                             <span className="ml-1 text-muted-foreground">
-                              ({parseFloat(sl.reservedQuantity)} reserved)
+                              {t('reservedQuantity', { count: Number(sl.reservedQuantity) })}
                             </span>
                           )}
                         </div>
@@ -312,14 +316,14 @@ export default async function ProductDetailPage({ params }: PageProps) {
                   </div>
                 ) : (
                   <p className="text-sm text-muted-foreground">
-                    No warehouse stock entries yet.
+                    {tc('noResults')}
                   </p>
                 )}
 
                 <div className="mt-4 flex items-center gap-2">
                   {product.serialNumberTracking && (
                     <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
-                      Serial Number Tracking
+                      {t('serialNumberTracking')}
                     </span>
                   )}
                 </div>
@@ -330,11 +334,11 @@ export default async function ProductDetailPage({ params }: PageProps) {
           {/* Settings Card */}
           <div className="rounded-xl border bg-card">
             <div className="border-b px-6 py-4">
-              <h2 className="font-semibold">Settings</h2>
+              <h2 className="font-semibold">{tc('settings')}</h2>
             </div>
             <div className="divide-y">
               <div className="flex items-center justify-between px-6 py-3">
-                <span className="text-sm text-muted-foreground">Shop Visible</span>
+                <span className="text-sm text-muted-foreground">{t('visibleInShop')}</span>
                 <span
                   className={
                     product.shopVisible
@@ -342,12 +346,12 @@ export default async function ProductDetailPage({ params }: PageProps) {
                       : 'inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-800 dark:text-gray-400'
                   }
                 >
-                  {product.shopVisible ? 'Yes' : 'No'}
+                  {product.shopVisible ? tc('yes') : tc('no')}
                 </span>
               </div>
               <div className="flex items-center justify-between px-6 py-3">
                 <span className="text-sm text-muted-foreground">
-                  Serial Number Tracking
+                  {t('serialNumberTracking')}
                 </span>
                 <span
                   className={
@@ -356,7 +360,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
                       : 'inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-800 dark:text-gray-400'
                   }
                 >
-                  {product.serialNumberTracking ? 'Yes' : 'No'}
+                  {product.serialNumberTracking ? tc('yes') : tc('no')}
                 </span>
               </div>
             </div>
@@ -365,21 +369,21 @@ export default async function ProductDetailPage({ params }: PageProps) {
           {/* Metadata Card */}
           <div className="rounded-xl border bg-card">
             <div className="border-b px-6 py-4">
-              <h2 className="font-semibold">Metadata</h2>
+              <h2 className="font-semibold">{t('metadata')}</h2>
             </div>
             <div className="divide-y">
               <div className="flex items-center justify-between px-6 py-3">
-                <span className="text-sm text-muted-foreground">Created</span>
+                <span className="text-sm text-muted-foreground">{tc('date')}</span>
                 <span className="text-sm">{formatDate(product.createdAt)}</span>
               </div>
               <div className="flex items-center justify-between px-6 py-3">
-                <span className="text-sm text-muted-foreground">Updated</span>
+                <span className="text-sm text-muted-foreground">{tc('date')}</span>
                 <span className="text-sm">{formatDate(product.updatedAt)}</span>
               </div>
               {product.kivitendoId && (
                 <div className="flex items-center justify-between px-6 py-3">
                   <span className="text-sm text-muted-foreground">
-                    Kivitendo ID
+                    {t('kivitendoId')}
                   </span>
                   <span className="font-mono text-sm">{product.kivitendoId}</span>
                 </div>
@@ -399,9 +403,11 @@ export default async function ProductDetailPage({ params }: PageProps) {
 function DeleteButton({
   productId,
   productName,
+  deleteLabel,
 }: {
   productId: string;
   productName: string;
+  deleteLabel: string;
 }) {
   return (
     <form
@@ -416,10 +422,10 @@ function DeleteButton({
       <button
         type="submit"
         className="inline-flex items-center gap-2 rounded-lg border border-destructive/30 px-4 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
-        title={`Deactivate ${productName}`}
+        title={`${deleteLabel} ${productName}`}
       >
         <Trash2 className="h-4 w-4" />
-        Delete
+        {deleteLabel}
       </button>
     </form>
   );

@@ -37,6 +37,11 @@ export * from './domain/banking';
 export * from './domain/inventory';
 export * from './domain/reports';
 export * from './domain/projects';
+export * from './domain/dashboard';
 export * from './domain/onboarding';
 export * from './domain/import-mappings';
 export * from './domain/import-bulk';
+export * from './domain/recurring-invoices';
+// pdf-generation is NOT re-exported here because it imports pdfkit (Node.js only).
+// Import directly: import { generateInvoicePdf } from '@kivvi/core/src/domain/pdf-generation';
+export * from './domain/email';

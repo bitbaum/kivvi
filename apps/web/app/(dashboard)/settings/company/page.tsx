@@ -5,11 +5,15 @@ import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { companies } from '@kivvi/database';
 import { eq } from 'drizzle-orm';
+import { getTranslations } from 'next-intl/server';
 import { CompanyForm } from './company-form';
 
 export default async function CompanySettingsPage() {
   const session = await auth();
   if (!session?.user?.companyId) redirect('/login');
+
+  const t = await getTranslations('settings');
+  const tc = await getTranslations('common');
 
   const [company] = await db
     .select()
@@ -26,14 +30,14 @@ export default async function CompanySettingsPage() {
         className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to Settings
+        {tc('back')}
       </Link>
 
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Company Settings</h1>
+        <h1 className="text-3xl font-bold">{t('companySettings')}</h1>
         <p className="text-muted-foreground">
-          Update your company information and preferences.
+          {t('companySettingsDesc')}
         </p>
       </div>
 

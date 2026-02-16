@@ -1,11 +1,14 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { ArrowLeft, Receipt, FileText } from 'lucide-react';
+import { ArrowLeft, Receipt, FileText, Calendar } from 'lucide-react';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { getVatReport } from '@kivvi/core';
 import { formatCurrency } from '@/lib/utils';
 import { DateRangeForm } from '../date-range-form';
+import { ExportButton } from '../export-button';
+import { EmptyState } from '@/components/empty-state';
+import { getTranslations } from 'next-intl/server';
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -31,6 +34,9 @@ export default async function VatReportPage({ searchParams }: PageProps) {
   const session = await auth();
   if (!session?.user?.companyId) redirect('/login');
 
+  const t = await getTranslations('reports');
+  const tc = await getTranslations('common');
+
   const params = await searchParams;
   const defaults = getCurrentQuarter();
   const startDate = (params.start as string) || defaults.start;
@@ -54,12 +60,22 @@ export default async function VatReportPage({ searchParams }: PageProps) {
           className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Reports
+          {tc('back')} {t('title')}
         </Link>
-        <h1 className="text-3xl font-bold">VAT Report</h1>
-        <p className="text-muted-foreground">
-          MWST-Abrechnung &mdash; VAT summary for tax filing.
-        </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold">{t('vatReport')}</h1>
+            <p className="text-muted-foreground">
+              {t('vatReportDesc')}
+            </p>
+          </div>
+          <ExportButton
+            reportType="vat"
+            startDate={startDate}
+            endDate={endDate}
+            disabled={!hasData}
+          />
+        </div>
       </div>
 
       {/* Date Range Filter */}
@@ -68,31 +84,31 @@ export default async function VatReportPage({ searchParams }: PageProps) {
       </div>
 
       {!hasData ? (
-        <div className="rounded-xl border bg-card p-12 text-center text-muted-foreground">
-          <FileText className="mx-auto mb-3 h-10 w-10" />
-          <p className="text-lg font-medium">No VAT data for this period</p>
-          <p className="mt-1 text-sm">
-            There are no documents between {startDate} and {endDate}. Try
-            adjusting the date range.
-          </p>
-        </div>
+        <EmptyState
+          icon={Calendar}
+          title={t('noVatData')}
+          description={t('noVatDataDesc', { start: startDate, end: endDate })}
+          actionLabel={tc('createInvoice')}
+          actionHref="/sales/invoices/new"
+          secondaryActionLabel={tc('adjustDateRange')}
+        />
       ) : (
         <>
           {/* Sales VAT */}
           <div className="rounded-xl border bg-card">
             <div className="flex items-center gap-2 border-b p-4">
               <Receipt className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              <h2 className="font-semibold">Sales VAT (Umsatzsteuer)</h2>
+              <h2 className="font-semibold">{t('salesVat')}</h2>
             </div>
             {report.salesVat.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      <th className="px-6 py-3">VAT Rate</th>
-                      <th className="px-6 py-3 text-right">Taxable Amount</th>
-                      <th className="px-6 py-3 text-right">VAT Amount</th>
-                      <th className="px-6 py-3 text-right">Documents</th>
+                      <th className="px-6 py-3">{t('rate')}</th>
+                      <th className="px-6 py-3 text-right">{t('taxableAmount')}</th>
+                      <th className="px-6 py-3 text-right">{t('vatAmount')}</th>
+                      <th className="px-6 py-3 text-right">{tc('number')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
@@ -114,7 +130,7 @@ export default async function VatReportPage({ searchParams }: PageProps) {
                   <tfoot>
                     <tr className="border-t-2 font-semibold">
                       <td className="px-6 py-3" colSpan={2}>
-                        Total Sales VAT
+                        {t('salesVat')} {tc('total')}
                       </td>
                       <td className="px-6 py-3 text-right text-blue-600 dark:text-blue-400">
                         {formatCurrency(report.totalSalesVat)}
@@ -126,7 +142,7 @@ export default async function VatReportPage({ searchParams }: PageProps) {
               </div>
             ) : (
               <p className="p-6 text-sm text-muted-foreground">
-                No sales VAT entries for this period.
+                {t('noSalesVatEntries')}
               </p>
             )}
           </div>
@@ -135,17 +151,17 @@ export default async function VatReportPage({ searchParams }: PageProps) {
           <div className="rounded-xl border bg-card">
             <div className="flex items-center gap-2 border-b p-4">
               <Receipt className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-              <h2 className="font-semibold">Purchase VAT (Vorsteuer)</h2>
+              <h2 className="font-semibold">{t('purchaseVat')}</h2>
             </div>
             {report.purchaseVat.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                      <th className="px-6 py-3">VAT Rate</th>
-                      <th className="px-6 py-3 text-right">Taxable Amount</th>
-                      <th className="px-6 py-3 text-right">VAT Amount</th>
-                      <th className="px-6 py-3 text-right">Documents</th>
+                      <th className="px-6 py-3">{t('rate')}</th>
+                      <th className="px-6 py-3 text-right">{t('taxableAmount')}</th>
+                      <th className="px-6 py-3 text-right">{t('vatAmount')}</th>
+                      <th className="px-6 py-3 text-right">{tc('number')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
@@ -167,7 +183,7 @@ export default async function VatReportPage({ searchParams }: PageProps) {
                   <tfoot>
                     <tr className="border-t-2 font-semibold">
                       <td className="px-6 py-3" colSpan={2}>
-                        Total Purchase VAT
+                        {t('purchaseVat')} {tc('total')}
                       </td>
                       <td className="px-6 py-3 text-right text-amber-600 dark:text-amber-400">
                         {formatCurrency(report.totalPurchaseVat)}
@@ -179,7 +195,7 @@ export default async function VatReportPage({ searchParams }: PageProps) {
               </div>
             ) : (
               <p className="p-6 text-sm text-muted-foreground">
-                No purchase VAT entries for this period.
+                {t('noPurchaseVatEntries')}
               </p>
             )}
           </div>
@@ -195,7 +211,7 @@ export default async function VatReportPage({ searchParams }: PageProps) {
             <div className="grid gap-4 sm:grid-cols-3">
               <div>
                 <p className="text-sm text-muted-foreground">
-                  Total Sales VAT
+                  {t('salesVat')} {tc('total')}
                 </p>
                 <p className="mt-1 text-xl font-bold text-blue-600 dark:text-blue-400">
                   {formatCurrency(report.totalSalesVat)}
@@ -203,7 +219,7 @@ export default async function VatReportPage({ searchParams }: PageProps) {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">
-                  Total Purchase VAT
+                  {t('purchaseVat')} {tc('total')}
                 </p>
                 <p className="mt-1 text-xl font-bold text-amber-600 dark:text-amber-400">
                   - {formatCurrency(report.totalPurchaseVat)}
@@ -211,7 +227,7 @@ export default async function VatReportPage({ searchParams }: PageProps) {
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  {report.vatPayable >= 0 ? 'VAT Payable' : 'VAT Refundable'}
+                  {report.vatPayable >= 0 ? t('vatPayable') : t('vatRefundable')}
                 </p>
                 <p
                   className={`mt-1 text-2xl font-bold ${

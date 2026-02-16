@@ -1,10 +1,12 @@
-import { FileText, Plus, Search, Filter } from 'lucide-react';
+import { FileText, Plus, Search, Filter, Download } from 'lucide-react';
 import Link from 'next/link';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { listDocuments } from '@kivvi/core';
 import { db } from '@/lib/db';
 import { formatCurrency, formatDate } from '@/lib/utils';
+import { toCamelCase } from '@/lib/config/document-types';
+import { getTranslations } from 'next-intl/server';
 import type { DocumentStatus } from '@kivvi/database';
 
 const statusStyles: Record<string, string> = {
@@ -21,20 +23,6 @@ const statusStyles: Record<string, string> = {
   dunning_3: 'bg-red-300 text-red-900 dark:bg-red-900/50 dark:text-red-200',
 };
 
-const statusLabels: Record<string, string> = {
-  draft: 'Draft',
-  sent: 'Sent',
-  confirmed: 'Confirmed',
-  delivered: 'Delivered',
-  paid: 'Paid',
-  partially_paid: 'Partially Paid',
-  overdue: 'Overdue',
-  cancelled: 'Cancelled',
-  dunning_1: 'Dunning 1',
-  dunning_2: 'Dunning 2',
-  dunning_3: 'Dunning 3',
-};
-
 interface PageProps {
   searchParams: Promise<{
     search?: string;
@@ -46,6 +34,10 @@ interface PageProps {
 export default async function InvoicesPage({ searchParams }: PageProps) {
   const session = await auth();
   if (!session?.user?.companyId) redirect('/login');
+
+  const t = await getTranslations('documents');
+  const tc = await getTranslations('common');
+  const ts = await getTranslations('status');
 
   const params = await searchParams;
   const page = parseInt(params.page || '1', 10);
@@ -67,18 +59,27 @@ export default async function InvoicesPage({ searchParams }: PageProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Invoices</h1>
+          <h1 className="text-3xl font-bold">{t('invoicePlural')}</h1>
           <p className="text-muted-foreground">
-            Manage your invoices and track payments.
+            {t('manageAndTrack', { type: t('invoicePlural') })}
           </p>
         </div>
-        <Link
-          href="/sales/invoices/new"
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-        >
-          <Plus className="h-4 w-4" />
-          New Invoice
-        </Link>
+        <div className="flex items-center gap-2">
+          <a
+            href="/api/export/invoices"
+            className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2 text-sm font-medium hover:bg-accent transition-colors"
+          >
+            <Download className="h-4 w-4" />
+            Export CSV
+          </a>
+          <Link
+            href="/sales/invoices/new"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            <Plus className="h-4 w-4" />
+            {t('newDocument', { type: t('invoice') })}
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}
@@ -88,7 +89,7 @@ export default async function InvoicesPage({ searchParams }: PageProps) {
           <input
             name="search"
             type="text"
-            placeholder="Search invoices..."
+            placeholder={t('searchDocuments', { type: t('invoicePlural') })}
             defaultValue={search}
             className="w-full rounded-lg border bg-background py-2 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary"
           />
@@ -111,7 +112,7 @@ export default async function InvoicesPage({ searchParams }: PageProps) {
                     : 'bg-muted text-muted-foreground hover:bg-muted/80'
                 }`}
               >
-                {s === 'all' ? 'All' : statusLabels[s]}
+                {s === 'all' ? tc('all') : ts(toCamelCase(s))}
               </Link>
             );
           })}
@@ -123,11 +124,11 @@ export default async function InvoicesPage({ searchParams }: PageProps) {
         {result.data.length === 0 ? (
           <div className="p-12 text-center text-muted-foreground">
             <FileText className="mx-auto mb-3 h-10 w-10" />
-            <p className="text-lg font-medium">No invoices found</p>
+            <p className="text-lg font-medium">{t('noDocumentsFound', { type: t('invoicePlural') })}</p>
             <p className="mt-1 text-sm">
               {search || status
-                ? 'Try adjusting your filters.'
-                : 'Create your first invoice to get started.'}
+                ? t('adjustFilters')
+                : t('createFirst', { type: t('invoice') })}
             </p>
             {!search && !status && (
               <Link
@@ -135,7 +136,7 @@ export default async function InvoicesPage({ searchParams }: PageProps) {
                 className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
               >
                 <Plus className="h-4 w-4" />
-                New Invoice
+                {t('newDocument', { type: t('invoice') })}
               </Link>
             )}
           </div>
@@ -143,11 +144,11 @@ export default async function InvoicesPage({ searchParams }: PageProps) {
           <>
             {/* Table header */}
             <div className="hidden border-b px-4 py-3 text-sm font-medium text-muted-foreground sm:grid sm:grid-cols-[1fr_1.5fr_auto_auto_auto]">
-              <span>Invoice</span>
-              <span>Customer</span>
-              <span className="text-right">Total</span>
-              <span className="px-4 text-center">Status</span>
-              <span className="text-right">Date</span>
+              <span>{t('invoice')}</span>
+              <span>{t('customer')}</span>
+              <span className="text-right">{tc('total')}</span>
+              <span className="px-4 text-center">{tc('status')}</span>
+              <span className="text-right">{tc('date')}</span>
             </div>
 
             {/* Rows */}
@@ -165,7 +166,7 @@ export default async function InvoicesPage({ searchParams }: PageProps) {
                       <span className="font-medium">{doc.number}</span>
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      {doc.contact?.name || 'No customer'}
+                      {doc.contact?.name || t('noCustomer')}
                     </div>
                     <div className="text-right font-medium">
                       {formatCurrency(Number(doc.total))}
@@ -179,8 +180,8 @@ export default async function InvoicesPage({ searchParams }: PageProps) {
                         }`}
                       >
                         {isOverdue && doc.status !== 'overdue'
-                          ? 'Overdue'
-                          : statusLabels[doc.status] || doc.status}
+                          ? ts('overdue')
+                          : ts(toCamelCase(doc.status))}
                       </span>
                     </div>
                     <div className="text-right text-sm text-muted-foreground">
@@ -198,9 +199,11 @@ export default async function InvoicesPage({ searchParams }: PageProps) {
       {result.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            Showing {(result.page - 1) * result.pageSize + 1}-
-            {Math.min(result.page * result.pageSize, result.total)} of{' '}
-            {result.total} invoices
+            {tc('showing', {
+              from: (result.page - 1) * result.pageSize + 1,
+              to: Math.min(result.page * result.pageSize, result.total),
+              total: result.total,
+            })}
           </p>
           <div className="flex gap-2">
             {result.page > 1 && (
@@ -208,7 +211,7 @@ export default async function InvoicesPage({ searchParams }: PageProps) {
                 href={`/sales/invoices?page=${result.page - 1}${status ? `&status=${status}` : ''}${search ? `&search=${search}` : ''}`}
                 className="rounded-lg border px-3 py-1.5 text-sm hover:bg-muted"
               >
-                Previous
+                {tc('previous')}
               </Link>
             )}
             {result.page < result.totalPages && (
@@ -216,7 +219,7 @@ export default async function InvoicesPage({ searchParams }: PageProps) {
                 href={`/sales/invoices?page=${result.page + 1}${status ? `&status=${status}` : ''}${search ? `&search=${search}` : ''}`}
                 className="rounded-lg border px-3 py-1.5 text-sm hover:bg-muted"
               >
-                Next
+                {tc('next')}
               </Link>
             )}
           </div>

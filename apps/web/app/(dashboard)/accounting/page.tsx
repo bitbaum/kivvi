@@ -15,10 +15,14 @@ import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { getTrialBalance } from '@kivvi/core';
 import { formatCurrency } from '@/lib/utils';
+import { getTranslations } from 'next-intl/server';
 
 export default async function AccountingPage() {
   const session = await auth();
   if (!session?.user?.companyId) redirect('/login');
+
+  const t = await getTranslations('accounting');
+  const tc = await getTranslations('common');
 
   const trialBalance = await getTrialBalance(db, session.user.companyId);
 
@@ -53,9 +57,9 @@ export default async function AccountingPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Accounting</h1>
+        <h1 className="text-3xl font-bold">{t('title')}</h1>
         <p className="text-muted-foreground">
-          Manage your chart of accounts, journal entries, and fiscal years.
+          {t('subtitle')}
         </p>
       </div>
 
@@ -64,33 +68,33 @@ export default async function AccountingPage() {
         <NavCard
           href="/accounting/chart-of-accounts"
           icon={<BookOpen className="h-6 w-6" />}
-          title="Chart of Accounts"
-          description="View and manage your account structure with Swiss KMU Kontenrahmen."
+          title={t('chartOfAccounts')}
+          description={t('manageChartOfAccounts')}
         />
         <NavCard
           href="/accounting/journal"
           icon={<FileSpreadsheet className="h-6 w-6" />}
-          title="Journal"
-          description="Record manual journal entries and view the general ledger."
+          title={t('journal')}
+          description={t('viewJournalEntries')}
         />
         <NavCard
           href="/accounting/fiscal-years"
           icon={<Calendar className="h-6 w-6" />}
-          title="Fiscal Years"
-          description="Manage fiscal years, periods, and year-end closings."
+          title={t('fiscalYears')}
+          description={t('manageFiscalYears')}
         />
       </div>
 
       {/* Trial Balance Summary */}
       <div className="rounded-xl border bg-card">
         <div className="flex items-center justify-between border-b p-4">
-          <h2 className="font-semibold">Trial Balance Summary</h2>
+          <h2 className="font-semibold">{t('trialBalance')}</h2>
           {hasData && (
             <Link
               href="/accounting/chart-of-accounts"
               className="flex items-center gap-1 text-sm text-primary hover:underline"
             >
-              View details <ArrowRight className="h-4 w-4" />
+              {tc('viewDetails')} <ArrowRight className="h-4 w-4" />
             </Link>
           )}
         </div>
@@ -98,50 +102,50 @@ export default async function AccountingPage() {
         {!hasData ? (
           <div className="p-12 text-center text-muted-foreground">
             <Scale className="mx-auto mb-3 h-10 w-10" />
-            <p className="text-lg font-medium">No accounting data yet</p>
+            <p className="text-lg font-medium">{t('noAccounts')}</p>
             <p className="mt-1 text-sm">
-              Set up your chart of accounts and start recording journal entries.
+              {t('manageChartOfAccounts')}
             </p>
             <Link
               href="/accounting/chart-of-accounts"
               className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
             >
               <BookOpen className="h-4 w-4" />
-              Set Up Chart of Accounts
+              {t('chartOfAccounts')}
             </Link>
           </div>
         ) : (
           <div className="grid gap-4 p-6 sm:grid-cols-2 lg:grid-cols-5">
             <SummaryCard
-              label="Assets"
+              label={t('assets')}
               value={totals.assets}
               icon={<TrendingUp className="h-5 w-5" />}
               color="text-blue-600 dark:text-blue-400"
               bgColor="bg-blue-100 dark:bg-blue-900/30"
             />
             <SummaryCard
-              label="Liabilities"
+              label={t('liabilities')}
               value={totals.liabilities}
               icon={<TrendingDown className="h-5 w-5" />}
               color="text-red-600 dark:text-red-400"
               bgColor="bg-red-100 dark:bg-red-900/30"
             />
             <SummaryCard
-              label="Equity"
+              label={t('equity')}
               value={totals.equity}
               icon={<Scale className="h-5 w-5" />}
               color="text-purple-600 dark:text-purple-400"
               bgColor="bg-purple-100 dark:bg-purple-900/30"
             />
             <SummaryCard
-              label="Revenue"
+              label={t('revenue')}
               value={totals.revenue}
               icon={<Coins className="h-5 w-5" />}
               color="text-green-600 dark:text-green-400"
               bgColor="bg-green-100 dark:bg-green-900/30"
             />
             <SummaryCard
-              label="Expenses"
+              label={t('expenses')}
               value={totals.expenses}
               icon={<Receipt className="h-5 w-5" />}
               color="text-amber-600 dark:text-amber-400"

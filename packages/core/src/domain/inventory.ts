@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import Decimal from 'decimal.js';
 import { eq, and, asc, desc, sql } from 'drizzle-orm';
 import {
   warehouses,
@@ -314,7 +315,7 @@ export async function createStockMovement(
     .returning();
 
   // Update stock level (upsert)
-  const qty = parseFloat(validated.quantity);
+  const qty = new Decimal(validated.quantity);
   await db
     .insert(stockLevels)
     .values({
@@ -326,7 +327,7 @@ export async function createStockMovement(
     .onConflictDoUpdate({
       target: [stockLevels.productId, stockLevels.warehouseId],
       set: {
-        quantity: sql`CAST(${stockLevels.quantity} AS DECIMAL) + ${qty}`,
+        quantity: sql`CAST(${stockLevels.quantity} AS DECIMAL) + ${qty.toString()}`,
       },
     });
 
@@ -341,7 +342,10 @@ export async function createStockMovement(
   await db
     .update(products)
     .set({ stockQuantity: totalStock.total })
-    .where(eq(products.id, validated.productId));
+    .where(and(
+      eq(products.id, validated.productId),
+      eq(products.companyId, companyId)
+    ));
 
   return movement;
 }

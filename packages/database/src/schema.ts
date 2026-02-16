@@ -10,6 +10,7 @@ import {
   pgEnum,
   date,
   uniqueIndex,
+  index,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
@@ -79,6 +80,12 @@ export const priceRuleTypeEnum = pgEnum('price_rule_type', [
   'tiered',
 ]);
 
+export const recurringPeriodicityEnum = pgEnum('recurring_periodicity', [
+  'monthly',
+  'quarterly',
+  'annual',
+]);
+
 // ============================================================================
 // AUTH & COMPANIES
 // ============================================================================
@@ -108,6 +115,17 @@ export const users = pgTable('users', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
+
+export const passwordResetTokens = pgTable('password_reset_tokens', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  token: text('token').notNull().unique(),
+  expiresAt: timestamp('expires_at').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  tokenIdx: index('password_reset_tokens_token_idx').on(table.token),
+  userIdIdx: index('password_reset_tokens_user_id_idx').on(table.userId),
+}));
 
 // ============================================================================
 // CONTACTS (CUSTOMERS & VENDORS)
@@ -146,7 +164,11 @@ export const contacts = pgTable('contacts', {
   kivitendoId: integer('kivitendo_id'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
+}, (table) => ({
+  uniqueContactNumberPerCompany: uniqueIndex('unique_contact_number_per_company').on(table.companyId, table.contactNumber),
+  companyIdIdx: index('contacts_company_id_idx').on(table.companyId),
+  emailIdx: index('contacts_email_idx').on(table.email),
+}));
 
 export const contactAddresses = pgTable('contact_addresses', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -194,6 +216,7 @@ export const products = pgTable('products', {
   unitPrice: decimal('unit_price', { precision: 12, scale: 2 }).notNull(),
   purchasePrice: decimal('purchase_price', { precision: 12, scale: 2 }),
   currency: text('currency').default('CHF'),
+  // Default VAT rate (matches DEFAULT_VAT_RATE from @kivvi/core/src/config/vat-rates.ts)
   vatRate: decimal('vat_rate', { precision: 5, scale: 2 }).default('8.1'),
   unit: text('unit').default('piece'),
   // Dimensions & weight
@@ -212,7 +235,9 @@ export const products = pgTable('products', {
   kivitendoId: integer('kivitendo_id'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
+}, (table) => ({
+  companyIdIdx: index('products_company_id_idx').on(table.companyId),
+}));
 
 // ============================================================================
 // UNIFIED DOCUMENTS (quotes, orders, invoices, credit notes, etc.)
@@ -248,7 +273,13 @@ export const documents = pgTable('documents', {
   createdBy: uuid('created_by').references(() => users.id),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
+}, (table) => ({
+  companyIdIdx: index('documents_company_id_idx').on(table.companyId),
+  companyStatusIdx: index('documents_company_id_status_idx').on(table.companyId, table.status),
+  companyTypeIdx: index('documents_company_id_type_idx').on(table.companyId, table.type),
+  contactIdIdx: index('documents_contact_id_idx').on(table.contactId),
+  issueDateIdx: index('documents_issue_date_idx').on(table.issueDate),
+}));
 
 export const documentItems = pgTable('document_items', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -259,6 +290,7 @@ export const documentItems = pgTable('document_items', {
   quantity: decimal('quantity', { precision: 12, scale: 4 }).notNull(),
   unitPrice: decimal('unit_price', { precision: 12, scale: 2 }).notNull(),
   discount: decimal('discount', { precision: 5, scale: 2 }).default('0'), // Percentage
+  // Default VAT rate (matches DEFAULT_VAT_RATE from @kivvi/core/src/config/vat-rates.ts)
   vatRate: decimal('vat_rate', { precision: 5, scale: 2 }).default('8.1'),
   total: decimal('total', { precision: 12, scale: 2 }).notNull(),
 });
@@ -301,7 +333,10 @@ export const accounts = pgTable('accounts', {
   parentId: uuid('parent_id'),
   isActive: boolean('is_active').default(true),
   createdAt: timestamp('created_at').defaultNow().notNull(),
-});
+}, (table) => ({
+  companyIdIdx: index('accounts_company_id_idx').on(table.companyId),
+  codeIdx: index('accounts_code_idx').on(table.code),
+}));
 
 export const journalEntries = pgTable('journal_entries', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -375,7 +410,9 @@ export const bankTransactions = pgTable('bank_transactions', {
   reconciledDocumentId: uuid('reconciled_document_id').references(() => documents.id),
   reconciledAt: timestamp('reconciled_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
-});
+}, (table) => ({
+  bankAccountReconciledIdx: index('bank_transactions_bank_account_id_is_reconciled_idx').on(table.bankAccountId, table.isReconciled),
+}));
 
 // ============================================================================
 // INVENTORY
@@ -465,6 +502,30 @@ export const priceRules = pgTable('price_rules', {
 });
 
 // ============================================================================
+// RECURRING INVOICES
+// ============================================================================
+
+export const recurringInvoiceConfigs = pgTable('recurring_invoice_configs', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  companyId: uuid('company_id').references(() => companies.id).notNull(),
+  orderId: uuid('order_id').references(() => documents.id).notNull(),
+  isActive: boolean('is_active').default(true).notNull(),
+  periodicity: recurringPeriodicityEnum('periodicity').notNull(),
+  startDate: date('start_date').notNull(),
+  endDate: date('end_date'),
+  autoExtensionMonths: integer('auto_extension_months'),
+  lastGeneratedDate: date('last_generated_date'),
+  nextGenerationDate: date('next_generation_date').notNull(),
+  emailRecipients: text('email_recipients').array(),
+  notes: text('notes'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => ({
+  companyIdIdx: index('recurring_invoice_configs_company_id_idx').on(table.companyId),
+  nextGenerationIdx: index('recurring_invoice_configs_next_generation_idx').on(table.nextGenerationDate, table.isActive),
+}));
+
+// ============================================================================
 // AI CONVERSATIONS
 // ============================================================================
 
@@ -519,6 +580,7 @@ export const companiesRelations = relations(companies, ({ many }) => ({
   numberSequences: many(numberSequences),
   priceLists: many(priceLists),
   fiscalYears: many(fiscalYears),
+  recurringInvoiceConfigs: many(recurringInvoiceConfigs),
 }));
 
 export const usersRelations = relations(users, ({ one }) => ({
@@ -807,6 +869,17 @@ export const aiMessagesRelations = relations(aiMessages, ({ one }) => ({
   }),
 }));
 
+export const recurringInvoiceConfigsRelations = relations(recurringInvoiceConfigs, ({ one }) => ({
+  company: one(companies, {
+    fields: [recurringInvoiceConfigs.companyId],
+    references: [companies.id],
+  }),
+  order: one(documents, {
+    fields: [recurringInvoiceConfigs.orderId],
+    references: [documents.id],
+  }),
+}));
+
 // ============================================================================
 // TYPES (derived from schema)
 // ============================================================================
@@ -825,6 +898,14 @@ export interface CompanySettings {
   aiApiKey?: string; // encrypted
   onboardingCompletedAt?: string; // ISO date, null = not done
   onboardingStep?: number; // 1-4, for resume
+  dashboardPreferences?: {
+    layout?: 'default' | 'compact' | 'detailed';
+    visibleSections?: string[];
+    statsOrder?: string[];
+    chartTypes?: Record<string, 'bar' | 'line' | 'pie'>;
+    maxQuickActions?: number;
+    maxWorkflowSuggestions?: number;
+  };
 }
 
 // Inferred types from schema — use these throughout the app
@@ -859,9 +940,12 @@ export type FiscalYear = typeof fiscalYears.$inferSelect;
 export type FiscalPeriod = typeof fiscalPeriods.$inferSelect;
 export type PriceList = typeof priceLists.$inferSelect;
 export type PriceRule = typeof priceRules.$inferSelect;
+export type RecurringInvoiceConfig = typeof recurringInvoiceConfigs.$inferSelect;
+export type NewRecurringInvoiceConfig = typeof recurringInvoiceConfigs.$inferInsert;
 
 // Document type literals for type narrowing
 export type DocumentType = typeof documentTypeEnum.enumValues[number];
 export type DocumentStatus = typeof documentStatusEnum.enumValues[number];
 export type AccountType = typeof accountTypeEnum.enumValues[number];
 export type ContactType = typeof contactTypeEnum.enumValues[number];
+export type RecurringPeriodicity = typeof recurringPeriodicityEnum.enumValues[number];

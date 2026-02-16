@@ -7,10 +7,15 @@ import { detectOverdueInvoices, getDunningStats } from '@kivvi/core';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { StatusBadge } from '@/components/documents/status-badge';
 import { DunningButton } from './dunning-button';
+import { getTranslations } from 'next-intl/server';
 
 export default async function DunningPage() {
   const session = await auth();
   if (!session?.user?.companyId) redirect('/login');
+
+  const td = await getTranslations('dunning');
+  const t = await getTranslations('documents');
+  const tc = await getTranslations('common');
 
   const [overdueInvoices, stats] = await Promise.all([
     detectOverdueInvoices(db, session.user.companyId),
@@ -21,34 +26,34 @@ export default async function DunningPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Dunning</h1>
+        <h1 className="text-3xl font-bold">{td('title')}</h1>
         <p className="text-muted-foreground">
-          Manage overdue invoices and send payment reminders.
+          {td('subtitle')}
         </p>
       </div>
 
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          label="Total Overdue"
+          label={td('totalOverdue')}
           value={formatCurrency(stats.totalOverdueAmount)}
-          subtitle={`${stats.totalOverdue} invoices`}
+          subtitle={`${stats.totalOverdue} ${t('invoicePlural').toLowerCase()}`}
           alert
         />
         <StatCard
-          label="No Reminder"
+          label={td('noReminder')}
           value={String(stats.level0Count)}
-          subtitle="invoices"
+          subtitle={t('invoicePlural').toLowerCase()}
         />
         <StatCard
-          label="Dunning Level 1"
+          label={td('dunningLevel1')}
           value={String(stats.level1Count)}
-          subtitle="1st reminder sent"
+          subtitle={td('firstReminderSent')}
         />
         <StatCard
-          label="Dunning Level 2-3"
+          label={td('dunningLevel2to3')}
           value={String(stats.level2Count + stats.level3Count)}
-          subtitle="escalated"
+          subtitle={td('escalated')}
           alert={stats.level2Count + stats.level3Count > 0}
         />
       </div>
@@ -56,24 +61,24 @@ export default async function DunningPage() {
       {/* Overdue invoices table */}
       <div className="rounded-xl border bg-card">
         <div className="border-b p-4">
-          <h2 className="font-semibold">Overdue Invoices</h2>
+          <h2 className="font-semibold">{td('overdueInvoices')}</h2>
         </div>
 
         {overdueInvoices.length === 0 ? (
           <div className="p-12 text-center text-muted-foreground">
             <AlertTriangle className="mx-auto mb-3 h-10 w-10" />
-            <p className="text-lg font-medium">No overdue invoices</p>
-            <p className="mt-1 text-sm">All invoices are paid on time.</p>
+            <p className="text-lg font-medium">{td('noOverdueInvoices')}</p>
+            <p className="mt-1 text-sm">{td('allPaidOnTime')}</p>
           </div>
         ) : (
           <>
             <div className="hidden border-b px-4 py-3 text-sm font-medium text-muted-foreground sm:grid sm:grid-cols-[1fr_1.5fr_auto_auto_auto_auto]">
-              <span>Invoice</span>
-              <span>Customer</span>
-              <span className="text-right">Amount</span>
-              <span className="px-4 text-center">Days Overdue</span>
-              <span className="px-4 text-center">Level</span>
-              <span className="text-right">Action</span>
+              <span>{t('invoice')}</span>
+              <span>{t('customer')}</span>
+              <span className="text-right">{tc('amount')}</span>
+              <span className="px-4 text-center">{td('daysOverdue')}</span>
+              <span className="px-4 text-center">{td('level')}</span>
+              <span className="text-right">{td('action')}</span>
             </div>
 
             <div className="divide-y">
@@ -91,7 +96,7 @@ export default async function DunningPage() {
                     </Link>
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    {inv.contactName || 'No customer'}
+                    {inv.contactName || t('noCustomer')}
                   </div>
                   <div className="text-right font-medium">
                     {formatCurrency(Number(inv.total))}
@@ -115,7 +120,7 @@ export default async function DunningPage() {
                         currentLevel={inv.dunningLevel}
                       />
                     ) : (
-                      <span className="text-xs text-muted-foreground">Max level</span>
+                      <span className="text-xs text-muted-foreground">{td('maxLevel')}</span>
                     )}
                   </div>
                 </div>

@@ -1,5 +1,7 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
+
 interface OnboardingShellProps {
   currentStep: number;
   totalSteps: number;
@@ -7,9 +9,10 @@ interface OnboardingShellProps {
 }
 
 export function OnboardingShell({ currentStep, totalSteps, children }: OnboardingShellProps) {
+  const t = useTranslations('onboarding');
   const progress = Math.min((currentStep / totalSteps) * 100, 100);
 
-  const stepLabels = ['Company Info', 'Business Setup', 'Data Import'];
+  const stepLabels = [t('step1Title'), t('step2Title'), t('step3Title')];
 
   return (
     <div>

@@ -1,11 +1,14 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { ArrowLeft, Scale, FileText } from 'lucide-react';
+import { ArrowLeft, Scale, FileText, BookOpen } from 'lucide-react';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { getBalanceSheet } from '@kivvi/core';
 import { formatCurrency } from '@/lib/utils';
 import { DatePickerForm } from '../date-picker-form';
+import { ExportButton } from '../export-button';
+import { EmptyState } from '@/components/empty-state';
+import { getTranslations } from 'next-intl/server';
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -14,6 +17,10 @@ interface PageProps {
 export default async function BalanceSheetPage({ searchParams }: PageProps) {
   const session = await auth();
   if (!session?.user?.companyId) redirect('/login');
+
+  const t = await getTranslations('reports');
+  const tc = await getTranslations('common');
+  const ta = await getTranslations('accounting');
 
   const params = await searchParams;
   const asOfDate =
@@ -35,12 +42,21 @@ export default async function BalanceSheetPage({ searchParams }: PageProps) {
           className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
-          Back to Reports
+          {tc('back')} {t('title')}
         </Link>
-        <h1 className="text-3xl font-bold">Balance Sheet</h1>
-        <p className="text-muted-foreground">
-          Bilanz &mdash; Assets, liabilities, and equity as of a specific date.
-        </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold">{t('balanceSheet')}</h1>
+            <p className="text-muted-foreground">
+              {t('balanceSheetDesc')}
+            </p>
+          </div>
+          <ExportButton
+            reportType="balance-sheet"
+            asOfDate={asOfDate}
+            disabled={!hasData}
+          />
+        </div>
       </div>
 
       {/* Date Picker */}
@@ -49,70 +65,71 @@ export default async function BalanceSheetPage({ searchParams }: PageProps) {
       </div>
 
       {!hasData ? (
-        <div className="rounded-xl border bg-card p-12 text-center text-muted-foreground">
-          <FileText className="mx-auto mb-3 h-10 w-10" />
-          <p className="text-lg font-medium">No data available</p>
-          <p className="mt-1 text-sm">
-            There are no journal entries as of {asOfDate}. Try selecting a later
-            date.
-          </p>
-        </div>
+        <EmptyState
+          icon={BookOpen}
+          title={t('noDataAvailable')}
+          description={t('noJournalEntriesAsOf', { date: asOfDate })}
+          actionLabel={tc('viewAccounting')}
+          actionHref="/accounting"
+          secondaryActionLabel={tc('viewDashboard')}
+          secondaryActionHref="/dashboard"
+        />
       ) : (
         <>
           {/* Assets */}
           <BalanceSection
-            title="Assets"
-            subtitle="Aktiven"
+            title={ta('assets')}
             rows={report.assets}
             total={report.totalAssets}
             color="text-blue-600 dark:text-blue-400"
+            labels={{ account: ta('account'), name: tc('name'), balance: ta('balance'), total: tc('total'), noRecords: t('noDataAvailable') }}
           />
 
           {/* Liabilities */}
           <BalanceSection
-            title="Liabilities"
-            subtitle="Fremdkapital"
+            title={ta('liabilities')}
             rows={report.liabilities}
             total={report.totalLiabilities}
             color="text-red-600 dark:text-red-400"
+            labels={{ account: ta('account'), name: tc('name'), balance: ta('balance'), total: tc('total'), noRecords: t('noDataAvailable') }}
           />
 
           {/* Equity */}
           <BalanceSection
-            title="Equity"
-            subtitle="Eigenkapital"
+            title={ta('equity')}
             rows={report.equity}
             total={report.totalEquity}
             color="text-purple-600 dark:text-purple-400"
+            labels={{ account: ta('account'), name: tc('name'), balance: ta('balance'), total: tc('total'), noRecords: t('noDataAvailable') }}
           />
 
           {/* Balance Check */}
           <div className="rounded-xl border bg-card p-6">
-            <h2 className="mb-4 font-semibold">Balance Check</h2>
+            <h2 className="mb-4 font-semibold">{ta('balanceCheck')}</h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div className="rounded-lg border bg-background p-4">
-                <p className="text-sm text-muted-foreground">Total Assets</p>
+                <p className="text-sm text-muted-foreground">{t('totalAssets')}</p>
                 <p className="mt-1 text-xl font-bold text-blue-600 dark:text-blue-400">
                   {formatCurrency(report.totalAssets)}
                 </p>
               </div>
               <div className="rounded-lg border bg-background p-4">
                 <p className="text-sm text-muted-foreground">
-                  Total Liabilities
+                  {t('totalLiabilitiesAndEquity')}
                 </p>
                 <p className="mt-1 text-xl font-bold text-red-600 dark:text-red-400">
                   {formatCurrency(report.totalLiabilities)}
                 </p>
               </div>
               <div className="rounded-lg border bg-background p-4">
-                <p className="text-sm text-muted-foreground">Total Equity</p>
+                <p className="text-sm text-muted-foreground">{ta('equity')} {tc('total')}</p>
                 <p className="mt-1 text-xl font-bold text-purple-600 dark:text-purple-400">
                   {formatCurrency(report.totalEquity)}
                 </p>
               </div>
               <div className="rounded-lg border-2 border-primary/20 bg-primary/5 p-4">
                 <p className="text-sm font-medium text-muted-foreground">
-                  Retained Earnings
+                  {ta('retainedEarnings')}
                 </p>
                 <p
                   className={`mt-1 text-xl font-bold ${
@@ -126,10 +143,12 @@ export default async function BalanceSheetPage({ searchParams }: PageProps) {
               </div>
             </div>
             <div className="mt-4 rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
-              Total Assets ({formatCurrency(report.totalAssets)}) = Total
-              Liabilities ({formatCurrency(report.totalLiabilities)}) + Total
-              Equity ({formatCurrency(report.totalEquity)}) + Retained Earnings
-              ({formatCurrency(report.retainedEarnings)})
+              {t('balanceEquation', {
+                assets: formatCurrency(report.totalAssets),
+                liabilities: formatCurrency(report.totalLiabilities),
+                equity: formatCurrency(report.totalEquity),
+                earnings: formatCurrency(report.retainedEarnings),
+              })}
             </div>
           </div>
         </>
@@ -140,32 +159,31 @@ export default async function BalanceSheetPage({ searchParams }: PageProps) {
 
 function BalanceSection({
   title,
-  subtitle,
   rows,
   total,
   color,
+  labels,
 }: {
   title: string;
-  subtitle: string;
   rows: { accountCode: string; accountName: string; balance: number }[];
   total: number;
   color: string;
+  labels: { account: string; name: string; balance: string; total: string; noRecords: string };
 }) {
   return (
     <div className="rounded-xl border bg-card">
       <div className="flex items-center gap-2 border-b p-4">
         <Scale className="h-5 w-5 text-muted-foreground" />
         <h2 className="font-semibold">{title}</h2>
-        <span className="text-sm text-muted-foreground">({subtitle})</span>
       </div>
       {rows.length > 0 ? (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                <th className="px-6 py-3">Account</th>
-                <th className="px-6 py-3">Name</th>
-                <th className="px-6 py-3 text-right">Balance</th>
+                <th className="px-6 py-3">{labels.account}</th>
+                <th className="px-6 py-3">{labels.name}</th>
+                <th className="px-6 py-3 text-right">{labels.balance}</th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -184,7 +202,7 @@ function BalanceSection({
             <tfoot>
               <tr className="border-t-2 font-semibold">
                 <td className="px-6 py-3" colSpan={2}>
-                  Total {title}
+                  {labels.total} {title}
                 </td>
                 <td className={`px-6 py-3 text-right ${color}`}>
                   {formatCurrency(total)}
@@ -195,7 +213,7 @@ function BalanceSection({
         </div>
       ) : (
         <p className="p-6 text-sm text-muted-foreground">
-          No {title.toLowerCase()} recorded.
+          {labels.noRecords}
         </p>
       )}
     </div>

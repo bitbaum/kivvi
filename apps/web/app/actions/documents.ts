@@ -86,9 +86,7 @@ export async function createDocumentAction(
       };
     }
 
-    const doc = await db.transaction(async (tx) => {
-      return createDocument(tx, companyId, userId, parsed.data);
-    });
+    const doc = await createDocument(db, companyId, userId, parsed.data);
 
     revalidateDocumentPaths(doc.type, doc.id);
     return { success: true, data: { id: doc.id, number: doc.number } };
@@ -113,9 +111,7 @@ export async function updateDocumentAction(
       };
     }
 
-    const doc = await db.transaction(async (tx) => {
-      return updateDocument(tx, companyId, documentId, parsed.data);
-    });
+    const doc = await updateDocument(db, companyId, documentId, parsed.data);
 
     revalidateDocumentPaths(doc.type, doc.id);
     return { success: true, data: { id: doc.id } };
@@ -152,9 +148,7 @@ export async function updateDocumentStatusAction(
       return { success: false, error: 'Invalid status value' };
     }
 
-    const doc = await db.transaction(async (tx) => {
-      return updateDocumentStatus(tx, companyId, documentId, parsed.data.newStatus as DocumentStatus);
-    });
+    const doc = await updateDocumentStatus(db, companyId, documentId, parsed.data.newStatus as DocumentStatus);
 
     revalidateDocumentPaths(doc.type, doc.id);
     return { success: true, data: { id: doc.id, status: doc.status } };
@@ -182,9 +176,7 @@ export async function recordPaymentAction(
       return { success: false, error: `${firstError.path.join('.')}: ${firstError.message}` };
     }
 
-    const payment = await db.transaction(async (tx) => {
-      return recordPayment(tx, companyId, documentId, parsed.data);
-    });
+    const payment = await recordPayment(db, companyId, documentId, parsed.data);
 
     revalidateDocumentPaths('invoice', documentId);
     return { success: true, data: { id: payment.id } };
@@ -206,9 +198,7 @@ export async function convertDocumentAction(
       return { success: false, error: 'Invalid target document type' };
     }
 
-    const doc = await db.transaction(async (tx) => {
-      return convertDocument(tx, companyId, userId, sourceDocumentId, parsed.data.targetType as DocumentType);
-    });
+    const doc = await convertDocument(db, companyId, userId, sourceDocumentId, parsed.data.targetType as DocumentType);
 
     revalidateDocumentPaths(doc.type, doc.id);
     return { success: true, data: { id: doc.id, number: doc.number } };

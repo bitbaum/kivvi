@@ -1,6 +1,7 @@
 'use client';
 
 import { Check, AlertCircle, Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export interface ImportStatus {
   entityType: string;
@@ -16,6 +17,7 @@ interface ImportProgressProps {
 }
 
 export function ImportProgress({ statuses }: ImportProgressProps) {
+  const t = useTranslations('onboarding');
   return (
     <div className="space-y-3">
       {statuses.map((status) => (
@@ -47,8 +49,8 @@ export function ImportProgress({ statuses }: ImportProgressProps) {
           {/* Counts */}
           {status.state === 'done' && (
             <span className="text-xs text-muted-foreground">
-              {status.inserted} imported
-              {status.skipped ? `, ${status.skipped} skipped` : ''}
+              {t('imported', { count: status.inserted ?? 0 })}
+              {status.skipped ? `, ${t('skipped', { count: status.skipped })}` : ''}
             </span>
           )}
           {status.state === 'error' && status.errors?.[0] && (
