@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { Tool, ExecutionContext, ToolResult } from '../types';
 import { listContacts } from '@kivvi/core';
+import { getDb } from './utils';
 
 const searchCustomersSchema = z.object({
   query: z.string().optional().describe('Search query for customer name, email, or contact number'),
@@ -14,7 +15,7 @@ export const searchCustomersTool: Tool = {
   parameters: searchCustomersSchema,
   execute: async (params: z.infer<typeof searchCustomersSchema>, context: ExecutionContext): Promise<ToolResult> => {
     try {
-      const db = context.db as any;
+      const db = getDb(context);
 
       const result = await listContacts(db, context.companyId, {
         type: params.type,
@@ -22,7 +23,7 @@ export const searchCustomersTool: Tool = {
         pageSize: params.limit,
       });
 
-      const customerList = result.data.map((c: any) => ({
+      const customerList = result.data.map((c) => ({
         id: c.id,
         contactNumber: c.contactNumber,
         name: c.name,

@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { Tool, ExecutionContext, ToolResult } from '../types';
+import { getDb } from './utils';
 
 const documentItemSchema = z.object({
   description: z.string().describe('Line item description'),
@@ -29,7 +30,7 @@ export const createDocumentTool: Tool = {
     try {
       const { createDocument, getDocument } = await import('@kivvi/core');
 
-      const db = context.db as any;
+      const db = getDb(context);
 
       // Map tool params to CreateDocumentInput format (numbers → strings for domain function)
       const input = {

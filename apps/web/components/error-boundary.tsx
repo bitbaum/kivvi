@@ -1,6 +1,7 @@
 'use client';
 
 import { Component, type ReactNode } from 'react';
+import { useTranslations } from 'next-intl';
 import { AlertCircle } from 'lucide-react';
 
 interface Props {
@@ -13,6 +14,28 @@ interface State {
   error: Error | null;
 }
 
+function ErrorFallback() {
+  const t = useTranslations('common');
+
+  return (
+    <div className="flex min-h-[200px] items-center justify-center rounded-xl border border-red-200 bg-red-50 p-8 dark:border-red-900 dark:bg-red-900/10">
+      <div className="text-center">
+        <AlertCircle className="mx-auto h-12 w-12 text-red-600 dark:text-red-400" />
+        <h3 className="mt-4 font-semibold">{t('errorBoundaryTitle')}</h3>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {t('errorBoundaryMessage')}
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary/90"
+        >
+          {t('errorBoundaryReload')}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
@@ -23,7 +46,7 @@ export class ErrorBoundary extends Component<Props, State> {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: any) {
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('ErrorBoundary caught:', error, errorInfo);
   }
 
@@ -33,23 +56,7 @@ export class ErrorBoundary extends Component<Props, State> {
         return this.props.fallback;
       }
 
-      return (
-        <div className="flex min-h-[200px] items-center justify-center rounded-xl border border-red-200 bg-red-50 p-8 dark:border-red-900 dark:bg-red-900/10">
-          <div className="text-center">
-            <AlertCircle className="mx-auto h-12 w-12 text-red-600 dark:text-red-400" />
-            <h3 className="mt-4 font-semibold">Etwas ist schiefgelaufen</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Dieser Abschnitt konnte nicht geladen werden.
-            </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary/90"
-            >
-              Seite neu laden
-            </button>
-          </div>
-        </div>
-      );
+      return <ErrorFallback />;
     }
 
     return this.props.children;

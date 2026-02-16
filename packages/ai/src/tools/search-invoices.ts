@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { Tool, ExecutionContext, ToolResult } from '../types';
 import { listDocuments } from '@kivvi/core';
+import { getDb } from './utils';
 
 const searchInvoicesSchema = z.object({
   query: z.string().optional().describe('Search query for invoice number, customer name, or notes'),
@@ -18,7 +19,7 @@ export const searchInvoicesTool: Tool = {
   parameters: searchInvoicesSchema,
   execute: async (params: z.infer<typeof searchInvoicesSchema>, context: ExecutionContext): Promise<ToolResult> => {
     try {
-      const db = context.db as any;
+      const db = getDb(context);
 
       const result = await listDocuments(db, context.companyId, {
         type: 'invoice',
@@ -33,7 +34,7 @@ export const searchInvoicesTool: Tool = {
       let filteredData = result.data;
       if (params.query) {
         const queryLower = params.query.toLowerCase();
-        filteredData = result.data.filter((doc: any) => {
+        filteredData = result.data.filter((doc) => {
           const matchesNumber = doc.number.toLowerCase().includes(queryLower);
           const matchesCustomer = doc.contact?.name?.toLowerCase().includes(queryLower);
           const matchesNotes = doc.notes?.toLowerCase().includes(queryLower);
@@ -41,7 +42,7 @@ export const searchInvoicesTool: Tool = {
         });
       }
 
-      const invoiceList = filteredData.map((doc: any) => ({
+      const invoiceList = filteredData.map((doc) => ({
         id: doc.id,
         number: doc.number,
         customer: doc.contact?.name || 'Unknown',
@@ -60,8 +61,8 @@ export const searchInvoicesTool: Tool = {
         };
       }
 
-      const totalAmount = filteredData.reduce((sum: number, doc: any) => sum + Number(doc.total), 0);
-      const unpaidCount = filteredData.filter((doc: any) => doc.status !== 'paid').length;
+      const totalAmount = filteredData.reduce((sum, doc) => sum + Number(doc.total), 0 as number);
+      const unpaidCount = filteredData.filter((doc) => doc.status !== 'paid').length;
 
       return {
         success: true,

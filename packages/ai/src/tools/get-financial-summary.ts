@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { Tool, ExecutionContext, ToolResult } from '../types';
 import { getFinancialSummary } from '@kivvi/core';
+import { getDb } from './utils';
 
 const getFinancialSummarySchema = z.object({
   period: z.enum(['month', 'quarter', 'year']).optional().describe(
@@ -14,7 +15,7 @@ export const getFinancialSummaryTool: Tool = {
   parameters: getFinancialSummarySchema,
   execute: async (params: z.infer<typeof getFinancialSummarySchema>, context: ExecutionContext): Promise<ToolResult> => {
     try {
-      const db = context.db as any;
+      const db = getDb(context);
 
       const summary = await getFinancialSummary(db, context.companyId);
 

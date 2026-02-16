@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import { listDocuments } from '@kivvi/core';
 import { db } from '@/lib/db';
 import { formatCurrency, formatDate } from '@/lib/utils';
-import { toCamelCase } from '@/lib/config/document-types';
+import { toCamelCase, DEFAULT_PAGE_SIZE } from '@/lib/config/document-types';
 import { getTranslations } from 'next-intl/server';
 import type { DocumentStatus } from '@kivvi/database';
 
@@ -49,7 +49,7 @@ export default async function InvoicesPage({ searchParams }: PageProps) {
     status,
     search,
     page,
-    pageSize: 25,
+    pageSize: DEFAULT_PAGE_SIZE,
     sortBy: 'issueDate',
     sortOrder: 'desc',
   });

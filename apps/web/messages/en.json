@@ -54,7 +54,10 @@
     "optional": "(optional)",
     "pageOf": "Page {page} of {totalPages}",
     "showAdvanced": "Show advanced options",
-    "hideAdvanced": "Hide advanced options"
+    "hideAdvanced": "Hide advanced options",
+    "errorBoundaryTitle": "Something went wrong",
+    "errorBoundaryMessage": "This section could not be loaded.",
+    "errorBoundaryReload": "Reload page"
   },
   "nav": {
     "dashboard": "Dashboard",

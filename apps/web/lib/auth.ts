@@ -14,6 +14,7 @@ const loginSchema = z.object({
 });
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  // Justified: adapter type mismatch between @auth/drizzle-adapter and next-auth versions
   adapter: DrizzleAdapter(db) as any,
   session: { strategy: 'jwt' },
   pages: {

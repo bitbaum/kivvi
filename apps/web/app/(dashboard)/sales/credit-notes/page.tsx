@@ -2,7 +2,7 @@ import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { listDocuments } from '@kivvi/core';
 import { db } from '@/lib/db';
-import { DOCUMENT_TYPES } from '@/lib/config/document-types';
+import { DOCUMENT_TYPES, DEFAULT_PAGE_SIZE } from '@/lib/config/document-types';
 import { DocumentList } from '@/components/documents/document-list';
 import type { DocumentStatus } from '@kivvi/database';
 
@@ -22,7 +22,7 @@ export default async function CreditNotesPage({ searchParams }: PageProps) {
     status: params.status as DocumentStatus | undefined,
     search: params.search,
     page: parseInt(params.page || '1', 10),
-    pageSize: 25,
+    pageSize: DEFAULT_PAGE_SIZE,
   });
 
   return (

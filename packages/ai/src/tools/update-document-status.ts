@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { Tool, ExecutionContext, ToolResult } from '../types';
+import { getDb } from './utils';
 
 const updateDocumentStatusSchema = z.object({
   documentId: z.string().uuid().describe('The UUID of the document to update'),
@@ -18,7 +19,7 @@ export const updateDocumentStatusTool: Tool = {
     try {
       const { updateDocumentStatus, getDocument } = await import('@kivvi/core');
 
-      const db = context.db as any;
+      const db = getDb(context);
 
       // Get the document before update to capture previous status
       const docBefore = await getDocument(db, context.companyId, params.documentId);

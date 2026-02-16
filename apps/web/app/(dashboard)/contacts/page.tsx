@@ -6,6 +6,7 @@ import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { listContacts } from '@kivvi/core';
 import { cn } from '@/lib/utils';
+import { DEFAULT_PAGE_SIZE } from '@/lib/config/document-types';
 
 const TYPE_STYLES: Record<string, string> = {
   customer: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
@@ -39,7 +40,7 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
     search: search || undefined,
     type: typeFilter || undefined,
     page,
-    pageSize: 25,
+    pageSize: DEFAULT_PAGE_SIZE,
   });
 
   const TYPE_LABELS: Record<string, string> = {

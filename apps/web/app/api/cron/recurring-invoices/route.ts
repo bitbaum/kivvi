@@ -33,8 +33,6 @@ export async function GET(request: NextRequest) {
     // Process recurring invoices
     const result = await processRecurringInvoices(db);
 
-    console.log('Recurring invoices processed:', result);
-
     return NextResponse.json({
       success: true,
       processed: result.processed,

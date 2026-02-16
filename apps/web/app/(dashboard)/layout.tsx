@@ -53,7 +53,6 @@ export default function DashboardLayout({
       metaKey: true,
       callback: () => {
         // TODO: Implement command palette
-        console.log('Command palette not yet implemented');
       },
     },
     // /: Focus search

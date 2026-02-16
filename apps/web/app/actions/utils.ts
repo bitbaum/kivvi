@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import { auth } from '@/lib/auth';
 
 export interface ActionResult<T = unknown> {
@@ -54,7 +55,7 @@ export function safeErrorMessage(error: unknown, fallback: string): string {
  * Format Zod validation errors into field-specific error messages.
  * Returns both a general error message and a map of field errors.
  */
-export function formatZodError(error: any): { error: string; fieldErrors: Record<string, string[]> } {
+export function formatZodError(error: z.ZodError): { error: string; fieldErrors: Record<string, string[]> } {
   const fieldErrors = error.flatten().fieldErrors as Record<string, string[]>;
   const firstError = Object.values(fieldErrors)[0]?.[0];
   return {

@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
 import { listProducts } from '@kivvi/core';
 import { formatCurrency } from '@/lib/utils';
+import { DEFAULT_PAGE_SIZE } from '@/lib/config/document-types';
 
 const UNIT_LABELS: Record<string, string> = {
   piece: 'pc',
@@ -43,7 +44,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
     search: search || undefined,
     type: typeFilter || undefined,
     page,
-    pageSize: 25,
+    pageSize: DEFAULT_PAGE_SIZE,
     sortBy: 'createdAt',
     sortOrder: 'desc',
   });

@@ -54,7 +54,10 @@
     "optional": "(optional)",
     "pageOf": "Seite {page} von {totalPages}",
     "showAdvanced": "Erweiterte Optionen anzeigen",
-    "hideAdvanced": "Erweiterte Optionen ausblenden"
+    "hideAdvanced": "Erweiterte Optionen ausblenden",
+    "errorBoundaryTitle": "Etwas ist schiefgelaufen",
+    "errorBoundaryMessage": "Dieser Abschnitt konnte nicht geladen werden.",
+    "errorBoundaryReload": "Seite neu laden"
   },
   "nav": {
     "dashboard": "Übersicht",

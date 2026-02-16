@@ -37,6 +37,10 @@ coverage/
 # Drizzle
 drizzle/
 
+# TypeScript build cache
+tsconfig.tsbuildinfo
+*.tsbuildinfo
+
 # Vercel
 .vercel/
 .vercel

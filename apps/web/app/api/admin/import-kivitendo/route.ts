@@ -24,8 +24,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'companyId required' }, { status: 400 });
     }
 
-    console.log(`Starting import for company ${companyId}, entity: ${entityType}`);
-
     let result;
 
     if (entityType === 'customers') {
@@ -37,10 +35,10 @@ export async function POST(request: NextRequest) {
         skipEmptyLines: true,
         transformHeader: (header) => header.trim(),
       });
-      const records = parsed.data;
+      const records = parsed.data as Record<string, string>[];
 
       // Map to format expected by bulkInsertContacts
-      const mapped = records.slice(0, 100).map((row: any) => ({
+      const mapped = records.slice(0, 100).map((row) => ({
         contactNumber: row['Nummer'] || row['Kundennummer'],
         name: row['Firma/Kundenname'] || row['Name'],
         email: row['E-Mail'] || row['Email'],
@@ -52,7 +50,7 @@ export async function POST(request: NextRequest) {
         country: row['Land'] || 'CH',
       }));
 
-      result = await bulkInsertContacts(db as any, companyId, mapped);
+      result = await bulkInsertContacts(db, companyId, mapped);
     } else if (entityType === 'products') {
       // Import products
       const filePath = join(KIVITENDO_EXPORT_DIR, 'artikel_products.csv');
@@ -62,10 +60,10 @@ export async function POST(request: NextRequest) {
         skipEmptyLines: true,
         transformHeader: (header) => header.trim(),
       });
-      const records = parsed.data;
+      const records = parsed.data as Record<string, string>[];
 
       // Map to format expected by bulkInsertProducts
-      const mapped = records.slice(0, 100).map((row: any) => {
+      const mapped = records.slice(0, 100).map((row) => {
         const price = parseSwissNumber(row['Verkaufspreis'] || row['Listenpreis'] || '0');
         return {
           articleNumber: row['Artikelnummer'],
@@ -88,10 +86,10 @@ export async function POST(request: NextRequest) {
       const productGroupMap = new Map(productGroups.map((g) => [g.name, g.id]));
       const manufacturerMap = new Map(manufacturers.map((m) => [m.name, m.id]));
 
-      result = await bulkInsertProducts(db as any, companyId, mapped, productGroupMap, manufacturerMap);
+      result = await bulkInsertProducts(db, companyId, mapped, productGroupMap, manufacturerMap);
     } else if (entityType === 'sequences') {
       // Update number sequences
-      await updateSequencesAfterImport(db as any, companyId);
+      await updateSequencesAfterImport(db, companyId);
       result = { inserted: 0, skipped: 0, errors: [], message: 'Sequences updated' };
     } else {
       return NextResponse.json({ error: 'Invalid entityType' }, { status: 400 });
@@ -101,10 +99,9 @@ export async function POST(request: NextRequest) {
       success: true,
       result,
     });
-  } catch (error: any) {
-    console.error('Import error:', error);
+  } catch (error) {
     return NextResponse.json(
-      { error: error.message || 'Import failed' },
+      { error: error instanceof Error ? error.message : 'Import failed' },
       { status: 500 }
     );
   }

@@ -6,10 +6,11 @@ import { StatusBadge } from './status-badge';
 import type { DocumentTypeConfig } from '@/lib/config/document-types';
 import { getFilterStatuses, toCamelCase } from '@/lib/config/document-types';
 import type { PaginatedResult } from '@kivvi/core';
+import { getOverdueInfo, type DocumentListItem } from '@kivvi/core/src/domain/documents';
 
 interface DocumentListProps {
   config: DocumentTypeConfig;
-  result: PaginatedResult<any>;
+  result: PaginatedResult<DocumentListItem>;
   search?: string;
   status?: string;
 }
@@ -110,9 +111,8 @@ export async function DocumentList({ config, result, search, status }: DocumentL
             </div>
 
             <div className="divide-y">
-              {result.data.map((doc: any) => {
-                const isOverdue = config.hasPayments && doc.status !== 'paid' &&
-                  doc.status !== 'cancelled' && doc.dueDate && new Date(doc.dueDate) < new Date();
+              {result.data.map((doc) => {
+                const { isOverdue } = config.hasPayments ? getOverdueInfo(doc) : { isOverdue: false };
                 return (
                   <Link
                     key={doc.id}

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { Tool, ExecutionContext, ToolResult } from '../types';
 import { getDocument } from '@kivvi/core';
+import { getDb } from './utils';
 
 const getInvoiceDetailsSchema = z.object({
   invoiceId: z.string().uuid().describe('The UUID of the invoice to retrieve'),
@@ -12,7 +13,7 @@ export const getInvoiceDetailsTool: Tool = {
   parameters: getInvoiceDetailsSchema,
   execute: async (params: z.infer<typeof getInvoiceDetailsSchema>, context: ExecutionContext): Promise<ToolResult> => {
     try {
-      const db = context.db as any;
+      const db = getDb(context);
 
       const doc = await getDocument(db, context.companyId, params.invoiceId);
 
@@ -35,7 +36,7 @@ export const getInvoiceDetailsTool: Tool = {
         ? Math.floor((Date.now() - new Date(doc.dueDate).getTime()) / (1000 * 60 * 60 * 24))
         : 0;
 
-      const totalPaid = (doc.payments || []).reduce((sum: number, p: any) => sum + Number(p.amount), 0);
+      const totalPaid = (doc.payments || []).reduce((sum, p) => sum + Number(p.amount), 0 as number);
 
       return {
         success: true,
@@ -58,7 +59,7 @@ export const getInvoiceDetailsTool: Tool = {
           },
           isOverdue,
           daysOverdue,
-          items: (doc.items || []).map((item: any) => ({
+          items: (doc.items || []).map((item) => ({
             description: item.description,
             quantity: Number(item.quantity),
             unitPrice: Number(item.unitPrice),

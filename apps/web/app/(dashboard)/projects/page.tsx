@@ -7,6 +7,7 @@ import { listProjects } from '@kivvi/core';
 import { cn, formatCurrency, formatDate } from '@/lib/utils';
 import { getTranslations } from 'next-intl/server';
 import { PROJECT_STATUS_STYLES as STATUS_STYLES } from '@/lib/config/project-status';
+import { DEFAULT_PAGE_SIZE } from '@/lib/config/document-types';
 
 interface PageProps {
   searchParams: Promise<{
@@ -41,7 +42,7 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
     search: search || undefined,
     status: statusFilter || undefined,
     page,
-    pageSize: 25,
+    pageSize: DEFAULT_PAGE_SIZE,
   });
 
   return (

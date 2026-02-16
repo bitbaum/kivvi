@@ -6,12 +6,12 @@ import { useTranslations } from 'next-intl';
 import Decimal from 'decimal.js';
 import { ArrowLeft, Plus, Trash2, Search, UserPlus, GripVertical } from 'lucide-react';
 import Link from 'next/link';
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { createDocumentAction } from '@/app/actions/documents';
 import { searchContactsAction } from '@/app/actions/contacts';
-import { DOCUMENT_TYPES, type DocumentTypeConfig } from '@/lib/config/document-types';
+import { DOCUMENT_TYPES, DEFAULT_PAYMENT_TERMS_DAYS, type DocumentTypeConfig } from '@/lib/config/document-types';
 import { SWISS_VAT_RATES, DEFAULT_VAT_RATE } from '@/lib/config/vat-rates';
 import { QuickCreateContactModal } from '@/components/contacts/quick-create-modal';
 import { CharCountTextarea } from '@/components/ui/char-count-textarea';
@@ -66,8 +66,8 @@ interface SortableLineItemProps {
   updateItem: (id: string, field: keyof LineItem, value: string) => void;
   removeItem: (id: string) => void;
   canRemove: boolean;
-  t: any;
-  tc: any;
+  t: (key: string) => string;
+  tc: (key: string) => string;
 }
 
 function SortableLineItem({ item, index, updateItem, removeItem, canRemove, t, tc }: SortableLineItemProps) {
@@ -205,7 +205,7 @@ export function DocumentForm({ type }: DocumentFormProps) {
   const [issueDate, setIssueDate] = useState(new Date().toISOString().split('T')[0]);
   const [dueDate, setDueDate] = useState(
     config.hasDueDate
-      ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+      ? new Date(Date.now() + DEFAULT_PAYMENT_TERMS_DAYS * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
       : ''
   );
   const [deliveryDate, setDeliveryDate] = useState('');
@@ -222,10 +222,10 @@ export function DocumentForm({ type }: DocumentFormProps) {
   );
 
   // Handle drag end - reorder items
-  const handleDragEnd = (event: any) => {
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
-    if (active.id !== over.id) {
+    if (over && active.id !== over.id) {
       setItems((items) => {
         const oldIndex = items.findIndex((item) => item.id === active.id);
         const newIndex = items.findIndex((item) => item.id === over.id);
@@ -244,7 +244,7 @@ export function DocumentForm({ type }: DocumentFormProps) {
     }
     const result = await searchContactsAction(query);
     if (result.success && result.data) {
-      setContactResults(result.data as any);
+      setContactResults(result.data);
       setShowContactDropdown(true);
     }
   }, []);

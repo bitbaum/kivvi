@@ -1,5 +1,5 @@
-// @ts-nocheck
 import Anthropic from '@anthropic-ai/sdk';
+import { z } from 'zod';
 import type {
   AIProvider,
   AIModel,
@@ -82,9 +82,9 @@ export class AnthropicProvider implements AIProvider {
   }
 
   private formatMessages(messages: Message[]): Anthropic.MessageParam[] {
-    return (messages as any[])
+    return messages
       .filter((m) => m.role !== 'system')
-      .map((msg) => {
+      .map((msg): Anthropic.MessageParam => {
         if (msg.role === 'tool') {
           return {
             role: 'user' as const,
@@ -123,13 +123,11 @@ export class AnthropicProvider implements AIProvider {
               : msg.content.map((part) =>
                   part.type === 'text'
                     ? { type: 'text' as const, text: part.text! }
-                    : {
-                        type: 'image' as const,
-                        source: {
-                          type: 'url' as const,
-                          url: part.imageUrl!,
-                        },
-                      }
+                    : // Justified: Anthropic API accepts URL image sources, but SDK v0.24 types only include base64
+                      ({
+                        type: 'image',
+                        source: { type: 'url', url: part.imageUrl! },
+                      } as unknown as Anthropic.ImageBlockParam)
                 ),
         };
       });
@@ -146,50 +144,45 @@ export class AnthropicProvider implements AIProvider {
     };
   }
 
-  private zodToJsonSchema(schema: any): Record<string, unknown> {
-    // Simple Zod to JSON Schema conversion
-    // In production, use a library like zod-to-json-schema
-    if (schema._def) {
-      const def = schema._def;
-      if (def.typeName === 'ZodObject') {
-        const properties: Record<string, unknown> = {};
-        const required: string[] = [];
+  private zodToJsonSchema(schema: z.ZodTypeAny): Record<string, unknown> {
+    if (schema instanceof z.ZodObject) {
+      const properties: Record<string, unknown> = {};
+      const required: string[] = [];
 
-        for (const [key, value] of Object.entries(def.shape())) {
-          properties[key] = this.zodToJsonSchema(value as any);
-          if (!(value as any).isOptional?.()) {
-            required.push(key);
-          }
+      for (const [key, value] of Object.entries(schema.shape as z.ZodRawShape)) {
+        properties[key] = this.zodToJsonSchema(value);
+        if (!value.isOptional()) {
+          required.push(key);
         }
+      }
 
-        return {
-          type: 'object',
-          properties,
-          required: required.length > 0 ? required : undefined,
-        };
-      }
-      if (def.typeName === 'ZodString') {
-        return { type: 'string', description: def.description };
-      }
-      if (def.typeName === 'ZodNumber') {
-        return { type: 'number', description: def.description };
-      }
-      if (def.typeName === 'ZodBoolean') {
-        return { type: 'boolean', description: def.description };
-      }
-      if (def.typeName === 'ZodArray') {
-        return {
-          type: 'array',
-          items: this.zodToJsonSchema(def.type),
-          description: def.description,
-        };
-      }
-      if (def.typeName === 'ZodEnum') {
-        return { type: 'string', enum: def.values, description: def.description };
-      }
-      if (def.typeName === 'ZodOptional') {
-        return this.zodToJsonSchema(def.innerType);
-      }
+      return {
+        type: 'object',
+        properties,
+        required: required.length > 0 ? required : undefined,
+      };
+    }
+    if (schema instanceof z.ZodString) {
+      return { type: 'string', description: schema.description };
+    }
+    if (schema instanceof z.ZodNumber) {
+      return { type: 'number', description: schema.description };
+    }
+    if (schema instanceof z.ZodBoolean) {
+      return { type: 'boolean', description: schema.description };
+    }
+    if (schema instanceof z.ZodArray) {
+      return {
+        type: 'array',
+        items: this.zodToJsonSchema(schema.element),
+        description: schema.description,
+      };
+    }
+    if (schema instanceof z.ZodEnum) {
+      return { type: 'string', enum: schema.options, description: schema.description };
+    }
+    if (schema instanceof z.ZodOptional) {
+      return this.zodToJsonSchema(schema.unwrap());
     }
     return { type: 'string' };
   }
@@ -221,7 +214,7 @@ export class AnthropicProvider implements AIProvider {
     };
   }
 
-  private parseStreamEvent(event: any): StreamChunk | null {
+  private parseStreamEvent(event: Anthropic.RawMessageStreamEvent): StreamChunk | null {
     if (event.type === 'content_block_start') {
       if (event.content_block.type === 'text') {
         return { type: 'text', content: '' };

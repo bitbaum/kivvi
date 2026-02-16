@@ -107,8 +107,7 @@ export async function registerAction(
       success: true,
       data: result,
     };
-  } catch (error) {
-    console.error('Registration error:', error);
+  } catch {
     return {
       success: false,
       error: 'Failed to create account',

@@ -12,6 +12,7 @@ let _db: Database | null = null;
 export const db = new Proxy({} as Database, {
   get(_, prop) {
     if (!_db) _db = getDb();
+    // Justified: Proxy handler requires dynamic property access
     return (_db as any)[prop];
   },
 });

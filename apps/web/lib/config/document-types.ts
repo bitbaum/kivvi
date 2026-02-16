@@ -39,6 +39,16 @@ export interface StatusAction {
 }
 
 // ============================================================================
+// CONSTANTS
+// ============================================================================
+
+/** Default payment terms for new documents (in days) */
+export const DEFAULT_PAYMENT_TERMS_DAYS = 30;
+
+/** Default page size for list views */
+export const DEFAULT_PAGE_SIZE = 25;
+
+// ============================================================================
 // UTILITIES
 // ============================================================================
 

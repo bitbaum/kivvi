@@ -196,7 +196,6 @@ export async function exportReportAction(
       data: { csvData, filename },
     };
   } catch (error) {
-    console.error('Report export error:', error);
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Failed to export report',

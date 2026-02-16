@@ -3,7 +3,6 @@ import { NextResponse } from 'next/server';
 import { checkRateLimit, getRateLimitConfig } from '@/lib/rate-limit';
 
 // Only these routes are accessible without authentication
-// NOTE: /api/admin/bulk-import removed - use Server Action (apps/web/app/actions/bulk-import.ts) instead
 const PUBLIC_PATHS = ['/', '/login', '/register', '/forgot-password', '/reset-password', '/api/admin/verify-data', '/api/admin/search-test', '/api/admin/check-items', '/api/admin/test-parse'];
 const PUBLIC_PREFIXES = ['/api/auth', '/onboarding'];
 
@@ -37,12 +36,14 @@ export default auth((req) => {
 
   // Redirect authenticated users away from auth pages
   if (isAuthenticated && (pathname === '/login' || pathname === '/register')) {
+    // Justified: next-auth middleware types don't include custom session fields
     const onboardingComplete = (req.auth as any)?.user?.onboardingComplete;
     return NextResponse.redirect(new URL(onboardingComplete ? '/dashboard' : '/onboarding', req.url));
   }
 
   // Onboarding redirects for authenticated users
   if (isAuthenticated) {
+    // Justified: next-auth middleware types don't include custom session fields
     const onboardingComplete = (req.auth as any)?.user?.onboardingComplete;
     const isOnboardingPath = pathname.startsWith('/onboarding');
 

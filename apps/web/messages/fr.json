@@ -54,7 +54,10 @@
     "optional": "(optionnel)",
     "pageOf": "Page {page} sur {totalPages}",
     "showAdvanced": "Afficher les options avancées",
-    "hideAdvanced": "Masquer les options avancées"
+    "hideAdvanced": "Masquer les options avancées",
+    "errorBoundaryTitle": "Quelque chose s'est mal passé",
+    "errorBoundaryMessage": "Cette section n'a pas pu être chargée.",
+    "errorBoundaryReload": "Recharger la page"
   },
   "nav": {
     "dashboard": "Tableau de bord",

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { Tool, ExecutionContext, ToolResult } from '../types';
 import { listProducts } from '@kivvi/core';
+import { getDb } from './utils';
 
 const searchProductsSchema = z.object({
   query: z.string().optional().describe('Search query for product name, SKU, or article number'),
@@ -14,7 +15,7 @@ export const searchProductsTool: Tool = {
   parameters: searchProductsSchema,
   execute: async (params: z.infer<typeof searchProductsSchema>, context: ExecutionContext): Promise<ToolResult> => {
     try {
-      const db = context.db as any;
+      const db = getDb(context);
 
       const result = await listProducts(db, context.companyId, {
         type: params.type,
@@ -22,7 +23,7 @@ export const searchProductsTool: Tool = {
         pageSize: params.limit,
       });
 
-      const productList = result.data.map((p: any) => ({
+      const productList = result.data.map((p) => ({
         id: p.id,
         articleNumber: p.articleNumber || null,
         sku: p.sku || null,

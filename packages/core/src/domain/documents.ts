@@ -198,6 +198,39 @@ export function generateQRReference(companyId: string, documentNumber: string): 
 }
 
 // ============================================================================
+// RESULT TYPES
+// ============================================================================
+
+/** Return type of getDocument — document with all relations loaded */
+export type DocumentWithRelations = NonNullable<Awaited<ReturnType<typeof getDocument>>>;
+
+/** Single document row as returned in list queries */
+export type DocumentListItem = typeof documents.$inferSelect & { contact?: { id: string; name: string } | null };
+
+/**
+ * Calculate overdue status for a document.
+ * Business logic extracted from components to avoid duplication.
+ */
+export function getOverdueInfo(doc: { status: string; dueDate: Date | string | null }): {
+  isOverdue: boolean;
+  daysOverdue: number;
+} {
+  const isOverdue =
+    doc.status !== 'paid' &&
+    doc.status !== 'cancelled' &&
+    doc.status !== 'draft' &&
+    !!doc.dueDate &&
+    new Date(doc.dueDate) < new Date();
+
+  const daysOverdue =
+    isOverdue && doc.dueDate
+      ? Math.floor((Date.now() - new Date(doc.dueDate).getTime()) / (1000 * 60 * 60 * 24))
+      : 0;
+
+  return { isOverdue, daysOverdue };
+}
+
+// ============================================================================
 // FILTERS
 // ============================================================================
 
@@ -796,7 +829,7 @@ export async function convertDocument(
     // Copy items (in same transaction)
     if (source.items.length > 0) {
       await tx.insert(documentItems).values(
-        source.items.map((item: any) => ({
+        source.items.map((item) => ({
           documentId: newDoc.id,
           productId: item.productId,
           position: item.position,

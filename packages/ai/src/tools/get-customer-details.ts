@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { Tool, ExecutionContext, ToolResult } from '../types';
 import { getContact } from '@kivvi/core';
+import { getDb } from './utils';
 
 const getCustomerDetailsSchema = z.object({
   customerId: z.string().uuid().describe('The UUID of the customer/contact to retrieve'),
@@ -12,7 +13,7 @@ export const getCustomerDetailsTool: Tool = {
   parameters: getCustomerDetailsSchema,
   execute: async (params: z.infer<typeof getCustomerDetailsSchema>, context: ExecutionContext): Promise<ToolResult> => {
     try {
-      const db = context.db as any;
+      const db = getDb(context);
 
       const result = await getContact(db, context.companyId, params.customerId);
 
@@ -25,10 +26,10 @@ export const getCustomerDetailsTool: Tool = {
 
       const { contact, addresses, recentDocuments } = result;
 
-      const invoices = recentDocuments.filter((d: any) => d.type === 'invoice');
-      const totalRevenue = invoices.reduce((sum: number, inv: any) => sum + Number(inv.total), 0);
-      const unpaidInvoices = invoices.filter((inv: any) => inv.status !== 'paid' && inv.status !== 'cancelled');
-      const overdueInvoices = unpaidInvoices.filter((inv: any) => inv.issueDate && new Date(inv.issueDate) < new Date());
+      const invoices = recentDocuments.filter((d) => d.type === 'invoice');
+      const totalRevenue = invoices.reduce((sum, inv) => sum + Number(inv.total), 0 as number);
+      const unpaidInvoices = invoices.filter((inv) => inv.status !== 'paid' && inv.status !== 'cancelled');
+      const overdueInvoices = unpaidInvoices.filter((inv) => inv.issueDate && new Date(inv.issueDate) < new Date());
 
       return {
         success: true,
@@ -52,7 +53,7 @@ export const getCustomerDetailsTool: Tool = {
             postalCode: contact.postalCode,
             country: contact.country,
           },
-          additionalAddresses: addresses.map((a: any) => ({
+          additionalAddresses: addresses.map((a) => ({
             type: a.type,
             name: a.name,
             address: a.address,
@@ -72,7 +73,7 @@ export const getCustomerDetailsTool: Tool = {
             unpaidCount: unpaidInvoices.length,
             overdueCount: overdueInvoices.length,
           },
-          recentDocuments: recentDocuments.slice(0, 5).map((doc: any) => ({
+          recentDocuments: recentDocuments.slice(0, 5).map((doc) => ({
             id: doc.id,
             number: doc.number,
             type: doc.type,

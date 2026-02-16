@@ -10,32 +10,34 @@ import {
   updateProductSchema,
 } from '@kivvi/core';
 import { type ActionResult, getSession, safeErrorMessage } from './utils';
+import { parseFormData } from './parse-form-data';
 
 /**
- * Parse form data into a plain object, handling checkboxes and empty strings.
+ * Convert raw form data to product-specific input with correct types.
  */
 function parseProductFormData(formData: FormData) {
+  const raw = parseFormData(formData);
   return {
-    name: formData.get('name') as string,
-    description: (formData.get('description') as string) || null,
-    type: formData.get('type') as 'product' | 'service',
-    sku: (formData.get('sku') as string) || null,
-    ean: (formData.get('ean') as string) || null,
-    manufacturerId: (formData.get('manufacturerId') as string) || null,
-    productGroupId: (formData.get('productGroupId') as string) || null,
-    unitPrice: formData.get('unitPrice') as string,
-    purchasePrice: (formData.get('purchasePrice') as string) || null,
-    currency: (formData.get('currency') as string) || 'CHF',
-    vatRate: formData.get('vatRate') as string,
-    unit: (formData.get('unit') as string) || 'piece',
-    weight: (formData.get('weight') as string) || null,
-    width: (formData.get('width') as string) || null,
-    height: (formData.get('height') as string) || null,
-    depth: (formData.get('depth') as string) || null,
-    minStock: formData.get('minStock') ? Number(formData.get('minStock')) : null,
+    name: raw.name ?? '',
+    description: raw.description,
+    type: raw.type as 'product' | 'service',
+    sku: raw.sku,
+    ean: raw.ean,
+    manufacturerId: raw.manufacturerId,
+    productGroupId: raw.productGroupId,
+    unitPrice: raw.unitPrice ?? '0',
+    purchasePrice: raw.purchasePrice,
+    currency: raw.currency ?? 'CHF',
+    vatRate: raw.vatRate ?? '0',
+    unit: raw.unit ?? 'piece',
+    weight: raw.weight,
+    width: raw.width,
+    height: raw.height,
+    depth: raw.depth,
+    minStock: raw.minStock ? Number(raw.minStock) : null,
     serialNumberTracking: formData.get('serialNumberTracking') === 'on',
     shopVisible: formData.get('shopVisible') === 'on',
-    notes: (formData.get('notes') as string) || null,
+    notes: raw.notes,
   };
 }
 
@@ -61,7 +63,6 @@ export async function createProductAction(formData: FormData): Promise<ActionRes
 
     return { success: true, data: { id: product.id } };
   } catch (error) {
-    console.error('Failed to create product:', error);
     return {
       success: false,
       error: safeErrorMessage(error, 'Failed to create product'),
@@ -95,7 +96,6 @@ export async function updateProductAction(
 
     return { success: true, data: { id: product.id } };
   } catch (error) {
-    console.error('Failed to update product:', error);
     return {
       success: false,
       error: safeErrorMessage(error, 'Failed to update product'),
@@ -114,7 +114,6 @@ export async function deleteProductAction(productId: string): Promise<ActionResu
 
     return { success: true, data: { id: product.id } };
   } catch (error) {
-    console.error('Failed to delete product:', error);
     return {
       success: false,
       error: safeErrorMessage(error, 'Failed to delete product'),

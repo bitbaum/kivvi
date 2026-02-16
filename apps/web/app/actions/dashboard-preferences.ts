@@ -1,68 +1,32 @@
 'use server';
 
-import { db } from '@/lib/db';
-import { revalidatePath } from 'next/cache';
 import {
   getDashboardPreferences,
   updateDashboardPreferences,
   resetDashboardPreferences,
   type DashboardPreferences,
 } from '@kivvi/core/src/domain/dashboard-preferences';
-import { getSession, type ActionResult } from './utils';
+import { createAction } from './action-factory';
 
-/**
- * Get current dashboard preferences
- */
-export async function getDashboardPreferencesAction(): Promise<
-  ActionResult<DashboardPreferences>
-> {
-  try {
-    const { companyId } = await getSession();
-    const preferences = await getDashboardPreferences(db, companyId);
-    return { success: true, data: preferences };
-  } catch (error) {
-    console.error('Error getting dashboard preferences:', error);
-    return {
-      success: false,
-      error: 'Failed to load dashboard preferences',
-    };
-  }
-}
+export const getDashboardPreferencesAction = createAction<void, DashboardPreferences>({
+  handler: async (_input, { companyId, db }) => {
+    return getDashboardPreferences(db, companyId);
+  },
+  errorMessage: 'Failed to load dashboard preferences',
+});
 
-/**
- * Update dashboard preferences
- */
-export async function updateDashboardPreferencesAction(
-  preferences: Partial<DashboardPreferences>
-): Promise<ActionResult> {
-  try {
-    const { companyId } = await getSession();
+export const updateDashboardPreferencesAction = createAction<Partial<DashboardPreferences>, void>({
+  handler: async (preferences, { companyId, db }) => {
     await updateDashboardPreferences(db, companyId, preferences);
-    revalidatePath('/dashboard');
-    return { success: true };
-  } catch (error) {
-    console.error('Error updating dashboard preferences:', error);
-    return {
-      success: false,
-      error: 'Failed to save dashboard preferences',
-    };
-  }
-}
+  },
+  revalidate: ['/dashboard'],
+  errorMessage: 'Failed to save dashboard preferences',
+});
 
-/**
- * Reset dashboard preferences to defaults
- */
-export async function resetDashboardPreferencesAction(): Promise<ActionResult> {
-  try {
-    const { companyId } = await getSession();
+export const resetDashboardPreferencesAction = createAction<void, void>({
+  handler: async (_input, { companyId, db }) => {
     await resetDashboardPreferences(db, companyId);
-    revalidatePath('/dashboard');
-    return { success: true };
-  } catch (error) {
-    console.error('Error resetting dashboard preferences:', error);
-    return {
-      success: false,
-      error: 'Failed to reset dashboard preferences',
-    };
-  }
-}
+  },
+  revalidate: ['/dashboard'],
+  errorMessage: 'Failed to reset dashboard preferences',
+});

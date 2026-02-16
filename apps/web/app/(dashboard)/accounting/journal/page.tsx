@@ -6,6 +6,7 @@ import { db } from '@/lib/db';
 import { listJournalEntries } from '@kivvi/core';
 import { formatCurrency, formatDate, cn } from '@/lib/utils';
 import { getTranslations } from 'next-intl/server';
+import { DEFAULT_PAGE_SIZE } from '@/lib/config/document-types';
 
 const SOURCE_TYPE_STYLES: Record<string, string> = {
   manual: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400',
@@ -49,7 +50,7 @@ export default async function JournalPage({ searchParams }: PageProps) {
     dateFrom: dateFrom || undefined,
     dateTo: dateTo || undefined,
     page,
-    pageSize: 25,
+    pageSize: DEFAULT_PAGE_SIZE,
   });
 
   return (

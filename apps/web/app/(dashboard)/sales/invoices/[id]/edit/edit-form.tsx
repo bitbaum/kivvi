@@ -80,7 +80,7 @@ export function EditDocumentForm({ documentId, documentType, config, initialData
     }
     const result = await searchContactsAction(query);
     if (result.success && result.data) {
-      setContactResults(result.data as any);
+      setContactResults(result.data);
       setShowContactDropdown(true);
     }
   }, []);

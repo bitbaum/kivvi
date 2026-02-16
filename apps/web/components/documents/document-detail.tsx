@@ -8,9 +8,10 @@ import { DocumentDeleteButton } from './document-delete';
 import { SendEmailButton } from './send-email-dialog';
 import { PaymentForm } from './payment-form';
 import type { DocumentTypeConfig } from '@/lib/config/document-types';
+import { getOverdueInfo, type DocumentWithRelations } from '@kivvi/core/src/domain/documents';
 
 interface DocumentDetailProps {
-  doc: any;
+  doc: DocumentWithRelations;
   config: DocumentTypeConfig;
 }
 
@@ -19,14 +20,10 @@ export async function DocumentDetail({ doc, config }: DocumentDetailProps) {
   const tc = await getTranslations('common');
 
   const totalPaid = config.hasPayments
-    ? doc.payments?.reduce((sum: number, p: any) => sum + Number(p.amount), 0) || 0
+    ? doc.payments?.reduce((sum: number, p: { amount: string }) => sum + Number(p.amount), 0) || 0
     : 0;
   const outstanding = Number(doc.total) - totalPaid;
-  const isOverdue = config.hasPayments && doc.status !== 'paid' && doc.status !== 'cancelled' &&
-    doc.dueDate && new Date(doc.dueDate) < new Date();
-  const daysOverdue = isOverdue && doc.dueDate
-    ? Math.floor((Date.now() - new Date(doc.dueDate).getTime()) / (1000 * 60 * 60 * 24))
-    : 0;
+  const { isOverdue, daysOverdue } = config.hasPayments ? getOverdueInfo(doc) : { isOverdue: false, daysOverdue: 0 };
 
   return (
     <div className="space-y-6">
@@ -153,7 +150,7 @@ export async function DocumentDetail({ doc, config }: DocumentDetailProps) {
                   </tr>
                 </thead>
                 <tbody className="divide-y">
-                  {doc.items?.map((item: any, index: number) => (
+                  {doc.items?.map((item, index) => (
                     <tr key={item.id}>
                       <td className="px-4 py-3 text-muted-foreground">{index + 1}</td>
                       <td className="px-4 py-3">
@@ -234,7 +231,7 @@ export async function DocumentDetail({ doc, config }: DocumentDetailProps) {
                 <p className="text-sm text-muted-foreground">{t('noPaymentsYet')}</p>
               ) : (
                 <div className="space-y-3">
-                  {doc.payments.map((payment: any) => (
+                  {doc.payments.map((payment) => (
                     <div key={payment.id} className="flex items-start justify-between text-sm">
                       <div>
                         <p className="font-medium">{formatCurrency(Number(payment.amount))}</p>
