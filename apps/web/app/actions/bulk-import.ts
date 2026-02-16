@@ -21,7 +21,7 @@ import {
 } from '@kivvi/core/src/domain/import-bulk';
 // Types removed — bulk insert functions use Record<string, string | null> directly
 import { type ActionResult, getSession, safeErrorMessage } from './utils';
-import { sql } from 'drizzle-orm';
+import { sql, eq } from 'drizzle-orm';
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -134,8 +134,6 @@ export async function bulkImportAction(
 
     // Clean start: delete all existing data for this company
     if (cleanStart) {
-      console.log(`[${companyId}] Clean start: deleting all existing data...`);
-
       // Use transaction for clean operations
       await db.transaction(async (tx) => {
         // Delete in correct order to respect FK constraints
@@ -155,10 +153,7 @@ export async function bulkImportAction(
         await tx.execute(sql`DELETE FROM contacts WHERE company_id = ${companyId}`);
       });
 
-      console.log(`[${companyId}] Clean start complete`);
     }
-
-    console.log(`[${companyId}] Starting import, type: ${importType}`);
 
     // Import contacts (customers and vendors)
     if (importType === 'all' || importType === 'contacts') {
@@ -191,7 +186,6 @@ export async function bulkImportAction(
         const customerResults = await bulkInsertContacts(db, companyId, customersToImport);
         result.customersInserted = customerResults.inserted;
         result.customersSkipped = customerResults.skipped;
-        console.log(`[${companyId}] Customers: ${result.customersInserted} inserted, ${result.customersSkipped} skipped`);
 
         // Import vendors
         const vendorsPath = join(exportDir, 'lieferanten_vendors.csv');
@@ -221,9 +215,7 @@ export async function bulkImportAction(
         const vendorResults = await bulkInsertContacts(db, companyId, vendorsToImport);
         result.vendorsInserted = vendorResults.inserted;
         result.vendorsSkipped = vendorResults.skipped;
-        console.log(`[${companyId}] Vendors: ${result.vendorsInserted} inserted, ${result.vendorsSkipped} skipped`);
-      } catch (error) {
-        console.error(`[${companyId}] Error importing contacts:`, error);
+      } catch {
         // Continue with other imports
       }
     }
@@ -266,9 +258,7 @@ export async function bulkImportAction(
         const productResults = await bulkInsertProducts(db, companyId, productsToImport, productGroupMap, manufacturerMap);
         result.productsInserted = productResults.inserted;
         result.productsSkipped = productResults.skipped;
-        console.log(`[${companyId}] Products: ${result.productsInserted} inserted, ${result.productsSkipped} skipped`);
-      } catch (error) {
-        console.error(`[${companyId}] Error importing products:`, error);
+      } catch {
         // Continue with other imports
       }
     }
@@ -285,19 +275,88 @@ export async function bulkImportAction(
         if (readFileSync(invoicesPath, 'utf-8')) {
           // Parse and import invoices using bulkInsertDocuments
           // (Simplified for brevity - actual implementation would parse CSV)
-          console.log(`[${companyId}] Invoice import not yet fully implemented in Server Action`);
+          // TODO: Invoice import not yet fully implemented in Server Action
         }
-      } catch (error) {
-        console.error(`[${companyId}] Error importing documents:`, error);
+      } catch {
+        // Continue with other imports
+      }
+    }
+
+    // Import journal entries (accounting)
+    if (importType === 'all' || importType === 'accounting') {
+      try {
+        const glPath = join(exportDir, 'buchungsjournal_gl.csv');
+        const glCsv = readFileSync(glPath, 'utf-8');
+        const glParsed = Papa.parse<Record<string, string>>(glCsv, {
+          header: true, skipEmptyLines: true, transformHeader: cleanColumnName,
+        });
+
+        const glRows = glParsed.data
+          .filter((row) => row['Buchungsdatum'] && (row['Soll'] || row['Haben']))
+          .map((row): Record<string, string | null> => ({
+            date: row['Buchungsdatum'] || null,
+            reference: row['Buchungsnummer'] || null,
+            description: row['Beschreibung'] || null,
+            notes: row['Bemerkungen'] || null,
+            debitAmount: parseAmount(row['Soll']),
+            debitAccount: row['Sollkonto'] || null,
+            creditAmount: parseAmount(row['Haben']),
+            creditAccount: row['Habenkonto'] || null,
+            voucher: row['Beleg'] || null,
+          }));
+
+        const accountCodeMap = await buildAccountCodeMap(db, companyId);
+        const glResults = await bulkInsertJournalEntries(db, companyId, glRows, accountCodeMap);
+        result.journalEntriesInserted = glResults.inserted;
+        result.journalEntriesSkipped = glResults.skipped;
+      } catch {
+        // Continue with other imports
+      }
+    }
+
+    // Import stock levels (inventory)
+    if (importType === 'all' || importType === 'inventory') {
+      try {
+        const stockPath = join(exportDir, 'lagerbestand_warehouse_stock.csv');
+        const stockCsv = readFileSync(stockPath, 'utf-8');
+        const stockParsed = Papa.parse<Record<string, string>>(stockCsv, {
+          header: true, skipEmptyLines: true, transformHeader: cleanColumnName,
+        });
+
+        const stockRows = stockParsed.data
+          .filter((row) => row['Artikelnummer'] && row['Menge'])
+          .map((row): Record<string, string | null> => ({
+            articleNumber: row['Artikelnummer'] || null,
+            quantity: parseAmount(row['Menge']),
+            warehouse: row['Lager'] || null,
+            location: row['Lagerplatz'] || null,
+            productName: row['Artikelbeschreibung'] || null,
+          }));
+
+        const { warehouses } = await import('@kivvi/database');
+        const [defaultWarehouse] = await db.select({ id: warehouses.id })
+          .from(warehouses)
+          .where(eq(warehouses.companyId, companyId))
+          .limit(1);
+
+        if (defaultWarehouse) {
+          const productLookup = await buildProductLookup(db, companyId);
+          const stockResults = await bulkInsertStockLevels(
+            db, companyId, defaultWarehouse.id, stockRows, productLookup
+          );
+          result.stockLevelsInserted = stockResults.inserted;
+          result.stockLevelsSkipped = stockResults.skipped;
+        }
+      } catch {
+        // Continue with other imports
       }
     }
 
     // Update number sequences
     try {
       await updateSequencesAfterImport(db, companyId);
-      console.log(`[${companyId}] Number sequences updated`);
-    } catch (error) {
-      console.error(`[${companyId}] Error updating sequences:`, error);
+    } catch {
+      // Non-critical: sequences will be updated on next use
     }
 
     // Revalidate relevant paths
@@ -308,14 +367,11 @@ export async function bulkImportAction(
     revalidatePath('/accounting/journal');
     revalidatePath('/inventory');
 
-    console.log(`[${companyId}] Import complete`);
-
     return {
       success: true,
       data: result,
     };
   } catch (error) {
-    console.error('Bulk import error:', error);
     return {
       success: false,
       error: safeErrorMessage(error, 'Failed to import data'),

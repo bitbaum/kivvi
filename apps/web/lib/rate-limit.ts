@@ -76,7 +76,7 @@ export function checkRateLimit(
  * Get the rate limit config for a given pathname.
  */
 export function getRateLimitConfig(pathname: string): RateLimitConfig {
-  if (pathname.startsWith('/api/auth/register') || pathname === '/register') {
+  if (pathname === '/register') {
     return RATE_LIMITS.auth;
   }
   if (pathname === '/login' || pathname.startsWith('/api/auth/callback')) {

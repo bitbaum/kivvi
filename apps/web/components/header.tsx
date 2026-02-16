@@ -81,7 +81,7 @@ export function Header({ onMenuClick }: HeaderProps) {
             const formData = new FormData(e.currentTarget);
             const query = formData.get('search');
             if (query) {
-              router.push(`/search?q=${encodeURIComponent(query.toString())}`);
+              router.push(`/chat?q=${encodeURIComponent(query.toString())}`);
             }
           }}
           role="search"
@@ -142,15 +142,15 @@ export function Header({ onMenuClick }: HeaderProps) {
           )}
         </div>
 
-        {/* Notifications - NOW FUNCTIONAL */}
-        <Link
-          href="/notifications"
-          className="relative rounded-lg p-2 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          aria-label="Notifications (1 unread)"
+        {/* Notifications — disabled until notification system is implemented */}
+        <button
+          className="relative rounded-lg p-2 text-muted-foreground cursor-not-allowed"
+          aria-label="Notifications (coming soon)"
+          disabled
+          title="Coming soon"
         >
           <Bell className="h-5 w-5" />
-          <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-primary" aria-hidden="true" />
-        </Link>
+        </button>
 
         {/* User menu */}
         <div className="relative" ref={menuRef}>

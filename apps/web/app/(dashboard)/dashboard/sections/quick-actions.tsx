@@ -68,7 +68,7 @@ export function QuickActions() {
     },
     {
       label: t('importData'),
-      href: '/settings/import',
+      href: '/onboarding',
       icon: <Upload className="h-6 w-6" />,
       description: t('importDataDesc'),
     },

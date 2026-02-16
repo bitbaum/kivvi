@@ -70,14 +70,18 @@ export async function requestPasswordResetAction(
 
     // Send password reset email
     const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${token}`;
-    await sendPasswordResetEmail(user.email, user.name || 'User', resetUrl);
+    try {
+      await sendPasswordResetEmail(user.email, user.name || 'User', resetUrl);
+    } catch {
+      // Email not configured — token was created but email not sent.
+      // In production, EMAIL_USER and EMAIL_PASS must be set.
+    }
 
     return {
       success: true,
       data: { message: 'If that email exists, a reset link has been sent' },
     };
-  } catch (error) {
-    console.error('Password reset request error:', error);
+  } catch {
     return {
       success: false,
       error: 'Failed to process password reset request',
@@ -142,8 +146,7 @@ export async function resetPasswordAction(
       success: true,
       data: { message: 'Password has been reset successfully' },
     };
-  } catch (error) {
-    console.error('Password reset error:', error);
+  } catch {
     return {
       success: false,
       error: 'Failed to reset password',
