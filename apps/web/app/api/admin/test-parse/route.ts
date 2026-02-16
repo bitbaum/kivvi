@@ -3,6 +3,8 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import Papa from 'papaparse';
 
+export const dynamic = 'force-dynamic';
+
 function cleanColumnName(name: string) {
   if (!name) return name;
   return name.replace(/\uFEFF/g, '').trim();

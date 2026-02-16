@@ -12,6 +12,8 @@ import { parseSwissDate, parseSwissNumber } from '@kivvi/core/src/domain/import-
 import { eq } from 'drizzle-orm';
 import { productGroups as productGroupsSchema, manufacturers as manufacturersSchema } from '@kivvi/database/src/schema';
 
+export const dynamic = 'force-dynamic';
+
 const KIVITENDO_EXPORT_DIR = '/home/g/kivitendo-export';
 
 export async function POST(request: NextRequest) {

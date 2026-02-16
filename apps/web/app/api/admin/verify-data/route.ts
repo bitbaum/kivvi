@@ -3,6 +3,8 @@ import { db } from '@/lib/db';
 import { contacts, products, documents } from '@kivvi/database';
 import { sql, eq } from 'drizzle-orm';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const COMPANY_ID = 'f1e323f2-b1b6-4329-aaeb-642d0a90351f';

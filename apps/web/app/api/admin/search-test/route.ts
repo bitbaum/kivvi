@@ -3,6 +3,8 @@ import { db } from '@/lib/db';
 import { contacts, documents, documentItems } from '@kivvi/database';
 import { eq, and, like, or } from 'drizzle-orm';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   try {
     const { searchTerm, type } = await request.json();

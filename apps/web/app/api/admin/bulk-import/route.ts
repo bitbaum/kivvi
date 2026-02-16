@@ -17,6 +17,8 @@ import Papa from 'papaparse';
 import { contacts, products, documents, documentItems } from '@kivvi/database';
 import { eq, and, sql } from 'drizzle-orm';
 
+export const dynamic = 'force-dynamic';
+
 const KIVITENDO_EXPORT_DIR = '/home/g/kivitendo-export';
 
 function stripBom(str: string) {
