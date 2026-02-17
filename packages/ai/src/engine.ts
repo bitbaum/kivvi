@@ -114,38 +114,65 @@ export class ConversationEngine {
       content: userMessage,
     });
 
-    const stream = this.provider.streamChat({
-      model: this.model,
-      messages: state.messages,
-      tools: this.tools.length > 0 ? this.tools : undefined,
-      systemPrompt: this.systemPrompt,
-      temperature: 0.7,
-      maxTokens: 4096,
-    });
+    let iterations = 0;
 
-    let fullContent = '';
-    let currentToolCall: Partial<ToolCall> | null = null;
-    let toolCallJson = '';
+    while (iterations < this.maxIterations) {
+      iterations++;
 
-    for await (const chunk of stream) {
-      if (chunk.type === 'text') {
-        fullContent += chunk.content || '';
-        yield chunk;
-      } else if (chunk.type === 'tool_call_start') {
-        currentToolCall = chunk.toolCall || null;
-        toolCallJson = '';
-        yield chunk;
-      } else if (chunk.type === 'tool_call_delta') {
-        toolCallJson += chunk.content || '';
-      } else if (chunk.type === 'tool_call_end' && currentToolCall) {
-        try {
-          const args = JSON.parse(toolCallJson);
-          const toolCall: ToolCall = {
-            id: currentToolCall.id || crypto.randomUUID(),
-            name: currentToolCall.name || '',
-            arguments: args,
-          };
+      const stream = this.provider.streamChat({
+        model: this.model,
+        messages: state.messages,
+        tools: this.tools.length > 0 ? this.tools : undefined,
+        systemPrompt: this.systemPrompt,
+        temperature: 0.7,
+        maxTokens: 4096,
+      });
 
+      let fullContent = '';
+      let currentToolCall: Partial<ToolCall> | null = null;
+      let toolCallJson = '';
+      const pendingToolCalls: ToolCall[] = [];
+      let hadToolCalls = false;
+
+      for await (const chunk of stream) {
+        if (chunk.type === 'text') {
+          fullContent += chunk.content || '';
+          yield chunk;
+        } else if (chunk.type === 'tool_call_start') {
+          currentToolCall = chunk.toolCall || null;
+          toolCallJson = '';
+          hadToolCalls = true;
+          yield chunk;
+        } else if (chunk.type === 'tool_call_delta') {
+          toolCallJson += chunk.content || '';
+        } else if (chunk.type === 'tool_call_end' && currentToolCall) {
+          try {
+            const args = JSON.parse(toolCallJson);
+            const toolCall: ToolCall = {
+              id: currentToolCall.id || crypto.randomUUID(),
+              name: currentToolCall.name || '',
+              arguments: args,
+            };
+            pendingToolCalls.push(toolCall);
+          } catch (error) {
+            console.error('Failed to parse tool call:', error);
+          }
+          currentToolCall = null;
+        } else if (chunk.type === 'done') {
+          // Stream pass complete — handle tool calls or finalize
+        }
+      }
+
+      // If there were tool calls, execute them and add results to messages
+      if (hadToolCalls && pendingToolCalls.length > 0) {
+        // Add assistant message with tool calls to conversation
+        state.messages.push({
+          role: 'assistant',
+          content: fullContent || '',
+          toolCalls: pendingToolCalls,
+        });
+
+        for (const toolCall of pendingToolCalls) {
           const result = await this.executeTool(toolCall, state.context);
           yield { type: 'tool_result', toolName: toolCall.name, result };
 
@@ -154,20 +181,25 @@ export class ConversationEngine {
             toolCallId: toolCall.id,
             content: JSON.stringify(result),
           });
-        } catch (error) {
-          console.error('Failed to parse tool call:', error);
         }
-        currentToolCall = null;
-      } else if (chunk.type === 'done') {
-        if (fullContent) {
-          state.messages.push({
-            role: 'assistant',
-            content: fullContent,
-          });
-        }
-        yield chunk;
+
+        // Loop again — the provider will see the tool results and generate a text response
+        continue;
       }
+
+      // No tool calls — this is the final text response
+      if (fullContent) {
+        state.messages.push({
+          role: 'assistant',
+          content: fullContent,
+        });
+      }
+      yield { type: 'done' } as StreamChunk;
+      return;
     }
+
+    // Max iterations reached
+    yield { type: 'done' } as StreamChunk;
   }
 
   private async executeTool(

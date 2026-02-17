@@ -68,6 +68,7 @@ export abstract class OpenAICompatibleProvider implements AIProvider {
 
     const decoder = new TextDecoder();
     let buffer = '';
+    let hasActiveToolCall = false;
 
     while (true) {
       const { done, value } = await reader.read();
@@ -79,8 +80,13 @@ export abstract class OpenAICompatibleProvider implements AIProvider {
 
       for (const line of lines) {
         if (line.startsWith('data: ')) {
-          const data = line.slice(6);
+          const data = line.slice(6).trim();
           if (data === '[DONE]') {
+            // If a tool call was in progress, close it before done
+            if (hasActiveToolCall) {
+              yield { type: 'tool_call_end' };
+              hasActiveToolCall = false;
+            }
             yield { type: 'done' };
             continue;
           }
@@ -88,6 +94,7 @@ export abstract class OpenAICompatibleProvider implements AIProvider {
           try {
             const parsed = JSON.parse(data);
             const delta = parsed.choices?.[0]?.delta;
+            const finishReason = parsed.choices?.[0]?.finish_reason;
 
             if (delta?.content) {
               yield { type: 'text', content: delta.content };
@@ -96,6 +103,11 @@ export abstract class OpenAICompatibleProvider implements AIProvider {
             if (delta?.tool_calls) {
               for (const tc of delta.tool_calls) {
                 if (tc.function?.name) {
+                  // New tool call starting — close previous if any
+                  if (hasActiveToolCall) {
+                    yield { type: 'tool_call_end' };
+                  }
+                  hasActiveToolCall = true;
                   yield {
                     type: 'tool_call_start',
                     toolCall: { id: tc.id, name: tc.function.name },
@@ -107,8 +119,10 @@ export abstract class OpenAICompatibleProvider implements AIProvider {
               }
             }
 
-            if (parsed.choices?.[0]?.finish_reason === 'tool_calls') {
+            // Close tool call when finish_reason indicates completion
+            if (finishReason && hasActiveToolCall) {
               yield { type: 'tool_call_end' };
+              hasActiveToolCall = false;
             }
           } catch {
             // Skip invalid JSON
@@ -134,8 +148,9 @@ export abstract class OpenAICompatibleProvider implements AIProvider {
       if (msg.role === 'tool') {
         formatted.push({
           role: 'tool',
+          tool_call_id: msg.toolCallId,
           content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content),
-        });
+        } as any);
         continue;
       }
 
@@ -143,7 +158,15 @@ export abstract class OpenAICompatibleProvider implements AIProvider {
         formatted.push({
           role: 'assistant',
           content: msg.content as string || '',
-        });
+          tool_calls: msg.toolCalls.map((tc) => ({
+            id: tc.id,
+            type: 'function',
+            function: {
+              name: tc.name,
+              arguments: JSON.stringify(tc.arguments),
+            },
+          })),
+        } as any);
         continue;
       }
 
