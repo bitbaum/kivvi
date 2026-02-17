@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
-import { processRecurringInvoices } from '@kivvi/core';
+import { companies } from '@kivvi/database';
+import { processRecurringInvoices, type GeneratedInvoiceInfo } from '@kivvi/core';
+import {
+  buildInvoiceEmailHtml,
+  buildInvoiceEmailSubject,
+} from '@kivvi/core/src/domain/email';
+import { getTransporter, getFromEmail } from '@/lib/email/transporter';
+import { isEmailConfigured } from '@/lib/config/email';
 
 /**
  * Cron endpoint for processing recurring invoices.
@@ -30,8 +38,48 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Process recurring invoices
-    const result = await processRecurringInvoices(db);
+    // Process recurring invoices with email callback
+    const result = await processRecurringInvoices(db, {
+      onInvoiceGenerated: isEmailConfigured()
+        ? async (invoice: GeneratedInvoiceInfo, emailRecipients: string[]) => {
+            const transporter = getTransporter();
+
+            // Fetch company name and plan for email template
+            const [company] = await db
+              .select({ name: companies.name, settings: companies.settings })
+              .from(companies)
+              .where(eq(companies.id, invoice.companyId));
+
+            const companyName = company?.name || 'Kivvi';
+            const plan = company?.settings?.plan || 'free';
+
+            for (const recipient of emailRecipients) {
+              try {
+                const emailData = {
+                  recipientEmail: recipient,
+                  recipientName: invoice.contact?.name || 'Kunde',
+                  companyName,
+                  documentNumber: invoice.number,
+                  documentType: invoice.type,
+                  total: invoice.total,
+                  currency: invoice.currency,
+                  dueDate: invoice.dueDate || undefined,
+                  plan: plan as 'free' | 'premium',
+                };
+
+                await transporter.sendMail({
+                  from: `${companyName} <${getFromEmail()}>`,
+                  to: recipient,
+                  subject: buildInvoiceEmailSubject(emailData),
+                  html: buildInvoiceEmailHtml(emailData),
+                });
+              } catch (emailError) {
+                console.error(`Failed to send recurring invoice email to ${recipient}:`, emailError);
+              }
+            }
+          }
+        : undefined,
+    });
 
     return NextResponse.json({
       success: true,

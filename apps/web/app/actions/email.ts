@@ -1,7 +1,9 @@
 'use server';
 
 import { z } from 'zod';
+import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
+import { companies } from '@kivvi/database';
 import { getDocument } from '@kivvi/core';
 import {
   buildInvoiceEmailHtml,
@@ -52,21 +54,29 @@ export async function sendDocumentEmailAction(
 
     const transporter = getTransporter();
 
-    // Build email data
-    // TODO: get companyName from company settings once available
+    // Fetch company name and plan from DB
+    const [company] = await db
+      .select({ name: companies.name, settings: companies.settings })
+      .from(companies)
+      .where(eq(companies.id, companyId));
+
+    const companyName = company?.name || 'Kivvi';
+    const plan = company?.settings?.plan || 'free';
+
     const emailData = {
       recipientEmail: parsed.data.recipientEmail,
       recipientName: doc.contact?.name || 'Kunde',
-      companyName: 'Kivvi', // TODO: fetch from company settings
+      companyName,
       documentNumber: doc.number,
       documentType: doc.type,
       total: doc.total,
       currency: doc.currency,
       dueDate: doc.dueDate ? new Date(doc.dueDate).toISOString().split('T')[0] : undefined,
+      plan,
     };
 
     const info = await transporter.sendMail({
-      from: `${emailData.companyName} <${getFromEmail()}>`,
+      from: `${companyName} <${getFromEmail()}>`,
       to: parsed.data.recipientEmail,
       subject: buildInvoiceEmailSubject(emailData),
       html: buildInvoiceEmailHtml(emailData),

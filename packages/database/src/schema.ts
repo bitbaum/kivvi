@@ -58,14 +58,6 @@ export const accountTypeEnum = pgEnum('account_type', [
   'expense',
 ]);
 
-export const transactionTypeEnum = pgEnum('transaction_type', [
-  'invoice',
-  'payment',
-  'expense',
-  'transfer',
-  'adjustment',
-]);
-
 export const stockMovementTypeEnum = pgEnum('stock_movement_type', [
   'purchase',
   'sale',
@@ -180,7 +172,9 @@ export const contactAddresses = pgTable('contact_addresses', {
   postalCode: text('postal_code'),
   country: text('country').default('CH'),
   isDefault: boolean('is_default').default(false),
-});
+}, (table) => ({
+  contactIdIdx: index('contact_addresses_contact_id_idx').on(table.contactId),
+}));
 
 // ============================================================================
 // PRODUCTS & SERVICES
@@ -191,14 +185,18 @@ export const manufacturers = pgTable('manufacturers', {
   companyId: uuid('company_id').references(() => companies.id).notNull(),
   name: text('name').notNull(),
   website: text('website'),
-});
+}, (table) => ({
+  companyIdIdx: index('manufacturers_company_id_idx').on(table.companyId),
+}));
 
 export const productGroups = pgTable('product_groups', {
   id: uuid('id').primaryKey().defaultRandom(),
   companyId: uuid('company_id').references(() => companies.id).notNull(),
   name: text('name').notNull(),
   parentId: uuid('parent_id'), // Self-referencing for hierarchy
-});
+}, (table) => ({
+  companyIdIdx: index('product_groups_company_id_idx').on(table.companyId),
+}));
 
 export const products = pgTable('products', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -236,7 +234,8 @@ export const products = pgTable('products', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 }, (table) => ({
-  companyIdIdx: index('products_company_id_idx').on(table.companyId),
+  uniqueArticleNumberPerCompany: uniqueIndex('products_company_id_article_number_idx').on(table.companyId, table.articleNumber),
+  companyActiveIdx: index('products_company_active_idx').on(table.companyId, table.isActive),
 }));
 
 // ============================================================================
@@ -274,11 +273,14 @@ export const documents = pgTable('documents', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 }, (table) => ({
+  uniqueNumberPerCompanyType: uniqueIndex('documents_company_id_type_number_idx').on(table.companyId, table.type, table.number),
   companyIdIdx: index('documents_company_id_idx').on(table.companyId),
   companyStatusIdx: index('documents_company_id_status_idx').on(table.companyId, table.status),
   companyTypeIdx: index('documents_company_id_type_idx').on(table.companyId, table.type),
   contactIdIdx: index('documents_contact_id_idx').on(table.contactId),
   issueDateIdx: index('documents_issue_date_idx').on(table.issueDate),
+  projectIdIdx: index('documents_project_id_idx').on(table.projectId),
+  convertedFromIdIdx: index('documents_converted_from_id_idx').on(table.convertedFromId),
 }));
 
 export const documentItems = pgTable('document_items', {
@@ -293,7 +295,9 @@ export const documentItems = pgTable('document_items', {
   // Default VAT rate (matches DEFAULT_VAT_RATE from @kivvi/core/src/config/vat-rates.ts)
   vatRate: decimal('vat_rate', { precision: 5, scale: 2 }).default('8.1'),
   total: decimal('total', { precision: 12, scale: 2 }).notNull(),
-});
+}, (table) => ({
+  documentIdIdx: index('document_items_document_id_idx').on(table.documentId),
+}));
 
 export const documentPayments = pgTable('document_payments', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -303,7 +307,9 @@ export const documentPayments = pgTable('document_payments', {
   date: timestamp('date').notNull(),
   method: text('method').$type<'bank_transfer' | 'cash' | 'card' | 'other'>(),
   reference: text('reference'),
-});
+}, (table) => ({
+  documentIdIdx: index('document_payments_document_id_idx').on(table.documentId),
+}));
 
 // ============================================================================
 // NUMBER SEQUENCES
@@ -334,8 +340,8 @@ export const accounts = pgTable('accounts', {
   isActive: boolean('is_active').default(true),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 }, (table) => ({
+  uniqueCodePerCompany: uniqueIndex('accounts_company_id_code_idx').on(table.companyId, table.code),
   companyIdIdx: index('accounts_company_id_idx').on(table.companyId),
-  codeIdx: index('accounts_code_idx').on(table.code),
 }));
 
 export const journalEntries = pgTable('journal_entries', {
@@ -348,7 +354,10 @@ export const journalEntries = pgTable('journal_entries', {
   sourceId: uuid('source_id'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   createdBy: uuid('created_by').references(() => users.id),
-});
+}, (table) => ({
+  companyIdIdx: index('journal_entries_company_id_idx').on(table.companyId),
+  dateIdx: index('journal_entries_date_idx').on(table.date),
+}));
 
 export const journalLines = pgTable('journal_lines', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -357,7 +366,10 @@ export const journalLines = pgTable('journal_lines', {
   debit: decimal('debit', { precision: 12, scale: 2 }),
   credit: decimal('credit', { precision: 12, scale: 2 }),
   description: text('description'),
-});
+}, (table) => ({
+  journalEntryIdIdx: index('journal_lines_journal_entry_id_idx').on(table.journalEntryId),
+  accountIdIdx: index('journal_lines_account_id_idx').on(table.accountId),
+}));
 
 // ============================================================================
 // FISCAL YEARS & PERIODS
@@ -370,7 +382,9 @@ export const fiscalYears = pgTable('fiscal_years', {
   startDate: date('start_date').notNull(),
   endDate: date('end_date').notNull(),
   isClosed: boolean('is_closed').default(false),
-});
+}, (table) => ({
+  companyIdIdx: index('fiscal_years_company_id_idx').on(table.companyId),
+}));
 
 export const fiscalPeriods = pgTable('fiscal_periods', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -379,7 +393,9 @@ export const fiscalPeriods = pgTable('fiscal_periods', {
   startDate: date('start_date').notNull(),
   endDate: date('end_date').notNull(),
   isClosed: boolean('is_closed').default(false),
-});
+}, (table) => ({
+  fiscalYearIdIdx: index('fiscal_periods_fiscal_year_id_idx').on(table.fiscalYearId),
+}));
 
 // ============================================================================
 // BANKING
@@ -412,6 +428,7 @@ export const bankTransactions = pgTable('bank_transactions', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
 }, (table) => ({
   bankAccountReconciledIdx: index('bank_transactions_bank_account_id_is_reconciled_idx').on(table.bankAccountId, table.isReconciled),
+  dateIdx: index('bank_transactions_date_idx').on(table.date),
 }));
 
 // ============================================================================
@@ -424,7 +441,9 @@ export const warehouses = pgTable('warehouses', {
   name: text('name').notNull(),
   address: text('address'),
   isDefault: boolean('is_default').default(false),
-});
+}, (table) => ({
+  companyIdIdx: index('warehouses_company_id_idx').on(table.companyId),
+}));
 
 export const stockLevels = pgTable('stock_levels', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -445,7 +464,9 @@ export const stockMovements = pgTable('stock_movements', {
   reference: text('reference'),
   documentId: uuid('document_id').references(() => documents.id),
   createdAt: timestamp('created_at').defaultNow().notNull(),
-});
+}, (table) => ({
+  warehouseProductIdx: index('stock_movements_warehouse_product_idx').on(table.warehouseId, table.productId),
+}));
 
 export const serialNumbers = pgTable('serial_numbers', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -456,7 +477,10 @@ export const serialNumbers = pgTable('serial_numbers', {
   soldToContactId: uuid('sold_to_contact_id').references(() => contacts.id),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
+}, (table) => ({
+  uniqueSerialPerProduct: uniqueIndex('serial_numbers_product_id_serial_number_idx').on(table.productId, table.serialNumber),
+  productIdIdx: index('serial_numbers_product_id_idx').on(table.productId),
+}));
 
 // ============================================================================
 // PROJECTS
@@ -475,7 +499,9 @@ export const projects = pgTable('projects', {
   isActive: boolean('is_active').default(true),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
-});
+}, (table) => ({
+  companyIdIdx: index('projects_company_id_idx').on(table.companyId),
+}));
 
 // ============================================================================
 // PRICING
@@ -487,7 +513,9 @@ export const priceLists = pgTable('price_lists', {
   name: text('name').notNull(),
   currency: text('currency').default('CHF'),
   isDefault: boolean('is_default').default(false),
-});
+}, (table) => ({
+  companyIdIdx: index('price_lists_company_id_idx').on(table.companyId),
+}));
 
 export const priceRules = pgTable('price_rules', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -499,7 +527,9 @@ export const priceRules = pgTable('price_rules', {
   minQuantity: decimal('min_quantity', { precision: 12, scale: 4 }),
   validFrom: date('valid_from'),
   validTo: date('valid_to'),
-});
+}, (table) => ({
+  priceListIdIdx: index('price_rules_price_list_id_idx').on(table.priceListId),
+}));
 
 // ============================================================================
 // RECURRING INVOICES
@@ -548,7 +578,9 @@ export const aiMessages = pgTable('ai_messages', {
   model: text('model'),
   tokenCount: integer('token_count'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
-});
+}, (table) => ({
+  conversationIdIdx: index('ai_messages_conversation_id_idx').on(table.conversationId),
+}));
 
 export const aiActionAudit = pgTable('ai_action_audit', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -906,6 +938,7 @@ export interface CompanySettings {
     maxQuickActions?: number;
     maxWorkflowSuggestions?: number;
   };
+  plan?: 'free' | 'premium';
 }
 
 // Inferred types from schema — use these throughout the app

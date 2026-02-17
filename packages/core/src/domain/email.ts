@@ -12,6 +12,7 @@ export interface InvoiceEmailData {
   currency: string;
   dueDate?: string;
   pdfUrl?: string;
+  plan?: 'free' | 'premium';
 }
 
 // ============================================================================
@@ -191,6 +192,9 @@ export function buildPasswordResetEmailHtml(data: PasswordResetEmailData): strin
               <p style="margin: 0; font-size: 12px; color: #a1a1aa; line-height: 1.5;">
                 Diese E-Mail wurde automatisch von ${companyName} versendet.
               </p>
+              <p style="margin: 8px 0 0; font-size: 11px; color: #a1a1aa; line-height: 1.5;">
+                Versendet mit <a href="https://kivvi.ch" style="color: #2563eb; text-decoration: none;">Kivvi</a> — KI-gestützte ERP-Software für Schweizer Unternehmen
+              </p>
             </td>
           </tr>
         </table>
@@ -248,7 +252,10 @@ export function buildInvoiceEmailHtml(data: InvoiceEmailData): string {
             <td style="padding: 24px 40px; background-color: #fafafa; border-top: 1px solid #e4e4e7;">
               <p style="margin: 0; font-size: 12px; color: #a1a1aa; line-height: 1.5;">
                 Diese E-Mail wurde automatisch von ${data.companyName} versendet.
-              </p>
+              </p>${data.plan !== 'premium' ? `
+              <p style="margin: 8px 0 0; font-size: 11px; color: #a1a1aa; line-height: 1.5;">
+                Versendet mit <a href="https://kivvi.ch" style="color: #2563eb; text-decoration: none;">Kivvi</a> — KI-gestützte ERP-Software für Schweizer Unternehmen
+              </p>` : ''}
             </td>
           </tr>
         </table>

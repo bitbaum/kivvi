@@ -323,11 +323,26 @@ export interface ProcessResult {
   errors: Array<{ configId: string; error: string }>;
 }
 
+export interface GeneratedInvoiceInfo {
+  id: string;
+  number: string;
+  type: string;
+  total: string;
+  currency: string;
+  dueDate: string | null;
+  contact: { name: string; email: string | null } | null;
+  companyId: string;
+}
+
+export interface ProcessOptions {
+  onInvoiceGenerated?: (invoice: GeneratedInvoiceInfo, emailRecipients: string[]) => Promise<void>;
+}
+
 /**
  * Process all active recurring invoice configurations.
  * Called by cron job daily.
  */
-export async function processRecurringInvoices(db: Database): Promise<ProcessResult> {
+export async function processRecurringInvoices(db: Database, options?: ProcessOptions): Promise<ProcessResult> {
   const today = toISODate(new Date());
 
   // Find all active configs where nextGenerationDate <= today
@@ -441,10 +456,25 @@ export async function processRecurringInvoices(db: Database): Promise<ProcessRes
           eq(recurringInvoiceConfigs.companyId, config.companyId)
         ));
 
-      // TODO: Send email if recipients configured
-      if (config.emailRecipients && config.emailRecipients.length > 0 && config.order.contact) {
-        // Email sending will be implemented when email service is available
-        console.log(`TODO: Send invoice ${invoice.number} to`, config.emailRecipients);
+      // Send email if recipients configured and callback provided
+      if (options?.onInvoiceGenerated && config.emailRecipients && config.emailRecipients.length > 0) {
+        try {
+          await options.onInvoiceGenerated(
+            {
+              id: invoice.id,
+              number: invoice.number,
+              type: invoice.type,
+              total: invoice.total,
+              currency: invoice.currency,
+              dueDate: invoice.dueDate ? invoice.dueDate.toISOString().split('T')[0] : null,
+              contact: config.order.contact ? { name: config.order.contact.name, email: config.order.contact.email } : null,
+              companyId: config.companyId,
+            },
+            config.emailRecipients
+          );
+        } catch (emailError) {
+          console.error(`Failed to send email for invoice ${invoice.number}:`, emailError);
+        }
       }
 
       result.generated++;
