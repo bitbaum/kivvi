@@ -7,12 +7,7 @@ import { db } from '@/lib/db';
 import { listContacts } from '@kivvi/core';
 import { cn } from '@/lib/utils';
 import { DEFAULT_PAGE_SIZE } from '@/lib/config/document-types';
-
-const TYPE_STYLES: Record<string, string> = {
-  customer: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-  vendor: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
-  both: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
-};
+import { SelectableContactTable } from '@/components/contacts/selectable-contact-table';
 
 interface ContactsPageProps {
   searchParams: {
@@ -30,6 +25,7 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
 
   const t = await getTranslations('contacts');
   const tc = await getTranslations('common');
+  const tb = await getTranslations('bulkActions');
 
   const companyId = session.user.companyId;
   const search = searchParams.search || '';
@@ -43,7 +39,32 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
     pageSize: DEFAULT_PAGE_SIZE,
   });
 
-  const TYPE_LABELS: Record<string, string> = {
+  // Pre-resolve translations for client component
+  const bulkActionKeys = [
+    'selected', 'clearSelection', 'delete', 'deactivate',
+    'confirmTitle', 'confirmDelete', 'confirmDeactivate',
+    'cancel', 'processing', 'confirmAction',
+    'successAll', 'successPartial', 'failedAll',
+    'showErrors', 'hideErrors',
+  ];
+  const bulkLabels: Record<string, string> = {};
+  for (const key of bulkActionKeys) {
+    bulkLabels[key] = tb(key);
+  }
+
+  const columnLabels = {
+    number: tc('number'),
+    name: tc('name'),
+    type: tc('type'),
+    email: tc('email'),
+    phone: tc('phone'),
+    city: t('city'),
+    status: tc('status'),
+    active: tc('active'),
+    inactive: tc('inactive'),
+  };
+
+  const typeLabels: Record<string, string> = {
     customer: t('customer'),
     vendor: t('vendor'),
     both: t('both'),
@@ -79,7 +100,6 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
 
       {/* Filters */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-        {/* Search */}
         <form className="relative flex-1 sm:max-w-sm" action="/contacts" method="GET">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
@@ -94,7 +114,6 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
           )}
         </form>
 
-        {/* Type filter */}
         <div className="flex items-center gap-1 rounded-lg border bg-card p-1">
           <TypeFilterLink label={tc('all')} value="" current={typeFilter} search={search} />
           <TypeFilterLink label={t('customer')} value="customer" current={typeFilter} search={search} />
@@ -126,70 +145,22 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
           </div>
         ) : (
           <>
-            {/* Table header */}
-            <div className="grid grid-cols-[1fr_2fr_auto_1.5fr_1fr_1fr_auto] gap-4 border-b px-6 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              <div>{tc('number')}</div>
-              <div>{tc('name')}</div>
-              <div>{tc('type')}</div>
-              <div>{tc('email')}</div>
-              <div>{tc('phone')}</div>
-              <div>{t('city')}</div>
-              <div>{tc('status')}</div>
-            </div>
-
-            {/* Table rows */}
-            <div className="divide-y">
-              {result.data.map((contact) => (
-                <Link
-                  key={contact.id}
-                  href={`/contacts/${contact.id}`}
-                  className="grid grid-cols-[1fr_2fr_auto_1.5fr_1fr_1fr_auto] gap-4 px-6 py-4 transition-colors hover:bg-muted/50"
-                >
-                  <div className="text-sm font-mono text-muted-foreground">
-                    {contact.contactNumber || '-'}
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">{contact.name}</p>
-                    {(contact.firstName || contact.lastName) && (
-                      <p className="text-xs text-muted-foreground">
-                        {[contact.firstName, contact.lastName].filter(Boolean).join(' ')}
-                      </p>
-                    )}
-                  </div>
-                  <div>
-                    <span
-                      className={cn(
-                        'inline-block rounded-full px-2 py-0.5 text-xs font-medium',
-                        TYPE_STYLES[contact.type] || ''
-                      )}
-                    >
-                      {TYPE_LABELS[contact.type] || contact.type}
-                    </span>
-                  </div>
-                  <div className="truncate text-sm text-muted-foreground">
-                    {contact.email || '-'}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {contact.phone || contact.mobile || '-'}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {contact.city || '-'}
-                  </div>
-                  <div>
-                    <span
-                      className={cn(
-                        'inline-block rounded-full px-2 py-0.5 text-xs font-medium',
-                        contact.isActive
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                          : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
-                      )}
-                    >
-                      {contact.isActive ? tc('active') : tc('inactive')}
-                    </span>
-                  </div>
-                </Link>
-              ))}
-            </div>
+            <SelectableContactTable
+              data={result.data.map((c) => ({
+                id: c.id,
+                contactNumber: c.contactNumber,
+                name: c.name,
+                firstName: c.firstName,
+                lastName: c.lastName,
+                type: c.type,
+                email: c.email,
+                phone: c.phone,
+                mobile: c.mobile,
+                city: c.city,
+                isActive: c.isActive,
+              }))}
+              translations={{ columnLabels, typeLabels, bulkLabels }}
+            />
 
             {/* Pagination */}
             {result.totalPages > 1 && (

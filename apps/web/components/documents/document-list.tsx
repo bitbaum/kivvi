@@ -1,25 +1,56 @@
 import { FileText, Plus, Search } from 'lucide-react';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
-import { formatCurrency, formatDate } from '@/lib/utils';
-import { StatusBadge } from './status-badge';
 import type { DocumentTypeConfig } from '@/lib/config/document-types';
 import { getFilterStatuses, toCamelCase } from '@/lib/config/document-types';
 import type { PaginatedResult } from '@kivvi/core';
-import { getOverdueInfo, type DocumentListItem } from '@kivvi/core/src/domain/documents';
+import type { DocumentListItem } from '@kivvi/core/src/domain/documents';
+import { SelectableDocumentTable } from './selectable-document-table';
 
 interface DocumentListProps {
   config: DocumentTypeConfig;
   result: PaginatedResult<DocumentListItem>;
   search?: string;
   status?: string;
+  headerActions?: React.ReactNode;
 }
 
-export async function DocumentList({ config, result, search, status }: DocumentListProps) {
+export async function DocumentList({ config, result, search, status, headerActions }: DocumentListProps) {
   const t = await getTranslations('documents');
   const ts = await getTranslations('status');
   const tc = await getTranslations('common');
+  const tb = await getTranslations('bulkActions');
   const filterStatuses = getFilterStatuses(config.type);
+
+  // Pre-resolve translations for the client component
+  const allStatuses = ['draft', 'sent', 'confirmed', 'delivered', 'paid', 'partiallyPaid', 'overdue', 'cancelled', 'dunning1', 'dunning2', 'dunning3'];
+  const statusLabels: Record<string, string> = {};
+  for (const s of allStatuses) {
+    statusLabels[s] = ts(s);
+  }
+
+  // Pre-resolve bulk action labels
+  const bulkActionKeys = [
+    'selected', 'clearSelection', 'convertToOrder', 'convertToInvoice',
+    'convertToDeliveryNote', 'convertToCreditNote', 'convertToPurchaseInvoice',
+    'extendValidity', 'markAsSent', 'markDelivered', 'confirm', 'delete',
+    'days', 'confirmTitle', 'confirmMessage', 'cancel', 'processing',
+    'confirmAction', 'successAll', 'successPartial', 'failedAll',
+    'showErrors', 'hideErrors',
+  ];
+  const bulkLabels: Record<string, string> = {};
+  for (const key of bulkActionKeys) {
+    bulkLabels[key] = tb(key);
+  }
+
+  const columnLabels = {
+    number: tc('number'),
+    contact: config.contactFilter === 'vendor' ? t('vendor') : t('customer'),
+    total: tc('total'),
+    status: tc('status'),
+    date: tc('date'),
+    noContact: config.contactFilter === 'vendor' ? t('noVendor') : t('noCustomer'),
+  };
 
   return (
     <div className="space-y-6">
@@ -31,15 +62,18 @@ export async function DocumentList({ config, result, search, status }: DocumentL
             {t('manageAndTrack', { type: t(config.labelPlural) })}
           </p>
         </div>
-        {config.canCreate && (
-          <Link
-            href={`${config.basePath}/new`}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-          >
-            <Plus className="h-4 w-4" />
-            {t('newDocument', { type: t(config.label) })}
-          </Link>
-        )}
+        <div className="flex items-center gap-2">
+          {headerActions}
+          {config.canCreate && (
+            <Link
+              href={`${config.basePath}/new`}
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            >
+              <Plus className="h-4 w-4" />
+              {t('newDocument', { type: t(config.label) })}
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* Filters */}
@@ -101,44 +135,19 @@ export async function DocumentList({ config, result, search, status }: DocumentL
             )}
           </div>
         ) : (
-          <>
-            <div className="hidden border-b px-4 py-3 text-sm font-medium text-muted-foreground sm:grid sm:grid-cols-[1fr_1.5fr_auto_auto_auto]">
-              <span>{tc('number')}</span>
-              <span>{config.contactFilter === 'vendor' ? t('vendor') : t('customer')}</span>
-              <span className="text-right">{tc('total')}</span>
-              <span className="px-4 text-center">{tc('status')}</span>
-              <span className="text-right">{tc('date')}</span>
-            </div>
-
-            <div className="divide-y">
-              {result.data.map((doc) => {
-                const { isOverdue } = config.hasPayments ? getOverdueInfo(doc) : { isOverdue: false };
-                return (
-                  <Link
-                    key={doc.id}
-                    href={`${config.basePath}/${doc.id}`}
-                    className="flex flex-col gap-1 p-4 hover:bg-muted/50 sm:grid sm:grid-cols-[1fr_1.5fr_auto_auto_auto] sm:items-center sm:gap-4"
-                  >
-                    <div>
-                      <span className="font-medium">{doc.number}</span>
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {doc.contact?.name || (config.contactFilter === 'vendor' ? t('noVendor') : t('noCustomer'))}
-                    </div>
-                    <div className="text-right font-medium">
-                      {formatCurrency(Number(doc.total))}
-                    </div>
-                    <div className="px-4 text-center">
-                      <StatusBadge status={doc.status} isOverdue={!!isOverdue} />
-                    </div>
-                    <div className="text-right text-sm text-muted-foreground">
-                      {formatDate(doc.issueDate)}
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          </>
+          <SelectableDocumentTable
+            config={config}
+            data={result.data.map((doc) => ({
+              id: doc.id,
+              number: doc.number,
+              status: doc.status,
+              total: doc.total,
+              issueDate: doc.issueDate,
+              dueDate: doc.dueDate,
+              contact: doc.contact,
+            }))}
+            translations={{ statusLabels, columnLabels, bulkLabels }}
+          />
         )}
       </div>
 

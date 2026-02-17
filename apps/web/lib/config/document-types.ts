@@ -29,6 +29,8 @@ export interface DocumentTypeConfig {
   canCreate: boolean;
   /** Translation key within 'documents' namespace for the due/validity date field */
   dueDateLabel: string;
+  /** Bulk actions available on the list page */
+  bulkActions: BulkActionDef[];
 }
 
 export interface StatusAction {
@@ -36,6 +38,24 @@ export interface StatusAction {
   label: string;
   targetStatus: DocumentStatus;
   variant: 'primary' | 'default' | 'destructive';
+}
+
+export interface BulkActionDef {
+  /** Unique identifier, e.g. 'convert_to_invoice' */
+  id: string;
+  /** Translation key within 'bulkActions' namespace */
+  label: string;
+  /** Action type — dispatched to the correct server action */
+  action: 'convert' | 'status_change' | 'delete' | 'extend_validity' | 'dunning';
+  variant: 'default' | 'primary' | 'destructive';
+  /** Only show when all selected docs match one of these statuses */
+  applicableStatuses?: DocumentStatus[];
+  /** Target document type for convert actions */
+  targetType?: DocumentType;
+  /** Target status for status_change actions */
+  targetStatus?: DocumentStatus;
+  /** Show confirmation dialog before executing */
+  requiresConfirmation?: boolean;
 }
 
 // ============================================================================
@@ -130,6 +150,13 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
     hasPayments: false,
     canCreate: true,
     dueDateLabel: 'validUntil',
+    bulkActions: [
+      { id: 'convert_to_order', label: 'convertToOrder', action: 'convert', variant: 'default', targetType: 'order' },
+      { id: 'convert_to_invoice', label: 'convertToInvoice', action: 'convert', variant: 'primary', targetType: 'invoice' },
+      { id: 'extend_validity', label: 'extendValidity', action: 'extend_validity', variant: 'default' },
+      { id: 'mark_sent', label: 'markAsSent', action: 'status_change', variant: 'default', targetStatus: 'sent', applicableStatuses: ['draft'] },
+      { id: 'delete', label: 'delete', action: 'delete', variant: 'destructive', applicableStatuses: ['draft'], requiresConfirmation: true },
+    ],
   },
   order: {
     type: 'order',
@@ -145,6 +172,12 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
     hasPayments: false,
     canCreate: true,
     dueDateLabel: 'deliveryDate',
+    bulkActions: [
+      { id: 'convert_to_invoice', label: 'convertToInvoice', action: 'convert', variant: 'primary', targetType: 'invoice' },
+      { id: 'convert_to_delivery_note', label: 'convertToDeliveryNote', action: 'convert', variant: 'default', targetType: 'delivery_note' },
+      { id: 'mark_sent', label: 'markAsSent', action: 'status_change', variant: 'default', targetStatus: 'sent', applicableStatuses: ['draft'] },
+      { id: 'delete', label: 'delete', action: 'delete', variant: 'destructive', applicableStatuses: ['draft'], requiresConfirmation: true },
+    ],
   },
   order_confirmation: {
     type: 'order_confirmation',
@@ -167,6 +200,12 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
     hasPayments: false,
     canCreate: false,
     dueDateLabel: 'deliveryDate',
+    bulkActions: [
+      { id: 'convert_to_invoice', label: 'convertToInvoice', action: 'convert', variant: 'primary', targetType: 'invoice' },
+      { id: 'convert_to_delivery_note', label: 'convertToDeliveryNote', action: 'convert', variant: 'default', targetType: 'delivery_note' },
+      { id: 'mark_sent', label: 'markAsSent', action: 'status_change', variant: 'default', targetStatus: 'sent', applicableStatuses: ['draft'] },
+      { id: 'delete', label: 'delete', action: 'delete', variant: 'destructive', applicableStatuses: ['draft'], requiresConfirmation: true },
+    ],
   },
   delivery_note: {
     type: 'delivery_note',
@@ -189,6 +228,11 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
     hasPayments: false,
     canCreate: false,
     dueDateLabel: 'deliveryDate',
+    bulkActions: [
+      { id: 'mark_sent', label: 'markAsSent', action: 'status_change', variant: 'default', targetStatus: 'sent', applicableStatuses: ['draft'] },
+      { id: 'mark_delivered', label: 'markDelivered', action: 'status_change', variant: 'primary', targetStatus: 'delivered', applicableStatuses: ['sent'] },
+      { id: 'delete', label: 'delete', action: 'delete', variant: 'destructive', applicableStatuses: ['draft'], requiresConfirmation: true },
+    ],
   },
   invoice: {
     type: 'invoice',
@@ -204,6 +248,11 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
     hasPayments: true,
     canCreate: true,
     dueDateLabel: 'dueDate',
+    bulkActions: [
+      { id: 'mark_sent', label: 'markAsSent', action: 'status_change', variant: 'default', targetStatus: 'sent', applicableStatuses: ['draft'] },
+      { id: 'convert_to_credit_note', label: 'convertToCreditNote', action: 'convert', variant: 'default', targetType: 'credit_note' },
+      { id: 'delete', label: 'delete', action: 'delete', variant: 'destructive', applicableStatuses: ['draft'], requiresConfirmation: true },
+    ],
   },
   credit_note: {
     type: 'credit_note',
@@ -228,6 +277,10 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
     hasPayments: false,
     canCreate: false,
     dueDateLabel: 'dueDate',
+    bulkActions: [
+      { id: 'mark_sent', label: 'markAsSent', action: 'status_change', variant: 'default', targetStatus: 'sent', applicableStatuses: ['draft'] },
+      { id: 'delete', label: 'delete', action: 'delete', variant: 'destructive', applicableStatuses: ['draft'], requiresConfirmation: true },
+    ],
   },
   dunning: {
     type: 'dunning',
@@ -247,6 +300,9 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
     hasPayments: false,
     canCreate: false,
     dueDateLabel: 'dueDate',
+    bulkActions: [
+      { id: 'mark_sent', label: 'markAsSent', action: 'status_change', variant: 'default', targetStatus: 'sent', applicableStatuses: ['draft'] },
+    ],
   },
   purchase_order: {
     type: 'purchase_order',
@@ -262,6 +318,11 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
     hasPayments: false,
     canCreate: true,
     dueDateLabel: 'expectedDelivery',
+    bulkActions: [
+      { id: 'convert_to_purchase_invoice', label: 'convertToPurchaseInvoice', action: 'convert', variant: 'primary', targetType: 'purchase_invoice' },
+      { id: 'mark_sent', label: 'markAsSent', action: 'status_change', variant: 'default', targetStatus: 'sent', applicableStatuses: ['draft'] },
+      { id: 'delete', label: 'delete', action: 'delete', variant: 'destructive', applicableStatuses: ['draft'], requiresConfirmation: true },
+    ],
   },
   purchase_invoice: {
     type: 'purchase_invoice',
@@ -288,6 +349,10 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
     hasPayments: true,
     canCreate: true,
     dueDateLabel: 'dueDate',
+    bulkActions: [
+      { id: 'confirm', label: 'confirm', action: 'status_change', variant: 'primary', targetStatus: 'confirmed', applicableStatuses: ['draft'] },
+      { id: 'delete', label: 'delete', action: 'delete', variant: 'destructive', applicableStatuses: ['draft'], requiresConfirmation: true },
+    ],
   },
 };
 

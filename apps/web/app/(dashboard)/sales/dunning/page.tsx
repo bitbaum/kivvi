@@ -1,13 +1,11 @@
-import { AlertTriangle, Send } from 'lucide-react';
-import Link from 'next/link';
+import { AlertTriangle } from 'lucide-react';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
 import { detectOverdueInvoices, getDunningStats } from '@kivvi/core';
-import { formatCurrency, formatDate } from '@/lib/utils';
-import { StatusBadge } from '@/components/documents/status-badge';
-import { DunningButton } from './dunning-button';
+import { formatCurrency } from '@/lib/utils';
 import { getTranslations } from 'next-intl/server';
+import { SelectableDunningTable } from '@/components/dunning/selectable-dunning-table';
 
 export default async function DunningPage() {
   const session = await auth();
@@ -16,11 +14,47 @@ export default async function DunningPage() {
   const td = await getTranslations('dunning');
   const t = await getTranslations('documents');
   const tc = await getTranslations('common');
+  const ts = await getTranslations('status');
+  const tb = await getTranslations('bulkActions');
 
   const [overdueInvoices, stats] = await Promise.all([
     detectOverdueInvoices(db, session.user.companyId),
     getDunningStats(db, session.user.companyId),
   ]);
+
+  // Pre-resolve translations for client component
+  const allStatuses = ['draft', 'sent', 'confirmed', 'delivered', 'paid', 'partiallyPaid', 'overdue', 'cancelled', 'dunning1', 'dunning2', 'dunning3'];
+  const statusLabels: Record<string, string> = {};
+  for (const s of allStatuses) {
+    statusLabels[s] = ts(s);
+  }
+
+  const bulkActionKeys = [
+    'selected', 'clearSelection', 'sendDunning',
+    'processing', 'successAll', 'successPartial', 'failedAll',
+    'showErrors', 'hideErrors',
+  ];
+  const bulkLabels: Record<string, string> = {};
+  for (const key of bulkActionKeys) {
+    bulkLabels[key] = tb(key);
+  }
+
+  const columnLabels = {
+    invoice: t('invoice'),
+    customer: t('customer'),
+    amount: tc('amount'),
+    daysOverdue: td('daysOverdue'),
+    level: td('level'),
+    action: td('action'),
+    noCustomer: t('noCustomer'),
+    maxLevel: td('maxLevel'),
+  };
+
+  const dunningButtonLabels: Record<number, string> = {
+    0: td('sendReminder'),
+    1: td('send2ndReminder'),
+    2: td('sendFinalNotice'),
+  };
 
   return (
     <div className="space-y-6">
@@ -71,62 +105,18 @@ export default async function DunningPage() {
             <p className="mt-1 text-sm">{td('allPaidOnTime')}</p>
           </div>
         ) : (
-          <>
-            <div className="hidden border-b px-4 py-3 text-sm font-medium text-muted-foreground sm:grid sm:grid-cols-[1fr_1.5fr_auto_auto_auto_auto]">
-              <span>{t('invoice')}</span>
-              <span>{t('customer')}</span>
-              <span className="text-right">{tc('amount')}</span>
-              <span className="px-4 text-center">{td('daysOverdue')}</span>
-              <span className="px-4 text-center">{td('level')}</span>
-              <span className="text-right">{td('action')}</span>
-            </div>
-
-            <div className="divide-y">
-              {overdueInvoices.map((inv) => (
-                <div
-                  key={inv.id}
-                  className="flex flex-col gap-2 p-4 sm:grid sm:grid-cols-[1fr_1.5fr_auto_auto_auto_auto] sm:items-center sm:gap-4"
-                >
-                  <div>
-                    <Link
-                      href={`/sales/invoices/${inv.id}`}
-                      className="font-medium text-primary hover:underline"
-                    >
-                      {inv.number}
-                    </Link>
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {inv.contactName || t('noCustomer')}
-                  </div>
-                  <div className="text-right font-medium">
-                    {formatCurrency(Number(inv.total))}
-                  </div>
-                  <div className="px-4 text-center">
-                    <span className={`text-sm font-medium ${
-                      inv.daysOverdue > 60 ? 'text-red-600 dark:text-red-400' :
-                      inv.daysOverdue > 30 ? 'text-orange-600 dark:text-orange-400' :
-                      'text-yellow-600 dark:text-yellow-400'
-                    }`}>
-                      {inv.daysOverdue}d
-                    </span>
-                  </div>
-                  <div className="px-4 text-center">
-                    <StatusBadge status={inv.status} />
-                  </div>
-                  <div className="text-right">
-                    {inv.dunningLevel < 3 ? (
-                      <DunningButton
-                        invoiceId={inv.id}
-                        currentLevel={inv.dunningLevel}
-                      />
-                    ) : (
-                      <span className="text-xs text-muted-foreground">{td('maxLevel')}</span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </>
+          <SelectableDunningTable
+            data={overdueInvoices.map((inv) => ({
+              id: inv.id,
+              number: inv.number,
+              contactName: inv.contactName,
+              total: inv.total,
+              daysOverdue: inv.daysOverdue,
+              dunningLevel: inv.dunningLevel,
+              status: inv.status,
+            }))}
+            translations={{ columnLabels, statusLabels, dunningButtonLabels, bulkLabels }}
+          />
         )}
       </div>
     </div>

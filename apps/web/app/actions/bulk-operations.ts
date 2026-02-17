@@ -7,10 +7,16 @@ import { db } from '@/lib/db';
 import {
   convertDocument,
   updateDocument,
+  updateDocumentStatus,
+  deleteDocument,
   createDunning,
 } from '@kivvi/core';
+import { deleteContact } from '@kivvi/core/src/domain/contacts';
+import { deleteProduct } from '@kivvi/core/src/domain/products';
+import { contacts, products } from '@kivvi/database/src/schema';
+import { eq, and } from 'drizzle-orm';
 import { reconcileTransaction } from '@kivvi/core/src/domain/banking';
-import type { DocumentType } from '@kivvi/database';
+import type { DocumentType, DocumentStatus } from '@kivvi/database';
 import { type ActionResult, getSession, safeErrorMessage } from './utils';
 
 // ============================================================================
@@ -40,11 +46,41 @@ const bulkMatchTransactionsSchema = z.object({
   transactionIds: z.array(z.string().uuid()).min(1, 'At least one transaction ID is required'),
 });
 
+const documentStatusValues = [
+  'draft', 'sent', 'confirmed', 'delivered', 'paid', 'partially_paid',
+  'overdue', 'cancelled', 'dunning_1', 'dunning_2', 'dunning_3',
+] as const;
+
+const bulkStatusChangeSchema = z.object({
+  documentIds: z.array(z.string().uuid()).min(1, 'At least one document ID is required'),
+  targetStatus: z.enum(documentStatusValues),
+});
+
+const bulkDeleteDocumentsSchema = z.object({
+  documentIds: z.array(z.string().uuid()).min(1, 'At least one document ID is required'),
+});
+
+const bulkDeleteContactsSchema = z.object({
+  contactIds: z.array(z.string().uuid()).min(1, 'At least one contact ID is required'),
+});
+
+const bulkDeactivateContactsSchema = z.object({
+  contactIds: z.array(z.string().uuid()).min(1, 'At least one contact ID is required'),
+});
+
+const bulkDeleteProductsSchema = z.object({
+  productIds: z.array(z.string().uuid()).min(1, 'At least one product ID is required'),
+});
+
+const bulkDeactivateProductsSchema = z.object({
+  productIds: z.array(z.string().uuid()).min(1, 'At least one product ID is required'),
+});
+
 // ============================================================================
 // TYPES
 // ============================================================================
 
-interface BulkOperationResult<T = unknown> {
+export interface BulkOperationResult<T = unknown> {
   successCount: number;
   failureCount: number;
   results: Array<{ id: string; success: boolean; data?: T; error?: string }>;
@@ -428,5 +464,256 @@ export async function bulkMatchTransactionsAction(
     };
   } catch (error) {
     return { success: false, error: safeErrorMessage(error, 'Failed to bulk match transactions') };
+  }
+}
+
+/**
+ * Bulk change document status.
+ * Example: Mark multiple drafts as sent.
+ */
+export async function bulkStatusChangeAction(
+  input: unknown
+): Promise<ActionResult<BulkOperationResult>> {
+  try {
+    const { companyId } = await getSession();
+
+    const parsed = bulkStatusChangeSchema.safeParse(input);
+    if (!parsed.success) {
+      const firstError = parsed.error.errors[0];
+      return { success: false, error: `${firstError.path.join('.')}: ${firstError.message}` };
+    }
+
+    const { documentIds, targetStatus } = parsed.data;
+    const results: BulkOperationResult['results'] = [];
+
+    for (const docId of documentIds) {
+      try {
+        await updateDocumentStatus(db, companyId, docId, targetStatus as DocumentStatus);
+        results.push({ id: docId, success: true });
+      } catch (error) {
+        results.push({ id: docId, success: false, error: safeErrorMessage(error, 'Failed to update status') });
+      }
+    }
+
+    const successCount = results.filter((r) => r.success).length;
+    const failureCount = results.filter((r) => !r.success).length;
+
+    if (successCount > 0) {
+      revalidatePath('/');
+    }
+
+    return { success: true, data: { successCount, failureCount, results } };
+  } catch (error) {
+    return { success: false, error: safeErrorMessage(error, 'Failed to bulk update status') };
+  }
+}
+
+/**
+ * Bulk delete documents (draft-only enforced by domain).
+ */
+export async function bulkDeleteDocumentsAction(
+  input: unknown
+): Promise<ActionResult<BulkOperationResult>> {
+  try {
+    const { companyId } = await getSession();
+
+    const parsed = bulkDeleteDocumentsSchema.safeParse(input);
+    if (!parsed.success) {
+      const firstError = parsed.error.errors[0];
+      return { success: false, error: `${firstError.path.join('.')}: ${firstError.message}` };
+    }
+
+    const { documentIds } = parsed.data;
+    const results: BulkOperationResult['results'] = [];
+
+    for (const docId of documentIds) {
+      try {
+        await deleteDocument(db, companyId, docId);
+        results.push({ id: docId, success: true });
+      } catch (error) {
+        results.push({ id: docId, success: false, error: safeErrorMessage(error, 'Failed to delete document') });
+      }
+    }
+
+    const successCount = results.filter((r) => r.success).length;
+    const failureCount = results.filter((r) => !r.success).length;
+
+    if (successCount > 0) {
+      revalidatePath('/');
+    }
+
+    return { success: true, data: { successCount, failureCount, results } };
+  } catch (error) {
+    return { success: false, error: safeErrorMessage(error, 'Failed to bulk delete documents') };
+  }
+}
+
+/**
+ * Bulk delete contacts.
+ */
+export async function bulkDeleteContactsAction(
+  input: unknown
+): Promise<ActionResult<BulkOperationResult>> {
+  try {
+    const { companyId } = await getSession();
+
+    const parsed = bulkDeleteContactsSchema.safeParse(input);
+    if (!parsed.success) {
+      const firstError = parsed.error.errors[0];
+      return { success: false, error: `${firstError.path.join('.')}: ${firstError.message}` };
+    }
+
+    const { contactIds } = parsed.data;
+    const results: BulkOperationResult['results'] = [];
+
+    for (const contactId of contactIds) {
+      try {
+        await deleteContact(db, companyId, contactId);
+        results.push({ id: contactId, success: true });
+      } catch (error) {
+        results.push({ id: contactId, success: false, error: safeErrorMessage(error, 'Failed to delete contact') });
+      }
+    }
+
+    const successCount = results.filter((r) => r.success).length;
+    const failureCount = results.filter((r) => !r.success).length;
+
+    if (successCount > 0) {
+      revalidatePath('/contacts');
+    }
+
+    return { success: true, data: { successCount, failureCount, results } };
+  } catch (error) {
+    return { success: false, error: safeErrorMessage(error, 'Failed to bulk delete contacts') };
+  }
+}
+
+/**
+ * Bulk deactivate contacts.
+ */
+export async function bulkDeactivateContactsAction(
+  input: unknown
+): Promise<ActionResult<BulkOperationResult>> {
+  try {
+    const { companyId } = await getSession();
+
+    const parsed = bulkDeactivateContactsSchema.safeParse(input);
+    if (!parsed.success) {
+      const firstError = parsed.error.errors[0];
+      return { success: false, error: `${firstError.path.join('.')}: ${firstError.message}` };
+    }
+
+    const { contactIds } = parsed.data;
+    const results: BulkOperationResult['results'] = [];
+
+    for (const contactId of contactIds) {
+      try {
+        const [updated] = await db
+          .update(contacts)
+          .set({ isActive: false, updatedAt: new Date() })
+          .where(and(eq(contacts.id, contactId), eq(contacts.companyId, companyId)))
+          .returning();
+        if (!updated) throw new Error('Contact not found');
+        results.push({ id: contactId, success: true });
+      } catch (error) {
+        results.push({ id: contactId, success: false, error: safeErrorMessage(error, 'Failed to deactivate contact') });
+      }
+    }
+
+    const successCount = results.filter((r) => r.success).length;
+    const failureCount = results.filter((r) => !r.success).length;
+
+    if (successCount > 0) {
+      revalidatePath('/contacts');
+    }
+
+    return { success: true, data: { successCount, failureCount, results } };
+  } catch (error) {
+    return { success: false, error: safeErrorMessage(error, 'Failed to bulk deactivate contacts') };
+  }
+}
+
+/**
+ * Bulk delete products.
+ */
+export async function bulkDeleteProductsAction(
+  input: unknown
+): Promise<ActionResult<BulkOperationResult>> {
+  try {
+    const { companyId } = await getSession();
+
+    const parsed = bulkDeleteProductsSchema.safeParse(input);
+    if (!parsed.success) {
+      const firstError = parsed.error.errors[0];
+      return { success: false, error: `${firstError.path.join('.')}: ${firstError.message}` };
+    }
+
+    const { productIds } = parsed.data;
+    const results: BulkOperationResult['results'] = [];
+
+    for (const productId of productIds) {
+      try {
+        await deleteProduct(db, companyId, productId);
+        results.push({ id: productId, success: true });
+      } catch (error) {
+        results.push({ id: productId, success: false, error: safeErrorMessage(error, 'Failed to delete product') });
+      }
+    }
+
+    const successCount = results.filter((r) => r.success).length;
+    const failureCount = results.filter((r) => !r.success).length;
+
+    if (successCount > 0) {
+      revalidatePath('/products');
+    }
+
+    return { success: true, data: { successCount, failureCount, results } };
+  } catch (error) {
+    return { success: false, error: safeErrorMessage(error, 'Failed to bulk delete products') };
+  }
+}
+
+/**
+ * Bulk deactivate products.
+ */
+export async function bulkDeactivateProductsAction(
+  input: unknown
+): Promise<ActionResult<BulkOperationResult>> {
+  try {
+    const { companyId } = await getSession();
+
+    const parsed = bulkDeactivateProductsSchema.safeParse(input);
+    if (!parsed.success) {
+      const firstError = parsed.error.errors[0];
+      return { success: false, error: `${firstError.path.join('.')}: ${firstError.message}` };
+    }
+
+    const { productIds } = parsed.data;
+    const results: BulkOperationResult['results'] = [];
+
+    for (const productId of productIds) {
+      try {
+        const [updated] = await db
+          .update(products)
+          .set({ isActive: false, updatedAt: new Date() })
+          .where(and(eq(products.id, productId), eq(products.companyId, companyId)))
+          .returning();
+        if (!updated) throw new Error('Product not found');
+        results.push({ id: productId, success: true });
+      } catch (error) {
+        results.push({ id: productId, success: false, error: safeErrorMessage(error, 'Failed to deactivate product') });
+      }
+    }
+
+    const successCount = results.filter((r) => r.success).length;
+    const failureCount = results.filter((r) => !r.success).length;
+
+    if (successCount > 0) {
+      revalidatePath('/products');
+    }
+
+    return { success: true, data: { successCount, failureCount, results } };
+  } catch (error) {
+    return { success: false, error: safeErrorMessage(error, 'Failed to bulk deactivate products') };
   }
 }
