@@ -20,13 +20,15 @@ interface ModelSelectorProps {
 }
 
 const providerIcons: Record<string, typeof Cloud> = {
-  xai: Zap,
+  groq: Zap,
+  xai: Cpu,
   openrouter: Cloud,
   ollama: Server,
   anthropic: Sparkles,
 };
 
 const providerLabels: Record<string, string> = {
+  groq: 'Groq',
   xai: 'xAI (Grok)',
   openrouter: 'OpenRouter',
   ollama: 'Local (Ollama)',

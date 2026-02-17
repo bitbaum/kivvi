@@ -10,6 +10,7 @@ export async function GET() {
   }
 
   const providers = getProviderAvailability({
+    GROQ_API_KEY: process.env.GROQ_API_KEY,
     XAI_API_KEY: process.env.XAI_API_KEY,
     OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
     ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,

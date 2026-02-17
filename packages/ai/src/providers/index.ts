@@ -1,4 +1,5 @@
 export { AnthropicProvider } from './anthropic';
+export { GroqProvider } from './groq';
 export { OllamaProvider } from './ollama';
 export { OpenRouterProvider } from './openrouter';
 export { XaiProvider } from './xai';
@@ -6,11 +7,12 @@ export { OpenAICompatibleProvider } from './openai-compatible';
 
 import type { AIProvider } from '../types';
 import { AnthropicProvider } from './anthropic';
+import { GroqProvider } from './groq';
 import { OllamaProvider } from './ollama';
 import { OpenRouterProvider } from './openrouter';
 import { XaiProvider } from './xai';
 
-export type ProviderType = 'anthropic' | 'openrouter' | 'ollama' | 'xai';
+export type ProviderType = 'anthropic' | 'groq' | 'openrouter' | 'ollama' | 'xai';
 
 export interface ProviderConfig {
   type: ProviderType;
@@ -29,6 +31,7 @@ export interface ModelConfig {
 
 // All available models across providers
 export function getAllModels(): ModelConfig[] {
+  const groq = new GroqProvider('');
   const xai = new XaiProvider('');
   const anthropic = new AnthropicProvider('');
   const openrouter = new OpenRouterProvider('');
@@ -36,7 +39,18 @@ export function getAllModels(): ModelConfig[] {
 
   const models: ModelConfig[] = [];
 
-  // xAI free models first
+  // Groq free models first (fastest inference)
+  for (const model of groq.models) {
+    models.push({
+      providerId: 'groq',
+      modelId: model.id,
+      name: model.name,
+      isFree: true,
+      supportsTools: model.supportsTools,
+    });
+  }
+
+  // xAI free models
   for (const model of xai.models) {
     if (model.costPer1kInput === 0) {
       models.push({
@@ -115,6 +129,10 @@ export function getAllModels(): ModelConfig[] {
 
 export async function createProvider(config: ProviderConfig): Promise<AIProvider> {
   switch (config.type) {
+    case 'groq':
+      if (!config.apiKey) throw new Error('Groq API key required');
+      return new GroqProvider(config.apiKey);
+
     case 'xai':
       if (!config.apiKey) throw new Error('xAI API key required');
       return new XaiProvider(config.apiKey);
@@ -152,6 +170,7 @@ export interface ProviderAvailability {
  * Check which providers are available (have API keys or are reachable).
  */
 export function getProviderAvailability(env: {
+  GROQ_API_KEY?: string;
   XAI_API_KEY?: string;
   OPENROUTER_API_KEY?: string;
   ANTHROPIC_API_KEY?: string;
@@ -160,6 +179,12 @@ export function getProviderAvailability(env: {
   const allModels = getAllModels();
 
   return [
+    {
+      id: 'groq' as const,
+      name: 'Groq',
+      available: !!env.GROQ_API_KEY,
+      models: allModels.filter((m) => m.providerId === 'groq'),
+    },
     {
       id: 'xai' as const,
       name: 'xAI (Grok)',
@@ -189,10 +214,11 @@ export function getProviderAvailability(env: {
 
 /**
  * Try to create a provider with fallback.
- * Priority: preferred → xai → openrouter → ollama → anthropic.
+ * Priority: preferred → groq → xai → openrouter → ollama → anthropic.
  * Returns the first provider that can be initialized.
  */
 export async function createProviderWithFallback(env: {
+  GROQ_API_KEY?: string;
   XAI_API_KEY?: string;
   OPENROUTER_API_KEY?: string;
   ANTHROPIC_API_KEY?: string;
@@ -212,11 +238,12 @@ export async function createProviderWithFallback(env: {
     }
   }
 
-  // Fallback chain: xai → openrouter → ollama → anthropic
+  // Fallback chain: groq → xai → openrouter → ollama → anthropic
   const chain: Array<{ type: ProviderType; apiKey?: string; baseUrl?: string; defaultModel: string }> = [
+    { type: 'groq', apiKey: env.GROQ_API_KEY, defaultModel: 'llama-3.3-70b-versatile' },
     { type: 'xai', apiKey: env.XAI_API_KEY, defaultModel: 'grok-3-mini' },
     { type: 'openrouter', apiKey: env.OPENROUTER_API_KEY, defaultModel: 'google/gemini-2.0-flash-exp:free' },
-    { type: 'ollama', baseUrl: env.OLLAMA_BASE_URL, defaultModel: 'qwen2.5:32b' },
+    { type: 'ollama', baseUrl: env.OLLAMA_BASE_URL, defaultModel: 'llama3.2:latest' },
     { type: 'anthropic', apiKey: env.ANTHROPIC_API_KEY, defaultModel: 'claude-sonnet-4-20250514' },
   ];
 
@@ -245,6 +272,6 @@ export async function createProviderWithFallback(env: {
   }
 
   throw new Error(
-    'No AI provider available. Configure at least one: XAI_API_KEY, OPENROUTER_API_KEY, OLLAMA_BASE_URL, or ANTHROPIC_API_KEY.'
+    'No AI provider available. Configure at least one: GROQ_API_KEY, XAI_API_KEY, OPENROUTER_API_KEY, OLLAMA_BASE_URL, or ANTHROPIC_API_KEY.'
   );
 }

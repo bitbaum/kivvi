@@ -116,6 +116,7 @@ export async function POST(request: NextRequest) {
 
     // Initialize AI provider with fallback chain
     const env = {
+      GROQ_API_KEY: process.env.GROQ_API_KEY,
       XAI_API_KEY: process.env.XAI_API_KEY,
       OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
       ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
@@ -124,6 +125,8 @@ export async function POST(request: NextRequest) {
 
     const getApiKey = (provider: ProviderType): string | undefined => {
       switch (provider) {
+        case 'groq':
+          return process.env.GROQ_API_KEY;
         case 'xai':
           return process.env.XAI_API_KEY;
         case 'anthropic':

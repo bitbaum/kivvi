@@ -9,10 +9,10 @@ export interface ModelSelection {
 
 const STORAGE_KEY = 'kivvi-selected-model';
 
-// Default to xAI free model, fallback to OpenRouter free
+// Default to Groq free model (fastest inference)
 const DEFAULT_MODEL: ModelSelection = {
-  providerId: 'xai',
-  modelId: 'grok-3-mini',
+  providerId: 'groq',
+  modelId: 'llama-3.3-70b-versatile',
 };
 
 export function useModelSelection() {
