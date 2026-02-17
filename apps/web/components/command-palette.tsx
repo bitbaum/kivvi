@@ -29,6 +29,19 @@ import {
 import { useRecentItems } from '@/hooks/use-recent-items';
 import { globalSearchAction, type GlobalSearchResults } from '@/app/actions/search';
 
+// Document type → detail page route prefix
+const DOCUMENT_ROUTE_PREFIX: Record<string, string> = {
+  invoice: '/sales/invoices',
+  quote: '/sales/quotes',
+  order: '/sales/orders',
+  order_confirmation: '/sales/order-confirmations',
+  delivery_note: '/sales/delivery-notes',
+  credit_note: '/sales/credit-notes',
+  dunning: '/sales/dunning',
+  purchase_order: '/purchasing/purchase-orders',
+  purchase_invoice: '/purchasing/purchase-invoices',
+};
+
 interface CommandPaletteProps {
   isOpen: boolean;
   onClose: () => void;
@@ -105,11 +118,12 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
     const lowerQuery = query.toLowerCase().trim();
 
     if (!lowerQuery) {
-      // Show navigation + actions + recent when empty
+      // Show actions + recent + navigation when empty
+      // Quick actions first — they're the most actionable; navigation is already in the sidebar
       const items: PaletteItem[] = [];
-      if (navigationItems.length > 0) items.push(...navigationItems);
       if (quickActions.length > 0) items.push(...quickActions);
       if (recentItems.length > 0) items.push(...recentItems);
+      if (navigationItems.length > 0) items.push(...navigationItems);
       return items;
     }
 
@@ -153,10 +167,11 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
     }
 
     for (const d of searchResults.documents) {
+      const routePrefix = DOCUMENT_ROUTE_PREFIX[d.type] || `/sales/${d.type}s`;
       items.push({
         id: `doc-${d.id}`,
         label: `${d.number || d.type}${d.contactName ? ` — ${d.contactName}` : ''}`,
-        href: `/sales/${d.type === 'purchase_order' ? 'purchase-orders' : d.type === 'purchase_invoice' ? 'purchase-invoices' : d.type.replace('_', '-') + 's'}/${d.id}`,
+        href: `${routePrefix}/${d.id}`,
         icon: <FileText className="h-4 w-4" />,
         section: 'documents',
       });
@@ -170,7 +185,10 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
     return [...filteredItems, ...serverItems];
   }, [filteredItems, serverItems]);
 
-  // Debounced server search
+  // Debounced server search with stale-result protection
+  const queryRef = useRef(query);
+  queryRef.current = query;
+
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
@@ -181,12 +199,16 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
     }
 
     setIsSearching(true);
+    const searchQuery = query.trim();
     debounceRef.current = setTimeout(async () => {
-      const result = await globalSearchAction(query.trim());
-      if (result.success && result.data) {
+      const result = await globalSearchAction(searchQuery);
+      // Only update if the query hasn't changed while we were fetching
+      if (queryRef.current.trim() === searchQuery && result.success && result.data) {
         setSearchResults(result.data);
       }
-      setIsSearching(false);
+      if (queryRef.current.trim() === searchQuery) {
+        setIsSearching(false);
+      }
     }, 300);
 
     return () => {
@@ -250,7 +272,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
 
   // Group items by section for rendering
   const sections: { key: string; label: string; items: PaletteItem[] }[] = [];
-  const sectionOrder = ['navigation', 'actions', 'recent', 'contacts', 'products', 'documents'];
+  const sectionOrder = ['actions', 'recent', 'navigation', 'contacts', 'products', 'documents'];
   const sectionLabels: Record<string, string> = {
     navigation: t('navigation'),
     actions: t('actions'),

@@ -5,7 +5,7 @@ import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Bell, Search, Menu, LogOut, Settings, User, Globe } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { RecentItemsDropdown } from './recent-items-dropdown';
 import type { Locale } from '@/i18n/request';
 
@@ -29,6 +29,7 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
   const [showLangMenu, setShowLangMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const langRef = useRef<HTMLDivElement>(null);
+  const isMac = useMemo(() => typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.userAgent), []);
 
   function switchLocale(newLocale: Locale) {
     document.cookie = `NEXT_LOCALE=${newLocale};path=/;max-age=${365 * 24 * 60 * 60}`;
@@ -85,7 +86,7 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
           {t('searchOrAskAI')}
           <kbd className="absolute right-3 top-1/2 -translate-y-1/2 rounded border bg-muted px-1.5 py-0.5 text-xs text-muted-foreground pointer-events-none" aria-hidden="true">
-            ⌘K
+            {isMac ? '⌘K' : 'Ctrl+K'}
           </kbd>
         </button>
       </div>
