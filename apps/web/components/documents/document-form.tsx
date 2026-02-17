@@ -400,7 +400,7 @@ export function DocumentForm({ type }: DocumentFormProps) {
                     >
                       <UserPlus className="h-4 w-4 text-primary" />
                       <span>
-                        {tc('create')} <span className="font-medium">"{contactSearch}"</span>
+                        {tc('create')} <span className="font-medium">&quot;{contactSearch}&quot;</span>
                       </span>
                     </button>
                   ) : null}
