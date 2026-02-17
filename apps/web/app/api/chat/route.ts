@@ -2,7 +2,7 @@
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { aiConversations, aiMessages } from '@kivvi/database';
-import { ConversationEngine, createProvider, getToolsForPermissions, type ExecutionContext, type Message, type ProviderType } from '@kivvi/ai';
+import { ConversationEngine, createProviderWithFallback, getToolsForPermissions, getBusinessSnapshot, type ExecutionContext, type Message, type ProviderType } from '@kivvi/ai';
 import { eq, and, desc } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 import { DEFAULT_VAT_RATE } from '@/lib/config/vat-rates';
@@ -111,9 +111,21 @@ export async function POST(request: NextRequest) {
       db,
     };
 
-    // Initialize AI provider based on selection
+    // Build business snapshot for system prompt context
+    const snapshot = await getBusinessSnapshot(db, session.user.companyId, context.defaultCurrency);
+
+    // Initialize AI provider with fallback chain
+    const env = {
+      XAI_API_KEY: process.env.XAI_API_KEY,
+      OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
+      ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
+      OLLAMA_BASE_URL: process.env.OLLAMA_BASE_URL,
+    };
+
     const getApiKey = (provider: ProviderType): string | undefined => {
       switch (provider) {
+        case 'xai':
+          return process.env.XAI_API_KEY;
         case 'anthropic':
           return process.env.ANTHROPIC_API_KEY;
         case 'openrouter':
@@ -123,18 +135,20 @@ export async function POST(request: NextRequest) {
       }
     };
 
-    const provider = await createProvider({
+    const { provider, modelId: fallbackModelId } = await createProviderWithFallback(env, {
       type: selectedProvider,
       apiKey: getApiKey(selectedProvider),
       baseUrl: selectedProvider === 'ollama' ? process.env.OLLAMA_BASE_URL : undefined,
       model: selectedModel,
     });
 
+    const activeModel = selectedModel || fallbackModelId;
+
     // Get tools based on user permissions
     const tools = getToolsForPermissions(context.permissions);
 
-    // Create conversation engine with selected model
-    const engine = new ConversationEngine(provider, context, tools, selectedModel);
+    // Create conversation engine with business snapshot
+    const engine = new ConversationEngine(provider, context, tools, activeModel, snapshot);
 
     // Create streaming response
     const encoder = new TextEncoder();

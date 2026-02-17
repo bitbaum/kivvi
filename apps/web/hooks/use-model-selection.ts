@@ -9,10 +9,10 @@ export interface ModelSelection {
 
 const STORAGE_KEY = 'kivvi-selected-model';
 
-// Default to a free model
+// Default to xAI free model, fallback to OpenRouter free
 const DEFAULT_MODEL: ModelSelection = {
-  providerId: 'openrouter',
-  modelId: 'google/gemini-2.0-flash-exp:free',
+  providerId: 'xai',
+  modelId: 'grok-3-mini',
 };
 
 export function useModelSelection() {

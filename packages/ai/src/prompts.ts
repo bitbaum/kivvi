@@ -123,7 +123,22 @@ Additional capabilities:
 `,
 };
 
-export function getSystemPrompt(context: ExecutionContext): string {
+const TOOL_GUIDANCE = `
+## When to Use Tools
+- Customer questions (who, details, history) → use search_customers + get_customer_details
+- Invoice questions (status, details, specific) → use search_invoices + get_invoice_details
+- "How much..." or "What's our..." about finances → use get_financial_summary
+- Product/service catalog questions → use search_products
+- Creating new documents → use create_document (always creates as draft)
+- Changing document status → use update_document_status
+- Any question about specific or current data → use tools, don't guess from the snapshot
+
+The business snapshot above is a starting point for general questions.
+Always verify with tools when the user asks about specific customers, invoices, or real-time data.
+Be proactive: if a user mentions a customer name, look them up. If they ask about money owed, search overdue invoices.
+`;
+
+export function getSystemPrompt(context: ExecutionContext, businessSnapshot?: string): string {
   const basePrompt = BASE_PROMPT
     .replace('{{companyName}}', context.companyName)
     .replace('{{userName}}', context.userName)
@@ -133,5 +148,13 @@ export function getSystemPrompt(context: ExecutionContext): string {
 
   const verticalPrompt = VERTICAL_PROMPTS[context.vertical] || '';
 
-  return basePrompt + verticalPrompt;
+  let prompt = basePrompt + verticalPrompt;
+
+  if (businessSnapshot) {
+    prompt += '\n' + businessSnapshot + '\n';
+  }
+
+  prompt += TOOL_GUIDANCE;
+
+  return prompt;
 }

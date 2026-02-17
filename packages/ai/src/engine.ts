@@ -35,11 +35,12 @@ export class ConversationEngine {
     provider: AIProvider,
     context: ExecutionContext,
     tools: Tool[] = [],
-    model?: string
+    model?: string,
+    businessSnapshot?: string
   ) {
     this.provider = provider;
     this.tools = tools;
-    this.systemPrompt = getSystemPrompt(context);
+    this.systemPrompt = getSystemPrompt(context, businessSnapshot);
     this.model = model;
   }
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ChevronDown, Cpu, Cloud, Server, Sparkles, Check } from 'lucide-react';
+import { ChevronDown, Cpu, Cloud, Server, Sparkles, Zap, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface ModelOption {
@@ -20,12 +20,14 @@ interface ModelSelectorProps {
 }
 
 const providerIcons: Record<string, typeof Cloud> = {
+  xai: Zap,
   openrouter: Cloud,
   ollama: Server,
   anthropic: Sparkles,
 };
 
 const providerLabels: Record<string, string> = {
+  xai: 'xAI (Grok)',
   openrouter: 'OpenRouter',
   ollama: 'Local (Ollama)',
   anthropic: 'Anthropic',

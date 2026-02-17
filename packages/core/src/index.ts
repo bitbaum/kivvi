@@ -45,3 +45,4 @@ export * from './domain/recurring-invoices';
 // pdf-generation is NOT re-exported here because it imports pdfkit (Node.js only).
 // Import directly: import { generateInvoicePdf } from '@kivvi/core/src/domain/pdf-generation';
 export * from './domain/email';
+export * from './domain/business-snapshot';

@@ -1,13 +1,16 @@
 export { AnthropicProvider } from './anthropic';
 export { OllamaProvider } from './ollama';
 export { OpenRouterProvider } from './openrouter';
+export { XaiProvider } from './xai';
+export { OpenAICompatibleProvider } from './openai-compatible';
 
-import type { AIProvider, AIModel } from '../types';
+import type { AIProvider } from '../types';
 import { AnthropicProvider } from './anthropic';
 import { OllamaProvider } from './ollama';
 import { OpenRouterProvider } from './openrouter';
+import { XaiProvider } from './xai';
 
-export type ProviderType = 'anthropic' | 'openrouter' | 'ollama';
+export type ProviderType = 'anthropic' | 'openrouter' | 'ollama' | 'xai';
 
 export interface ProviderConfig {
   type: ProviderType;
@@ -26,13 +29,27 @@ export interface ModelConfig {
 
 // All available models across providers
 export function getAllModels(): ModelConfig[] {
+  const xai = new XaiProvider('');
   const anthropic = new AnthropicProvider('');
   const openrouter = new OpenRouterProvider('');
   const ollama = new OllamaProvider();
 
   const models: ModelConfig[] = [];
 
-  // OpenRouter free models first
+  // xAI free models first
+  for (const model of xai.models) {
+    if (model.costPer1kInput === 0) {
+      models.push({
+        providerId: 'xai',
+        modelId: model.id,
+        name: model.name,
+        isFree: true,
+        supportsTools: model.supportsTools,
+      });
+    }
+  }
+
+  // OpenRouter free models
   for (const model of openrouter.models) {
     if (model.costPer1kInput === 0) {
       models.push({
@@ -54,6 +71,19 @@ export function getAllModels(): ModelConfig[] {
       isFree: true,
       supportsTools: model.supportsTools,
     });
+  }
+
+  // xAI paid models
+  for (const model of xai.models) {
+    if (model.costPer1kInput !== 0) {
+      models.push({
+        providerId: 'xai',
+        modelId: model.id,
+        name: model.name,
+        isFree: false,
+        supportsTools: model.supportsTools,
+      });
+    }
   }
 
   // OpenRouter paid models
@@ -85,6 +115,10 @@ export function getAllModels(): ModelConfig[] {
 
 export async function createProvider(config: ProviderConfig): Promise<AIProvider> {
   switch (config.type) {
+    case 'xai':
+      if (!config.apiKey) throw new Error('xAI API key required');
+      return new XaiProvider(config.apiKey);
+
     case 'anthropic':
       if (!config.apiKey) throw new Error('Anthropic API key required');
       return new AnthropicProvider(config.apiKey);
@@ -93,12 +127,124 @@ export async function createProvider(config: ProviderConfig): Promise<AIProvider
       if (!config.apiKey) throw new Error('OpenRouter API key required');
       return new OpenRouterProvider(config.apiKey);
 
-    case 'ollama':
+    case 'ollama': {
       const ollamaProvider = new OllamaProvider(config.baseUrl);
       await ollamaProvider.initialize();
       return ollamaProvider;
+    }
 
     default:
       throw new Error(`Unknown provider: ${config.type}`);
   }
+}
+
+/**
+ * Provider availability info for the UI.
+ */
+export interface ProviderAvailability {
+  id: ProviderType;
+  name: string;
+  available: boolean;
+  models: ModelConfig[];
+}
+
+/**
+ * Check which providers are available (have API keys or are reachable).
+ */
+export function getProviderAvailability(env: {
+  XAI_API_KEY?: string;
+  OPENROUTER_API_KEY?: string;
+  ANTHROPIC_API_KEY?: string;
+  OLLAMA_BASE_URL?: string;
+}): ProviderAvailability[] {
+  const allModels = getAllModels();
+
+  return [
+    {
+      id: 'xai' as const,
+      name: 'xAI (Grok)',
+      available: !!env.XAI_API_KEY,
+      models: allModels.filter((m) => m.providerId === 'xai'),
+    },
+    {
+      id: 'openrouter' as const,
+      name: 'OpenRouter',
+      available: !!env.OPENROUTER_API_KEY,
+      models: allModels.filter((m) => m.providerId === 'openrouter'),
+    },
+    {
+      id: 'ollama' as const,
+      name: 'Ollama (Local)',
+      available: !!env.OLLAMA_BASE_URL,
+      models: allModels.filter((m) => m.providerId === 'ollama'),
+    },
+    {
+      id: 'anthropic' as const,
+      name: 'Anthropic',
+      available: !!env.ANTHROPIC_API_KEY,
+      models: allModels.filter((m) => m.providerId === 'anthropic'),
+    },
+  ];
+}
+
+/**
+ * Try to create a provider with fallback.
+ * Priority: preferred → xai → openrouter → ollama → anthropic.
+ * Returns the first provider that can be initialized.
+ */
+export async function createProviderWithFallback(env: {
+  XAI_API_KEY?: string;
+  OPENROUTER_API_KEY?: string;
+  ANTHROPIC_API_KEY?: string;
+  OLLAMA_BASE_URL?: string;
+}, preferred?: ProviderConfig): Promise<{ provider: AIProvider; providerId: ProviderType; modelId: string }> {
+  // Try preferred provider first
+  if (preferred) {
+    try {
+      const provider = await createProvider(preferred);
+      return {
+        provider,
+        providerId: preferred.type,
+        modelId: preferred.model || provider.models[0]?.id || '',
+      };
+    } catch {
+      // Fall through to chain
+    }
+  }
+
+  // Fallback chain: xai → openrouter → ollama → anthropic
+  const chain: Array<{ type: ProviderType; apiKey?: string; baseUrl?: string; defaultModel: string }> = [
+    { type: 'xai', apiKey: env.XAI_API_KEY, defaultModel: 'grok-3-mini' },
+    { type: 'openrouter', apiKey: env.OPENROUTER_API_KEY, defaultModel: 'google/gemini-2.0-flash-exp:free' },
+    { type: 'ollama', baseUrl: env.OLLAMA_BASE_URL, defaultModel: 'qwen2.5:32b' },
+    { type: 'anthropic', apiKey: env.ANTHROPIC_API_KEY, defaultModel: 'claude-sonnet-4-20250514' },
+  ];
+
+  for (const candidate of chain) {
+    // Skip if no credentials
+    if (candidate.type === 'ollama') {
+      if (!candidate.baseUrl) continue;
+    } else {
+      if (!candidate.apiKey) continue;
+    }
+
+    try {
+      const provider = await createProvider({
+        type: candidate.type,
+        apiKey: candidate.apiKey,
+        baseUrl: candidate.baseUrl,
+      });
+      return {
+        provider,
+        providerId: candidate.type,
+        modelId: candidate.defaultModel,
+      };
+    } catch {
+      continue;
+    }
+  }
+
+  throw new Error(
+    'No AI provider available. Configure at least one: XAI_API_KEY, OPENROUTER_API_KEY, OLLAMA_BASE_URL, or ANTHROPIC_API_KEY.'
+  );
 }
