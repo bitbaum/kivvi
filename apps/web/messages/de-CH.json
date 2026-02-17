@@ -915,6 +915,10 @@
       "revenueThisMonth": "Was ist mein Umsatz diesen Monat?",
       "reconcileTransactions": "Banktransaktionen abgleichen"
     },
+    "openAssistant": "KI-Assistent öffnen",
+    "closeAssistant": "Schliessen",
+    "expandToFullPage": "Vollbild öffnen",
+    "newConversation": "Neues Gespräch",
     "providers": {
       "openrouter": "OpenRouter",
       "ollama": "Lokal (Ollama)",

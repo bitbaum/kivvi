@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
+import { useChatWidget } from '@/hooks/use-chat-widget';
 import { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
@@ -46,7 +47,6 @@ interface NavGroup {
 
 const topNavigation: NavItem[] = [
   { nameKey: 'dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { nameKey: 'aiAssistant', href: '/chat', icon: MessageSquare },
 ];
 
 const navGroups: NavGroup[] = [
@@ -173,6 +173,7 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const { data: session } = useSession();
   const t = useTranslations('nav');
   const tc = useTranslations('common');
+  const chatWidget = useChatWidget();
 
   // Close sidebar on Escape key
   useEffect(() => {
@@ -231,6 +232,24 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
         {topNavigation.map((item) => (
           <NavLink key={item.href} item={item} pathname={pathname} onClick={onClose} t={t} />
         ))}
+
+        {/* AI Assistant - opens widget instead of navigating */}
+        <button
+          onClick={() => {
+            chatWidget.open();
+            onClose?.();
+          }}
+          className={cn(
+            'flex w-full min-h-[44px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+            chatWidget.isOpen
+              ? 'bg-primary text-primary-foreground'
+              : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+          )}
+        >
+          <MessageSquare className="h-4 w-4" aria-hidden="true" />
+          {t('aiAssistant')}
+        </button>
 
         <div className="my-3 border-t" role="separator" />
 

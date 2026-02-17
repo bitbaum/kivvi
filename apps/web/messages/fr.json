@@ -919,6 +919,10 @@
       "revenueThisMonth": "Quel est mon chiffre d'affaires ce mois-ci ?",
       "reconcileTransactions": "Rapprocher les transactions bancaires"
     },
+    "openAssistant": "Ouvrir l'assistant IA",
+    "closeAssistant": "Fermer",
+    "expandToFullPage": "Ouvrir en plein écran",
+    "newConversation": "Nouvelle conversation",
     "providers": {
       "openrouter": "OpenRouter",
       "ollama": "Local (Ollama)",

@@ -1,6 +1,6 @@
 'use client';
 
-import { X, Command, Slash, Plus } from 'lucide-react';
+import { X, Command, Slash, Plus, MessageSquare } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 interface KeyboardShortcutsHelpProps {
@@ -28,6 +28,11 @@ export function KeyboardShortcutsHelp({ isOpen, onClose }: KeyboardShortcutsHelp
       keys: ['N'],
       description: 'Create new (context-aware)',
       icon: <Plus className="h-4 w-4" />,
+    },
+    {
+      keys: ['⌘ J', 'Ctrl J'],
+      description: 'Toggle AI assistant',
+      icon: <MessageSquare className="h-4 w-4" />,
     },
     {
       keys: ['?'],

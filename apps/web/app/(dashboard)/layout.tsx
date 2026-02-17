@@ -4,8 +4,9 @@ import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/sidebar';
 import { Header } from '@/components/header';
-import { Footer } from '@/components/footer';
 import { KeyboardShortcutsHelp } from '@/components/keyboard-shortcuts-help';
+import { ChatWidgetProvider } from '@/hooks/use-chat-widget';
+import { ChatWidget } from '@/components/chat-widget/ChatWidget';
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 
 export default function DashboardLayout({
@@ -83,21 +84,25 @@ export default function DashboardLayout({
   ]);
 
   return (
-    <div className="flex h-screen bg-muted/30">
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <Header onMenuClick={() => setSidebarOpen(true)} />
-        <main className="flex-1 overflow-y-auto p-6" role="main">
-          {children}
-        </main>
-        <Footer />
-      </div>
+    <ChatWidgetProvider>
+      <div className="flex h-screen bg-muted/30">
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <div className="flex flex-1 flex-col overflow-hidden">
+          <Header onMenuClick={() => setSidebarOpen(true)} />
+          <main className="flex-1 overflow-y-auto p-6" role="main">
+            {children}
+          </main>
+        </div>
 
-      {/* Keyboard Shortcuts Help Modal */}
-      <KeyboardShortcutsHelp
-        isOpen={showShortcutsHelp}
-        onClose={() => setShowShortcutsHelp(false)}
-      />
-    </div>
+        {/* Keyboard Shortcuts Help Modal */}
+        <KeyboardShortcutsHelp
+          isOpen={showShortcutsHelp}
+          onClose={() => setShowShortcutsHelp(false)}
+        />
+
+        {/* Floating AI Chat Widget */}
+        <ChatWidget />
+      </div>
+    </ChatWidgetProvider>
   );
 }

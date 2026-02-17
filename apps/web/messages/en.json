@@ -917,6 +917,10 @@
       "revenueThisMonth": "What's my revenue this month?",
       "reconcileTransactions": "Reconcile bank transactions"
     },
+    "openAssistant": "Open AI assistant",
+    "closeAssistant": "Close",
+    "expandToFullPage": "Open full page",
+    "newConversation": "New conversation",
     "providers": {
       "openrouter": "OpenRouter",
       "ollama": "Local (Ollama)",

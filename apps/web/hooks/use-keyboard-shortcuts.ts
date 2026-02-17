@@ -38,8 +38,8 @@ export function useKeyboardShortcuts(shortcuts: KeyboardShortcut[]) {
         const metaMatches = shortcut.metaKey ? event.metaKey || event.ctrlKey : true; // Ctrl on Windows/Linux, Cmd on Mac
         const shiftMatches = shortcut.shiftKey !== undefined ? shortcut.shiftKey === event.shiftKey : true;
 
-        // Skip if typing in input (unless it's Escape or explicitly allows inputs)
-        if (isInput && shortcut.key !== 'Escape' && shortcut.key !== '/') {
+        // Skip if typing in input (unless it's Escape, /, or a meta/ctrl shortcut)
+        if (isInput && shortcut.key !== 'Escape' && shortcut.key !== '/' && !shortcut.metaKey && !shortcut.ctrlKey) {
           continue;
         }
 
