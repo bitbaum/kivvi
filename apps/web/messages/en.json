@@ -982,5 +982,20 @@
     "failedAll": "All {count} items failed.",
     "showErrors": "Show errors",
     "hideErrors": "Hide errors"
+  },
+  "commandPalette": {
+    "placeholder": "Search pages, contacts, products...",
+    "navigation": "Navigation",
+    "actions": "Quick Actions",
+    "recent": "Recent",
+    "contacts": "Contacts",
+    "products": "Products",
+    "documents": "Documents",
+    "noResults": "No results found",
+    "newInvoice": "New Invoice",
+    "newQuote": "New Quote",
+    "newOrder": "New Order",
+    "newContact": "New Contact",
+    "newProduct": "New Product"
   }
 }

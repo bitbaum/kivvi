@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/sidebar';
 import { Header } from '@/components/header';
 import { KeyboardShortcutsHelp } from '@/components/keyboard-shortcuts-help';
+import { CommandPalette } from '@/components/command-palette';
 import { ChatWidgetProvider } from '@/hooks/use-chat-widget';
 import { ChatWidget } from '@/components/chat-widget/ChatWidget';
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
@@ -16,6 +17,7 @@ export default function DashboardLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
+  const [showCommandPalette, setShowCommandPalette] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -48,13 +50,11 @@ export default function DashboardLayout({
 
   // Register global keyboard shortcuts
   useKeyboardShortcuts([
-    // Cmd/Ctrl + K: Command palette (placeholder for now)
+    // Cmd/Ctrl + K: Command palette
     {
       key: 'k',
       metaKey: true,
-      callback: () => {
-        // TODO: Implement command palette
-      },
+      callback: () => setShowCommandPalette(true),
     },
     // /: Focus search
     {
@@ -78,6 +78,7 @@ export default function DashboardLayout({
       callback: () => {
         setSidebarOpen(false);
         setShowShortcutsHelp(false);
+        setShowCommandPalette(false);
       },
       preventDefault: false, // Allow default behavior for other modals
     },
@@ -88,11 +89,17 @@ export default function DashboardLayout({
       <div className="flex h-screen bg-muted/30">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         <div className="flex flex-1 flex-col overflow-hidden">
-          <Header onMenuClick={() => setSidebarOpen(true)} />
+          <Header onMenuClick={() => setSidebarOpen(true)} onCommandPalette={() => setShowCommandPalette(true)} />
           <main className="flex-1 overflow-y-auto p-6" role="main">
             {children}
           </main>
         </div>
+
+        {/* Command Palette */}
+        <CommandPalette
+          isOpen={showCommandPalette}
+          onClose={() => setShowCommandPalette(false)}
+        />
 
         {/* Keyboard Shortcuts Help Modal */}
         <KeyboardShortcutsHelp

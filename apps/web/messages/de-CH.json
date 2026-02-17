@@ -980,5 +980,20 @@
     "failedAll": "Alle {count} Einträge fehlgeschlagen.",
     "showErrors": "Fehler anzeigen",
     "hideErrors": "Fehler ausblenden"
+  },
+  "commandPalette": {
+    "placeholder": "Seiten, Kontakte, Produkte suchen...",
+    "navigation": "Navigation",
+    "actions": "Schnellaktionen",
+    "recent": "Zuletzt verwendet",
+    "contacts": "Kontakte",
+    "products": "Produkte",
+    "documents": "Dokumente",
+    "noResults": "Keine Ergebnisse gefunden",
+    "newInvoice": "Neue Rechnung",
+    "newQuote": "Neues Angebot",
+    "newOrder": "Neuer Auftrag",
+    "newContact": "Neuer Kontakt",
+    "newProduct": "Neues Produkt"
   }
 }

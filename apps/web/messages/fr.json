@@ -984,5 +984,20 @@
     "failedAll": "Les {count} éléments ont échoué.",
     "showErrors": "Afficher les erreurs",
     "hideErrors": "Masquer les erreurs"
+  },
+  "commandPalette": {
+    "placeholder": "Rechercher pages, contacts, produits...",
+    "navigation": "Navigation",
+    "actions": "Actions rapides",
+    "recent": "Récents",
+    "contacts": "Contacts",
+    "products": "Produits",
+    "documents": "Documents",
+    "noResults": "Aucun résultat trouvé",
+    "newInvoice": "Nouvelle facture",
+    "newQuote": "Nouveau devis",
+    "newOrder": "Nouvelle commande",
+    "newContact": "Nouveau contact",
+    "newProduct": "Nouveau produit"
   }
 }

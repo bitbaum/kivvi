@@ -17,9 +17,10 @@ const LOCALE_LABELS: Record<Locale, string> = {
 
 interface HeaderProps {
   onMenuClick?: () => void;
+  onCommandPalette?: () => void;
 }
 
-export function Header({ onMenuClick }: HeaderProps) {
+export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
   const { data: session } = useSession();
   const t = useTranslations('common');
   const locale = useLocale() as Locale;
@@ -72,34 +73,21 @@ export function Header({ onMenuClick }: HeaderProps) {
         <Menu className="h-5 w-5" />
       </button>
 
-      {/* Search - IMPROVED with proper form */}
+      {/* Search — opens command palette */}
       <div className="hidden flex-1 lg:block lg:max-w-md">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            // TODO: Implement search functionality
-            const formData = new FormData(e.currentTarget);
-            const query = formData.get('search');
-            if (query) {
-              router.push(`/chat?q=${encodeURIComponent(query.toString())}`);
-            }
-          }}
+        <button
+          type="button"
+          onClick={onCommandPalette}
+          className="flex w-full items-center gap-2 rounded-lg border bg-background py-2 pl-10 pr-20 text-sm text-muted-foreground hover:bg-muted/50 transition-colors relative text-left"
           role="search"
+          aria-label="Open command palette"
         >
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-            <input
-              type="search"
-              name="search"
-              placeholder={t('searchOrAskAI')}
-              className="w-full rounded-lg border bg-background py-2 pl-10 pr-20 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-              aria-label="Search"
-            />
-            <kbd className="absolute right-3 top-1/2 -translate-y-1/2 rounded border bg-muted px-1.5 py-0.5 text-xs text-muted-foreground pointer-events-none" aria-hidden="true">
-              ⌘K
-            </kbd>
-          </div>
-        </form>
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+          {t('searchOrAskAI')}
+          <kbd className="absolute right-3 top-1/2 -translate-y-1/2 rounded border bg-muted px-1.5 py-0.5 text-xs text-muted-foreground pointer-events-none" aria-hidden="true">
+            ⌘K
+          </kbd>
+        </button>
       </div>
 
       {/* Right side */}
