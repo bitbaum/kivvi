@@ -9,6 +9,7 @@ import {
   updateRecurringConfigAction,
 } from '@/app/actions/recurring-invoices';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface RecurringConfigFormProps {
   orderOptions: Array<{
@@ -50,12 +51,12 @@ export function RecurringConfigForm({ orderOptions, initialData }: RecurringConf
 
     // Basic email validation
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      alert(t('recurring.invalidEmail'));
+      toast.error(t('recurring.invalidEmail'));
       return;
     }
 
     if (emailRecipients.includes(email)) {
-      alert(t('recurring.emailAlreadyAdded'));
+      toast.error(t('recurring.emailAlreadyAdded'));
       return;
     }
 

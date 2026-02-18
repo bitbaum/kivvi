@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Lock, Loader2 } from 'lucide-react';
 import { closeFiscalYearAction, closeFiscalPeriodAction } from '@/app/actions/accounting';
 import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 
 // ============================================================================
 // CLOSE YEAR BUTTON
@@ -28,7 +29,7 @@ export function CloseYearButton({ yearId, yearName }: CloseYearButtonProps) {
       if (result.success) {
         router.refresh();
       } else {
-        alert(result.error || 'Failed to close fiscal year');
+        toast.error(result.error || 'Failed to close fiscal year');
       }
       setShowConfirm(false);
     });
@@ -92,7 +93,7 @@ export function ClosePeriodButton({ periodId, periodName }: ClosePeriodButtonPro
       if (result.success) {
         router.refresh();
       } else {
-        alert(result.error || 'Failed to close period');
+        toast.error(result.error || 'Failed to close period');
       }
       setShowConfirm(false);
     });

@@ -9,6 +9,7 @@ import {
   deleteRecurringConfigAction,
   toggleRecurringConfigAction,
 } from '@/app/actions/recurring-invoices';
+import { toast } from 'sonner';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,7 +38,7 @@ export function RecurringConfigRow({ config, periodicityLabel }: RecurringConfig
   const [isToggling, setIsToggling] = useState(false);
 
   async function handleDelete() {
-    if (!confirm(t('recurring.confirmDelete'))) return;
+    if (!window.confirm(t('recurring.confirmDelete'))) return;
 
     setIsDeleting(true);
     try {
@@ -45,10 +46,10 @@ export function RecurringConfigRow({ config, periodicityLabel }: RecurringConfig
       if (result.success) {
         router.refresh();
       } else {
-        alert(result.error || 'Failed to delete');
+        toast.error(result.error || 'Failed to delete');
       }
     } catch (error) {
-      alert('An error occurred');
+      toast.error('An error occurred');
     } finally {
       setIsDeleting(false);
     }
@@ -61,10 +62,10 @@ export function RecurringConfigRow({ config, periodicityLabel }: RecurringConfig
       if (result.success) {
         router.refresh();
       } else {
-        alert(result.error || 'Failed to toggle');
+        toast.error(result.error || 'Failed to toggle');
       }
     } catch (error) {
-      alert('An error occurred');
+      toast.error('An error occurred');
     } finally {
       setIsToggling(false);
     }

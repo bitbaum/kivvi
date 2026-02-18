@@ -6,6 +6,7 @@ import { Trash2, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { deleteContactAction } from '@/app/actions/contacts';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface DeleteContactButtonProps {
   contactId: string;
@@ -27,10 +28,10 @@ export function DeleteContactButton({ contactId, contactName }: DeleteContactBut
       if (result.success) {
         router.push('/contacts');
       } else {
-        alert(result.error || tc('error'));
+        toast.error(result.error || tc('error'));
       }
     } catch {
-      alert(tc('error'));
+      toast.error(tc('error'));
     } finally {
       setIsDeleting(false);
       setShowConfirm(false);

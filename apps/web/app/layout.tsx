@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { SessionProvider } from '@/components/session-provider';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
+import { Toaster } from 'sonner';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -33,6 +34,7 @@ export default async function RootLayout({
               disableTransitionOnChange
             >
               {children}
+              <Toaster richColors position="bottom-right" />
             </ThemeProvider>
           </SessionProvider>
         </NextIntlClientProvider>

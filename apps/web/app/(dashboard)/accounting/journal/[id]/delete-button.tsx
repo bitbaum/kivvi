@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Trash2 } from 'lucide-react';
 import { deleteJournalEntryAction } from '@/app/actions/accounting';
 import { useTranslations } from 'next-intl';
+import { toast } from 'sonner';
 
 interface DeleteJournalEntryButtonProps {
   entryId: string;
@@ -39,7 +40,7 @@ export function DeleteJournalEntryButton({ entryId }: DeleteJournalEntryButtonPr
             if (result.success) {
               router.push('/accounting/journal');
             } else {
-              alert(result.error || 'Failed to delete journal entry');
+              toast.error(result.error || 'Failed to delete journal entry');
               setConfirming(false);
             }
           });
