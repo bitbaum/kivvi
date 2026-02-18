@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
-import { Send } from 'lucide-react';
+import { Loader2, Send } from 'lucide-react';
 import { useSelection } from '@/hooks/use-selection';
 import { BulkActionToolbar } from '@/components/bulk-action-toolbar';
 import { BulkResultBanner } from '@/components/bulk-result-banner';
@@ -209,12 +209,10 @@ export function SelectableDunningTable({ data, translations }: SelectableDunning
         <button
           onClick={executeBulkDunning}
           disabled={isPending}
-          className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
         >
-          <span className="inline-flex items-center gap-1.5">
-            <Send className="h-3.5 w-3.5" />
-            {translations.bulkLabels.sendDunning}
-          </span>
+          {isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+          {translations.bulkLabels.sendDunning}
         </button>
       </BulkActionToolbar>
     </>

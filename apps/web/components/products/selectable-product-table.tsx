@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Package, Wrench } from 'lucide-react';
+import { Loader2, Package, Wrench } from 'lucide-react';
 import { useSelection } from '@/hooks/use-selection';
 import { BulkActionToolbar } from '@/components/bulk-action-toolbar';
 import { BulkResultBanner } from '@/components/bulk-result-banner';
@@ -131,7 +131,7 @@ export function SelectableProductTable({ data, translations }: SelectableProduct
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b text-left text-sm text-muted-foreground">
+            <tr className="hidden border-b text-left text-sm text-muted-foreground sm:table-row">
               <th className="whitespace-nowrap px-4 py-3 font-medium">
                 <input
                   type="checkbox"
@@ -141,12 +141,12 @@ export function SelectableProductTable({ data, translations }: SelectableProduct
                   className="h-4 w-4 rounded border-gray-300"
                 />
               </th>
-              <th className="whitespace-nowrap px-4 py-3 font-medium">{translations.columnLabels.articleNumber}</th>
+              <th className="hidden whitespace-nowrap px-4 py-3 font-medium lg:table-cell">{translations.columnLabels.articleNumber}</th>
               <th className="whitespace-nowrap px-4 py-3 font-medium">{translations.columnLabels.name}</th>
-              <th className="whitespace-nowrap px-4 py-3 font-medium">{translations.columnLabels.type}</th>
+              <th className="hidden whitespace-nowrap px-4 py-3 font-medium md:table-cell">{translations.columnLabels.type}</th>
               <th className="whitespace-nowrap px-4 py-3 font-medium text-right">{translations.columnLabels.unitPrice}</th>
-              <th className="whitespace-nowrap px-4 py-3 font-medium text-right">{translations.columnLabels.vatRate}</th>
-              <th className="whitespace-nowrap px-4 py-3 font-medium text-right">{translations.columnLabels.stock}</th>
+              <th className="hidden whitespace-nowrap px-4 py-3 font-medium text-right lg:table-cell">{translations.columnLabels.vatRate}</th>
+              <th className="hidden whitespace-nowrap px-4 py-3 font-medium text-right md:table-cell">{translations.columnLabels.stock}</th>
               <th className="whitespace-nowrap px-4 py-3 font-medium">{translations.columnLabels.status}</th>
             </tr>
           </thead>
@@ -167,7 +167,7 @@ export function SelectableProductTable({ data, translations }: SelectableProduct
                     className="h-4 w-4 rounded border-gray-300"
                   />
                 </td>
-                <td className="whitespace-nowrap px-4 py-3">
+                <td className="hidden whitespace-nowrap px-4 py-3 lg:table-cell">
                   <span className="font-mono text-sm text-primary">
                     {product.articleNumber || '-'}
                   </span>
@@ -179,8 +179,12 @@ export function SelectableProductTable({ data, translations }: SelectableProduct
                       {translations.columnLabels.sku}: {product.sku}
                     </p>
                   )}
+                  {/* Show article number on mobile */}
+                  {product.articleNumber && (
+                    <p className="font-mono text-xs text-primary lg:hidden">{product.articleNumber}</p>
+                  )}
                 </td>
-                <td className="whitespace-nowrap px-4 py-3">
+                <td className="hidden whitespace-nowrap px-4 py-3 md:table-cell">
                   <span className="inline-flex items-center gap-1.5 text-sm">
                     {product.type === 'product' ? (
                       <Package className="h-3.5 w-3.5 text-muted-foreground" />
@@ -196,10 +200,10 @@ export function SelectableProductTable({ data, translations }: SelectableProduct
                     /{UNIT_LABELS[product.unit || 'piece'] || product.unit}
                   </span>
                 </td>
-                <td className="whitespace-nowrap px-4 py-3 text-right text-sm">
+                <td className="hidden whitespace-nowrap px-4 py-3 text-right text-sm lg:table-cell">
                   {product.vatRate}%
                 </td>
-                <td className="whitespace-nowrap px-4 py-3 text-right">
+                <td className="hidden whitespace-nowrap px-4 py-3 text-right md:table-cell">
                   {renderStockBadge(product)}
                 </td>
                 <td className="whitespace-nowrap px-4 py-3">
@@ -229,15 +233,17 @@ export function SelectableProductTable({ data, translations }: SelectableProduct
         <button
           onClick={() => executeAction('deactivate')}
           disabled={isPending}
-          className="rounded-lg border bg-background px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg border bg-background px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted disabled:opacity-50"
         >
+          {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
           {translations.bulkLabels.deactivate}
         </button>
         <button
           onClick={() => executeAction('delete')}
           disabled={isPending}
-          className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
         >
+          {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
           {translations.bulkLabels.delete}
         </button>
       </BulkActionToolbar>

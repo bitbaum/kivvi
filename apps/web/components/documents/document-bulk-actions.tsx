@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import { Loader2 } from 'lucide-react';
 import type { BulkActionDef } from '@/lib/config/document-types';
 import {
   bulkConvertDocumentsAction,
@@ -91,10 +92,11 @@ export function DocumentBulkActions({
           key={action.id}
           onClick={() => executeAction(action)}
           disabled={isPending}
-          className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors disabled:opacity-50 ${
+          className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors disabled:opacity-50 ${
             variantClasses[action.variant] || variantClasses.default
           }`}
         >
+          {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
           {labels[action.label] || action.label}
         </button>
       ))}

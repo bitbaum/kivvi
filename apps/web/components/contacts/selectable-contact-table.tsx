@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSelection } from '@/hooks/use-selection';
+import { Loader2 } from 'lucide-react';
 import { BulkActionToolbar } from '@/components/bulk-action-toolbar';
 import { BulkResultBanner } from '@/components/bulk-result-banner';
 import {
@@ -89,8 +90,8 @@ export function SelectableContactTable({ data, translations }: SelectableContact
     <>
       <BulkResultBanner result={bulkResult} labels={translations.bulkLabels} onDismiss={dismissBanner} />
 
-      {/* Table header */}
-      <div className="grid grid-cols-[auto_1fr_2fr_auto_1.5fr_1fr_1fr_auto] gap-4 border-b px-6 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+      {/* Table header — hidden on mobile */}
+      <div className="hidden border-b px-6 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground sm:grid sm:grid-cols-[auto_1fr_2fr_auto_auto] sm:gap-4 lg:grid-cols-[auto_1fr_2fr_auto_1.5fr_1fr_1fr_auto]">
         <div className="flex items-center">
           <input
             type="checkbox"
@@ -103,9 +104,9 @@ export function SelectableContactTable({ data, translations }: SelectableContact
         <div>{translations.columnLabels.number}</div>
         <div>{translations.columnLabels.name}</div>
         <div>{translations.columnLabels.type}</div>
-        <div>{translations.columnLabels.email}</div>
-        <div>{translations.columnLabels.phone}</div>
-        <div>{translations.columnLabels.city}</div>
+        <div className="hidden lg:block">{translations.columnLabels.email}</div>
+        <div className="hidden lg:block">{translations.columnLabels.phone}</div>
+        <div className="hidden lg:block">{translations.columnLabels.city}</div>
         <div>{translations.columnLabels.status}</div>
       </div>
 
@@ -115,9 +116,10 @@ export function SelectableContactTable({ data, translations }: SelectableContact
           <div
             key={contact.id}
             onClick={() => router.push(`/contacts/${contact.id}`)}
-            className={`grid cursor-pointer grid-cols-[auto_1fr_2fr_auto_1.5fr_1fr_1fr_auto] gap-4 px-6 py-4 transition-colors hover:bg-muted/50 ${
-              isSelected(contact.id) ? 'bg-primary/5' : ''
-            }`}
+            className={cn(
+              'flex cursor-pointer flex-col gap-1 p-4 transition-colors hover:bg-muted/50 sm:grid sm:grid-cols-[auto_1fr_2fr_auto_auto] sm:items-center sm:gap-4 sm:px-6 lg:grid-cols-[auto_1fr_2fr_auto_1.5fr_1fr_1fr_auto]',
+              isSelected(contact.id) && 'bg-primary/5'
+            )}
           >
             <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
               <input
@@ -137,15 +139,19 @@ export function SelectableContactTable({ data, translations }: SelectableContact
                   {[contact.firstName, contact.lastName].filter(Boolean).join(' ')}
                 </p>
               )}
+              {/* Show email inline on mobile */}
+              {contact.email && (
+                <p className="text-xs text-muted-foreground lg:hidden">{contact.email}</p>
+              )}
             </div>
             <div>
               <span className={cn('inline-block rounded-full px-2 py-0.5 text-xs font-medium', CONTACT_TYPE_STYLES[contact.type as keyof typeof CONTACT_TYPE_STYLES] || '')}>
                 {translations.typeLabels[contact.type] || contact.type}
               </span>
             </div>
-            <div className="truncate text-sm text-muted-foreground">{contact.email || '-'}</div>
-            <div className="text-sm text-muted-foreground">{contact.phone || contact.mobile || '-'}</div>
-            <div className="text-sm text-muted-foreground">{contact.city || '-'}</div>
+            <div className="hidden truncate text-sm text-muted-foreground lg:block">{contact.email || '-'}</div>
+            <div className="hidden text-sm text-muted-foreground lg:block">{contact.phone || contact.mobile || '-'}</div>
+            <div className="hidden text-sm text-muted-foreground lg:block">{contact.city || '-'}</div>
             <div>
               <span
                 className={cn(
@@ -172,15 +178,17 @@ export function SelectableContactTable({ data, translations }: SelectableContact
         <button
           onClick={() => executeAction('deactivate')}
           disabled={isPending}
-          className="rounded-lg border bg-background px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg border bg-background px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted disabled:opacity-50"
         >
+          {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
           {translations.bulkLabels.deactivate}
         </button>
         <button
           onClick={() => executeAction('delete')}
           disabled={isPending}
-          className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
         >
+          {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
           {translations.bulkLabels.delete}
         </button>
       </BulkActionToolbar>
