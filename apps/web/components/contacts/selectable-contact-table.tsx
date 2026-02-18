@@ -11,6 +11,7 @@ import {
 } from '@/app/actions/bulk-operations';
 import type { BulkOperationResult } from '@/app/actions/bulk-operations';
 import { cn } from '@/lib/utils';
+import { CONTACT_TYPE_STYLES } from '@/lib/config/contact-types';
 
 interface ContactItem {
   id: string;
@@ -41,12 +42,6 @@ interface Translations {
   typeLabels: Record<string, string>;
   bulkLabels: Record<string, string>;
 }
-
-const TYPE_STYLES: Record<string, string> = {
-  customer: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-  vendor: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
-  both: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
-};
 
 interface SelectableContactTableProps {
   data: ContactItem[];
@@ -144,7 +139,7 @@ export function SelectableContactTable({ data, translations }: SelectableContact
               )}
             </div>
             <div>
-              <span className={cn('inline-block rounded-full px-2 py-0.5 text-xs font-medium', TYPE_STYLES[contact.type] || '')}>
+              <span className={cn('inline-block rounded-full px-2 py-0.5 text-xs font-medium', CONTACT_TYPE_STYLES[contact.type as keyof typeof CONTACT_TYPE_STYLES] || '')}>
                 {translations.typeLabels[contact.type] || contact.type}
               </span>
             </div>

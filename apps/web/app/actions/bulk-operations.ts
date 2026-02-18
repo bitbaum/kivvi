@@ -1,21 +1,18 @@
 'use server';
 
 import { z } from 'zod';
-import Decimal from 'decimal.js';
 import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
 import {
   convertDocument,
-  updateDocument,
   updateDocumentStatus,
   deleteDocument,
   createDunning,
+  extendQuoteValidity,
 } from '@kivvi/core';
 import { deleteContact } from '@kivvi/core/src/domain/contacts';
 import { deleteProduct } from '@kivvi/core/src/domain/products';
-import { contacts, products } from '@kivvi/database/src/schema';
-import { eq, and } from 'drizzle-orm';
-import { reconcileTransaction } from '@kivvi/core/src/domain/banking';
+import { reconcileTransaction, matchTransactionToDocument } from '@kivvi/core/src/domain/banking';
 import type { DocumentType, DocumentStatus } from '@kivvi/database';
 import { type ActionResult, getSession, safeErrorMessage } from './utils';
 
@@ -255,51 +252,10 @@ export async function bulkExtendQuoteValidityAction(
     const { quoteIds, extensionDays } = parsed.data;
     const results: BulkOperationResult<{ newDueDate: string }>['results'] = [];
 
-    // Process each quote
     for (const quoteId of quoteIds) {
       try {
-        // Get current quote to calculate new due date
-        const quote = await db.query.documents.findFirst({
-          where: (documents, { eq, and }) =>
-            and(
-              eq(documents.id, quoteId),
-              eq(documents.companyId, companyId)
-            ),
-        });
-
-        if (!quote) {
-          results.push({
-            id: quoteId,
-            success: false,
-            error: 'Quote not found',
-          });
-          continue;
-        }
-
-        if (quote.type !== 'quote') {
-          results.push({
-            id: quoteId,
-            success: false,
-            error: 'Document is not a quote',
-          });
-          continue;
-        }
-
-        // Calculate new due date
-        const currentDueDate = quote.dueDate ? new Date(quote.dueDate) : new Date();
-        const newDueDate = new Date(currentDueDate);
-        newDueDate.setDate(newDueDate.getDate() + extensionDays);
-
-        // Update the quote
-        await updateDocument(db, companyId, quoteId, {
-          dueDate: newDueDate.toISOString().split('T')[0],
-        });
-
-        results.push({
-          id: quoteId,
-          success: true,
-          data: { newDueDate: newDueDate.toISOString().split('T')[0] },
-        });
+        const result = await extendQuoteValidity(db, companyId, quoteId, extensionDays);
+        results.push({ id: quoteId, success: true, data: result });
       } catch (error) {
         results.push({
           id: quoteId,
@@ -351,92 +307,15 @@ export async function bulkMatchTransactionsAction(
     const { transactionIds } = parsed.data;
     const results: BulkOperationResult<{ documentId: string; documentNumber: string }>['results'] = [];
 
-    // Process each transaction
     for (const txnId of transactionIds) {
       try {
-        // Get the transaction to find a matching document
-        const txn = await db.query.bankTransactions.findFirst({
-          where: (bankTransactions, { eq }) => eq(bankTransactions.id, txnId),
-          with: {
-            bankAccount: true,
-          },
-        });
-
-        if (!txn) {
-          results.push({
-            id: txnId,
-            success: false,
-            error: 'Transaction not found',
-          });
+        const match = await matchTransactionToDocument(db, companyId, txnId);
+        if (!match) {
+          results.push({ id: txnId, success: false, error: 'No matching invoice found' });
           continue;
         }
-
-        if (txn.bankAccount.companyId !== companyId) {
-          results.push({
-            id: txnId,
-            success: false,
-            error: 'Unauthorized',
-          });
-          continue;
-        }
-
-        if (txn.isReconciled) {
-          results.push({
-            id: txnId,
-            success: false,
-            error: 'Transaction already reconciled',
-          });
-          continue;
-        }
-
-        // Try to find a matching document by QR reference or amount
-        let matchedDoc = null;
-
-        // First: try QR reference match
-        if (txn.reference) {
-          matchedDoc = await db.query.documents.findFirst({
-            where: (documents, { eq, and, sql }) =>
-              and(
-                eq(documents.companyId, companyId),
-                eq(documents.type, 'invoice'),
-                sql`${documents.qrReference} IS NOT NULL AND ${txn.reference} LIKE '%' || ${documents.qrReference} || '%'`,
-                sql`${documents.status} IN ('sent', 'confirmed', 'delivered', 'partially_paid', 'overdue', 'dunning_1', 'dunning_2', 'dunning_3')`
-              ),
-          });
-        }
-
-        // Second: try exact amount match using database-level decimal comparison
-        if (!matchedDoc) {
-          // Use absolute value for comparison (txn.amount is string, stored as numeric in DB)
-          const txnAmountAbs = new Decimal(txn.amount).abs().toString();
-          matchedDoc = await db.query.documents.findFirst({
-            where: (documents, { eq, and, sql }) =>
-              and(
-                eq(documents.companyId, companyId),
-                eq(documents.type, 'invoice'),
-                sql`ABS(CAST(${documents.total} AS DECIMAL) - CAST(${txnAmountAbs} AS DECIMAL)) < 0.01`,
-                sql`${documents.status} IN ('sent', 'confirmed', 'delivered', 'partially_paid', 'overdue', 'dunning_1', 'dunning_2', 'dunning_3')`
-              ),
-          });
-        }
-
-        if (!matchedDoc) {
-          results.push({
-            id: txnId,
-            success: false,
-            error: 'No matching invoice found',
-          });
-          continue;
-        }
-
-        // Reconcile the transaction
-        await reconcileTransaction(db, companyId, txnId, matchedDoc.id);
-
-        results.push({
-          id: txnId,
-          success: true,
-          data: { documentId: matchedDoc.id, documentNumber: matchedDoc.number },
-        });
+        await reconcileTransaction(db, companyId, txnId, match.documentId);
+        results.push({ id: txnId, success: true, data: match });
       } catch (error) {
         results.push({
           id: txnId,
@@ -608,12 +487,7 @@ export async function bulkDeactivateContactsAction(
 
     for (const contactId of contactIds) {
       try {
-        const [updated] = await db
-          .update(contacts)
-          .set({ isActive: false, updatedAt: new Date() })
-          .where(and(eq(contacts.id, contactId), eq(contacts.companyId, companyId)))
-          .returning();
-        if (!updated) throw new Error('Contact not found');
+        await deleteContact(db, companyId, contactId);
         results.push({ id: contactId, success: true });
       } catch (error) {
         results.push({ id: contactId, success: false, error: safeErrorMessage(error, 'Failed to deactivate contact') });
@@ -693,12 +567,7 @@ export async function bulkDeactivateProductsAction(
 
     for (const productId of productIds) {
       try {
-        const [updated] = await db
-          .update(products)
-          .set({ isActive: false, updatedAt: new Date() })
-          .where(and(eq(products.id, productId), eq(products.companyId, companyId)))
-          .returning();
-        if (!updated) throw new Error('Product not found');
+        await deleteProduct(db, companyId, productId);
         results.push({ id: productId, success: true });
       } catch (error) {
         results.push({ id: productId, success: false, error: safeErrorMessage(error, 'Failed to deactivate product') });

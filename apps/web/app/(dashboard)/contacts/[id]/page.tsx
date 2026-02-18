@@ -19,14 +19,9 @@ import { db } from '@/lib/db';
 import { getContact } from '@kivvi/core';
 import { cn, formatCurrency, formatDate } from '@/lib/utils';
 import { STATUS_STYLES, toCamelCase } from '@/lib/config/document-types';
+import { CONTACT_TYPE_STYLES } from '@/lib/config/contact-types';
 import { Breadcrumb } from '@/components/breadcrumb';
 import { DeleteContactButton } from './delete-button';
-
-const TYPE_STYLES: Record<string, string> = {
-  customer: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-  vendor: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
-  both: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
-};
 
 
 interface ContactDetailPageProps {
@@ -83,7 +78,7 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
               <span
                 className={cn(
                   'inline-block rounded-full px-2.5 py-0.5 text-xs font-medium',
-                  TYPE_STYLES[contact.type] || ''
+                  CONTACT_TYPE_STYLES[contact.type as keyof typeof CONTACT_TYPE_STYLES] || ''
                 )}
               >
                 {TYPE_LABELS[contact.type] || contact.type}

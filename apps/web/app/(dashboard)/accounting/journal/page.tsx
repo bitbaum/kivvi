@@ -7,12 +7,7 @@ import { listJournalEntries } from '@kivvi/core';
 import { formatCurrency, formatDate, cn } from '@/lib/utils';
 import { getTranslations } from 'next-intl/server';
 import { DEFAULT_PAGE_SIZE } from '@/lib/config/document-types';
-
-const SOURCE_TYPE_STYLES: Record<string, string> = {
-  manual: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400',
-  invoice: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-  payment: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-};
+import { SOURCE_TYPE_STYLES } from '@/lib/config/journal';
 
 interface PageProps {
   searchParams: Promise<{

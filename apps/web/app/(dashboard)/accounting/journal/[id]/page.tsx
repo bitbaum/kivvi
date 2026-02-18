@@ -1,3 +1,4 @@
+import Decimal from 'decimal.js';
 import Link from 'next/link';
 import { redirect, notFound } from 'next/navigation';
 import { ArrowLeft, BookOpen } from 'lucide-react';
@@ -7,12 +8,7 @@ import { getJournalEntry } from '@kivvi/core';
 import { formatCurrency, formatDate, cn } from '@/lib/utils';
 import { DeleteJournalEntryButton } from './delete-button';
 import { getTranslations } from 'next-intl/server';
-
-const SOURCE_TYPE_STYLES: Record<string, string> = {
-  manual: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400',
-  invoice: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-  payment: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-};
+import { SOURCE_TYPE_STYLES } from '@/lib/config/journal';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -38,14 +34,12 @@ export default async function JournalEntryDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  const totalDebits = entry.lines.reduce(
-    (sum, line) => sum + (Number(line.debit) || 0),
-    0
-  );
-  const totalCredits = entry.lines.reduce(
-    (sum, line) => sum + (Number(line.credit) || 0),
-    0
-  );
+  const totalDebits = entry.lines
+    .reduce((sum, line) => sum.plus(line.debit || '0'), new Decimal(0))
+    .toNumber();
+  const totalCredits = entry.lines
+    .reduce((sum, line) => sum.plus(line.credit || '0'), new Decimal(0))
+    .toNumber();
 
   return (
     <div className="space-y-6">

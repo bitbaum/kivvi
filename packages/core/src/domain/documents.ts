@@ -437,6 +437,34 @@ export async function createDocument(
 }
 
 /**
+ * Extend a quote's validity (dueDate) by a number of days.
+ * If the quote has no dueDate, extends from today.
+ */
+export async function extendQuoteValidity(
+  db: Database,
+  companyId: string,
+  quoteId: string,
+  extensionDays: number
+): Promise<{ newDueDate: string }> {
+  const [quote] = await db
+    .select()
+    .from(documents)
+    .where(and(eq(documents.id, quoteId), eq(documents.companyId, companyId)))
+    .limit(1);
+
+  if (!quote) throw new Error('Quote not found');
+  if (quote.type !== 'quote') throw new Error('Document is not a quote');
+
+  const currentDueDate = quote.dueDate ? new Date(quote.dueDate) : new Date();
+  const newDueDate = new Date(currentDueDate);
+  newDueDate.setDate(newDueDate.getDate() + extensionDays);
+  const newDueDateStr = newDueDate.toISOString().split('T')[0];
+
+  await updateDocument(db, companyId, quoteId, { dueDate: newDueDateStr });
+  return { newDueDate: newDueDateStr };
+}
+
+/**
  * Update a document (only drafts can be fully edited).
  * For non-draft documents, only notes/internalNotes can be updated.
  * Uses transaction when updating items to ensure atomicity.

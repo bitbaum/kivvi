@@ -284,6 +284,59 @@ export async function reconcileTransaction(
 }
 
 /**
+ * Auto-match a bank transaction to an invoice by QR reference or exact amount.
+ * Returns the matched document, or null if no match found.
+ * Does NOT reconcile — caller should call reconcileTransaction() on match.
+ */
+export async function matchTransactionToDocument(
+  db: Database,
+  companyId: string,
+  transactionId: string
+): Promise<{ documentId: string; documentNumber: string } | null> {
+  const txn = await db.query.bankTransactions.findFirst({
+    where: (bankTransactions, { eq }) => eq(bankTransactions.id, transactionId),
+    with: { bankAccount: true },
+  });
+
+  if (!txn) throw new Error('Transaction not found');
+  if (txn.bankAccount.companyId !== companyId) throw new Error('Unauthorized');
+  if (txn.isReconciled) throw new Error('Transaction already reconciled');
+
+  const PAYABLE_STATUSES = sql`${documents.status} IN ('sent', 'confirmed', 'delivered', 'partially_paid', 'overdue', 'dunning_1', 'dunning_2', 'dunning_3')`;
+
+  // 1. QR reference match
+  let matchedDoc = null;
+  if (txn.reference) {
+    matchedDoc = await db.query.documents.findFirst({
+      where: (documents, { eq, and, sql: sqlFn }) =>
+        and(
+          eq(documents.companyId, companyId),
+          eq(documents.type, 'invoice'),
+          sqlFn`${documents.qrReference} IS NOT NULL AND ${txn.reference} LIKE '%' || ${documents.qrReference} || '%'`,
+          PAYABLE_STATUSES
+        ),
+    });
+  }
+
+  // 2. Exact amount match (within 0.01 CHF tolerance)
+  if (!matchedDoc) {
+    const txnAmountAbs = new Decimal(txn.amount).abs().toString();
+    matchedDoc = await db.query.documents.findFirst({
+      where: (documents, { eq, and, sql: sqlFn }) =>
+        and(
+          eq(documents.companyId, companyId),
+          eq(documents.type, 'invoice'),
+          sqlFn`ABS(CAST(${documents.total} AS DECIMAL) - CAST(${txnAmountAbs} AS DECIMAL)) < 0.01`,
+          PAYABLE_STATUSES
+        ),
+    });
+  }
+
+  if (!matchedDoc) return null;
+  return { documentId: matchedDoc.id, documentNumber: matchedDoc.number };
+}
+
+/**
  * Un-reconcile a transaction.
  */
 export async function unreconcileTransaction(
