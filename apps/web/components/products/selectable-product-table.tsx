@@ -11,7 +11,7 @@ import {
   bulkDeactivateProductsAction,
 } from '@/app/actions/bulk-operations';
 import type { BulkOperationResult } from '@/app/actions/bulk-operations';
-import { formatCurrency } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 
 const UNIT_LABELS: Record<string, string> = {
   piece: 'pc',
@@ -138,6 +138,7 @@ export function SelectableProductTable({ data, translations }: SelectableProduct
                   checked={isAllSelected}
                   ref={(el) => { if (el) el.indeterminate = isSomeSelected; }}
                   onChange={toggleAll}
+                  aria-label="Select all"
                   className="h-4 w-4 rounded border-gray-300"
                 />
               </th>
@@ -155,15 +156,17 @@ export function SelectableProductTable({ data, translations }: SelectableProduct
               <tr
                 key={product.id}
                 onClick={() => router.push(`/products/${product.id}`)}
-                className={`group cursor-pointer transition-colors hover:bg-muted/50 ${
-                  isSelected(product.id) ? 'bg-primary/5' : ''
-                }`}
+                className={cn(
+                  'group cursor-pointer transition-colors hover:bg-muted/50',
+                  isSelected(product.id) && 'bg-primary/5'
+                )}
               >
                 <td className="whitespace-nowrap px-4 py-3" onClick={(e) => e.stopPropagation()}>
                   <input
                     type="checkbox"
                     checked={isSelected(product.id)}
                     onChange={() => toggle(product.id)}
+                    aria-label={`Select ${product.name}`}
                     className="h-4 w-4 rounded border-gray-300"
                   />
                 </td>

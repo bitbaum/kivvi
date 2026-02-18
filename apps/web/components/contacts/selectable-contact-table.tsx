@@ -98,6 +98,7 @@ export function SelectableContactTable({ data, translations }: SelectableContact
             checked={isAllSelected}
             ref={(el) => { if (el) el.indeterminate = isSomeSelected; }}
             onChange={toggleAll}
+            aria-label="Select all"
             className="h-4 w-4 rounded border-gray-300"
           />
         </div>
@@ -126,6 +127,7 @@ export function SelectableContactTable({ data, translations }: SelectableContact
                 type="checkbox"
                 checked={isSelected(contact.id)}
                 onChange={() => toggle(contact.id)}
+                aria-label={`Select ${contact.name}`}
                 className="h-4 w-4 rounded border-gray-300"
               />
             </div>

@@ -77,7 +77,7 @@ export function QuickCreateContactModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="relative w-full max-w-md rounded-xl border bg-card p-6 shadow-lg">
+      <div role="dialog" aria-modal="true" aria-labelledby="quick-create-title" className="relative w-full max-w-md rounded-xl border bg-card p-6 shadow-lg">
         {/* Close button */}
         <button
           type="button"
@@ -93,7 +93,7 @@ export function QuickCreateContactModal({
         <div className="mb-6">
           <div className="mb-2 flex items-center gap-2">
             <UserPlus className="h-5 w-5 text-primary" />
-            <h2 className="text-xl font-semibold">{t('quickCreate')}</h2>
+            <h2 id="quick-create-title" className="text-xl font-semibold">{t('quickCreate')}</h2>
           </div>
           <p className="text-sm text-muted-foreground">
             {t('quickCreateDesc')}

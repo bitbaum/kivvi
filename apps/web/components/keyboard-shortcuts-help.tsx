@@ -46,7 +46,7 @@ export function KeyboardShortcutsHelp({ isOpen, onClose }: KeyboardShortcutsHelp
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="relative w-full max-w-lg rounded-xl border bg-card p-6 shadow-lg">
+      <div role="dialog" aria-modal="true" aria-labelledby="shortcuts-title" className="relative w-full max-w-lg rounded-xl border bg-card p-6 shadow-lg">
         {/* Close button */}
         <button
           type="button"
@@ -59,7 +59,7 @@ export function KeyboardShortcutsHelp({ isOpen, onClose }: KeyboardShortcutsHelp
 
         {/* Header */}
         <div className="mb-6">
-          <h2 className="text-xl font-semibold">Keyboard Shortcuts</h2>
+          <h2 id="shortcuts-title" className="text-xl font-semibold">Keyboard Shortcuts</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Use these shortcuts to navigate faster
           </p>

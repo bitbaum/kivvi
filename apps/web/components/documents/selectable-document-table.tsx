@@ -6,7 +6,7 @@ import { useSelection } from '@/hooks/use-selection';
 import { BulkActionToolbar } from '@/components/bulk-action-toolbar';
 import { BulkResultBanner } from '@/components/bulk-result-banner';
 import { DocumentBulkActions } from './document-bulk-actions';
-import { formatCurrency, formatDate } from '@/lib/utils';
+import { cn, formatCurrency, formatDate } from '@/lib/utils';
 import { STATUS_STYLES, toCamelCase } from '@/lib/config/document-types';
 import type { DocumentTypeConfig } from '@/lib/config/document-types';
 import type { BulkOperationResult } from '@/app/actions/bulk-operations';
@@ -89,6 +89,7 @@ export function SelectableDocumentTable({
             checked={isAllSelected}
             ref={(el) => { if (el) el.indeterminate = isSomeSelected; }}
             onChange={toggleAll}
+            aria-label="Select all"
             className="h-4 w-4 rounded border-gray-300"
           />
         </div>
@@ -108,9 +109,10 @@ export function SelectableDocumentTable({
             <div
               key={doc.id}
               onClick={() => router.push(`${config.basePath}/${doc.id}`)}
-              className={`flex cursor-pointer flex-col gap-1 p-4 hover:bg-muted/50 sm:grid sm:grid-cols-[auto_1fr_1.5fr_auto_auto_auto] sm:items-center sm:gap-4 ${
-                isSelected(doc.id) ? 'bg-primary/5' : ''
-              }`}
+              className={cn(
+                'flex cursor-pointer flex-col gap-1 p-4 hover:bg-muted/50 sm:grid sm:grid-cols-[auto_1fr_1.5fr_auto_auto_auto] sm:items-center sm:gap-4',
+                isSelected(doc.id) && 'bg-primary/5'
+              )}
             >
               <div
                 className="flex items-center"
@@ -120,6 +122,7 @@ export function SelectableDocumentTable({
                   type="checkbox"
                   checked={isSelected(doc.id)}
                   onChange={() => toggle(doc.id)}
+                  aria-label={`Select ${doc.number}`}
                   className="h-4 w-4 rounded border-gray-300"
                 />
               </div>

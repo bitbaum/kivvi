@@ -9,7 +9,7 @@ import { BulkResultBanner } from '@/components/bulk-result-banner';
 import { bulkSendDunningAction } from '@/app/actions/bulk-operations';
 import type { BulkOperationResult } from '@/app/actions/bulk-operations';
 import { STATUS_STYLES, toCamelCase } from '@/lib/config/document-types';
-import { formatCurrency } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 import { createDunningAction } from '@/app/actions/dunning';
 
 interface OverdueInvoice {
@@ -107,6 +107,7 @@ export function SelectableDunningTable({ data, translations }: SelectableDunning
             checked={isAllSelected}
             ref={(el) => { if (el) el.indeterminate = isSomeSelected; }}
             onChange={toggleAll}
+            aria-label="Select all"
             className="h-4 w-4 rounded border-gray-300"
           />
         </div>
@@ -125,9 +126,10 @@ export function SelectableDunningTable({ data, translations }: SelectableDunning
           return (
             <div
               key={inv.id}
-              className={`flex flex-col gap-2 p-4 sm:grid sm:grid-cols-[auto_1fr_1.5fr_auto_auto_auto_auto] sm:items-center sm:gap-4 ${
-                isSelected(inv.id) ? 'bg-primary/5' : ''
-              }`}
+              className={cn(
+                'flex flex-col gap-2 p-4 sm:grid sm:grid-cols-[auto_1fr_1.5fr_auto_auto_auto_auto] sm:items-center sm:gap-4',
+                isSelected(inv.id) && 'bg-primary/5'
+              )}
             >
               <div className="flex items-center">
                 {canSelect ? (
@@ -135,6 +137,7 @@ export function SelectableDunningTable({ data, translations }: SelectableDunning
                     type="checkbox"
                     checked={isSelected(inv.id)}
                     onChange={() => toggle(inv.id)}
+                    aria-label={`Select ${inv.number}`}
                     className="h-4 w-4 rounded border-gray-300"
                   />
                 ) : (

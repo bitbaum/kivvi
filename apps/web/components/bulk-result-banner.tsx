@@ -47,7 +47,7 @@ export function BulkResultBanner({ result, labels, onDismiss }: BulkResultBanner
   const errors = result.results.filter((r) => !r.success);
 
   return (
-    <div className={`rounded-lg border p-3 ${bgClass}`}>
+    <div role="alert" className={`rounded-lg border p-3 ${bgClass}`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Icon className="h-4 w-4 flex-shrink-0" />
