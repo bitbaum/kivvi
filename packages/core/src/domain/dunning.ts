@@ -100,7 +100,7 @@ export async function getDunningStats(
   const overdue = await detectOverdueInvoices(db, companyId);
 
   // Get payments for all overdue invoices to calculate outstanding amounts
-  let totalOverdueAmount = 0;
+  let totalOverdueAmount = new Decimal(0);
   for (const inv of overdue) {
     const [paymentsResult] = await db
       .select({
@@ -110,12 +110,14 @@ export async function getDunningStats(
       .where(eq(documentPayments.documentId, inv.id));
 
     const outstanding = new Decimal(inv.total).minus(new Decimal(paymentsResult?.totalPaid || '0'));
-    totalOverdueAmount += Math.max(0, outstanding.toNumber());
+    if (outstanding.greaterThan(0)) {
+      totalOverdueAmount = totalOverdueAmount.plus(outstanding);
+    }
   }
 
   return {
     totalOverdue: overdue.length,
-    totalOverdueAmount,
+    totalOverdueAmount: totalOverdueAmount.toNumber(),
     level0Count: overdue.filter((i) => i.dunningLevel === 0).length,
     level1Count: overdue.filter((i) => i.dunningLevel === 1).length,
     level2Count: overdue.filter((i) => i.dunningLevel === 2).length,

@@ -16,6 +16,7 @@ import {
   createPaymentReceivedJournalEntry,
 } from './accounting-integration';
 import { DEFAULT_VAT_RATE } from '../config/vat-rates';
+import { VALID_CONVERSIONS } from './document-conversions';
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -776,17 +777,8 @@ export async function convertDocument(
     throw new Error('Source document not found');
   }
 
-  // Validate conversion path
-  const validConversions: Record<string, string[]> = {
-    quote: ['order', 'invoice'],
-    order: ['order_confirmation', 'delivery_note', 'invoice'],
-    order_confirmation: ['delivery_note', 'invoice'],
-    delivery_note: ['invoice'],
-    invoice: ['credit_note'],
-    purchase_order: ['purchase_invoice'],
-  };
-
-  const allowed = validConversions[source.type] ?? [];
+  // Validate conversion path (SSOT: document-conversions.ts)
+  const allowed = VALID_CONVERSIONS[source.type] ?? [];
   if (!allowed.includes(targetType)) {
     throw new Error(`Cannot convert ${source.type} to ${targetType}`);
   }
@@ -935,14 +927,14 @@ export async function getFinancialSummary(
     );
 
   return {
-    revenueThisMonth: Number(monthlyRevenue.total),
+    revenueThisMonth: new Decimal(monthlyRevenue.total || '0').toNumber(),
     revenueThisMonthCount: monthlyRevenue.count,
-    revenueThisYear: Number(yearlyRevenue.total),
-    outstandingTotal: Number(outstanding.total),
+    revenueThisYear: new Decimal(yearlyRevenue.total || '0').toNumber(),
+    outstandingTotal: new Decimal(outstanding.total || '0').toNumber(),
     outstandingCount: outstanding.count,
-    overdueTotal: Number(overdue.total),
+    overdueTotal: new Decimal(overdue.total || '0').toNumber(),
     overdueCount: overdue.count,
-    draftsTotal: Number(drafts.total),
+    draftsTotal: new Decimal(drafts.total || '0').toNumber(),
     draftsCount: drafts.count,
   };
 }

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import Decimal from 'decimal.js';
 import type { Tool, ExecutionContext, ToolResult } from '../types';
 import { listDocuments } from '@kivvi/core';
 import { getDb } from './utils';
@@ -49,7 +50,7 @@ export const searchInvoicesTool: Tool = {
         status: doc.status,
         issueDate: doc.issueDate.toISOString().split('T')[0],
         dueDate: doc.dueDate?.toISOString().split('T')[0] || null,
-        total: `${doc.currency} ${Number(doc.total).toFixed(2)}`,
+        total: `${doc.currency} ${new Decimal(doc.total || '0').toFixed(2)}`,
         isOverdue: doc.status !== 'paid' && doc.dueDate && new Date(doc.dueDate) < new Date(),
       }));
 
@@ -61,7 +62,7 @@ export const searchInvoicesTool: Tool = {
         };
       }
 
-      const totalAmount = filteredData.reduce((sum, doc) => sum + Number(doc.total), 0 as number);
+      const totalAmount = filteredData.reduce((sum, doc) => sum.plus(doc.total || '0'), new Decimal(0));
       const unpaidCount = filteredData.filter((doc) => doc.status !== 'paid').length;
 
       return {

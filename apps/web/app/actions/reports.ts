@@ -1,5 +1,6 @@
 'use server';
 
+import Decimal from 'decimal.js';
 import { db } from '@/lib/db';
 import { getSession } from './utils';
 import {
@@ -118,7 +119,7 @@ export async function exportReportAction(
           rows.push(`Sales,${row.rate}%,${row.taxableAmount},${row.vatAmount},${row.documentCount}`);
         });
 
-        const totalSalesTaxable = report.salesVat.reduce((sum, row) => sum + row.taxableAmount, 0);
+        const totalSalesTaxable = report.salesVat.reduce((sum, row) => sum.plus(row.taxableAmount), new Decimal(0)).toNumber();
         rows.push(`Sales Total,,${totalSalesTaxable},${report.totalSalesVat},`);
         rows.push(''); // Empty row
 
@@ -128,7 +129,7 @@ export async function exportReportAction(
           rows.push(`Purchase,${row.rate}%,${row.taxableAmount},${row.vatAmount},${row.documentCount}`);
         });
 
-        const totalPurchaseTaxable = report.purchaseVat.reduce((sum, row) => sum + row.taxableAmount, 0);
+        const totalPurchaseTaxable = report.purchaseVat.reduce((sum, row) => sum.plus(row.taxableAmount), new Decimal(0)).toNumber();
         rows.push(`Purchase Total,,${totalPurchaseTaxable},${report.totalPurchaseVat},`);
         rows.push(''); // Empty row
 

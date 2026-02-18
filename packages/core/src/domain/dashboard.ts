@@ -92,7 +92,7 @@ export async function getDashboardAlerts(
   // 1. Overdue invoices
   const overdueInvoices = await detectOverdueInvoices(db, companyId);
   if (overdueInvoices.length > 0) {
-    const total = overdueInvoices.reduce((sum, inv) => sum + Number(inv.total), 0);
+    const total = overdueInvoices.reduce((sum, inv) => sum.plus(new Decimal(inv.total || '0')), new Decimal(0)).toNumber();
     alerts.push({
       id: 'overdue-invoices',
       type: 'overdue_invoice',
@@ -129,7 +129,7 @@ export async function getDashboardAlerts(
     );
 
   if (expiringQuotes.length > 0) {
-    const total = expiringQuotes.reduce((sum, q) => sum + Number(q.total), 0);
+    const total = expiringQuotes.reduce((sum, q) => sum.plus(new Decimal(q.total || '0')), new Decimal(0)).toNumber();
     alerts.push({
       id: 'expiring-quotes',
       type: 'expiring_quote',
@@ -160,7 +160,7 @@ export async function getDashboardAlerts(
 
   const totalDrafts = draftCounts.reduce((sum, dc) => sum + dc.count, 0);
   if (totalDrafts > 0) {
-    const total = draftCounts.reduce((sum, dc) => sum + Number(dc.total), 0);
+    const total = draftCounts.reduce((sum, dc) => sum.plus(new Decimal(dc.total || '0')), new Decimal(0)).toNumber();
     const typeBreakdown = draftCounts.map((dc) => `${dc.count} ${dc.type}`).join(', ');
     alerts.push({
       id: 'draft-documents',
@@ -285,7 +285,7 @@ export async function getWorkflowSuggestions(
       entityNumber: quote.number,
       entityType: 'quote',
       contactName: quote.contact?.name || null,
-      amount: Number(quote.total),
+      amount: new Decimal(quote.total || '0').toNumber(),
       daysSince: daysSinceSent,
       actionLabel: 'In Auftrag umwandeln',
       actionUrl: `/sales/quotes/${quote.id}/convert`,
@@ -334,7 +334,7 @@ export async function getWorkflowSuggestions(
       entityNumber: order.number,
       entityType: 'order',
       contactName: row.contactName,
-      amount: Number(order.total),
+      amount: new Decimal(order.total || '0').toNumber(),
       daysSince: daysSinceDelivery,
       actionLabel: 'Rechnung erstellen',
       actionUrl: `/sales/orders/${order.id}/convert`,
@@ -369,7 +369,7 @@ export async function getWorkflowSuggestions(
       entityNumber: note.number,
       entityType: 'delivery_note',
       contactName: note.contact?.name || null,
-      amount: Number(note.total),
+      amount: new Decimal(note.total || '0').toNumber(),
       daysSince: daysSinceSent,
       actionLabel: 'Als geliefert markieren',
       actionUrl: `/sales/delivery-notes/${note.id}`,
@@ -408,7 +408,7 @@ export async function getWorkflowSuggestions(
       entityNumber: invoice.number,
       entityType: 'invoice',
       contactName: invoice.contact?.name || null,
-      amount: Number(invoice.total),
+      amount: new Decimal(invoice.total || '0').toNumber(),
       daysSince: daysOverdue,
       actionLabel: 'Mahnung erstellen',
       actionUrl: `/sales/invoices/${invoice.id}/dunning`,
@@ -491,7 +491,7 @@ export async function getRecentActivity(
       number: doc.number,
       contactName: doc.contact?.name || null,
       contactId: doc.contact?.id || null,
-      amount: Number(doc.total),
+      amount: new Decimal(doc.total || '0').toNumber(),
       status: doc.status,
       action,
       timestamp: doc.updatedAt,
@@ -635,42 +635,42 @@ export async function getDashboardStats(
   return {
     revenueThisMonth: {
       label: 'Umsatz dieser Monat',
-      value: Number(monthlyRevenue?.total || 0),
+      value: new Decimal(monthlyRevenue?.total || '0').toNumber(),
       count: monthlyRevenue?.count || 0,
       linkTo: '/sales/invoices?status=paid',
       type: 'currency',
     },
     revenueThisYear: {
       label: 'Umsatz dieses Jahr',
-      value: Number(yearlyRevenue?.total || 0),
+      value: new Decimal(yearlyRevenue?.total || '0').toNumber(),
       count: yearlyRevenue?.count || 0,
       linkTo: '/reports/sales',
       type: 'currency',
     },
     outstandingInvoices: {
       label: 'Offene Rechnungen',
-      value: Number(outstanding?.total || 0),
+      value: new Decimal(outstanding?.total || '0').toNumber(),
       count: outstanding?.count || 0,
       linkTo: '/sales/invoices?status=sent,confirmed,delivered,partially_paid',
       type: 'currency',
     },
     overdueInvoices: {
       label: 'Überfällige Rechnungen',
-      value: Number(overdue?.total || 0),
+      value: new Decimal(overdue?.total || '0').toNumber(),
       count: overdue?.count || 0,
       linkTo: '/sales/invoices?status=overdue',
       type: 'currency',
     },
     draftDocuments: {
       label: 'Entwürfe',
-      value: Number(drafts?.total || 0),
+      value: new Decimal(drafts?.total || '0').toNumber(),
       count: drafts?.count || 0,
       linkTo: '/sales?status=draft',
       type: 'currency',
     },
     bankBalance: {
       label: 'Kontostand',
-      value: Number(bankBalance?.total || 0),
+      value: new Decimal(bankBalance?.total || '0').toNumber(),
       count: bankBalance?.count || 0,
       linkTo: '/banking/accounts',
       type: 'currency',
@@ -738,9 +738,9 @@ export async function getBusinessHealthMetrics(
       )
     );
 
-  const revenue = Number(revenueData?.revenue || 0);
-  const costs = Number(costsData?.costs || 0);
-  const profitMargin = revenue > 0 ? ((revenue - costs) / revenue) * 100 : 0;
+  const revenue = new Decimal(revenueData?.revenue || '0');
+  const costs = new Decimal(costsData?.costs || '0');
+  const profitMargin = revenue.gt(0) ? revenue.minus(costs).div(revenue).times(100).toNumber() : 0;
 
   // Conversion rate: orders / quotes * 100
   const [conversionData] = await db
@@ -758,12 +758,12 @@ export async function getBusinessHealthMetrics(
 
   const quotes = conversionData?.quotes || 0;
   const orders = conversionData?.orders || 0;
-  const conversionRate = quotes > 0 ? (orders / quotes) * 100 : 0;
+  const conversionRate = quotes > 0 ? new Decimal(orders).div(quotes).times(100).toNumber() : 0;
 
   // Average invoice value
   const avgInvoiceValue =
     revenueData && revenueData.count > 0
-      ? revenue / revenueData.count
+      ? revenue.div(revenueData.count).toNumber()
       : 0;
 
   // Average days to payment (invoices paid this year)
@@ -785,7 +785,7 @@ export async function getBusinessHealthMetrics(
   const avgDaysToPayment = paymentData?.avgDays || 0;
 
   // Cash flow ratio (simplified: revenue / costs * 100)
-  const cashFlowRatio = costs > 0 ? (revenue / costs) * 100 : 100;
+  const cashFlowRatio = costs.gt(0) ? revenue.div(costs).times(100).toNumber() : 100;
 
   // Customer retention: simplified - customers who had activity in both periods
   const [lastYearData] = await db
@@ -819,7 +819,7 @@ export async function getBusinessHealthMetrics(
   const thisYearCustomers = thisYearData?.count || 0;
   // Simple retention approximation: customers this year / customers last year * 100
   const customerRetentionRate =
-    lastYearCustomers > 0 ? (thisYearCustomers / lastYearCustomers) * 100 : 0;
+    lastYearCustomers > 0 ? new Decimal(thisYearCustomers).div(lastYearCustomers).times(100).toNumber() : 0;
 
   return {
     profitMargin: Math.round(profitMargin * 10) / 10, // Round to 1 decimal

@@ -1,3 +1,4 @@
+import Decimal from 'decimal.js';
 import { ArrowLeft, Pencil, AlertTriangle, CheckCircle2, Download } from 'lucide-react';
 import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
@@ -19,10 +20,11 @@ export async function DocumentDetail({ doc, config }: DocumentDetailProps) {
   const t = await getTranslations('documents');
   const tc = await getTranslations('common');
 
-  const totalPaid = config.hasPayments
-    ? doc.payments?.reduce((sum: number, p: { amount: string }) => sum + Number(p.amount), 0) || 0
-    : 0;
-  const outstanding = Number(doc.total) - totalPaid;
+  const totalPaidDecimal = config.hasPayments
+    ? doc.payments?.reduce((sum: Decimal, p: { amount: string }) => sum.plus(new Decimal(p.amount || '0')), new Decimal(0)) || new Decimal(0)
+    : new Decimal(0);
+  const totalPaid = totalPaidDecimal.toNumber();
+  const outstanding = new Decimal(doc.total || '0').minus(totalPaidDecimal).toNumber();
   const { isOverdue, daysOverdue } = config.hasPayments ? getOverdueInfo(doc) : { isOverdue: false, daysOverdue: 0 };
 
   return (

@@ -41,7 +41,7 @@ export async function getProfitAndLoss(
     .select({
       code: accounts.code,
       name: accounts.name,
-      amount: sql<number>`COALESCE(SUM(CAST(${journalLines.credit} AS DECIMAL) - CAST(${journalLines.debit} AS DECIMAL)), 0)`,
+      amount: sql<string>`COALESCE(SUM(CAST(${journalLines.credit} AS DECIMAL) - CAST(${journalLines.debit} AS DECIMAL)), 0)`,
     })
     .from(accounts)
     .leftJoin(journalLines, eq(journalLines.accountId, accounts.id))
@@ -62,7 +62,7 @@ export async function getProfitAndLoss(
     .select({
       code: accounts.code,
       name: accounts.name,
-      amount: sql<number>`COALESCE(SUM(CAST(${journalLines.debit} AS DECIMAL) - CAST(${journalLines.credit} AS DECIMAL)), 0)`,
+      amount: sql<string>`COALESCE(SUM(CAST(${journalLines.debit} AS DECIMAL) - CAST(${journalLines.credit} AS DECIMAL)), 0)`,
     })
     .from(accounts)
     .leftJoin(journalLines, eq(journalLines.accountId, accounts.id))
@@ -81,24 +81,24 @@ export async function getProfitAndLoss(
   const revenue: ProfitLossRow[] = revenueRows.map((r) => ({
     accountCode: r.code,
     accountName: r.name,
-    amount: Number(r.amount),
+    amount: new Decimal(r.amount || '0').toNumber(),
   }));
 
   const expenses: ProfitLossRow[] = expenseRows.map((r) => ({
     accountCode: r.code,
     accountName: r.name,
-    amount: Number(r.amount),
+    amount: new Decimal(r.amount || '0').toNumber(),
   }));
 
-  const totalRevenue = revenue.reduce((sum, r) => sum.plus(r.amount), new Decimal(0)).toNumber();
-  const totalExpenses = expenses.reduce((sum, r) => sum.plus(r.amount), new Decimal(0)).toNumber();
+  const totalRevenue = revenueRows.reduce((sum, r) => sum.plus(r.amount || '0'), new Decimal(0)).toNumber();
+  const totalExpenses = expenseRows.reduce((sum, r) => sum.plus(r.amount || '0'), new Decimal(0)).toNumber();
 
   return {
     revenue,
     expenses,
     totalRevenue,
     totalExpenses,
-    netIncome: totalRevenue - totalExpenses,
+    netIncome: new Decimal(totalRevenue).minus(totalExpenses).toNumber(),
     periodStart: startDate,
     periodEnd: endDate,
   };
@@ -136,8 +136,8 @@ export async function getBalanceSheet(
         code: accounts.code,
         name: accounts.name,
         balance: isDebitNormal
-          ? sql<number>`COALESCE(SUM(CAST(${journalLines.debit} AS DECIMAL) - CAST(${journalLines.credit} AS DECIMAL)), 0)`
-          : sql<number>`COALESCE(SUM(CAST(${journalLines.credit} AS DECIMAL) - CAST(${journalLines.debit} AS DECIMAL)), 0)`,
+          ? sql<string>`COALESCE(SUM(CAST(${journalLines.debit} AS DECIMAL) - CAST(${journalLines.credit} AS DECIMAL)), 0)`
+          : sql<string>`COALESCE(SUM(CAST(${journalLines.credit} AS DECIMAL) - CAST(${journalLines.debit} AS DECIMAL)), 0)`,
       })
       .from(accounts)
       .leftJoin(journalLines, eq(journalLines.accountId, accounts.id))
@@ -160,7 +160,7 @@ export async function getBalanceSheet(
     return rows.map((r) => ({
       accountCode: r.code,
       accountName: r.name,
-      balance: Number(r.balance),
+      balance: new Decimal(r.balance || '0').toNumber(),
     }));
   };
 
@@ -218,7 +218,7 @@ export async function getVatReport(
   const salesRows = await db
     .select({
       rate: documentItems.vatRate,
-      taxableAmount: sql<number>`SUM(CAST(${documentItems.total} AS DECIMAL))`,
+      taxableAmount: sql<string>`SUM(CAST(${documentItems.total} AS DECIMAL))`,
       documentCount: sql<number>`COUNT(DISTINCT ${documents.id})::int`,
     })
     .from(documentItems)
@@ -251,7 +251,7 @@ export async function getVatReport(
   const purchaseRows = await db
     .select({
       rate: documentItems.vatRate,
-      taxableAmount: sql<number>`SUM(CAST(${documentItems.total} AS DECIMAL))`,
+      taxableAmount: sql<string>`SUM(CAST(${documentItems.total} AS DECIMAL))`,
       documentCount: sql<number>`COUNT(DISTINCT ${documents.id})::int`,
     })
     .from(documentItems)
@@ -339,7 +339,20 @@ export async function getAgingReport(
     );
 
   const asOf = new Date(asOfDate);
-  const contactMap = new Map<string, AgingRow>();
+
+  // Use Decimal accumulators to avoid repeated number↔Decimal conversions
+  interface AgingAccumulator {
+    contactId: string;
+    contactName: string;
+    current: Decimal;
+    days30: Decimal;
+    days60: Decimal;
+    days90: Decimal;
+    over90: Decimal;
+    total: Decimal;
+  }
+
+  const contactMap = new Map<string, AgingAccumulator>();
 
   for (const inv of unpaidInvoices) {
     const contactId = inv.contactId || 'unknown';
@@ -350,20 +363,20 @@ export async function getAgingReport(
       contactMap.set(contactId, {
         contactId,
         contactName,
-        current: 0,
-        days30: 0,
-        days60: 0,
-        days90: 0,
-        over90: 0,
-        total: 0,
+        current: new Decimal(0),
+        days30: new Decimal(0),
+        days60: new Decimal(0),
+        days90: new Decimal(0),
+        over90: new Decimal(0),
+        total: new Decimal(0),
       });
     }
 
-    const row = contactMap.get(contactId)!;
-    row.total = new Decimal(row.total).plus(total).toNumber();
+    const acc = contactMap.get(contactId)!;
+    acc.total = acc.total.plus(total);
 
     if (!inv.dueDate) {
-      row.current = new Decimal(row.current).plus(total).toNumber();
+      acc.current = acc.current.plus(total);
       continue;
     }
 
@@ -371,31 +384,55 @@ export async function getAgingReport(
     const daysOverdue = Math.floor((asOf.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
 
     if (daysOverdue <= 0) {
-      row.current = new Decimal(row.current).plus(total).toNumber();
+      acc.current = acc.current.plus(total);
     } else if (daysOverdue <= 30) {
-      row.days30 = new Decimal(row.days30).plus(total).toNumber();
+      acc.days30 = acc.days30.plus(total);
     } else if (daysOverdue <= 60) {
-      row.days60 = new Decimal(row.days60).plus(total).toNumber();
+      acc.days60 = acc.days60.plus(total);
     } else if (daysOverdue <= 90) {
-      row.days90 = new Decimal(row.days90).plus(total).toNumber();
+      acc.days90 = acc.days90.plus(total);
     } else {
-      row.over90 = new Decimal(row.over90).plus(total).toNumber();
+      acc.over90 = acc.over90.plus(total);
     }
   }
 
-  const rows = Array.from(contactMap.values()).sort((a, b) => b.total - a.total);
-
-  const totals = rows.reduce(
-    (acc, r) => ({
-      current: new Decimal(acc.current).plus(r.current).toNumber(),
-      days30: new Decimal(acc.days30).plus(r.days30).toNumber(),
-      days60: new Decimal(acc.days60).plus(r.days60).toNumber(),
-      days90: new Decimal(acc.days90).plus(r.days90).toNumber(),
-      over90: new Decimal(acc.over90).plus(r.over90).toNumber(),
-      total: new Decimal(acc.total).plus(r.total).toNumber(),
+  // Compute totals from Decimal accumulators before converting to number
+  const accumulators = Array.from(contactMap.values());
+  const zero = { current: new Decimal(0), days30: new Decimal(0), days60: new Decimal(0), days90: new Decimal(0), over90: new Decimal(0), total: new Decimal(0) };
+  const totalAcc = accumulators.reduce(
+    (t, a) => ({
+      current: t.current.plus(a.current),
+      days30: t.days30.plus(a.days30),
+      days60: t.days60.plus(a.days60),
+      days90: t.days90.plus(a.days90),
+      over90: t.over90.plus(a.over90),
+      total: t.total.plus(a.total),
     }),
-    { current: 0, days30: 0, days60: 0, days90: 0, over90: 0, total: 0 }
+    zero
   );
+
+  // Convert to output format — .toNumber() only at the final boundary
+  const rows: AgingRow[] = accumulators
+    .map((a) => ({
+      contactId: a.contactId,
+      contactName: a.contactName,
+      current: a.current.toNumber(),
+      days30: a.days30.toNumber(),
+      days60: a.days60.toNumber(),
+      days90: a.days90.toNumber(),
+      over90: a.over90.toNumber(),
+      total: a.total.toNumber(),
+    }))
+    .sort((a, b) => b.total - a.total);
+
+  const totals = {
+    current: totalAcc.current.toNumber(),
+    days30: totalAcc.days30.toNumber(),
+    days60: totalAcc.days60.toNumber(),
+    days90: totalAcc.days90.toNumber(),
+    over90: totalAcc.over90.toNumber(),
+    total: totalAcc.total.toNumber(),
+  };
 
   return { rows, totals, asOfDate };
 }
@@ -432,8 +469,8 @@ export async function getSalesReport(
     .select({
       month: sql<string>`TO_CHAR(${documents.issueDate}, 'YYYY-MM')`,
       count: sql<number>`COUNT(*)::int`,
-      revenue: sql<number>`COALESCE(SUM(CAST(${documents.subtotal} AS DECIMAL)), 0)`,
-      vatAmount: sql<number>`COALESCE(SUM(CAST(${documents.vatAmount} AS DECIMAL)), 0)`,
+      revenue: sql<string>`COALESCE(SUM(CAST(${documents.subtotal} AS DECIMAL)), 0)`,
+      vatAmount: sql<string>`COALESCE(SUM(CAST(${documents.vatAmount} AS DECIMAL)), 0)`,
     })
     .from(documents)
     .where(
@@ -453,7 +490,7 @@ export async function getSalesReport(
     .select({
       month: sql<string>`TO_CHAR(${documents.issueDate}, 'YYYY-MM')`,
       count: sql<number>`COUNT(*)::int`,
-      amount: sql<number>`COALESCE(SUM(CAST(${documents.total} AS DECIMAL)), 0)`,
+      amount: sql<string>`COALESCE(SUM(CAST(${documents.total} AS DECIMAL)), 0)`,
     })
     .from(documents)
     .where(
@@ -480,16 +517,16 @@ export async function getSalesReport(
     .map((month) => {
       const inv = invoiceRows.find((r) => r.month === month);
       const cn = creditMap.get(month);
-      const revenue = Number(inv?.revenue || 0);
-      const creditAmount = Number(cn?.amount || 0);
+      const revenue = new Decimal(inv?.revenue || '0');
+      const creditAmount = new Decimal(cn?.amount || '0');
       return {
         month,
         invoiceCount: inv?.count || 0,
-        revenue,
-        vatAmount: Number(inv?.vatAmount || 0),
+        revenue: revenue.toNumber(),
+        vatAmount: new Decimal(inv?.vatAmount || '0').toNumber(),
         creditNoteCount: cn?.count || 0,
-        creditNoteAmount: creditAmount,
-        netRevenue: new Decimal(revenue).minus(creditAmount).toNumber(),
+        creditNoteAmount: creditAmount.toNumber(),
+        netRevenue: revenue.minus(creditAmount).toNumber(),
       };
     });
 

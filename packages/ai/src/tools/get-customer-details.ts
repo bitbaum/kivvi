@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import Decimal from 'decimal.js';
 import type { Tool, ExecutionContext, ToolResult } from '../types';
 import { getContact } from '@kivvi/core';
 import { getDb } from './utils';
@@ -27,7 +28,7 @@ export const getCustomerDetailsTool: Tool = {
       const { contact, addresses, recentDocuments } = result;
 
       const invoices = recentDocuments.filter((d) => d.type === 'invoice');
-      const totalRevenue = invoices.reduce((sum, inv) => sum + Number(inv.total), 0 as number);
+      const totalRevenue = invoices.reduce((sum, inv) => sum.plus(inv.total || '0'), new Decimal(0));
       const unpaidInvoices = invoices.filter((inv) => inv.status !== 'paid' && inv.status !== 'cancelled');
       const overdueInvoices = unpaidInvoices.filter((inv) => inv.issueDate && new Date(inv.issueDate) < new Date());
 
@@ -65,7 +66,7 @@ export const getCustomerDetailsTool: Tool = {
             vatNumber: contact.vatNumber,
             iban: contact.iban,
             paymentTermsDays: contact.paymentTermsDays,
-            creditLimit: contact.creditLimit ? Number(contact.creditLimit) : null,
+            creditLimit: contact.creditLimit ? new Decimal(contact.creditLimit).toNumber() : null,
           },
           stats: {
             totalInvoices: invoices.length,
@@ -79,7 +80,7 @@ export const getCustomerDetailsTool: Tool = {
             type: doc.type,
             status: doc.status,
             date: doc.issueDate.toISOString().split('T')[0],
-            total: `${context.defaultCurrency} ${Number(doc.total).toFixed(2)}`,
+            total: `${context.defaultCurrency} ${new Decimal(doc.total || '0').toFixed(2)}`,
           })),
           notes: contact.notes,
           language: contact.language,

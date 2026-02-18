@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import Decimal from 'decimal.js';
 import type { Tool, ExecutionContext, ToolResult } from '../types';
 import { getDocument } from '@kivvi/core';
 import { getDb } from './utils';
@@ -36,7 +37,7 @@ export const getInvoiceDetailsTool: Tool = {
         ? Math.floor((Date.now() - new Date(doc.dueDate).getTime()) / (1000 * 60 * 60 * 24))
         : 0;
 
-      const totalPaid = (doc.payments || []).reduce((sum, p) => sum + Number(p.amount), 0 as number);
+      const totalPaid = (doc.payments || []).reduce((sum, p) => sum.plus(p.amount || '0'), new Decimal(0));
 
       return {
         success: true,
@@ -61,19 +62,19 @@ export const getInvoiceDetailsTool: Tool = {
           daysOverdue,
           items: (doc.items || []).map((item) => ({
             description: item.description,
-            quantity: Number(item.quantity),
-            unitPrice: Number(item.unitPrice),
-            discount: Number(item.discount),
-            vatRate: Number(item.vatRate),
-            total: Number(item.total),
+            quantity: new Decimal(item.quantity || '0').toNumber(),
+            unitPrice: new Decimal(item.unitPrice || '0').toNumber(),
+            discount: new Decimal(item.discount || '0').toNumber(),
+            vatRate: new Decimal(item.vatRate || '0').toNumber(),
+            total: new Decimal(item.total || '0').toNumber(),
             product: item.product?.name || null,
           })),
           totals: {
-            subtotal: `${doc.currency} ${Number(doc.subtotal).toFixed(2)}`,
-            vat: `${doc.currency} ${Number(doc.vatAmount).toFixed(2)}`,
-            total: `${doc.currency} ${Number(doc.total).toFixed(2)}`,
+            subtotal: `${doc.currency} ${new Decimal(doc.subtotal || '0').toFixed(2)}`,
+            vat: `${doc.currency} ${new Decimal(doc.vatAmount || '0').toFixed(2)}`,
+            total: `${doc.currency} ${new Decimal(doc.total || '0').toFixed(2)}`,
             paid: `${doc.currency} ${totalPaid.toFixed(2)}`,
-            outstanding: `${doc.currency} ${(Number(doc.total) - totalPaid).toFixed(2)}`,
+            outstanding: `${doc.currency} ${new Decimal(doc.total || '0').minus(totalPaid).toFixed(2)}`,
           },
           notes: doc.notes,
           qrReference: doc.qrReference,

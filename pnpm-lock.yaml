@@ -205,6 +205,9 @@ importers:
       '@kivvi/database':
         specifier: workspace:*
         version: link:../database
+      decimal.js:
+        specifier: ^10.4.3
+        version: 10.6.0
       drizzle-orm:
         specifier: ^0.29.3
         version: 0.29.5(@neondatabase/serverless@0.9.5)(@types/pg@8.11.6)(@types/react@18.3.27)(postgres@3.4.8)(react@18.3.1)
