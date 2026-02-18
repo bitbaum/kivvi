@@ -15,6 +15,7 @@ import {
 } from '@kivvi/database';
 import type { Database } from '@kivvi/database';
 import { DEFAULT_VAT_RATE } from '../config/vat-rates';
+import type { ParsedLineItem } from './import-mappings';
 
 // ============================================================================
 // TYPES
@@ -290,7 +291,10 @@ export async function bulkInsertProducts(
 /**
  * Insert documents from CSV rows. Rows that share the same document number
  * are grouped and become one document with multiple line items.
- * The `positions` field may contain embedded line-item text from kivitendo.
+ *
+ * When `structuredItems` is provided (keyed by document number), those are
+ * used instead of parsing the truncated `positions` text field. This is the
+ * correct path for Kivitendo imports where line items live as extra CSV columns.
  */
 export async function bulkInsertDocuments(
   db: Database,
@@ -298,7 +302,9 @@ export async function bulkInsertDocuments(
   userId: string,
   rows: Array<Record<string, string | null>>,
   contactLookup: Map<string, string>,
-  documentType: 'invoice' | 'purchase_invoice' | 'quote' | 'order' | 'delivery_note'
+  documentType: 'invoice' | 'purchase_invoice' | 'quote' | 'order' | 'delivery_note',
+  structuredItems?: Map<string, ParsedLineItem[]>,
+  productLookup?: Map<string, string>,
 ): Promise<BulkInsertResult> {
   let inserted = 0;
   let skipped = 0;
@@ -381,22 +387,49 @@ export async function bulkInsertDocuments(
           throw new Error('Document already exists');
         }
 
-        // Parse line items from positions field if available
-        const positions = firstRow.positions;
-        if (positions) {
-          const items = parsePositions(positions, firstRow.vatRate || DEFAULT_VAT_RATE);
-          if (items.length > 0) {
-            await tx.insert(documentItems).values(
-              items.map((item, idx) => ({
+        // Insert line items: prefer structured items from extra CSV columns
+        const structured = structuredItems?.get(docNumber);
+        if (structured && structured.length > 0) {
+          const vatRate = firstRow.vatRate || DEFAULT_VAT_RATE;
+          await tx.insert(documentItems).values(
+            structured.map((item) => {
+              const productId = item.articleNumber
+                ? productLookup?.get(item.articleNumber) || null
+                : null;
+              return {
                 documentId: doc.id,
-                position: idx + 1,
+                productId,
+                position: item.position,
                 description: item.description,
-                quantity: item.quantity,
-                unitPrice: item.unitPrice,
-                vatRate: item.vatRate,
-                total: item.total,
-              }))
-            );
+                quantity: item.quantity || '1',
+                unitPrice: '0',
+                vatRate,
+                total: '0',
+              };
+            })
+          );
+        } else {
+          // Fallback: parse the "Positionen" text field.
+          // NOTE: This field is often truncated by header-mode CSV parsing —
+          // it's a best-effort attempt that typically produces a single item
+          // with the raw text as description. For proper line items, use
+          // structuredItems from parseKivitendoLineItems().
+          const positions = firstRow.positions;
+          if (positions) {
+            const items = parsePositions(positions, firstRow.vatRate || DEFAULT_VAT_RATE);
+            if (items.length > 0) {
+              await tx.insert(documentItems).values(
+                items.map((item, idx) => ({
+                  documentId: doc.id,
+                  position: idx + 1,
+                  description: item.description,
+                  quantity: item.quantity,
+                  unitPrice: item.unitPrice,
+                  vatRate: item.vatRate,
+                  total: item.total,
+                }))
+              );
+            }
           }
         }
       });
@@ -412,9 +445,16 @@ export async function bulkInsertDocuments(
 }
 
 /**
- * Parse the "Positionen" field from kivitendo CSV exports.
- * Format varies, but typically: "qty unit x description @ price = total"
- * or pipe-separated lines.
+ * Parse the "Positionen" text field from kivitendo CSV exports (fallback).
+ *
+ * WARNING: When CSVs are parsed in header mode, the position data beyond the
+ * header columns gets dropped. The "Positionen" column only contains a truncated
+ * text summary, NOT structured data. This function is a best-effort attempt to
+ * extract items from that text. Results are typically a single item with the
+ * raw text as description and unitPrice=0.
+ *
+ * For proper line items, use parseKivitendoLineItems() from import-mappings.ts
+ * which reads the extra columns from array-mode CSV parsing.
  */
 function parsePositions(
   positions: string,

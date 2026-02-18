@@ -54,7 +54,7 @@ export function cleanHeaders(headers: string[]): string[] {
 }
 
 /** Map unit from kivitendo to kivvi */
-function mapUnit(value: string): string {
+export function mapUnit(value: string): string {
   const unitMap: Record<string, string> = {
     'Stck': 'piece',
     'Stk': 'piece',
@@ -67,6 +67,9 @@ function mapUnit(value: string): string {
     'l': 'liter',
     'Mt': 'piece', // months → treat as piece
     'Pauschal': 'piece',
+    'psch': 'piece',
+    'Jahr': 'piece',
+    'Tag': 'piece',
   };
   return unitMap[value?.trim()] || 'piece';
 }
@@ -310,4 +313,61 @@ export function detectMappingProfile(
 export function isSubtotalRow(row: Record<string, string>, keyColumn: string): boolean {
   const value = row[keyColumn];
   return !value || value.trim() === '';
+}
+
+// ============================================================================
+// KIVITENDO LINE ITEM PARSING (from extra CSV columns)
+// ============================================================================
+
+export interface ParsedLineItem {
+  position: number;
+  articleNumber: string;
+  description: string;
+  quantity: string;
+  unit: string;
+}
+
+/**
+ * Parse structured line items from a raw Kivitendo CSV row.
+ *
+ * Kivitendo exports put line items as EXTRA COLUMNS beyond the CSV header.
+ * After the "Positionen" text column, the row contains:
+ *   - 5-column sub-header: "Position", "Artikelnummer", "Beschreibung", "Menge", "Einheit"
+ *   - Repeating groups of 5: (position#, articleNumber, description, quantity, unit)
+ *   - Terminator: position "0" or empty
+ *
+ * @param row - Raw CSV row as string array (parsed without headers)
+ * @param positionenColIndex - 0-based index of the "Positionen" text column
+ * @returns Parsed line items array (empty if no items found)
+ */
+export function parseKivitendoLineItems(
+  row: string[],
+  positionenColIndex: number
+): ParsedLineItem[] {
+  const items: ParsedLineItem[] = [];
+
+  // Items start after: Positionen col + 5-col sub-header
+  const startIndex = positionenColIndex + 6;
+
+  if (row.length <= startIndex) return items;
+
+  for (let i = startIndex; i + 4 < row.length; i += 5) {
+    const posStr = row[i]?.trim();
+
+    // Stop at terminator: position "0" or empty
+    if (!posStr || posStr === '0') break;
+
+    const posNum = parseInt(posStr, 10);
+    if (isNaN(posNum) || posNum <= 0) break;
+
+    items.push({
+      position: posNum,
+      articleNumber: row[i + 1]?.trim() || '',
+      description: row[i + 2]?.trim() || '',
+      quantity: row[i + 3]?.trim() || '0',
+      unit: row[i + 4]?.trim() || '',
+    });
+  }
+
+  return items;
 }
