@@ -7,6 +7,7 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { updateContactAction } from '@/app/actions/contacts';
 import type { Contact } from '@kivvi/database';
+import { toast } from 'sonner';
 
 const LANGUAGES = [
   { value: 'de', label: 'Deutsch' },
@@ -52,6 +53,7 @@ export function EditContactForm({ contact }: EditContactFormProps) {
       const result = await updateContactAction(contact.id, formData);
 
       if (result.success) {
+        toast.success(t('updated'));
         router.push(`/contacts/${contact.id}`);
       } else {
         setError(result.error || tc('error'));

@@ -57,7 +57,8 @@
     "hideAdvanced": "Hide advanced options",
     "errorBoundaryTitle": "Something went wrong",
     "errorBoundaryMessage": "This section could not be loaded.",
-    "errorBoundaryReload": "Reload page"
+    "errorBoundaryReload": "Reload page",
+    "exported": "Export complete"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -159,6 +160,7 @@
     "vat": "VAT",
     "atLeastOneItem": "At least one line item is required",
     "modifyDraft": "Modify the draft.",
+    "documentSaved": "Document saved",
     "clear": "Clear",
     "convertTo": "Convert to",
     "deleteConfirm": "Are you sure you want to delete this draft? This action cannot be undone.",
@@ -396,7 +398,10 @@
       "vendor": "Vendor",
       "both": "Both"
     },
-    "internalNotes": "Internal notes"
+    "internalNotes": "Internal notes",
+    "created": "Contact created",
+    "updated": "Contact updated",
+    "deleted": "Contact deleted"
   },
   "products": {
     "title": "Products",
@@ -457,7 +462,9 @@
     "internalNotes": "Internal notes (not visible to customers)",
     "perWarehouse": "Per Warehouse",
     "reservedQuantity": "({count} reserved)",
-    "kivitendoId": "Kivitendo ID"
+    "kivitendoId": "Kivitendo ID",
+    "created": "Product created",
+    "updated": "Product updated"
   },
   "accounting": {
     "title": "Accounting",
@@ -493,6 +500,7 @@
     "manual": "Manual",
     "deleteEntry": "Delete Entry",
     "deleteEntryConfirm": "Are you sure you want to delete this entry?",
+    "entryDeleted": "Journal entry deleted",
     "entryMustBalance": "Debits and credits must balance",
     "minimumTwoLines": "Minimum two journal lines required",
     "account": "Account",
@@ -509,6 +517,8 @@
     "closePeriod": "Close Period",
     "closeYearConfirm": "Are you sure you want to close this fiscal year? No more entries can be posted to this period.",
     "closePeriodConfirm": "Are you sure you want to close this period?",
+    "yearClosed": "Fiscal year closed",
+    "periodClosed": "Period closed",
     "periods": "Periods",
     "periodsAutoCreated": "12 monthly periods will be automatically created.",
     "noFiscalYears": "No fiscal years found",
@@ -777,6 +787,9 @@
       "activate": "Activate",
       "deactivate": "Deactivate",
       "confirmDelete": "Are you sure you want to delete this configuration?",
+      "deleted": "Configuration deleted",
+      "activated": "Configuration activated",
+      "deactivated": "Configuration deactivated",
       "created": "Recurring invoice created",
       "updated": "Recurring invoice updated",
       "baseOrderSection": "Base Order",

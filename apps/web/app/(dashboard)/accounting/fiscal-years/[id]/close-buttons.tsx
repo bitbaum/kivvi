@@ -27,6 +27,7 @@ export function CloseYearButton({ yearId, yearName }: CloseYearButtonProps) {
     startTransition(async () => {
       const result = await closeFiscalYearAction(yearId);
       if (result.success) {
+        toast.success(t('yearClosed'));
         router.refresh();
       } else {
         toast.error(result.error || 'Failed to close fiscal year');
@@ -91,6 +92,7 @@ export function ClosePeriodButton({ periodId, periodName }: ClosePeriodButtonPro
     startTransition(async () => {
       const result = await closeFiscalPeriodAction(periodId);
       if (result.success) {
+        toast.success(t('periodClosed'));
         router.refresh();
       } else {
         toast.error(result.error || 'Failed to close period');

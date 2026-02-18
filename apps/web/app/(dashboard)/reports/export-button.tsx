@@ -42,6 +42,8 @@ export function ExportButton({
         return;
       }
 
+      toast.success(tc('exported'));
+
       // Create blob and download
       const blob = new Blob([result.data.csvData], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);

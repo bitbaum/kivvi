@@ -8,6 +8,7 @@ import { useTranslations } from 'next-intl';
 import { updateProductAction } from '@/app/actions/products';
 import { SWISS_VAT_RATES, DEFAULT_VAT_RATE } from '@/lib/config/vat-rates';
 import type { Product } from '@kivvi/database';
+import { toast } from 'sonner';
 
 interface EditProductFormProps {
   product: Product;
@@ -50,6 +51,7 @@ export function EditProductForm({ product }: EditProductFormProps) {
       const result = await updateProductAction(product.id, formData);
 
       if (result.success) {
+        toast.success(t('updated'));
         router.push(`/products/${product.id}`);
       } else {
         setError(result.error || tc('error'));

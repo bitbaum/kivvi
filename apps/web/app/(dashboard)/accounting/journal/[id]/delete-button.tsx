@@ -38,6 +38,7 @@ export function DeleteJournalEntryButton({ entryId }: DeleteJournalEntryButtonPr
           startTransition(async () => {
             const result = await deleteJournalEntryAction(entryId);
             if (result.success) {
+              toast.success(t('entryDeleted'));
               router.push('/accounting/journal');
             } else {
               toast.error(result.error || 'Failed to delete journal entry');

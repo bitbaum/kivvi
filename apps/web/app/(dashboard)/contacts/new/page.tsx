@@ -7,6 +7,7 @@ import { ArrowLeft, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { createContactAction } from '@/app/actions/contacts';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 const LANGUAGES = [
   { value: 'de', label: 'Deutsch' },
@@ -49,6 +50,7 @@ export default function NewContactPage() {
       const result = await createContactAction(formData);
 
       if (result.success && result.data) {
+        toast.success(t('created'));
         router.push(`/contacts/${result.data.id}`);
       } else {
         setError(result.error || tc('error'));

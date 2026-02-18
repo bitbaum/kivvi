@@ -12,6 +12,7 @@ import type { DocumentTypeConfig } from '@/lib/config/document-types';
 import { SWISS_VAT_RATES, DEFAULT_VAT_RATE } from '@/lib/config/vat-rates';
 import { CharCountTextarea } from '@/components/ui/char-count-textarea';
 import type { DocumentType } from '@kivvi/database';
+import { toast } from 'sonner';
 import { rappenRound } from '@kivvi/core/src/utils/swiss-currency';
 
 interface LineItem {
@@ -146,6 +147,7 @@ export function EditDocumentForm({ documentId, documentType, config, initialData
       });
 
       if (result.success) {
+        toast.success(t('documentSaved'));
         router.push(`${config.basePath}/${documentId}`);
       } else {
         setError(result.error || tc('error'));

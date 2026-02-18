@@ -57,7 +57,8 @@
     "hideAdvanced": "Masquer les options avancées",
     "errorBoundaryTitle": "Quelque chose s'est mal passé",
     "errorBoundaryMessage": "Cette section n'a pas pu être chargée.",
-    "errorBoundaryReload": "Recharger la page"
+    "errorBoundaryReload": "Recharger la page",
+    "exported": "Export terminé"
   },
   "nav": {
     "dashboard": "Tableau de bord",
@@ -159,6 +160,7 @@
     "vat": "TVA",
     "atLeastOneItem": "Au moins une ligne est requise",
     "modifyDraft": "Modifier le brouillon.",
+    "documentSaved": "Document enregistré",
     "clear": "Effacer",
     "convertTo": "Convertir en",
     "deleteConfirm": "Êtes-vous sûr de vouloir supprimer ce brouillon ? Cette action est irréversible.",
@@ -398,7 +400,10 @@
       "vendor": "Fournisseur",
       "both": "Les deux"
     },
-    "internalNotes": "Notes internes"
+    "internalNotes": "Notes internes",
+    "created": "Contact créé",
+    "updated": "Contact mis à jour",
+    "deleted": "Contact supprimé"
   },
   "products": {
     "title": "Produits",
@@ -459,7 +464,9 @@
     "internalNotes": "Notes internes (non visibles pour les clients)",
     "perWarehouse": "Par entrepôt",
     "reservedQuantity": "({count} réservé(s))",
-    "kivitendoId": "ID Kivitendo"
+    "kivitendoId": "ID Kivitendo",
+    "created": "Produit créé",
+    "updated": "Produit mis à jour"
   },
   "accounting": {
     "title": "Comptabilité",
@@ -495,6 +502,7 @@
     "manual": "Manuel",
     "deleteEntry": "Supprimer l'écriture",
     "deleteEntryConfirm": "Êtes-vous sûr de vouloir supprimer cette écriture ?",
+    "entryDeleted": "Écriture comptable supprimée",
     "entryMustBalance": "Le débit et le crédit doivent être équilibrés",
     "minimumTwoLines": "Minimum deux lignes d'écriture requises",
     "account": "Compte",
@@ -511,6 +519,8 @@
     "closePeriod": "Clôturer la période",
     "closeYearConfirm": "Êtes-vous sûr de vouloir clôturer cet exercice ? Aucune écriture ne pourra plus être enregistrée dans cette période.",
     "closePeriodConfirm": "Êtes-vous sûr de vouloir clôturer cette période ?",
+    "yearClosed": "Exercice fiscal clôturé",
+    "periodClosed": "Période clôturée",
     "periods": "Périodes",
     "periodsAutoCreated": "12 périodes mensuelles seront automatiquement créées.",
     "noFiscalYears": "Aucun exercice fiscal trouvé",
@@ -779,6 +789,9 @@
       "activate": "Activer",
       "deactivate": "Désactiver",
       "confirmDelete": "Êtes-vous sûr de vouloir supprimer cette configuration ?",
+      "deleted": "Configuration supprimée",
+      "activated": "Configuration activée",
+      "deactivated": "Configuration désactivée",
       "created": "Facture récurrente créée",
       "updated": "Facture récurrente mise à jour",
       "baseOrderSection": "Commande de base",

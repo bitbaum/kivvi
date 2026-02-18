@@ -36,22 +36,23 @@ export function RecurringConfigRow({ config, periodicityLabel }: RecurringConfig
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   async function handleDelete() {
-    if (!window.confirm(t('recurring.confirmDelete'))) return;
-
     setIsDeleting(true);
     try {
       const result = await deleteRecurringConfigAction(config.id);
       if (result.success) {
+        toast.success(t('recurring.deleted'));
         router.refresh();
       } else {
         toast.error(result.error || 'Failed to delete');
       }
-    } catch (error) {
+    } catch {
       toast.error('An error occurred');
     } finally {
       setIsDeleting(false);
+      setShowDeleteConfirm(false);
     }
   }
 
@@ -60,6 +61,7 @@ export function RecurringConfigRow({ config, periodicityLabel }: RecurringConfig
     try {
       const result = await toggleRecurringConfigAction(config.id, !config.isActive);
       if (result.success) {
+        toast.success(config.isActive ? t('recurring.deactivated') : t('recurring.activated'));
         router.refresh();
       } else {
         toast.error(result.error || 'Failed to toggle');
@@ -129,7 +131,7 @@ export function RecurringConfigRow({ config, periodicityLabel }: RecurringConfig
               )}
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={handleDelete}
+              onClick={() => setShowDeleteConfirm(true)}
               disabled={isDeleting}
               className="text-destructive focus:text-destructive"
             >
@@ -139,6 +141,33 @@ export function RecurringConfigRow({ config, periodicityLabel }: RecurringConfig
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {/* Delete confirmation dialog */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowDeleteConfirm(false)}>
+          <div className="mx-4 w-full max-w-md rounded-xl border bg-card p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold">{tc('delete')}</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {t('recurring.confirmDelete')}
+            </p>
+            <div className="mt-4 flex justify-end gap-2">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted"
+              >
+                {tc('cancel')}
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+              >
+                {isDeleting ? tc('deleting') : tc('delete')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

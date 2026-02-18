@@ -26,6 +26,7 @@ export function DeleteContactButton({ contactId, contactName }: DeleteContactBut
     try {
       const result = await deleteContactAction(contactId);
       if (result.success) {
+        toast.success(t('deleted'));
         router.push('/contacts');
       } else {
         toast.error(result.error || tc('error'));

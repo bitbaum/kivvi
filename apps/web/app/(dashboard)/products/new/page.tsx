@@ -8,6 +8,7 @@ import { useTranslations } from 'next-intl';
 import { createProductAction } from '@/app/actions/products';
 import { SWISS_VAT_RATES, DEFAULT_VAT_RATE } from '@/lib/config/vat-rates';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 export default function NewProductPage() {
   const router = useRouter();
@@ -46,6 +47,7 @@ export default function NewProductPage() {
       const result = await createProductAction(formData);
 
       if (result.success && result.data) {
+        toast.success(t('created'));
         router.push(`/products/${result.data.id}`);
       } else {
         setError(result.error || tc('error'));
