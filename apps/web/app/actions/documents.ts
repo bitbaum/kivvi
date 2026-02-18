@@ -14,7 +14,7 @@ import {
   updateDocumentSchema,
 } from '@kivvi/core';
 import type { DocumentType, DocumentStatus } from '@kivvi/database';
-import { type ActionResult, getSession, safeErrorMessage } from './utils';
+import { type ActionResult, getSession, safeErrorMessage, formatZodError } from './utils';
 
 // ============================================================================
 // VALIDATION SCHEMAS FOR UNVALIDATED PARAMS
@@ -79,11 +79,7 @@ export async function createDocumentAction(
 
     const parsed = createDocumentSchema.safeParse(input);
     if (!parsed.success) {
-      const firstError = parsed.error.errors[0];
-      return {
-        success: false,
-        error: `${firstError.path.join('.')}: ${firstError.message}`,
-      };
+      return { success: false, ...formatZodError(parsed.error) };
     }
 
     const doc = await createDocument(db, companyId, userId, parsed.data);
@@ -104,11 +100,7 @@ export async function updateDocumentAction(
 
     const parsed = updateDocumentSchema.safeParse(input);
     if (!parsed.success) {
-      const firstError = parsed.error.errors[0];
-      return {
-        success: false,
-        error: `${firstError.path.join('.')}: ${firstError.message}`,
-      };
+      return { success: false, ...formatZodError(parsed.error) };
     }
 
     const doc = await updateDocument(db, companyId, documentId, parsed.data);
@@ -172,8 +164,7 @@ export async function recordPaymentAction(
     // Validate the payment input
     const parsed = recordPaymentSchema.safeParse(input);
     if (!parsed.success) {
-      const firstError = parsed.error.errors[0];
-      return { success: false, error: `${firstError.path.join('.')}: ${firstError.message}` };
+      return { success: false, ...formatZodError(parsed.error) };
     }
 
     const payment = await recordPayment(db, companyId, documentId, parsed.data);

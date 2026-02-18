@@ -48,7 +48,7 @@ export async function updateCompanyAction(input: unknown): Promise<ActionResult>
     revalidatePath('/settings');
     return { success: true, data: company };
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed') };
+    return { success: false, error: safeErrorMessage(error, 'Failed to update company settings') };
   }
 }
 
@@ -81,7 +81,7 @@ export async function updateProfileAction(input: unknown): Promise<ActionResult>
     revalidatePath('/settings');
     return { success: true, data: { id: user.id, name: user.name, email: user.email } };
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed') };
+    return { success: false, error: safeErrorMessage(error, 'Failed to update profile') };
   }
 }
 
@@ -119,6 +119,6 @@ export async function updateNumberSequenceAction(
     revalidatePath('/settings');
     return { success: true, data: seq };
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed') };
+    return { success: false, error: safeErrorMessage(error, 'Failed to update number sequence') };
   }
 }

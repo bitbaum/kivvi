@@ -9,7 +9,7 @@ import {
   createProductSchema,
   updateProductSchema,
 } from '@kivvi/core';
-import { type ActionResult, getSession, safeErrorMessage } from './utils';
+import { type ActionResult, getSession, safeErrorMessage, formatZodError } from './utils';
 import { parseFormData } from './parse-form-data';
 
 /**
@@ -50,11 +50,7 @@ export async function createProductAction(formData: FormData): Promise<ActionRes
     // Validate
     const parsed = createProductSchema.safeParse(input);
     if (!parsed.success) {
-      const firstError = parsed.error.errors[0];
-      return {
-        success: false,
-        error: `${firstError.path.join('.')}: ${firstError.message}`,
-      };
+      return { success: false, ...formatZodError(parsed.error) };
     }
 
     const product = await createProduct(db, companyId, parsed.data);
@@ -82,11 +78,7 @@ export async function updateProductAction(
     // Validate
     const parsed = updateProductSchema.safeParse(input);
     if (!parsed.success) {
-      const firstError = parsed.error.errors[0];
-      return {
-        success: false,
-        error: `${firstError.path.join('.')}: ${firstError.message}`,
-      };
+      return { success: false, ...formatZodError(parsed.error) };
     }
 
     const product = await updateProduct(db, companyId, productId, parsed.data);
