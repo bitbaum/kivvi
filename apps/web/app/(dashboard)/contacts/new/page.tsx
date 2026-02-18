@@ -8,22 +8,7 @@ import { useTranslations } from 'next-intl';
 import { createContactAction } from '@/app/actions/contacts';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-
-const LANGUAGES = [
-  { value: 'de', label: 'Deutsch' },
-  { value: 'fr', label: 'Francais' },
-  { value: 'it', label: 'Italiano' },
-  { value: 'en', label: 'English' },
-] as const;
-
-const COUNTRIES = [
-  { value: 'CH', label: 'Switzerland' },
-  { value: 'DE', label: 'Germany' },
-  { value: 'AT', label: 'Austria' },
-  { value: 'FR', label: 'France' },
-  { value: 'IT', label: 'Italy' },
-  { value: 'LI', label: 'Liechtenstein' },
-] as const;
+import { LANGUAGE_OPTIONS, COUNTRY_OPTIONS } from '@/lib/config/locales';
 
 export default function NewContactPage() {
   const router = useRouter();
@@ -293,7 +278,7 @@ export default function NewContactPage() {
                 defaultValue="CH"
                 className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               >
-                {COUNTRIES.map((c) => (
+                {COUNTRY_OPTIONS.map((c) => (
                   <option key={c.value} value={c.value}>
                     {c.label}
                   </option>
@@ -409,7 +394,7 @@ export default function NewContactPage() {
                 defaultValue="de"
                 className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               >
-                {LANGUAGES.map((l) => (
+                {LANGUAGE_OPTIONS.map((l) => (
                   <option key={l.value} value={l.value}>
                     {l.label}
                   </option>

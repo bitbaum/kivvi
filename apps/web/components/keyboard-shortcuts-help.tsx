@@ -51,6 +51,7 @@ export function KeyboardShortcutsHelp({ isOpen, onClose }: KeyboardShortcutsHelp
         <button
           type="button"
           onClick={onClose}
+          aria-label="Close"
           className="absolute right-4 top-4 rounded-lg p-1 hover:bg-muted"
         >
           <X className="h-4 w-4" />

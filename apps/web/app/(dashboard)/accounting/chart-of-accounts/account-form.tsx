@@ -107,7 +107,7 @@ export function AccountForm({ account, parentAccounts }: AccountFormProps) {
               required
               maxLength={200}
               defaultValue={account?.name || ''}
-              placeholder="e.g. Kasse"
+              placeholder="e.g. Cash / Kasse"
               className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>

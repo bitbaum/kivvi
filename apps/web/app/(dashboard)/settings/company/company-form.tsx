@@ -5,15 +5,7 @@ import { Loader2, CheckCircle2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { updateCompanyAction } from '@/app/actions/settings';
 import { cn } from '@/lib/utils';
-
-const COUNTRIES = [
-  { value: 'CH', label: 'Switzerland' },
-  { value: 'DE', label: 'Germany' },
-  { value: 'AT', label: 'Austria' },
-  { value: 'FR', label: 'France' },
-  { value: 'IT', label: 'Italy' },
-  { value: 'LI', label: 'Liechtenstein' },
-] as const;
+import { COUNTRY_OPTIONS } from '@/lib/config/locales';
 
 const CURRENCIES = [
   { value: 'CHF', label: 'CHF - Swiss Franc' },
@@ -202,7 +194,7 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
               defaultValue={initialData.country}
               className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >
-              {COUNTRIES.map((c) => (
+              {COUNTRY_OPTIONS.map((c) => (
                 <option key={c.value} value={c.value}>
                   {c.label}
                 </option>

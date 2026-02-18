@@ -62,7 +62,7 @@ export function BulkResultBanner({ result, labels, onDismiss }: BulkResultBanner
             </button>
           )}
         </div>
-        <button onClick={onDismiss} className="rounded p-0.5 hover:bg-black/10 dark:hover:bg-white/10">
+        <button onClick={onDismiss} aria-label="Dismiss" className="rounded p-0.5 hover:bg-black/10 dark:hover:bg-white/10">
           <X className="h-3.5 w-3.5" />
         </button>
       </div>

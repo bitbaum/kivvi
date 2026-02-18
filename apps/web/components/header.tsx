@@ -8,12 +8,7 @@ import { Bell, Search, Menu, LogOut, Settings, User, Globe } from 'lucide-react'
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { RecentItemsDropdown } from './recent-items-dropdown';
 import type { Locale } from '@/i18n/request';
-
-const LOCALE_LABELS: Record<Locale, string> = {
-  'de-CH': 'DE',
-  en: 'EN',
-  fr: 'FR',
-};
+import { LOCALE_CONFIG } from '@/lib/config/locales';
 
 interface HeaderProps {
   onMenuClick?: () => void;
@@ -101,12 +96,12 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
           <button
             onClick={() => setShowLangMenu(!showLangMenu)}
             className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            aria-label={`Current language: ${LOCALE_LABELS[locale]}`}
+            aria-label={`Current language: ${LOCALE_CONFIG[locale].native}`}
             aria-expanded={showLangMenu}
             aria-haspopup="true"
           >
             <Globe className="h-4 w-4" aria-hidden="true" />
-            {LOCALE_LABELS[locale]}
+            {LOCALE_CONFIG[locale].short}
           </button>
           {showLangMenu && (
             <div
@@ -114,7 +109,7 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
               role="menu"
               aria-label="Language options"
             >
-              {(Object.entries(LOCALE_LABELS) as [Locale, string][]).map(([loc, label]) => (
+              {(Object.entries(LOCALE_CONFIG) as [Locale, { short: string; native: string }][]).map(([loc, cfg]) => (
                 <button
                   key={loc}
                   onClick={() => switchLocale(loc)}
@@ -123,7 +118,7 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
                   }`}
                   role="menuitem"
                 >
-                  {label === 'DE' ? 'Deutsch' : label === 'EN' ? 'English' : 'Français'}
+                  {cfg.native}
                   {locale === loc && <span className="ml-auto text-primary" aria-hidden="true">✓</span>}
                 </button>
               ))}

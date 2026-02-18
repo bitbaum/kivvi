@@ -5,12 +5,7 @@ import { useLocale } from 'next-intl';
 import { Globe } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import type { Locale } from '@/i18n/request';
-
-const LOCALE_LABELS: Record<Locale, string> = {
-  'de-CH': 'DE',
-  en: 'EN',
-  fr: 'FR',
-};
+import { LOCALE_CONFIG } from '@/lib/config/locales';
 
 /**
  * Language switcher component for unauthenticated pages.
@@ -55,12 +50,12 @@ export function LanguageSwitcher() {
       <button
         onClick={() => setShowMenu(!showMenu)}
         className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium hover:bg-muted transition-colors"
-        aria-label={`Current language: ${LOCALE_LABELS[locale]}`}
+        aria-label={`Current language: ${LOCALE_CONFIG[locale].native}`}
         aria-expanded={showMenu}
         aria-haspopup="true"
       >
         <Globe className="h-4 w-4" aria-hidden="true" />
-        {LOCALE_LABELS[locale]}
+        {LOCALE_CONFIG[locale].short}
       </button>
       {showMenu && (
         <div
@@ -68,7 +63,7 @@ export function LanguageSwitcher() {
           role="menu"
           aria-label="Language options"
         >
-          {(Object.entries(LOCALE_LABELS) as [Locale, string][]).map(([loc, label]) => (
+          {(Object.entries(LOCALE_CONFIG) as [Locale, { short: string; native: string }][]).map(([loc, cfg]) => (
             <button
               key={loc}
               onClick={() => switchLocale(loc)}
@@ -77,7 +72,7 @@ export function LanguageSwitcher() {
               }`}
               role="menuitem"
             >
-              {label === 'DE' ? 'Deutsch' : label === 'EN' ? 'English' : 'Français'}
+              {cfg.native}
               {locale === loc && <span className="ml-auto text-primary" aria-hidden="true">✓</span>}
             </button>
           ))}

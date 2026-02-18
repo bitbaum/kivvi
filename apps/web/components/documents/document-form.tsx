@@ -93,6 +93,7 @@ function SortableLineItem({ item, index, updateItem, removeItem, canRemove, t, t
         <button
           type="button"
           className="mt-2.5 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground transition-colors touch-none"
+          aria-label="Drag to reorder"
           {...attributes}
           {...listeners}
         >
@@ -169,6 +170,7 @@ function SortableLineItem({ item, index, updateItem, removeItem, canRemove, t, t
           <button
             type="button"
             onClick={() => removeItem(item.id)}
+            aria-label="Remove line item"
             className="mt-2 rounded-lg p-1.5 text-muted-foreground hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20"
           >
             <Trash2 className="h-4 w-4" />

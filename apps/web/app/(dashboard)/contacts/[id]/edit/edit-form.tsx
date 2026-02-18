@@ -8,22 +8,7 @@ import { useTranslations } from 'next-intl';
 import { updateContactAction } from '@/app/actions/contacts';
 import type { Contact } from '@kivvi/database';
 import { toast } from 'sonner';
-
-const LANGUAGES = [
-  { value: 'de', label: 'Deutsch' },
-  { value: 'fr', label: 'Francais' },
-  { value: 'it', label: 'Italiano' },
-  { value: 'en', label: 'English' },
-] as const;
-
-const COUNTRIES = [
-  { value: 'CH', label: 'Switzerland' },
-  { value: 'DE', label: 'Germany' },
-  { value: 'AT', label: 'Austria' },
-  { value: 'FR', label: 'France' },
-  { value: 'IT', label: 'Italy' },
-  { value: 'LI', label: 'Liechtenstein' },
-] as const;
+import { LANGUAGE_OPTIONS, COUNTRY_OPTIONS } from '@/lib/config/locales';
 
 interface EditContactFormProps {
   contact: Contact;
@@ -206,7 +191,7 @@ export function EditContactForm({ contact }: EditContactFormProps) {
             <div>
               <label htmlFor="country" className="mb-1.5 block text-sm font-medium">{t('country')}</label>
               <select id="country" name="country" defaultValue={contact.country || 'CH'} className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
-                {COUNTRIES.map((c) => (
+                {COUNTRY_OPTIONS.map((c) => (
                   <option key={c.value} value={c.value}>{c.label}</option>
                 ))}
               </select>
@@ -248,7 +233,7 @@ export function EditContactForm({ contact }: EditContactFormProps) {
             <div>
               <label htmlFor="language" className="mb-1.5 block text-sm font-medium">{t('language')}</label>
               <select id="language" name="language" defaultValue={contact.language || 'de'} className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
-                {LANGUAGES.map((l) => (
+                {LANGUAGE_OPTIONS.map((l) => (
                   <option key={l.value} value={l.value}>{l.label}</option>
                 ))}
               </select>
