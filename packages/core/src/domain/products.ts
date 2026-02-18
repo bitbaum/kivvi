@@ -177,6 +177,34 @@ export async function getProduct(
 }
 
 /**
+ * Verify that manufacturerId and productGroupId belong to the company.
+ * Prevents cross-tenant FK references.
+ */
+async function validateProductFKs(
+  db: Database,
+  companyId: string,
+  manufacturerId?: string | null,
+  productGroupId?: string | null
+) {
+  if (manufacturerId) {
+    const [mfg] = await db
+      .select({ id: manufacturers.id })
+      .from(manufacturers)
+      .where(and(eq(manufacturers.id, manufacturerId), eq(manufacturers.companyId, companyId)))
+      .limit(1);
+    if (!mfg) throw new Error('Manufacturer not found');
+  }
+  if (productGroupId) {
+    const [grp] = await db
+      .select({ id: productGroups.id })
+      .from(productGroups)
+      .where(and(eq(productGroups.id, productGroupId), eq(productGroups.companyId, companyId)))
+      .limit(1);
+    if (!grp) throw new Error('Product group not found');
+  }
+}
+
+/**
  * Create a new product. Generates articleNumber automatically.
  */
 export async function createProduct(
@@ -186,6 +214,9 @@ export async function createProduct(
 ) {
   // Validate input
   const validated = createProductSchema.parse(input);
+
+  // Verify FK ownership
+  await validateProductFKs(db, companyId, validated.manufacturerId, validated.productGroupId);
 
   // Generate article number
   const articleNumber = await getNextNumber(db, companyId, 'product');
@@ -244,6 +275,9 @@ export async function updateProduct(
   if (existing.length === 0) {
     throw new Error('Product not found');
   }
+
+  // Verify FK ownership
+  await validateProductFKs(db, companyId, validated.manufacturerId, validated.productGroupId);
 
   // Build update values, only including fields that were provided
   const updateValues: Record<string, unknown> = {

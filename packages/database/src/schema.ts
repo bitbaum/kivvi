@@ -427,6 +427,7 @@ export const bankTransactions = pgTable('bank_transactions', {
   reconciledAt: timestamp('reconciled_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 }, (table) => ({
+  bankAccountIdIdx: index('bank_transactions_bank_account_id_idx').on(table.bankAccountId),
   bankAccountReconciledIdx: index('bank_transactions_bank_account_id_is_reconciled_idx').on(table.bankAccountId, table.isReconciled),
   dateIdx: index('bank_transactions_date_idx').on(table.date),
 }));
