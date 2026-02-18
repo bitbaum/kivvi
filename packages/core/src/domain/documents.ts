@@ -5,6 +5,8 @@ import {
   documents,
   documentItems,
   documentPayments,
+  bankTransactions,
+  bankAccounts,
 } from '@kivvi/database';
 import type { Database, DocumentType, DocumentStatus } from '@kivvi/database';
 import type { PaginatedResult } from './contacts';
@@ -715,6 +717,17 @@ export async function recordPayment(
       .limit(1);
     if (existing) {
       return existing;
+    }
+
+    // Verify bankTransaction belongs to this company
+    const [txn] = await db
+      .select({ companyId: bankAccounts.companyId })
+      .from(bankTransactions)
+      .innerJoin(bankAccounts, eq(bankTransactions.bankAccountId, bankAccounts.id))
+      .where(eq(bankTransactions.id, input.bankTransactionId))
+      .limit(1);
+    if (!txn || txn.companyId !== companyId) {
+      throw new Error('Bank transaction not found');
     }
   }
 

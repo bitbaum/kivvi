@@ -58,7 +58,7 @@ export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
   const editAccountId = params.edit;
 
   const accounts = await listAccounts(db, session.user.companyId, {
-    type: typeFilter || undefined,
+    type: (typeFilter || undefined) as import('@kivvi/database').AccountType | undefined,
     search: search || undefined,
   });
 

@@ -1,5 +1,5 @@
 import Decimal from 'decimal.js';
-import { eq, and, lt, sql, desc, count } from 'drizzle-orm';
+import { eq, and, lt, sql, desc, count, inArray } from 'drizzle-orm';
 import { documents, documentItems, documentPayments, contacts } from '@kivvi/database';
 import type { Database, DocumentStatus } from '@kivvi/database';
 import { getNextNumber } from './number-sequences';
@@ -99,19 +99,26 @@ export async function getDunningStats(
 ): Promise<DunningStats> {
   const overdue = await detectOverdueInvoices(db, companyId);
 
-  // Get payments for all overdue invoices to calculate outstanding amounts
+  // Bulk fetch payments for all overdue invoices (avoids N+1)
   let totalOverdueAmount = new Decimal(0);
-  for (const inv of overdue) {
-    const [paymentsResult] = await db
+  if (overdue.length > 0) {
+    const overdueIds = overdue.map((inv) => inv.id);
+    const paymentsByDoc = await db
       .select({
+        documentId: documentPayments.documentId,
         totalPaid: sql<string>`COALESCE(SUM(${documentPayments.amount}::numeric), 0)`,
       })
       .from(documentPayments)
-      .where(eq(documentPayments.documentId, inv.id));
+      .where(inArray(documentPayments.documentId, overdueIds))
+      .groupBy(documentPayments.documentId);
 
-    const outstanding = new Decimal(inv.total).minus(new Decimal(paymentsResult?.totalPaid || '0'));
-    if (outstanding.greaterThan(0)) {
-      totalOverdueAmount = totalOverdueAmount.plus(outstanding);
+    const paidMap = new Map(paymentsByDoc.map((p) => [p.documentId, p.totalPaid]));
+
+    for (const inv of overdue) {
+      const outstanding = new Decimal(inv.total).minus(new Decimal(paidMap.get(inv.id) || '0'));
+      if (outstanding.greaterThan(0)) {
+        totalOverdueAmount = totalOverdueAmount.plus(outstanding);
+      }
     }
   }
 

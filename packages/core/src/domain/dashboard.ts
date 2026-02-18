@@ -525,112 +525,62 @@ export async function getDashboardStats(
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const startOfYear = new Date(now.getFullYear(), 0, 1);
 
-  // Revenue this month (paid invoices)
-  const [monthlyRevenue] = await db
-    .select({
+  // Run all 8 independent queries in parallel
+  const [
+    [monthlyRevenue],
+    [yearlyRevenue],
+    [outstanding],
+    [overdue],
+    [drafts],
+    [bankBalance],
+    [contactCount],
+    [productCount],
+  ] = await Promise.all([
+    db.select({
       total: sql<string>`COALESCE(SUM(${documents.total}::numeric), 0)`,
       count: sql<number>`COUNT(*)::int`,
-    })
-    .from(documents)
-    .where(
-      and(
-        eq(documents.companyId, companyId),
-        eq(documents.type, 'invoice'),
-        eq(documents.status, 'paid'),
-        gte(documents.paidDate, startOfMonth)
-      )
-    );
-
-  // Revenue this year
-  const [yearlyRevenue] = await db
-    .select({
+    }).from(documents).where(and(
+      eq(documents.companyId, companyId), eq(documents.type, 'invoice'),
+      eq(documents.status, 'paid'), gte(documents.paidDate, startOfMonth)
+    )),
+    db.select({
       total: sql<string>`COALESCE(SUM(${documents.total}::numeric), 0)`,
       count: sql<number>`COUNT(*)::int`,
-    })
-    .from(documents)
-    .where(
-      and(
-        eq(documents.companyId, companyId),
-        eq(documents.type, 'invoice'),
-        eq(documents.status, 'paid'),
-        gte(documents.paidDate, startOfYear)
-      )
-    );
-
-  // Outstanding invoices (sent/confirmed/delivered/partially_paid)
-  const [outstanding] = await db
-    .select({
+    }).from(documents).where(and(
+      eq(documents.companyId, companyId), eq(documents.type, 'invoice'),
+      eq(documents.status, 'paid'), gte(documents.paidDate, startOfYear)
+    )),
+    db.select({
       total: sql<string>`COALESCE(SUM(${documents.total}::numeric), 0)`,
       count: sql<number>`COUNT(*)::int`,
-    })
-    .from(documents)
-    .where(
-      and(
-        eq(documents.companyId, companyId),
-        eq(documents.type, 'invoice'),
-        inArray(documents.status, ['sent', 'confirmed', 'delivered', 'partially_paid'])
-      )
-    );
-
-  // Overdue invoices
-  const [overdue] = await db
-    .select({
+    }).from(documents).where(and(
+      eq(documents.companyId, companyId), eq(documents.type, 'invoice'),
+      inArray(documents.status, ['sent', 'confirmed', 'delivered', 'partially_paid'])
+    )),
+    db.select({
       total: sql<string>`COALESCE(SUM(${documents.total}::numeric), 0)`,
       count: sql<number>`COUNT(*)::int`,
-    })
-    .from(documents)
-    .where(
-      and(
-        eq(documents.companyId, companyId),
-        eq(documents.type, 'invoice'),
-        inArray(documents.status, ['overdue', 'dunning_1', 'dunning_2', 'dunning_3'])
-      )
-    );
-
-  // Draft documents (all types)
-  const [drafts] = await db
-    .select({
+    }).from(documents).where(and(
+      eq(documents.companyId, companyId), eq(documents.type, 'invoice'),
+      inArray(documents.status, ['overdue', 'dunning_1', 'dunning_2', 'dunning_3'])
+    )),
+    db.select({
       total: sql<string>`COALESCE(SUM(${documents.total}::numeric), 0)`,
       count: sql<number>`COUNT(*)::int`,
-    })
-    .from(documents)
-    .where(
-      and(
-        eq(documents.companyId, companyId),
-        eq(documents.status, 'draft')
-      )
-    );
-
-  // Bank balance total
-  const [bankBalance] = await db
-    .select({
+    }).from(documents).where(and(
+      eq(documents.companyId, companyId), eq(documents.status, 'draft')
+    )),
+    db.select({
       total: sql<string>`COALESCE(SUM(${bankAccounts.balance}::numeric), 0)`,
       count: sql<number>`COUNT(*)::int`,
-    })
-    .from(bankAccounts)
-    .where(eq(bankAccounts.companyId, companyId));
-
-  // Active contacts
-  const [contactCount] = await db
-    .select({ count: sql<number>`COUNT(*)::int` })
-    .from(contacts)
-    .where(
-      and(
-        eq(contacts.companyId, companyId),
-        eq(contacts.isActive, true)
-      )
-    );
-
-  // Active products
-  const [productCount] = await db
-    .select({ count: sql<number>`COUNT(*)::int` })
-    .from(products)
-    .where(
-      and(
-        eq(products.companyId, companyId),
-        eq(products.isActive, true)
-      )
-    );
+    }).from(bankAccounts).where(eq(bankAccounts.companyId, companyId)),
+    db.select({ count: sql<number>`COUNT(*)::int` }).from(contacts).where(and(
+      eq(contacts.companyId, companyId), eq(contacts.isActive, true)
+    )),
+    db.select({ count: sql<number>`COUNT(*)::int` }).from(products).where(and(
+      eq(products.companyId, companyId), eq(products.isActive, true)
+    )),
+  ]);
 
   return {
     revenueThisMonth: {
@@ -707,117 +657,75 @@ export async function getBusinessHealthMetrics(
   const startOfLastYear = new Date(now.getFullYear() - 1, 0, 1);
   const endOfLastYear = new Date(now.getFullYear() - 1, 11, 31);
 
-  // Revenue and costs (from paid invoices this year)
-  const [revenueData] = await db
-    .select({
+  // Run all 5 independent queries in parallel
+  const [
+    [revenueData],
+    [costsData],
+    [conversionData],
+    [paymentData],
+    [lastYearData],
+    [thisYearData],
+  ] = await Promise.all([
+    db.select({
       revenue: sql<string>`COALESCE(SUM(${documents.total}::numeric), 0)`,
       count: sql<number>`COUNT(*)::int`,
-    })
-    .from(documents)
-    .where(
-      and(
-        eq(documents.companyId, companyId),
-        eq(documents.type, 'invoice'),
-        eq(documents.status, 'paid'),
-        gte(documents.paidDate, startOfYear)
-      )
-    );
-
-  // Purchase invoices (costs)
-  const [costsData] = await db
-    .select({
+    }).from(documents).where(and(
+      eq(documents.companyId, companyId), eq(documents.type, 'invoice'),
+      eq(documents.status, 'paid'), gte(documents.paidDate, startOfYear)
+    )),
+    db.select({
       costs: sql<string>`COALESCE(SUM(${documents.total}::numeric), 0)`,
-    })
-    .from(documents)
-    .where(
-      and(
-        eq(documents.companyId, companyId),
-        eq(documents.type, 'purchase_invoice'),
-        eq(documents.status, 'paid'),
-        gte(documents.paidDate, startOfYear)
-      )
-    );
+    }).from(documents).where(and(
+      eq(documents.companyId, companyId), eq(documents.type, 'purchase_invoice'),
+      eq(documents.status, 'paid'), gte(documents.paidDate, startOfYear)
+    )),
+    db.select({
+      quotes: sql<number>`COUNT(*) FILTER (WHERE ${documents.type} = 'quote' AND ${documents.status} != 'draft')::int`,
+      orders: sql<number>`COUNT(*) FILTER (WHERE ${documents.type} = 'order')::int`,
+    }).from(documents).where(and(
+      eq(documents.companyId, companyId), gte(documents.issueDate, startOfYear)
+    )),
+    db.select({
+      avgDays: sql<number>`AVG(EXTRACT(DAY FROM (${documents.paidDate}::timestamp - ${documents.issueDate}::timestamp)))::int`,
+    }).from(documents).where(and(
+      eq(documents.companyId, companyId), eq(documents.type, 'invoice'),
+      eq(documents.status, 'paid'), gte(documents.paidDate, startOfYear),
+      sql`${documents.paidDate} IS NOT NULL AND ${documents.issueDate} IS NOT NULL`
+    )),
+    db.select({
+      count: sql<number>`COUNT(DISTINCT ${documents.contactId})::int`,
+    }).from(documents).where(and(
+      eq(documents.companyId, companyId),
+      gte(documents.issueDate, startOfLastYear), lte(documents.issueDate, endOfLastYear),
+      sql`${documents.contactId} IS NOT NULL`
+    )),
+    db.select({
+      count: sql<number>`COUNT(DISTINCT ${documents.contactId})::int`,
+    }).from(documents).where(and(
+      eq(documents.companyId, companyId), gte(documents.issueDate, startOfYear),
+      sql`${documents.contactId} IS NOT NULL`
+    )),
+  ]);
 
   const revenue = new Decimal(revenueData?.revenue || '0');
   const costs = new Decimal(costsData?.costs || '0');
   const profitMargin = revenue.gt(0) ? revenue.minus(costs).div(revenue).times(100).toNumber() : 0;
 
-  // Conversion rate: orders / quotes * 100
-  const [conversionData] = await db
-    .select({
-      quotes: sql<number>`COUNT(*) FILTER (WHERE ${documents.type} = 'quote' AND ${documents.status} != 'draft')::int`,
-      orders: sql<number>`COUNT(*) FILTER (WHERE ${documents.type} = 'order')::int`,
-    })
-    .from(documents)
-    .where(
-      and(
-        eq(documents.companyId, companyId),
-        gte(documents.issueDate, startOfYear)
-      )
-    );
-
   const quotes = conversionData?.quotes || 0;
   const orders = conversionData?.orders || 0;
   const conversionRate = quotes > 0 ? new Decimal(orders).div(quotes).times(100).toNumber() : 0;
 
-  // Average invoice value
   const avgInvoiceValue =
     revenueData && revenueData.count > 0
       ? revenue.div(revenueData.count).toNumber()
       : 0;
 
-  // Average days to payment (invoices paid this year)
-  const [paymentData] = await db
-    .select({
-      avgDays: sql<number>`AVG(EXTRACT(DAY FROM (${documents.paidDate}::timestamp - ${documents.issueDate}::timestamp)))::int`,
-    })
-    .from(documents)
-    .where(
-      and(
-        eq(documents.companyId, companyId),
-        eq(documents.type, 'invoice'),
-        eq(documents.status, 'paid'),
-        gte(documents.paidDate, startOfYear),
-        sql`${documents.paidDate} IS NOT NULL AND ${documents.issueDate} IS NOT NULL`
-      )
-    );
-
   const avgDaysToPayment = paymentData?.avgDays || 0;
 
-  // Cash flow ratio (simplified: revenue / costs * 100)
   const cashFlowRatio = costs.gt(0) ? revenue.div(costs).times(100).toNumber() : 100;
-
-  // Customer retention: simplified - customers who had activity in both periods
-  const [lastYearData] = await db
-    .select({
-      count: sql<number>`COUNT(DISTINCT ${documents.contactId})::int`,
-    })
-    .from(documents)
-    .where(
-      and(
-        eq(documents.companyId, companyId),
-        gte(documents.issueDate, startOfLastYear),
-        lte(documents.issueDate, endOfLastYear),
-        sql`${documents.contactId} IS NOT NULL`
-      )
-    );
-
-  const [thisYearData] = await db
-    .select({
-      count: sql<number>`COUNT(DISTINCT ${documents.contactId})::int`,
-    })
-    .from(documents)
-    .where(
-      and(
-        eq(documents.companyId, companyId),
-        gte(documents.issueDate, startOfYear),
-        sql`${documents.contactId} IS NOT NULL`
-      )
-    );
 
   const lastYearCustomers = lastYearData?.count || 0;
   const thisYearCustomers = thisYearData?.count || 0;
-  // Simple retention approximation: customers this year / customers last year * 100
   const customerRetentionRate =
     lastYearCustomers > 0 ? new Decimal(thisYearCustomers).div(lastYearCustomers).times(100).toNumber() : 0;
 

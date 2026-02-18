@@ -8,7 +8,7 @@ import {
   fiscalYears,
   fiscalPeriods,
 } from '@kivvi/database';
-import type { Database, Account, JournalEntry, JournalLine, FiscalYear, FiscalPeriod } from '@kivvi/database';
+import type { Database, Account, AccountType, JournalEntry, JournalLine, FiscalYear, FiscalPeriod } from '@kivvi/database';
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -50,12 +50,12 @@ export const createFiscalYearSchema = z.object({
 export async function listAccounts(
   db: Database,
   companyId: string,
-  filters?: { type?: string; search?: string; isActive?: boolean }
+  filters?: { type?: AccountType; search?: string; isActive?: boolean }
 ): Promise<Account[]> {
   const conditions = [eq(accounts.companyId, companyId)];
 
   if (filters?.type) {
-    conditions.push(eq(accounts.type, filters.type as any));
+    conditions.push(eq(accounts.type, filters.type));
   }
   if (filters?.search) {
     conditions.push(
