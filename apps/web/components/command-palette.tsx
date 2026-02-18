@@ -27,6 +27,7 @@ import {
   X,
 } from 'lucide-react';
 import { useRecentItems } from '@/hooks/use-recent-items';
+import { cn } from '@/lib/utils';
 import { globalSearchAction, type GlobalSearchResults } from '@/app/actions/search';
 
 // Document type → detail page route prefix
@@ -356,9 +357,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
                       data-selected={isSelected}
                       onClick={() => navigate(item.href)}
                       onMouseEnter={() => setSelectedIndex(itemIndex)}
-                      className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-left transition-colors ${
-                        isSelected ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-muted'
-                      }`}
+                      className={cn('flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-left transition-colors', isSelected ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-muted')}
                       role="option"
                       aria-selected={isSelected}
                     >

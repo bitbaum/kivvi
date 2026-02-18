@@ -155,9 +155,11 @@ export function SelectableProductTable({ data, translations }: SelectableProduct
             {data.map((product) => (
               <tr
                 key={product.id}
+                tabIndex={0}
                 onClick={() => router.push(`/products/${product.id}`)}
+                onKeyDown={(e) => { if (e.key === 'Enter') router.push(`/products/${product.id}`); }}
                 className={cn(
-                  'group cursor-pointer transition-colors hover:bg-muted/50',
+                  'group cursor-pointer transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
                   isSelected(product.id) && 'bg-primary/5'
                 )}
               >
@@ -253,9 +255,12 @@ export function SelectableProductTable({ data, translations }: SelectableProduct
 
       {/* Confirmation dialog */}
       {confirmAction && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="mx-4 w-full max-w-md rounded-xl border bg-card p-6 shadow-xl">
-            <h3 className="text-lg font-semibold">{translations.bulkLabels.confirmTitle}</h3>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onKeyDown={(e) => { if (e.key === 'Escape') setConfirmAction(null); }}
+        >
+          <div role="dialog" aria-modal="true" aria-labelledby="confirm-dialog-title" className="mx-4 w-full max-w-md rounded-xl border bg-card p-6 shadow-xl">
+            <h3 id="confirm-dialog-title" className="text-lg font-semibold">{translations.bulkLabels.confirmTitle}</h3>
             <p className="mt-2 text-sm text-muted-foreground">
               {(confirmAction === 'delete' ? translations.bulkLabels.confirmDelete : translations.bulkLabels.confirmDeactivate)
                 .replace('{count}', String(selectedIds.length))}

@@ -159,19 +159,21 @@ export function SelectableDunningTable({ data, translations }: SelectableDunning
                 {formatCurrency(Number(inv.total))}
               </div>
               <div className="px-4 text-center">
-                <span className={`text-sm font-medium ${
+                <span className={cn(
+                  'text-sm font-medium',
                   inv.daysOverdue > 60 ? 'text-red-600 dark:text-red-400' :
                   inv.daysOverdue > 30 ? 'text-orange-600 dark:text-orange-400' :
                   'text-yellow-600 dark:text-yellow-400'
-                }`}>
+                )}>
                   {inv.daysOverdue}d
                 </span>
               </div>
               <div className="px-4 text-center">
                 <span
-                  className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                  className={cn(
+                    'inline-block rounded-full px-2.5 py-0.5 text-xs font-medium',
                     STATUS_STYLES[inv.status] || STATUS_STYLES.draft
-                  }`}
+                  )}
                 >
                   {translations.statusLabels[toCamelCase(inv.status)] || inv.status}
                 </span>

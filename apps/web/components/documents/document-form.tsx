@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition, useCallback } from 'react';
+import { useState, useTransition, useCallback, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Decimal from 'decimal.js';
@@ -203,6 +203,26 @@ export function DocumentForm({ type }: DocumentFormProps) {
   const [contactResults, setContactResults] = useState<Array<{ id: string; name: string; contactNumber: string | null; email: string | null }>>([]);
   const [showContactDropdown, setShowContactDropdown] = useState(false);
   const [showQuickCreateModal, setShowQuickCreateModal] = useState(false);
+  const contactDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close contact dropdown on click outside or Escape
+  useEffect(() => {
+    if (!showContactDropdown) return;
+    function handleClick(e: MouseEvent) {
+      if (contactDropdownRef.current && !contactDropdownRef.current.contains(e.target as Node)) {
+        setShowContactDropdown(false);
+      }
+    }
+    function handleKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setShowContactDropdown(false);
+    }
+    document.addEventListener('mousedown', handleClick);
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, [showContactDropdown]);
 
   const [issueDate, setIssueDate] = useState(new Date().toISOString().split('T')[0]);
   const [dueDate, setDueDate] = useState(
@@ -349,7 +369,7 @@ export function DocumentForm({ type }: DocumentFormProps) {
           {/* Contact & dates */}
           <div className="rounded-xl border bg-card p-6 space-y-4">
             {/* Contact picker */}
-            <div className="relative">
+            <div className="relative" ref={contactDropdownRef}>
               <label className="block text-sm font-medium">
                 {config.contactFilter === 'vendor' ? t('vendor') : t('customer')}
               </label>

@@ -6,6 +6,7 @@ import { getFilterStatuses, toCamelCase } from '@/lib/config/document-types';
 import type { PaginatedResult } from '@kivvi/core';
 import type { DocumentListItem } from '@kivvi/core/src/domain/documents';
 import { SelectableDocumentTable } from './selectable-document-table';
+import { cn } from '@/lib/utils';
 
 interface DocumentListProps {
   config: DocumentTypeConfig;
@@ -100,11 +101,9 @@ export async function DocumentList({ config, result, search, status, headerActio
               <Link
                 key={s}
                 href={href}
-                className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-colors ${
-                  isActive
+                className={cn('rounded-lg px-3 py-1.5 text-sm font-medium transition-colors', isActive
                     ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                }`}
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80')}
               >
                 {s === 'all' ? tc('all') : ts(toCamelCase(s))}
               </Link>

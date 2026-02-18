@@ -10,6 +10,7 @@ import {
   bulkExtendQuoteValidityAction,
 } from '@/app/actions/bulk-operations';
 import type { BulkOperationResult } from '@/app/actions/bulk-operations';
+import { cn } from '@/lib/utils';
 
 interface DocumentBulkActionsProps {
   selectedIds: string[];
@@ -92,9 +93,7 @@ export function DocumentBulkActions({
           key={action.id}
           onClick={() => executeAction(action)}
           disabled={isPending}
-          className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors disabled:opacity-50 ${
-            variantClasses[action.variant] || variantClasses.default
-          }`}
+          className={cn('inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors disabled:opacity-50', variantClasses[action.variant] || variantClasses.default)}
         >
           {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
           {labels[action.label] || action.label}

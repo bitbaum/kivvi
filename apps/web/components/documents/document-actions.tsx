@@ -8,6 +8,7 @@ import { updateDocumentStatusAction, convertDocumentAction } from '@/app/actions
 import type { DocumentTypeConfig, StatusAction } from '@/lib/config/document-types';
 import type { DocumentStatus, DocumentType } from '@kivvi/database';
 import { DOCUMENT_TYPES } from '@/lib/config/document-types';
+import { cn } from '@/lib/utils';
 
 export function DocumentStatusActions({
   documentId,
@@ -46,13 +47,12 @@ export function DocumentStatusActions({
           key={action.targetStatus}
           onClick={() => handleAction(action.targetStatus)}
           disabled={isPending}
-          className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50 ${
+          className={cn('inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50',
             action.variant === 'destructive'
               ? 'border border-red-200 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20'
               : action.variant === 'primary'
               ? 'bg-primary text-primary-foreground hover:bg-primary/90'
-              : 'border hover:bg-muted'
-          }`}
+              : 'border hover:bg-muted')}
         >
           {t(action.label)}
         </button>

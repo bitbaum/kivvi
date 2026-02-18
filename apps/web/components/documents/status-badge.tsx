@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import { STATUS_STYLES, toCamelCase } from '@/lib/config/document-types';
+import { cn } from '@/lib/utils';
 
 export async function StatusBadge({
   status,
@@ -16,9 +17,7 @@ export async function StatusBadge({
 
   return (
     <span
-      className={`inline-block rounded-full font-medium ${sizeClasses} ${
-        STATUS_STYLES[displayStatus] || STATUS_STYLES.draft
-      }`}
+      className={cn('inline-block rounded-full font-medium', sizeClasses, STATUS_STYLES[displayStatus] || STATUS_STYLES.draft)}
     >
       {t(toCamelCase(displayStatus))}
     </span>

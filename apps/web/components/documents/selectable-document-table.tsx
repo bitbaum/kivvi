@@ -108,9 +108,12 @@ export function SelectableDocumentTable({
           return (
             <div
               key={doc.id}
+              role="link"
+              tabIndex={0}
               onClick={() => router.push(`${config.basePath}/${doc.id}`)}
+              onKeyDown={(e) => { if (e.key === 'Enter') router.push(`${config.basePath}/${doc.id}`); }}
               className={cn(
-                'flex cursor-pointer flex-col gap-1 p-4 hover:bg-muted/50 sm:grid sm:grid-cols-[auto_1fr_1.5fr_auto_auto_auto] sm:items-center sm:gap-4',
+                'flex cursor-pointer flex-col gap-1 p-4 hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:grid sm:grid-cols-[auto_1fr_1.5fr_auto_auto_auto] sm:items-center sm:gap-4',
                 isSelected(doc.id) && 'bg-primary/5'
               )}
             >
@@ -137,9 +140,10 @@ export function SelectableDocumentTable({
               </div>
               <div className="px-4 text-center">
                 <span
-                  className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                  className={cn(
+                    'inline-block rounded-full px-2.5 py-0.5 text-xs font-medium',
                     STATUS_STYLES[displayStatus] || STATUS_STYLES.draft
-                  }`}
+                  )}
                 >
                   {translations.statusLabels[toCamelCase(displayStatus)] || displayStatus}
                 </span>

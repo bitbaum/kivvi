@@ -6,6 +6,7 @@ import { Globe } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import type { Locale } from '@/i18n/request';
 import { LOCALE_CONFIG } from '@/lib/config/locales';
+import { cn } from '@/lib/utils';
 
 /**
  * Language switcher component for unauthenticated pages.
@@ -67,9 +68,7 @@ export function LanguageSwitcher() {
             <button
               key={loc}
               onClick={() => switchLocale(loc)}
-              className={`flex w-full items-center gap-2 rounded px-3 py-2 text-sm hover:bg-muted ${
-                locale === loc ? 'font-medium text-primary' : ''
-              }`}
+              className={cn('flex w-full items-center gap-2 rounded px-3 py-2 text-sm hover:bg-muted', locale === loc && 'font-medium text-primary')}
               role="menuitem"
             >
               {cfg.native}

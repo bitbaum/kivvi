@@ -116,9 +116,12 @@ export function SelectableContactTable({ data, translations }: SelectableContact
         {data.map((contact) => (
           <div
             key={contact.id}
+            role="link"
+            tabIndex={0}
             onClick={() => router.push(`/contacts/${contact.id}`)}
+            onKeyDown={(e) => { if (e.key === 'Enter') router.push(`/contacts/${contact.id}`); }}
             className={cn(
-              'flex cursor-pointer flex-col gap-1 p-4 transition-colors hover:bg-muted/50 sm:grid sm:grid-cols-[auto_1fr_2fr_auto_auto] sm:items-center sm:gap-4 sm:px-6 lg:grid-cols-[auto_1fr_2fr_auto_1.5fr_1fr_1fr_auto]',
+              'flex cursor-pointer flex-col gap-1 p-4 transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:grid sm:grid-cols-[auto_1fr_2fr_auto_auto] sm:items-center sm:gap-4 sm:px-6 lg:grid-cols-[auto_1fr_2fr_auto_1.5fr_1fr_1fr_auto]',
               isSelected(contact.id) && 'bg-primary/5'
             )}
           >
@@ -197,9 +200,12 @@ export function SelectableContactTable({ data, translations }: SelectableContact
 
       {/* Confirmation dialog */}
       {confirmAction && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="mx-4 w-full max-w-md rounded-xl border bg-card p-6 shadow-xl">
-            <h3 className="text-lg font-semibold">{translations.bulkLabels.confirmTitle}</h3>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onKeyDown={(e) => { if (e.key === 'Escape') setConfirmAction(null); }}
+        >
+          <div role="dialog" aria-modal="true" aria-labelledby="confirm-dialog-title" className="mx-4 w-full max-w-md rounded-xl border bg-card p-6 shadow-xl">
+            <h3 id="confirm-dialog-title" className="text-lg font-semibold">{translations.bulkLabels.confirmTitle}</h3>
             <p className="mt-2 text-sm text-muted-foreground">
               {(confirmAction === 'delete' ? translations.bulkLabels.confirmDelete : translations.bulkLabels.confirmDeactivate)
                 .replace('{count}', String(selectedIds.length))}
