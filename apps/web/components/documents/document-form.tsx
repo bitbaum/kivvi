@@ -268,6 +268,12 @@ export function DocumentForm({ type }: DocumentFormProps) {
     setItems(items.filter((i) => i.id !== id));
   };
   const updateItem = (id: string, field: keyof LineItem, value: string) => {
+    // Clamp discount to 0-100
+    if (field === 'discount') {
+      const num = parseFloat(value);
+      if (!isNaN(num) && num > 100) value = '100';
+      if (!isNaN(num) && num < 0) value = '0';
+    }
     setItems(items.map((i) => (i.id === id ? { ...i, [field]: value } : i)));
   };
 

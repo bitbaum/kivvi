@@ -30,7 +30,8 @@ const documentItemSchema = z.object({
   description: z.string().min(1, 'Description is required'),
   quantity: z.string().regex(/^\d+(\.\d{1,4})?$/, 'Invalid quantity'),
   unitPrice: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Invalid unit price'),
-  discount: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Invalid discount').default('0'),
+  discount: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Invalid discount').default('0')
+    .refine((v) => parseFloat(v) <= 100, 'Discount cannot exceed 100%'),
   vatRate: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Invalid VAT rate').default(DEFAULT_VAT_RATE),
 });
 
