@@ -917,6 +917,58 @@ export const recurringInvoiceConfigsRelations = relations(recurringInvoiceConfig
 // TYPES (derived from schema)
 // ============================================================================
 
+export interface OrgProfile {
+  identity?: {
+    mission?: string;
+    legalForm?: string;
+    founded?: string;
+    location?: string;
+    website?: string;
+    description?: string;
+  };
+  services?: Array<{
+    name: string;
+    description?: string;
+    pricing?: string;
+  }>;
+  team?: Array<{
+    name: string;
+    role: string;
+    responsibilities?: string;
+  }>;
+  financialContext?: {
+    fundingSources?: string[];
+    revenueModel?: string;
+    fiscalYearEnd?: string;
+    notes?: string;
+  };
+  impactMetrics?: Array<{
+    label: string;
+    value: string;
+  }>;
+  strategy?: {
+    vision?: string;
+    goals?: string[];
+    timeline?: string;
+  };
+  fundraising?: {
+    status?: string;
+    goal?: string;
+    campaigns?: string[];
+    notes?: string;
+  };
+  communicationStyle?: {
+    tone?: string;
+    language?: string;
+    guidelines?: string;
+  };
+  customerSegments?: Array<{
+    segment: string;
+    description?: string;
+  }>;
+  customContext?: string;
+}
+
 export interface CompanySettings {
   defaultVatRate?: number;
   invoicePrefix?: string;
@@ -940,6 +992,12 @@ export interface CompanySettings {
     maxWorkflowSuggestions?: number;
   };
   plan?: 'free' | 'premium';
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  subscriptionStatus?: 'trialing' | 'active' | 'past_due' | 'cancelled';
+  trialEndsAt?: string; // ISO date
+  vertical?: 'general' | 'financial-advisory' | 'legal' | 'medical' | 'nonprofit' | 'retail' | 'manufacturing';
+  orgProfile?: OrgProfile;
 }
 
 // Inferred types from schema — use these throughout the app

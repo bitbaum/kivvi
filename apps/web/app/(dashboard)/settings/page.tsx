@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { Building2, User, Hash, ArrowRight, RepeatIcon } from 'lucide-react';
+import { Building2, User, Hash, ArrowRight, RepeatIcon, CreditCard, Download } from 'lucide-react';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { companies, users } from '@kivvi/database';
@@ -48,6 +48,12 @@ export default async function SettingsPage() {
       href: '/settings/recurring-invoices',
       icon: RepeatIcon,
     },
+    {
+      title: t('billing.title'),
+      subtitle: t('billing.settingsDesc'),
+      href: '/settings/billing',
+      icon: CreditCard,
+    },
   ];
 
   return (
@@ -82,6 +88,29 @@ export default async function SettingsPage() {
             </div>
           </Link>
         ))}
+      </div>
+
+      {/* Data & Privacy */}
+      <div className="space-y-4">
+        <h2 className="text-lg font-semibold">{t('dataPrivacy.title')}</h2>
+        <div className="rounded-xl border bg-card p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h3 className="font-medium">{t('dataPrivacy.exportTitle')}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {t('dataPrivacy.exportDescription')}
+              </p>
+            </div>
+            <a
+              href="/api/export/full"
+              download
+              className="inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium hover:bg-muted/50"
+            >
+              <Download className="h-4 w-4" />
+              {t('dataPrivacy.downloadButton')}
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   );

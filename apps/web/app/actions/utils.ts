@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import * as Sentry from '@sentry/nextjs';
 import { auth } from '@/lib/auth';
 
 export interface ActionResult<T = unknown> {
@@ -47,7 +48,7 @@ export function safeErrorMessage(error: unknown, fallback: string): string {
   if (SAFE_ERROR_PATTERNS.some((pattern) => msg.toLowerCase().includes(pattern.toLowerCase()))) {
     return msg;
   }
-  console.error('Unexpected error:', error);
+  Sentry.captureException(error);
   return fallback;
 }
 

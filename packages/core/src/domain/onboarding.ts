@@ -4,6 +4,7 @@ import type { Database, CompanySettings } from '@kivvi/database';
 import { seedChartOfAccounts, createFiscalYear } from './accounting';
 import { initializeSequences } from './number-sequences';
 import { createWarehouse } from './inventory';
+import { getDefaultTrialEnd } from './billing';
 
 // ============================================================================
 // TYPES
@@ -141,6 +142,8 @@ export async function completeOnboarding(
         ...existingSettings,
         onboardingCompletedAt: new Date().toISOString(),
         onboardingStep: 4,
+        plan: 'free' as const,
+        trialEndsAt: getDefaultTrialEnd(),
       },
       updatedAt: new Date(),
     })
