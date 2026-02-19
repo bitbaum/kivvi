@@ -1,14 +1,19 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { drizzle as drizzleNeon } from 'drizzle-orm/neon-http';
-import { neon } from '@neondatabase/serverless';
+import { neon, neonConfig } from '@neondatabase/serverless';
 import postgres from 'postgres';
 import * as schema from './schema';
 
 export * from './schema';
 
+// Use node-fetch instead of Node.js built-in fetch (undici) for Neon HTTP driver.
+// Node's undici has connection issues in some network environments (ETIMEDOUT on port 443).
+import nodeFetch from 'node-fetch';
+neonConfig.fetchFunction = nodeFetch as any;
+
 // For serverless (Vercel, Neon)
 export function createNeonClient(connectionString: string) {
-  const sql = neon(connectionString);
+  const sql = neon(connectionString, { fetchOptions: { cache: 'no-store' } });
   return drizzleNeon(sql, { schema });
 }
 
