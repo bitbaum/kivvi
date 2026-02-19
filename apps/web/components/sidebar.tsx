@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { useChatWidget } from '@/hooks/use-chat-widget';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import {
   LayoutDashboard,
   MessageSquare,
@@ -17,19 +17,9 @@ import {
   Settings,
   HelpCircle,
   Building2,
-  ShoppingCart,
-  Receipt,
-  CreditCard,
-  AlertTriangle,
-  Truck,
-  ClipboardList,
   Warehouse,
-  BookOpen,
   BarChart3,
   FolderKanban,
-  ArrowUpDown,
-  ChevronDown,
-  ChevronRight,
   X,
 } from 'lucide-react';
 
@@ -37,65 +27,30 @@ interface NavItem {
   nameKey: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
+  /** Additional path prefixes that mark this item as active */
+  activePrefixes?: string[];
 }
 
-interface NavGroup {
-  nameKey: string;
-  icon: React.ComponentType<{ className?: string }>;
-  items: NavItem[];
-}
-
-const topNavigation: NavItem[] = [
-  { nameKey: 'dashboard', href: '/dashboard', icon: LayoutDashboard },
-];
-
-const navGroups: NavGroup[] = [
+// Core navigation — flat, 8 items
+const primaryNavigation: NavItem[] = [
+  { nameKey: 'home', href: '/dashboard', icon: LayoutDashboard },
+  { nameKey: 'people', href: '/contacts', icon: Users },
+  { nameKey: 'catalog', href: '/products', icon: Package },
   {
-    nameKey: 'sales',
-    icon: ShoppingCart,
-    items: [
-      { nameKey: 'quotes', href: '/sales/quotes', icon: FileText },
-      { nameKey: 'orders', href: '/sales/orders', icon: ClipboardList },
-      { nameKey: 'invoices', href: '/sales/invoices', icon: Receipt },
-      { nameKey: 'deliveryNotes', href: '/sales/delivery-notes', icon: Truck },
-      { nameKey: 'creditNotes', href: '/sales/credit-notes', icon: CreditCard },
-      { nameKey: 'dunning', href: '/sales/dunning', icon: AlertTriangle },
-    ],
+    nameKey: 'documents',
+    href: '/documents',
+    icon: FileText,
+    activePrefixes: ['/sales', '/purchasing'],
   },
   {
-    nameKey: 'purchasing',
-    icon: Truck,
-    items: [
-      { nameKey: 'purchaseOrders', href: '/purchasing/purchase-orders', icon: ClipboardList },
-      { nameKey: 'purchaseInvoices', href: '/purchasing/purchase-invoices', icon: Receipt },
-    ],
+    nameKey: 'money',
+    href: '/money',
+    icon: Wallet,
+    activePrefixes: ['/banking', '/accounting'],
   },
-  {
-    nameKey: 'accounting',
-    icon: BookOpen,
-    items: [
-      { nameKey: 'overview', href: '/accounting', icon: BookOpen },
-      { nameKey: 'chartOfAccounts', href: '/accounting/chart-of-accounts', icon: FileText },
-      { nameKey: 'journal', href: '/accounting/journal', icon: ClipboardList },
-      { nameKey: 'fiscalYears', href: '/accounting/fiscal-years', icon: BarChart3 },
-    ],
-  },
-  {
-    nameKey: 'inventory',
-    icon: Warehouse,
-    items: [
-      { nameKey: 'warehouses', href: '/inventory', icon: Warehouse },
-      { nameKey: 'stockMovements', href: '/inventory/movements', icon: ArrowUpDown },
-    ],
-  },
-];
-
-const standaloneNavigation: NavItem[] = [
-  { nameKey: 'contacts', href: '/contacts', icon: Users },
-  { nameKey: 'products', href: '/products', icon: Package },
-  { nameKey: 'banking', href: '/banking', icon: Wallet },
-  { nameKey: 'reports', href: '/reports', icon: BarChart3 },
+  { nameKey: 'inventory', href: '/inventory', icon: Warehouse },
   { nameKey: 'projects', href: '/projects', icon: FolderKanban },
+  { nameKey: 'reports', href: '/reports', icon: BarChart3 },
 ];
 
 const secondaryNavigation: NavItem[] = [
@@ -103,8 +58,18 @@ const secondaryNavigation: NavItem[] = [
   { nameKey: 'help', href: '/help', icon: HelpCircle },
 ];
 
+function isNavActive(item: NavItem, pathname: string): boolean {
+  if (pathname === item.href || pathname.startsWith(item.href + '/')) return true;
+  if (item.activePrefixes) {
+    return item.activePrefixes.some(
+      (prefix) => pathname === prefix || pathname.startsWith(prefix + '/')
+    );
+  }
+  return false;
+}
+
 function NavLink({ item, pathname, onClick, t }: { item: NavItem; pathname: string; onClick?: () => void; t: (key: string) => string }) {
-  const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+  const isActive = isNavActive(item, pathname);
   return (
     <Link
       href={item.href}
@@ -121,45 +86,6 @@ function NavLink({ item, pathname, onClick, t }: { item: NavItem; pathname: stri
       <item.icon className="h-4 w-4" aria-hidden="true" />
       {t(item.nameKey)}
     </Link>
-  );
-}
-
-function CollapsibleGroup({ group, pathname, onNavClick, t }: { group: NavGroup; pathname: string; onNavClick?: () => void; t: (key: string) => string }) {
-  const isAnyActive = group.items.some(
-    (item) => pathname === item.href || pathname.startsWith(item.href + '/')
-  );
-  const [isOpen, setIsOpen] = useState(isAnyActive);
-
-  return (
-    <div>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        aria-expanded={isOpen}
-        aria-label={`${t(group.nameKey)} ${isOpen ? 'collapse' : 'expand'}`}
-        className={cn(
-          'flex w-full min-h-[44px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-          isAnyActive
-            ? 'text-foreground'
-            : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-        )}
-      >
-        <group.icon className="h-4 w-4" aria-hidden="true" />
-        <span className="flex-1 text-left">{t(group.nameKey)}</span>
-        {isOpen ? (
-          <ChevronDown className="h-3 w-3" aria-hidden="true" />
-        ) : (
-          <ChevronRight className="h-3 w-3" aria-hidden="true" />
-        )}
-      </button>
-      {isOpen && (
-        <nav className="ml-4 mt-1 space-y-0.5 border-l pl-3" aria-label={t(group.nameKey)}>
-          {group.items.map((item) => (
-            <NavLink key={item.href} item={item} pathname={pathname} onClick={onNavClick} t={t} />
-          ))}
-        </nav>
-      )}
-    </div>
   );
 }
 
@@ -188,7 +114,7 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
 
   const sidebarContent = (
     <aside className="flex w-64 flex-shrink-0 flex-col border-r bg-card h-full" role="navigation" aria-label="Main navigation">
-      {/* Logo - NOW CLICKABLE */}
+      {/* Logo */}
       <div className="flex h-16 items-center gap-2 border-b px-6">
         <Link
           href="/dashboard"
@@ -210,7 +136,7 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
         )}
       </div>
 
-      {/* Company selector - NOW FUNCTIONAL */}
+      {/* Company selector */}
       <div className="border-b p-4">
         <Link
           href="/settings/company"
@@ -229,11 +155,7 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
 
       {/* Main navigation */}
       <nav className="flex-1 space-y-1 overflow-y-auto p-4" aria-label="Primary navigation">
-        {topNavigation.map((item) => (
-          <NavLink key={item.href} item={item} pathname={pathname} onClick={onClose} t={t} />
-        ))}
-
-        {/* AI Assistant - opens widget instead of navigating */}
+        {/* AI Assistant — opens widget */}
         <button
           onClick={() => {
             chatWidget.open();
@@ -253,13 +175,7 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
 
         <div className="my-3 border-t" role="separator" />
 
-        {navGroups.map((group) => (
-          <CollapsibleGroup key={group.nameKey} group={group} pathname={pathname} onNavClick={onClose} t={t} />
-        ))}
-
-        <div className="my-3 border-t" role="separator" />
-
-        {standaloneNavigation.map((item) => (
+        {primaryNavigation.map((item) => (
           <NavLink key={item.href} item={item} pathname={pathname} onClick={onClose} t={t} />
         ))}
       </nav>
@@ -267,7 +183,7 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
       {/* Secondary navigation */}
       <nav className="border-t p-4" aria-label="Secondary navigation">
         {secondaryNavigation.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+          const isActive = isNavActive(item, pathname);
           return (
             <Link
               key={item.nameKey}
