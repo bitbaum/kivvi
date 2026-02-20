@@ -6,13 +6,7 @@ import { ChevronDown, ChevronUp, Loader2, Pencil } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { updateProjectAction } from '@/app/actions/projects';
 import { cn } from '@/lib/utils';
-
-const PROJECT_STATUSES = [
-  { value: 'active', label: 'Active' },
-  { value: 'completed', label: 'Completed' },
-  { value: 'on_hold', label: 'On Hold' },
-  { value: 'cancelled', label: 'Cancelled' },
-] as const;
+import { PROJECT_STATUSES, PROJECT_STATUS_LABEL_KEYS } from '@/lib/config/project-status';
 
 interface ProjectEditFormProps {
   projectId: string;
@@ -31,6 +25,7 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
   const router = useRouter();
   const t = useTranslations('projects');
   const tc = useTranslations('common');
+  const statusOptions = PROJECT_STATUSES.map((s) => ({ value: s, label: t(PROJECT_STATUS_LABEL_KEYS[s]) }));
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -152,7 +147,7 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
                   defaultValue={initialData.status}
                   className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 >
-                  {PROJECT_STATUSES.map((s) => (
+                  {statusOptions.map((s) => (
                     <option key={s.value} value={s.value}>
                       {s.label}
                     </option>

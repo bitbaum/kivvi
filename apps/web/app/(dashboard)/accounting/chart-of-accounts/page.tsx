@@ -5,18 +5,12 @@ import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { listAccounts } from '@kivvi/core';
 import { cn } from '@/lib/utils';
+import { ACCOUNT_TYPES, ACCOUNT_TYPE_STYLES, ACCOUNT_TYPE_LABEL_KEYS } from '@/lib/config/accounting';
 import { SeedButton } from './seed-button';
 import { AccountForm } from './account-form';
 import { ToggleButton } from './toggle-button';
 import { getTranslations } from 'next-intl/server';
 
-const TYPE_STYLES: Record<string, string> = {
-  asset: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-  liability: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-  equity: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
-  revenue: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-  expense: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
-};
 
 interface PageProps {
   searchParams: Promise<{
@@ -34,22 +28,14 @@ export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
   const t = await getTranslations('accounting');
   const tc = await getTranslations('common');
 
-  const TYPE_LABELS: Record<string, string> = {
-    asset: t('assets'),
-    liability: t('liabilities'),
-    equity: t('equity'),
-    revenue: t('revenue'),
-    expense: t('expenses'),
-  };
+  const typeLabels = Object.fromEntries(
+    ACCOUNT_TYPES.map((at) => [at, t(ACCOUNT_TYPE_LABEL_KEYS[at])])
+  ) as Record<string, string>;
 
-  const TYPE_FILTER_OPTIONS = [
+  const typeFilterOptions = [
     { label: tc('all'), value: '' },
-    { label: t('assets'), value: 'asset' },
-    { label: t('liabilities'), value: 'liability' },
-    { label: t('equity'), value: 'equity' },
-    { label: t('revenue'), value: 'revenue' },
-    { label: t('expenses'), value: 'expense' },
-  ] as const;
+    ...ACCOUNT_TYPES.map((at) => ({ label: t(ACCOUNT_TYPE_LABEL_KEYS[at]), value: at })),
+  ];
 
   const params = await searchParams;
   const typeFilter = params.type;
@@ -155,7 +141,7 @@ export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
 
             {/* Type filter */}
             <div className="flex items-center gap-1 rounded-lg border bg-card p-1">
-              {TYPE_FILTER_OPTIONS.map((opt) => {
+              {typeFilterOptions.map((opt) => {
                 const isActive = (typeFilter || '') === opt.value;
                 const filterParams = new URLSearchParams();
                 if (search) filterParams.set('search', search);
@@ -232,10 +218,10 @@ export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
                           <span
                             className={cn(
                               'inline-block rounded-full px-2.5 py-0.5 text-xs font-medium',
-                              TYPE_STYLES[account.type] || ''
+                              ACCOUNT_TYPE_STYLES[account.type] || ''
                             )}
                           >
-                            {TYPE_LABELS[account.type] || account.type}
+                            {typeLabels[account.type] || account.type}
                           </span>
                         </div>
                         <div className="flex items-center justify-center">
@@ -275,7 +261,7 @@ export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
                 <div className="border-t px-6 py-3">
                   <p className="text-sm text-muted-foreground">
                     Showing {accounts.length} account{accounts.length !== 1 ? 's' : ''}
-                    {typeFilter ? ` of type "${TYPE_LABELS[typeFilter] || typeFilter}"` : ''}
+                    {typeFilter ? ` of type "${typeLabels[typeFilter] || typeFilter}"` : ''}
                     {search ? ` matching "${search}"` : ''}
                   </p>
                 </div>

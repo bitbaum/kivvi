@@ -5,6 +5,7 @@ import { X, Loader2, UserPlus } from 'lucide-react';
 import { createContactAction } from '@/app/actions/contacts';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
+import { CONTACT_TYPES } from '@/lib/config/contact-types';
 
 interface QuickCreateContactModalProps {
   isOpen: boolean;
@@ -106,7 +107,7 @@ export function QuickCreateContactModal({
           <div>
             <label className="mb-2 block text-sm font-medium">{t('type')} *</label>
             <div className="grid grid-cols-3 gap-2">
-              {(['customer', 'vendor', 'both'] as const).map((option) => (
+              {CONTACT_TYPES.map((option) => (
                 <button
                   key={option}
                   type="button"

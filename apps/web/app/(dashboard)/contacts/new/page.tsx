@@ -9,6 +9,7 @@ import { createContactAction } from '@/app/actions/contacts';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { LANGUAGE_OPTIONS, COUNTRY_OPTIONS } from '@/lib/config/locales';
+import { CONTACT_TYPES } from '@/lib/config/contact-types';
 
 export default function NewContactPage() {
   const router = useRouter();
@@ -19,11 +20,7 @@ export default function NewContactPage() {
   const t = useTranslations('contacts');
   const tc = useTranslations('common');
 
-  const CONTACT_TYPES = [
-    { value: 'customer', label: t('customer') },
-    { value: 'vendor', label: t('vendor') },
-    { value: 'both', label: t('both') },
-  ] as const;
+  const contactTypeOptions = CONTACT_TYPES.map((ct) => ({ value: ct, label: t(ct) }));
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -93,7 +90,7 @@ export default function NewContactPage() {
                 defaultValue="customer"
                 className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               >
-                {CONTACT_TYPES.map((ct) => (
+                {contactTypeOptions.map((ct) => (
                   <option key={ct.value} value={ct.value}>
                     {ct.label}
                   </option>

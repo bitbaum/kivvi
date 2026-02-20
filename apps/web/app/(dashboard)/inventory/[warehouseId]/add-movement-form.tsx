@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Plus, X, Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { createStockMovementAction } from '@/app/actions/inventory';
+import { MOVEMENT_TYPES } from '@/lib/config/inventory';
 
 interface Product {
   id: string;
@@ -21,12 +22,7 @@ export function AddMovementForm({ warehouseId }: { warehouseId: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const MOVEMENT_TYPES = [
-    { value: 'purchase', label: t('purchase') },
-    { value: 'sale', label: t('sale') },
-    { value: 'adjustment', label: t('adjustment') },
-    { value: 'transfer', label: t('transfer') },
-  ] as const;
+  const movementTypeOptions = MOVEMENT_TYPES.map((mt) => ({ value: mt, label: t(mt) }));
 
   // Product picker state
   const [products, setProducts] = useState<Product[]>([]);
@@ -211,9 +207,9 @@ export function AddMovementForm({ warehouseId }: { warehouseId: string }) {
               className="w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="">Select type...</option>
-              {MOVEMENT_TYPES.map((t) => (
-                <option key={t.value} value={t.value}>
-                  {t.label}
+              {movementTypeOptions.map((mt) => (
+                <option key={mt.value} value={mt.value}>
+                  {mt.label}
                 </option>
               ))}
             </select>

@@ -9,6 +9,7 @@ import { updateContactAction } from '@/app/actions/contacts';
 import type { Contact } from '@kivvi/database';
 import { toast } from 'sonner';
 import { LANGUAGE_OPTIONS, COUNTRY_OPTIONS } from '@/lib/config/locales';
+import { CONTACT_TYPES } from '@/lib/config/contact-types';
 
 interface EditContactFormProps {
   contact: Contact;
@@ -22,11 +23,7 @@ export function EditContactForm({ contact }: EditContactFormProps) {
   const t = useTranslations('contacts');
   const tc = useTranslations('common');
 
-  const CONTACT_TYPES = [
-    { value: 'customer', label: t('customer') },
-    { value: 'vendor', label: t('vendor') },
-    { value: 'both', label: t('both') },
-  ] as const;
+  const contactTypeOptions = CONTACT_TYPES.map((ct) => ({ value: ct, label: t(ct) }));
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -92,7 +89,7 @@ export function EditContactForm({ contact }: EditContactFormProps) {
                 defaultValue={contact.type}
                 className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               >
-                {CONTACT_TYPES.map((ct) => (
+                {contactTypeOptions.map((ct) => (
                   <option key={ct.value} value={ct.value}>
                     {ct.label}
                   </option>

@@ -1,5 +1,8 @@
 import type { ContactType } from '@kivvi/database';
 
+/** Contact type values for form selectors (SSOT) */
+export const CONTACT_TYPES = ['customer', 'vendor', 'both'] as const;
+
 /**
  * Badge color styles per contact type.
  * Imported by contact detail page and selectable contact table.

@@ -7,6 +7,7 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { createProductAction } from '@/app/actions/products';
 import { SWISS_VAT_RATES, DEFAULT_VAT_RATE } from '@/lib/config/vat-rates';
+import { PRODUCT_TYPES, UNIT_VALUES } from '@/lib/config/products';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -19,25 +20,14 @@ export default function NewProductPage() {
   const t = useTranslations('products');
   const tc = useTranslations('common');
 
-  const VAT_RATE_OPTIONS = SWISS_VAT_RATES.map((rate) => ({
+  const vatRateOptions = SWISS_VAT_RATES.map((rate) => ({
     value: rate.value,
     label: t(`vatRates.${rate.labelKey}`),
   }));
 
-  const UNIT_OPTIONS = [
-    { value: 'piece', label: t('units.piece') },
-    { value: 'hour', label: t('units.hour') },
-    { value: 'kg', label: t('units.kg') },
-    { value: 'm', label: t('units.m') },
-    { value: 'm2', label: t('units.m2') },
-    { value: 'm3', label: t('units.m3') },
-    { value: 'liter', label: t('units.liter') },
-  ];
+  const unitOptions = UNIT_VALUES.map((u) => ({ value: u, label: t(`units.${u}`) }));
 
-  const TYPE_OPTIONS = [
-    { value: 'product', label: t('product') },
-    { value: 'service', label: t('service') },
-  ];
+  const typeOptions = PRODUCT_TYPES.map((pt) => ({ value: pt, label: t(pt) }));
 
   async function handleSubmit(formData: FormData) {
     setIsSubmitting(true);
@@ -105,7 +95,7 @@ export default function NewProductPage() {
                 onChange={(e) => setProductType(e.target.value)}
                 className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               >
-                {TYPE_OPTIONS.map((opt) => (
+                {typeOptions.map((opt) => (
                   <option key={opt.value} value={opt.value}>
                     {opt.label}
                   </option>
@@ -242,7 +232,7 @@ export default function NewProductPage() {
                   defaultValue={DEFAULT_VAT_RATE}
                   className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 >
-                  {VAT_RATE_OPTIONS.map((opt) => (
+                  {vatRateOptions.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
                     </option>
@@ -264,7 +254,7 @@ export default function NewProductPage() {
                   defaultValue="piece"
                   className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 >
-                  {UNIT_OPTIONS.map((opt) => (
+                  {unitOptions.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
                     </option>

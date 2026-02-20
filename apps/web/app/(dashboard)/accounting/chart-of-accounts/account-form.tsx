@@ -6,6 +6,7 @@ import { Save, X, Loader2 } from 'lucide-react';
 import { createAccountAction, updateAccountAction } from '@/app/actions/accounting';
 import type { Account } from '@kivvi/database';
 import { useTranslations } from 'next-intl';
+import { ACCOUNT_TYPES, ACCOUNT_TYPE_LABEL_KEYS } from '@/lib/config/accounting';
 
 interface AccountFormProps {
   account?: Account;
@@ -19,13 +20,7 @@ export function AccountForm({ account, parentAccounts }: AccountFormProps) {
   const t = useTranslations('accounting');
   const tc = useTranslations('common');
 
-  const ACCOUNT_TYPES = [
-    { value: 'asset', label: t('assets') },
-    { value: 'liability', label: t('liabilities') },
-    { value: 'equity', label: t('equity') },
-    { value: 'revenue', label: t('revenue') },
-    { value: 'expense', label: t('expenses') },
-  ] as const;
+  const accountTypeOptions = ACCOUNT_TYPES.map((at) => ({ value: at, label: t(ACCOUNT_TYPE_LABEL_KEYS[at]) }));
 
   const isEditing = !!account;
 
@@ -127,9 +122,9 @@ export function AccountForm({ account, parentAccounts }: AccountFormProps) {
               <option value="" disabled>
                 {t('accountType')}...
               </option>
-              {ACCOUNT_TYPES.map((t) => (
-                <option key={t.value} value={t.value}>
-                  {t.label}
+              {accountTypeOptions.map((at) => (
+                <option key={at.value} value={at.value}>
+                  {at.label}
                 </option>
               ))}
             </select>
