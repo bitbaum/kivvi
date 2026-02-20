@@ -2,6 +2,7 @@ import { eq, and, sql } from 'drizzle-orm';
 import Decimal from 'decimal.js';
 import {
   contacts,
+  contactAddresses,
   products,
   manufacturers,
   productGroups,
@@ -12,6 +13,7 @@ import {
   stockLevels,
   accounts,
   numberSequences,
+  projects,
 } from '@kivvi/database';
 import type { Database } from '@kivvi/database';
 import { DEFAULT_VAT_RATE } from '../config/vat-rates';
@@ -224,6 +226,84 @@ export async function bulkInsertContacts(
 }
 
 // ============================================================================
+// BULK INSERT: Contact Addresses
+// ============================================================================
+
+/**
+ * Create contact_addresses records from address fields already on contacts.
+ * For each contact that has address/city/postalCode, creates a billing address.
+ * Uses onConflictDoNothing so it's safe to re-run.
+ */
+export async function bulkInsertContactAddresses(
+  db: Database,
+  companyId: string,
+): Promise<BulkInsertResult> {
+  let inserted = 0;
+  let skipped = 0;
+  const errors: string[] = [];
+
+  // Fetch all contacts with address data
+  const rows = await db
+    .select({
+      id: contacts.id,
+      name: contacts.name,
+      address: contacts.address,
+      city: contacts.city,
+      postalCode: contacts.postalCode,
+      country: contacts.country,
+    })
+    .from(contacts)
+    .where(eq(contacts.companyId, companyId));
+
+  // Check which contacts already have addresses
+  const existingAddresses = await db
+    .select({ contactId: contactAddresses.contactId })
+    .from(contactAddresses);
+  const hasAddress = new Set(existingAddresses.map((r) => r.contactId));
+
+  const values = [];
+  for (const row of rows) {
+    // Skip contacts that already have addresses or have no address data
+    if (hasAddress.has(row.id)) {
+      skipped++;
+      continue;
+    }
+    if (!row.address && !row.city && !row.postalCode) {
+      skipped++;
+      continue;
+    }
+
+    values.push({
+      contactId: row.id,
+      type: 'billing' as const,
+      name: row.name,
+      address: row.address,
+      city: row.city,
+      postalCode: row.postalCode,
+      country: row.country || 'CH',
+      isDefault: true,
+    });
+  }
+
+  // Insert in batches
+  for (let i = 0; i < values.length; i += BATCH_SIZE) {
+    const batch = values.slice(i, i + BATCH_SIZE);
+    try {
+      await db
+        .insert(contactAddresses)
+        .values(batch)
+        .onConflictDoNothing();
+      inserted += batch.length;
+    } catch (err) {
+      errors.push(`Batch ${Math.floor(i / BATCH_SIZE) + 1}: ${(err as Error).message}`);
+      skipped += batch.length;
+    }
+  }
+
+  return { inserted, skipped, errors };
+}
+
+// ============================================================================
 // BULK INSERT: Products
 // ============================================================================
 
@@ -278,6 +358,63 @@ export async function bulkInsertProducts(
         errors.push(`Batch ${Math.floor(i / BATCH_SIZE) + 1}: ${(err as Error).message}`);
         skipped += values.length;
       }
+    }
+  }
+
+  return { inserted, skipped, errors };
+}
+
+// ============================================================================
+// BULK INSERT: Projects
+// ============================================================================
+
+export async function bulkInsertProjects(
+  db: Database,
+  companyId: string,
+  rows: Array<Record<string, string | null>>,
+): Promise<BulkInsertResult> {
+  let inserted = 0;
+  let skipped = 0;
+  const errors: string[] = [];
+
+  // Map kivitendo status → kivvi project status
+  const statusMap: Record<string, 'active' | 'completed' | 'on_hold' | 'cancelled'> = {
+    'In Bearbeitung': 'active',
+    'Fertiggestellt': 'completed',
+    'Abgebrochen': 'cancelled',
+  };
+
+  for (const row of rows) {
+    const name = row.name;
+    if (!name) {
+      skipped++;
+      continue;
+    }
+
+    const kivitendoStatus = row.status?.trim() || '';
+    const status = statusMap[kivitendoStatus] || 'active';
+    const isActive = row.isActive?.trim() === 'Aktiv';
+
+    // Store Projektnummer in description since kivvi has no projectNumber field
+    const description = row.projectNumber
+      ? `Projektnummer: ${row.projectNumber}`
+      : null;
+
+    try {
+      await db
+        .insert(projects)
+        .values({
+          companyId,
+          name,
+          description,
+          status,
+          isActive,
+        })
+        .onConflictDoNothing();
+      inserted++;
+    } catch (err) {
+      errors.push(`Project "${name}": ${(err as Error).message}`);
+      skipped++;
     }
   }
 

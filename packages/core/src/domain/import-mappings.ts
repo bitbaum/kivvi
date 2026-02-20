@@ -248,6 +248,20 @@ export const KIVITENDO_GL_PROFILE: MappingProfile = {
   ],
 };
 
+export const KIVITENDO_PROJECT_PROFILE: MappingProfile = {
+  name: 'Kivitendo Projects',
+  entityType: 'project',
+  signatureColumns: ['Projektnummer', 'Beschreibung', 'Projekttyp'],
+  fields: [
+    { source: 'Projektnummer', target: 'projectNumber', transform: 'trim' },
+    { source: 'Beschreibung', target: 'name', transform: 'trim' },
+    { source: 'Kunde', target: 'customerName', transform: 'trim' },
+    { source: 'Aktiv', target: 'isActive', transform: 'trim' },
+    { source: 'Status', target: 'status', transform: 'trim' },
+    { source: 'Projekttyp', target: 'projectType', transform: 'trim' },
+  ],
+};
+
 export const KIVITENDO_STOCK_PROFILE: MappingProfile = {
   name: 'Kivitendo Stock Levels',
   entityType: 'stock',
@@ -269,6 +283,7 @@ const ALL_PROFILES: MappingProfile[] = [
   KIVITENDO_AR_INVOICE_PROFILE,
   KIVITENDO_AP_INVOICE_PROFILE,
   KIVITENDO_GL_PROFILE,
+  KIVITENDO_PROJECT_PROFILE,
   KIVITENDO_STOCK_PROFILE,
 ];
 
