@@ -6,6 +6,7 @@ import { Plus, X, Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { createStockMovementAction } from '@/app/actions/inventory';
 import { MOVEMENT_TYPES } from '@/lib/config/inventory';
+import { FormInput, FormSelect } from '@/components/ui/form-field';
 
 interface Warehouse {
   id: string;
@@ -157,7 +158,7 @@ export function RecordMovementForm({
               <>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <input
+                  <FormInput
                     type="text"
                     value={productSearch}
                     onChange={(e) => {
@@ -170,7 +171,7 @@ export function RecordMovementForm({
                         ? `${tc('loading')}...`
                         : `${tc('search')}...`
                     }
-                    className="w-full rounded-lg border bg-background py-2 pl-9 pr-3 text-sm outline-none focus:ring-2 focus:ring-primary"
+                    className="pl-9 pr-3"
                     disabled={productsLoading}
                   />
                 </div>
@@ -210,10 +211,9 @@ export function RecordMovementForm({
             <label className="mb-1 block text-sm font-medium">
               {t('warehouses')} <span className="text-red-500">*</span>
             </label>
-            <select
+            <FormSelect
               name="warehouseId"
               required
-              className="w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="">Select warehouse...</option>
               {warehouses.map((wh) => (
@@ -221,7 +221,7 @@ export function RecordMovementForm({
                   {wh.name}
                 </option>
               ))}
-            </select>
+            </FormSelect>
           </div>
 
           {/* Movement Type */}
@@ -229,10 +229,9 @@ export function RecordMovementForm({
             <label className="mb-1 block text-sm font-medium">
               {t('movementType')} <span className="text-red-500">*</span>
             </label>
-            <select
+            <FormSelect
               name="type"
               required
-              className="w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="">Select type...</option>
               {movementTypeOptions.map((mt) => (
@@ -240,7 +239,7 @@ export function RecordMovementForm({
                   {mt.label}
                 </option>
               ))}
-            </select>
+            </FormSelect>
           </div>
 
           {/* Quantity */}
@@ -248,14 +247,13 @@ export function RecordMovementForm({
             <label className="mb-1 block text-sm font-medium">
               Quantity <span className="text-red-500">*</span>
             </label>
-            <input
+            <FormInput
               name="quantity"
               type="number"
               required
               min="0.01"
               step="0.01"
               placeholder="e.g. 10"
-              className="w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
             />
             <p className="mt-1 text-xs text-muted-foreground">
               Enter a positive number. Direction is determined by the movement
@@ -266,11 +264,10 @@ export function RecordMovementForm({
           {/* Reference */}
           <div>
             <label className="mb-1 block text-sm font-medium">Reference</label>
-            <input
+            <FormInput
               name="reference"
               type="text"
               placeholder="e.g. PO-2026-001 or manual adjustment"
-              className="w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 

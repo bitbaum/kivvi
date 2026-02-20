@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { ArrowLeft, Plus, Trash2, Search, AlertCircle } from 'lucide-react';
 import { createJournalEntryAction } from '@/app/actions/accounting';
 import { useTranslations } from 'next-intl';
+import { FormInput } from '@/components/ui/form-field';
 
 interface Account {
   id: string;
@@ -177,32 +178,32 @@ export default function NewJournalEntryPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="block text-sm font-medium">{tc('date')}</label>
-                <input
+                <FormInput
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+                  className="mt-1"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium">{t('reference')}</label>
-                <input
+                <FormInput
                   type="text"
                   value={reference}
                   onChange={(e) => setReference(e.target.value)}
                   placeholder="Optional reference..."
-                  className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+                  className="mt-1"
                 />
               </div>
             </div>
             <div>
               <label className="block text-sm font-medium">{tc('description')}</label>
-              <input
+              <FormInput
                 type="text"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="What is this entry for?"
-                className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+                className="mt-1"
               />
             </div>
           </div>
@@ -238,7 +239,7 @@ export default function NewJournalEntryPage() {
                           {activeAccountPicker === line.id ? (
                             <>
                               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                              <input
+                              <FormInput
                                 type="text"
                                 autoFocus
                                 value={accountSearch}
@@ -251,7 +252,7 @@ export default function NewJournalEntryPage() {
                                   }, 200);
                                 }}
                                 placeholder={t('searchAccounts')}
-                                className="w-full rounded-lg border bg-background py-2 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary"
+                                className="pl-10 pr-4"
                               />
                               {filteredAccounts.length > 0 && (
                                 <div className="absolute z-10 mt-1 w-full max-h-48 overflow-y-auto rounded-lg border bg-card shadow-lg">
@@ -299,7 +300,7 @@ export default function NewJournalEntryPage() {
                           <label className="block text-xs text-muted-foreground">
                             {t('debit')}
                           </label>
-                          <input
+                          <FormInput
                             type="number"
                             step="0.01"
                             min="0"
@@ -312,14 +313,14 @@ export default function NewJournalEntryPage() {
                               }
                             }}
                             placeholder="0.00"
-                            className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+                            className="mt-1"
                           />
                         </div>
                         <div>
                           <label className="block text-xs text-muted-foreground">
                             {t('credit')}
                           </label>
-                          <input
+                          <FormInput
                             type="number"
                             step="0.01"
                             min="0"
@@ -332,21 +333,21 @@ export default function NewJournalEntryPage() {
                               }
                             }}
                             placeholder="0.00"
-                            className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+                            className="mt-1"
                           />
                         </div>
                         <div>
                           <label className="block text-xs text-muted-foreground">
                             {tc('description')}
                           </label>
-                          <input
+                          <FormInput
                             type="text"
                             value={line.description}
                             onChange={(e) =>
                               updateLine(line.id, 'description', e.target.value)
                             }
                             placeholder="Optional..."
-                            className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+                            className="mt-1"
                           />
                         </div>
                       </div>

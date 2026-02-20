@@ -6,6 +6,7 @@ import { Send, CheckCircle2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { sendDocumentEmailAction } from '@/app/actions/email';
 import { toast } from 'sonner';
+import { FormInput } from '@/components/ui/form-field';
 
 interface SendEmailButtonProps {
   documentId: string;
@@ -67,13 +68,13 @@ export function SendEmailButton({ documentId, defaultEmail }: SendEmailButtonPro
   return (
     <div className="flex items-center gap-2">
       <form onSubmit={handleSubmit} className="flex items-center gap-2">
-        <input
+        <FormInput
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder={t('emailPlaceholder')}
           required
-          className="w-56 rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+          className="w-56"
         />
         <button
           type="submit"

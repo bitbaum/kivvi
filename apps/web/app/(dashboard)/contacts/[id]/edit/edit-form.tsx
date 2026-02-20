@@ -10,6 +10,7 @@ import type { Contact } from '@kivvi/database';
 import { toast } from 'sonner';
 import { LANGUAGE_OPTIONS, COUNTRY_OPTIONS } from '@/lib/config/locales';
 import { CONTACT_TYPES } from '@/lib/config/contact-types';
+import { FormInput, FormSelect, FormTextarea } from '@/components/ui/form-field';
 
 interface EditContactFormProps {
   contact: Contact;
@@ -82,33 +83,31 @@ export function EditContactForm({ contact }: EditContactFormProps) {
               <label htmlFor="type" className="mb-1.5 block text-sm font-medium">
                 {tc('type')} <span className="text-destructive">*</span>
               </label>
-              <select
+              <FormSelect
                 id="type"
                 name="type"
                 required
                 defaultValue={contact.type}
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 {contactTypeOptions.map((ct) => (
                   <option key={ct.value} value={ct.value}>
                     {ct.label}
                   </option>
                 ))}
-              </select>
+              </FormSelect>
             </div>
 
             <div className="sm:col-span-2">
               <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
                 {t('companyName')} <span className="text-destructive">*</span>
               </label>
-              <input
+              <FormInput
                 type="text"
                 id="name"
                 name="name"
                 required
                 maxLength={200}
                 defaultValue={contact.name}
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
 
@@ -116,13 +115,12 @@ export function EditContactForm({ contact }: EditContactFormProps) {
               <label htmlFor="firstName" className="mb-1.5 block text-sm font-medium">
                 {t('firstName')}
               </label>
-              <input
+              <FormInput
                 type="text"
                 id="firstName"
                 name="firstName"
                 maxLength={100}
                 defaultValue={contact.firstName || ''}
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
 
@@ -130,13 +128,12 @@ export function EditContactForm({ contact }: EditContactFormProps) {
               <label htmlFor="lastName" className="mb-1.5 block text-sm font-medium">
                 {t('lastName')}
               </label>
-              <input
+              <FormInput
                 type="text"
                 id="lastName"
                 name="lastName"
                 maxLength={100}
                 defaultValue={contact.lastName || ''}
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
           </div>
@@ -150,19 +147,19 @@ export function EditContactForm({ contact }: EditContactFormProps) {
           <div className="grid gap-6 p-6 sm:grid-cols-2">
             <div>
               <label htmlFor="email" className="mb-1.5 block text-sm font-medium">{tc('email')}</label>
-              <input type="email" id="email" name="email" defaultValue={contact.email || ''} className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+              <FormInput type="email" id="email" name="email" defaultValue={contact.email || ''} />
             </div>
             <div>
               <label htmlFor="phone" className="mb-1.5 block text-sm font-medium">{tc('phone')}</label>
-              <input type="tel" id="phone" name="phone" maxLength={30} defaultValue={contact.phone || ''} className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+              <FormInput type="tel" id="phone" name="phone" maxLength={30} defaultValue={contact.phone || ''} />
             </div>
             <div>
               <label htmlFor="mobile" className="mb-1.5 block text-sm font-medium">{t('mobile')}</label>
-              <input type="tel" id="mobile" name="mobile" maxLength={30} defaultValue={contact.mobile || ''} className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+              <FormInput type="tel" id="mobile" name="mobile" maxLength={30} defaultValue={contact.mobile || ''} />
             </div>
             <div>
               <label htmlFor="website" className="mb-1.5 block text-sm font-medium">{t('website')}</label>
-              <input type="text" id="website" name="website" maxLength={200} defaultValue={contact.website || ''} className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+              <FormInput type="text" id="website" name="website" maxLength={200} defaultValue={contact.website || ''} />
             </div>
           </div>
         </section>
@@ -175,23 +172,23 @@ export function EditContactForm({ contact }: EditContactFormProps) {
           <div className="grid gap-6 p-6 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <label htmlFor="address" className="mb-1.5 block text-sm font-medium">{t('street')}</label>
-              <input type="text" id="address" name="address" maxLength={500} defaultValue={contact.address || ''} className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+              <FormInput type="text" id="address" name="address" maxLength={500} defaultValue={contact.address || ''} />
             </div>
             <div>
               <label htmlFor="postalCode" className="mb-1.5 block text-sm font-medium">{t('postalCode')}</label>
-              <input type="text" id="postalCode" name="postalCode" maxLength={20} defaultValue={contact.postalCode || ''} className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+              <FormInput type="text" id="postalCode" name="postalCode" maxLength={20} defaultValue={contact.postalCode || ''} />
             </div>
             <div>
               <label htmlFor="city" className="mb-1.5 block text-sm font-medium">{t('city')}</label>
-              <input type="text" id="city" name="city" maxLength={100} defaultValue={contact.city || ''} className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+              <FormInput type="text" id="city" name="city" maxLength={100} defaultValue={contact.city || ''} />
             </div>
             <div>
               <label htmlFor="country" className="mb-1.5 block text-sm font-medium">{t('country')}</label>
-              <select id="country" name="country" defaultValue={contact.country || 'CH'} className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+              <FormSelect id="country" name="country" defaultValue={contact.country || 'CH'}>
                 {COUNTRY_OPTIONS.map((c) => (
                   <option key={c.value} value={c.value}>{c.label}</option>
                 ))}
-              </select>
+              </FormSelect>
             </div>
           </div>
         </section>
@@ -204,19 +201,19 @@ export function EditContactForm({ contact }: EditContactFormProps) {
           <div className="grid gap-6 p-6 sm:grid-cols-2">
             <div>
               <label htmlFor="vatNumber" className="mb-1.5 block text-sm font-medium">{t('vatNumber')}</label>
-              <input type="text" id="vatNumber" name="vatNumber" maxLength={30} defaultValue={contact.vatNumber || ''} className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+              <FormInput type="text" id="vatNumber" name="vatNumber" maxLength={30} defaultValue={contact.vatNumber || ''} />
             </div>
             <div>
               <label htmlFor="iban" className="mb-1.5 block text-sm font-medium">{t('iban')}</label>
-              <input type="text" id="iban" name="iban" maxLength={34} defaultValue={contact.iban || ''} className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+              <FormInput type="text" id="iban" name="iban" maxLength={34} defaultValue={contact.iban || ''} />
             </div>
             <div>
               <label htmlFor="paymentTermsDays" className="mb-1.5 block text-sm font-medium">{t('paymentTerms')} ({t('days')})</label>
-              <input type="number" id="paymentTermsDays" name="paymentTermsDays" min={0} max={365} defaultValue={contact.paymentTermsDays ?? 30} className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+              <FormInput type="number" id="paymentTermsDays" name="paymentTermsDays" min={0} max={365} defaultValue={contact.paymentTermsDays ?? 30} />
             </div>
             <div>
               <label htmlFor="creditLimit" className="mb-1.5 block text-sm font-medium">{t('creditLimit')} (CHF)</label>
-              <input type="text" id="creditLimit" name="creditLimit" defaultValue={contact.creditLimit || ''} className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+              <FormInput type="text" id="creditLimit" name="creditLimit" defaultValue={contact.creditLimit || ''} />
             </div>
           </div>
         </section>
@@ -229,15 +226,15 @@ export function EditContactForm({ contact }: EditContactFormProps) {
           <div className="grid gap-6 p-6 sm:grid-cols-2">
             <div>
               <label htmlFor="language" className="mb-1.5 block text-sm font-medium">{t('language')}</label>
-              <select id="language" name="language" defaultValue={contact.language || 'de'} className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+              <FormSelect id="language" name="language" defaultValue={contact.language || 'de'}>
                 {LANGUAGE_OPTIONS.map((l) => (
                   <option key={l.value} value={l.value}>{l.label}</option>
                 ))}
-              </select>
+              </FormSelect>
             </div>
             <div className="sm:col-span-2">
               <label htmlFor="notes" className="mb-1.5 block text-sm font-medium">{tc('notes')}</label>
-              <textarea id="notes" name="notes" rows={4} maxLength={5000} defaultValue={contact.notes || ''} className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-y" />
+              <FormTextarea id="notes" name="notes" rows={4} maxLength={5000} defaultValue={contact.notes || ''} className="resize-y" />
             </div>
           </div>
         </section>

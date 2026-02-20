@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Plus, X } from 'lucide-react';
 import { createBankAccountAction } from '@/app/actions/banking';
 import { useTranslations } from 'next-intl';
+import { FormInput, FormSelect } from '@/components/ui/form-field';
 
 export function AddAccountForm() {
   const router = useRouter();
@@ -67,47 +68,44 @@ export function AddAccountForm() {
             <label className="block text-sm font-medium mb-1">
               {t('accountName')} <span className="text-red-500">*</span>
             </label>
-            <input
+            <FormInput
               name="name"
               type="text"
               required
               placeholder="e.g. Business Account"
-              className="w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-1">IBAN</label>
-            <input
+            <FormInput
               name="iban"
               type="text"
               placeholder="CH93 0076 2011 6238 5295 7"
-              className="w-full rounded-lg border bg-background px-3 py-2 text-sm font-mono outline-none focus:ring-2 focus:ring-primary"
+              className="font-mono"
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-1">{t('bankName')}</label>
-            <input
+            <FormInput
               name="bankName"
               type="text"
               placeholder="e.g. UBS, Credit Suisse, PostFinance"
-              className="w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-1">{tc('currency')}</label>
-            <select
+            <FormSelect
               name="currency"
               defaultValue="CHF"
-              className="w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="CHF">CHF</option>
               <option value="EUR">EUR</option>
               <option value="USD">USD</option>
               <option value="GBP">GBP</option>
-            </select>
+            </FormSelect>
           </div>
 
           {error && <p className="text-sm text-red-600">{error}</p>}

@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { updateProjectAction } from '@/app/actions/projects';
 import { cn } from '@/lib/utils';
 import { PROJECT_STATUSES, PROJECT_STATUS_LABEL_KEYS } from '@/lib/config/project-status';
+import { FormInput, FormSelect, FormTextarea } from '@/components/ui/form-field';
 
 interface ProjectEditFormProps {
   projectId: string;
@@ -110,14 +111,13 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
                 <label htmlFor="edit-name" className="mb-1.5 block text-sm font-medium">
                   {t('projectName')} <span className="text-destructive">*</span>
                 </label>
-                <input
+                <FormInput
                   type="text"
                   id="edit-name"
                   name="name"
                   required
                   maxLength={200}
                   defaultValue={initialData.name}
-                  className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
 
@@ -126,13 +126,13 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
                 <label htmlFor="edit-description" className="mb-1.5 block text-sm font-medium">
                   {tc('description')}
                 </label>
-                <textarea
+                <FormTextarea
                   id="edit-description"
                   name="description"
                   rows={3}
                   maxLength={5000}
                   defaultValue={initialData.description}
-                  className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-y"
+                  className="resize-y"
                 />
               </div>
 
@@ -141,18 +141,17 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
                 <label htmlFor="edit-status" className="mb-1.5 block text-sm font-medium">
                   {tc('status')}
                 </label>
-                <select
+                <FormSelect
                   id="edit-status"
                   name="status"
                   defaultValue={initialData.status}
-                  className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 >
                   {statusOptions.map((s) => (
                     <option key={s.value} value={s.value}>
                       {s.label}
                     </option>
                   ))}
-                </select>
+                </FormSelect>
               </div>
 
               {/* Budget */}
@@ -160,14 +159,13 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
                 <label htmlFor="edit-budget" className="mb-1.5 block text-sm font-medium">
                   {t('budget')} (CHF)
                 </label>
-                <input
+                <FormInput
                   type="number"
                   id="edit-budget"
                   name="budget"
                   min={0}
                   step="0.01"
                   defaultValue={initialData.budget}
-                  className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
 
@@ -176,12 +174,11 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
                 <label htmlFor="edit-contactId" className="mb-1.5 block text-sm font-medium">
                   Client (Contact ID)
                 </label>
-                <input
+                <FormInput
                   type="text"
                   id="edit-contactId"
                   name="contactId"
                   defaultValue={initialData.contactId}
-                  className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
 
@@ -190,12 +187,11 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
                 <label htmlFor="edit-startDate" className="mb-1.5 block text-sm font-medium">
                   {t('startDate')}
                 </label>
-                <input
+                <FormInput
                   type="date"
                   id="edit-startDate"
                   name="startDate"
                   defaultValue={initialData.startDate}
-                  className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
 
@@ -204,12 +200,11 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
                 <label htmlFor="edit-endDate" className="mb-1.5 block text-sm font-medium">
                   {t('endDate')}
                 </label>
-                <input
+                <FormInput
                   type="date"
                   id="edit-endDate"
                   name="endDate"
                   defaultValue={initialData.endDate}
-                  className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
             </div>

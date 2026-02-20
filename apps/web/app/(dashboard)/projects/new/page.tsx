@@ -7,6 +7,7 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { createProjectAction } from '@/app/actions/projects';
 import { cn } from '@/lib/utils';
+import { FormInput, FormSelect, FormTextarea } from '@/components/ui/form-field';
 
 export default function NewProjectPage() {
   const router = useRouter();
@@ -94,14 +95,13 @@ export default function NewProjectPage() {
               <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
                 {t('projectName')} <span className="text-destructive">*</span>
               </label>
-              <input
+              <FormInput
                 type="text"
                 id="name"
                 name="name"
                 required
                 maxLength={200}
                 placeholder="e.g. Website Redesign"
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
 
@@ -110,13 +110,13 @@ export default function NewProjectPage() {
               <label htmlFor="description" className="mb-1.5 block text-sm font-medium">
                 {tc('description')}
               </label>
-              <textarea
+              <FormTextarea
                 id="description"
                 name="description"
                 rows={3}
                 maxLength={5000}
                 placeholder={t('descriptionPlaceholder')}
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-y"
+                className="resize-y"
               />
             </div>
 
@@ -125,18 +125,17 @@ export default function NewProjectPage() {
               <label htmlFor="status" className="mb-1.5 block text-sm font-medium">
                 {tc('status')}
               </label>
-              <select
+              <FormSelect
                 id="status"
                 name="status"
                 defaultValue="active"
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 {PROJECT_STATUSES.map((s) => (
                   <option key={s.value} value={s.value}>
                     {s.label}
                   </option>
                 ))}
-              </select>
+              </FormSelect>
             </div>
 
             {/* Budget */}
@@ -144,14 +143,13 @@ export default function NewProjectPage() {
               <label htmlFor="budget" className="mb-1.5 block text-sm font-medium">
                 {t('budget')}
               </label>
-              <input
+              <FormInput
                 type="number"
                 id="budget"
                 name="budget"
                 min={0}
                 step="0.01"
                 placeholder="10000.00"
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
           </div>
@@ -168,12 +166,11 @@ export default function NewProjectPage() {
               <label htmlFor="contactId" className="mb-1.5 block text-sm font-medium">
                 {t('clientContactId')}
               </label>
-              <input
+              <FormInput
                 type="text"
                 id="contactId"
                 name="contactId"
                 placeholder={t('contactPlaceholder')}
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
               <p className="mt-1 text-xs text-muted-foreground">
                 {t('contactIdHint')}
@@ -185,11 +182,10 @@ export default function NewProjectPage() {
               <label htmlFor="startDate" className="mb-1.5 block text-sm font-medium">
                 {t('startDate')}
               </label>
-              <input
+              <FormInput
                 type="date"
                 id="startDate"
                 name="startDate"
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
 
@@ -198,11 +194,10 @@ export default function NewProjectPage() {
               <label htmlFor="endDate" className="mb-1.5 block text-sm font-medium">
                 {t('endDate')}
               </label>
-              <input
+              <FormInput
                 type="date"
                 id="endDate"
                 name="endDate"
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
           </div>

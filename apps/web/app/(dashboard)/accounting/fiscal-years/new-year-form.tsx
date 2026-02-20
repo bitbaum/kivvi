@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Plus, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import { createFiscalYearAction } from '@/app/actions/accounting';
 import { useTranslations } from 'next-intl';
+import { FormInput } from '@/components/ui/form-field';
 
 export function NewYearForm() {
   const router = useRouter();
@@ -71,14 +72,13 @@ export function NewYearForm() {
               >
                 {tc('name')}
               </label>
-              <input
+              <FormInput
                 id="fiscal-year-name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. 2026"
                 required
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               />
             </div>
 
@@ -89,13 +89,12 @@ export function NewYearForm() {
               >
                 {t('startDate')}
               </label>
-              <input
+              <FormInput
                 id="fiscal-year-start"
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
                 required
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               />
             </div>
 
@@ -106,13 +105,12 @@ export function NewYearForm() {
               >
                 {t('endDate')}
               </label>
-              <input
+              <FormInput
                 id="fiscal-year-end"
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
                 required
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               />
             </div>
           </div>

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { CreditCard } from 'lucide-react';
 import { recordPaymentAction } from '@/app/actions/documents';
+import { FormInput, FormSelect } from '@/components/ui/form-field';
 
 export function PaymentForm({
   documentId,
@@ -61,44 +62,44 @@ export function PaymentForm({
     <form onSubmit={handleSubmit} className="space-y-3">
       <div>
         <label className="block text-xs font-medium text-muted-foreground">{t('paymentAmount')} ({currency})</label>
-        <input
+        <FormInput
           name="amount"
           type="number"
           step="0.01"
           defaultValue={outstanding.toFixed(2)}
           required
-          className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+          className="mt-1"
         />
       </div>
       <div>
         <label className="block text-xs font-medium text-muted-foreground">{t('paymentDate')}</label>
-        <input
+        <FormInput
           name="date"
           type="date"
           defaultValue={new Date().toISOString().split('T')[0]}
           required
-          className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+          className="mt-1"
         />
       </div>
       <div>
         <label className="block text-xs font-medium text-muted-foreground">{t('paymentMethod')}</label>
-        <select
+        <FormSelect
           name="method"
-          className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+          className="mt-1"
         >
           <option value="bank_transfer">{t('paymentMethods.bank_transfer')}</option>
           <option value="cash">{t('paymentMethods.cash')}</option>
           <option value="card">{t('paymentMethods.card')}</option>
           <option value="other">{t('paymentMethods.other')}</option>
-        </select>
+        </FormSelect>
       </div>
       <div>
         <label className="block text-xs font-medium text-muted-foreground">{tc('notes')}</label>
-        <input
+        <FormInput
           name="reference"
           type="text"
           placeholder={t('paymentReference')}
-          className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+          className="mt-1"
         />
       </div>
       {error && <p className="text-sm text-red-600">{error}</p>}

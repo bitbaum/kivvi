@@ -11,6 +11,7 @@ import type { DocumentTypeConfig } from '@/lib/config/document-types';
 import { SWISS_VAT_RATES, DEFAULT_VAT_RATE } from '@/lib/config/vat-rates';
 import { ContactPicker } from '@/components/contacts/contact-picker';
 import { CharCountTextarea } from '@/components/ui/char-count-textarea';
+import { FormInput, FormSelect } from '@/components/ui/form-field';
 import type { DocumentType } from '@kivvi/database';
 import { toast } from 'sonner';
 import { rappenRound } from '@kivvi/core/src/utils/swiss-currency';
@@ -158,18 +159,18 @@ export function EditDocumentForm({ documentId, documentType, config, initialData
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="block text-sm font-medium">{t('issueDate')}</label>
-                <input type="date" value={issueDate} onChange={(e) => setIssueDate(e.target.value)} className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary" />
+                <FormInput type="date" value={issueDate} onChange={(e) => setIssueDate(e.target.value)} className="mt-1" />
               </div>
               {config.hasDueDate && (
                 <div>
                   <label className="block text-sm font-medium">{t(config.dueDateLabel)}</label>
-                  <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary" />
+                  <FormInput type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="mt-1" />
                 </div>
               )}
               {config.hasDeliveryDate && (
                 <div>
                   <label className="block text-sm font-medium">{t('deliveryDate')}</label>
-                  <input type="date" value={deliveryDate} onChange={(e) => setDeliveryDate(e.target.value)} className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary" />
+                  <FormInput type="date" value={deliveryDate} onChange={(e) => setDeliveryDate(e.target.value)} className="mt-1" />
                 </div>
               )}
             </div>
@@ -189,27 +190,27 @@ export function EditDocumentForm({ documentId, documentType, config, initialData
                   <div className="flex items-start gap-3">
                     <span className="mt-2.5 text-sm text-muted-foreground w-6">{index + 1}</span>
                     <div className="flex-1 space-y-3">
-                      <input type="text" value={item.description} onChange={(e) => updateItem(item.id, 'description', e.target.value)} placeholder={tc('description')} className="w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary" />
+                      <FormInput type="text" value={item.description} onChange={(e) => updateItem(item.id, 'description', e.target.value)} placeholder={tc('description')} />
                       <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
                         <div>
                           <label className="block text-xs text-muted-foreground">{t('quantity')}</label>
-                          <input type="number" step="0.01" value={item.quantity} onChange={(e) => updateItem(item.id, 'quantity', e.target.value)} className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary" />
+                          <FormInput type="number" step="0.01" value={item.quantity} onChange={(e) => updateItem(item.id, 'quantity', e.target.value)} className="mt-1" />
                         </div>
                         <div>
                           <label className="block text-xs text-muted-foreground">{t('unitPrice')}</label>
-                          <input type="number" step="0.01" value={item.unitPrice} onChange={(e) => updateItem(item.id, 'unitPrice', e.target.value)} className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary" />
+                          <FormInput type="number" step="0.01" value={item.unitPrice} onChange={(e) => updateItem(item.id, 'unitPrice', e.target.value)} className="mt-1" />
                         </div>
                         <div>
                           <label className="block text-xs text-muted-foreground">{t('discount')} %</label>
-                          <input type="number" step="0.1" value={item.discount} onChange={(e) => updateItem(item.id, 'discount', e.target.value)} className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary" />
+                          <FormInput type="number" step="0.1" value={item.discount} onChange={(e) => updateItem(item.id, 'discount', e.target.value)} className="mt-1" />
                         </div>
                         <div>
                           <label className="block text-xs text-muted-foreground">{t('vatPercent')}</label>
-                          <select value={item.vatRate} onChange={(e) => updateItem(item.id, 'vatRate', e.target.value)} className="mt-1 w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary">
+                          <FormSelect value={item.vatRate} onChange={(e) => updateItem(item.id, 'vatRate', e.target.value)} className="mt-1">
                             {SWISS_VAT_RATES.map((rate) => (
                               <option key={rate.value} value={rate.value}>{rate.value}%</option>
                             ))}
-                          </select>
+                          </FormSelect>
                         </div>
                         <div>
                           <label className="block text-xs text-muted-foreground">{tc('total')}</label>

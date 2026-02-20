@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Plus, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { createWarehouseAction } from '@/app/actions/inventory';
+import { FormInput } from '@/components/ui/form-field';
 
 export function AddWarehouseForm() {
   const router = useRouter();
@@ -66,22 +67,20 @@ export function AddWarehouseForm() {
             <label className="block text-sm font-medium mb-1">
               {t('warehouseName')} <span className="text-red-500">*</span>
             </label>
-            <input
+            <FormInput
               name="name"
               type="text"
               required
               placeholder={t('warehouseNamePlaceholder')}
-              className="w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium mb-1">{t('location')}</label>
-            <input
+            <FormInput
               name="address"
               type="text"
               placeholder={t('locationPlaceholder')}
-              className="w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 

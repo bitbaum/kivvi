@@ -9,6 +9,7 @@ import {
   updateRecurringConfigAction,
 } from '@/app/actions/recurring-invoices';
 import { cn } from '@/lib/utils';
+import { FormInput, FormSelect, FormTextarea } from '@/components/ui/form-field';
 import { toast } from 'sonner';
 
 interface RecurringConfigFormProps {
@@ -138,11 +139,10 @@ export function RecurringConfigForm({ orderOptions, initialData }: RecurringConf
           <label className="block text-sm font-medium mb-2">
             {t('recurring.baseOrder')} <span className="text-destructive">*</span>
           </label>
-          <select
+          <FormSelect
             name="orderId"
             required
             defaultValue={initialData?.orderId}
-            className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
             disabled={isEditing} // Can't change order after creation
           >
             <option value="">{t('recurring.selectOrder')}</option>
@@ -151,7 +151,7 @@ export function RecurringConfigForm({ orderOptions, initialData }: RecurringConf
                 {order.number} - {order.contactName}
               </option>
             ))}
-          </select>
+          </FormSelect>
           {isEditing && (
             <p className="text-xs text-muted-foreground mt-2">
               {t('recurring.cannotChangeOrder')}
@@ -171,16 +171,15 @@ export function RecurringConfigForm({ orderOptions, initialData }: RecurringConf
             <label className="block text-sm font-medium mb-2">
               {t('recurring.periodicity.label')} <span className="text-destructive">*</span>
             </label>
-            <select
+            <FormSelect
               name="periodicity"
               required
               defaultValue={initialData?.periodicity || 'monthly'}
-              className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
             >
               <option value="monthly">{t('recurring.periodicity.monthly')}</option>
               <option value="quarterly">{t('recurring.periodicity.quarterly')}</option>
               <option value="annual">{t('recurring.periodicity.annual')}</option>
-            </select>
+            </FormSelect>
           </div>
 
           {/* Start Date */}
@@ -188,12 +187,11 @@ export function RecurringConfigForm({ orderOptions, initialData }: RecurringConf
             <label className="block text-sm font-medium mb-2">
               {t('recurring.startDate')} <span className="text-destructive">*</span>
             </label>
-            <input
+            <FormInput
               type="date"
               name="startDate"
               required
               defaultValue={initialData?.startDate}
-              className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
             />
           </div>
 
@@ -202,11 +200,10 @@ export function RecurringConfigForm({ orderOptions, initialData }: RecurringConf
             <label className="block text-sm font-medium mb-2">
               {t('recurring.endDate')}
             </label>
-            <input
+            <FormInput
               type="date"
               name="endDate"
               defaultValue={initialData?.endDate || ''}
-              className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
             />
             <p className="text-xs text-muted-foreground mt-1">
               {t('recurring.endDateDesc')}
@@ -218,14 +215,13 @@ export function RecurringConfigForm({ orderOptions, initialData }: RecurringConf
             <label className="block text-sm font-medium mb-2">
               {t('recurring.autoExtension')}
             </label>
-            <input
+            <FormInput
               type="number"
               name="autoExtensionMonths"
               min="1"
               max="60"
               defaultValue={initialData?.autoExtensionMonths || ''}
               placeholder={t('recurring.autoExtensionPlaceholder')}
-              className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
             />
             <p className="text-xs text-muted-foreground mt-1">
               {t('recurring.autoExtensionDesc')}
@@ -266,7 +262,7 @@ export function RecurringConfigForm({ orderOptions, initialData }: RecurringConf
 
           {/* Add email */}
           <div className="flex gap-2">
-            <input
+            <FormInput
               type="email"
               value={newEmail}
               onChange={(e) => setNewEmail(e.target.value)}
@@ -277,7 +273,7 @@ export function RecurringConfigForm({ orderOptions, initialData }: RecurringConf
                 }
               }}
               placeholder={t('recurring.emailPlaceholder')}
-              className="flex-1 rounded-lg border bg-background px-3 py-2 text-sm"
+              className="flex-1"
             />
             <button
               type="button"
@@ -300,12 +296,11 @@ export function RecurringConfigForm({ orderOptions, initialData }: RecurringConf
           </p>
         </div>
         <div className="p-6">
-          <textarea
+          <FormTextarea
             name="notes"
             rows={4}
             defaultValue={initialData?.notes || ''}
             placeholder={t('recurring.notesPlaceholder')}
-            className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
           />
           <div className="mt-2 space-y-1 text-xs text-muted-foreground">
             <p>{t('recurring.variablesDesc')}</p>

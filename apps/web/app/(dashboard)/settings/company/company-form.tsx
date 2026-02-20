@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { updateCompanyAction } from '@/app/actions/settings';
 import { cn } from '@/lib/utils';
 import { COUNTRY_OPTIONS } from '@/lib/config/locales';
+import { FormInput, FormSelect } from '@/components/ui/form-field';
 
 const CURRENCIES = [
   { value: 'CHF', label: 'CHF - Swiss Franc' },
@@ -94,14 +95,13 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
             <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
               {t('company.companyName')} <span className="text-destructive">*</span>
             </label>
-            <input
+            <FormInput
               type="text"
               id="name"
               name="name"
               required
               maxLength={200}
               defaultValue={initialData.name}
-              className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 
@@ -109,13 +109,12 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
             <label htmlFor="legalName" className="mb-1.5 block text-sm font-medium">
               {t('company.legalName')}
             </label>
-            <input
+            <FormInput
               type="text"
               id="legalName"
               name="legalName"
               maxLength={200}
               defaultValue={initialData.legalName}
-              className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 
@@ -123,14 +122,13 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
             <label htmlFor="vatNumber" className="mb-1.5 block text-sm font-medium">
               {t('company.vatNumber')}
             </label>
-            <input
+            <FormInput
               type="text"
               id="vatNumber"
               name="vatNumber"
               maxLength={50}
               placeholder="CHE-123.456.789 MWST"
               defaultValue={initialData.vatNumber}
-              className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
         </div>
@@ -146,13 +144,12 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
             <label htmlFor="address" className="mb-1.5 block text-sm font-medium">
               Street Address
             </label>
-            <input
+            <FormInput
               type="text"
               id="address"
               name="address"
               maxLength={500}
               defaultValue={initialData.address}
-              className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 
@@ -160,13 +157,12 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
             <label htmlFor="postalCode" className="mb-1.5 block text-sm font-medium">
               Postal Code
             </label>
-            <input
+            <FormInput
               type="text"
               id="postalCode"
               name="postalCode"
               maxLength={20}
               defaultValue={initialData.postalCode}
-              className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 
@@ -174,13 +170,12 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
             <label htmlFor="city" className="mb-1.5 block text-sm font-medium">
               City
             </label>
-            <input
+            <FormInput
               type="text"
               id="city"
               name="city"
               maxLength={100}
               defaultValue={initialData.city}
-              className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 
@@ -188,18 +183,17 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
             <label htmlFor="country" className="mb-1.5 block text-sm font-medium">
               Country
             </label>
-            <select
+            <FormSelect
               id="country"
               name="country"
               defaultValue={initialData.country}
-              className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >
               {COUNTRY_OPTIONS.map((c) => (
                 <option key={c.value} value={c.value}>
                   {c.label}
                 </option>
               ))}
-            </select>
+            </FormSelect>
           </div>
         </div>
       </section>
@@ -214,18 +208,17 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
             <label htmlFor="currency" className="mb-1.5 block text-sm font-medium">
               {t('company.defaultCurrency')}
             </label>
-            <select
+            <FormSelect
               id="currency"
               name="currency"
               defaultValue={initialData.currency}
-              className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >
               {CURRENCIES.map((c) => (
                 <option key={c.value} value={c.value}>
                   {c.label}
                 </option>
               ))}
-            </select>
+            </FormSelect>
           </div>
         </div>
       </section>

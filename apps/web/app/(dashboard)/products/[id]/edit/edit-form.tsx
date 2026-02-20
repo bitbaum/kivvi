@@ -10,6 +10,7 @@ import { SWISS_VAT_RATES, DEFAULT_VAT_RATE } from '@/lib/config/vat-rates';
 import { PRODUCT_TYPES, UNIT_VALUES } from '@/lib/config/products';
 import type { Product } from '@kivvi/database';
 import { toast } from 'sonner';
+import { FormInput, FormSelect, FormTextarea } from '@/components/ui/form-field';
 
 interface EditProductFormProps {
   product: Product;
@@ -89,55 +90,52 @@ export function EditProductForm({ product }: EditProductFormProps) {
               <label htmlFor="type" className="mb-1.5 block text-sm font-medium">
                 {tc('type')} <span className="text-destructive">*</span>
               </label>
-              <select
+              <FormSelect
                 id="type"
                 name="type"
                 required
                 value={productType}
                 onChange={(e) => setProductType(e.target.value as 'product' | 'service')}
-                className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               >
                 {typeOptions.map((opt) => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
-              </select>
+              </FormSelect>
             </div>
 
             <div>
               <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
                 {tc('name')} <span className="text-destructive">*</span>
               </label>
-              <input
+              <FormInput
                 type="text"
                 id="name"
                 name="name"
                 required
                 maxLength={255}
                 defaultValue={product.name}
-                className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               />
             </div>
 
             <div>
               <label htmlFor="description" className="mb-1.5 block text-sm font-medium">{tc('description')}</label>
-              <textarea
+              <FormTextarea
                 id="description"
                 name="description"
                 rows={3}
                 maxLength={5000}
                 defaultValue={product.description || ''}
-                className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               />
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label htmlFor="sku" className="mb-1.5 block text-sm font-medium">{t('sku')}</label>
-                <input type="text" id="sku" name="sku" maxLength={100} defaultValue={product.sku || ''} className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" />
+                <FormInput type="text" id="sku" name="sku" maxLength={100} defaultValue={product.sku || ''} />
               </div>
               <div>
                 <label htmlFor="ean" className="mb-1.5 block text-sm font-medium">{t('ean')}</label>
-                <input type="text" id="ean" name="ean" maxLength={50} defaultValue={product.ean || ''} className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" />
+                <FormInput type="text" id="ean" name="ean" maxLength={50} defaultValue={product.ean || ''} />
               </div>
             </div>
           </div>
@@ -154,11 +152,11 @@ export function EditProductForm({ product }: EditProductFormProps) {
                 <label htmlFor="unitPrice" className="mb-1.5 block text-sm font-medium">
                   {t('unitPrice')} (CHF) <span className="text-destructive">*</span>
                 </label>
-                <input type="text" id="unitPrice" name="unitPrice" required defaultValue={product.unitPrice} className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" />
+                <FormInput type="text" id="unitPrice" name="unitPrice" required defaultValue={product.unitPrice} />
               </div>
               <div>
                 <label htmlFor="purchasePrice" className="mb-1.5 block text-sm font-medium">{t('purchasePrice')} (CHF)</label>
-                <input type="text" id="purchasePrice" name="purchasePrice" defaultValue={product.purchasePrice || ''} className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" />
+                <FormInput type="text" id="purchasePrice" name="purchasePrice" defaultValue={product.purchasePrice || ''} />
               </div>
             </div>
 
@@ -169,19 +167,19 @@ export function EditProductForm({ product }: EditProductFormProps) {
                 <label htmlFor="vatRate" className="mb-1.5 block text-sm font-medium">
                   {t('vatRate')} <span className="text-destructive">*</span>
                 </label>
-                <select id="vatRate" name="vatRate" required defaultValue={product.vatRate || DEFAULT_VAT_RATE} className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                <FormSelect id="vatRate" name="vatRate" required defaultValue={product.vatRate || DEFAULT_VAT_RATE}>
                   {vatRateOptions.map((opt) => (
                     <option key={opt.value} value={opt.value}>{opt.label}</option>
                   ))}
-                </select>
+                </FormSelect>
               </div>
               <div>
                 <label htmlFor="unit" className="mb-1.5 block text-sm font-medium">{t('unit')}</label>
-                <select id="unit" name="unit" defaultValue={product.unit || 'piece'} className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary">
+                <FormSelect id="unit" name="unit" defaultValue={product.unit || 'piece'}>
                   {unitOptions.map((opt) => (
                     <option key={opt.value} value={opt.value}>{opt.label}</option>
                   ))}
-                </select>
+                </FormSelect>
               </div>
             </div>
           </div>
@@ -196,7 +194,7 @@ export function EditProductForm({ product }: EditProductFormProps) {
             <div className="space-y-4 p-6">
               <div className="max-w-xs">
                 <label htmlFor="minStock" className="mb-1.5 block text-sm font-medium">{t('minStock')}</label>
-                <input type="number" id="minStock" name="minStock" min={0} step={1} defaultValue={product.minStock ?? ''} className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" />
+                <FormInput type="number" id="minStock" name="minStock" min={0} step={1} defaultValue={product.minStock ?? ''} />
               </div>
               <div className="flex items-center gap-3">
                 <input type="checkbox" id="serialNumberTracking" name="serialNumberTracking" defaultChecked={product.serialNumberTracking ?? false} className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary" />

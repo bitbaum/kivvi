@@ -4,6 +4,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { FormInput } from '@/components/ui/form-field';
 
 export function DateRangeForm({
   defaultStart,
@@ -35,12 +36,11 @@ export function DateRangeForm({
         >
           {t('fromDate')}
         </label>
-        <input
+        <FormInput
           id="start"
           type="date"
           value={start}
           onChange={(e) => setStart(e.target.value)}
-          className="rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
         />
       </div>
       <div>
@@ -50,12 +50,11 @@ export function DateRangeForm({
         >
           {t('toDate')}
         </label>
-        <input
+        <FormInput
           id="end"
           type="date"
           value={end}
           onChange={(e) => setEnd(e.target.value)}
-          className="rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
         />
       </div>
       <button

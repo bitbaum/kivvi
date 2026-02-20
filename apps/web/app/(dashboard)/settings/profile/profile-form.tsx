@@ -5,6 +5,7 @@ import { Loader2, CheckCircle2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { updateProfileAction } from '@/app/actions/settings';
 import { cn } from '@/lib/utils';
+import { FormInput } from '@/components/ui/form-field';
 
 interface ProfileFormProps {
   initialData: {
@@ -75,14 +76,13 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
             <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
               {t('profileSection.fullName')} <span className="text-destructive">*</span>
             </label>
-            <input
+            <FormInput
               type="text"
               id="name"
               name="name"
               required
               maxLength={200}
               defaultValue={initialData.name}
-              className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 
@@ -90,13 +90,12 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
             <label htmlFor="email" className="mb-1.5 block text-sm font-medium">
               {t('profileSection.emailAddress')} <span className="text-destructive">*</span>
             </label>
-            <input
+            <FormInput
               type="email"
               id="email"
               name="email"
               required
               defaultValue={initialData.email}
-              className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
         </div>

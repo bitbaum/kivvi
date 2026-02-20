@@ -7,6 +7,7 @@ import { createAccountAction, updateAccountAction } from '@/app/actions/accounti
 import type { Account } from '@kivvi/database';
 import { useTranslations } from 'next-intl';
 import { ACCOUNT_TYPES, ACCOUNT_TYPE_LABEL_KEYS } from '@/lib/config/accounting';
+import { FormInput, FormSelect } from '@/components/ui/form-field';
 
 interface AccountFormProps {
   account?: Account;
@@ -78,7 +79,7 @@ export function AccountForm({ account, parentAccounts }: AccountFormProps) {
             <label htmlFor="code" className="mb-1.5 block text-sm font-medium">
               {t('accountCode')}
             </label>
-            <input
+            <FormInput
               id="code"
               name="code"
               type="text"
@@ -86,7 +87,6 @@ export function AccountForm({ account, parentAccounts }: AccountFormProps) {
               maxLength={10}
               defaultValue={account?.code || ''}
               placeholder="e.g. 1000"
-              className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 
@@ -95,7 +95,7 @@ export function AccountForm({ account, parentAccounts }: AccountFormProps) {
             <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
               {t('accountName')}
             </label>
-            <input
+            <FormInput
               id="name"
               name="name"
               type="text"
@@ -103,7 +103,6 @@ export function AccountForm({ account, parentAccounts }: AccountFormProps) {
               maxLength={200}
               defaultValue={account?.name || ''}
               placeholder="e.g. Cash / Kasse"
-              className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 
@@ -112,12 +111,11 @@ export function AccountForm({ account, parentAccounts }: AccountFormProps) {
             <label htmlFor="type" className="mb-1.5 block text-sm font-medium">
               {t('accountType')}
             </label>
-            <select
+            <FormSelect
               id="type"
               name="type"
               required
               defaultValue={account?.type || ''}
-              className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="" disabled>
                 {t('accountType')}...
@@ -127,7 +125,7 @@ export function AccountForm({ account, parentAccounts }: AccountFormProps) {
                   {at.label}
                 </option>
               ))}
-            </select>
+            </FormSelect>
           </div>
 
           {/* Parent Account */}
@@ -136,11 +134,10 @@ export function AccountForm({ account, parentAccounts }: AccountFormProps) {
               {t('parentAccount')}
               <span className="ml-1 text-xs text-muted-foreground">{tc('optional')}</span>
             </label>
-            <select
+            <FormSelect
               id="parentId"
               name="parentId"
               defaultValue={account?.parentId || ''}
-              className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="">{tc('none')}</option>
               {availableParents.map((a) => (
@@ -148,7 +145,7 @@ export function AccountForm({ account, parentAccounts }: AccountFormProps) {
                   {a.code} - {a.name}
                 </option>
               ))}
-            </select>
+            </FormSelect>
           </div>
         </div>
 

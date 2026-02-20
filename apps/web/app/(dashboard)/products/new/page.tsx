@@ -10,6 +10,7 @@ import { SWISS_VAT_RATES, DEFAULT_VAT_RATE } from '@/lib/config/vat-rates';
 import { PRODUCT_TYPES, UNIT_VALUES } from '@/lib/config/products';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { FormInput, FormSelect, FormTextarea } from '@/components/ui/form-field';
 
 export default function NewProductPage() {
   const router = useRouter();
@@ -87,20 +88,19 @@ export default function NewProductPage() {
               <label htmlFor="type" className="mb-1.5 block text-sm font-medium">
                 {tc('type')} <span className="text-destructive">*</span>
               </label>
-              <select
+              <FormSelect
                 id="type"
                 name="type"
                 required
                 value={productType}
                 onChange={(e) => setProductType(e.target.value)}
-                className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               >
                 {typeOptions.map((opt) => (
                   <option key={opt.value} value={opt.value}>
                     {opt.label}
                   </option>
                 ))}
-              </select>
+              </FormSelect>
             </div>
 
             {/* Name */}
@@ -108,14 +108,13 @@ export default function NewProductPage() {
               <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
                 {tc('name')} <span className="text-destructive">*</span>
               </label>
-              <input
+              <FormInput
                 type="text"
                 id="name"
                 name="name"
                 required
                 maxLength={255}
                 placeholder={tc('name')}
-                className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               />
             </div>
 
@@ -127,12 +126,11 @@ export default function NewProductPage() {
               >
                 {tc('description')}
               </label>
-              <textarea
+              <FormTextarea
                 id="description"
                 name="description"
                 rows={3}
                 maxLength={5000}
-                className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               />
             </div>
 
@@ -142,26 +140,24 @@ export default function NewProductPage() {
                 <label htmlFor="sku" className="mb-1.5 block text-sm font-medium">
                   {t('sku')}
                 </label>
-                <input
+                <FormInput
                   type="text"
                   id="sku"
                   name="sku"
                   maxLength={100}
                   placeholder="e.g. WIDGET-001"
-                  className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 />
               </div>
               <div>
                 <label htmlFor="ean" className="mb-1.5 block text-sm font-medium">
                   {t('ean')}
                 </label>
-                <input
+                <FormInput
                   type="text"
                   id="ean"
                   name="ean"
                   maxLength={50}
                   placeholder="e.g. 7610000000001"
-                  className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 />
               </div>
             </div>
@@ -183,14 +179,13 @@ export default function NewProductPage() {
                 >
                   {t('unitPrice')} (CHF) <span className="text-destructive">*</span>
                 </label>
-                <input
+                <FormInput
                   type="text"
                   id="unitPrice"
                   name="unitPrice"
                   required
                   placeholder="0.00"
                   pattern="\d+(\.\d{1,2})?"
-                  className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 />
               </div>
 
@@ -202,13 +197,12 @@ export default function NewProductPage() {
                 >
                   {t('purchasePrice')} (CHF)
                 </label>
-                <input
+                <FormInput
                   type="text"
                   id="purchasePrice"
                   name="purchasePrice"
                   placeholder="0.00"
                   pattern="\d+(\.\d{1,2})?"
-                  className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 />
               </div>
             </div>
@@ -225,19 +219,18 @@ export default function NewProductPage() {
                 >
                   {t('vatRate')} <span className="text-destructive">*</span>
                 </label>
-                <select
+                <FormSelect
                   id="vatRate"
                   name="vatRate"
                   required
                   defaultValue={DEFAULT_VAT_RATE}
-                  className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 >
                   {vatRateOptions.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
                     </option>
                   ))}
-                </select>
+                </FormSelect>
               </div>
 
               {/* Unit */}
@@ -248,18 +241,17 @@ export default function NewProductPage() {
                 >
                   {t('unit')}
                 </label>
-                <select
+                <FormSelect
                   id="unit"
                   name="unit"
                   defaultValue="piece"
-                  className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 >
                   {unitOptions.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
                     </option>
                   ))}
-                </select>
+                </FormSelect>
               </div>
             </div>
           </div>
@@ -280,14 +272,13 @@ export default function NewProductPage() {
                 >
                   {t('minStock')}
                 </label>
-                <input
+                <FormInput
                   type="number"
                   id="minStock"
                   name="minStock"
                   min={0}
                   step={1}
                   placeholder="0"
-                  className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 />
               </div>
 
@@ -341,13 +332,12 @@ export default function NewProductPage() {
             <h2 className="font-semibold">{tc('notes')}</h2>
           </div>
           <div className="p-6">
-            <textarea
+            <FormTextarea
               id="notes"
               name="notes"
               rows={3}
               maxLength={5000}
               placeholder={t('internalNotes')}
-              className="w-full rounded-lg border bg-background px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
             />
           </div>
         </div>

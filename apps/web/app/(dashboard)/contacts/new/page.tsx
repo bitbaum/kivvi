@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { LANGUAGE_OPTIONS, COUNTRY_OPTIONS } from '@/lib/config/locales';
 import { CONTACT_TYPES } from '@/lib/config/contact-types';
+import { FormInput, FormSelect, FormTextarea } from '@/components/ui/form-field';
 
 export default function NewContactPage() {
   const router = useRouter();
@@ -83,19 +84,18 @@ export default function NewContactPage() {
               <label htmlFor="type" className="mb-1.5 block text-sm font-medium">
                 {tc('type')} <span className="text-destructive">*</span>
               </label>
-              <select
+              <FormSelect
                 id="type"
                 name="type"
                 required
                 defaultValue="customer"
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 {contactTypeOptions.map((ct) => (
                   <option key={ct.value} value={ct.value}>
                     {ct.label}
                   </option>
                 ))}
-              </select>
+              </FormSelect>
             </div>
 
             {/* Name (company/display name) */}
@@ -103,14 +103,13 @@ export default function NewContactPage() {
               <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
                 {t('companyName')} <span className="text-destructive">*</span>
               </label>
-              <input
+              <FormInput
                 type="text"
                 id="name"
                 name="name"
                 required
                 maxLength={200}
                 placeholder="e.g. Muller AG"
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
 
@@ -119,13 +118,12 @@ export default function NewContactPage() {
               <label htmlFor="firstName" className="mb-1.5 block text-sm font-medium">
                 {t('firstName')}
               </label>
-              <input
+              <FormInput
                 type="text"
                 id="firstName"
                 name="firstName"
                 maxLength={100}
                 placeholder="Hans"
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
 
@@ -134,13 +132,12 @@ export default function NewContactPage() {
               <label htmlFor="lastName" className="mb-1.5 block text-sm font-medium">
                 {t('lastName')}
               </label>
-              <input
+              <FormInput
                 type="text"
                 id="lastName"
                 name="lastName"
                 maxLength={100}
                 placeholder="Muller"
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
           </div>
@@ -157,12 +154,11 @@ export default function NewContactPage() {
               <label htmlFor="email" className="mb-1.5 block text-sm font-medium">
                 {tc('email')}
               </label>
-              <input
+              <FormInput
                 type="email"
                 id="email"
                 name="email"
                 placeholder="hans@mueller-ag.ch"
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
 
@@ -171,13 +167,12 @@ export default function NewContactPage() {
               <label htmlFor="phone" className="mb-1.5 block text-sm font-medium">
                 {tc('phone')}
               </label>
-              <input
+              <FormInput
                 type="tel"
                 id="phone"
                 name="phone"
                 maxLength={30}
                 placeholder="+41 44 123 45 67"
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
 
@@ -186,13 +181,12 @@ export default function NewContactPage() {
               <label htmlFor="mobile" className="mb-1.5 block text-sm font-medium">
                 {t('mobile')}
               </label>
-              <input
+              <FormInput
                 type="tel"
                 id="mobile"
                 name="mobile"
                 maxLength={30}
                 placeholder="+41 79 123 45 67"
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
 
@@ -201,13 +195,12 @@ export default function NewContactPage() {
               <label htmlFor="website" className="mb-1.5 block text-sm font-medium">
                 {t('website')}
               </label>
-              <input
+              <FormInput
                 type="text"
                 id="website"
                 name="website"
                 maxLength={200}
                 placeholder="www.mueller-ag.ch"
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
           </div>
@@ -224,13 +217,12 @@ export default function NewContactPage() {
               <label htmlFor="address" className="mb-1.5 block text-sm font-medium">
                 {t('street')}
               </label>
-              <input
+              <FormInput
                 type="text"
                 id="address"
                 name="address"
                 maxLength={500}
                 placeholder="Bahnhofstrasse 1"
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
 
@@ -239,13 +231,12 @@ export default function NewContactPage() {
               <label htmlFor="postalCode" className="mb-1.5 block text-sm font-medium">
                 {t('postalCode')}
               </label>
-              <input
+              <FormInput
                 type="text"
                 id="postalCode"
                 name="postalCode"
                 maxLength={20}
                 placeholder="8001"
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
 
@@ -254,13 +245,12 @@ export default function NewContactPage() {
               <label htmlFor="city" className="mb-1.5 block text-sm font-medium">
                 {t('city')}
               </label>
-              <input
+              <FormInput
                 type="text"
                 id="city"
                 name="city"
                 maxLength={100}
                 placeholder="Zurich"
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
 
@@ -269,18 +259,17 @@ export default function NewContactPage() {
               <label htmlFor="country" className="mb-1.5 block text-sm font-medium">
                 {t('country')}
               </label>
-              <select
+              <FormSelect
                 id="country"
                 name="country"
                 defaultValue="CH"
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 {COUNTRY_OPTIONS.map((c) => (
                   <option key={c.value} value={c.value}>
                     {c.label}
                   </option>
                 ))}
-              </select>
+              </FormSelect>
             </div>
           </div>
         </section>
@@ -317,13 +306,12 @@ export default function NewContactPage() {
               <label htmlFor="vatNumber" className="mb-1.5 block text-sm font-medium">
                 {t('vatNumber')}
               </label>
-              <input
+              <FormInput
                 type="text"
                 id="vatNumber"
                 name="vatNumber"
                 maxLength={30}
                 placeholder="CHE-123.456.789 MWST"
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
 
@@ -332,13 +320,12 @@ export default function NewContactPage() {
               <label htmlFor="iban" className="mb-1.5 block text-sm font-medium">
                 {t('iban')}
               </label>
-              <input
+              <FormInput
                 type="text"
                 id="iban"
                 name="iban"
                 maxLength={34}
                 placeholder="CH93 0076 2011 6238 5295 7"
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
 
@@ -347,14 +334,13 @@ export default function NewContactPage() {
               <label htmlFor="paymentTermsDays" className="mb-1.5 block text-sm font-medium">
                 {t('paymentTerms')} ({t('days')})
               </label>
-              <input
+              <FormInput
                 type="number"
                 id="paymentTermsDays"
                 name="paymentTermsDays"
                 min={0}
                 max={365}
                 defaultValue={30}
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
 
@@ -363,12 +349,11 @@ export default function NewContactPage() {
               <label htmlFor="creditLimit" className="mb-1.5 block text-sm font-medium">
                 {t('creditLimit')} (CHF)
               </label>
-              <input
+              <FormInput
                 type="text"
                 id="creditLimit"
                 name="creditLimit"
                 placeholder="10000.00"
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
           </div>
@@ -385,18 +370,17 @@ export default function NewContactPage() {
               <label htmlFor="language" className="mb-1.5 block text-sm font-medium">
                 {t('language')}
               </label>
-              <select
+              <FormSelect
                 id="language"
                 name="language"
                 defaultValue="de"
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 {LANGUAGE_OPTIONS.map((l) => (
                   <option key={l.value} value={l.value}>
                     {l.label}
                   </option>
                 ))}
-              </select>
+              </FormSelect>
             </div>
 
             {/* Notes */}
@@ -404,13 +388,13 @@ export default function NewContactPage() {
               <label htmlFor="notes" className="mb-1.5 block text-sm font-medium">
                 {tc('notes')}
               </label>
-              <textarea
+              <FormTextarea
                 id="notes"
                 name="notes"
                 rows={4}
                 maxLength={5000}
                 placeholder={t('internalNotes')}
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-y"
+                className="resize-y"
               />
             </div>
           </div>

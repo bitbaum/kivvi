@@ -4,6 +4,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { FormInput } from '@/components/ui/form-field';
 
 export function DatePickerForm({
   defaultDate,
@@ -31,12 +32,11 @@ export function DatePickerForm({
         >
           {t('asOfDate')}
         </label>
-        <input
+        <FormInput
           id="asOfDate"
           type="date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
-          className="rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
         />
       </div>
       <button

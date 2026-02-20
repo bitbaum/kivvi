@@ -6,6 +6,7 @@ import { createContactAction } from '@/app/actions/contacts';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { CONTACT_TYPES } from '@/lib/config/contact-types';
+import { FormInput } from '@/components/ui/form-field';
 
 interface QuickCreateContactModalProps {
   isOpen: boolean;
@@ -129,16 +130,13 @@ export function QuickCreateContactModal({
           {/* Name (required) */}
           <div>
             <label className="mb-2 block text-sm font-medium">{t('name')} *</label>
-            <input
+            <FormInput
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               disabled={isPending}
               placeholder={t('namePlaceholder')}
-              className={cn(
-                "w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary disabled:opacity-50",
-                fieldErrors.name && "border-destructive"
-              )}
+              error={!!fieldErrors.name}
               autoFocus
             />
             {fieldErrors.name && (
@@ -149,16 +147,13 @@ export function QuickCreateContactModal({
           {/* Email (optional) */}
           <div>
             <label className="mb-2 block text-sm font-medium">{t('email')}</label>
-            <input
+            <FormInput
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={isPending}
               placeholder={t('emailPlaceholder')}
-              className={cn(
-                "w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary disabled:opacity-50",
-                fieldErrors.email && "border-destructive"
-              )}
+              error={!!fieldErrors.email}
             />
             {fieldErrors.email && (
               <p className="mt-1 text-sm text-destructive">{fieldErrors.email[0]}</p>
@@ -168,16 +163,13 @@ export function QuickCreateContactModal({
           {/* Phone (optional) */}
           <div>
             <label className="mb-2 block text-sm font-medium">{t('phone')}</label>
-            <input
+            <FormInput
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               disabled={isPending}
               placeholder={t('phonePlaceholder')}
-              className={cn(
-                "w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary disabled:opacity-50",
-                fieldErrors.phone && "border-destructive"
-              )}
+              error={!!fieldErrors.phone}
             />
             {fieldErrors.phone && (
               <p className="mt-1 text-sm text-destructive">{fieldErrors.phone[0]}</p>
