@@ -1,15 +1,15 @@
 'use client';
 
-import { useState, useTransition, useCallback } from 'react';
+import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Decimal from 'decimal.js';
-import { ArrowLeft, Plus, Trash2, Search } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { updateDocumentAction } from '@/app/actions/documents';
-import { searchContactsAction } from '@/app/actions/contacts';
 import type { DocumentTypeConfig } from '@/lib/config/document-types';
 import { SWISS_VAT_RATES, DEFAULT_VAT_RATE } from '@/lib/config/vat-rates';
+import { ContactPicker } from '@/components/contacts/contact-picker';
 import { CharCountTextarea } from '@/components/ui/char-count-textarea';
 import type { DocumentType } from '@kivvi/database';
 import { toast } from 'sonner';
@@ -61,9 +61,7 @@ export function EditDocumentForm({ documentId, documentType, config, initialData
   const [error, setError] = useState<string | null>(null);
 
   const [contactId, setContactId] = useState<string | null>(initialData.contactId);
-  const [contactSearch, setContactSearch] = useState(initialData.contactName);
-  const [contactResults, setContactResults] = useState<Array<{ id: string; name: string; contactNumber: string | null }>>([]);
-  const [showContactDropdown, setShowContactDropdown] = useState(false);
+  const [contactName, setContactName] = useState(initialData.contactName);
 
   const [issueDate, setIssueDate] = useState(initialData.issueDate);
   const [dueDate, setDueDate] = useState(initialData.dueDate);
@@ -71,26 +69,6 @@ export function EditDocumentForm({ documentId, documentType, config, initialData
   const [notes, setNotes] = useState(initialData.notes);
   const [internalNotes, setInternalNotes] = useState(initialData.internalNotes);
   const [items, setItems] = useState<LineItem[]>(initialData.items);
-
-  const handleContactSearch = useCallback(async (query: string) => {
-    setContactSearch(query);
-    if (query.length < 2) {
-      setContactResults([]);
-      setShowContactDropdown(false);
-      return;
-    }
-    const result = await searchContactsAction(query);
-    if (result.success && result.data) {
-      setContactResults(result.data);
-      setShowContactDropdown(true);
-    }
-  }, []);
-
-  const selectContact = (contact: { id: string; name: string }) => {
-    setContactId(contact.id);
-    setContactSearch(contact.name);
-    setShowContactDropdown(false);
-  };
 
   const addItem = () =>
     setItems([...items, { id: crypto.randomUUID(), productId: null, description: '', quantity: '1', unitPrice: '0.00', discount: '0', vatRate: DEFAULT_VAT_RATE }]);
@@ -116,8 +94,6 @@ export function EditDocumentForm({ documentId, documentType, config, initialData
     }
   }, new Decimal(0));
   const total = rappenRound(subtotal.plus(vatAmount));
-
-  const contactLabel = config.contactFilter === 'vendor' ? t('vendor') : t('customer');
 
   async function handleSubmit() {
     setError(null);
@@ -171,33 +147,13 @@ export function EditDocumentForm({ documentId, documentType, config, initialData
         <div className="lg:col-span-2 space-y-6">
           {/* Contact & dates */}
           <div className="rounded-xl border bg-card p-6 space-y-4">
-            <div className="relative">
-              <label className="block text-sm font-medium">{contactLabel}</label>
-              <div className="relative mt-1">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <input
-                  type="text"
-                  value={contactSearch}
-                  onChange={(e) => handleContactSearch(e.target.value)}
-                  onFocus={() => contactResults.length > 0 && setShowContactDropdown(true)}
-                  placeholder={tc('search') + '...'}
-                  className="w-full rounded-lg border bg-background py-2 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary"
-                />
-                {contactId && (
-                  <button type="button" onClick={() => { setContactId(null); setContactSearch(''); setContactResults([]); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground">{t('clear')}</button>
-                )}
-              </div>
-              {showContactDropdown && contactResults.length > 0 && (
-                <div className="absolute z-10 mt-1 w-full rounded-lg border bg-card shadow-lg">
-                  {contactResults.map((c) => (
-                    <button key={c.id} type="button" onClick={() => selectContact(c)} className="w-full px-4 py-2 text-left text-sm hover:bg-muted first:rounded-t-lg last:rounded-b-lg">
-                      <span className="font-medium">{c.name}</span>
-                      {c.contactNumber && <span className="ml-2 text-muted-foreground">{c.contactNumber}</span>}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+            <ContactPicker
+              value={contactId}
+              displayValue={contactName}
+              onChange={(id, name) => { setContactId(id); setContactName(name); }}
+              contactType={config.contactFilter === 'vendor' ? 'vendor' : 'customer'}
+              allowQuickCreate={false}
+            />
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div>

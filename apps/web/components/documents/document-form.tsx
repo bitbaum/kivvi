@@ -1,19 +1,18 @@
 'use client';
 
-import { useState, useTransition, useCallback, useRef, useEffect } from 'react';
+import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Decimal from 'decimal.js';
-import { ArrowLeft, Plus, Trash2, Search, UserPlus, GripVertical } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, GripVertical } from 'lucide-react';
 import Link from 'next/link';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { createDocumentAction } from '@/app/actions/documents';
-import { searchContactsAction } from '@/app/actions/contacts';
 import { DOCUMENT_TYPES, DEFAULT_PAYMENT_TERMS_DAYS, type DocumentTypeConfig } from '@/lib/config/document-types';
 import { SWISS_VAT_RATES, DEFAULT_VAT_RATE } from '@/lib/config/vat-rates';
-import { QuickCreateContactModal } from '@/components/contacts/quick-create-modal';
+import { ContactPicker } from '@/components/contacts/contact-picker';
 import { CharCountTextarea } from '@/components/ui/char-count-textarea';
 import type { DocumentType } from '@kivvi/database';
 import { rappenRound } from '@kivvi/core/src/utils/swiss-currency';
@@ -199,30 +198,7 @@ export function DocumentForm({ type }: DocumentFormProps) {
 
   // Form state
   const [contactId, setContactId] = useState<string | null>(null);
-  const [contactSearch, setContactSearch] = useState('');
-  const [contactResults, setContactResults] = useState<Array<{ id: string; name: string; contactNumber: string | null; email: string | null }>>([]);
-  const [showContactDropdown, setShowContactDropdown] = useState(false);
-  const [showQuickCreateModal, setShowQuickCreateModal] = useState(false);
-  const contactDropdownRef = useRef<HTMLDivElement>(null);
-
-  // Close contact dropdown on click outside or Escape
-  useEffect(() => {
-    if (!showContactDropdown) return;
-    function handleClick(e: MouseEvent) {
-      if (contactDropdownRef.current && !contactDropdownRef.current.contains(e.target as Node)) {
-        setShowContactDropdown(false);
-      }
-    }
-    function handleKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') setShowContactDropdown(false);
-    }
-    document.addEventListener('mousedown', handleClick);
-    document.addEventListener('keydown', handleKey);
-    return () => {
-      document.removeEventListener('mousedown', handleClick);
-      document.removeEventListener('keydown', handleKey);
-    };
-  }, [showContactDropdown]);
+  const [contactName, setContactName] = useState('');
 
   const [issueDate, setIssueDate] = useState(new Date().toISOString().split('T')[0]);
   const [dueDate, setDueDate] = useState(
@@ -254,33 +230,6 @@ export function DocumentForm({ type }: DocumentFormProps) {
         return arrayMove(items, oldIndex, newIndex);
       });
     }
-  };
-
-  // Contact search
-  const handleContactSearch = useCallback(async (query: string) => {
-    setContactSearch(query);
-    if (query.length < 2) {
-      setContactResults([]);
-      setShowContactDropdown(false);
-      return;
-    }
-    const result = await searchContactsAction(query);
-    if (result.success && result.data) {
-      setContactResults(result.data);
-      setShowContactDropdown(true);
-    }
-  }, []);
-
-  const selectContact = (contact: { id: string; name: string }) => {
-    setContactId(contact.id);
-    setContactSearch(contact.name);
-    setShowContactDropdown(false);
-  };
-
-  const handleQuickCreateSuccess = (contact: { id: string; name: string }) => {
-    setContactId(contact.id);
-    setContactSearch(contact.name);
-    setShowContactDropdown(false);
   };
 
   // Line item management
@@ -369,72 +318,12 @@ export function DocumentForm({ type }: DocumentFormProps) {
           {/* Contact & dates */}
           <div className="rounded-xl border bg-card p-6 space-y-4">
             {/* Contact picker */}
-            <div className="relative" ref={contactDropdownRef}>
-              <label className="block text-sm font-medium">
-                {config.contactFilter === 'vendor' ? t('vendor') : t('customer')}
-              </label>
-              <div className="relative mt-1">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <input
-                  type="text"
-                  value={contactSearch}
-                  onChange={(e) => handleContactSearch(e.target.value)}
-                  onFocus={() => contactResults.length > 0 && setShowContactDropdown(true)}
-                  placeholder={config.contactFilter === 'vendor'
-                    ? tc('search') + '...'
-                    : tc('search') + '...'}
-                  className="w-full rounded-lg border bg-background py-2 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary"
-                />
-                {contactId && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setContactId(null);
-                      setContactSearch('');
-                      setContactResults([]);
-                    }}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-foreground"
-                  >
-                    {t('clear')}
-                  </button>
-                )}
-              </div>
-              {showContactDropdown && (
-                <div className="absolute z-10 mt-1 w-full rounded-lg border bg-card shadow-lg">
-                  {contactResults.length > 0 ? (
-                    <>
-                      {contactResults.map((c) => (
-                        <button
-                          key={c.id}
-                          type="button"
-                          onClick={() => selectContact(c)}
-                          className="w-full px-4 py-2 text-left text-sm hover:bg-muted first:rounded-t-lg last:rounded-b-lg"
-                        >
-                          <span className="font-medium">{c.name}</span>
-                          {c.contactNumber && (
-                            <span className="ml-2 text-muted-foreground">{c.contactNumber}</span>
-                          )}
-                        </button>
-                      ))}
-                    </>
-                  ) : contactSearch.length >= 2 ? (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowQuickCreateModal(true);
-                        setShowContactDropdown(false);
-                      }}
-                      className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm hover:bg-muted rounded-lg"
-                    >
-                      <UserPlus className="h-4 w-4 text-primary" />
-                      <span>
-                        {tc('create')} <span className="font-medium">&quot;{contactSearch}&quot;</span>
-                      </span>
-                    </button>
-                  ) : null}
-                </div>
-              )}
-            </div>
+            <ContactPicker
+              value={contactId}
+              displayValue={contactName}
+              onChange={(id, name) => { setContactId(id); setContactName(name); }}
+              contactType={config.contactFilter === 'vendor' ? 'vendor' : 'customer'}
+            />
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
@@ -580,14 +469,6 @@ export function DocumentForm({ type }: DocumentFormProps) {
         </div>
       </div>
 
-      {/* Quick Create Contact Modal */}
-      <QuickCreateContactModal
-        isOpen={showQuickCreateModal}
-        onClose={() => setShowQuickCreateModal(false)}
-        onSuccess={handleQuickCreateSuccess}
-        initialName={contactSearch}
-        contactType={config.contactFilter === 'all' ? 'customer' : config.contactFilter || 'customer'}
-      />
     </div>
   );
 }

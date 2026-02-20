@@ -22,6 +22,30 @@ import { getTranslations } from 'next-intl/server';
 import { cn } from '@/lib/utils';
 import { AddAccountForm } from '../banking/add-account-form';
 
+interface TrialBalanceTotals {
+  assets: number;
+  liabilities: number;
+  equity: number;
+  revenue: number;
+  expenses: number;
+}
+
+function calculateTrialBalanceTotals(trialBalance: Array<{ type: string; balance: number; totalDebit: number; totalCredit: number }>): TrialBalanceTotals {
+  return trialBalance.reduce(
+    (acc, row) => {
+      switch (row.type) {
+        case 'asset': acc.assets += row.balance; break;
+        case 'liability': acc.liabilities += Math.abs(row.balance); break;
+        case 'equity': acc.equity += Math.abs(row.balance); break;
+        case 'revenue': acc.revenue += row.totalCredit - row.totalDebit; break;
+        case 'expense': acc.expenses += row.totalDebit - row.totalCredit; break;
+      }
+      return acc;
+    },
+    { assets: 0, liabilities: 0, equity: 0, revenue: 0, expenses: 0 }
+  );
+}
+
 interface PageProps {
   searchParams: Promise<{ tab?: string }>;
 }
@@ -93,19 +117,7 @@ async function OverviewTab({ companyId }: { companyId: string }) {
     0
   );
 
-  const totals = trialBalance.reduce(
-    (acc, row) => {
-      switch (row.type) {
-        case 'asset': acc.assets += row.balance; break;
-        case 'liability': acc.liabilities += Math.abs(row.balance); break;
-        case 'equity': acc.equity += Math.abs(row.balance); break;
-        case 'revenue': acc.revenue += row.totalCredit - row.totalDebit; break;
-        case 'expense': acc.expenses += row.totalDebit - row.totalCredit; break;
-      }
-      return acc;
-    },
-    { assets: 0, liabilities: 0, equity: 0, revenue: 0, expenses: 0 }
-  );
+  const totals = calculateTrialBalanceTotals(trialBalance);
 
   return (
     <div className="space-y-6">
@@ -287,19 +299,7 @@ async function AccountingTab({ companyId }: { companyId: string }) {
   const tc = await getTranslations('common');
   const trialBalance = await getTrialBalance(db, companyId);
 
-  const totals = trialBalance.reduce(
-    (acc, row) => {
-      switch (row.type) {
-        case 'asset': acc.assets += row.balance; break;
-        case 'liability': acc.liabilities += Math.abs(row.balance); break;
-        case 'equity': acc.equity += Math.abs(row.balance); break;
-        case 'revenue': acc.revenue += row.totalCredit - row.totalDebit; break;
-        case 'expense': acc.expenses += row.totalDebit - row.totalCredit; break;
-      }
-      return acc;
-    },
-    { assets: 0, liabilities: 0, equity: 0, revenue: 0, expenses: 0 }
-  );
+  const totals = calculateTrialBalanceTotals(trialBalance);
 
   const hasData = trialBalance.length > 0;
 
