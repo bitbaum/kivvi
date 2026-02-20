@@ -1,7 +1,7 @@
 // Chat API route
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { aiConversations, aiMessages } from '@kivvi/database';
+import { aiConversations, aiMessages, companies, type CompanySettings } from '@kivvi/database';
 import { ConversationEngine, createProviderWithFallback, getToolsForPermissions, getBusinessSnapshot, type ExecutionContext, type Message, type ProviderType } from '@kivvi/ai';
 import { eq, and, desc } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
@@ -90,13 +90,20 @@ export async function POST(request: NextRequest) {
       content: message,
     });
 
+    // Load company settings for vertical and org profile
+    const company = await db.query.companies.findFirst({
+      where: eq(companies.id, session.user.companyId),
+      columns: { settings: true },
+    });
+    const settings = (company?.settings as CompanySettings) || {};
+
     // Build execution context
     const context: ExecutionContext = {
       userId: session.user.id,
       companyId: session.user.companyId,
       userName: session.user.name || 'User',
       companyName: session.user.companyName || 'Company',
-      vertical: 'general',
+      vertical: settings.vertical || 'general',
       permissions: [
         'invoice:read',
         'invoice:write',
@@ -150,8 +157,8 @@ export async function POST(request: NextRequest) {
     // Get tools based on user permissions
     const tools = getToolsForPermissions(context.permissions);
 
-    // Create conversation engine with business snapshot
-    const engine = new ConversationEngine(provider, context, tools, activeModel, snapshot);
+    // Create conversation engine with business snapshot and org profile
+    const engine = new ConversationEngine(provider, context, tools, activeModel, snapshot, settings.orgProfile);
 
     // Create streaming response
     const encoder = new TextEncoder();

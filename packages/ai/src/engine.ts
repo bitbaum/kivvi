@@ -7,6 +7,7 @@ import type {
   ExecutionContext,
   StreamChunk,
 } from './types';
+import type { OrgProfile } from '@kivvi/database';
 import { getSystemPrompt } from './prompts';
 
 export interface ConversationState {
@@ -36,11 +37,12 @@ export class ConversationEngine {
     context: ExecutionContext,
     tools: Tool[] = [],
     model?: string,
-    businessSnapshot?: string
+    businessSnapshot?: string,
+    orgProfile?: OrgProfile,
   ) {
     this.provider = provider;
     this.tools = tools;
-    this.systemPrompt = getSystemPrompt(context, businessSnapshot);
+    this.systemPrompt = getSystemPrompt(context, businessSnapshot, orgProfile);
     this.model = model;
   }
 

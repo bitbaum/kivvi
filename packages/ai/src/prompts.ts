@@ -1,4 +1,5 @@
 import type { ExecutionContext, VerticalType } from './types';
+import type { OrgProfile } from '@kivvi/database';
 
 const BASE_PROMPT = `You are Kivvi, an AI assistant that runs business operations automatically.
 
@@ -138,7 +139,116 @@ Always verify with tools when the user asks about specific customers, invoices, 
 Be proactive: if a user mentions a customer name, look them up. If they ask about money owed, search overdue invoices.
 `;
 
-export function getSystemPrompt(context: ExecutionContext, businessSnapshot?: string): string {
+function renderOrgProfile(profile: OrgProfile): string {
+  const sections: string[] = [];
+
+  if (profile.identity) {
+    const id = profile.identity;
+    let s = '### Organization Identity';
+    if (id.mission) s += `\nMission: ${id.mission}`;
+    if (id.description) s += `\n${id.description}`;
+    if (id.legalForm) s += `\nLegal form: ${id.legalForm}`;
+    if (id.founded) s += `\nFounded: ${id.founded}`;
+    if (id.location) s += `\nLocation: ${id.location}`;
+    if (id.website) s += `\nWebsite: ${id.website}`;
+    sections.push(s);
+  }
+
+  if (profile.services && profile.services.length > 0) {
+    let s = '### Services & Pricing';
+    for (const svc of profile.services) {
+      s += `\n- **${svc.name}**`;
+      if (svc.description) s += `: ${svc.description}`;
+      if (svc.pricing) s += ` (${svc.pricing})`;
+    }
+    sections.push(s);
+  }
+
+  if (profile.team && profile.team.length > 0) {
+    let s = '### Team';
+    for (const member of profile.team) {
+      s += `\n- **${member.name}** — ${member.role}`;
+      if (member.responsibilities) s += ` (${member.responsibilities})`;
+    }
+    sections.push(s);
+  }
+
+  if (profile.financialContext) {
+    const fc = profile.financialContext;
+    let s = '### Financial Context';
+    if (fc.revenueModel) s += `\nRevenue model: ${fc.revenueModel}`;
+    if (fc.fundingSources && fc.fundingSources.length > 0) {
+      s += `\nFunding sources: ${fc.fundingSources.join(', ')}`;
+    }
+    if (fc.fiscalYearEnd) s += `\nFiscal year end: ${fc.fiscalYearEnd}`;
+    if (fc.notes) s += `\n${fc.notes}`;
+    sections.push(s);
+  }
+
+  if (profile.impactMetrics && profile.impactMetrics.length > 0) {
+    let s = '### Impact Metrics';
+    for (const metric of profile.impactMetrics) {
+      s += `\n- ${metric.label}: ${metric.value}`;
+    }
+    sections.push(s);
+  }
+
+  if (profile.strategy) {
+    const st = profile.strategy;
+    let s = '### Strategy';
+    if (st.vision) s += `\nVision: ${st.vision}`;
+    if (st.goals && st.goals.length > 0) {
+      s += '\nGoals:';
+      for (const goal of st.goals) s += `\n- ${goal}`;
+    }
+    if (st.timeline) s += `\nTimeline: ${st.timeline}`;
+    sections.push(s);
+  }
+
+  if (profile.fundraising) {
+    const fr = profile.fundraising;
+    let s = '### Fundraising';
+    if (fr.status) s += `\nStatus: ${fr.status}`;
+    if (fr.goal) s += `\nGoal: ${fr.goal}`;
+    if (fr.campaigns && fr.campaigns.length > 0) {
+      s += `\nCampaigns: ${fr.campaigns.join(', ')}`;
+    }
+    if (fr.notes) s += `\n${fr.notes}`;
+    sections.push(s);
+  }
+
+  if (profile.communicationStyle) {
+    const cs = profile.communicationStyle;
+    let s = '### Communication Style';
+    if (cs.tone) s += `\nTone: ${cs.tone}`;
+    if (cs.language) s += `\nLanguage: ${cs.language}`;
+    if (cs.guidelines) s += `\n${cs.guidelines}`;
+    sections.push(s);
+  }
+
+  if (profile.customerSegments && profile.customerSegments.length > 0) {
+    let s = '### Customer Segments';
+    for (const seg of profile.customerSegments) {
+      s += `\n- **${seg.segment}**`;
+      if (seg.description) s += `: ${seg.description}`;
+    }
+    sections.push(s);
+  }
+
+  if (profile.customContext) {
+    sections.push(`### Additional Context\n${profile.customContext}`);
+  }
+
+  if (sections.length === 0) return '';
+
+  return `\n## About This Organization\n\n${sections.join('\n\n')}\n`;
+}
+
+export function getSystemPrompt(
+  context: ExecutionContext,
+  businessSnapshot?: string,
+  orgProfile?: OrgProfile,
+): string {
   const basePrompt = BASE_PROMPT
     .replace('{{companyName}}', context.companyName)
     .replace('{{userName}}', context.userName)
@@ -149,6 +259,10 @@ export function getSystemPrompt(context: ExecutionContext, businessSnapshot?: st
   const verticalPrompt = VERTICAL_PROMPTS[context.vertical] || '';
 
   let prompt = basePrompt + verticalPrompt;
+
+  if (orgProfile) {
+    prompt += renderOrgProfile(orgProfile);
+  }
 
   if (businessSnapshot) {
     prompt += '\n' + businessSnapshot + '\n';
