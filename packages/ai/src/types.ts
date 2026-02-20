@@ -131,6 +131,8 @@ export type Permission =
   | 'invoice:delete'
   | 'contact:read'
   | 'contact:write'
+  | 'product:read'
+  | 'product:write'
   | 'banking:read'
   | 'banking:write'
   | 'accounting:read'

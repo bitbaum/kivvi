@@ -109,6 +109,7 @@ export async function POST(request: NextRequest) {
         'invoice:write',
         'contact:read',
         'contact:write',
+        'product:read',
         'banking:read',
         'accounting:read',
       ],

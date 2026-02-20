@@ -63,8 +63,8 @@ export function getToolsForPermissions(permissions: string[]): Tool[] {
       return false;
     }
 
-    // Product search: accessible to anyone with contact:read (all users can search)
-    if (tool.name === 'search_products' && !permissions.includes('contact:read')) {
+    // Product search: requires product:read
+    if (tool.name === 'search_products' && !permissions.includes('product:read')) {
       return false;
     }
 
