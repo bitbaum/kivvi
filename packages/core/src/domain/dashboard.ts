@@ -19,8 +19,9 @@ export interface DashboardAlert {
   id: string;
   type: 'overdue_invoice' | 'expiring_quote' | 'draft_documents' | 'low_stock' | 'unreconciled_transaction';
   severity: 'urgent' | 'warning' | 'info';
-  title: string;
-  description: string;
+  titleKey: string;
+  descriptionKey: string;
+  descriptionParams?: Record<string, string | number>;
   count?: number;
   amount?: number;
   linkTo: string;
@@ -31,15 +32,16 @@ export interface WorkflowSuggestion {
   id: string;
   type: 'convert_quote' | 'invoice_order' | 'confirm_delivery' | 'start_dunning';
   priority: number; // 1-5, 1 = highest
-  title: string;
-  description: string;
+  titleKey: string;
+  descriptionKey: string;
+  descriptionParams?: Record<string, string | number>;
   entityId: string;
   entityNumber: string;
   entityType: DocumentType;
   contactName: string | null;
   amount: number;
   daysSince: number;
-  actionLabel: string;
+  actionLabelKey: string;
   actionUrl: string;
 }
 
@@ -51,13 +53,14 @@ export interface ActivityItem {
   contactId: string | null;
   amount: number;
   status: string;
-  action: string; // Human-readable: "Rechnung erstellt", "Angebot versendet"
+  actionKey: string;
+  actionParams?: Record<string, string | number>;
   timestamp: Date;
   linkTo: string;
 }
 
 export interface DashboardStat {
-  label: string;
+  labelKey: string;
   value: number;
   count?: number;
   linkTo: string;
@@ -97,8 +100,9 @@ export async function getDashboardAlerts(
       id: 'overdue-invoices',
       type: 'overdue_invoice',
       severity: 'urgent',
-      title: 'Überfällige Rechnungen',
-      description: `${overdueInvoices.length} Rechnung${overdueInvoices.length === 1 ? '' : 'en'} überfällig`,
+      titleKey: 'alerts.overdueInvoices',
+      descriptionKey: 'alerts.overdueInvoicesDesc',
+      descriptionParams: { count: overdueInvoices.length },
       count: overdueInvoices.length,
       amount: total,
       linkTo: '/sales/invoices?status=overdue',
@@ -134,8 +138,9 @@ export async function getDashboardAlerts(
       id: 'expiring-quotes',
       type: 'expiring_quote',
       severity: 'warning',
-      title: 'Angebote laufen ab',
-      description: `${expiringQuotes.length} Angebot${expiringQuotes.length === 1 ? '' : 'e'} läuft in den nächsten 7 Tagen ab`,
+      titleKey: 'alerts.expiringQuotes',
+      descriptionKey: 'alerts.expiringQuotesDesc',
+      descriptionParams: { count: expiringQuotes.length },
       count: expiringQuotes.length,
       amount: total,
       linkTo: '/sales/quotes?status=sent',
@@ -161,13 +166,13 @@ export async function getDashboardAlerts(
   const totalDrafts = draftCounts.reduce((sum, dc) => sum + dc.count, 0);
   if (totalDrafts > 0) {
     const total = draftCounts.reduce((sum, dc) => sum.plus(new Decimal(dc.total || '0')), new Decimal(0)).toNumber();
-    const typeBreakdown = draftCounts.map((dc) => `${dc.count} ${dc.type}`).join(', ');
     alerts.push({
       id: 'draft-documents',
       type: 'draft_documents',
       severity: 'info',
-      title: 'Entwürfe vorhanden',
-      description: `${totalDrafts} Dokument${totalDrafts === 1 ? '' : 'e'} als Entwurf: ${typeBreakdown}`,
+      titleKey: 'alerts.draftDocuments',
+      descriptionKey: 'alerts.draftDocumentsDesc',
+      descriptionParams: { count: totalDrafts },
       count: totalDrafts,
       amount: total,
       linkTo: '/sales?status=draft',
@@ -200,8 +205,9 @@ export async function getDashboardAlerts(
       id: 'low-stock',
       type: 'low_stock',
       severity: 'warning',
-      title: 'Niedriger Lagerbestand',
-      description: `${lowStockProducts.length} Produkt${lowStockProducts.length === 1 ? '' : 'e'} unter Mindestbestand`,
+      titleKey: 'alerts.lowStock',
+      descriptionKey: 'alerts.lowStockDesc',
+      descriptionParams: { count: lowStockProducts.length },
       count: lowStockProducts.length,
       linkTo: '/inventory/products?filter=low-stock',
       metadata: { products: lowStockProducts },
@@ -229,8 +235,9 @@ export async function getDashboardAlerts(
       id: 'unreconciled-transactions',
       type: 'unreconciled_transaction',
       severity: 'info',
-      title: 'Nicht abgestimmte Transaktionen',
-      description: `${unreconciledCount} Banktransaktion${unreconciledCount === 1 ? '' : 'en'} noch nicht zugeordnet`,
+      titleKey: 'alerts.unreconciledTransactions',
+      descriptionKey: 'alerts.unreconciledTransactionsDesc',
+      descriptionParams: { count: unreconciledCount },
       count: unreconciledCount,
       linkTo: '/banking/transactions?reconciled=false',
     });
@@ -255,14 +262,17 @@ export async function getWorkflowSuggestions(
   const now = new Date();
   const threeDaysAgo = new Date(now);
   threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+  const ninetyDaysAgo = new Date(now);
+  ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
 
-  // 1. Quotes ready to convert (sent > 3 days ago)
+  // 1. Quotes ready to convert (sent > 3 days ago, within 90-day window)
   const quotesToConvert = await db.query.documents.findMany({
     where: and(
       eq(documents.companyId, companyId),
       eq(documents.type, 'quote'),
       inArray(documents.status, ['sent', 'confirmed']),
-      lt(documents.issueDate, threeDaysAgo)
+      lt(documents.issueDate, threeDaysAgo),
+      gte(documents.issueDate, ninetyDaysAgo)
     ),
     with: {
       contact: {
@@ -279,15 +289,16 @@ export async function getWorkflowSuggestions(
       id: `quote-convert-${quote.id}`,
       type: 'convert_quote',
       priority: daysSinceSent > 14 ? 1 : daysSinceSent > 7 ? 2 : 3,
-      title: 'Angebot in Auftrag umwandeln',
-      description: `Angebot ${quote.number} wurde vor ${daysSinceSent} Tagen versendet`,
+      titleKey: 'workflow.convertQuoteTitle',
+      descriptionKey: 'workflow.convertQuoteDesc',
+      descriptionParams: { number: quote.number, days: daysSinceSent },
       entityId: quote.id,
       entityNumber: quote.number,
       entityType: 'quote',
       contactName: quote.contact?.name || null,
       amount: new Decimal(quote.total || '0').toNumber(),
       daysSince: daysSinceSent,
-      actionLabel: 'In Auftrag umwandeln',
+      actionLabelKey: 'workflow.convertQuoteAction',
       actionUrl: `/sales/quotes/${quote.id}/convert`,
     });
   }
@@ -310,7 +321,8 @@ export async function getWorkflowSuggestions(
       and(
         eq(documents.companyId, companyId),
         eq(documents.type, 'order'),
-        eq(documents.status, 'delivered')
+        eq(documents.status, 'delivered'),
+        gte(documents.issueDate, ninetyDaysAgo)
       )
     )
     .orderBy(desc(documents.deliveryDate))
@@ -328,15 +340,16 @@ export async function getWorkflowSuggestions(
       id: `order-invoice-${order.id}`,
       type: 'invoice_order',
       priority: daysSinceDelivery > 3 ? 1 : 2,
-      title: 'Auftrag abrechnen',
-      description: `Auftrag ${order.number} wurde vor ${daysSinceDelivery} Tagen geliefert`,
+      titleKey: 'workflow.invoiceOrderTitle',
+      descriptionKey: 'workflow.invoiceOrderDesc',
+      descriptionParams: { number: order.number, days: daysSinceDelivery },
       entityId: order.id,
       entityNumber: order.number,
       entityType: 'order',
       contactName: row.contactName,
       amount: new Decimal(order.total || '0').toNumber(),
       daysSince: daysSinceDelivery,
-      actionLabel: 'Rechnung erstellen',
+      actionLabelKey: 'workflow.invoiceOrderAction',
       actionUrl: `/sales/orders/${order.id}/convert`,
     });
   }
@@ -346,7 +359,8 @@ export async function getWorkflowSuggestions(
     where: and(
       eq(documents.companyId, companyId),
       eq(documents.type, 'delivery_note'),
-      eq(documents.status, 'sent')
+      eq(documents.status, 'sent'),
+      gte(documents.issueDate, ninetyDaysAgo)
     ),
     with: {
       contact: {
@@ -363,15 +377,16 @@ export async function getWorkflowSuggestions(
       id: `delivery-confirm-${note.id}`,
       type: 'confirm_delivery',
       priority: daysSinceSent > 7 ? 2 : 3,
-      title: 'Lieferung bestätigen',
-      description: `Lieferschein ${note.number} wurde vor ${daysSinceSent} Tagen versendet`,
+      titleKey: 'workflow.confirmDeliveryTitle',
+      descriptionKey: 'workflow.confirmDeliveryDesc',
+      descriptionParams: { number: note.number, days: daysSinceSent },
       entityId: note.id,
       entityNumber: note.number,
       entityType: 'delivery_note',
       contactName: note.contact?.name || null,
       amount: new Decimal(note.total || '0').toNumber(),
       daysSince: daysSinceSent,
-      actionLabel: 'Als geliefert markieren',
+      actionLabelKey: 'workflow.confirmDeliveryAction',
       actionUrl: `/sales/delivery-notes/${note.id}`,
     });
   }
@@ -382,7 +397,8 @@ export async function getWorkflowSuggestions(
       eq(documents.companyId, companyId),
       eq(documents.type, 'invoice'),
       inArray(documents.status, ['overdue']),
-      sql`${documents.dueDate} < NOW() - INTERVAL '7 days'`
+      sql`${documents.dueDate} < NOW() - INTERVAL '7 days'`,
+      gte(documents.dueDate, ninetyDaysAgo)
     ),
     with: {
       contact: {
@@ -402,15 +418,16 @@ export async function getWorkflowSuggestions(
       id: `invoice-dunning-${invoice.id}`,
       type: 'start_dunning',
       priority: daysOverdue > 30 ? 1 : daysOverdue > 14 ? 2 : 3,
-      title: 'Mahnung erstellen',
-      description: `Rechnung ${invoice.number} ist seit ${daysOverdue} Tagen überfällig`,
+      titleKey: 'workflow.startDunningTitle',
+      descriptionKey: 'workflow.startDunningDesc',
+      descriptionParams: { number: invoice.number, days: daysOverdue },
       entityId: invoice.id,
       entityNumber: invoice.number,
       entityType: 'invoice',
       contactName: invoice.contact?.name || null,
       amount: new Decimal(invoice.total || '0').toNumber(),
       daysSince: daysOverdue,
-      actionLabel: 'Mahnung erstellen',
+      actionLabelKey: 'workflow.startDunningAction',
       actionUrl: `/sales/invoices/${invoice.id}/dunning`,
     });
   }
@@ -443,36 +460,9 @@ export async function getRecentActivity(
     limit,
   });
 
-  const typeLabels: Record<DocumentType, string> = {
-    quote: 'Angebot',
-    order: 'Auftrag',
-    order_confirmation: 'Auftragsbestätigung',
-    delivery_note: 'Lieferschein',
-    invoice: 'Rechnung',
-    credit_note: 'Gutschrift',
-    purchase_order: 'Bestellung',
-    purchase_invoice: 'Eingangsrechnung',
-    dunning: 'Mahnung',
-  };
-
-  const statusActions: Record<string, string> = {
-    draft: 'erstellt',
-    sent: 'versendet',
-    confirmed: 'bestätigt',
-    delivered: 'geliefert',
-    paid: 'bezahlt',
-    partially_paid: 'teilweise bezahlt',
-    overdue: 'überfällig',
-    cancelled: 'storniert',
-    dunning_1: 'erste Mahnung',
-    dunning_2: 'zweite Mahnung',
-    dunning_3: 'dritte Mahnung',
-  };
-
   return recentDocs.map((doc) => {
-    const typeLabel = typeLabels[doc.type];
-    const statusAction = statusActions[doc.status] || doc.status;
-    const action = `${typeLabel} ${statusAction}`;
+    // Construct i18n key: activity.<type>.<status>
+    const actionKey = `activity.${doc.type}.${doc.status}`;
 
     // Determine link based on document type
     let linkTo = '/sales';
@@ -493,7 +483,7 @@ export async function getRecentActivity(
       contactId: doc.contact?.id || null,
       amount: new Decimal(doc.total || '0').toNumber(),
       status: doc.status,
-      action,
+      actionKey,
       timestamp: doc.updatedAt,
       linkTo,
     };
@@ -525,7 +515,11 @@ export async function getDashboardStats(
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const startOfYear = new Date(now.getFullYear(), 0, 1);
 
-  // Run all 8 independent queries in parallel
+  // Last month date range for month-over-month comparison
+  const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0); // last day of prev month
+
+  // Run all queries in parallel (including last-month comparisons)
   const [
     [monthlyRevenue],
     [yearlyRevenue],
@@ -535,6 +529,8 @@ export async function getDashboardStats(
     [bankBalance],
     [contactCount],
     [productCount],
+    [lastMonthRevenue],
+    [lastMonthOutstanding],
   ] = await Promise.all([
     db.select({
       total: sql<string>`COALESCE(SUM(${documents.total}::numeric), 0)`,
@@ -557,12 +553,14 @@ export async function getDashboardStats(
       eq(documents.companyId, companyId), eq(documents.type, 'invoice'),
       inArray(documents.status, ['sent', 'confirmed', 'delivered', 'partially_paid'])
     )),
+    // Overdue: dynamically calculated (past due date AND not paid/cancelled/draft)
     db.select({
       total: sql<string>`COALESCE(SUM(${documents.total}::numeric), 0)`,
       count: sql<number>`COUNT(*)::int`,
     }).from(documents).where(and(
       eq(documents.companyId, companyId), eq(documents.type, 'invoice'),
-      inArray(documents.status, ['overdue', 'dunning_1', 'dunning_2', 'dunning_3'])
+      sql`${documents.status} NOT IN ('paid', 'cancelled', 'draft')`,
+      sql`${documents.dueDate} IS NOT NULL AND ${documents.dueDate} < NOW()`
     )),
     db.select({
       total: sql<string>`COALESCE(SUM(${documents.total}::numeric), 0)`,
@@ -580,59 +578,93 @@ export async function getDashboardStats(
     db.select({ count: sql<number>`COUNT(*)::int` }).from(products).where(and(
       eq(products.companyId, companyId), eq(products.isActive, true)
     )),
+    // Last month's revenue for comparison
+    db.select({
+      total: sql<string>`COALESCE(SUM(${documents.total}::numeric), 0)`,
+      count: sql<number>`COUNT(*)::int`,
+    }).from(documents).where(and(
+      eq(documents.companyId, companyId), eq(documents.type, 'invoice'),
+      eq(documents.status, 'paid'),
+      gte(documents.paidDate, startOfLastMonth),
+      lte(documents.paidDate, endOfLastMonth)
+    )),
+    // Last month's outstanding for comparison (snapshot approximation)
+    db.select({
+      total: sql<string>`COALESCE(SUM(${documents.total}::numeric), 0)`,
+      count: sql<number>`COUNT(*)::int`,
+    }).from(documents).where(and(
+      eq(documents.companyId, companyId), eq(documents.type, 'invoice'),
+      inArray(documents.status, ['sent', 'confirmed', 'delivered', 'partially_paid']),
+      lte(documents.issueDate, endOfLastMonth)
+    )),
   ]);
+
+  // Calculate month-over-month change percentages
+  const thisMonthRev = new Decimal(monthlyRevenue?.total || '0');
+  const lastMonthRev = new Decimal(lastMonthRevenue?.total || '0');
+  const revenueChange = lastMonthRev.gt(0)
+    ? thisMonthRev.minus(lastMonthRev).div(lastMonthRev).times(100).toNumber()
+    : undefined;
+
+  const thisOutstanding = new Decimal(outstanding?.total || '0');
+  const lastOutstanding = new Decimal(lastMonthOutstanding?.total || '0');
+  const outstandingChange = lastOutstanding.gt(0)
+    ? thisOutstanding.minus(lastOutstanding).div(lastOutstanding).times(100).toNumber()
+    : undefined;
 
   return {
     revenueThisMonth: {
-      label: 'Umsatz dieser Monat',
-      value: new Decimal(monthlyRevenue?.total || '0').toNumber(),
+      labelKey: 'stats.revenueThisMonth',
+      value: thisMonthRev.toNumber(),
       count: monthlyRevenue?.count || 0,
       linkTo: '/sales/invoices?status=paid',
+      changePercent: revenueChange !== undefined ? Math.round(revenueChange * 10) / 10 : undefined,
       type: 'currency',
     },
     revenueThisYear: {
-      label: 'Umsatz dieses Jahr',
+      labelKey: 'stats.revenueThisYear',
       value: new Decimal(yearlyRevenue?.total || '0').toNumber(),
       count: yearlyRevenue?.count || 0,
       linkTo: '/reports/sales',
       type: 'currency',
     },
     outstandingInvoices: {
-      label: 'Offene Rechnungen',
-      value: new Decimal(outstanding?.total || '0').toNumber(),
+      labelKey: 'stats.outstandingInvoices',
+      value: thisOutstanding.toNumber(),
       count: outstanding?.count || 0,
       linkTo: '/sales/invoices?status=sent,confirmed,delivered,partially_paid',
+      changePercent: outstandingChange !== undefined ? Math.round(outstandingChange * 10) / 10 : undefined,
       type: 'currency',
     },
     overdueInvoices: {
-      label: 'Überfällige Rechnungen',
+      labelKey: 'stats.overdueInvoices',
       value: new Decimal(overdue?.total || '0').toNumber(),
       count: overdue?.count || 0,
       linkTo: '/sales/invoices?status=overdue',
       type: 'currency',
     },
     draftDocuments: {
-      label: 'Entwürfe',
+      labelKey: 'stats.draftDocuments',
       value: new Decimal(drafts?.total || '0').toNumber(),
       count: drafts?.count || 0,
       linkTo: '/sales?status=draft',
       type: 'currency',
     },
     bankBalance: {
-      label: 'Kontostand',
+      labelKey: 'stats.bankBalance',
       value: new Decimal(bankBalance?.total || '0').toNumber(),
       count: bankBalance?.count || 0,
       linkTo: '/banking/accounts',
       type: 'currency',
     },
     activeContacts: {
-      label: 'Aktive Kontakte',
+      labelKey: 'stats.activeContacts',
       value: contactCount?.count || 0,
       linkTo: '/contacts',
       type: 'count',
     },
     activeProducts: {
-      label: 'Aktive Produkte',
+      labelKey: 'stats.activeProducts',
       value: productCount?.count || 0,
       linkTo: '/products',
       type: 'count',
@@ -737,4 +769,79 @@ export async function getBusinessHealthMetrics(
     cashFlowRatio: Math.round(cashFlowRatio * 10) / 10,
     customerRetentionRate: Math.round(customerRetentionRate * 10) / 10,
   };
+}
+
+// ============================================================================
+// EXECUTIVE SUMMARY
+// ============================================================================
+
+export interface ExecutiveSummaryHighlight {
+  key: string;
+  params: Record<string, string | number>;
+}
+
+export interface ExecutiveSummary {
+  highlights: ExecutiveSummaryHighlight[];
+}
+
+/**
+ * Generate an executive summary from dashboard data.
+ * Reuses getDashboardStats and getBusinessHealthMetrics — no extra queries.
+ */
+export async function getExecutiveSummary(
+  db: Database,
+  companyId: string
+): Promise<ExecutiveSummary> {
+  const [stats, health] = await Promise.all([
+    getDashboardStats(db, companyId),
+    getBusinessHealthMetrics(db, companyId),
+  ]);
+
+  const highlights: ExecutiveSummaryHighlight[] = [];
+
+  // 1. Revenue collected this month
+  highlights.push({
+    key: 'summary.revenueCollected',
+    params: {
+      amount: stats.revenueThisMonth.value,
+      count: stats.revenueThisMonth.count || 0,
+    },
+  });
+
+  // 2. Outstanding invoices
+  if (stats.outstandingInvoices.value > 0) {
+    highlights.push({
+      key: 'summary.outstanding',
+      params: {
+        amount: stats.outstandingInvoices.value,
+        count: stats.outstandingInvoices.count || 0,
+      },
+    });
+  }
+
+  // 3. Overdue warning
+  if (stats.overdueInvoices.value > 0) {
+    highlights.push({
+      key: 'summary.overdue',
+      params: {
+        amount: stats.overdueInvoices.value,
+        count: stats.overdueInvoices.count || 0,
+      },
+    });
+  }
+
+  // 4. Profit margin context
+  if (health.profitMargin !== 0) {
+    const marginKey = health.profitMargin >= 20
+      ? 'summary.marginHealthy'
+      : health.profitMargin >= 10
+        ? 'summary.marginModerate'
+        : 'summary.marginLow';
+    highlights.push({
+      key: marginKey,
+      params: { margin: health.profitMargin },
+    });
+  }
+
+  return { highlights };
 }

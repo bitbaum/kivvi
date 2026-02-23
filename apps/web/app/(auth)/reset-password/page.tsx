@@ -3,7 +3,7 @@
 import { Suspense, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Loader2, ArrowLeft, CheckCircle2, XCircle } from 'lucide-react';
+import { Loader2, ArrowLeft, CheckCircle2, XCircle, Eye, EyeOff } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { resetPasswordAction } from '@/app/actions/password-reset';
 import { LanguageSwitcher } from '@/components/language-switcher';
@@ -16,6 +16,8 @@ function ResetPasswordForm() {
 
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -73,16 +75,18 @@ function ResetPasswordForm() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4">
-      {/* Language switcher in top-right corner */}
-      <div className="fixed right-4 top-4">
+      {/* Language switcher */}
+      <div className="fixed right-4 top-4 z-10">
         <LanguageSwitcher />
       </div>
 
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="mb-8 text-center">
-          <Link href="/" className="inline-flex items-center gap-2">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600" />
+          <Link href="/" className="inline-flex items-center gap-2.5">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600">
+              <span className="text-lg font-bold text-white">K</span>
+            </div>
             <span className="text-2xl font-bold">Kivvi</span>
           </Link>
         </div>
@@ -100,7 +104,7 @@ function ResetPasswordForm() {
               </p>
               <Link
                 href="/forgot-password"
-                className="flex items-center justify-center gap-2 rounded-lg bg-primary py-2.5 font-medium text-primary-foreground hover:bg-primary/90"
+                className="flex items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90"
               >
                 {t('sendResetLink')}
               </Link>
@@ -125,7 +129,7 @@ function ResetPasswordForm() {
               </p>
               <Link
                 href="/login"
-                className="flex items-center justify-center gap-2 rounded-lg bg-primary py-2.5 font-medium text-primary-foreground hover:bg-primary/90"
+                className="flex items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-medium text-primary-foreground shadow-sm hover:bg-primary/90"
               >
                 {t('signIn')}
               </Link>
@@ -138,27 +142,46 @@ function ResetPasswordForm() {
               </p>
 
               {error && (
-                <div className="mb-4 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+                <div className="mb-4 flex items-center gap-2 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+                  <svg className="h-4 w-4 shrink-0" viewBox="0 0 16 16" fill="currentColor">
+                    <path fillRule="evenodd" d="M8 15A7 7 0 108 1a7 7 0 000 14zM8 4a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 018 4zm0 8a1 1 0 100-2 1 1 0 000 2z" />
+                  </svg>
                   {error}
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
                   <label htmlFor="password" className="mb-1.5 block text-sm font-medium">
                     {t('newPassword')}
                   </label>
-                  <input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    required
-                    minLength={8}
-                    className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                  <p className="mt-1 text-xs text-muted-foreground">
+                  <div className="relative">
+                    <input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      required
+                      minLength={8}
+                      autoComplete="new-password"
+                      className="w-full rounded-lg border bg-background px-4 py-2.5 pr-11 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                      tabIndex={-1}
+                      aria-label={showPassword ? t('hidePassword') : t('showPassword')}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
+                  <p className="mt-1.5 text-xs text-muted-foreground">
                     {t('passwordMinLength')}
                   </p>
                 </div>
@@ -167,22 +190,38 @@ function ResetPasswordForm() {
                   <label htmlFor="confirmPassword" className="mb-1.5 block text-sm font-medium">
                     {t('confirmPassword')}
                   </label>
-                  <input
-                    id="confirmPassword"
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="••••••••"
-                    required
-                    minLength={8}
-                    className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
+                  <div className="relative">
+                    <input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="••••••••"
+                      required
+                      minLength={8}
+                      autoComplete="new-password"
+                      className="w-full rounded-lg border bg-background px-4 py-2.5 pr-11 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                      tabIndex={-1}
+                      aria-label={showConfirmPassword ? t('hidePassword') : t('showPassword')}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-all hover:bg-primary/90 disabled:opacity-50"
                 >
                   {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
                   {isLoading ? t('settingPassword') : t('setPassword')}

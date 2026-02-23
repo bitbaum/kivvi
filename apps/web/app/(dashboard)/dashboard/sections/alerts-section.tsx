@@ -3,7 +3,6 @@ import { db } from '@/lib/db';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { AlertCard } from './alert-card';
-import { useTranslations } from 'next-intl';
 import { getTranslations } from 'next-intl/server';
 
 export async function AlertsSection() {
@@ -13,7 +12,7 @@ export async function AlertsSection() {
   const companyId = session.user.companyId;
   const alerts = await getDashboardAlerts(db, companyId);
 
-  const t = await getTranslations('dashboard.alerts');
+  const t = await getTranslations('dashboard');
 
   // Sort alerts by severity: urgent > warning > info
   const severityOrder = { urgent: 0, warning: 1, info: 2 };
@@ -39,8 +38,8 @@ export async function AlertsSection() {
             />
           </svg>
         </div>
-        <h3 className="font-semibold">{t('allCaughtUp')}</h3>
-        <p className="text-sm text-muted-foreground">{t('noAlerts')}</p>
+        <h3 className="font-semibold">{t('alerts.allCaughtUp')}</h3>
+        <p className="text-sm text-muted-foreground">{t('alerts.noAlerts')}</p>
       </div>
     );
   }
@@ -48,8 +47,8 @@ export async function AlertsSection() {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-lg font-semibold">{t('title')}</h2>
-        <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
+        <h2 className="text-lg font-semibold">{t('alerts.title')}</h2>
+        <p className="text-sm text-muted-foreground">{t('alerts.subtitle')}</p>
       </div>
       <div className="space-y-3">
         {sortedAlerts.map((alert) => (

@@ -22,7 +22,7 @@ export async function WorkflowSuggestions() {
   const companyId = session.user.companyId;
   const suggestions = await getWorkflowSuggestions(db, companyId);
 
-  const t = await getTranslations('dashboard.workflow');
+  const t = await getTranslations('dashboard');
 
   if (suggestions.length === 0) {
     return (
@@ -30,8 +30,8 @@ export async function WorkflowSuggestions() {
         <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
           <TrendingUp className="h-6 w-6 text-muted-foreground" />
         </div>
-        <h3 className="font-semibold">{t('noSuggestions')}</h3>
-        <p className="text-sm text-muted-foreground">{t('checkBackLater')}</p>
+        <h3 className="font-semibold">{t('workflow.noSuggestions')}</h3>
+        <p className="text-sm text-muted-foreground">{t('workflow.checkBackLater')}</p>
       </div>
     );
   }
@@ -58,9 +58,9 @@ export async function WorkflowSuggestions() {
   };
 
   const getPriorityLabel = (priority: number) => {
-    if (priority === 1) return t('highPriority');
-    if (priority === 2) return t('mediumPriority');
-    return t('lowPriority');
+    if (priority === 1) return t('workflow.highPriority');
+    if (priority === 2) return t('workflow.mediumPriority');
+    return t('workflow.lowPriority');
   };
 
   // Group top suggestions by priority (limit configured in dashboard-config)
@@ -72,8 +72,8 @@ export async function WorkflowSuggestions() {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-lg font-semibold">{t('title')}</h2>
-        <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
+        <h2 className="text-lg font-semibold">{t('workflow.title')}</h2>
+        <p className="text-sm text-muted-foreground">{t('workflow.subtitle')}</p>
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         {topSuggestions.map((suggestion) => (
@@ -92,7 +92,7 @@ export async function WorkflowSuggestions() {
               <div className="flex-1 space-y-2">
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <h3 className="font-medium leading-tight">{suggestion.title}</h3>
+                    <h3 className="font-medium leading-tight">{t(suggestion.titleKey)}</h3>
                     <p className="text-sm text-muted-foreground">
                       {suggestion.entityNumber}
                       {suggestion.contactName && ` • ${suggestion.contactName}`}
@@ -105,7 +105,7 @@ export async function WorkflowSuggestions() {
                   </span>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  {suggestion.description}
+                  {t(suggestion.descriptionKey, suggestion.descriptionParams)}
                 </p>
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-sm font-medium">
@@ -113,10 +113,10 @@ export async function WorkflowSuggestions() {
                   </span>
                   <Link
                     href={suggestion.actionUrl}
-                    aria-label={`${suggestion.actionLabel} for ${suggestion.entityNumber}`}
+                    aria-label={`${t(suggestion.actionLabelKey)} for ${suggestion.entityNumber}`}
                     className="inline-flex min-h-[44px] items-center gap-1 text-sm font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
                   >
-                    {suggestion.actionLabel}
+                    {t(suggestion.actionLabelKey)}
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </div>

@@ -58,7 +58,10 @@
     "errorBoundaryTitle": "Etwas ist schiefgelaufen",
     "errorBoundaryMessage": "Dieser Abschnitt konnte nicht geladen werden.",
     "errorBoundaryReload": "Seite neu laden",
-    "exported": "Export abgeschlossen"
+    "exported": "Export abgeschlossen",
+    "export": "Exportieren",
+    "exporting": "Exportieren...",
+    "dashboard": "Übersicht"
   },
   "nav": {
     "home": "Start",
@@ -227,65 +230,6 @@
     "viewAll": "Alle anzeigen",
     "noRecentInvoices": "Noch keine Rechnungen vorhanden.",
     "quickStats": "Schnellübersicht",
-    "quickActions": "Schnellaktionen",
-    "alerts": {
-      "title": "Warnungen & Benachrichtigungen",
-      "subtitle": "Offene Punkte, die Ihre Aufmerksamkeit erfordern",
-      "allCaughtUp": "Alles erledigt!",
-      "noAlerts": "Keine dringenden Aktionen erforderlich.",
-      "item": "Eintrag",
-      "items": "Einträge",
-      "showMore": "{count} weitere anzeigen",
-      "showLess": "Weniger anzeigen",
-      "viewDetails": "Details anzeigen"
-    },
-    "workflow": {
-      "title": "Workflow-Vorschläge",
-      "subtitle": "Empfohlene nächste Schritte für Ihre Dokumente",
-      "noSuggestions": "Keine Vorschläge",
-      "checkBackLater": "Schauen Sie später wieder vorbei.",
-      "highPriority": "Hoch",
-      "mediumPriority": "Mittel",
-      "lowPriority": "Niedrig"
-    },
-    "activity": {
-      "title": "Letzte Aktivitäten",
-      "subtitle": "Neueste Änderungen in Ihrem Unternehmen",
-      "justNow": "Gerade eben",
-      "minutesAgo": "vor {count} Minuten",
-      "hoursAgo": "vor {count} Stunden",
-      "daysAgo": "vor {count} Tagen",
-      "weeksAgo": "vor {count} Wochen",
-      "noActivity": "Keine Aktivitäten",
-      "noActivityDesc": "Es gibt noch keine Aktivitäten in Ihrem Unternehmen."
-    },
-    "createInvoice": "Rechnung erstellen",
-    "createQuote": "Angebot erstellen",
-    "createOrder": "Auftrag erstellen",
-    "recordPayment": "Zahlung erfassen",
-    "addContact": "Kontakt hinzufügen",
-    "addProduct": "Produkt hinzufügen",
-    "importData": "Daten importieren",
-    "openAIChat": "KI-Assistent öffnen",
-    "aging": {
-      "current": "Aktuell",
-      "days30": "1-30 Tage",
-      "days60": "31-60 Tage",
-      "days90": "61-90 Tage",
-      "over90": ">90 Tage"
-    },
-    "charts": {
-      "revenue": "Umsatzentwicklung",
-      "aging": "Fälligkeitsanalyse",
-      "noRevenue": "Keine Umsatzdaten vorhanden",
-      "noInvoices": "Keine offenen Rechnungen"
-    },
-    "stats": {
-      "title": "Kennzahlen",
-      "subtitle": "Wichtige Geschäftszahlen auf einen Blick",
-      "document": "Dokument",
-      "documents": "Dokumente"
-    },
     "quickActions": {
       "title": "Schnellaktionen",
       "subtitle": "Häufig verwendete Aktionen für schnellen Zugriff",
@@ -307,6 +251,156 @@
       "openAIChatDesc": "Mit dem KI-Assistenten chatten",
       "showAll": "Alle anzeigen",
       "showLess": "Weniger anzeigen"
+    },
+    "alerts": {
+      "title": "Warnungen & Benachrichtigungen",
+      "subtitle": "Offene Punkte, die Ihre Aufmerksamkeit erfordern",
+      "allCaughtUp": "Alles erledigt!",
+      "noAlerts": "Keine dringenden Aktionen erforderlich.",
+      "item": "Eintrag",
+      "items": "Einträge",
+      "showMore": "{count} weitere anzeigen",
+      "showLess": "Weniger anzeigen",
+      "viewDetails": "Details anzeigen",
+      "overdueInvoices": "Überfällige Rechnungen",
+      "overdueInvoicesDesc": "{count, plural, one {# Rechnung} other {# Rechnungen}} überfällig",
+      "expiringQuotes": "Angebote laufen ab",
+      "expiringQuotesDesc": "{count, plural, one {# Angebot} other {# Angebote}} läuft in den nächsten 7 Tagen ab",
+      "draftDocuments": "Entwürfe vorhanden",
+      "draftDocumentsDesc": "{count, plural, one {# Dokument} other {# Dokumente}} als Entwurf",
+      "lowStock": "Niedriger Lagerbestand",
+      "lowStockDesc": "{count, plural, one {# Produkt} other {# Produkte}} unter Mindestbestand",
+      "unreconciledTransactions": "Nicht abgestimmte Transaktionen",
+      "unreconciledTransactionsDesc": "{count, plural, one {# Banktransaktion} other {# Banktransaktionen}} noch nicht zugeordnet"
+    },
+    "workflow": {
+      "title": "Workflow-Vorschläge",
+      "subtitle": "Empfohlene nächste Schritte für Ihre Dokumente",
+      "noSuggestions": "Keine Vorschläge",
+      "checkBackLater": "Schauen Sie später wieder vorbei.",
+      "highPriority": "Hoch",
+      "mediumPriority": "Mittel",
+      "lowPriority": "Niedrig",
+      "convertQuoteTitle": "Angebot in Auftrag umwandeln",
+      "convertQuoteDesc": "Angebot {number} wurde vor {days} Tagen versendet",
+      "convertQuoteAction": "In Auftrag umwandeln",
+      "invoiceOrderTitle": "Auftrag abrechnen",
+      "invoiceOrderDesc": "Auftrag {number} wurde vor {days} Tagen geliefert",
+      "invoiceOrderAction": "Rechnung erstellen",
+      "confirmDeliveryTitle": "Lieferung bestätigen",
+      "confirmDeliveryDesc": "Lieferschein {number} wurde vor {days} Tagen versendet",
+      "confirmDeliveryAction": "Als geliefert markieren",
+      "startDunningTitle": "Mahnung erstellen",
+      "startDunningDesc": "Rechnung {number} ist seit {days} Tagen überfällig",
+      "startDunningAction": "Mahnung erstellen"
+    },
+    "activity": {
+      "title": "Letzte Aktivitäten",
+      "subtitle": "Neueste Änderungen in Ihrem Unternehmen",
+      "justNow": "Gerade eben",
+      "minutesAgo": "vor {count} Minuten",
+      "hoursAgo": "vor {count} Stunden",
+      "daysAgo": "vor {count} Tagen",
+      "weeksAgo": "vor {count} Wochen",
+      "noActivity": "Keine Aktivitäten",
+      "noActivityDesc": "Es gibt noch keine Aktivitäten in Ihrem Unternehmen.",
+      "quote": {
+        "draft": "Angebot erstellt",
+        "sent": "Angebot versendet",
+        "confirmed": "Angebot bestätigt",
+        "cancelled": "Angebot storniert"
+      },
+      "order": {
+        "draft": "Auftrag erstellt",
+        "sent": "Auftrag versendet",
+        "confirmed": "Auftrag bestätigt",
+        "delivered": "Auftrag geliefert",
+        "cancelled": "Auftrag storniert"
+      },
+      "order_confirmation": {
+        "draft": "Auftragsbestätigung erstellt",
+        "sent": "Auftragsbestätigung versendet",
+        "confirmed": "Auftragsbestätigung bestätigt"
+      },
+      "delivery_note": {
+        "draft": "Lieferschein erstellt",
+        "sent": "Lieferschein versendet",
+        "delivered": "Lieferschein geliefert"
+      },
+      "invoice": {
+        "draft": "Rechnung erstellt",
+        "sent": "Rechnung versendet",
+        "confirmed": "Rechnung bestätigt",
+        "delivered": "Rechnung geliefert",
+        "paid": "Rechnung bezahlt",
+        "partially_paid": "Rechnung teilweise bezahlt",
+        "overdue": "Rechnung überfällig",
+        "cancelled": "Rechnung storniert",
+        "dunning_1": "Rechnung erste Mahnung",
+        "dunning_2": "Rechnung zweite Mahnung",
+        "dunning_3": "Rechnung dritte Mahnung"
+      },
+      "credit_note": {
+        "draft": "Gutschrift erstellt",
+        "sent": "Gutschrift versendet",
+        "paid": "Gutschrift bezahlt"
+      },
+      "purchase_order": {
+        "draft": "Bestellung erstellt",
+        "sent": "Bestellung versendet",
+        "confirmed": "Bestellung bestätigt",
+        "delivered": "Bestellung geliefert"
+      },
+      "purchase_invoice": {
+        "draft": "Eingangsrechnung erstellt",
+        "sent": "Eingangsrechnung versendet",
+        "paid": "Eingangsrechnung bezahlt"
+      },
+      "dunning": {
+        "draft": "Mahnung erstellt",
+        "sent": "Mahnung versendet"
+      }
+    },
+    "createInvoice": "Rechnung erstellen",
+    "createQuote": "Angebot erstellen",
+    "createOrder": "Auftrag erstellen",
+    "recordPayment": "Zahlung erfassen",
+    "addContact": "Kontakt hinzufügen",
+    "addProduct": "Produkt hinzufügen",
+    "importData": "Daten importieren",
+    "openAIChat": "KI-Assistent öffnen",
+    "aging": {
+      "current": "Aktuell",
+      "days30": "1-30 Tage",
+      "days60": "31-60 Tage",
+      "days90": "61-90 Tage",
+      "over90": ">90 Tage"
+    },
+    "charts": {
+      "revenue": "Umsatzentwicklung",
+      "aging": "Fälligkeitsanalyse",
+      "noRevenue": "Keine Umsatzdaten vorhanden",
+      "noInvoices": "Keine offenen Rechnungen",
+      "revenueNarrative": {
+        "above": "Spitzenwert im {peakMonth} bei {peakAmount}. Aktueller Monat ({currentAmount}) liegt über dem Durchschnitt.",
+        "below": "Spitzenwert im {peakMonth} bei {peakAmount}. Aktueller Monat ({currentAmount}) liegt unter dem Durchschnitt."
+      },
+      "agingNarrative": "{currentPercent}% der offenen Rechnungen sind aktuell. {overduePercent}% sind 60+ Tage überfällig."
+    },
+    "stats": {
+      "title": "Kennzahlen",
+      "subtitle": "Wichtige Geschäftszahlen auf einen Blick",
+      "document": "Dokument",
+      "documents": "Dokumente",
+      "revenueThisMonth": "Umsatz dieser Monat",
+      "revenueThisYear": "Umsatz dieses Jahr",
+      "outstandingInvoices": "Offene Rechnungen",
+      "overdueInvoices": "Überfällige Rechnungen",
+      "draftDocuments": "Entwürfe",
+      "bankBalance": "Kontostand",
+      "activeContacts": "Aktive Kontakte",
+      "activeProducts": "Aktive Produkte",
+      "vsLastMonth": "ggü. Vormonat"
     },
     "healthMetrics": {
       "title": "Geschäftskennzahlen",
@@ -330,7 +424,23 @@
       "lowStock": "Niedriger Lagerbestand",
       "openChat": "Chat öffnen"
     },
-    "skipToMain": "Zum Hauptinhalt springen"
+    "skipToMain": "Zum Hauptinhalt springen",
+    "summary": {
+      "revenueCollected": "Diesen Monat wurden {amount} aus {count, plural, one {# Rechnung} other {# Rechnungen}} eingenommen.",
+      "outstanding": "{amount} sind offen über {count, plural, one {# Rechnung} other {# Rechnungen}}.",
+      "overdue": "{amount} aus {count, plural, one {# Rechnung} other {# Rechnungen}} sind überfällig.",
+      "marginHealthy": "Ihre Gewinnmarge beträgt {margin}% — eine gesunde Basis.",
+      "marginModerate": "Ihre Gewinnmarge liegt bei {margin}% — im akzeptablen Bereich.",
+      "marginLow": "Ihre Gewinnmarge beträgt nur {margin}% — die Kosten sind hoch im Verhältnis zum Umsatz."
+    },
+    "priorities": {
+      "title": "Ihre Prioritäten",
+      "subtitle": "Offene Punkte, sortiert nach Dringlichkeit",
+      "allClear": "Alles erledigt!",
+      "noActions": "Keine dringenden Aktionen erforderlich.",
+      "showAll": "Alle anzeigen ({count})",
+      "showLess": "Weniger anzeigen"
+    }
   },
   "footer": {
     "product": "Produkt",
@@ -525,6 +635,7 @@
     "seedAccounts": "Schweizer KMU-Kontenrahmen laden",
     "seedConfirm": "Möchten Sie den Schweizer KMU-Kontenrahmen laden? Dies erstellt 227 Standardkonten.",
     "seedSuccess": "{count} Konten wurden erstellt.",
+    "accountsConfigured": "{count} Konten konfiguriert",
     "noAccounts": "Keine Konten vorhanden",
     "searchAccounts": "Konten suchen...",
     "newJournalEntry": "Neue Buchung",
@@ -802,6 +913,27 @@
         "journal": "Buchung"
       }
     },
+    "billing": {
+      "title": "Abrechnung",
+      "settingsDesc": "Abonnement und Zahlungseinstellungen.",
+      "subtitle": "Verwalten Sie Ihr Abonnement und Ihre Rechnungsdaten.",
+      "currentPlan": "Aktueller Plan",
+      "active": "Aktiv",
+      "pastDue": "Zahlung fällig",
+      "cancelled": "Gekündigt",
+      "trialRemaining": "Noch {days} Tage in der Testphase",
+      "pastDueMessage": "Ihre Zahlung ist überfällig. Bitte aktualisieren Sie Ihre Zahlungsmethode, um eine Dienstunterbrechung zu vermeiden.",
+      "upgrade": "Plan upgraden",
+      "manageSubscription": "Abonnement verwalten",
+      "upgradeError": "Upgrade konnte nicht gestartet werden. Bitte versuchen Sie es erneut.",
+      "manageError": "Abrechnungsportal konnte nicht geöffnet werden. Bitte versuchen Sie es erneut."
+    },
+    "dataPrivacy": {
+      "title": "Daten & Datenschutz",
+      "exportTitle": "Alle Daten exportieren",
+      "exportDescription": "Laden Sie einen vollständigen Export aller Unternehmensdaten im JSON-Format herunter (DSGVO-konform).",
+      "downloadButton": "Datenexport herunterladen"
+    },
     "recurring": {
       "title": "Wiederkehrende Rechnungen",
       "subtitle": "Automatisch wiederkehrende Rechnungen aus Aufträgen generieren.",
@@ -907,7 +1039,11 @@
     },
     "errorGeneric": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
     "termsAndPrivacy": "Durch Fortfahren stimmen Sie unseren <terms>Nutzungsbedingungen</terms> und der <privacy>Datenschutzrichtlinie</privacy> zu.",
-    "passwordMinLength": "Mindestens 8 Zeichen"
+    "passwordMinLength": "Mindestens 8 Zeichen",
+    "showPassword": "Passwort anzeigen",
+    "hidePassword": "Passwort verbergen",
+    "heroSubtitle": "Kivvi automatisiert Ihre Rechnungsstellung, Buchhaltung und Zahlungen, damit Sie sich auf das Wesentliche konzentrieren.",
+    "securityNote": "Ihre Daten sind verschlüsselt und bleiben in der Schweiz. Self-Hosting für volle Kontrolle."
   },
   "onboarding": {
     "welcome": "Willkommen bei Kivvi",

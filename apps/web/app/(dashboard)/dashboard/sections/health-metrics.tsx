@@ -18,8 +18,25 @@ export async function HealthMetrics() {
   if (!session?.user?.companyId) redirect('/login');
 
   const companyId = session.user.companyId;
-  const metrics = await getBusinessHealthMetrics(db, companyId);
   const t = await getTranslations('dashboard.healthMetrics');
+
+  let metrics;
+  try {
+    metrics = await getBusinessHealthMetrics(db, companyId);
+  } catch (error) {
+    console.error('HealthMetrics: failed to load metrics:', error);
+    return (
+      <div className="space-y-4">
+        <div>
+          <h2 className="text-lg font-semibold">{t('title')}</h2>
+          <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
+        </div>
+        <div className="rounded-xl border bg-card p-8 text-center text-sm text-muted-foreground">
+          {t('subtitle')}
+        </div>
+      </div>
+    );
+  }
 
   const metricCards = [
     {

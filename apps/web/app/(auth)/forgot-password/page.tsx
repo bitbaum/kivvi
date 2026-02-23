@@ -39,16 +39,18 @@ function ForgotPasswordForm() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted/30 px-4">
-      {/* Language switcher in top-right corner */}
-      <div className="fixed right-4 top-4">
+      {/* Language switcher */}
+      <div className="fixed right-4 top-4 z-10">
         <LanguageSwitcher />
       </div>
 
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="mb-8 text-center">
-          <Link href="/" className="inline-flex items-center gap-2">
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600" />
+          <Link href="/" className="inline-flex items-center gap-2.5">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600">
+              <span className="text-lg font-bold text-white">K</span>
+            </div>
             <span className="text-2xl font-bold">Kivvi</span>
           </Link>
         </div>
@@ -66,7 +68,7 @@ function ForgotPasswordForm() {
               </p>
               <Link
                 href="/login"
-                className="flex items-center justify-center gap-2 rounded-lg border bg-background py-2.5 font-medium hover:bg-muted"
+                className="flex items-center justify-center gap-2 rounded-lg border bg-background py-2.5 text-sm font-medium shadow-sm hover:bg-muted"
               >
                 <ArrowLeft className="h-4 w-4" />
                 {t('backToSignIn')}
@@ -80,12 +82,15 @@ function ForgotPasswordForm() {
               </p>
 
               {error && (
-                <div className="mb-4 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+                <div className="mb-4 flex items-center gap-2 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+                  <svg className="h-4 w-4 shrink-0" viewBox="0 0 16 16" fill="currentColor">
+                    <path fillRule="evenodd" d="M8 15A7 7 0 108 1a7 7 0 000 14zM8 4a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 018 4zm0 8a1 1 0 100-2 1 1 0 000 2z" />
+                  </svg>
                   {error}
                 </div>
               )}
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
                   <label htmlFor="email" className="mb-1.5 block text-sm font-medium">
                     {t('emailAddress')}
@@ -97,14 +102,15 @@ function ForgotPasswordForm() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@company.ch"
                     required
-                    className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
+                    autoComplete="email"
+                    className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-all hover:bg-primary/90 disabled:opacity-50"
                 >
                   {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
                   {isLoading ? t('sendingResetLink') : t('sendResetLink')}

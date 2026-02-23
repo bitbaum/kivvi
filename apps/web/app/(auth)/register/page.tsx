@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Loader2, Check } from 'lucide-react';
+import { Loader2, Check, Eye, EyeOff, Shield } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { registerAction } from '@/app/actions/auth';
@@ -19,6 +19,7 @@ export default function RegisterPage() {
     password: '',
     companyName: '',
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -67,8 +68,8 @@ export default function RegisterPage() {
 
   return (
     <div className="flex min-h-screen bg-muted/30">
-      {/* Language switcher in top-right corner */}
-      <div className="fixed right-4 top-4">
+      {/* Language switcher */}
+      <div className="fixed right-4 top-4 z-10">
         <LanguageSwitcher />
       </div>
 
@@ -77,38 +78,65 @@ export default function RegisterPage() {
         <div className="w-full max-w-md">
           {/* Logo */}
           <div className="mb-8">
-            <Link href="/" className="inline-flex items-center gap-2">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600" />
+            <Link href="/" className="inline-flex items-center gap-2.5">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600">
+                <span className="text-lg font-bold text-white">K</span>
+              </div>
               <span className="text-2xl font-bold">Kivvi</span>
             </Link>
           </div>
 
-          <h1 className="mb-2 text-2xl font-semibold">{t('register')}</h1>
-          <p className="mb-6 text-muted-foreground">
+          <h1 className="mb-2 text-2xl font-semibold tracking-tight">
+            {t('register')}
+          </h1>
+          <p className="mb-8 text-muted-foreground">
             {t('registerSubtitle')}
           </p>
 
           {error && (
-            <div className="mb-4 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+            <div className="mb-4 flex items-center gap-2 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+              <svg className="h-4 w-4 shrink-0" viewBox="0 0 16 16" fill="currentColor">
+                <path fillRule="evenodd" d="M8 15A7 7 0 108 1a7 7 0 000 14zM8 4a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 018 4zm0 8a1 1 0 100-2 1 1 0 000 2z" />
+              </svg>
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
-                {t('fullName')}
-              </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                value={formData.name}
-                onChange={handleChange}
-                placeholder="Max Muster"
-                required
-                className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
-              />
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="grid gap-5 sm:grid-cols-2">
+              <div>
+                <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
+                  {t('fullName')}
+                </label>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="Max Muster"
+                  required
+                  autoComplete="name"
+                  className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="companyName" className="mb-1.5 block text-sm font-medium">
+                  {t('companyName')}
+                </label>
+                <input
+                  id="companyName"
+                  name="companyName"
+                  type="text"
+                  value={formData.companyName}
+                  onChange={handleChange}
+                  placeholder="Muster GmbH"
+                  required
+                  autoComplete="organization"
+                  className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
             </div>
 
             <div>
@@ -123,23 +151,8 @@ export default function RegisterPage() {
                 onChange={handleChange}
                 placeholder="max@company.ch"
                 required
-                className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="companyName" className="mb-1.5 block text-sm font-medium">
-                {t('companyName')}
-              </label>
-              <input
-                id="companyName"
-                name="companyName"
-                type="text"
-                value={formData.companyName}
-                onChange={handleChange}
-                placeholder="Muster GmbH"
-                required
-                className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
+                autoComplete="email"
+                className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
             </div>
 
@@ -147,18 +160,34 @@ export default function RegisterPage() {
               <label htmlFor="password" className="mb-1.5 block text-sm font-medium">
                 {t('password')}
               </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="••••••••"
-                required
-                minLength={8}
-                className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-              <p className="mt-1 text-xs text-muted-foreground">
+              <div className="relative">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  required
+                  minLength={8}
+                  autoComplete="new-password"
+                  className="w-full rounded-lg border bg-background px-4 py-2.5 pr-11 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
+                  tabIndex={-1}
+                  aria-label={showPassword ? t('hidePassword') : t('showPassword')}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+              <p className="mt-1.5 text-xs text-muted-foreground">
                 {t('passwordMinLength')}
               </p>
             </div>
@@ -166,7 +195,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-all hover:bg-primary/90 disabled:opacity-50"
             >
               {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
               {isLoading ? t('creatingAccount') : t('createAccount')}
@@ -179,15 +208,26 @@ export default function RegisterPage() {
               {t('signIn')}
             </Link>
           </div>
+
+          <p className="mt-8 text-center text-xs text-muted-foreground">
+            {t.rich('termsAndPrivacy', {
+              terms: (chunks) => <Link href="/terms" className="hover:underline">{chunks}</Link>,
+              privacy: (chunks) => <Link href="/privacy" className="hover:underline">{chunks}</Link>,
+            })}
+          </p>
         </div>
       </div>
 
       {/* Right side - Features */}
       <div className="hidden flex-1 items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600 p-12 lg:flex">
         <div className="max-w-md text-white">
-          <h2 className="mb-6 text-3xl font-bold">
+          <h2 className="mb-3 text-3xl font-bold leading-tight">
             {t('businessOnAutopilot')}
           </h2>
+          <p className="mb-8 text-blue-100">
+            {t('heroSubtitle')}
+          </p>
+
           <ul className="space-y-4">
             <Feature text={t('features.aiInvoices')} />
             <Feature text={t('features.bankMatching')} />
@@ -195,6 +235,13 @@ export default function RegisterPage() {
             <Feature text={t('features.qrBills')} />
             <Feature text={t('features.selfHostAI')} />
           </ul>
+
+          <div className="mt-10 flex items-center gap-3 rounded-lg bg-white/10 px-4 py-3 backdrop-blur-sm">
+            <Shield className="h-5 w-5 shrink-0 text-blue-200" />
+            <p className="text-sm text-blue-100">
+              {t('securityNote')}
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -204,10 +251,10 @@ export default function RegisterPage() {
 function Feature({ text }: { text: string }) {
   return (
     <li className="flex items-center gap-3">
-      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/20">
-        <Check className="h-4 w-4" />
+      <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/20">
+        <Check className="h-3.5 w-3.5" />
       </div>
-      <span>{text}</span>
+      <span className="text-sm">{text}</span>
     </li>
   );
 }

@@ -24,7 +24,7 @@ export async function RecentActivity() {
   const companyId = session.user.companyId;
   const activities = await getRecentActivity(db, companyId, 15);
 
-  const t = await getTranslations('dashboard.activity');
+  const t = await getTranslations('dashboard');
 
   const getIconForType = (type: string) => {
     switch (type) {
@@ -53,11 +53,11 @@ export async function RecentActivity() {
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - new Date(date).getTime()) / 1000);
 
-    if (diffInSeconds < 60) return t('justNow');
-    if (diffInSeconds < 3600) return t('minutesAgo', { count: Math.floor(diffInSeconds / 60) });
-    if (diffInSeconds < 86400) return t('hoursAgo', { count: Math.floor(diffInSeconds / 3600) });
-    if (diffInSeconds < 604800) return t('daysAgo', { count: Math.floor(diffInSeconds / 86400) });
-    return t('weeksAgo', { count: Math.floor(diffInSeconds / 604800) });
+    if (diffInSeconds < 60) return t('activity.justNow');
+    if (diffInSeconds < 3600) return t('activity.minutesAgo', { count: Math.floor(diffInSeconds / 60) });
+    if (diffInSeconds < 86400) return t('activity.hoursAgo', { count: Math.floor(diffInSeconds / 3600) });
+    if (diffInSeconds < 604800) return t('activity.daysAgo', { count: Math.floor(diffInSeconds / 86400) });
+    return t('activity.weeksAgo', { count: Math.floor(diffInSeconds / 604800) });
   };
 
   if (activities.length === 0) {
@@ -66,8 +66,8 @@ export async function RecentActivity() {
         <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
           <Clock className="h-6 w-6 text-muted-foreground" />
         </div>
-        <h3 className="font-semibold">{t('noActivity')}</h3>
-        <p className="text-sm text-muted-foreground">{t('noActivityDesc')}</p>
+        <h3 className="font-semibold">{t('activity.noActivity')}</h3>
+        <p className="text-sm text-muted-foreground">{t('activity.noActivityDesc')}</p>
       </div>
     );
   }
@@ -76,8 +76,8 @@ export async function RecentActivity() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold">{t('title')}</h2>
-          <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
+          <h2 className="text-lg font-semibold">{t('activity.title')}</h2>
+          <p className="text-sm text-muted-foreground">{t('activity.subtitle')}</p>
         </div>
       </div>
       <div className="rounded-xl border bg-card">
@@ -101,7 +101,7 @@ export async function RecentActivity() {
                   <div className="flex items-center gap-2">
                     <p className="font-medium">{activity.number}</p>
                     <span className="text-xs text-muted-foreground">•</span>
-                    <p className="text-sm text-muted-foreground">{activity.action}</p>
+                    <p className="text-sm text-muted-foreground">{t(activity.actionKey)}</p>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     {activity.contactName && (

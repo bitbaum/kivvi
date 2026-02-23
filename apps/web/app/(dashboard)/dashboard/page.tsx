@@ -4,9 +4,8 @@ import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { RevenueChart, AgingChart } from './charts';
 import {
-  QuickActions,
-  AlertsSection,
-  WorkflowSuggestions,
+  ExecutiveSummary,
+  PriorityActions,
   SmartStats,
   RecentActivity,
   AIAssistantPrompt,
@@ -14,9 +13,8 @@ import {
 } from './sections';
 import { ErrorBoundary } from '@/components/error-boundary';
 import {
-  QuickActionsSkeleton,
-  AlertsSkeleton,
-  WorkflowSuggestionsSkeleton,
+  ExecutiveSummarySkeleton,
+  PriorityActionsSkeleton,
   StatsSkeleton,
   ChartsSkeleton,
   RecentActivitySkeleton,
@@ -24,6 +22,7 @@ import {
   HealthMetricsSkeleton,
 } from './skeletons';
 import { AGING_BUCKET_COLORS } from '@/lib/config/chart-colors';
+import { formatCurrency } from '@/lib/utils';
 
 // Cache dashboard for 60 seconds
 export const revalidate = 60;
@@ -33,14 +32,6 @@ export default async function DashboardPage() {
   if (!session?.user?.companyId) redirect('/login');
 
   const t = await getTranslations('dashboard');
-
-  const hour = new Date().getHours();
-  const greeting =
-    hour < 12
-      ? t('greeting.morning')
-      : hour < 18
-        ? t('greeting.afternoon')
-        : t('greeting.evening');
 
   return (
     <div className="space-y-8">
@@ -52,72 +43,59 @@ export default async function DashboardPage() {
         {t('skipToMain')}
       </a>
 
-      {/* Header */}
-      <div id="main-content">
-        <h1 className="text-3xl font-bold">{greeting}</h1>
-        <p className="text-muted-foreground">{t('hereIsOverview')}</p>
-      </div>
-
-      {/* Quick Actions - Prominent at top */}
+      {/* 1. Executive Summary (greeting + business briefing) */}
       <ErrorBoundary>
-        <Suspense fallback={<QuickActionsSkeleton />}>
-          <QuickActions />
+        <Suspense fallback={<ExecutiveSummarySkeleton />}>
+          <ExecutiveSummary />
         </Suspense>
       </ErrorBoundary>
 
-      {/* Alerts - Action-oriented notifications */}
+      {/* 2. Priority Actions (merged alerts + workflow, max 6) */}
       <ErrorBoundary>
-        <Suspense fallback={<AlertsSkeleton />}>
-          <AlertsSection />
+        <Suspense fallback={<PriorityActionsSkeleton />}>
+          <PriorityActions />
         </Suspense>
       </ErrorBoundary>
 
-      {/* Workflow Suggestions - AI-powered next steps */}
-      <ErrorBoundary>
-        <Suspense fallback={<WorkflowSuggestionsSkeleton />}>
-          <WorkflowSuggestions />
-        </Suspense>
-      </ErrorBoundary>
-
-      {/* Smart Stats - Clickable stat cards */}
+      {/* 3. Key Metrics (4 stat cards — revenue, outstanding, overdue, bank balance) */}
       <ErrorBoundary>
         <Suspense fallback={<StatsSkeleton />}>
           <SmartStats />
         </Suspense>
       </ErrorBoundary>
 
-      {/* Business Health Metrics */}
-      <ErrorBoundary>
-        <Suspense fallback={<HealthMetricsSkeleton />}>
-          <HealthMetrics />
-        </Suspense>
-      </ErrorBoundary>
-
-      {/* Charts */}
+      {/* 4. Charts with Narrative (revenue + aging, 2-col) */}
       <ErrorBoundary>
         <Suspense fallback={<ChartsSkeleton />}>
           <DashboardCharts />
         </Suspense>
       </ErrorBoundary>
 
-      {/* Recent Activity - Unified activity feed */}
+      {/* 5. Business Health (6 KPI cards) */}
       <ErrorBoundary>
-        <Suspense fallback={<RecentActivitySkeleton />}>
-          <RecentActivity />
+        <Suspense fallback={<HealthMetricsSkeleton />}>
+          <HealthMetrics />
         </Suspense>
       </ErrorBoundary>
 
-      {/* AI Assistant - Prominent AI chat entry */}
-      <ErrorBoundary>
-        <Suspense fallback={<AIAssistantSkeleton />}>
-          <AIAssistantPrompt />
-        </Suspense>
-      </ErrorBoundary>
+      {/* 6. Recent Activity + AI Assistant (2-col layout) */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <ErrorBoundary>
+          <Suspense fallback={<RecentActivitySkeleton />}>
+            <RecentActivity />
+          </Suspense>
+        </ErrorBoundary>
+        <ErrorBoundary>
+          <Suspense fallback={<AIAssistantSkeleton />}>
+            <AIAssistantPrompt />
+          </Suspense>
+        </ErrorBoundary>
+      </div>
     </div>
   );
 }
 
-// Separate component for charts to enable independent loading
+// Separate component for charts with narrative annotations
 async function DashboardCharts() {
   const session = await auth();
   if (!session?.user?.companyId) redirect('/login');
@@ -159,12 +137,47 @@ async function DashboardCharts() {
     { name: t('aging.over90'), value: agingReport.totals.over90, color: AGING_BUCKET_COLORS.over90 },
   ].filter((d) => d.value > 0);
 
+  // Compute narrative data for revenue chart
+  let revenueNarrative: string | null = null;
+  if (revenueData.length > 0) {
+    const peakMonth = revenueData.reduce((max, r) =>
+      r.revenue > max.revenue ? r : max, revenueData[0]);
+    const avgRevenue = revenueData.reduce((sum, r) => sum + r.revenue, 0) / revenueData.length;
+    const currentMonth = revenueData[revenueData.length - 1];
+    const trend = currentMonth.revenue >= avgRevenue ? 'above' : 'below';
+    revenueNarrative = t(`charts.revenueNarrative.${trend}`, {
+      peakMonth: peakMonth.month,
+      peakAmount: formatCurrency(peakMonth.revenue),
+      currentAmount: formatCurrency(currentMonth.revenue),
+    });
+  }
+
+  // Compute narrative data for aging chart
+  let agingNarrative: string | null = null;
+  const agingTotal = agingReport.totals.current + agingReport.totals.days30 +
+    agingReport.totals.days60 + agingReport.totals.days90 + agingReport.totals.over90;
+  if (agingTotal > 0) {
+    const currentPercent = Math.round((agingReport.totals.current / agingTotal) * 100);
+    const overduePercent = Math.round(
+      ((agingReport.totals.days60 + agingReport.totals.days90 + agingReport.totals.over90) / agingTotal) * 100
+    );
+    agingNarrative = t('charts.agingNarrative', {
+      currentPercent,
+      overduePercent,
+    });
+  }
+
   return (
     <div className="grid gap-6 md:grid-cols-2">
       <div className="rounded-xl border bg-card p-6">
         <h3 className="mb-4 font-semibold">{t('charts.revenue')}</h3>
         {revenueData.length > 0 ? (
-          <RevenueChart data={revenueData} />
+          <>
+            <RevenueChart data={revenueData} />
+            {revenueNarrative && (
+              <p className="mt-3 text-sm text-muted-foreground">{revenueNarrative}</p>
+            )}
+          </>
         ) : (
           <p className="py-12 text-center text-muted-foreground">
             {t('charts.noRevenue')}
@@ -174,7 +187,12 @@ async function DashboardCharts() {
       <div className="rounded-xl border bg-card p-6">
         <h3 className="mb-4 font-semibold">{t('charts.aging')}</h3>
         {agingData.length > 0 ? (
-          <AgingChart data={agingData} />
+          <>
+            <AgingChart data={agingData} />
+            {agingNarrative && (
+              <p className="mt-3 text-sm text-muted-foreground">{agingNarrative}</p>
+            )}
+          </>
         ) : (
           <p className="py-12 text-center text-muted-foreground">
             {t('charts.noInvoices')}

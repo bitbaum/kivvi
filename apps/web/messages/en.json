@@ -58,7 +58,10 @@
     "errorBoundaryTitle": "Something went wrong",
     "errorBoundaryMessage": "This section could not be loaded.",
     "errorBoundaryReload": "Reload page",
-    "exported": "Export complete"
+    "exported": "Export complete",
+    "export": "Export",
+    "exporting": "Exporting...",
+    "dashboard": "Dashboard"
   },
   "nav": {
     "home": "Home",
@@ -224,65 +227,6 @@
     "viewAll": "View all",
     "noRecentInvoices": "No invoices yet.",
     "quickStats": "Quick Stats",
-    "quickActions": "Quick Actions",
-    "alerts": {
-      "title": "Alerts & Notifications",
-      "subtitle": "Items requiring your attention",
-      "allCaughtUp": "All caught up!",
-      "noAlerts": "No urgent actions needed.",
-      "item": "item",
-      "items": "items",
-      "showMore": "Show {count} more",
-      "showLess": "Show less",
-      "viewDetails": "View details"
-    },
-    "workflow": {
-      "title": "Workflow Suggestions",
-      "subtitle": "Recommended next steps for your documents",
-      "noSuggestions": "No suggestions",
-      "checkBackLater": "Check back later.",
-      "highPriority": "High",
-      "mediumPriority": "Medium",
-      "lowPriority": "Low"
-    },
-    "activity": {
-      "title": "Recent Activity",
-      "subtitle": "Latest changes in your business",
-      "justNow": "Just now",
-      "minutesAgo": "{count} minutes ago",
-      "hoursAgo": "{count} hours ago",
-      "daysAgo": "{count} days ago",
-      "weeksAgo": "{count} weeks ago",
-      "noActivity": "No activity",
-      "noActivityDesc": "There's no activity in your business yet."
-    },
-    "createInvoice": "Create Invoice",
-    "createQuote": "Create Quote",
-    "createOrder": "Create Order",
-    "recordPayment": "Record Payment",
-    "addContact": "Add Contact",
-    "addProduct": "Add Product",
-    "importData": "Import Data",
-    "openAIChat": "Open AI Chat",
-    "aging": {
-      "current": "Current",
-      "days30": "1-30 Days",
-      "days60": "31-60 Days",
-      "days90": "61-90 Days",
-      "over90": ">90 Days"
-    },
-    "charts": {
-      "revenue": "Revenue Trend",
-      "aging": "Aging Analysis",
-      "noRevenue": "No revenue data available",
-      "noInvoices": "No open invoices"
-    },
-    "stats": {
-      "title": "Key Metrics",
-      "subtitle": "Important business metrics at a glance",
-      "document": "Document",
-      "documents": "Documents"
-    },
     "quickActions": {
       "title": "Quick Actions",
       "subtitle": "Frequently used actions for quick access",
@@ -304,6 +248,156 @@
       "openAIChatDesc": "Chat with the AI assistant",
       "showAll": "Show All",
       "showLess": "Show Less"
+    },
+    "alerts": {
+      "title": "Alerts & Notifications",
+      "subtitle": "Items requiring your attention",
+      "allCaughtUp": "All caught up!",
+      "noAlerts": "No urgent actions needed.",
+      "item": "item",
+      "items": "items",
+      "showMore": "Show {count} more",
+      "showLess": "Show less",
+      "viewDetails": "View details",
+      "overdueInvoices": "Overdue Invoices",
+      "overdueInvoicesDesc": "{count, plural, one {# invoice} other {# invoices}} overdue",
+      "expiringQuotes": "Quotes Expiring",
+      "expiringQuotesDesc": "{count, plural, one {# quote} other {# quotes}} expiring in the next 7 days",
+      "draftDocuments": "Draft Documents",
+      "draftDocumentsDesc": "{count, plural, one {# document} other {# documents}} in draft",
+      "lowStock": "Low Stock",
+      "lowStockDesc": "{count, plural, one {# product} other {# products}} below minimum stock",
+      "unreconciledTransactions": "Unreconciled Transactions",
+      "unreconciledTransactionsDesc": "{count, plural, one {# bank transaction} other {# bank transactions}} not yet matched"
+    },
+    "workflow": {
+      "title": "Workflow Suggestions",
+      "subtitle": "Recommended next steps for your documents",
+      "noSuggestions": "No suggestions",
+      "checkBackLater": "Check back later.",
+      "highPriority": "High",
+      "mediumPriority": "Medium",
+      "lowPriority": "Low",
+      "convertQuoteTitle": "Convert Quote to Order",
+      "convertQuoteDesc": "Quote {number} was sent {days} days ago",
+      "convertQuoteAction": "Convert to Order",
+      "invoiceOrderTitle": "Invoice Order",
+      "invoiceOrderDesc": "Order {number} was delivered {days} days ago",
+      "invoiceOrderAction": "Create Invoice",
+      "confirmDeliveryTitle": "Confirm Delivery",
+      "confirmDeliveryDesc": "Delivery note {number} was sent {days} days ago",
+      "confirmDeliveryAction": "Mark as Delivered",
+      "startDunningTitle": "Create Dunning",
+      "startDunningDesc": "Invoice {number} is {days} days overdue",
+      "startDunningAction": "Create Dunning"
+    },
+    "activity": {
+      "title": "Recent Activity",
+      "subtitle": "Latest changes in your business",
+      "justNow": "Just now",
+      "minutesAgo": "{count} minutes ago",
+      "hoursAgo": "{count} hours ago",
+      "daysAgo": "{count} days ago",
+      "weeksAgo": "{count} weeks ago",
+      "noActivity": "No activity",
+      "noActivityDesc": "There's no activity in your business yet.",
+      "quote": {
+        "draft": "Quote created",
+        "sent": "Quote sent",
+        "confirmed": "Quote confirmed",
+        "cancelled": "Quote cancelled"
+      },
+      "order": {
+        "draft": "Order created",
+        "sent": "Order sent",
+        "confirmed": "Order confirmed",
+        "delivered": "Order delivered",
+        "cancelled": "Order cancelled"
+      },
+      "order_confirmation": {
+        "draft": "Order confirmation created",
+        "sent": "Order confirmation sent",
+        "confirmed": "Order confirmation confirmed"
+      },
+      "delivery_note": {
+        "draft": "Delivery note created",
+        "sent": "Delivery note sent",
+        "delivered": "Delivery note delivered"
+      },
+      "invoice": {
+        "draft": "Invoice created",
+        "sent": "Invoice sent",
+        "confirmed": "Invoice confirmed",
+        "delivered": "Invoice delivered",
+        "paid": "Invoice paid",
+        "partially_paid": "Invoice partially paid",
+        "overdue": "Invoice overdue",
+        "cancelled": "Invoice cancelled",
+        "dunning_1": "Invoice first reminder",
+        "dunning_2": "Invoice second reminder",
+        "dunning_3": "Invoice final notice"
+      },
+      "credit_note": {
+        "draft": "Credit note created",
+        "sent": "Credit note sent",
+        "paid": "Credit note paid"
+      },
+      "purchase_order": {
+        "draft": "Purchase order created",
+        "sent": "Purchase order sent",
+        "confirmed": "Purchase order confirmed",
+        "delivered": "Purchase order delivered"
+      },
+      "purchase_invoice": {
+        "draft": "Purchase invoice created",
+        "sent": "Purchase invoice sent",
+        "paid": "Purchase invoice paid"
+      },
+      "dunning": {
+        "draft": "Dunning created",
+        "sent": "Dunning sent"
+      }
+    },
+    "createInvoice": "Create Invoice",
+    "createQuote": "Create Quote",
+    "createOrder": "Create Order",
+    "recordPayment": "Record Payment",
+    "addContact": "Add Contact",
+    "addProduct": "Add Product",
+    "importData": "Import Data",
+    "openAIChat": "Open AI Chat",
+    "aging": {
+      "current": "Current",
+      "days30": "1-30 Days",
+      "days60": "31-60 Days",
+      "days90": "61-90 Days",
+      "over90": ">90 Days"
+    },
+    "charts": {
+      "revenue": "Revenue Trend",
+      "aging": "Aging Analysis",
+      "noRevenue": "No revenue data available",
+      "noInvoices": "No open invoices",
+      "revenueNarrative": {
+        "above": "Revenue peaked in {peakMonth} at {peakAmount}. Current month ({currentAmount}) is above average.",
+        "below": "Revenue peaked in {peakMonth} at {peakAmount}. Current month ({currentAmount}) is below average."
+      },
+      "agingNarrative": "{currentPercent}% of outstanding invoices are current. {overduePercent}% are overdue 60+ days."
+    },
+    "stats": {
+      "title": "Key Metrics",
+      "subtitle": "Important business metrics at a glance",
+      "document": "Document",
+      "documents": "Documents",
+      "revenueThisMonth": "Revenue This Month",
+      "revenueThisYear": "Revenue This Year",
+      "outstandingInvoices": "Outstanding Invoices",
+      "overdueInvoices": "Overdue Invoices",
+      "draftDocuments": "Drafts",
+      "bankBalance": "Bank Balance",
+      "activeContacts": "Active Contacts",
+      "activeProducts": "Active Products",
+      "vsLastMonth": "vs last month"
     },
     "healthMetrics": {
       "title": "Business Health",
@@ -327,7 +421,23 @@
       "lowStock": "Low stock items",
       "openChat": "Open chat"
     },
-    "skipToMain": "Skip to main content"
+    "skipToMain": "Skip to main content",
+    "summary": {
+      "revenueCollected": "This month you collected {amount} from {count, plural, one {# invoice} other {# invoices}}.",
+      "outstanding": "{amount} is outstanding across {count, plural, one {# invoice} other {# invoices}}.",
+      "overdue": "{amount} from {count, plural, one {# invoice} other {# invoices}} is overdue.",
+      "marginHealthy": "Your profit margin is {margin}% — a healthy foundation.",
+      "marginModerate": "Your profit margin is {margin}% — in acceptable range.",
+      "marginLow": "Your profit margin is only {margin}% — expenses are running high relative to collections."
+    },
+    "priorities": {
+      "title": "Your Priorities",
+      "subtitle": "Action items sorted by urgency",
+      "allClear": "All clear!",
+      "noActions": "No urgent actions needed.",
+      "showAll": "Show all ({count})",
+      "showLess": "Show less"
+    }
   },
   "footer": {
     "product": "Product",
@@ -526,6 +636,7 @@
     "seedAccounts": "Seed Swiss KMU Accounts",
     "seedConfirm": "Do you want to seed the Swiss KMU chart of accounts? This will create 227 standard accounts.",
     "seedSuccess": "{count} accounts were created.",
+    "accountsConfigured": "{count} accounts configured",
     "noAccounts": "No accounts found",
     "searchAccounts": "Search accounts...",
     "newJournalEntry": "New Entry",
@@ -803,6 +914,27 @@
         "journal": "Journal Entry"
       }
     },
+    "billing": {
+      "title": "Billing",
+      "settingsDesc": "Subscription plan and payment settings.",
+      "subtitle": "Manage your subscription and billing information.",
+      "currentPlan": "Current Plan",
+      "active": "Active",
+      "pastDue": "Past Due",
+      "cancelled": "Cancelled",
+      "trialRemaining": "{days} days remaining in your trial",
+      "pastDueMessage": "Your payment is past due. Please update your payment method to avoid service interruption.",
+      "upgrade": "Upgrade Plan",
+      "manageSubscription": "Manage Subscription",
+      "upgradeError": "Failed to start upgrade. Please try again.",
+      "manageError": "Failed to open billing portal. Please try again."
+    },
+    "dataPrivacy": {
+      "title": "Data & Privacy",
+      "exportTitle": "Export All Data",
+      "exportDescription": "Download a complete export of all your company data in JSON format (GDPR-compliant).",
+      "downloadButton": "Download Data Export"
+    },
     "recurring": {
       "title": "Recurring Invoices",
       "subtitle": "Automatically generate recurring invoices from orders.",
@@ -909,7 +1041,11 @@
     },
     "errorGeneric": "Something went wrong. Please try again.",
     "termsAndPrivacy": "By continuing, you agree to our <terms>Terms of Service</terms> and <privacy>Privacy Policy</privacy>.",
-    "passwordMinLength": "Must be at least 8 characters"
+    "passwordMinLength": "Must be at least 8 characters",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "heroSubtitle": "Kivvi automates your invoicing, bookkeeping, and payments so you can focus on what matters.",
+    "securityNote": "Your data is encrypted and stays in Switzerland. Self-host your AI for complete privacy."
   },
   "onboarding": {
     "welcome": "Welcome to Kivvi",
