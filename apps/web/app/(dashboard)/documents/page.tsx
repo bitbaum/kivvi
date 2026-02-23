@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { FileText, Plus, Search } from 'lucide-react';
+import { FileText, Plus } from 'lucide-react';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { listDocuments } from '@kivvi/core';
@@ -8,6 +8,9 @@ import { DOCUMENT_TYPES, DEFAULT_PAGE_SIZE, toCamelCase, STATUS_STYLES } from '@
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { getTranslations } from 'next-intl/server';
 import { cn } from '@/lib/utils';
+import { SearchInput } from '@/components/search-input';
+import { Pagination } from '@/components/pagination';
+import { SortableHeader } from '@/components/sortable-header';
 import type { DocumentType, DocumentStatus } from '@kivvi/database';
 
 /** Document types shown as tabs — grouped as outgoing vs incoming */
@@ -21,6 +24,8 @@ interface PageProps {
     status?: string;
     search?: string;
     page?: string;
+    sort?: string;
+    order?: string;
   }>;
 }
 
@@ -38,6 +43,8 @@ export default async function DocumentsPage({ searchParams }: PageProps) {
   const status = params.status as DocumentStatus | undefined;
   const search = params.search;
   const page = parseInt(params.page || '1', 10);
+  const sort = (params.sort || 'issueDate') as 'number' | 'issueDate' | 'dueDate' | 'total' | 'createdAt';
+  const order = (params.order || 'desc') as 'asc' | 'desc';
 
   const result = await listDocuments(db, session.user.companyId, {
     type: selectedType,
@@ -45,19 +52,33 @@ export default async function DocumentsPage({ searchParams }: PageProps) {
     search,
     page,
     pageSize: DEFAULT_PAGE_SIZE,
-    sortBy: 'issueDate',
-    sortOrder: 'desc',
+    sortBy: sort,
+    sortOrder: order,
   });
 
   // Build query string helper
   function buildHref(overrides: Record<string, string | undefined>) {
     const p = new URLSearchParams();
-    const merged = { type: selectedType, status, search, ...overrides };
+    const merged = { type: selectedType, status, search, sort: sort !== 'issueDate' ? sort : undefined, order: order !== 'desc' ? order : undefined, ...overrides };
     for (const [k, v] of Object.entries(merged)) {
       if (v) p.set(k, v);
     }
     const qs = p.toString();
     return `/documents${qs ? `?${qs}` : ''}`;
+  }
+
+  function buildPageUrl(p: number): string {
+    return buildHref({ page: p > 1 ? String(p) : undefined });
+  }
+
+  function buildSortUrl(s: string, o: 'asc' | 'desc'): string {
+    const p = new URLSearchParams();
+    if (selectedType) p.set('type', selectedType);
+    if (status) p.set('status', status);
+    if (search) p.set('search', search);
+    p.set('sort', s);
+    p.set('order', o);
+    return `/documents?${p.toString()}`;
   }
 
   // Creatable types for the "New" dropdown
@@ -137,18 +158,11 @@ export default async function DocumentsPage({ searchParams }: PageProps) {
 
       {/* Search + Status filters */}
       <div className="flex flex-wrap items-center gap-3">
-        <form className="relative flex-1 min-w-[200px] max-w-md">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            name="search"
-            type="text"
-            placeholder={`${tc('search')}...`}
-            defaultValue={search}
-            className="w-full rounded-lg border bg-background py-2 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary"
-          />
-          {selectedType && <input type="hidden" name="type" value={selectedType} />}
-          {status && <input type="hidden" name="status" value={status} />}
-        </form>
+        <SearchInput
+          basePath="/documents"
+          placeholder={`${tc('search')}...`}
+          preserveParams={['type', 'status', 'sort', 'order']}
+        />
 
         <div className="flex gap-2">
           <Link
@@ -198,12 +212,18 @@ export default async function DocumentsPage({ searchParams }: PageProps) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b bg-muted/50 text-left text-muted-foreground">
-                  <th className="px-4 py-3 font-medium">{tc('number')}</th>
+                  <th className="px-4 py-3 font-medium">
+                    <SortableHeader label={tc('number')} field="number" currentSort={sort} currentOrder={order} buildHref={buildSortUrl} />
+                  </th>
                   {!selectedType && <th className="px-4 py-3 font-medium">{tc('type')}</th>}
                   <th className="px-4 py-3 font-medium">{td('customer')}</th>
-                  <th className="px-4 py-3 font-medium text-right">{tc('total')}</th>
+                  <th className="px-4 py-3 font-medium text-right">
+                    <SortableHeader label={tc('total')} field="total" currentSort={sort} currentOrder={order} buildHref={buildSortUrl} />
+                  </th>
                   <th className="px-4 py-3 font-medium">{tc('status')}</th>
-                  <th className="px-4 py-3 font-medium">{tc('date')}</th>
+                  <th className="px-4 py-3 font-medium">
+                    <SortableHeader label={tc('date')} field="issueDate" currentSort={sort} currentOrder={order} buildHref={buildSortUrl} />
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -253,35 +273,23 @@ export default async function DocumentsPage({ searchParams }: PageProps) {
       </div>
 
       {/* Pagination */}
-      {result.totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            {tc('showing', {
-              from: (result.page - 1) * result.pageSize + 1,
-              to: Math.min(result.page * result.pageSize, result.total),
-              total: result.total,
-            })}
-          </p>
-          <div className="flex gap-2">
-            {result.page > 1 && (
-              <Link
-                href={buildHref({ page: String(result.page - 1) })}
-                className="rounded-lg border px-3 py-1.5 text-sm hover:bg-muted"
-              >
-                {tc('previous')}
-              </Link>
-            )}
-            {result.page < result.totalPages && (
-              <Link
-                href={buildHref({ page: String(result.page + 1) })}
-                className="rounded-lg border px-3 py-1.5 text-sm hover:bg-muted"
-              >
-                {tc('next')}
-              </Link>
-            )}
-          </div>
-        </div>
-      )}
+      <Pagination
+        page={result.page}
+        totalPages={result.totalPages}
+        total={result.total}
+        pageSize={result.pageSize}
+        buildHref={buildPageUrl}
+        labels={{
+          showing: tc('showing', {
+            from: (result.page - 1) * result.pageSize + 1,
+            to: Math.min(result.page * result.pageSize, result.total),
+            total: result.total,
+          }),
+          previous: tc('previous'),
+          next: tc('next'),
+          pageOf: tc('pageOf', { page: result.page, totalPages: result.totalPages }),
+        }}
+      />
     </div>
   );
 }

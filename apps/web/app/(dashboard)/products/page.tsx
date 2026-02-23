@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Plus, Search, Package, Download } from 'lucide-react';
+import { Plus, Package, Download } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
@@ -7,12 +7,16 @@ import { db } from '@/lib/db';
 import { listProducts } from '@kivvi/core';
 import { DEFAULT_PAGE_SIZE } from '@/lib/config/document-types';
 import { SelectableProductTable } from '@/components/products/selectable-product-table';
+import { SearchInput } from '@/components/search-input';
+import { Pagination } from '@/components/pagination';
 
 interface PageProps {
   searchParams: Promise<{
     search?: string;
     type?: string;
     page?: string;
+    sort?: string;
+    order?: string;
   }>;
 }
 
@@ -30,14 +34,16 @@ export default async function ProductsPage({ searchParams }: PageProps) {
   const search = params.search || '';
   const typeFilter = params.type as 'product' | 'service' | undefined;
   const page = Math.max(1, parseInt(params.page || '1', 10));
+  const sort = (params.sort || 'createdAt') as 'name' | 'articleNumber' | 'unitPrice' | 'createdAt';
+  const order = (params.order || 'desc') as 'asc' | 'desc';
 
   const result = await listProducts(db, session.user.companyId, {
     search: search || undefined,
     type: typeFilter || undefined,
     page,
     pageSize: DEFAULT_PAGE_SIZE,
-    sortBy: 'createdAt',
-    sortOrder: 'desc',
+    sortBy: sort,
+    sortOrder: order,
   });
 
   // Pre-resolve translations for client component
@@ -73,6 +79,41 @@ export default async function ProductsPage({ searchParams }: PageProps) {
     service: t('service'),
   };
 
+  function buildFilterUrl(overrides: {
+    search?: string;
+    type?: string;
+    page?: number;
+  }) {
+    const searchParams = new URLSearchParams();
+    if (overrides.search) searchParams.set('search', overrides.search);
+    if (overrides.type) searchParams.set('type', overrides.type);
+    if (sort !== 'createdAt') searchParams.set('sort', sort);
+    if (order !== 'desc') searchParams.set('order', order);
+    if (overrides.page && overrides.page > 1) searchParams.set('page', String(overrides.page));
+    const qs = searchParams.toString();
+    return `/products${qs ? `?${qs}` : ''}`;
+  }
+
+  function buildPageUrl(p: number): string {
+    const searchParams = new URLSearchParams();
+    if (search) searchParams.set('search', search);
+    if (typeFilter) searchParams.set('type', typeFilter);
+    if (sort !== 'createdAt') searchParams.set('sort', sort);
+    if (order !== 'desc') searchParams.set('order', order);
+    if (p > 1) searchParams.set('page', p.toString());
+    const qs = searchParams.toString();
+    return `/products${qs ? `?${qs}` : ''}`;
+  }
+
+  function buildSortUrl(s: string, o: 'asc' | 'desc'): string {
+    const searchParams = new URLSearchParams();
+    if (search) searchParams.set('search', search);
+    if (typeFilter) searchParams.set('type', typeFilter);
+    searchParams.set('sort', s);
+    searchParams.set('order', o);
+    return `/products?${searchParams.toString()}`;
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -103,19 +144,11 @@ export default async function ProductsPage({ searchParams }: PageProps) {
 
       {/* Filters */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-        <form className="relative flex-1" action="/products" method="GET">
-          {typeFilter && (
-            <input type="hidden" name="type" value={typeFilter} />
-          )}
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            type="text"
-            name="search"
-            placeholder={t('searchProducts')}
-            defaultValue={search}
-            className="w-full rounded-lg border bg-card py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-          />
-        </form>
+        <SearchInput
+          basePath="/products"
+          placeholder={t('searchProducts')}
+          preserveParams={['type', 'sort', 'order']}
+        />
 
         <div className="flex items-center gap-1 rounded-lg border bg-card p-1">
           <TypeFilterLink
@@ -175,49 +208,26 @@ export default async function ProductsPage({ searchParams }: PageProps) {
                 isActive: p.isActive,
               }))}
               translations={{ columnLabels, typeLabels, bulkLabels }}
+              sort={{ field: sort, order, buildHref: buildSortUrl }}
             />
 
-            {/* Pagination */}
-            {result.totalPages > 1 && (
-              <div className="flex items-center justify-between border-t px-4 py-3">
-                <p className="text-sm text-muted-foreground">
-                  {tc('showing', {
-                    from: (result.page - 1) * result.pageSize + 1,
-                    to: Math.min(result.page * result.pageSize, result.total),
-                    total: result.total,
-                  })}
-                </p>
-                <div className="flex items-center gap-2">
-                  {result.page > 1 && (
-                    <Link
-                      href={buildFilterUrl({
-                        search,
-                        type: typeFilter,
-                        page: result.page - 1,
-                      })}
-                      className="rounded-lg border px-3 py-1.5 text-sm hover:bg-muted transition-colors"
-                    >
-                      {tc('previous')}
-                    </Link>
-                  )}
-                  <span className="px-2 text-sm text-muted-foreground">
-                    {tc('pageOf', { page: result.page, totalPages: result.totalPages })}
-                  </span>
-                  {result.page < result.totalPages && (
-                    <Link
-                      href={buildFilterUrl({
-                        search,
-                        type: typeFilter,
-                        page: result.page + 1,
-                      })}
-                      className="rounded-lg border px-3 py-1.5 text-sm hover:bg-muted transition-colors"
-                    >
-                      {tc('next')}
-                    </Link>
-                  )}
-                </div>
-              </div>
-            )}
+            <Pagination
+              page={result.page}
+              totalPages={result.totalPages}
+              total={result.total}
+              pageSize={result.pageSize}
+              buildHref={buildPageUrl}
+              labels={{
+                showing: tc('showing', {
+                  from: (result.page - 1) * result.pageSize + 1,
+                  to: Math.min(result.page * result.pageSize, result.total),
+                  total: result.total,
+                }),
+                previous: tc('previous'),
+                next: tc('next'),
+                pageOf: tc('pageOf', { page: result.page, totalPages: result.totalPages }),
+              }}
+            />
           </>
         )}
       </div>
@@ -250,17 +260,4 @@ function TypeFilterLink({
       {label}
     </Link>
   );
-}
-
-function buildFilterUrl(params: {
-  search?: string;
-  type?: string;
-  page?: number;
-}) {
-  const searchParams = new URLSearchParams();
-  if (params.search) searchParams.set('search', params.search);
-  if (params.type) searchParams.set('type', params.type);
-  if (params.page && params.page > 1) searchParams.set('page', String(params.page));
-  const qs = searchParams.toString();
-  return `/products${qs ? `?${qs}` : ''}`;
 }

@@ -8,10 +8,10 @@ import { BulkActionToolbar } from '@/components/bulk-action-toolbar';
 import { BulkResultBanner } from '@/components/bulk-result-banner';
 import {
   bulkDeleteProductsAction,
-  bulkDeactivateProductsAction,
 } from '@/app/actions/bulk-operations';
 import type { BulkOperationResult } from '@/app/actions/bulk-operations';
 import { cn, formatCurrency } from '@/lib/utils';
+import { SortableHeader } from '@/components/sortable-header';
 
 const UNIT_LABELS: Record<string, string> = {
   piece: 'pc',
@@ -57,12 +57,19 @@ interface Translations {
   bulkLabels: Record<string, string>;
 }
 
+interface SortProps {
+  field: string;
+  order: 'asc' | 'desc';
+  buildHref: (sort: string, order: 'asc' | 'desc') => string;
+}
+
 interface SelectableProductTableProps {
   data: ProductItem[];
   translations: Translations;
+  sort?: SortProps;
 }
 
-export function SelectableProductTable({ data, translations }: SelectableProductTableProps) {
+export function SelectableProductTable({ data, translations, sort }: SelectableProductTableProps) {
   const router = useRouter();
   const allIds = useMemo(() => data.map((p) => p.id), [data]);
   const { selectedIds, toggle, toggleAll, clear, isSelected, isAllSelected, isSomeSelected, count } =
@@ -90,7 +97,7 @@ export function SelectableProductTable({ data, translations }: SelectableProduct
     startTransition(async () => {
       const result = action === 'delete'
         ? await bulkDeleteProductsAction({ productIds: selectedIds })
-        : await bulkDeactivateProductsAction({ productIds: selectedIds });
+        : await bulkDeleteProductsAction({ productIds: selectedIds });
       if (result.success && result.data) {
         handleComplete(result.data);
       } else {
@@ -142,10 +149,22 @@ export function SelectableProductTable({ data, translations }: SelectableProduct
                   className="h-4 w-4 rounded border-gray-300"
                 />
               </th>
-              <th className="hidden whitespace-nowrap px-4 py-3 font-medium lg:table-cell">{translations.columnLabels.articleNumber}</th>
-              <th className="whitespace-nowrap px-4 py-3 font-medium">{translations.columnLabels.name}</th>
+              <th className="hidden whitespace-nowrap px-4 py-3 font-medium lg:table-cell">
+                {sort ? (
+                  <SortableHeader label={translations.columnLabels.articleNumber} field="articleNumber" currentSort={sort.field} currentOrder={sort.order} buildHref={sort.buildHref} />
+                ) : translations.columnLabels.articleNumber}
+              </th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">
+                {sort ? (
+                  <SortableHeader label={translations.columnLabels.name} field="name" currentSort={sort.field} currentOrder={sort.order} buildHref={sort.buildHref} />
+                ) : translations.columnLabels.name}
+              </th>
               <th className="hidden whitespace-nowrap px-4 py-3 font-medium md:table-cell">{translations.columnLabels.type}</th>
-              <th className="whitespace-nowrap px-4 py-3 font-medium text-right">{translations.columnLabels.unitPrice}</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium text-right">
+                {sort ? (
+                  <SortableHeader label={translations.columnLabels.unitPrice} field="unitPrice" currentSort={sort.field} currentOrder={sort.order} buildHref={sort.buildHref} />
+                ) : translations.columnLabels.unitPrice}
+              </th>
               <th className="hidden whitespace-nowrap px-4 py-3 font-medium text-right lg:table-cell">{translations.columnLabels.vatRate}</th>
               <th className="hidden whitespace-nowrap px-4 py-3 font-medium text-right md:table-cell">{translations.columnLabels.stock}</th>
               <th className="whitespace-nowrap px-4 py-3 font-medium">{translations.columnLabels.status}</th>

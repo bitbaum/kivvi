@@ -8,11 +8,11 @@ import { BulkActionToolbar } from '@/components/bulk-action-toolbar';
 import { BulkResultBanner } from '@/components/bulk-result-banner';
 import {
   bulkDeleteContactsAction,
-  bulkDeactivateContactsAction,
 } from '@/app/actions/bulk-operations';
 import type { BulkOperationResult } from '@/app/actions/bulk-operations';
 import { cn } from '@/lib/utils';
 import { CONTACT_TYPE_STYLES } from '@/lib/config/contact-types';
+import { SortableHeader } from '@/components/sortable-header';
 
 interface ContactItem {
   id: string;
@@ -44,12 +44,19 @@ interface Translations {
   bulkLabels: Record<string, string>;
 }
 
+interface SortProps {
+  field: string;
+  order: 'asc' | 'desc';
+  buildHref: (sort: string, order: 'asc' | 'desc') => string;
+}
+
 interface SelectableContactTableProps {
   data: ContactItem[];
   translations: Translations;
+  sort?: SortProps;
 }
 
-export function SelectableContactTable({ data, translations }: SelectableContactTableProps) {
+export function SelectableContactTable({ data, translations, sort }: SelectableContactTableProps) {
   const router = useRouter();
   const allIds = useMemo(() => data.map((c) => c.id), [data]);
   const { selectedIds, toggle, toggleAll, clear, isSelected, isAllSelected, isSomeSelected, count } =
@@ -77,7 +84,7 @@ export function SelectableContactTable({ data, translations }: SelectableContact
     startTransition(async () => {
       const result = action === 'delete'
         ? await bulkDeleteContactsAction({ contactIds: selectedIds })
-        : await bulkDeactivateContactsAction({ contactIds: selectedIds });
+        : await bulkDeleteContactsAction({ contactIds: selectedIds });
       if (result.success && result.data) {
         handleComplete(result.data);
       } else {
@@ -102,12 +109,24 @@ export function SelectableContactTable({ data, translations }: SelectableContact
             className="h-4 w-4 rounded border-gray-300"
           />
         </div>
-        <div>{translations.columnLabels.number}</div>
-        <div>{translations.columnLabels.name}</div>
+        <div>
+          {sort ? (
+            <SortableHeader label={translations.columnLabels.number} field="contactNumber" currentSort={sort.field} currentOrder={sort.order} buildHref={sort.buildHref} />
+          ) : translations.columnLabels.number}
+        </div>
+        <div>
+          {sort ? (
+            <SortableHeader label={translations.columnLabels.name} field="name" currentSort={sort.field} currentOrder={sort.order} buildHref={sort.buildHref} />
+          ) : translations.columnLabels.name}
+        </div>
         <div>{translations.columnLabels.type}</div>
         <div className="hidden lg:block">{translations.columnLabels.email}</div>
         <div className="hidden lg:block">{translations.columnLabels.phone}</div>
-        <div className="hidden lg:block">{translations.columnLabels.city}</div>
+        <div className="hidden lg:block">
+          {sort ? (
+            <SortableHeader label={translations.columnLabels.city} field="city" currentSort={sort.field} currentOrder={sort.order} buildHref={sort.buildHref} />
+          ) : translations.columnLabels.city}
+        </div>
         <div>{translations.columnLabels.status}</div>
       </div>
 
