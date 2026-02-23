@@ -12,6 +12,7 @@ export const getInvoiceDetailsTool: Tool = {
   name: 'get_invoice_details',
   description: `Get detailed information about a specific invoice including line items, customer details, and payment status. Requires the invoice ID.`,
   parameters: getInvoiceDetailsSchema,
+  requiredPermissions: ['invoice:read'],
   execute: async (params: z.infer<typeof getInvoiceDetailsSchema>, context: ExecutionContext): Promise<ToolResult> => {
     try {
       const db = getDb(context);

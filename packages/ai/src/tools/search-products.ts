@@ -13,6 +13,7 @@ export const searchProductsTool: Tool = {
   name: 'search_products',
   description: `Search for products and services in the catalog. Can search by name, SKU, EAN, or article number. Filter by type (product or service). Returns matching items with prices and stock info.`,
   parameters: searchProductsSchema,
+  requiredPermissions: ['product:read'],
   execute: async (params: z.infer<typeof searchProductsSchema>, context: ExecutionContext): Promise<ToolResult> => {
     try {
       const db = getDb(context);

@@ -73,6 +73,7 @@ export interface Tool {
   name: string;
   description: string;
   parameters: z.ZodType<any>;
+  requiredPermissions: Permission[];
   execute: (params: any, context: ExecutionContext) => Promise<ToolResult>;
 }
 
@@ -137,6 +138,8 @@ export type Permission =
   | 'banking:write'
   | 'accounting:read'
   | 'accounting:write'
+  | 'project:read'
+  | 'project:write'
   | 'settings:read'
   | 'settings:write';
 

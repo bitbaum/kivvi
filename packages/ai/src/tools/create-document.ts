@@ -26,6 +26,7 @@ export const createDocumentTool: Tool = {
   name: 'create_document',
   description: `Create a new document (invoice, quote, order, credit note, etc.) with line items. The document is always created in draft status so the user can review before sending. Requires a contact ID and at least one line item.`,
   parameters: createDocumentSchema,
+  requiredPermissions: ['invoice:write'],
   execute: async (params: z.infer<typeof createDocumentSchema>, context: ExecutionContext): Promise<ToolResult> => {
     try {
       const { createDocument, getDocument } = await import('@kivvi/core');

@@ -18,6 +18,7 @@ export const searchInvoicesTool: Tool = {
   name: 'search_invoices',
   description: `Search for invoices in the system. Can filter by status (draft, sent, paid, overdue, cancelled), date range, or search by customer name/invoice number. Returns a list of matching invoices with basic details.`,
   parameters: searchInvoicesSchema,
+  requiredPermissions: ['invoice:read'],
   execute: async (params: z.infer<typeof searchInvoicesSchema>, context: ExecutionContext): Promise<ToolResult> => {
     try {
       const db = getDb(context);

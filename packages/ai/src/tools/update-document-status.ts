@@ -15,6 +15,7 @@ export const updateDocumentStatusTool: Tool = {
   name: 'update_document_status',
   description: `Update the status of a document (invoice, quote, order, etc.). Validates that the status transition is allowed. For example: draft → sent, sent → paid. Terminal statuses (paid, cancelled) cannot be changed.`,
   parameters: updateDocumentStatusSchema,
+  requiredPermissions: ['invoice:write'],
   execute: async (params: z.infer<typeof updateDocumentStatusSchema>, context: ExecutionContext): Promise<ToolResult> => {
     try {
       const { updateDocumentStatus, getDocument } = await import('@kivvi/core');

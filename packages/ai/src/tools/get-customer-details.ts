@@ -12,6 +12,7 @@ export const getCustomerDetailsTool: Tool = {
   name: 'get_customer_details',
   description: `Get detailed information about a specific customer or vendor including their address, contact info, payment terms, and recent document history. Requires the customer ID.`,
   parameters: getCustomerDetailsSchema,
+  requiredPermissions: ['contact:read'],
   execute: async (params: z.infer<typeof getCustomerDetailsSchema>, context: ExecutionContext): Promise<ToolResult> => {
     try {
       const db = getDb(context);

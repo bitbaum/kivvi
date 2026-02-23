@@ -13,6 +13,7 @@ export const searchCustomersTool: Tool = {
   name: 'search_customers',
   description: `Search for customers and vendors (contacts) in the system. Can search by name, email, phone, contact number, or filter by type (customer, vendor, or both). Returns a list of matching contacts.`,
   parameters: searchCustomersSchema,
+  requiredPermissions: ['contact:read'],
   execute: async (params: z.infer<typeof searchCustomersSchema>, context: ExecutionContext): Promise<ToolResult> => {
     try {
       const db = getDb(context);

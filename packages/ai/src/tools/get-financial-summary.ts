@@ -13,6 +13,7 @@ export const getFinancialSummaryTool: Tool = {
   name: 'get_financial_summary',
   description: `Get a financial overview of the company including total revenue, outstanding invoices, overdue amounts, and document counts. Can be filtered by period (current month, quarter, or year).`,
   parameters: getFinancialSummarySchema,
+  requiredPermissions: ['invoice:read'],
   execute: async (params: z.infer<typeof getFinancialSummarySchema>, context: ExecutionContext): Promise<ToolResult> => {
     try {
       const db = getDb(context);
