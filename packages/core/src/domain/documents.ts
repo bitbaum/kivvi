@@ -281,7 +281,15 @@ export async function listDocuments(
   const conditions = [eq(documents.companyId, companyId)];
 
   if (type) conditions.push(eq(documents.type, type));
-  if (status) conditions.push(eq(documents.status, status));
+  if (status === 'overdue') {
+    // Dynamic overdue: past due date AND not paid/cancelled/draft
+    conditions.push(
+      sql`${documents.status} NOT IN ('paid', 'cancelled', 'draft')`,
+      sql`${documents.dueDate} IS NOT NULL AND ${documents.dueDate} < NOW()`
+    );
+  } else if (status) {
+    conditions.push(eq(documents.status, status));
+  }
   if (contactId) conditions.push(eq(documents.contactId, contactId));
   if (projectId) conditions.push(eq(documents.projectId, projectId));
 
@@ -938,7 +946,7 @@ export async function getFinancialSummary(
       )
     );
 
-  // Overdue
+  // Overdue — dynamically calculated: past due date AND not paid/cancelled/draft
   const [overdue] = await db
     .select({
       total: sql<string>`COALESCE(SUM(${documents.total}::numeric), 0)`,
@@ -949,7 +957,8 @@ export async function getFinancialSummary(
       and(
         eq(documents.companyId, companyId),
         eq(documents.type, 'invoice'),
-        eq(documents.status, 'overdue')
+        sql`${documents.status} NOT IN ('paid', 'cancelled', 'draft')`,
+        sql`${documents.dueDate} IS NOT NULL AND ${documents.dueDate} < NOW()`
       )
     );
 

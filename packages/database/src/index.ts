@@ -25,8 +25,11 @@ export function createPostgresClient(connectionString: string) {
 
 // Default export based on environment
 export function createDb(connectionString: string) {
-  // Use Neon driver for serverless environments
-  if (process.env.VERCEL || process.env.USE_NEON === 'true') {
+  // Neon HTTP driver is only needed in actual serverless/edge environments
+  // where persistent TCP connections aren't possible. For local dev
+  // and traditional hosting, postgres-js with connection pooling is
+  // more reliable (avoids HTTP rate limits from concurrent queries).
+  if (process.env.VERCEL) {
     return createNeonClient(connectionString);
   }
   return createPostgresClient(connectionString);

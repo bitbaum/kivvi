@@ -82,7 +82,7 @@ export function ModelSelector({
       >
         <Icon className="h-4 w-4 text-muted-foreground" />
         <span className="max-w-[150px] truncate">
-          {selected?.name || 'Select model'}
+          {selected?.name || (disabled ? 'Loading...' : 'Select model')}
         </span>
         {selected?.isFree && (
           <span className="rounded bg-green-500/20 px-1.5 py-0.5 text-xs font-medium text-green-600 dark:text-green-400">
