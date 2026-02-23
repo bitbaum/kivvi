@@ -20,7 +20,7 @@ interface RevenueChartProps {
 export function RevenueChart({ data }: RevenueChartProps) {
   return (
     <div className="h-[300px] w-full min-w-0">
-      <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+      <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={50}>
         <BarChart data={data}>
           <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
           <XAxis dataKey="month" className="text-xs" />
@@ -49,7 +49,7 @@ interface AgingChartProps {
 export function AgingChart({ data }: AgingChartProps) {
   return (
     <div className="h-[300px] w-full min-w-0">
-      <ResponsiveContainer width="100%" height="100%" minWidth={0}>
+      <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={50}>
         <PieChart>
           <Pie
             data={data}
