@@ -15,6 +15,7 @@ import { deleteProduct } from '@kivvi/core/src/domain/products';
 import { reconcileTransaction, matchTransactionToDocument } from '@kivvi/core/src/domain/banking';
 import type { DocumentType, DocumentStatus } from '@kivvi/database';
 import { type ActionResult, getSession, safeErrorMessage } from './utils';
+import { revalidateDocumentPaths } from './utils/revalidate-documents';
 
 // ============================================================================
 // TYPES
@@ -69,28 +70,6 @@ const bulkContactIdsSchema = z.object({
 const bulkProductIdsSchema = z.object({
   productIds: z.array(z.string().uuid()).min(1, 'At least one product ID is required'),
 });
-
-// ============================================================================
-// HELPERS
-// ============================================================================
-
-function revalidateDocumentPaths(type: string, id?: string) {
-  const typeToPath: Record<string, string> = {
-    invoice: '/sales/invoices',
-    quote: '/sales/quotes',
-    order: '/sales/orders',
-    credit_note: '/sales/credit-notes',
-    delivery_note: '/sales/delivery-notes',
-    dunning: '/sales/dunning',
-    purchase_order: '/purchasing/purchase-orders',
-    purchase_invoice: '/purchasing/purchase-invoices',
-    order_confirmation: '/sales/orders',
-  };
-  const basePath = typeToPath[type] || '/sales/invoices';
-  revalidatePath(basePath);
-  if (id) revalidatePath(`${basePath}/${id}`);
-  revalidatePath('/dashboard');
-}
 
 /**
  * Generic bulk operation runner.
@@ -289,26 +268,6 @@ export async function bulkDeleteContactsAction(
   }
 }
 
-/** Bulk deactivate contacts. */
-export async function bulkDeactivateContactsAction(
-  input: unknown
-): Promise<ActionResult<BulkOperationResult>> {
-  try {
-    const { companyId } = await getSession();
-    const data = parseInput(bulkContactIdsSchema, input);
-    if ('success' in data) return data as ActionResult<never>;
-
-    return runBulkOperation(
-      data.contactIds,
-      async (contactId) => { await deleteContact(db, companyId, contactId); return undefined; },
-      () => revalidatePath('/contacts'),
-      'Failed to deactivate contact',
-    );
-  } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to bulk deactivate contacts') };
-  }
-}
-
 /** Bulk delete products. */
 export async function bulkDeleteProductsAction(
   input: unknown
@@ -329,22 +288,3 @@ export async function bulkDeleteProductsAction(
   }
 }
 
-/** Bulk deactivate products. */
-export async function bulkDeactivateProductsAction(
-  input: unknown
-): Promise<ActionResult<BulkOperationResult>> {
-  try {
-    const { companyId } = await getSession();
-    const data = parseInput(bulkProductIdsSchema, input);
-    if ('success' in data) return data as ActionResult<never>;
-
-    return runBulkOperation(
-      data.productIds,
-      async (productId) => { await deleteProduct(db, companyId, productId); return undefined; },
-      () => revalidatePath('/products'),
-      'Failed to deactivate product',
-    );
-  } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to bulk deactivate products') };
-  }
-}

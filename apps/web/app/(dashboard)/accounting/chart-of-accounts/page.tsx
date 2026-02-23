@@ -71,7 +71,7 @@ export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
             <p className="text-muted-foreground">
               {isEmpty
                 ? t('noAccounts')
-                : `${allAccounts.length} accounts configured`}
+                : t('accountsConfigured', { count: allAccounts.length })}
             </p>
           </div>
         </div>

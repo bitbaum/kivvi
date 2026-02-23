@@ -17,7 +17,7 @@ interface HeaderProps {
 }
 
 export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const t = useTranslations('common');
   const locale = useLocale() as Locale;
   const router = useRouter();
@@ -144,9 +144,13 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
             aria-expanded={showUserMenu}
             aria-haspopup="true"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-sm font-medium text-white">
-              {session?.user?.name?.charAt(0) || 'U'}
-            </div>
+            {status === 'loading' ? (
+              <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
+            ) : (
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-sm font-medium text-white">
+                {session?.user?.name?.charAt(0) || 'U'}
+              </div>
+            )}
           </button>
 
           {showUserMenu && (

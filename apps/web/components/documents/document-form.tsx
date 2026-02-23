@@ -1,28 +1,28 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useTransition, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Decimal from 'decimal.js';
-import { ArrowLeft, Plus, Trash2, GripVertical } from 'lucide-react';
+import { ArrowLeft, Plus } from 'lucide-react';
 import Link from 'next/link';
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { createDocumentAction } from '@/app/actions/documents';
-import { DOCUMENT_TYPES, DEFAULT_PAYMENT_TERMS_DAYS, type DocumentTypeConfig } from '@/lib/config/document-types';
-import { SWISS_VAT_RATES, DEFAULT_VAT_RATE } from '@/lib/config/vat-rates';
+import { DOCUMENT_TYPES } from '@/lib/config/document-types';
+import { DEFAULT_VAT_RATE } from '@/lib/config/vat-rates';
 import { ContactPicker } from '@/components/contacts/contact-picker';
 import { CharCountTextarea } from '@/components/ui/char-count-textarea';
-import { FormInput, FormSelect } from '@/components/ui/form-field';
+import { FormInput } from '@/components/ui/form-field';
 import type { DocumentType } from '@kivvi/database';
-import { rappenRound } from '@kivvi/core/src/utils/swiss-currency';
+import { SortableLineItem } from './sortable-line-item';
+import { useDocumentForm } from '@/hooks/use-document-form';
 
 // ============================================================================
-// LINE ITEM TYPES
+// LINE ITEM TYPES (exported for use by SortableLineItem + useDocumentForm)
 // ============================================================================
 
-interface LineItem {
+export interface LineItem {
   id: string;
   productId: string | null;
   description: string;
@@ -32,7 +32,7 @@ interface LineItem {
   vatRate: string;
 }
 
-function emptyItem(): LineItem {
+export function emptyItem(): LineItem {
   return {
     id: crypto.randomUUID(),
     productId: null,
@@ -44,7 +44,7 @@ function emptyItem(): LineItem {
   };
 }
 
-function calculateItemTotal(item: LineItem): Decimal {
+export function calculateItemTotal(item: LineItem): Decimal {
   try {
     const qty = new Decimal(item.quantity || '0');
     const price = new Decimal(item.unitPrice || '0');
@@ -54,130 +54,6 @@ function calculateItemTotal(item: LineItem): Decimal {
   } catch {
     return new Decimal(0);
   }
-}
-
-// ============================================================================
-// SORTABLE LINE ITEM COMPONENT
-// ============================================================================
-
-interface SortableLineItemProps {
-  item: LineItem;
-  index: number;
-  updateItem: (id: string, field: keyof LineItem, value: string) => void;
-  removeItem: (id: string) => void;
-  canRemove: boolean;
-  t: (key: string) => string;
-  tc: (key: string) => string;
-}
-
-function SortableLineItem({ item, index, updateItem, removeItem, canRemove, t, tc }: SortableLineItemProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: item.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
-  return (
-    <div ref={setNodeRef} style={style} className="p-4 space-y-3 border-b last:border-b-0">
-      <div className="flex items-start gap-3">
-        {/* Drag handle */}
-        <button
-          type="button"
-          className="mt-2.5 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground transition-colors touch-none"
-          aria-label="Drag to reorder"
-          {...attributes}
-          {...listeners}
-        >
-          <GripVertical className="h-5 w-5" />
-        </button>
-
-        <span className="mt-2.5 text-sm text-muted-foreground w-6">{index + 1}</span>
-
-        <div className="flex-1 space-y-3">
-          <FormInput
-            type="text"
-            value={item.description}
-            onChange={(e) => updateItem(item.id, 'description', e.target.value)}
-            placeholder={tc('description')}
-          />
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-            <div>
-              <label className="block text-xs text-muted-foreground">{t('quantity')}</label>
-              <FormInput
-                type="number"
-                step="0.01"
-                value={item.quantity}
-                onChange={(e) => updateItem(item.id, 'quantity', e.target.value)}
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-muted-foreground">{t('unitPrice')}</label>
-              <FormInput
-                type="number"
-                step="0.01"
-                value={item.unitPrice}
-                onChange={(e) => updateItem(item.id, 'unitPrice', e.target.value)}
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-muted-foreground">{t('discount')} %</label>
-              <FormInput
-                type="number"
-                step="0.01"
-                min="0"
-                max="100"
-                value={item.discount}
-                onChange={(e) => updateItem(item.id, 'discount', e.target.value)}
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-muted-foreground">{t('vatRate')} %</label>
-              <FormSelect
-                value={item.vatRate}
-                onChange={(e) => updateItem(item.id, 'vatRate', e.target.value)}
-                className="mt-1"
-              >
-                {SWISS_VAT_RATES.map((rate) => (
-                  <option key={rate.value} value={rate.value}>
-                    {rate.value}%
-                  </option>
-                ))}
-              </FormSelect>
-            </div>
-            <div>
-              <label className="block text-xs text-muted-foreground">{tc('total')}</label>
-              <div className="mt-1 rounded-lg border bg-muted px-3 py-2 text-sm font-medium">
-                {calculateItemTotal(item).toFixed(2)}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {canRemove && (
-          <button
-            type="button"
-            onClick={() => removeItem(item.id)}
-            aria-label="Remove line item"
-            className="mt-2 rounded-lg p-1.5 text-muted-foreground hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20"
-          >
-            <Trash2 className="h-4 w-4" />
-          </button>
-        )}
-      </div>
-    </div>
-  );
 }
 
 // ============================================================================
@@ -196,22 +72,8 @@ export function DocumentForm({ type }: DocumentFormProps) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
-  // Form state
-  const [contactId, setContactId] = useState<string | null>(null);
-  const [contactName, setContactName] = useState('');
+  const form = useDocumentForm(config);
 
-  const [issueDate, setIssueDate] = useState(new Date().toISOString().split('T')[0]);
-  const [dueDate, setDueDate] = useState(
-    config.hasDueDate
-      ? new Date(Date.now() + DEFAULT_PAYMENT_TERMS_DAYS * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-      : ''
-  );
-  const [deliveryDate, setDeliveryDate] = useState('');
-  const [notes, setNotes] = useState('');
-  const [internalNotes, setInternalNotes] = useState('');
-  const [items, setItems] = useState<LineItem[]>([emptyItem()]);
-
-  // Drag and drop sensors
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -219,53 +81,10 @@ export function DocumentForm({ type }: DocumentFormProps) {
     })
   );
 
-  // Handle drag end - reorder items
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    if (over && active.id !== over.id) {
-      setItems((items) => {
-        const oldIndex = items.findIndex((item) => item.id === active.id);
-        const newIndex = items.findIndex((item) => item.id === over.id);
-        return arrayMove(items, oldIndex, newIndex);
-      });
-    }
-  };
-
-  // Line item management
-  const addItem = () => setItems([...items, emptyItem()]);
-  const removeItem = (id: string) => {
-    if (items.length <= 1) return;
-    setItems(items.filter((i) => i.id !== id));
-  };
-  const updateItem = (id: string, field: keyof LineItem, value: string) => {
-    // Clamp discount to 0-100
-    if (field === 'discount') {
-      const num = parseFloat(value);
-      if (!isNaN(num) && num > 100) value = '100';
-      if (!isNaN(num) && num < 0) value = '0';
-    }
-    setItems(items.map((i) => (i.id === id ? { ...i, [field]: value } : i)));
-  };
-
-  // Totals (decimal.js for exact arithmetic)
-  const subtotal = items.reduce((sum, item) => sum.plus(calculateItemTotal(item)), new Decimal(0));
-  const vatAmount = items.reduce((sum, item) => {
-    const lineTotal = calculateItemTotal(item);
-    try {
-      const vatRate = new Decimal(item.vatRate || '0');
-      return sum.plus(lineTotal.times(vatRate).div(100).toDecimalPlaces(2));
-    } catch {
-      return sum;
-    }
-  }, new Decimal(0));
-  const total = rappenRound(subtotal.plus(vatAmount));
-
-  // Submit
   async function handleSubmit() {
     setError(null);
 
-    const validItems = items.filter((i) => i.description.trim());
+    const validItems = form.items.filter((i) => i.description.trim());
     if (validItems.length === 0) {
       setError(t('atLeastOneItem'));
       return;
@@ -274,12 +93,12 @@ export function DocumentForm({ type }: DocumentFormProps) {
     startTransition(async () => {
       const result = await createDocumentAction({
         type,
-        contactId: contactId || null,
-        issueDate,
-        dueDate: (config.hasDueDate && dueDate) ? dueDate : null,
-        deliveryDate: (config.hasDeliveryDate && deliveryDate) ? deliveryDate : null,
-        notes: notes || null,
-        internalNotes: internalNotes || null,
+        contactId: form.contactId || null,
+        issueDate: form.issueDate,
+        dueDate: (config.hasDueDate && form.dueDate) ? form.dueDate : null,
+        deliveryDate: (config.hasDeliveryDate && form.deliveryDate) ? form.deliveryDate : null,
+        notes: form.notes || null,
+        internalNotes: form.internalNotes || null,
         items: validItems.map((item, index) => ({
           position: index,
           productId: item.productId || null,
@@ -317,11 +136,10 @@ export function DocumentForm({ type }: DocumentFormProps) {
         <div className="lg:col-span-2 space-y-6">
           {/* Contact & dates */}
           <div className="rounded-xl border bg-card p-6 space-y-4">
-            {/* Contact picker */}
             <ContactPicker
-              value={contactId}
-              displayValue={contactName}
-              onChange={(id, name) => { setContactId(id); setContactName(name); }}
+              value={form.contactId}
+              displayValue={form.contactName}
+              onChange={(id, name) => { form.setContactId(id); form.setContactName(name); }}
               contactType={config.contactFilter === 'vendor' ? 'vendor' : 'customer'}
             />
 
@@ -330,8 +148,8 @@ export function DocumentForm({ type }: DocumentFormProps) {
                 <label className="block text-sm font-medium">{t('issueDate')}</label>
                 <FormInput
                   type="date"
-                  value={issueDate}
-                  onChange={(e) => setIssueDate(e.target.value)}
+                  value={form.issueDate}
+                  onChange={(e) => form.setIssueDate(e.target.value)}
                   className="mt-1"
                 />
               </div>
@@ -340,8 +158,8 @@ export function DocumentForm({ type }: DocumentFormProps) {
                   <label className="block text-sm font-medium">{t(config.dueDateLabel)}</label>
                   <FormInput
                     type="date"
-                    value={dueDate}
-                    onChange={(e) => setDueDate(e.target.value)}
+                    value={form.dueDate}
+                    onChange={(e) => form.setDueDate(e.target.value)}
                     className="mt-1"
                   />
                 </div>
@@ -351,8 +169,8 @@ export function DocumentForm({ type }: DocumentFormProps) {
                   <label className="block text-sm font-medium">{t('deliveryDate')}</label>
                   <FormInput
                     type="date"
-                    value={deliveryDate}
-                    onChange={(e) => setDeliveryDate(e.target.value)}
+                    value={form.deliveryDate}
+                    onChange={(e) => form.setDeliveryDate(e.target.value)}
                     className="mt-1"
                   />
                 </div>
@@ -366,7 +184,7 @@ export function DocumentForm({ type }: DocumentFormProps) {
               <h2 className="font-semibold">{t('lineItems')}</h2>
               <button
                 type="button"
-                onClick={addItem}
+                onClick={form.addItem}
                 className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
               >
                 <Plus className="h-4 w-4" />
@@ -377,21 +195,21 @@ export function DocumentForm({ type }: DocumentFormProps) {
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
+              onDragEnd={form.handleDragEnd}
             >
               <SortableContext
-                items={items.map((item) => item.id)}
+                items={form.items.map((item) => item.id)}
                 strategy={verticalListSortingStrategy}
               >
                 <div>
-                  {items.map((item, index) => (
+                  {form.items.map((item, index) => (
                     <SortableLineItem
                       key={item.id}
                       item={item}
                       index={index}
-                      updateItem={updateItem}
-                      removeItem={removeItem}
-                      canRemove={items.length > 1}
+                      updateItem={form.updateItem}
+                      removeItem={form.removeItem}
+                      canRemove={form.items.length > 1}
                       t={t}
                       tc={tc}
                     />
@@ -406,8 +224,8 @@ export function DocumentForm({ type }: DocumentFormProps) {
             <div>
               <label className="block text-sm font-medium">{tc('notes')}</label>
               <CharCountTextarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
+                value={form.notes}
+                onChange={(e) => form.setNotes(e.target.value)}
                 placeholder={t('notesOnDocument', { type: t(config.label) })}
                 rows={3}
                 maxLength={1000}
@@ -417,8 +235,8 @@ export function DocumentForm({ type }: DocumentFormProps) {
             <div>
               <label className="block text-sm font-medium">{t('internalNotes')}</label>
               <CharCountTextarea
-                value={internalNotes}
-                onChange={(e) => setInternalNotes(e.target.value)}
+                value={form.internalNotes}
+                onChange={(e) => form.setInternalNotes(e.target.value)}
                 placeholder={t('internalNotesHint', { type: t(config.label) })}
                 rows={2}
                 maxLength={1000}
@@ -435,15 +253,15 @@ export function DocumentForm({ type }: DocumentFormProps) {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{tc('subtotal')}</span>
-                <span>CHF {subtotal.toFixed(2).toString()}</span>
+                <span>CHF {form.subtotal.toFixed(2).toString()}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{t('vat')}</span>
-                <span>CHF {vatAmount.toFixed(2).toString()}</span>
+                <span>CHF {form.vatAmount.toFixed(2).toString()}</span>
               </div>
               <div className="flex justify-between border-t pt-2 text-lg font-bold">
                 <span>{tc('total')}</span>
-                <span>CHF {total.toFixed(2).toString()}</span>
+                <span>CHF {form.total.toFixed(2).toString()}</span>
               </div>
             </div>
 

@@ -1,7 +1,6 @@
 'use server';
 
 import { z } from 'zod';
-import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
 import {
   createDocument,
@@ -15,6 +14,7 @@ import {
 } from '@kivvi/core';
 import type { DocumentType, DocumentStatus } from '@kivvi/database';
 import { type ActionResult, getSession, safeErrorMessage, formatZodError } from './utils';
+import { revalidateDocumentPaths } from './utils/revalidate-documents';
 
 // ============================================================================
 // VALIDATION SCHEMAS FOR UNVALIDATED PARAMS
@@ -44,28 +44,6 @@ const documentTypeValues = [
 const convertSchema = z.object({
   targetType: z.enum(documentTypeValues),
 });
-
-// ============================================================================
-// HELPERS
-// ============================================================================
-
-function revalidateDocumentPaths(type: string, id?: string) {
-  const typeToPath: Record<string, string> = {
-    invoice: '/sales/invoices',
-    quote: '/sales/quotes',
-    order: '/sales/orders',
-    credit_note: '/sales/credit-notes',
-    delivery_note: '/sales/delivery-notes',
-    dunning: '/sales/dunning',
-    purchase_order: '/purchasing/purchase-orders',
-    purchase_invoice: '/purchasing/purchase-invoices',
-    order_confirmation: '/sales/orders',
-  };
-  const basePath = typeToPath[type] || '/sales/invoices';
-  revalidatePath(basePath);
-  if (id) revalidatePath(`${basePath}/${id}`);
-  revalidatePath('/dashboard');
-}
 
 // ============================================================================
 // SERVER ACTIONS
