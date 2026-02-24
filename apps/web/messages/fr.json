@@ -58,6 +58,9 @@
     "errorBoundaryTitle": "Quelque chose s'est mal passé",
     "errorBoundaryMessage": "Cette section n'a pas pu être chargée.",
     "errorBoundaryReload": "Recharger la page",
+    "notFoundTitle": "Page non trouvée",
+    "notFoundMessage": "La page que vous cherchez n'existe pas ou a été déplacée.",
+    "goHome": "Aller au tableau de bord",
     "exported": "Export terminé",
     "exportCsv": "Exporter CSV"
   },
