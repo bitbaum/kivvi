@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
 import { companies, users, numberSequences } from '@kivvi/database';
+import type { CompanySettings } from '@kivvi/database';
 import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
 import { type ActionResult, getSession, safeErrorMessage } from './utils';
@@ -20,6 +21,12 @@ const updateCompanySchema = z.object({
   postalCode: z.string().max(20).optional().nullable(),
   country: z.string().max(2).optional().default('CH'),
   currency: z.string().max(3).optional().default('CHF'),
+  // Settings JSONB fields
+  iban: z.string().max(34).optional().nullable(),
+  bankName: z.string().max(200).optional().nullable(),
+  defaultVatRate: z.string().optional().nullable(),
+  defaultPaymentTermsDays: z.string().optional().nullable(),
+  defaultDocumentFooter: z.string().max(1000).optional().nullable(),
 });
 
 export async function updateCompanyAction(input: unknown): Promise<ActionResult> {
@@ -29,6 +36,32 @@ export async function updateCompanyAction(input: unknown): Promise<ActionResult>
     if (!parsed.success) {
       return { success: false, error: parsed.error.errors[0]?.message || 'Invalid input' };
     }
+
+    // Read existing settings to merge (preserve AI config, plan, etc.)
+    const [existing] = await db
+      .select({ settings: companies.settings })
+      .from(companies)
+      .where(eq(companies.id, companyId));
+
+    const existingSettings = (existing?.settings as CompanySettings) ?? {};
+
+    // Merge new values into settings JSONB
+    const updatedSettings: CompanySettings = {
+      ...existingSettings,
+      bankAccount: {
+        ...existingSettings.bankAccount,
+        iban: parsed.data.iban || existingSettings.bankAccount?.iban,
+        bankName: parsed.data.bankName || existingSettings.bankAccount?.bankName,
+      },
+      defaultVatRate: parsed.data.defaultVatRate
+        ? parseFloat(parsed.data.defaultVatRate)
+        : existingSettings.defaultVatRate,
+      defaultPaymentTermsDays: parsed.data.defaultPaymentTermsDays
+        ? parseInt(parsed.data.defaultPaymentTermsDays, 10)
+        : existingSettings.defaultPaymentTermsDays,
+      defaultDocumentFooter: parsed.data.defaultDocumentFooter ?? existingSettings.defaultDocumentFooter,
+    };
+
     const [company] = await db
       .update(companies)
       .set({
@@ -40,6 +73,7 @@ export async function updateCompanyAction(input: unknown): Promise<ActionResult>
         postalCode: parsed.data.postalCode || null,
         country: parsed.data.country,
         currency: parsed.data.currency,
+        settings: updatedSettings,
         updatedAt: new Date(),
       })
       .where(eq(companies.id, companyId))

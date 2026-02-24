@@ -58,7 +58,8 @@
     "errorBoundaryTitle": "Quelque chose s'est mal passé",
     "errorBoundaryMessage": "Cette section n'a pas pu être chargée.",
     "errorBoundaryReload": "Recharger la page",
-    "exported": "Export terminé"
+    "exported": "Export terminé",
+    "exportCsv": "Exporter CSV"
   },
   "nav": {
     "home": "Accueil",
@@ -804,6 +805,11 @@
         "product": "Produit",
         "journal": "Écriture comptable"
       }
+    },
+    "dataTools": "Outils de données",
+    "repairImport": {
+      "title": "Réparer l'import",
+      "description": "Réimporter les lignes de position depuis les exports CSV Kivitendo"
     },
     "recurring": {
       "title": "Factures récurrentes",

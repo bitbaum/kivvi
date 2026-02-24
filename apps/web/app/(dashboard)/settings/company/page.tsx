@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { companies } from '@kivvi/database';
+import type { CompanySettings } from '@kivvi/database';
 import { eq } from 'drizzle-orm';
 import { getTranslations } from 'next-intl/server';
 import { CompanyForm } from './company-form';
@@ -21,6 +22,8 @@ export default async function CompanySettingsPage() {
     .where(eq(companies.id, session.user.companyId));
 
   if (!company) redirect('/settings');
+
+  const settings = (company.settings as CompanySettings) ?? {};
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -51,6 +54,11 @@ export default async function CompanySettingsPage() {
           postalCode: company.postalCode || '',
           country: company.country || 'CH',
           currency: company.currency || 'CHF',
+          iban: settings.bankAccount?.iban || '',
+          bankName: settings.bankAccount?.bankName || '',
+          defaultVatRate: settings.defaultVatRate?.toString() || '8.1',
+          defaultPaymentTermsDays: settings.defaultPaymentTermsDays?.toString() || '30',
+          defaultDocumentFooter: settings.defaultDocumentFooter || '',
         }}
       />
     </div>

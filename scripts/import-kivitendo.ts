@@ -376,7 +376,7 @@ async function insertDocuments(
   userId: string,
   parsedDocs: ParsedDocument[],
   contactLookup: Map<string, string>,
-  productLookup: Map<string, string>,
+  productLookup: Map<string, { id: string; unitPrice: string }>,
   documentType: 'invoice' | 'purchase_invoice' | 'quote' | 'order' | 'delivery_note',
   statusFn: (doc: ParsedDocument) => string,
 ): Promise<BulkInsertResult> {
@@ -447,15 +447,15 @@ async function insertDocuments(
         if (doc.items.length > 0) {
           await tx.insert(documentItems).values(
             doc.items.map((item) => {
-              const productId = item.articleNumber
+              const product = item.articleNumber
                 ? productLookup.get(item.articleNumber) || null
                 : null;
+              const productId = product?.id || null;
 
               // Determine unit price from product catalog or derive from total
               let unitPrice = '0';
-              if (productId) {
-                // Will be 0 since we don't have price in the lookup here,
-                // but the product reference is what matters for the import
+              if (product?.unitPrice && product.unitPrice !== '0') {
+                unitPrice = product.unitPrice;
               }
               if (doc.items.length === 1 && !productId) {
                 try {
@@ -720,7 +720,7 @@ async function main(): Promise<void> {
   // ---------------------------------------------------------------
   console.log('\nBuilding lookups for document imports...');
   const contactLookup = (!DRY_RUN && db) ? await buildContactLookup(db, COMPANY_ID) : new Map<string, string>();
-  const productLookup = (!DRY_RUN && db) ? await buildProductLookup(db, COMPANY_ID) : new Map<string, string>();
+  const productLookup = (!DRY_RUN && db) ? await buildProductLookup(db, COMPANY_ID) : new Map<string, { id: string; unitPrice: string }>();
   console.log(`   Contacts: ${contactLookup.size}, Products: ${productLookup.size}`);
   console.log();
 

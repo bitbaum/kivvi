@@ -4,7 +4,10 @@ import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { companies } from '@kivvi/database';
+import type { CompanySettings } from '@kivvi/database';
 import { getDocument } from '@kivvi/core';
+import { generateInvoicePdf } from '@kivvi/core/src/domain/pdf-generation';
+import { buildInvoicePdfData } from '@/lib/pdf/build-pdf-data';
 import {
   buildInvoiceEmailHtml,
   buildInvoiceEmailSubject,
@@ -54,14 +57,15 @@ export async function sendDocumentEmailAction(
 
     const transporter = getTransporter();
 
-    // Fetch company name and plan from DB
+    // Fetch full company record for email + PDF generation
     const [company] = await db
-      .select({ name: companies.name, settings: companies.settings })
+      .select()
       .from(companies)
       .where(eq(companies.id, companyId));
 
     const companyName = company?.name || 'Kivvi';
-    const plan = company?.settings?.plan || 'free';
+    const settings = (company?.settings as CompanySettings) ?? {};
+    const plan = settings.plan || 'free';
 
     const emailData = {
       recipientEmail: parsed.data.recipientEmail,
@@ -75,11 +79,25 @@ export async function sendDocumentEmailAction(
       plan,
     };
 
+    // Generate PDF attachment
+    const pdfData = buildInvoicePdfData(doc, {
+      ...company,
+      settings,
+    });
+    const pdfBuffer = await generateInvoicePdf(pdfData);
+
     const info = await transporter.sendMail({
       from: `${companyName} <${getFromEmail()}>`,
       to: parsed.data.recipientEmail,
       subject: buildInvoiceEmailSubject(emailData),
       html: buildInvoiceEmailHtml(emailData),
+      attachments: [
+        {
+          filename: `${doc.number}.pdf`,
+          content: pdfBuffer,
+          contentType: 'application/pdf',
+        },
+      ],
     });
 
     // Revalidate the document detail page to reflect any future "last emailed" state

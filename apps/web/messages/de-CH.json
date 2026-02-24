@@ -59,6 +59,7 @@
     "errorBoundaryMessage": "Dieser Abschnitt konnte nicht geladen werden.",
     "errorBoundaryReload": "Seite neu laden",
     "exported": "Export abgeschlossen",
+    "exportCsv": "CSV exportieren",
     "export": "Exportieren",
     "exporting": "Exportieren...",
     "dashboard": "Übersicht"
@@ -884,7 +885,17 @@
       "vatNumber": "UID-Nummer",
       "address": "Adresse",
       "preferences": "Einstellungen",
-      "defaultCurrency": "Standardwährung"
+      "defaultCurrency": "Standardwährung",
+      "bankDetails": "Bankverbindung",
+      "iban": "IBAN",
+      "bankName": "Bankname",
+      "defaultVatRate": "Standard-MWST-Satz",
+      "paymentTermsDays": "Standard-Zahlungsfrist (Tage)",
+      "paymentTermsDaysHint": "Anzahl Tage bis zur Fälligkeit neuer Rechnungen.",
+      "documentFooter": "Dokumentfusszeile",
+      "defaultDocumentFooter": "Standard-Fusszeile",
+      "defaultDocumentFooterHint": "Wird auf Dokumenten angezeigt, wenn keine individuellen Notizen gesetzt sind.",
+      "savedSuccessfully": "Einstellungen gespeichert"
     },
     "profileSection": {
       "title": "Benutzerprofil",
@@ -927,6 +938,11 @@
       "manageSubscription": "Abonnement verwalten",
       "upgradeError": "Upgrade konnte nicht gestartet werden. Bitte versuchen Sie es erneut.",
       "manageError": "Abrechnungsportal konnte nicht geöffnet werden. Bitte versuchen Sie es erneut."
+    },
+    "dataTools": "Datenwerkzeuge",
+    "repairImport": {
+      "title": "Import reparieren",
+      "description": "Positionszeilen aus Kivitendo CSV-Exporten erneut importieren"
     },
     "dataPrivacy": {
       "title": "Daten & Datenschutz",

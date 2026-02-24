@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { Building2, User, Hash, ArrowRight, RepeatIcon, CreditCard, Download } from 'lucide-react';
+import { Building2, User, Hash, ArrowRight, RepeatIcon, CreditCard, Download, Wrench } from 'lucide-react';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { companies, users } from '@kivvi/database';
@@ -88,6 +88,30 @@ export default async function SettingsPage() {
             </div>
           </Link>
         ))}
+      </div>
+
+      {/* Data Tools */}
+      <div className="space-y-4">
+        <h2 className="text-lg font-semibold">{t('dataTools')}</h2>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <Link
+            href="/settings/repair-import"
+            className="group rounded-xl border bg-card p-6 transition-colors hover:bg-muted/50"
+          >
+            <div className="flex items-start justify-between">
+              <div className="rounded-lg border bg-background p-3">
+                <Wrench className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <ArrowRight className="h-5 w-5 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+            </div>
+            <div className="mt-4">
+              <h2 className="font-semibold">{t('repairImport.title')}</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {t('repairImport.description')}
+              </p>
+            </div>
+          </Link>
+        </div>
       </div>
 
       {/* Data & Privacy */}

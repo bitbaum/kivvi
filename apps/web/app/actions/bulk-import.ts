@@ -273,9 +273,8 @@ export async function bulkImportAction(
         // Import invoices
         const invoicesPath = join(exportDir, 'rechnungen_invoices.csv');
         if (readFileSync(invoicesPath, 'utf-8')) {
-          // Parse and import invoices using bulkInsertDocuments
-          // (Simplified for brevity - actual implementation would parse CSV)
-          // TODO: Invoice import not yet fully implemented in Server Action
+          // Invoice import is handled by executeImportAction in onboarding.ts
+          // with structuredItems support for line items
         }
       } catch {
         // Continue with other imports

@@ -2,9 +2,10 @@
 
 import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
-import { companies } from '@kivvi/database';
+import { companies, documents, documentItems } from '@kivvi/database';
 import type { CompanySettings } from '@kivvi/database';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
+import Decimal from 'decimal.js';
 import { z } from 'zod';
 import { type ActionResult, getSession, safeErrorMessage } from './utils';
 import {
@@ -123,7 +124,8 @@ export async function initializeCompanyAction(
 
 export async function executeImportAction(
   entityType: string,
-  rows: Array<Record<string, string | null>>
+  rows: Array<Record<string, string | null>>,
+  structuredItems?: Record<string, Array<{ position: number; articleNumber: string; description: string; quantity: string; unit: string }>>
 ): Promise<ActionResult<{ inserted: number; skipped: number; errors: string[] }>> {
   try {
     const { companyId, userId } = await getSession();
@@ -152,12 +154,24 @@ export async function executeImportAction(
       }
       case 'invoice': {
         const contactLookup = await buildContactLookup(db, companyId);
-        result = await bulkInsertDocuments(db, companyId, userId, rows, contactLookup, 'invoice');
+        const structuredItemsMap = structuredItems
+          ? new Map(Object.entries(structuredItems))
+          : undefined;
+        const invoiceProductLookup = structuredItemsMap
+          ? await buildProductLookup(db, companyId)
+          : undefined;
+        result = await bulkInsertDocuments(db, companyId, userId, rows, contactLookup, 'invoice', structuredItemsMap, invoiceProductLookup);
         break;
       }
       case 'purchase_invoice': {
         const contactLookup = await buildContactLookup(db, companyId);
-        result = await bulkInsertDocuments(db, companyId, userId, rows, contactLookup, 'purchase_invoice');
+        const piStructuredItemsMap = structuredItems
+          ? new Map(Object.entries(structuredItems))
+          : undefined;
+        const piProductLookup = piStructuredItemsMap
+          ? await buildProductLookup(db, companyId)
+          : undefined;
+        result = await bulkInsertDocuments(db, companyId, userId, rows, contactLookup, 'purchase_invoice', piStructuredItemsMap, piProductLookup);
         break;
       }
       case 'journal_entry': {
@@ -279,5 +293,96 @@ export async function getCompanyDetailsAction(): Promise<ActionResult<{
     };
   } catch (error) {
     return { success: false, error: safeErrorMessage(error, 'Failed to get company details') };
+  }
+}
+
+// ============================================================================
+// REPAIR: Backfill document line items from CSV
+// ============================================================================
+
+export async function repairDocumentLineItemsAction(
+  entityType: 'invoice' | 'purchase_invoice',
+  structuredItems: Record<string, Array<{ position: number; articleNumber: string; description: string; quantity: string; unit: string }>>
+): Promise<ActionResult<{ updated: number; skipped: number }>> {
+  try {
+    const { companyId } = await getSession();
+
+    const productLookup = await buildProductLookup(db, companyId);
+    let updated = 0;
+    let skipped = 0;
+
+    for (const [docNumber, items] of Object.entries(structuredItems)) {
+      if (!items || items.length === 0) {
+        skipped++;
+        continue;
+      }
+
+      // Find matching document
+      const [doc] = await db
+        .select({ id: documents.id, total: documents.total })
+        .from(documents)
+        .where(
+          and(
+            eq(documents.companyId, companyId),
+            eq(documents.number, docNumber),
+            eq(documents.type, entityType)
+          )
+        );
+
+      if (!doc) {
+        skipped++;
+        continue;
+      }
+
+      await db.transaction(async (tx) => {
+        // Delete existing line items
+        await tx
+          .delete(documentItems)
+          .where(eq(documentItems.documentId, doc.id));
+
+        const docTotal = doc.total ? new Decimal(doc.total) : new Decimal(0);
+
+        // Insert new parsed items
+        await tx.insert(documentItems).values(
+          items.map((item) => {
+            const product = item.articleNumber
+              ? productLookup.get(item.articleNumber) || null
+              : null;
+            const productId = product?.id || null;
+            const qty = item.quantity || '1';
+
+            let unitPrice = '0';
+            if (product?.unitPrice && product.unitPrice !== '0') {
+              unitPrice = product.unitPrice;
+            } else if (items.length === 1 && docTotal.gt(0)) {
+              const qtyDec = new Decimal(qty || '1');
+              if (qtyDec.gt(0)) {
+                unitPrice = docTotal.div(qtyDec).toDecimalPlaces(2).toString();
+              }
+            }
+
+            const total = new Decimal(qty || '0').times(new Decimal(unitPrice)).toDecimalPlaces(2).toString();
+
+            return {
+              documentId: doc.id,
+              productId,
+              position: item.position,
+              description: item.description,
+              quantity: qty,
+              unitPrice,
+              vatRate: '8.1',
+              total,
+            };
+          })
+        );
+      });
+
+      updated++;
+    }
+
+    revalidatePath('/');
+    return { success: true, data: { updated, skipped } };
+  } catch (error) {
+    return { success: false, error: safeErrorMessage(error, 'Failed to repair line items') };
   }
 }

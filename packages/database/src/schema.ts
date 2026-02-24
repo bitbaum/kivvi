@@ -998,6 +998,7 @@ export interface CompanySettings {
   trialEndsAt?: string; // ISO date
   vertical?: 'general' | 'financial-advisory' | 'legal' | 'medical' | 'nonprofit' | 'retail' | 'manufacturing';
   orgProfile?: OrgProfile;
+  defaultDocumentFooter?: string;
 }
 
 // Inferred types from schema — use these throughout the app

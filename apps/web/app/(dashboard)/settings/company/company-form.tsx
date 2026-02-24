@@ -14,6 +14,12 @@ const CURRENCIES = [
   { value: 'USD', label: 'USD - US Dollar' },
 ] as const;
 
+const VAT_RATE_OPTIONS = [
+  { value: '8.1', label: '8.1% (Normal)' },
+  { value: '2.6', label: '2.6% (Reduziert)' },
+  { value: '0.0', label: '0% (Befreit)' },
+] as const;
+
 interface CompanyFormProps {
   initialData: {
     name: string;
@@ -24,6 +30,11 @@ interface CompanyFormProps {
     postalCode: string;
     country: string;
     currency: string;
+    iban: string;
+    bankName: string;
+    defaultVatRate: string;
+    defaultPaymentTermsDays: string;
+    defaultDocumentFooter: string;
   };
 }
 
@@ -51,6 +62,11 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
         postalCode: (formData.get('postalCode') as string) || null,
         country: formData.get('country') as string,
         currency: formData.get('currency') as string,
+        iban: (formData.get('iban') as string) || null,
+        bankName: (formData.get('bankName') as string) || null,
+        defaultVatRate: (formData.get('defaultVatRate') as string) || null,
+        defaultPaymentTermsDays: (formData.get('defaultPaymentTermsDays') as string) || null,
+        defaultDocumentFooter: (formData.get('defaultDocumentFooter') as string) || null,
       };
 
       const result = await updateCompanyAction(input);
@@ -198,6 +214,42 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
         </div>
       </section>
 
+      {/* Bank Details */}
+      <section className="rounded-xl border bg-card">
+        <div className="border-b px-6 py-4">
+          <h2 className="font-semibold">{t('company.bankDetails')}</h2>
+        </div>
+        <div className="grid gap-6 p-6 sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <label htmlFor="iban" className="mb-1.5 block text-sm font-medium">
+              {t('company.iban')}
+            </label>
+            <FormInput
+              type="text"
+              id="iban"
+              name="iban"
+              maxLength={34}
+              placeholder="CH93 0076 2011 6238 5295 7"
+              defaultValue={initialData.iban}
+            />
+          </div>
+
+          <div className="sm:col-span-2">
+            <label htmlFor="bankName" className="mb-1.5 block text-sm font-medium">
+              {t('company.bankName')}
+            </label>
+            <FormInput
+              type="text"
+              id="bankName"
+              name="bankName"
+              maxLength={200}
+              placeholder="z.B. UBS, ZKB, PostFinance"
+              defaultValue={initialData.bankName}
+            />
+          </div>
+        </div>
+      </section>
+
       {/* Preferences */}
       <section className="rounded-xl border bg-card">
         <div className="border-b px-6 py-4">
@@ -220,6 +272,64 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
               ))}
             </FormSelect>
           </div>
+
+          <div>
+            <label htmlFor="defaultVatRate" className="mb-1.5 block text-sm font-medium">
+              {t('company.defaultVatRate')}
+            </label>
+            <FormSelect
+              id="defaultVatRate"
+              name="defaultVatRate"
+              defaultValue={initialData.defaultVatRate}
+            >
+              {VAT_RATE_OPTIONS.map((r) => (
+                <option key={r.value} value={r.value}>
+                  {r.label}
+                </option>
+              ))}
+            </FormSelect>
+          </div>
+
+          <div>
+            <label htmlFor="defaultPaymentTermsDays" className="mb-1.5 block text-sm font-medium">
+              {t('company.paymentTermsDays')}
+            </label>
+            <FormInput
+              type="number"
+              id="defaultPaymentTermsDays"
+              name="defaultPaymentTermsDays"
+              min={0}
+              max={365}
+              defaultValue={initialData.defaultPaymentTermsDays}
+            />
+            <p className="mt-1 text-xs text-muted-foreground">
+              {t('company.paymentTermsDaysHint')}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Document Footer */}
+      <section className="rounded-xl border bg-card">
+        <div className="border-b px-6 py-4">
+          <h2 className="font-semibold">{t('company.documentFooter')}</h2>
+        </div>
+        <div className="p-6">
+          <label htmlFor="defaultDocumentFooter" className="mb-1.5 block text-sm font-medium">
+            {t('company.defaultDocumentFooter')}
+          </label>
+          <textarea
+            id="defaultDocumentFooter"
+            name="defaultDocumentFooter"
+            rows={3}
+            maxLength={1000}
+            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            placeholder="z.B. Zahlbar innert 30 Tagen netto"
+            defaultValue={initialData.defaultDocumentFooter}
+          />
+          <p className="mt-1 text-xs text-muted-foreground">
+            {t('company.defaultDocumentFooterHint')}
+          </p>
         </div>
       </section>
 

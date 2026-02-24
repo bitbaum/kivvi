@@ -55,20 +55,20 @@ export async function buildContactLookup(
 }
 
 /**
- * Build a map of articleNumber → productId for a company.
+ * Build a map of articleNumber → { id, unitPrice } for a company.
  */
 export async function buildProductLookup(
   db: Database,
   companyId: string
-): Promise<Map<string, string>> {
+): Promise<Map<string, { id: string; unitPrice: string }>> {
   const rows = await db
-    .select({ id: products.id, articleNumber: products.articleNumber })
+    .select({ id: products.id, articleNumber: products.articleNumber, unitPrice: products.unitPrice })
     .from(products)
     .where(eq(products.companyId, companyId));
 
-  const map = new Map<string, string>();
+  const map = new Map<string, { id: string; unitPrice: string }>();
   for (const row of rows) {
-    if (row.articleNumber) map.set(row.articleNumber, row.id);
+    if (row.articleNumber) map.set(row.articleNumber, { id: row.id, unitPrice: row.unitPrice || '0' });
   }
   return map;
 }
@@ -441,7 +441,7 @@ export async function bulkInsertDocuments(
   contactLookup: Map<string, string>,
   documentType: 'invoice' | 'purchase_invoice' | 'quote' | 'order' | 'delivery_note',
   structuredItems?: Map<string, ParsedLineItem[]>,
-  productLookup?: Map<string, string>,
+  productLookup?: Map<string, { id: string; unitPrice: string }>,
 ): Promise<BulkInsertResult> {
   let inserted = 0;
   let skipped = 0;
@@ -528,20 +528,39 @@ export async function bulkInsertDocuments(
         const structured = structuredItems?.get(docNumber);
         if (structured && structured.length > 0) {
           const vatRate = firstRow.vatRate || DEFAULT_VAT_RATE;
+          const docTotal = firstRow.total ? new Decimal(firstRow.total) : new Decimal(0);
+
           await tx.insert(documentItems).values(
             structured.map((item) => {
-              const productId = item.articleNumber
+              const product = item.articleNumber
                 ? productLookup?.get(item.articleNumber) || null
                 : null;
+              const productId = product?.id || null;
+              const qty = item.quantity || '1';
+
+              // Determine unitPrice: from product catalog, or derive from doc total for single items
+              let unitPrice = '0';
+              if (product?.unitPrice && product.unitPrice !== '0') {
+                unitPrice = product.unitPrice;
+              } else if (structured.length === 1 && docTotal.gt(0)) {
+                // Single line item: derive unitPrice from document total
+                const qtyDec = new Decimal(qty || '1');
+                if (qtyDec.gt(0)) {
+                  unitPrice = docTotal.div(qtyDec).toDecimalPlaces(2).toString();
+                }
+              }
+
+              const total = new Decimal(qty || '0').times(new Decimal(unitPrice)).toDecimalPlaces(2).toString();
+
               return {
                 documentId: doc.id,
                 productId,
                 position: item.position,
                 description: item.description,
-                quantity: item.quantity || '1',
-                unitPrice: '0',
+                quantity: qty,
+                unitPrice,
                 vatRate,
-                total: '0',
+                total,
               };
             })
           );
@@ -733,7 +752,7 @@ export async function bulkInsertStockLevels(
   companyId: string,
   warehouseId: string,
   rows: Array<Record<string, string | null>>,
-  productLookup: Map<string, string>
+  productLookup: Map<string, { id: string; unitPrice: string }>
 ): Promise<BulkInsertResult> {
   let inserted = 0;
   let skipped = 0;
@@ -751,7 +770,8 @@ export async function bulkInsertStockLevels(
         continue;
       }
 
-      const productId = productLookup.get(articleNumber);
+      const product = productLookup.get(articleNumber);
+      const productId = product?.id;
       if (!productId) {
         skipped++;
         continue;

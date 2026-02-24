@@ -64,7 +64,7 @@ export default async function JournalPage({ searchParams }: PageProps) {
             className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2.5 text-sm font-medium hover:bg-accent transition-colors"
           >
             <Download className="h-4 w-4" />
-            Export CSV
+            {tc('exportCsv')}
           </a>
           <Link
             href="/accounting/journal/new"

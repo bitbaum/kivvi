@@ -59,6 +59,7 @@
     "errorBoundaryMessage": "This section could not be loaded.",
     "errorBoundaryReload": "Reload page",
     "exported": "Export complete",
+    "exportCsv": "Export CSV",
     "export": "Export",
     "exporting": "Exporting...",
     "dashboard": "Dashboard"
@@ -885,7 +886,17 @@
       "vatNumber": "VAT Number",
       "address": "Address",
       "preferences": "Preferences",
-      "defaultCurrency": "Default Currency"
+      "defaultCurrency": "Default Currency",
+      "bankDetails": "Bank Details",
+      "iban": "IBAN",
+      "bankName": "Bank Name",
+      "defaultVatRate": "Default VAT Rate",
+      "paymentTermsDays": "Default Payment Terms (Days)",
+      "paymentTermsDaysHint": "Number of days until new invoices are due.",
+      "documentFooter": "Document Footer",
+      "defaultDocumentFooter": "Default Footer",
+      "defaultDocumentFooterHint": "Shown on documents when no individual notes are set.",
+      "savedSuccessfully": "Settings saved"
     },
     "profileSection": {
       "title": "User Profile",
@@ -928,6 +939,11 @@
       "manageSubscription": "Manage Subscription",
       "upgradeError": "Failed to start upgrade. Please try again.",
       "manageError": "Failed to open billing portal. Please try again."
+    },
+    "dataTools": "Data Tools",
+    "repairImport": {
+      "title": "Repair Import",
+      "description": "Re-import line items from Kivitendo CSV exports"
     },
     "dataPrivacy": {
       "title": "Data & Privacy",

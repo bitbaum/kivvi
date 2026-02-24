@@ -3,8 +3,8 @@
 import { useState, useCallback } from 'react';
 import { Database, Rocket, Upload, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { detectMappingProfile, applyMapping, applyTransform, isSubtotalRow } from '@kivvi/core/src/domain/import-mappings';
-import type { MappingProfile, MappingField } from '@kivvi/core/src/domain/import-mappings';
+import { detectMappingProfile, applyMapping, applyTransform, isSubtotalRow, parseKivitendoLineItems } from '@kivvi/core/src/domain/import-mappings';
+import type { MappingProfile, MappingField, ParsedLineItem } from '@kivvi/core/src/domain/import-mappings';
 import { executeImportAction, completeOnboardingAction } from '@/app/actions/onboarding';
 import { CsvUploader } from './CsvUploader';
 import { ColumnMapper } from './ColumnMapper';
@@ -59,6 +59,7 @@ interface PendingImport {
   label: string;
   rawRows: Record<string, string>[];
   headers: string[];
+  rawArrayRows: string[][];
   profile: MappingProfile | null;
   mappedRows: Array<Record<string, string | null>> | null;
   confirmed: boolean;
@@ -86,7 +87,7 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
   };
 
   const handleCsvParsed = useCallback(
-    (entityType: string, label: string, headers: string[], rows: Record<string, string>[]) => {
+    (entityType: string, label: string, headers: string[], rows: Record<string, string>[], rawArrayRows: string[][]) => {
       const profile = detectMappingProfile(headers, entityType);
 
       setPendingImports((prev) => {
@@ -96,6 +97,7 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
           label,
           rawRows: rows,
           headers,
+          rawArrayRows,
           profile,
           mappedRows: null,
           confirmed: false,
@@ -170,7 +172,29 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
         )
       );
 
-      const result = await executeImportAction(imp.entityType, imp.mappedRows!);
+      // For document types, extract structured line items from raw CSV arrays
+      let structuredItems: Record<string, ParsedLineItem[]> | undefined;
+      if (imp.entityType === 'invoice' || imp.entityType === 'purchase_invoice') {
+        const positionenIdx = imp.headers.indexOf('Positionen');
+        const buchungsnummerIdx = imp.headers.indexOf('Buchungsnummer');
+
+        if (positionenIdx !== -1 && buchungsnummerIdx !== -1) {
+          structuredItems = {};
+          // Skip header row (index 0) in rawArrayRows
+          for (let ri = 1; ri < imp.rawArrayRows.length; ri++) {
+            const rawRow = imp.rawArrayRows[ri];
+            const docNumber = rawRow[buchungsnummerIdx]?.trim();
+            if (!docNumber) continue;
+
+            const items = parseKivitendoLineItems(rawRow, positionenIdx);
+            if (items.length > 0) {
+              structuredItems[docNumber] = items;
+            }
+          }
+        }
+      }
+
+      const result = await executeImportAction(imp.entityType, imp.mappedRows!, structuredItems);
 
       setImportStatuses((prev) =>
         prev.map((s, idx) =>
@@ -306,8 +330,8 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
                         {!pending && (
                           <CsvUploader
                             label={`Upload ${et.label} CSV`}
-                            onParsed={(headers, rows) =>
-                              handleCsvParsed(et.type, et.label, headers, rows)
+                            onParsed={(headers, rows, rawArrayRows) =>
+                              handleCsvParsed(et.type, et.label, headers, rows, rawArrayRows)
                             }
                           />
                         )}

@@ -7,7 +7,7 @@ import Papa from 'papaparse';
 import { cleanHeaders } from '@kivvi/core/src/domain/import-mappings';
 
 interface CsvUploaderProps {
-  onParsed: (headers: string[], rows: Record<string, string>[]) => void;
+  onParsed: (headers: string[], rows: Record<string, string>[], rawArrayRows: string[][]) => void;
   label?: string;
   accept?: string;
 }
@@ -24,7 +24,7 @@ export function CsvUploader({ onParsed, label = 'Upload CSV', accept = '.csv' }:
     setFileName(file.name);
 
     Papa.parse(file, {
-      header: true,
+      header: false,
       skipEmptyLines: true,
       encoding: 'UTF-8',
       complete: (results) => {
@@ -33,20 +33,27 @@ export function CsvUploader({ onParsed, label = 'Upload CSV', accept = '.csv' }:
           return;
         }
 
-        const rawHeaders = results.meta.fields || [];
-        const headers = cleanHeaders(rawHeaders);
-        const rows = results.data as Record<string, string>[];
+        const rawArrayRows = results.data as string[][];
+        if (rawArrayRows.length === 0) {
+          setError('CSV file is empty');
+          return;
+        }
 
-        // Remap rows to use cleaned headers
-        const cleanedRows = rows.map((row) => {
+        // First row is headers
+        const rawHeaders = rawArrayRows[0].map((h) => h || '');
+        const headers = cleanHeaders(rawHeaders);
+        const dataRows = rawArrayRows.slice(1);
+
+        // Build Record<string, string>[] from array rows (same shape as before)
+        const cleanedRows = dataRows.map((row) => {
           const cleaned: Record<string, string> = {};
-          rawHeaders.forEach((rawH, i) => {
-            cleaned[headers[i]] = row[rawH] || '';
+          headers.forEach((h, i) => {
+            cleaned[h] = row[i] || '';
           });
           return cleaned;
         });
 
-        onParsed(headers, cleanedRows);
+        onParsed(headers, cleanedRows, rawArrayRows);
       },
       error: (err) => {
         setError(`Failed to parse CSV: ${err.message}`);
