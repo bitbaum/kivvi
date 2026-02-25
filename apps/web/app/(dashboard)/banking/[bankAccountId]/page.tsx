@@ -178,8 +178,8 @@ export default async function BankAccountDetailPage({ params, searchParams }: Pa
             <p className="text-lg font-medium">{tc('noResults')}</p>
             <p className="mt-1 text-sm">
               {search || filter
-                ? 'Try adjusting your filters.'
-                : 'Import a CSV file to get started.'}
+                ? t('adjustFilters')
+                : t('importToStart')}
             </p>
           </div>
         ) : (
@@ -291,7 +291,7 @@ export default async function BankAccountDetailPage({ params, searchParams }: Pa
             )}
 
             <span className="text-sm text-muted-foreground">
-              Page {transactions.page} of {transactions.totalPages}
+              {t('pageInfo', { page: transactions.page, totalPages: transactions.totalPages })}
             </span>
 
             {transactions.page < transactions.totalPages ? (

@@ -11,6 +11,124 @@ import {
 import type { Database } from '@kivvi/database';
 
 // ============================================================================
+// PURE HELPERS (no DB access — testable without database)
+// ============================================================================
+
+/**
+ * Compute VAT amount from a taxable amount and a VAT rate.
+ * All math uses Decimal.js — no float errors.
+ */
+export function computeVatAmount(taxableAmount: string, vatRate: string): number {
+  const taxable = new Decimal(taxableAmount);
+  const rate = new Decimal(vatRate);
+  return taxable.times(rate.div(100)).toNumber();
+}
+
+/**
+ * Classify a days-overdue value into an aging bucket.
+ * Returns the bucket key: 'current' | 'days30' | 'days60' | 'days90' | 'over90'.
+ */
+export function classifyAgingBucket(
+  daysOverdue: number
+): 'current' | 'days30' | 'days60' | 'days90' | 'over90' {
+  if (daysOverdue <= 0) return 'current';
+  if (daysOverdue <= 30) return 'days30';
+  if (daysOverdue <= 60) return 'days60';
+  if (daysOverdue <= 90) return 'days90';
+  return 'over90';
+}
+
+/**
+ * Compute days overdue given a due date and an as-of date.
+ * Returns negative if not yet due, 0 if due today, positive if overdue.
+ */
+export function computeDaysOverdue(dueDate: Date | string, asOfDate: Date | string): number {
+  const due = new Date(dueDate);
+  const asOf = new Date(asOfDate);
+  return Math.floor((asOf.getTime() - due.getTime()) / (1000 * 60 * 60 * 24));
+}
+
+/**
+ * Aggregate P&L rows into totals. Pure reduction over pre-computed row data.
+ */
+export function computeProfitLossTotals(
+  revenueAmounts: string[],
+  expenseAmounts: string[]
+): { totalRevenue: number; totalExpenses: number; netIncome: number } {
+  const totalRevenue = revenueAmounts.reduce((sum, a) => sum.plus(a || '0'), new Decimal(0)).toNumber();
+  const totalExpenses = expenseAmounts.reduce((sum, a) => sum.plus(a || '0'), new Decimal(0)).toNumber();
+  return {
+    totalRevenue,
+    totalExpenses,
+    netIncome: new Decimal(totalRevenue).minus(totalExpenses).toNumber(),
+  };
+}
+
+/**
+ * Compute balance sheet retained earnings from totals.
+ * Retained earnings = Total Assets - Total Liabilities - Total Equity (from accounts).
+ */
+export function computeRetainedEarnings(
+  totalAssets: number,
+  totalLiabilities: number,
+  totalEquity: number
+): number {
+  return new Decimal(totalAssets).minus(totalLiabilities).minus(totalEquity).toNumber();
+}
+
+/**
+ * Merge invoice and credit note rows into a unified monthly sales report row.
+ * Pure data transformation.
+ */
+export function mergeSalesRows(
+  invoiceRows: Array<{ month: string; count: number; revenue: string; vatAmount: string }>,
+  creditRows: Array<{ month: string; count: number; amount: string }>
+): SalesReportRow[] {
+  const creditMap = new Map(creditRows.map((r) => [r.month, r]));
+  const allMonths = new Set([
+    ...invoiceRows.map((r) => r.month),
+    ...creditRows.map((r) => r.month),
+  ]);
+
+  return Array.from(allMonths)
+    .sort()
+    .map((month) => {
+      const inv = invoiceRows.find((r) => r.month === month);
+      const cn = creditMap.get(month);
+      const revenue = new Decimal(inv?.revenue || '0');
+      const creditAmount = new Decimal(cn?.amount || '0');
+      return {
+        month,
+        invoiceCount: inv?.count || 0,
+        revenue: revenue.toNumber(),
+        vatAmount: new Decimal(inv?.vatAmount || '0').toNumber(),
+        creditNoteCount: cn?.count || 0,
+        creditNoteAmount: creditAmount.toNumber(),
+        netRevenue: revenue.minus(creditAmount).toNumber(),
+      };
+    });
+}
+
+/**
+ * Compute sales report totals from rows. Pure reduction.
+ */
+export function computeSalesTotals(
+  rows: SalesReportRow[]
+): Omit<SalesReportRow, 'month'> {
+  return rows.reduce(
+    (acc, r) => ({
+      invoiceCount: acc.invoiceCount + r.invoiceCount,
+      revenue: new Decimal(acc.revenue).plus(r.revenue).toNumber(),
+      vatAmount: new Decimal(acc.vatAmount).plus(r.vatAmount).toNumber(),
+      creditNoteCount: acc.creditNoteCount + r.creditNoteCount,
+      creditNoteAmount: new Decimal(acc.creditNoteAmount).plus(r.creditNoteAmount).toNumber(),
+      netRevenue: new Decimal(acc.netRevenue).plus(r.netRevenue).toNumber(),
+    }),
+    { invoiceCount: 0, revenue: 0, vatAmount: 0, creditNoteCount: 0, creditNoteAmount: 0, netRevenue: 0 }
+  );
+}
+
+// ============================================================================
 // PROFIT & LOSS (Erfolgsrechnung)
 // ============================================================================
 
@@ -90,15 +208,15 @@ export async function getProfitAndLoss(
     amount: new Decimal(r.amount || '0').toNumber(),
   }));
 
-  const totalRevenue = revenueRows.reduce((sum, r) => sum.plus(r.amount || '0'), new Decimal(0)).toNumber();
-  const totalExpenses = expenseRows.reduce((sum, r) => sum.plus(r.amount || '0'), new Decimal(0)).toNumber();
+  const totals = computeProfitLossTotals(
+    revenueRows.map((r) => r.amount || '0'),
+    expenseRows.map((r) => r.amount || '0')
+  );
 
   return {
     revenue,
     expenses,
-    totalRevenue,
-    totalExpenses,
-    netIncome: new Decimal(totalRevenue).minus(totalExpenses).toNumber(),
+    ...totals,
     periodStart: startDate,
     periodEnd: endDate,
   };
@@ -173,7 +291,7 @@ export async function getBalanceSheet(
   const totalEquity = equity.reduce((sum, r) => sum.plus(r.balance), new Decimal(0)).toNumber();
 
   // Retained earnings = Total Assets - Total Liabilities - Equity from accounts
-  const retainedEarnings = new Decimal(totalAssets).minus(totalLiabilities).minus(totalEquity).toNumber();
+  const retainedEarnings = computeRetainedEarnings(totalAssets, totalLiabilities, totalEquity);
 
   return {
     assets,
@@ -236,13 +354,11 @@ export async function getVatReport(
     .orderBy(desc(documentItems.vatRate));
 
   const salesVat: VatReportRow[] = salesRows.map((r) => {
-    const taxable = new Decimal(r.taxableAmount);
-    const rate = new Decimal(r.rate || '0');
     // For credit notes, amounts would be negative, so VAT computation handles both
     return {
       rate: r.rate || '0',
-      taxableAmount: taxable.toNumber(),
-      vatAmount: taxable.times(rate.div(100)).toNumber(),
+      taxableAmount: new Decimal(r.taxableAmount).toNumber(),
+      vatAmount: computeVatAmount(r.taxableAmount, r.rate || '0'),
       documentCount: r.documentCount,
     };
   });
@@ -269,12 +385,10 @@ export async function getVatReport(
     .orderBy(desc(documentItems.vatRate));
 
   const purchaseVat: VatReportRow[] = purchaseRows.map((r) => {
-    const taxable = new Decimal(r.taxableAmount);
-    const rate = new Decimal(r.rate || '0');
     return {
       rate: r.rate || '0',
-      taxableAmount: taxable.toNumber(),
-      vatAmount: taxable.times(rate.div(100)).toNumber(),
+      taxableAmount: new Decimal(r.taxableAmount).toNumber(),
+      vatAmount: computeVatAmount(r.taxableAmount, r.rate || '0'),
       documentCount: r.documentCount,
     };
   });
@@ -380,20 +494,9 @@ export async function getAgingReport(
       continue;
     }
 
-    const dueDate = new Date(inv.dueDate);
-    const daysOverdue = Math.floor((asOf.getTime() - dueDate.getTime()) / (1000 * 60 * 60 * 24));
-
-    if (daysOverdue <= 0) {
-      acc.current = acc.current.plus(total);
-    } else if (daysOverdue <= 30) {
-      acc.days30 = acc.days30.plus(total);
-    } else if (daysOverdue <= 60) {
-      acc.days60 = acc.days60.plus(total);
-    } else if (daysOverdue <= 90) {
-      acc.days90 = acc.days90.plus(total);
-    } else {
-      acc.over90 = acc.over90.plus(total);
-    }
+    const daysOverdue = computeDaysOverdue(inv.dueDate, asOf);
+    const bucket = classifyAgingBucket(daysOverdue);
+    acc[bucket] = acc[bucket].plus(total);
   }
 
   // Compute totals from Decimal accumulators before converting to number
@@ -505,42 +608,13 @@ export async function getSalesReport(
     .groupBy(sql`TO_CHAR(${documents.issueDate}, 'YYYY-MM')`)
     .orderBy(sql`TO_CHAR(${documents.issueDate}, 'YYYY-MM')`);
 
-  // Merge into monthly rows
-  const creditMap = new Map(creditRows.map((r) => [r.month, r]));
-  const allMonths = new Set([
-    ...invoiceRows.map((r) => r.month),
-    ...creditRows.map((r) => r.month),
-  ]);
-
-  const rows: SalesReportRow[] = Array.from(allMonths)
-    .sort()
-    .map((month) => {
-      const inv = invoiceRows.find((r) => r.month === month);
-      const cn = creditMap.get(month);
-      const revenue = new Decimal(inv?.revenue || '0');
-      const creditAmount = new Decimal(cn?.amount || '0');
-      return {
-        month,
-        invoiceCount: inv?.count || 0,
-        revenue: revenue.toNumber(),
-        vatAmount: new Decimal(inv?.vatAmount || '0').toNumber(),
-        creditNoteCount: cn?.count || 0,
-        creditNoteAmount: creditAmount.toNumber(),
-        netRevenue: revenue.minus(creditAmount).toNumber(),
-      };
-    });
-
-  const totals = rows.reduce(
-    (acc, r) => ({
-      invoiceCount: acc.invoiceCount + r.invoiceCount,
-      revenue: new Decimal(acc.revenue).plus(r.revenue).toNumber(),
-      vatAmount: new Decimal(acc.vatAmount).plus(r.vatAmount).toNumber(),
-      creditNoteCount: acc.creditNoteCount + r.creditNoteCount,
-      creditNoteAmount: new Decimal(acc.creditNoteAmount).plus(r.creditNoteAmount).toNumber(),
-      netRevenue: new Decimal(acc.netRevenue).plus(r.netRevenue).toNumber(),
-    }),
-    { invoiceCount: 0, revenue: 0, vatAmount: 0, creditNoteCount: 0, creditNoteAmount: 0, netRevenue: 0 }
+  // Merge into monthly rows using pure helper
+  const rows = mergeSalesRows(
+    invoiceRows.map((r) => ({ month: r.month, count: r.count, revenue: r.revenue, vatAmount: r.vatAmount })),
+    creditRows.map((r) => ({ month: r.month, count: r.count, amount: r.amount }))
   );
+
+  const totals = computeSalesTotals(rows);
 
   return { rows, totals, periodStart: startDate, periodEnd: endDate };
 }

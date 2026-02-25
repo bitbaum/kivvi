@@ -189,6 +189,71 @@ export async function seedChartOfAccounts(
 }
 
 // ============================================================================
+// PURE HELPERS (no DB access — testable without database)
+// ============================================================================
+
+/**
+ * Validate that journal entry lines balance (debits === credits within rounding tolerance).
+ * Returns { valid, totalDebits, totalCredits } without touching the database.
+ */
+export function validateJournalBalance(
+  lines: Array<{ debit?: string | null; credit?: string | null }>
+): { valid: boolean; totalDebits: string; totalCredits: string } {
+  const totalDebits = lines.reduce(
+    (sum, l) => sum.plus(new Decimal(l.debit || '0')),
+    new Decimal(0)
+  );
+  const totalCredits = lines.reduce(
+    (sum, l) => sum.plus(new Decimal(l.credit || '0')),
+    new Decimal(0)
+  );
+
+  return {
+    valid: totalDebits.minus(totalCredits).abs().lte('0.005'),
+    totalDebits: totalDebits.toFixed(2),
+    totalCredits: totalCredits.toFixed(2),
+  };
+}
+
+/**
+ * Generate 12 monthly fiscal periods from a start date.
+ * Returns an array of { name, startDate, endDate } with German month names.
+ * Pure date math — no DB access.
+ */
+export function generateFiscalPeriods(
+  startDateStr: string
+): Array<{ name: string; startDate: string; endDate: string }> {
+  const start = new Date(startDateStr);
+  const monthNames = [
+    'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
+    'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember',
+  ];
+
+  const periods: Array<{ name: string; startDate: string; endDate: string }> = [];
+
+  // Format as YYYY-MM-DD using local date parts (not UTC — toISOString shifts dates in CET)
+  const fmtDate = (d: Date) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
+
+  for (let i = 0; i < 12; i++) {
+    const periodStart = new Date(start.getFullYear(), start.getMonth() + i, 1);
+    const periodEnd = new Date(start.getFullYear(), start.getMonth() + i + 1, 0);
+
+    periods.push({
+      name: `${monthNames[periodStart.getMonth()]} ${periodStart.getFullYear()}`,
+      startDate: fmtDate(periodStart),
+      endDate: fmtDate(periodEnd),
+    });
+  }
+
+  return periods;
+}
+
+// ============================================================================
 // JOURNAL ENTRIES
 // ============================================================================
 
@@ -309,18 +374,10 @@ export async function createJournalEntry(
   const validated = createJournalEntrySchema.parse(input);
 
   // Validate debits = credits
-  const totalDebits = validated.lines.reduce(
-    (sum, l) => sum.plus(new Decimal(l.debit || '0')),
-    new Decimal(0)
-  );
-  const totalCredits = validated.lines.reduce(
-    (sum, l) => sum.plus(new Decimal(l.credit || '0')),
-    new Decimal(0)
-  );
-
-  if (totalDebits.minus(totalCredits).abs().gt('0.005')) {
+  const balance = validateJournalBalance(validated.lines);
+  if (!balance.valid) {
     throw new Error(
-      `Journal entry must balance. Debits: ${totalDebits.toFixed(2)}, Credits: ${totalCredits.toFixed(2)}`
+      `Journal entry must balance. Debits: ${balance.totalDebits}, Credits: ${balance.totalCredits}`
     );
   }
 
@@ -552,25 +609,11 @@ export async function createFiscalYear(
       .returning();
 
     // Auto-create 12 monthly periods
-    const start = new Date(validated.startDate);
-    const periodValues: Array<{ fiscalYearId: string; name: string; startDate: string; endDate: string }> = [];
-
-    for (let i = 0; i < 12; i++) {
-      const periodStart = new Date(start.getFullYear(), start.getMonth() + i, 1);
-      const periodEnd = new Date(start.getFullYear(), start.getMonth() + i + 1, 0);
-
-      const monthNames = [
-        'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
-        'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember',
-      ];
-
-      periodValues.push({
-        fiscalYearId: year.id,
-        name: `${monthNames[periodStart.getMonth()]} ${periodStart.getFullYear()}`,
-        startDate: periodStart.toISOString().split('T')[0],
-        endDate: periodEnd.toISOString().split('T')[0],
-      });
-    }
+    const periods = generateFiscalPeriods(validated.startDate);
+    const periodValues = periods.map((p) => ({
+      fiscalYearId: year.id,
+      ...p,
+    }));
 
     await tx.insert(fiscalPeriods).values(periodValues);
 

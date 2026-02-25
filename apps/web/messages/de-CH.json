@@ -715,7 +715,11 @@
     "typeAtLeast": "Mindestens 2 Zeichen eingeben",
     "noDocumentsFound": "Keine Dokumente gefunden",
     "csvParseError": "Keine gültigen Transaktionen im CSV gefunden. Erwartete Spalten: Datum, Beschreibung, Referenz, Betrag, Saldo",
-    "csvParseFailed": "CSV konnte nicht gelesen werden"
+    "csvParseFailed": "CSV konnte nicht gelesen werden",
+    "adjustFilters": "Versuchen Sie Ihre Filter anzupassen.",
+    "importToStart": "Importieren Sie eine CSV-Datei um zu beginnen.",
+    "done": "Fertig",
+    "pageInfo": "Seite {page} von {totalPages}"
   },
   "inventory": {
     "title": "Lager",

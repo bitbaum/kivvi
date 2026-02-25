@@ -607,7 +607,11 @@
     "typeAtLeast": "Saisissez au moins 2 caractères",
     "noDocumentsFound": "Aucun document trouvé",
     "csvParseError": "Aucune transaction valide trouvée dans le CSV. Colonnes attendues : date, description, référence, montant, solde",
-    "csvParseFailed": "Impossible de lire le CSV"
+    "csvParseFailed": "Impossible de lire le CSV",
+    "adjustFilters": "Essayez d'ajuster vos filtres.",
+    "importToStart": "Importez un fichier CSV pour commencer.",
+    "done": "Terminé",
+    "pageInfo": "Page {page} sur {totalPages}"
   },
   "inventory": {
     "title": "Inventaire",

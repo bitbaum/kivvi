@@ -716,7 +716,11 @@
     "typeAtLeast": "Type at least 2 characters to search",
     "noDocumentsFound": "No documents found",
     "csvParseError": "No valid transactions found in CSV. Expected columns: date, description, reference, amount, balance",
-    "csvParseFailed": "Failed to parse CSV"
+    "csvParseFailed": "Failed to parse CSV",
+    "adjustFilters": "Try adjusting your filters.",
+    "importToStart": "Import a CSV file to get started.",
+    "done": "Done",
+    "pageInfo": "Page {page} of {totalPages}"
   },
   "inventory": {
     "title": "Inventory",

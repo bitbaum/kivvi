@@ -107,7 +107,7 @@ export function ImportCsv({ bankAccountId }: { bankAccountId: string }) {
                 onClick={handleClose}
                 className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
               >
-                Done
+                {t('done')}
               </button>
             </div>
           ) : (
