@@ -213,16 +213,16 @@ export default async function DocumentsPage({ searchParams }: PageProps) {
               <thead>
                 <tr className="border-b bg-muted/50 text-left text-muted-foreground">
                   <th className="px-4 py-3 font-medium">
-                    <SortableHeader label={tc('number')} field="number" currentSort={sort} currentOrder={order} buildHref={buildSortUrl} />
+                    <SortableHeader label={tc('number')} field="number" currentSort={sort} currentOrder={order} href={buildSortUrl('number', sort === 'number' && order === 'asc' ? 'desc' : 'asc')} />
                   </th>
                   {!selectedType && <th className="px-4 py-3 font-medium">{tc('type')}</th>}
                   <th className="px-4 py-3 font-medium">{td('customer')}</th>
                   <th className="px-4 py-3 font-medium text-right">
-                    <SortableHeader label={tc('total')} field="total" currentSort={sort} currentOrder={order} buildHref={buildSortUrl} />
+                    <SortableHeader label={tc('total')} field="total" currentSort={sort} currentOrder={order} href={buildSortUrl('total', sort === 'total' && order === 'asc' ? 'desc' : 'asc')} />
                   </th>
                   <th className="px-4 py-3 font-medium">{tc('status')}</th>
                   <th className="px-4 py-3 font-medium">
-                    <SortableHeader label={tc('date')} field="issueDate" currentSort={sort} currentOrder={order} buildHref={buildSortUrl} />
+                    <SortableHeader label={tc('date')} field="issueDate" currentSort={sort} currentOrder={order} href={buildSortUrl('issueDate', sort === 'issueDate' && order === 'asc' ? 'desc' : 'asc')} />
                   </th>
                 </tr>
               </thead>

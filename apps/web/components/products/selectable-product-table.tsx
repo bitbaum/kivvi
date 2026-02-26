@@ -61,7 +61,7 @@ interface Translations {
 interface SortProps {
   field: string;
   order: 'asc' | 'desc';
-  buildHref: (sort: string, order: 'asc' | 'desc') => string;
+  hrefs: Record<string, string>;
 }
 
 interface SelectableProductTableProps {
@@ -153,18 +153,18 @@ export function SelectableProductTable({ data, translations, sort }: SelectableP
               </th>
               <th className="hidden whitespace-nowrap px-4 py-3 font-medium lg:table-cell">
                 {sort ? (
-                  <SortableHeader label={translations.columnLabels.articleNumber} field="articleNumber" currentSort={sort.field} currentOrder={sort.order} buildHref={sort.buildHref} />
+                  <SortableHeader label={translations.columnLabels.articleNumber} field="articleNumber" currentSort={sort.field} currentOrder={sort.order} href={sort.hrefs.articleNumber} />
                 ) : translations.columnLabels.articleNumber}
               </th>
               <th className="whitespace-nowrap px-4 py-3 font-medium">
                 {sort ? (
-                  <SortableHeader label={translations.columnLabels.name} field="name" currentSort={sort.field} currentOrder={sort.order} buildHref={sort.buildHref} />
+                  <SortableHeader label={translations.columnLabels.name} field="name" currentSort={sort.field} currentOrder={sort.order} href={sort.hrefs.name} />
                 ) : translations.columnLabels.name}
               </th>
               <th className="hidden whitespace-nowrap px-4 py-3 font-medium md:table-cell">{translations.columnLabels.type}</th>
               <th className="whitespace-nowrap px-4 py-3 font-medium text-right">
                 {sort ? (
-                  <SortableHeader label={translations.columnLabels.unitPrice} field="unitPrice" currentSort={sort.field} currentOrder={sort.order} buildHref={sort.buildHref} />
+                  <SortableHeader label={translations.columnLabels.unitPrice} field="unitPrice" currentSort={sort.field} currentOrder={sort.order} href={sort.hrefs.unitPrice} />
                 ) : translations.columnLabels.unitPrice}
               </th>
               <th className="hidden whitespace-nowrap px-4 py-3 font-medium text-right lg:table-cell">{translations.columnLabels.vatRate}</th>

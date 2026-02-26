@@ -29,6 +29,9 @@ pnpm-debug.log*
 
 # Testing
 coverage/
+playwright-report/
+test-results/
+e2e/.auth/
 
 # Database
 *.db

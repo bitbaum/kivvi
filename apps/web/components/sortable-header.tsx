@@ -6,7 +6,7 @@ interface SortableHeaderProps {
   field: string;
   currentSort?: string;
   currentOrder?: 'asc' | 'desc';
-  buildHref: (sort: string, order: 'asc' | 'desc') => string;
+  href: string;
 }
 
 /**
@@ -18,14 +18,13 @@ export function SortableHeader({
   field,
   currentSort,
   currentOrder,
-  buildHref,
+  href,
 }: SortableHeaderProps) {
   const isActive = currentSort === field;
-  const nextOrder = isActive && currentOrder === 'asc' ? 'desc' : 'asc';
 
   return (
     <Link
-      href={buildHref(field, nextOrder)}
+      href={href}
       className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
     >
       {label}

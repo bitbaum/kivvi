@@ -48,7 +48,7 @@ interface Translations {
 interface SortProps {
   field: string;
   order: 'asc' | 'desc';
-  buildHref: (sort: string, order: 'asc' | 'desc') => string;
+  hrefs: Record<string, string>;
 }
 
 interface SelectableContactTableProps {
@@ -113,12 +113,12 @@ export function SelectableContactTable({ data, translations, sort }: SelectableC
         </div>
         <div>
           {sort ? (
-            <SortableHeader label={translations.columnLabels.number} field="contactNumber" currentSort={sort.field} currentOrder={sort.order} buildHref={sort.buildHref} />
+            <SortableHeader label={translations.columnLabels.number} field="contactNumber" currentSort={sort.field} currentOrder={sort.order} href={sort.hrefs.contactNumber} />
           ) : translations.columnLabels.number}
         </div>
         <div>
           {sort ? (
-            <SortableHeader label={translations.columnLabels.name} field="name" currentSort={sort.field} currentOrder={sort.order} buildHref={sort.buildHref} />
+            <SortableHeader label={translations.columnLabels.name} field="name" currentSort={sort.field} currentOrder={sort.order} href={sort.hrefs.name} />
           ) : translations.columnLabels.name}
         </div>
         <div>{translations.columnLabels.type}</div>
@@ -126,7 +126,7 @@ export function SelectableContactTable({ data, translations, sort }: SelectableC
         <div className="hidden lg:block">{translations.columnLabels.phone}</div>
         <div className="hidden lg:block">
           {sort ? (
-            <SortableHeader label={translations.columnLabels.city} field="city" currentSort={sort.field} currentOrder={sort.order} buildHref={sort.buildHref} />
+            <SortableHeader label={translations.columnLabels.city} field="city" currentSort={sort.field} currentOrder={sort.order} href={sort.hrefs.city} />
           ) : translations.columnLabels.city}
         </div>
         <div>{translations.columnLabels.status}</div>

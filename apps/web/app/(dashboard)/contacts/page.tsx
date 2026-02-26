@@ -97,6 +97,13 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
     return `/contacts?${params.toString()}`;
   }
 
+  // Pre-compute sort hrefs for client component (functions can't cross server→client boundary)
+  const sortHrefs: Record<string, string> = {};
+  for (const field of ['contactNumber', 'name', 'city']) {
+    const nextOrder = sort === field && order === 'asc' ? 'desc' : 'asc';
+    sortHrefs[field] = buildSortUrl(field, nextOrder);
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -179,7 +186,7 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
                 isActive: c.isActive,
               }))}
               translations={{ columnLabels, typeLabels, bulkLabels }}
-              sort={{ field: sort, order, buildHref: buildSortUrl }}
+              sort={{ field: sort, order, hrefs: sortHrefs }}
             />
 
             <Pagination
