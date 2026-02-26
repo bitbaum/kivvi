@@ -7,17 +7,32 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { auth } from '@/lib/auth';
+import { getTranslations } from 'next-intl/server';
 
 export default async function HelpPage() {
   const session = await auth();
   if (!session?.user?.companyId) redirect('/login');
 
+  const t = await getTranslations('help');
+  const tc = await getTranslations('common');
+
+  const shortcuts = [
+    { keys: '/', description: tc('shortcuts.focusSearch') },
+    { keys: 'N', description: tc('shortcuts.createNew') },
+    { keys: 'Esc', description: tc('shortcuts.closeModals') },
+  ];
+
+  const quickLinks = [
+    { label: t('qrBillStandard'), href: 'https://www.six-group.com/en/products-services/banking-services/payment-standardization/standards/qr-bill.html' },
+    { label: t('vatRatesLink'), href: 'https://www.estv.admin.ch/estv/en/home/value-added-tax.html' },
+  ];
+
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold">Help</h1>
+        <h1 className="text-3xl font-bold">{t('title')}</h1>
         <p className="text-muted-foreground">
-          Resources and shortcuts to help you get the most out of Kivvi.
+          {t('subtitle')}
         </p>
       </div>
 
@@ -26,9 +41,9 @@ export default async function HelpPage() {
           <div className="rounded-lg border bg-background p-3 inline-block">
             <MessageSquare className="h-5 w-5 text-muted-foreground" />
           </div>
-          <h2 className="mt-4 font-semibold">AI Assistant</h2>
+          <h2 className="mt-4 font-semibold">{t('aiAssistant')}</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Ask Kivvi to create invoices, search contacts, check payments, or generate reports. Go to AI Assistant in the sidebar.
+            {t('aiAssistantDesc')}
           </p>
         </div>
 
@@ -36,9 +51,9 @@ export default async function HelpPage() {
           <div className="rounded-lg border bg-background p-3 inline-block">
             <BookOpen className="h-5 w-5 text-muted-foreground" />
           </div>
-          <h2 className="mt-4 font-semibold">Getting Started</h2>
+          <h2 className="mt-4 font-semibold">{t('gettingStarted')}</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Set up your company in Settings, add contacts and products, then create your first invoice under Sales.
+            {t('gettingStartedDesc')}
           </p>
         </div>
 
@@ -46,9 +61,9 @@ export default async function HelpPage() {
           <div className="rounded-lg border bg-background p-3 inline-block">
             <Mail className="h-5 w-5 text-muted-foreground" />
           </div>
-          <h2 className="mt-4 font-semibold">Support</h2>
+          <h2 className="mt-4 font-semibold">{t('support')}</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Need help? Contact us at{' '}
+            {t('supportDesc')}{' '}
             <a href="mailto:support@revamp-it.ch" className="text-primary hover:underline">
               support@revamp-it.ch
             </a>
@@ -61,14 +76,10 @@ export default async function HelpPage() {
           <div className="rounded-lg border bg-background p-3">
             <Keyboard className="h-5 w-5 text-muted-foreground" />
           </div>
-          <h2 className="font-semibold">Keyboard Shortcuts</h2>
+          <h2 className="font-semibold">{tc('shortcuts.title')}</h2>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
-          {[
-            { keys: '/', description: 'Focus search' },
-            { keys: 'N', description: 'Create new (context-aware)' },
-            { keys: 'Esc', description: 'Close modals / sidebar' },
-          ].map((shortcut) => (
+          {shortcuts.map((shortcut) => (
             <div key={shortcut.keys} className="flex items-center gap-3">
               <kbd className="inline-flex h-7 min-w-[28px] items-center justify-center rounded border bg-muted px-2 font-mono text-xs">
                 {shortcut.keys}
@@ -80,12 +91,9 @@ export default async function HelpPage() {
       </div>
 
       <div className="rounded-xl border bg-card p-6">
-        <h2 className="font-semibold mb-3">Quick Links</h2>
+        <h2 className="font-semibold mb-3">{t('quickLinks')}</h2>
         <div className="space-y-2">
-          {[
-            { label: 'Swiss QR-Bill Standard', href: 'https://www.six-group.com/en/products-services/banking-services/payment-standardization/standards/qr-bill.html' },
-            { label: 'Swiss VAT Rates (ESTV)', href: 'https://www.estv.admin.ch/estv/en/home/value-added-tax.html' },
-          ].map((link) => (
+          {quickLinks.map((link) => (
             <a
               key={link.href}
               href={link.href}

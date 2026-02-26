@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { CheckCircle, AlertTriangle, XCircle, ChevronDown, ChevronUp, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 
 interface BulkResult {
@@ -17,6 +18,7 @@ interface BulkResultBannerProps {
 }
 
 export function BulkResultBanner({ result, labels, onDismiss }: BulkResultBannerProps) {
+  const tc = useTranslations('common');
   const [showErrors, setShowErrors] = useState(false);
 
   useEffect(() => {
@@ -63,7 +65,7 @@ export function BulkResultBanner({ result, labels, onDismiss }: BulkResultBanner
             </button>
           )}
         </div>
-        <button onClick={onDismiss} aria-label="Dismiss" className="rounded p-0.5 hover:bg-black/10 dark:hover:bg-white/10">
+        <button onClick={onDismiss} aria-label={tc('aria.dismiss')} className="rounded p-0.5 hover:bg-black/10 dark:hover:bg-white/10">
           <X className="h-3.5 w-3.5" />
         </button>
       </div>

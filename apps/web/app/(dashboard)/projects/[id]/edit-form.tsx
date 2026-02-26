@@ -60,10 +60,10 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
         // Auto-hide success message after 3 seconds
         setTimeout(() => setSuccess(false), 3000);
       } else {
-        setError(result.error || 'Failed to update project');
+        setError(result.error || tc('error'));
       }
     } catch {
-      setError('An unexpected error occurred');
+      setError(tc('error'));
     } finally {
       setIsSubmitting(false);
     }

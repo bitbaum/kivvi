@@ -12,6 +12,7 @@ export function AutoMatchButton({ bankAccountId }: { bankAccountId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<{ matched: number } | null>(null);
   const t = useTranslations('banking');
+  const tc = useTranslations('common');
 
   function handleClick() {
     setError(null);
@@ -23,7 +24,7 @@ export function AutoMatchButton({ bankAccountId }: { bankAccountId: string }) {
         setResult(res.data);
         router.refresh();
       } else {
-        setError(res.error || 'Failed to auto-match');
+        setError(res.error || tc('error'));
       }
     });
   }

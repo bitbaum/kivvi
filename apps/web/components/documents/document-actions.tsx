@@ -21,6 +21,7 @@ export function DocumentStatusActions({
 }) {
   const router = useRouter();
   const t = useTranslations('statusActions');
+  const tc = useTranslations('common');
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -35,7 +36,7 @@ export function DocumentStatusActions({
       if (result.success) {
         router.refresh();
       } else {
-        setError(result.error || 'Failed to update status');
+        setError(result.error || tc('error'));
       }
     });
   }
@@ -71,6 +72,7 @@ export function DocumentConvertActions({
 }) {
   const router = useRouter();
   const t = useTranslations('documents');
+  const tc = useTranslations('common');
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -84,7 +86,7 @@ export function DocumentConvertActions({
         const targetConfig = DOCUMENT_TYPES[targetType];
         router.push(`${targetConfig.basePath}/${result.data.id}`);
       } else {
-        setError(result.error || 'Failed to convert document');
+        setError(result.error || tc('error'));
       }
     });
   }

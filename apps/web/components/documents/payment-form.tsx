@@ -53,7 +53,7 @@ export function PaymentForm({
         setIsOpen(false);
         router.refresh();
       } else {
-        setError(result.error || 'Failed to record payment');
+        setError(result.error || tc('error'));
       }
     });
   }

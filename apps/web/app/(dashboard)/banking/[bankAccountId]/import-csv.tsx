@@ -58,7 +58,7 @@ export function ImportCsv({ bankAccountId }: { bankAccountId: string }) {
         setTransactions([]);
         router.refresh();
       } else {
-        setError(res.error || 'Failed to import transactions');
+        setError(res.error || tc('error'));
       }
     });
   }

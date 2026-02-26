@@ -109,7 +109,7 @@ export default function NewContactPage() {
                 name="name"
                 required
                 maxLength={200}
-                placeholder="e.g. Muller AG"
+                placeholder={t('placeholders.companyName')}
               />
             </div>
 
@@ -265,8 +265,8 @@ export default function NewContactPage() {
                 defaultValue="CH"
               >
                 {COUNTRY_OPTIONS.map((c) => (
-                  <option key={c.value} value={c.value}>
-                    {c.label}
+                  <option key={c} value={c}>
+                    {tc(`countries.${c.toLowerCase()}`)}
                   </option>
                 ))}
               </FormSelect>
@@ -311,7 +311,7 @@ export default function NewContactPage() {
                 id="vatNumber"
                 name="vatNumber"
                 maxLength={30}
-                placeholder="CHE-123.456.789 MWST"
+                placeholder={t('placeholders.vatNumber')}
               />
             </div>
 

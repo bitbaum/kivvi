@@ -8,16 +8,12 @@ import { cn } from '@/lib/utils';
 import { COUNTRY_OPTIONS } from '@/lib/config/locales';
 import { FormInput, FormSelect } from '@/components/ui/form-field';
 
-const CURRENCIES = [
-  { value: 'CHF', label: 'CHF - Swiss Franc' },
-  { value: 'EUR', label: 'EUR - Euro' },
-  { value: 'USD', label: 'USD - US Dollar' },
-] as const;
+const CURRENCY_VALUES = ['CHF', 'EUR', 'USD'] as const;
 
-const VAT_RATE_OPTIONS = [
-  { value: '8.1', label: '8.1% (Normal)' },
-  { value: '2.6', label: '2.6% (Reduziert)' },
-  { value: '0.0', label: '0% (Befreit)' },
+const VAT_RATE_VALUES = [
+  { value: '8.1', labelKey: 'vatRates.normal' },
+  { value: '2.6', labelKey: 'vatRates.reduced' },
+  { value: '0.0', labelKey: 'vatRates.exempt' },
 ] as const;
 
 interface CompanyFormProps {
@@ -75,10 +71,10 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
       } else {
-        setError(result.error || 'Failed to update company settings');
+        setError(result.error || tc('error'));
       }
     } catch {
-      setError('An unexpected error occurred');
+      setError(tc('error'));
     } finally {
       setIsSubmitting(false);
     }
@@ -143,7 +139,7 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
               id="vatNumber"
               name="vatNumber"
               maxLength={50}
-              placeholder="CHE-123.456.789 MWST"
+              placeholder={t('company.placeholders.vatNumber')}
               defaultValue={initialData.vatNumber}
             />
           </div>
@@ -205,8 +201,8 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
               defaultValue={initialData.country}
             >
               {COUNTRY_OPTIONS.map((c) => (
-                <option key={c.value} value={c.value}>
-                  {c.label}
+                <option key={c} value={c}>
+                  {tc(`countries.${c.toLowerCase()}`)}
                 </option>
               ))}
             </FormSelect>
@@ -243,7 +239,7 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
               id="bankName"
               name="bankName"
               maxLength={200}
-              placeholder="z.B. UBS, ZKB, PostFinance"
+              placeholder={t('company.placeholders.bankName')}
               defaultValue={initialData.bankName}
             />
           </div>
@@ -265,9 +261,9 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
               name="currency"
               defaultValue={initialData.currency}
             >
-              {CURRENCIES.map((c) => (
-                <option key={c.value} value={c.value}>
-                  {c.label}
+              {CURRENCY_VALUES.map((c) => (
+                <option key={c} value={c}>
+                  {t(`currencies.${c.toLowerCase()}`)}
                 </option>
               ))}
             </FormSelect>
@@ -282,9 +278,9 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
               name="defaultVatRate"
               defaultValue={initialData.defaultVatRate}
             >
-              {VAT_RATE_OPTIONS.map((r) => (
+              {VAT_RATE_VALUES.map((r) => (
                 <option key={r.value} value={r.value}>
-                  {r.label}
+                  {t(r.labelKey)}
                 </option>
               ))}
             </FormSelect>
@@ -324,7 +320,7 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
             rows={3}
             maxLength={1000}
             className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            placeholder="z.B. Zahlbar innert 30 Tagen netto"
+            placeholder={t('company.placeholders.documentFooter')}
             defaultValue={initialData.defaultDocumentFooter}
           />
           <p className="mt-1 text-xs text-muted-foreground">

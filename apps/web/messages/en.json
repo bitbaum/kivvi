@@ -65,7 +65,49 @@
     "exportCsv": "Export CSV",
     "export": "Export",
     "exporting": "Exporting...",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "aria": {
+      "mainNavigation": "Main navigation",
+      "primaryNavigation": "Primary navigation",
+      "secondaryNavigation": "Secondary navigation",
+      "kivviHome": "Kivvi Home",
+      "closeMenu": "Close menu",
+      "companySettings": "Company settings",
+      "openNavigation": "Open navigation menu",
+      "openCommandPalette": "Open command palette",
+      "languageOptions": "Language options",
+      "notifications": "Notifications (coming soon)",
+      "userMenu": "User menu",
+      "commandPalette": "Command palette",
+      "clearSearch": "Clear search",
+      "breadcrumb": "Breadcrumb",
+      "dismiss": "Dismiss",
+      "dragToReorder": "Drag to reorder",
+      "removeLineItem": "Remove line item",
+      "selectAll": "Select all"
+    },
+    "or": "or",
+    "comingSoon": "Coming soon",
+    "upload": "Upload",
+    "countries": {
+      "ch": "Switzerland",
+      "de": "Germany",
+      "at": "Austria",
+      "fr": "France",
+      "it": "Italy",
+      "li": "Liechtenstein"
+    },
+    "shortcuts": {
+      "title": "Keyboard Shortcuts",
+      "subtitle": "Use these shortcuts to navigate faster",
+      "openCommandPalette": "Open command palette",
+      "focusSearch": "Focus search",
+      "createNew": "Create new (context-aware)",
+      "toggleAI": "Toggle AI assistant",
+      "showShortcuts": "Show keyboard shortcuts",
+      "closeModals": "Close modals/dropdowns",
+      "tip": "Tip: Press ? anytime to see these shortcuts"
+    }
   },
   "nav": {
     "home": "Home",
@@ -525,7 +567,11 @@
     "internalNotes": "Internal notes",
     "created": "Contact created",
     "updated": "Contact updated",
-    "deleted": "Contact deleted"
+    "deleted": "Contact deleted",
+    "placeholders": {
+      "companyName": "e.g. Müller AG",
+      "vatNumber": "CHE-123.456.789 MWST"
+    }
   },
   "products": {
     "title": "Products",
@@ -588,7 +634,11 @@
     "reservedQuantity": "({count} reserved)",
     "kivitendoId": "Kivitendo ID",
     "created": "Product created",
-    "updated": "Product updated"
+    "updated": "Product updated",
+    "placeholders": {
+      "articleNumber": "e.g. WIDGET-001",
+      "ean": "e.g. 7610000000001"
+    }
   },
   "documentsHub": {
     "title": "Documents",
@@ -679,7 +729,19 @@
     "retainedEarnings": "Retained Earnings",
     "balanceCheck": "Balance Check",
     "unknownAccount": "Unknown account",
-    "noPeriods": "No periods found."
+    "noPeriods": "No periods found.",
+    "placeholders": {
+      "yearName": "e.g. 2026",
+      "reference": "Optional reference...",
+      "description": "What is this entry for?",
+      "optional": "Optional...",
+      "accountCode": "e.g. 1000",
+      "accountName": "e.g. Cash"
+    },
+    "descriptionRequired": "Description is required",
+    "minTwoLines": "At least 2 lines with accounts and amounts are required",
+    "mustBalance": "Debits must equal credits",
+    "manualEntryNote": "Entry will be created as a manual journal entry."
   },
   "banking": {
     "title": "Banking",
@@ -720,7 +782,12 @@
     "adjustFilters": "Try adjusting your filters.",
     "importToStart": "Import a CSV file to get started.",
     "done": "Done",
-    "pageInfo": "Page {page} of {totalPages}"
+    "pageInfo": "Page {page} of {totalPages}",
+    "placeholders": {
+      "accountName": "e.g. Business Account",
+      "bankName": "e.g. UBS, Credit Suisse, PostFinance"
+    },
+    "unreconcile": "Unreconcile"
   },
   "inventory": {
     "title": "Inventory",
@@ -755,7 +822,11 @@
     "minStockColumn": "Min Stock",
     "deficitColumn": "Deficit",
     "warehouseNamePlaceholder": "e.g. Main Warehouse",
-    "locationPlaceholder": "e.g. Bahnhofstrasse 1, 8001 Zurich"
+    "locationPlaceholder": "e.g. Bahnhofstrasse 1, 8001 Zurich",
+    "placeholders": {
+      "quantity": "e.g. 10",
+      "movementReference": "e.g. PO-2026-001 or manual adjustment"
+    }
   },
   "reports": {
     "title": "Reports",
@@ -874,7 +945,10 @@
     "adjustFilters": "Try adjusting your search or filters.",
     "pageOf": "Page {page} of {totalPages}",
     "showingProjects": "Showing {from} to {to} of {total} projects",
-    "descriptionPlaceholder": "Project description..."
+    "descriptionPlaceholder": "Project description...",
+    "placeholders": {
+      "projectName": "e.g. Website Redesign"
+    }
   },
   "settings": {
     "title": "Settings",
@@ -903,7 +977,12 @@
       "documentFooter": "Document Footer",
       "defaultDocumentFooter": "Default Footer",
       "defaultDocumentFooterHint": "Shown on documents when no individual notes are set.",
-      "savedSuccessfully": "Settings saved"
+      "savedSuccessfully": "Settings saved",
+      "placeholders": {
+        "bankName": "e.g. UBS, ZKB, PostFinance",
+        "documentFooter": "e.g. Payable within 30 days net",
+        "vatNumber": "CHE-123.456.789 MWST"
+      }
     },
     "profileSection": {
       "title": "User Profile",
@@ -1017,6 +1096,33 @@
         "currentQuarter": "Current quarter (Q1-Q4)"
       },
       "status": "Status"
+    },
+    "currencies": {
+      "chf": "CHF - Swiss Franc",
+      "eur": "EUR - Euro",
+      "usd": "USD - US Dollar"
+    },
+    "vatRates": {
+      "normal": "8.1% (Normal)",
+      "reduced": "2.6% (Reduced)",
+      "exempt": "0% (Exempt)"
+    },
+    "repair": {
+      "salesInvoicesTitle": "Sales Invoices",
+      "salesInvoicesDesc": "Upload the Kivitendo AR invoice CSV to re-import line items for existing invoices.",
+      "purchaseInvoicesTitle": "Purchase Invoices",
+      "purchaseInvoicesDesc": "Upload the Kivitendo AP invoice CSV to re-import line items for existing purchase invoices.",
+      "reimportLineItems": "Re-import line items",
+      "repairComplete": "Repair complete",
+      "updatedDocuments": "Updated {updated} documents, skipped {skipped}",
+      "repairAnother": "Repair another file",
+      "documents": "{docCount} documents, {itemCount} line items",
+      "uploadCsv": "Upload CSV",
+      "csvEmpty": "CSV file is empty or has no data rows",
+      "csvMissingColumns": "CSV missing required columns: Positionen, Buchungsnummer",
+      "noLineItems": "No line items found in CSV",
+      "csvParseFailed": "Failed to parse CSV: {message}",
+      "repairFailed": "Repair failed"
     }
   },
   "auth": {
@@ -1068,7 +1174,11 @@
     "showPassword": "Show password",
     "hidePassword": "Hide password",
     "heroSubtitle": "Kivvi automates your invoicing, bookkeeping, and payments so you can focus on what matters.",
-    "securityNote": "Your data is encrypted and stays in Switzerland. Self-host your AI for complete privacy."
+    "securityNote": "Your data is encrypted and stays in Switzerland. Self-host your AI for complete privacy.",
+    "placeholders": {
+      "fullName": "Max Muster",
+      "companyName": "Muster GmbH"
+    }
   },
   "onboarding": {
     "welcome": "Welcome to Kivvi",
@@ -1104,7 +1214,33 @@
     "skip": "-- skip --",
     "dragAndDrop": "Drag & drop or click",
     "preview": "Preview ({rows} rows total)",
-    "showingColumns": "Showing {shown} of {total} columns"
+    "showingColumns": "Showing {shown} of {total} columns",
+    "placeholders": {
+      "companyName": "e.g. Muster GmbH",
+      "vatNumber": "CHE-123.456.789 MWST"
+    },
+    "categories": {
+      "contacts": "Contacts",
+      "contactsDesc": "Customers & vendors",
+      "customers": "Customers",
+      "vendors": "Vendors",
+      "products": "Products",
+      "productsDesc": "Products & services",
+      "documents": "Documents",
+      "documentsDesc": "Invoices & purchase invoices",
+      "salesInvoices": "Sales Invoices",
+      "purchaseInvoices": "Purchase Invoices",
+      "accounting": "Accounting",
+      "accountingDesc": "Journal entries & stock levels",
+      "journalEntries": "Journal Entries",
+      "stockLevels": "Stock Levels"
+    },
+    "countries": {
+      "ch": "Switzerland",
+      "de": "Germany",
+      "at": "Austria",
+      "li": "Liechtenstein"
+    }
   },
   "chat": {
     "title": "AI Assistant",
@@ -1204,5 +1340,18 @@
     "newOrder": "New Order",
     "newContact": "New Contact",
     "newProduct": "New Product"
+  },
+  "help": {
+    "title": "Help",
+    "subtitle": "Resources and shortcuts to help you get the most out of Kivvi.",
+    "aiAssistant": "AI Assistant",
+    "aiAssistantDesc": "Ask Kivvi to create invoices, search contacts, check payments, or generate reports. Go to AI Assistant in the sidebar.",
+    "gettingStarted": "Getting Started",
+    "gettingStartedDesc": "Set up your company in Settings, add contacts and products, then create your first invoice under Sales.",
+    "support": "Support",
+    "supportDesc": "Need help? Contact us at",
+    "quickLinks": "Quick Links",
+    "qrBillStandard": "Swiss QR-Bill Standard",
+    "vatRatesLink": "Swiss VAT Rates (ESTV)"
   }
 }

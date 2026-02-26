@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Globe } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import type { Locale } from '@/i18n/request';
@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 export function LanguageSwitcher() {
   const locale = useLocale() as Locale;
   const router = useRouter();
+  const tc = useTranslations('common');
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -62,7 +63,7 @@ export function LanguageSwitcher() {
         <div
           className="absolute right-0 top-full z-50 mt-2 w-36 rounded-lg border bg-card p-1 shadow-lg"
           role="menu"
-          aria-label="Language options"
+          aria-label={tc('aria.languageOptions')}
         >
           {(Object.entries(LOCALE_CONFIG) as [Locale, { short: string; native: string }][]).map(([loc, cfg]) => (
             <button

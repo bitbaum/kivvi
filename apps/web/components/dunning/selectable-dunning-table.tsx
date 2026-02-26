@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { Loader2, Send } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useSelection } from '@/hooks/use-selection';
 import { BulkActionToolbar } from '@/components/bulk-action-toolbar';
 import { BulkResultBanner } from '@/components/bulk-result-banner';
@@ -44,6 +45,7 @@ interface SelectableDunningTableProps {
 }
 
 export function SelectableDunningTable({ data, translations }: SelectableDunningTableProps) {
+  const tc = useTranslations('common');
   // Only invoices with dunningLevel < 3 are selectable
   const selectableIds = useMemo(
     () => data.filter((inv) => inv.dunningLevel < 3).map((inv) => inv.id),
@@ -107,7 +109,7 @@ export function SelectableDunningTable({ data, translations }: SelectableDunning
             checked={isAllSelected}
             ref={(el) => { if (el) el.indeterminate = isSomeSelected; }}
             onChange={toggleAll}
-            aria-label="Select all"
+            aria-label={tc('aria.selectAll')}
             className="h-4 w-4 rounded border-gray-300"
           />
         </div>

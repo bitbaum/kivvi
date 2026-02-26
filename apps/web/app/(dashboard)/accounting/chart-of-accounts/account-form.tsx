@@ -86,7 +86,7 @@ export function AccountForm({ account, parentAccounts }: AccountFormProps) {
               required
               maxLength={10}
               defaultValue={account?.code || ''}
-              placeholder="e.g. 1000"
+              placeholder={t('placeholders.accountCode')}
             />
           </div>
 
@@ -102,7 +102,7 @@ export function AccountForm({ account, parentAccounts }: AccountFormProps) {
               required
               maxLength={200}
               defaultValue={account?.name || ''}
-              placeholder="e.g. Cash / Kasse"
+              placeholder={t('placeholders.accountName')}
             />
           </div>
 

@@ -67,7 +67,7 @@ export function QuickCreateContactModal({
         onSuccess({ id: result.data.id, name: name.trim() });
         handleClose();
       } else {
-        setError(result.error || 'Failed to create contact');
+        setError(result.error || tc('error'));
         if (result.fieldErrors) {
           setFieldErrors(result.fieldErrors);
         }
@@ -85,7 +85,7 @@ export function QuickCreateContactModal({
           type="button"
           onClick={handleClose}
           disabled={isPending}
-          aria-label="Close"
+          aria-label={tc('close')}
           className="absolute right-4 top-4 rounded-lg p-1 hover:bg-muted"
         >
           <X className="h-4 w-4" />

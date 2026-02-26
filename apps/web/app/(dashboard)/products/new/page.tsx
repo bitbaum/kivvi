@@ -145,7 +145,7 @@ export default function NewProductPage() {
                   id="sku"
                   name="sku"
                   maxLength={100}
-                  placeholder="e.g. WIDGET-001"
+                  placeholder={t('placeholders.articleNumber')}
                 />
               </div>
               <div>
@@ -157,7 +157,7 @@ export default function NewProductPage() {
                   id="ean"
                   name="ean"
                   maxLength={50}
-                  placeholder="e.g. 7610000000001"
+                  placeholder={t('placeholders.ean')}
                 />
               </div>
             </div>

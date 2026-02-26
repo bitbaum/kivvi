@@ -38,10 +38,10 @@ export function AddMovementForm({ warehouseId }: { warehouseId: string }) {
       fetch('/api/products')
         .then((res) => res.json())
         .then((data) => setProducts(data))
-        .catch(() => setError('Failed to load products'))
+        .catch(() => setError(tc('error')))
         .finally(() => setProductsLoading(false));
     }
-  }, [isOpen, products.length]);
+  }, [isOpen, products.length, tc]);
 
   const filteredProducts = products.filter((p) => {
     const q = productSearch.toLowerCase();
@@ -83,7 +83,7 @@ export function AddMovementForm({ warehouseId }: { warehouseId: string }) {
         setProductSearch('');
         router.refresh();
       } else {
-        setError(result.error || 'Failed to record movement');
+        setError(result.error || tc('error'));
       }
     });
   }
@@ -226,7 +226,7 @@ export function AddMovementForm({ warehouseId }: { warehouseId: string }) {
               required
               min="0.01"
               step="0.01"
-              placeholder="e.g. 10"
+              placeholder={t('placeholders.quantity')}
             />
             <p className="mt-1 text-xs text-muted-foreground">
               Enter a positive number. Direction is determined by the movement
@@ -240,7 +240,7 @@ export function AddMovementForm({ warehouseId }: { warehouseId: string }) {
             <FormInput
               name="reference"
               type="text"
-              placeholder="e.g. PO-2026-001 or manual adjustment"
+              placeholder={t('placeholders.movementReference')}
             />
           </div>
 

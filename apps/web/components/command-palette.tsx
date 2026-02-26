@@ -1,6 +1,7 @@
 'use client';
 
 import { Search, X } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { useCommandPalette } from '@/hooks/use-command-palette';
 
@@ -10,6 +11,7 @@ interface CommandPaletteProps {
 }
 
 export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
+  const tc = useTranslations('common');
   const {
     query,
     setQuery,
@@ -40,7 +42,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
-        aria-label="Command palette"
+        aria-label={tc('aria.commandPalette')}
       >
         {/* Search input */}
         <div className="flex items-center gap-3 border-b px-4 py-3">
@@ -56,14 +58,14 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-            aria-label="Search"
+            aria-label={tc('search')}
             autoComplete="off"
           />
           {query && (
             <button
               onClick={() => { setQuery(''); setSelectedIndex(0); }}
               className="rounded p-0.5 hover:bg-muted"
-              aria-label="Clear search"
+              aria-label={tc('aria.clearSearch')}
             >
               <X className="h-3.5 w-3.5 text-muted-foreground" />
             </button>

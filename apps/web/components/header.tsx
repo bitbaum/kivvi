@@ -65,7 +65,7 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
       <button
         onClick={onMenuClick}
         className="rounded-lg p-2 hover:bg-muted lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        aria-label="Open navigation menu"
+        aria-label={t('aria.openNavigation')}
       >
         <Menu className="h-5 w-5" />
       </button>
@@ -77,7 +77,7 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
           onClick={onCommandPalette}
           className="flex w-full items-center gap-2 rounded-lg border bg-background py-2 pl-10 pr-20 text-sm text-muted-foreground hover:bg-muted/50 transition-colors relative text-left"
           role="search"
-          aria-label="Open command palette"
+          aria-label={t('aria.openCommandPalette')}
         >
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
           {t('searchOrAskAI')}
@@ -108,7 +108,7 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
             <div
               className="absolute right-0 top-full z-50 mt-2 w-36 rounded-lg border bg-card p-1 shadow-lg"
               role="menu"
-              aria-label="Language options"
+              aria-label={t('aria.languageOptions')}
             >
               {(Object.entries(LOCALE_CONFIG) as [Locale, { short: string; native: string }][]).map(([loc, cfg]) => (
                 <button
@@ -128,9 +128,9 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
         {/* Notifications — disabled until notification system is implemented */}
         <button
           className="relative rounded-lg p-2 text-muted-foreground cursor-not-allowed"
-          aria-label="Notifications (coming soon)"
+          aria-label={t('aria.notifications')}
           disabled
-          title="Coming soon"
+          title={t('comingSoon')}
         >
           <Bell className="h-5 w-5" />
         </button>
@@ -157,7 +157,7 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
             <div
               className="absolute right-0 top-full z-50 mt-2 w-56 rounded-lg border bg-card p-1 shadow-lg"
               role="menu"
-              aria-label="User menu"
+              aria-label={t('aria.userMenu')}
             >
               <div className="border-b px-3 py-2">
                 <p className="font-medium">{session?.user?.name}</p>

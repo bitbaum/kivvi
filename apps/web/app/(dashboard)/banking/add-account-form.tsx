@@ -33,7 +33,7 @@ export function AddAccountForm() {
         setIsOpen(false);
         router.refresh();
       } else {
-        setError(result.error || 'Failed to create bank account');
+        setError(result.error || tc('error'));
       }
     });
   }
@@ -72,7 +72,7 @@ export function AddAccountForm() {
               name="name"
               type="text"
               required
-              placeholder="e.g. Business Account"
+              placeholder={t('placeholders.accountName')}
             />
           </div>
 
@@ -91,7 +91,7 @@ export function AddAccountForm() {
             <FormInput
               name="bankName"
               type="text"
-              placeholder="e.g. UBS, Credit Suisse, PostFinance"
+              placeholder={t('placeholders.bankName')}
             />
           </div>
 

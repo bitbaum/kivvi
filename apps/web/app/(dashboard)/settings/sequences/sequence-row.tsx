@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Pencil, X, Loader2, Check } from 'lucide-react';
 import { updateNumberSequenceAction } from '@/app/actions/settings';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 
 interface SequenceRowProps {
@@ -17,6 +18,7 @@ interface SequenceRowProps {
 }
 
 export function SequenceRow({ sequence, typeLabel }: SequenceRowProps) {
+  const tc = useTranslations('common');
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -62,10 +64,10 @@ export function SequenceRow({ sequence, typeLabel }: SequenceRowProps) {
         setIsEditing(false);
         setShowWarning(false);
       } else {
-        setError(result.error || 'Failed to update sequence');
+        setError(result.error || tc('error'));
       }
     } catch {
-      setError('An unexpected error occurred');
+      setError(tc('error'));
     } finally {
       setIsSubmitting(false);
     }

@@ -38,7 +38,7 @@ export function ExportButton({
 
       if (!result.success || !result.data) {
         console.error('Export failed:', result.error);
-        toast.error(result.error || 'Failed to export report');
+        toast.error(result.error || tc('error'));
         return;
       }
 
@@ -56,7 +56,7 @@ export function ExportButton({
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Export error:', error);
-      toast.error('Failed to export report');
+      toast.error(tc('error'));
     } finally {
       setIsExporting(false);
     }

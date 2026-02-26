@@ -30,7 +30,7 @@ export function CloseYearButton({ yearId, yearName }: CloseYearButtonProps) {
         toast.success(t('yearClosed'));
         router.refresh();
       } else {
-        toast.error(result.error || 'Failed to close fiscal year');
+        toast.error(result.error || tc('error'));
       }
       setShowConfirm(false);
     });
@@ -95,7 +95,7 @@ export function ClosePeriodButton({ periodId, periodName }: ClosePeriodButtonPro
         toast.success(t('periodClosed'));
         router.refresh();
       } else {
-        toast.error(result.error || 'Failed to close period');
+        toast.error(result.error || tc('error'));
       }
       setShowConfirm(false);
     });

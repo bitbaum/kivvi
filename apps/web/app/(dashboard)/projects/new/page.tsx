@@ -101,7 +101,7 @@ export default function NewProjectPage() {
                 name="name"
                 required
                 maxLength={200}
-                placeholder="e.g. Website Redesign"
+                placeholder={t('placeholders.projectName')}
               />
             </div>
 

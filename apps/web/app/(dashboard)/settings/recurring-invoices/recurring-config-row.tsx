@@ -46,7 +46,7 @@ export function RecurringConfigRow({ config, periodicityLabel }: RecurringConfig
         toast.success(t('recurring.deleted'));
         router.refresh();
       } else {
-        toast.error(result.error || 'Failed to delete');
+        toast.error(result.error || tc('error'));
       }
     } catch {
       toast.error('An error occurred');
@@ -64,7 +64,7 @@ export function RecurringConfigRow({ config, periodicityLabel }: RecurringConfig
         toast.success(config.isActive ? t('recurring.deactivated') : t('recurring.activated'));
         router.refresh();
       } else {
-        toast.error(result.error || 'Failed to toggle');
+        toast.error(result.error || tc('error'));
       }
     } catch (error) {
       toast.error('An error occurred');

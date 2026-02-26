@@ -113,13 +113,13 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   }, [isOpen, onClose]);
 
   const sidebarContent = (
-    <aside className="flex w-64 flex-shrink-0 flex-col border-r bg-card h-full" role="navigation" aria-label="Main navigation">
+    <aside className="flex w-64 flex-shrink-0 flex-col border-r bg-card h-full" role="navigation" aria-label={tc('aria.mainNavigation')}>
       {/* Logo */}
       <div className="flex h-16 items-center gap-2 border-b px-6">
         <Link
           href="/dashboard"
           className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
-          aria-label="Kivvi Home"
+          aria-label={tc('aria.kivviHome')}
         >
           <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600" aria-hidden="true" />
           <span className="text-xl font-bold">Kivvi</span>
@@ -129,7 +129,7 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
           <button
             onClick={onClose}
             className="ml-auto rounded-lg p-2 hover:bg-muted lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            aria-label="Close menu"
+            aria-label={tc('aria.closeMenu')}
           >
             <X className="h-5 w-5" />
           </button>
@@ -141,7 +141,7 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
         <Link
           href="/settings/company"
           className="flex w-full items-center gap-3 rounded-lg bg-muted p-3 text-left hover:bg-muted/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          aria-label="Company settings"
+          aria-label={tc('aria.companySettings')}
         >
           <Building2 className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
           <div className="flex-1 truncate">
@@ -154,7 +154,7 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
       </div>
 
       {/* Main navigation */}
-      <nav className="flex-1 space-y-1 overflow-y-auto p-4" aria-label="Primary navigation">
+      <nav className="flex-1 space-y-1 overflow-y-auto p-4" aria-label={tc('aria.primaryNavigation')}>
         {/* AI Assistant — opens widget */}
         <button
           onClick={() => {
@@ -181,7 +181,7 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
       </nav>
 
       {/* Secondary navigation */}
-      <nav className="border-t p-4" aria-label="Secondary navigation">
+      <nav className="border-t p-4" aria-label={tc('aria.secondaryNavigation')}>
         {secondaryNavigation.map((item) => {
           const isActive = isNavActive(item, pathname);
           return (

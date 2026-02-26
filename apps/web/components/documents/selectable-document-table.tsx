@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useSelection } from '@/hooks/use-selection';
 import { BulkActionToolbar } from '@/components/bulk-action-toolbar';
 import { BulkResultBanner } from '@/components/bulk-result-banner';
@@ -46,6 +47,7 @@ export function SelectableDocumentTable({
   data,
   translations,
 }: SelectableDocumentTableProps) {
+  const tc = useTranslations('common');
   const router = useRouter();
   const allIds = useMemo(() => data.map((d) => d.id), [data]);
   const { selectedIds, toggle, toggleAll, clear, isSelected, isAllSelected, isSomeSelected, count } =
@@ -89,7 +91,7 @@ export function SelectableDocumentTable({
             checked={isAllSelected}
             ref={(el) => { if (el) el.indeterminate = isSomeSelected; }}
             onChange={toggleAll}
-            aria-label="Select all"
+            aria-label={tc('aria.selectAll')}
             className="h-4 w-4 rounded border-gray-300"
           />
         </div>

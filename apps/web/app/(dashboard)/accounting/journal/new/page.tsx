@@ -1,161 +1,35 @@
 'use client';
 
-import Decimal from 'decimal.js';
-import { useState, useEffect, useTransition, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Plus, Trash2, Search, AlertCircle } from 'lucide-react';
-import { createJournalEntryAction } from '@/app/actions/accounting';
-import { useTranslations } from 'next-intl';
+import { ArrowLeft, Plus, Trash2, AlertCircle } from 'lucide-react';
 import { FormInput } from '@/components/ui/form-field';
-
-interface Account {
-  id: string;
-  code: string;
-  name: string;
-  type: string;
-}
-
-interface JournalLineItem {
-  id: string;
-  accountId: string;
-  debit: string;
-  credit: string;
-  description: string;
-}
-
-function emptyLine(): JournalLineItem {
-  return {
-    id: crypto.randomUUID(),
-    accountId: '',
-    debit: '',
-    credit: '',
-    description: '',
-  };
-}
+import { AccountPicker } from './account-picker';
+import { useJournalEntryForm } from './use-journal-entry-form';
 
 export default function NewJournalEntryPage() {
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
-  const t = useTranslations('accounting');
-  const tc = useTranslations('common');
-
-  // Accounts data
-  const [accounts, setAccounts] = useState<Account[]>([]);
-  const [accountsLoading, setAccountsLoading] = useState(true);
-
-  // Form state
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [reference, setReference] = useState('');
-  const [description, setDescription] = useState('');
-  const [lines, setLines] = useState<JournalLineItem[]>([emptyLine(), emptyLine()]);
-
-  // Account search state per line (for the searchable select)
-  const [activeAccountPicker, setActiveAccountPicker] = useState<string | null>(null);
-  const [accountSearch, setAccountSearch] = useState('');
-
-  // Fetch accounts on mount
-  useEffect(() => {
-    async function fetchAccounts() {
-      try {
-        const res = await fetch('/api/accounts');
-        if (res.ok) {
-          const data = await res.json();
-          setAccounts(data);
-        }
-      } catch {
-        // Silently fail - accounts will just be empty
-      } finally {
-        setAccountsLoading(false);
-      }
-    }
-    fetchAccounts();
-  }, []);
-
-  // Filtered accounts for the picker
-  const filteredAccounts = useMemo(() => {
-    if (!accountSearch) return accounts;
-    const query = accountSearch.toLowerCase();
-    return accounts.filter(
-      (a) =>
-        a.code.toLowerCase().includes(query) ||
-        a.name.toLowerCase().includes(query)
-    );
-  }, [accounts, accountSearch]);
-
-  // Line item management
-  const addLine = () => setLines([...lines, emptyLine()]);
-
-  const removeLine = (id: string) => {
-    if (lines.length <= 2) return;
-    setLines(lines.filter((l) => l.id !== id));
-  };
-
-  const updateLine = (id: string, field: keyof JournalLineItem, value: string) => {
-    setLines(lines.map((l) => (l.id === id ? { ...l, [field]: value } : l)));
-  };
-
-  const selectAccount = (lineId: string, account: Account) => {
-    updateLine(lineId, 'accountId', account.id);
-    setActiveAccountPicker(null);
-    setAccountSearch('');
-  };
-
-  // Resolve account name by ID
-  const getAccountDisplay = (accountId: string): string => {
-    const account = accounts.find((a) => a.id === accountId);
-    return account ? `${account.code} - ${account.name}` : '';
-  };
-
-  // Totals
-  const totalDebits = lines.reduce((sum, l) => sum.plus(l.debit ? new Decimal(l.debit) : new Decimal(0)), new Decimal(0));
-  const totalCredits = lines.reduce((sum, l) => sum.plus(l.credit ? new Decimal(l.credit) : new Decimal(0)), new Decimal(0));
-  const isBalanced = totalDebits.minus(totalCredits).abs().lessThan(0.005);
-  const hasAmounts = totalDebits.greaterThan(0) || totalCredits.greaterThan(0);
-
-  // Submit
-  async function handleSubmit() {
-    setError(null);
-
-    if (!description.trim()) {
-      setError('Description is required');
-      return;
-    }
-
-    const validLines = lines.filter((l) => l.accountId && (l.debit || l.credit));
-    if (validLines.length < 2) {
-      setError('At least 2 lines with accounts and amounts are required');
-      return;
-    }
-
-    if (!isBalanced) {
-      setError(
-        `Debits (${totalDebits.toFixed(2)}) must equal credits (${totalCredits.toFixed(2)})`
-      );
-      return;
-    }
-
-    startTransition(async () => {
-      const result = await createJournalEntryAction({
-        date,
-        reference: reference || null,
-        description,
-        lines: validLines.map((l) => ({
-          accountId: l.accountId,
-          debit: l.debit || null,
-          credit: l.credit || null,
-          description: l.description || null,
-        })),
-      });
-
-      if (result.success && result.data) {
-        router.push(`/accounting/journal/${(result.data as { id: string }).id}`);
-      } else {
-        setError(result.error || 'Failed to create journal entry');
-      }
-    });
-  }
+  const {
+    accounts,
+    accountsLoading,
+    date,
+    setDate,
+    reference,
+    setReference,
+    description,
+    setDescription,
+    lines,
+    error,
+    isPending,
+    totalDebits,
+    totalCredits,
+    isBalanced,
+    hasAmounts,
+    addLine,
+    removeLine,
+    updateLine,
+    handleSubmit,
+    t,
+    tc,
+  } = useJournalEntryForm();
 
   return (
     <div className="space-y-6">
@@ -191,7 +65,7 @@ export default function NewJournalEntryPage() {
                   type="text"
                   value={reference}
                   onChange={(e) => setReference(e.target.value)}
-                  placeholder="Optional reference..."
+                  placeholder={t('placeholders.reference')}
                   className="mt-1"
                 />
               </div>
@@ -202,7 +76,7 @@ export default function NewJournalEntryPage() {
                 type="text"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="What is this entry for?"
+                placeholder={t('placeholders.description')}
                 className="mt-1"
               />
             </div>
@@ -236,62 +110,14 @@ export default function NewJournalEntryPage() {
                           {t('account')}
                         </label>
                         <div className="relative mt-1">
-                          {activeAccountPicker === line.id ? (
-                            <>
-                              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                              <FormInput
-                                type="text"
-                                autoFocus
-                                value={accountSearch}
-                                onChange={(e) => setAccountSearch(e.target.value)}
-                                onBlur={() => {
-                                  // Delay to allow click on dropdown item
-                                  setTimeout(() => {
-                                    setActiveAccountPicker(null);
-                                    setAccountSearch('');
-                                  }, 200);
-                                }}
-                                placeholder={t('searchAccounts')}
-                                className="pl-10 pr-4"
-                              />
-                              {filteredAccounts.length > 0 && (
-                                <div className="absolute z-10 mt-1 w-full max-h-48 overflow-y-auto rounded-lg border bg-card shadow-lg">
-                                  {filteredAccounts.map((account) => (
-                                    <button
-                                      key={account.id}
-                                      type="button"
-                                      onMouseDown={(e) => e.preventDefault()}
-                                      onClick={() => selectAccount(line.id, account)}
-                                      className="w-full px-4 py-2 text-left text-sm hover:bg-muted first:rounded-t-lg last:rounded-b-lg"
-                                    >
-                                      <span className="font-mono text-muted-foreground">
-                                        {account.code}
-                                      </span>
-                                      {' - '}
-                                      <span className="font-medium">{account.name}</span>
-                                    </button>
-                                  ))}
-                                </div>
-                              )}
-                            </>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setActiveAccountPicker(line.id);
-                                setAccountSearch('');
-                              }}
-                              className="w-full rounded-lg border bg-background px-3 py-2 text-left text-sm outline-none hover:bg-muted/50 focus:ring-2 focus:ring-primary"
-                            >
-                              {line.accountId ? (
-                                <span>{getAccountDisplay(line.accountId)}</span>
-                              ) : (
-                                <span className="text-muted-foreground">
-                                  {accountsLoading ? tc('loading') : t('account') + '...'}
-                                </span>
-                              )}
-                            </button>
-                          )}
+                          <AccountPicker
+                            accounts={accounts}
+                            loading={accountsLoading}
+                            selectedAccountId={line.accountId}
+                            onSelect={(account) =>
+                              updateLine(line.id, 'accountId', account.id)
+                            }
+                          />
                         </div>
                       </div>
 
@@ -307,7 +133,6 @@ export default function NewJournalEntryPage() {
                             value={line.debit}
                             onChange={(e) => {
                               updateLine(line.id, 'debit', e.target.value);
-                              // Clear credit if debit is set
                               if (e.target.value) {
                                 updateLine(line.id, 'credit', '');
                               }
@@ -327,7 +152,6 @@ export default function NewJournalEntryPage() {
                             value={line.credit}
                             onChange={(e) => {
                               updateLine(line.id, 'credit', e.target.value);
-                              // Clear debit if credit is set
                               if (e.target.value) {
                                 updateLine(line.id, 'debit', '');
                               }
@@ -346,7 +170,7 @@ export default function NewJournalEntryPage() {
                             onChange={(e) =>
                               updateLine(line.id, 'description', e.target.value)
                             }
-                            placeholder="Optional..."
+                            placeholder={t('placeholders.optional')}
                             className="mt-1"
                           />
                         </div>
@@ -422,7 +246,7 @@ export default function NewJournalEntryPage() {
             </button>
 
             <p className="mt-2 text-center text-xs text-muted-foreground">
-              Entry will be created as a manual journal entry.
+              {t('manualEntryNote')}
             </p>
           </div>
         </div>

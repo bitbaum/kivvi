@@ -15,42 +15,42 @@ interface StepDataImportProps {
   onComplete: () => void;
 }
 
-// Entity import categories
-const IMPORT_CATEGORIES = [
+// Entity import categories — labels use translation keys resolved at render time
+const IMPORT_CATEGORY_DEFS = [
   {
     id: 'contacts',
-    label: 'Contacts',
-    description: 'Customers & vendors',
+    labelKey: 'categories.contacts',
+    descKey: 'categories.contactsDesc',
     entityTypes: [
-      { type: 'customer', label: 'Customers' },
-      { type: 'vendor', label: 'Vendors' },
+      { type: 'customer', labelKey: 'categories.customers' },
+      { type: 'vendor', labelKey: 'categories.vendors' },
     ],
   },
   {
     id: 'products',
-    label: 'Products',
-    description: 'Products & services',
-    entityTypes: [{ type: 'product', label: 'Products' }],
+    labelKey: 'categories.products',
+    descKey: 'categories.productsDesc',
+    entityTypes: [{ type: 'product', labelKey: 'categories.products' }],
   },
   {
     id: 'documents',
-    label: 'Documents',
-    description: 'Invoices & purchase invoices',
+    labelKey: 'categories.documents',
+    descKey: 'categories.documentsDesc',
     entityTypes: [
-      { type: 'invoice', label: 'Sales Invoices' },
-      { type: 'purchase_invoice', label: 'Purchase Invoices' },
+      { type: 'invoice', labelKey: 'categories.salesInvoices' },
+      { type: 'purchase_invoice', labelKey: 'categories.purchaseInvoices' },
     ],
   },
   {
     id: 'accounting',
-    label: 'Accounting',
-    description: 'Journal entries & stock levels',
+    labelKey: 'categories.accounting',
+    descKey: 'categories.accountingDesc',
     entityTypes: [
-      { type: 'journal_entry', label: 'Journal Entries' },
-      { type: 'stock', label: 'Stock Levels' },
+      { type: 'journal_entry', labelKey: 'categories.journalEntries' },
+      { type: 'stock', labelKey: 'categories.stockLevels' },
     ],
   },
-];
+] as const;
 
 type ImportMode = 'choice' | 'import';
 
@@ -314,24 +314,25 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
         {/* Upload sections (when not running) */}
         {!isImporting && importStatuses.length === 0 && (
           <div className="space-y-6">
-            {IMPORT_CATEGORIES.map((category) => (
+            {IMPORT_CATEGORY_DEFS.map((category) => (
               <div key={category.id} className="rounded-lg border p-4">
-                <h3 className="mb-1 font-medium">{category.label}</h3>
-                <p className="mb-3 text-xs text-muted-foreground">{category.description}</p>
+                <h3 className="mb-1 font-medium">{t(category.labelKey)}</h3>
+                <p className="mb-3 text-xs text-muted-foreground">{t(category.descKey)}</p>
 
                 <div className="space-y-4">
                   {category.entityTypes.map((et) => {
                     const pending = pendingImports.get(et.type);
+                    const etLabel = t(et.labelKey);
 
                     return (
                       <div key={et.type}>
-                        <div className="mb-2 text-sm font-medium">{et.label}</div>
+                        <div className="mb-2 text-sm font-medium">{etLabel}</div>
 
                         {!pending && (
                           <CsvUploader
-                            label={`Upload ${et.label} CSV`}
+                            label={`${tc('upload')} ${etLabel} CSV`}
                             onParsed={(headers, rows, rawArrayRows) =>
-                              handleCsvParsed(et.type, et.label, headers, rows, rawArrayRows)
+                              handleCsvParsed(et.type, etLabel, headers, rows, rawArrayRows)
                             }
                           />
                         )}

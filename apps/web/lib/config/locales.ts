@@ -15,12 +15,5 @@ export const LANGUAGE_OPTIONS = [
   { value: 'en', label: 'English' },
 ] as const;
 
-/** Country options for address forms (Swiss-centric) */
-export const COUNTRY_OPTIONS = [
-  { value: 'CH', label: 'Switzerland' },
-  { value: 'DE', label: 'Germany' },
-  { value: 'AT', label: 'Austria' },
-  { value: 'FR', label: 'France' },
-  { value: 'IT', label: 'Italy' },
-  { value: 'LI', label: 'Liechtenstein' },
-] as const;
+/** Country option values for address forms (Swiss-centric). Labels resolved via i18n common.countries.* */
+export const COUNTRY_OPTIONS = ['CH', 'DE', 'AT', 'FR', 'IT', 'LI'] as const;

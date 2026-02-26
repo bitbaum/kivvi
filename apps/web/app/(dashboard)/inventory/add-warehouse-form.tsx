@@ -32,7 +32,7 @@ export function AddWarehouseForm() {
         setIsOpen(false);
         router.refresh();
       } else {
-        setError(result.error || 'Failed to create warehouse');
+        setError(result.error || tc('error'));
       }
     });
   }

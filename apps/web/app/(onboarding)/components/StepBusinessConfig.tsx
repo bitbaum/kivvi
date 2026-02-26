@@ -39,7 +39,7 @@ export function StepBusinessConfig({ onComplete, onBack }: StepBusinessConfigPro
       // Brief delay to show the success state
       setTimeout(() => onComplete(), 1500);
     } else {
-      setError(result.error || 'Failed to initialize');
+      setError(result.error || tc('error'));
       setIsLoading(false);
     }
   };

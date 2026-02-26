@@ -114,7 +114,7 @@ export default function RegisterPage() {
                   type="text"
                   value={formData.name}
                   onChange={handleChange}
-                  placeholder="Max Muster"
+                  placeholder={t('placeholders.fullName')}
                   required
                   autoComplete="name"
                   className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
@@ -131,7 +131,7 @@ export default function RegisterPage() {
                   type="text"
                   value={formData.companyName}
                   onChange={handleChange}
-                  placeholder="Muster GmbH"
+                  placeholder={t('placeholders.companyName')}
                   required
                   autoComplete="organization"
                   className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"

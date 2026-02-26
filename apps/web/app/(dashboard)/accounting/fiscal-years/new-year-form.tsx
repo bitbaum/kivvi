@@ -33,7 +33,7 @@ export function NewYearForm() {
         setEndDate(`${currentYear}-12-31`);
         router.refresh();
       } else {
-        setError(result.error || 'Failed to create fiscal year');
+        setError(result.error || tc('error'));
       }
     });
   }
@@ -77,7 +77,7 @@ export function NewYearForm() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. 2026"
+                placeholder={t('placeholders.yearName')}
                 required
               />
             </div>

@@ -101,10 +101,10 @@ export function RecurringConfigForm({ orderOptions, initialData }: RecurringConf
           setTimeout(() => setSuccess(false), 3000);
         }
       } else {
-        setError(result.error || 'Failed to save configuration');
+        setError(result.error || tc('error'));
       }
     } catch {
-      setError('An unexpected error occurred');
+      setError(tc('error'));
     } finally {
       setIsSubmitting(false);
     }

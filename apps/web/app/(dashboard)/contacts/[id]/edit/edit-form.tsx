@@ -186,7 +186,7 @@ export function EditContactForm({ contact }: EditContactFormProps) {
               <label htmlFor="country" className="mb-1.5 block text-sm font-medium">{t('country')}</label>
               <FormSelect id="country" name="country" defaultValue={contact.country || 'CH'}>
                 {COUNTRY_OPTIONS.map((c) => (
-                  <option key={c.value} value={c.value}>{c.label}</option>
+                  <option key={c} value={c}>{tc(`countries.${c.toLowerCase()}`)}</option>
                 ))}
               </FormSelect>
             </div>

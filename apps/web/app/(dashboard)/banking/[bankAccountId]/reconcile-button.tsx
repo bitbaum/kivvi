@@ -43,6 +43,7 @@ export function ReconcileButton({
   const [isSearching, setIsSearching] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const t = useTranslations('banking');
+  const tc = useTranslations('common');
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -99,7 +100,7 @@ export function ReconcileButton({
         setSearch('');
         router.refresh();
       } else {
-        setError(res.error || 'Failed to reconcile');
+        setError(res.error || tc('error'));
       }
     });
   }
@@ -111,7 +112,7 @@ export function ReconcileButton({
       if (res.success) {
         router.refresh();
       } else {
-        setError(res.error || 'Failed to unreconcile');
+        setError(res.error || tc('error'));
       }
     });
   }
@@ -123,7 +124,7 @@ export function ReconcileButton({
           onClick={handleUnreconcile}
           disabled={isPending}
           className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors disabled:opacity-50"
-          title="Unreconcile"
+          title={t('unreconcile')}
         >
           <Unlink className="h-3 w-3" />
           {isPending ? '...' : t('unlink')}

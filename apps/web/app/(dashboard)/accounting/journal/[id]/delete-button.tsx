@@ -41,7 +41,7 @@ export function DeleteJournalEntryButton({ entryId }: DeleteJournalEntryButtonPr
               toast.success(t('entryDeleted'));
               router.push('/accounting/journal');
             } else {
-              toast.error(result.error || 'Failed to delete journal entry');
+              toast.error(result.error || tc('error'));
               setConfirming(false);
             }
           });

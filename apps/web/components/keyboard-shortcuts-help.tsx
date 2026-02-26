@@ -16,31 +16,31 @@ export function KeyboardShortcutsHelp({ isOpen, onClose }: KeyboardShortcutsHelp
   const shortcuts = [
     {
       keys: ['⌘ K', 'Ctrl K'],
-      description: 'Open command palette',
+      description: tc('shortcuts.openCommandPalette'),
       icon: <Command className="h-4 w-4" />,
     },
     {
       keys: ['/'],
-      description: 'Focus search box',
+      description: tc('shortcuts.focusSearch'),
       icon: <Slash className="h-4 w-4" />,
     },
     {
       keys: ['N'],
-      description: 'Create new (context-aware)',
+      description: tc('shortcuts.createNew'),
       icon: <Plus className="h-4 w-4" />,
     },
     {
       keys: ['⌘ J', 'Ctrl J'],
-      description: 'Toggle AI assistant',
+      description: tc('shortcuts.toggleAI'),
       icon: <MessageSquare className="h-4 w-4" />,
     },
     {
       keys: ['?'],
-      description: 'Show keyboard shortcuts',
+      description: tc('shortcuts.showShortcuts'),
     },
     {
       keys: ['Esc'],
-      description: 'Close modals/dropdowns',
+      description: tc('shortcuts.closeModals'),
     },
   ];
 
@@ -51,7 +51,7 @@ export function KeyboardShortcutsHelp({ isOpen, onClose }: KeyboardShortcutsHelp
         <button
           type="button"
           onClick={onClose}
-          aria-label="Close"
+          aria-label={tc('close')}
           className="absolute right-4 top-4 rounded-lg p-1 hover:bg-muted"
         >
           <X className="h-4 w-4" />
@@ -59,9 +59,9 @@ export function KeyboardShortcutsHelp({ isOpen, onClose }: KeyboardShortcutsHelp
 
         {/* Header */}
         <div className="mb-6">
-          <h2 id="shortcuts-title" className="text-xl font-semibold">Keyboard Shortcuts</h2>
+          <h2 id="shortcuts-title" className="text-xl font-semibold">{tc('shortcuts.title')}</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Use these shortcuts to navigate faster
+            {tc('shortcuts.subtitle')}
           </p>
         </div>
 
@@ -85,7 +85,7 @@ export function KeyboardShortcutsHelp({ isOpen, onClose }: KeyboardShortcutsHelp
                       {key}
                     </kbd>
                     {i < shortcut.keys.length - 1 && (
-                      <span className="mx-1 text-xs text-muted-foreground">or</span>
+                      <span className="mx-1 text-xs text-muted-foreground">{tc('or')}</span>
                     )}
                   </span>
                 ))}
@@ -96,8 +96,7 @@ export function KeyboardShortcutsHelp({ isOpen, onClose }: KeyboardShortcutsHelp
 
         {/* Footer */}
         <div className="mt-6 rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground">
-          💡 Tip: Press <kbd className="rounded border bg-background px-1">?</kbd> anytime to see
-          these shortcuts
+          {tc('shortcuts.tip')}
         </div>
       </div>
     </div>

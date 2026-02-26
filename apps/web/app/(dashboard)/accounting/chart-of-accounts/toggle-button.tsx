@@ -24,7 +24,7 @@ export function ToggleButton({ accountId, isActive }: ToggleButtonProps) {
       if (result.success) {
         router.refresh();
       } else {
-        setError(result.error || 'Failed to toggle account.');
+        setError(result.error || tc('error'));
       }
     });
   }

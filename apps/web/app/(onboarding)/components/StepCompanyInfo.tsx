@@ -39,7 +39,7 @@ export function StepCompanyInfo({ companyData, onComplete }: StepCompanyInfoProp
     if (result.success) {
       onComplete();
     } else {
-      setError(result.error || 'Failed to save');
+      setError(result.error || tc('error'));
       setIsLoading(false);
     }
   };
@@ -89,7 +89,7 @@ export function StepCompanyInfo({ companyData, onComplete }: StepCompanyInfoProp
               type="text"
               value={formData.legalName}
               onChange={handleChange}
-              placeholder="e.g. Muster GmbH"
+              placeholder={t('placeholders.companyName')}
               className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
@@ -150,10 +150,10 @@ export function StepCompanyInfo({ companyData, onComplete }: StepCompanyInfoProp
               onChange={handleChange}
               className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
             >
-              <option value="CH">Switzerland</option>
-              <option value="DE">Germany</option>
-              <option value="AT">Austria</option>
-              <option value="LI">Liechtenstein</option>
+              <option value="CH">{t('countries.ch')}</option>
+              <option value="DE">{t('countries.de')}</option>
+              <option value="AT">{t('countries.at')}</option>
+              <option value="LI">{t('countries.li')}</option>
             </select>
           </div>
 
@@ -167,7 +167,7 @@ export function StepCompanyInfo({ companyData, onComplete }: StepCompanyInfoProp
               type="text"
               value={formData.vatNumber}
               onChange={handleChange}
-              placeholder="CHE-123.456.789 MWST"
+              placeholder={t('placeholders.vatNumber')}
               className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>

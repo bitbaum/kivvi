@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSelection } from '@/hooks/use-selection';
 import { Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { BulkActionToolbar } from '@/components/bulk-action-toolbar';
 import { BulkResultBanner } from '@/components/bulk-result-banner';
 import {
@@ -57,6 +58,7 @@ interface SelectableContactTableProps {
 }
 
 export function SelectableContactTable({ data, translations, sort }: SelectableContactTableProps) {
+  const tc = useTranslations('common');
   const router = useRouter();
   const allIds = useMemo(() => data.map((c) => c.id), [data]);
   const { selectedIds, toggle, toggleAll, clear, isSelected, isAllSelected, isSomeSelected, count } =
@@ -105,7 +107,7 @@ export function SelectableContactTable({ data, translations, sort }: SelectableC
             checked={isAllSelected}
             ref={(el) => { if (el) el.indeterminate = isSomeSelected; }}
             onChange={toggleAll}
-            aria-label="Select all"
+            aria-label={tc('aria.selectAll')}
             className="h-4 w-4 rounded border-gray-300"
           />
         </div>

@@ -62,7 +62,49 @@
     "notFoundMessage": "La page que vous cherchez n'existe pas ou a été déplacée.",
     "goHome": "Aller au tableau de bord",
     "exported": "Export terminé",
-    "exportCsv": "Exporter CSV"
+    "exportCsv": "Exporter CSV",
+    "aria": {
+      "mainNavigation": "Navigation principale",
+      "primaryNavigation": "Navigation primaire",
+      "secondaryNavigation": "Navigation secondaire",
+      "kivviHome": "Accueil Kivvi",
+      "closeMenu": "Fermer le menu",
+      "companySettings": "Paramètres de l'entreprise",
+      "openNavigation": "Ouvrir la navigation",
+      "openCommandPalette": "Ouvrir la palette de commandes",
+      "languageOptions": "Options de langue",
+      "notifications": "Notifications (bientôt disponible)",
+      "userMenu": "Menu utilisateur",
+      "commandPalette": "Palette de commandes",
+      "clearSearch": "Effacer la recherche",
+      "breadcrumb": "Fil d'Ariane",
+      "dismiss": "Fermer",
+      "dragToReorder": "Glisser pour réorganiser",
+      "removeLineItem": "Supprimer la ligne",
+      "selectAll": "Tout sélectionner"
+    },
+    "or": "ou",
+    "comingSoon": "Bientôt disponible",
+    "upload": "Télécharger",
+    "countries": {
+      "ch": "Suisse",
+      "de": "Allemagne",
+      "at": "Autriche",
+      "fr": "France",
+      "it": "Italie",
+      "li": "Liechtenstein"
+    },
+    "shortcuts": {
+      "title": "Raccourcis clavier",
+      "subtitle": "Utilisez ces raccourcis pour naviguer plus vite",
+      "openCommandPalette": "Ouvrir la palette de commandes",
+      "focusSearch": "Recherche",
+      "createNew": "Créer (contextuel)",
+      "toggleAI": "Basculer l'assistant IA",
+      "showShortcuts": "Afficher les raccourcis",
+      "closeModals": "Fermer les dialogues",
+      "tip": "Astuce : Appuyez sur ? pour voir ces raccourcis"
+    }
   },
   "nav": {
     "home": "Accueil",
@@ -228,7 +270,28 @@
     "viewAll": "Voir tout",
     "noRecentInvoices": "Aucune facture pour le moment.",
     "quickStats": "Statistiques rapides",
-    "quickActions": "Actions rapides",
+    "quickActions": {
+      "title": "Actions rapides",
+      "subtitle": "Actions fréquemment utilisées pour un accès rapide",
+      "createInvoice": "Créer une facture",
+      "createInvoiceDesc": "Créer une nouvelle facture pour un client",
+      "createQuote": "Créer un devis",
+      "createQuoteDesc": "Créer un nouveau devis pour un client",
+      "createOrder": "Créer une commande",
+      "createOrderDesc": "Créer une nouvelle commande",
+      "recordPayment": "Enregistrer un paiement",
+      "recordPaymentDesc": "Enregistrer un paiement pour une facture",
+      "addContact": "Ajouter un contact",
+      "addContactDesc": "Ajouter un nouveau client ou fournisseur",
+      "addProduct": "Ajouter un produit",
+      "addProductDesc": "Ajouter un nouveau produit ou service",
+      "importData": "Importer des données",
+      "importDataDesc": "Importer des données à partir de fichiers CSV",
+      "openAIChat": "Ouvrir l'assistant IA",
+      "openAIChatDesc": "Discuter avec l'assistant IA",
+      "showAll": "Afficher tout",
+      "showLess": "Afficher moins"
+    },
     "alerts": {
       "title": "Alertes & Notifications",
       "subtitle": "Points nécessitant votre attention",
@@ -288,28 +351,6 @@
       "subtitle": "Indicateurs commerciaux importants en un coup d'œil",
       "document": "Document",
       "documents": "Documents"
-    },
-    "quickActions": {
-      "title": "Actions rapides",
-      "subtitle": "Actions fréquemment utilisées pour un accès rapide",
-      "createInvoice": "Créer une facture",
-      "createInvoiceDesc": "Créer une nouvelle facture pour un client",
-      "createQuote": "Créer un devis",
-      "createQuoteDesc": "Créer un nouveau devis pour un client",
-      "createOrder": "Créer une commande",
-      "createOrderDesc": "Créer une nouvelle commande",
-      "recordPayment": "Enregistrer un paiement",
-      "recordPaymentDesc": "Enregistrer un paiement pour une facture",
-      "addContact": "Ajouter un contact",
-      "addContactDesc": "Ajouter un nouveau client ou fournisseur",
-      "addProduct": "Ajouter un produit",
-      "addProductDesc": "Ajouter un nouveau produit ou service",
-      "importData": "Importer des données",
-      "importDataDesc": "Importer des données à partir de fichiers CSV",
-      "openAIChat": "Ouvrir l'assistant IA",
-      "openAIChatDesc": "Discuter avec l'assistant IA",
-      "showAll": "Afficher tout",
-      "showLess": "Afficher moins"
     },
     "healthMetrics": {
       "title": "Santé financière",
@@ -417,7 +458,11 @@
     "internalNotes": "Notes internes",
     "created": "Contact créé",
     "updated": "Contact mis à jour",
-    "deleted": "Contact supprimé"
+    "deleted": "Contact supprimé",
+    "placeholders": {
+      "companyName": "p.ex. Müller SA",
+      "vatNumber": "CHE-123.456.789 TVA"
+    }
   },
   "products": {
     "title": "Produits",
@@ -480,7 +525,11 @@
     "reservedQuantity": "({count} réservé(s))",
     "kivitendoId": "ID Kivitendo",
     "created": "Produit créé",
-    "updated": "Produit mis à jour"
+    "updated": "Produit mis à jour",
+    "placeholders": {
+      "articleNumber": "p.ex. WIDGET-001",
+      "ean": "p.ex. 7610000000001"
+    }
   },
   "documentsHub": {
     "title": "Documents",
@@ -570,7 +619,19 @@
     "retainedEarnings": "Report à nouveau",
     "balanceCheck": "Contrôle du bilan",
     "unknownAccount": "Compte inconnu",
-    "noPeriods": "Aucune période trouvée."
+    "noPeriods": "Aucune période trouvée.",
+    "placeholders": {
+      "yearName": "p.ex. 2026",
+      "reference": "Référence optionnelle...",
+      "description": "Objet de cette écriture ?",
+      "optional": "Optionnel...",
+      "accountCode": "p.ex. 1000",
+      "accountName": "p.ex. Caisse"
+    },
+    "descriptionRequired": "La description est requise",
+    "minTwoLines": "Au moins 2 lignes avec des comptes et des montants sont requises",
+    "mustBalance": "Les débits doivent être égaux aux crédits",
+    "manualEntryNote": "L'écriture sera créée comme écriture manuelle."
   },
   "banking": {
     "title": "Banque",
@@ -611,7 +672,12 @@
     "adjustFilters": "Essayez d'ajuster vos filtres.",
     "importToStart": "Importez un fichier CSV pour commencer.",
     "done": "Terminé",
-    "pageInfo": "Page {page} sur {totalPages}"
+    "pageInfo": "Page {page} sur {totalPages}",
+    "placeholders": {
+      "accountName": "p.ex. Compte professionnel",
+      "bankName": "p.ex. UBS, Credit Suisse, PostFinance"
+    },
+    "unreconcile": "Annuler le rapprochement"
   },
   "inventory": {
     "title": "Inventaire",
@@ -646,7 +712,11 @@
     "minStockColumn": "Stock minimum",
     "deficitColumn": "Déficit",
     "warehouseNamePlaceholder": "p.ex. Entrepôt principal",
-    "locationPlaceholder": "p.ex. Bahnhofstrasse 1, 8001 Zurich"
+    "locationPlaceholder": "p.ex. Bahnhofstrasse 1, 8001 Zurich",
+    "placeholders": {
+      "quantity": "p.ex. 10",
+      "movementReference": "p.ex. CF-2026-001 ou ajustement manuel"
+    }
   },
   "reports": {
     "title": "Rapports",
@@ -765,7 +835,10 @@
     "adjustFilters": "Essayez d'ajuster votre recherche ou vos filtres.",
     "pageOf": "Page {page} sur {totalPages}",
     "showingProjects": "Affichage de {from} à {to} sur {total} projets",
-    "descriptionPlaceholder": "Description du projet..."
+    "descriptionPlaceholder": "Description du projet...",
+    "placeholders": {
+      "projectName": "p.ex. Refonte du site web"
+    }
   },
   "settings": {
     "title": "Paramètres",
@@ -784,7 +857,12 @@
       "vatNumber": "Numéro TVA",
       "address": "Adresse",
       "preferences": "Préférences",
-      "defaultCurrency": "Devise par défaut"
+      "defaultCurrency": "Devise par défaut",
+      "placeholders": {
+        "bankName": "p.ex. UBS, ZKB, PostFinance",
+        "documentFooter": "p.ex. Payable dans les 30 jours nets",
+        "vatNumber": "CHE-123.456.789 TVA"
+      }
     },
     "profileSection": {
       "title": "Profil utilisateur",
@@ -877,6 +955,33 @@
         "currentQuarter": "Trimestre actuel (Q1-Q4)"
       },
       "status": "Statut"
+    },
+    "currencies": {
+      "chf": "CHF - Franc suisse",
+      "eur": "EUR - Euro",
+      "usd": "USD - Dollar américain"
+    },
+    "vatRates": {
+      "normal": "8.1% (Normal)",
+      "reduced": "2.6% (Réduit)",
+      "exempt": "0% (Exonéré)"
+    },
+    "repair": {
+      "salesInvoicesTitle": "Factures de vente",
+      "salesInvoicesDesc": "Téléchargez le CSV des factures Kivitendo pour réimporter les postes des factures existantes.",
+      "purchaseInvoicesTitle": "Factures d'achat",
+      "purchaseInvoicesDesc": "Téléchargez le CSV des factures d'achat Kivitendo pour réimporter les postes des factures d'achat existantes.",
+      "reimportLineItems": "Réimporter les postes",
+      "repairComplete": "Réparation terminée",
+      "updatedDocuments": "{updated} documents mis à jour, {skipped} ignorés",
+      "repairAnother": "Réparer un autre fichier",
+      "documents": "{docCount} documents, {itemCount} postes",
+      "uploadCsv": "Télécharger CSV",
+      "csvEmpty": "Le fichier CSV est vide ou ne contient pas de données",
+      "csvMissingColumns": "Colonnes requises manquantes dans le CSV : Positionen, Buchungsnummer",
+      "noLineItems": "Aucun poste trouvé dans le CSV",
+      "csvParseFailed": "Échec de l'analyse du CSV : {message}",
+      "repairFailed": "Réparation échouée"
     }
   },
   "auth": {
@@ -924,7 +1029,11 @@
     },
     "errorGeneric": "Une erreur est survenue. Veuillez réessayer.",
     "termsAndPrivacy": "En continuant, vous acceptez nos <terms>Conditions d'utilisation</terms> et notre <privacy>Politique de confidentialité</privacy>.",
-    "passwordMinLength": "Au moins 8 caractères"
+    "passwordMinLength": "Au moins 8 caractères",
+    "placeholders": {
+      "fullName": "Jean Dupont",
+      "companyName": "Exemple SA"
+    }
   },
   "onboarding": {
     "welcome": "Bienvenue sur Kivvi",
@@ -960,7 +1069,33 @@
     "skip": "-- ignorer --",
     "dragAndDrop": "Glissez-déposez ou cliquez",
     "preview": "Aperçu ({rows} lignes au total)",
-    "showingColumns": "Affichage de {shown} sur {total} colonnes"
+    "showingColumns": "Affichage de {shown} sur {total} colonnes",
+    "placeholders": {
+      "companyName": "p.ex. Exemple SA",
+      "vatNumber": "CHE-123.456.789 TVA"
+    },
+    "categories": {
+      "contacts": "Contacts",
+      "contactsDesc": "Clients & fournisseurs",
+      "customers": "Clients",
+      "vendors": "Fournisseurs",
+      "products": "Produits",
+      "productsDesc": "Produits & services",
+      "documents": "Documents",
+      "documentsDesc": "Factures & factures d'achat",
+      "salesInvoices": "Factures de vente",
+      "purchaseInvoices": "Factures d'achat",
+      "accounting": "Comptabilité",
+      "accountingDesc": "Écritures & niveaux de stock",
+      "journalEntries": "Écritures",
+      "stockLevels": "Niveaux de stock"
+    },
+    "countries": {
+      "ch": "Suisse",
+      "de": "Allemagne",
+      "at": "Autriche",
+      "li": "Liechtenstein"
+    }
   },
   "chat": {
     "title": "Assistant IA",
@@ -1060,5 +1195,18 @@
     "newOrder": "Nouvelle commande",
     "newContact": "Nouveau contact",
     "newProduct": "Nouveau produit"
+  },
+  "help": {
+    "title": "Aide",
+    "subtitle": "Ressources et raccourcis pour tirer le meilleur parti de Kivvi.",
+    "aiAssistant": "Assistant IA",
+    "aiAssistantDesc": "Demandez à Kivvi de créer des factures, rechercher des contacts, vérifier les paiements ou générer des rapports. Allez à l'assistant IA dans la barre latérale.",
+    "gettingStarted": "Premiers pas",
+    "gettingStartedDesc": "Configurez votre entreprise dans les paramètres, ajoutez des contacts et des produits, puis créez votre première facture sous Ventes.",
+    "support": "Support",
+    "supportDesc": "Besoin d'aide ? Contactez-nous à",
+    "quickLinks": "Liens utiles",
+    "qrBillStandard": "Standard QR-facture suisse",
+    "vatRatesLink": "Taux de TVA suisses (AFC)"
   }
 }

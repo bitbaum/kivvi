@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { Loader2, Upload, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Loader2, Upload, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useTranslations } from 'next-intl';
 import Papa from 'papaparse';
 import { cleanHeaders, parseKivitendoLineItems } from '@kivvi/core/src/domain/import-mappings';
 import type { ParsedLineItem } from '@kivvi/core/src/domain/import-mappings';
@@ -19,6 +20,8 @@ interface RepairState {
 }
 
 export function RepairImportForm() {
+  const t = useTranslations('settings.repair');
+  const tc = useTranslations('common');
   const [state, setState] = useState<RepairState | null>(null);
   const [isRepairing, setIsRepairing] = useState(false);
   const [result, setResult] = useState<{ updated: number; skipped: number } | null>(null);
@@ -31,7 +34,7 @@ export function RepairImportForm() {
       complete: (results) => {
         const rawRows = results.data as string[][];
         if (rawRows.length < 2) {
-          toast.error('CSV file is empty or has no data rows');
+          toast.error(t('csvEmpty'));
           return;
         }
 
@@ -40,7 +43,7 @@ export function RepairImportForm() {
         const buchungsnummerIdx = headers.indexOf('Buchungsnummer');
 
         if (positionenIdx === -1 || buchungsnummerIdx === -1) {
-          toast.error('CSV missing required columns: Positionen, Buchungsnummer');
+          toast.error(t('csvMissingColumns'));
           return;
         }
 
@@ -61,7 +64,7 @@ export function RepairImportForm() {
 
         const docCount = Object.keys(structuredItems).length;
         if (docCount === 0) {
-          toast.error('No line items found in CSV');
+          toast.error(t('noLineItems'));
           return;
         }
 
@@ -75,10 +78,10 @@ export function RepairImportForm() {
         setResult(null);
       },
       error: (err) => {
-        toast.error(`Failed to parse CSV: ${err.message}`);
+        toast.error(t('csvParseFailed', { message: err.message }));
       },
     });
-  }, []);
+  }, [t]);
 
   const handleRepair = async () => {
     if (!state) return;
@@ -88,9 +91,9 @@ export function RepairImportForm() {
 
     if (res.success && res.data) {
       setResult(res.data);
-      toast.success(`Updated ${res.data.updated} documents, skipped ${res.data.skipped}`);
+      toast.success(t('updatedDocuments', { updated: res.data.updated, skipped: res.data.skipped }));
     } else {
-      toast.error(res.error || 'Repair failed');
+      toast.error(res.error || t('repairFailed'));
     }
 
     setIsRepairing(false);
@@ -100,11 +103,12 @@ export function RepairImportForm() {
     <div className="space-y-6">
       {/* Invoice CSV */}
       <div className="rounded-xl border bg-card p-6">
-        <h3 className="mb-1 font-semibold">Sales Invoices (Rechnungen)</h3>
+        <h3 className="mb-1 font-semibold">{t('salesInvoicesTitle')}</h3>
         <p className="mb-4 text-sm text-muted-foreground">
-          Upload the Kivitendo AR invoice CSV to re-import line items for existing invoices.
+          {t('salesInvoicesDesc')}
         </p>
         <FileUpload
+          label={t('uploadCsv')}
           entityType="invoice"
           onFile={handleFile}
           disabled={isRepairing}
@@ -113,11 +117,12 @@ export function RepairImportForm() {
 
       {/* Purchase Invoice CSV */}
       <div className="rounded-xl border bg-card p-6">
-        <h3 className="mb-1 font-semibold">Purchase Invoices (Einkaufsrechnungen)</h3>
+        <h3 className="mb-1 font-semibold">{t('purchaseInvoicesTitle')}</h3>
         <p className="mb-4 text-sm text-muted-foreground">
-          Upload the Kivitendo AP invoice CSV to re-import line items for existing purchase invoices.
+          {t('purchaseInvoicesDesc')}
         </p>
         <FileUpload
+          label={t('uploadCsv')}
           entityType="purchase_invoice"
           onFile={handleFile}
           disabled={isRepairing}
@@ -131,7 +136,7 @@ export function RepairImportForm() {
             <Upload className="h-4 w-4 text-primary" />
             <span className="font-medium">{state.fileName}</span>
             <span className="text-muted-foreground">
-              — {state.docCount} documents, {state.itemCount} line items
+              — {t('documents', { docCount: state.docCount, itemCount: state.itemCount })}
             </span>
           </div>
           <button
@@ -140,7 +145,7 @@ export function RepairImportForm() {
             className="flex items-center gap-2 rounded-lg bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
             {isRepairing && <Loader2 className="h-4 w-4 animate-spin" />}
-            Re-import line items
+            {t('reimportLineItems')}
           </button>
         </div>
       )}
@@ -150,16 +155,16 @@ export function RepairImportForm() {
         <div className="rounded-xl border bg-card p-6">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-green-500" />
-            <span className="font-medium">Repair complete</span>
+            <span className="font-medium">{t('repairComplete')}</span>
           </div>
           <p className="mt-2 text-sm text-muted-foreground">
-            Updated {result.updated} documents, skipped {result.skipped}
+            {t('updatedDocuments', { updated: result.updated, skipped: result.skipped })}
           </p>
           <button
             onClick={() => { setState(null); setResult(null); }}
             className="mt-4 rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted/50"
           >
-            Repair another file
+            {t('repairAnother')}
           </button>
         </div>
       )}
@@ -168,10 +173,12 @@ export function RepairImportForm() {
 }
 
 function FileUpload({
+  label,
   entityType,
   onFile,
   disabled,
 }: {
+  label: string;
   entityType: EntityType;
   onFile: (type: EntityType, file: File) => void;
   disabled: boolean;
@@ -183,7 +190,7 @@ function FileUpload({
       }`}
     >
       <Upload className="mb-2 h-6 w-6 text-muted-foreground" />
-      <span className="text-sm font-medium">Upload CSV</span>
+      <span className="text-sm font-medium">{label}</span>
       <input
         type="file"
         accept=".csv"

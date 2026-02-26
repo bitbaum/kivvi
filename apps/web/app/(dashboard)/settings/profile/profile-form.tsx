@@ -40,10 +40,10 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
       } else {
-        setError(result.error || 'Failed to update profile');
+        setError(result.error || tc('error'));
       }
     } catch {
-      setError('An unexpected error occurred');
+      setError(tc('error'));
     } finally {
       setIsSubmitting(false);
     }

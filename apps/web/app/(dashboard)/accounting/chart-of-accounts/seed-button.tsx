@@ -25,7 +25,7 @@ export function SeedButton() {
         setShowConfirm(false);
         router.refresh();
       } else {
-        setError(result.error || 'Failed to seed chart of accounts.');
+        setError(result.error || tc('error'));
       }
     });
   }
