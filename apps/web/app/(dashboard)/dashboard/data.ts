@@ -41,14 +41,14 @@ export const fetchDashboardData = cache(async (companyId: string) => {
     activity,
     revenueData: salesReport.rows.map((r) => ({
       month: r.month,
-      revenue: r.revenue,
+      revenue: Number(r.revenue),
     })),
     agingData: [
-      { name: 'current', value: agingReport.totals.current, color: AGING_BUCKET_COLORS.current },
-      { name: 'days30', value: agingReport.totals.days30, color: AGING_BUCKET_COLORS.days30 },
-      { name: 'days60', value: agingReport.totals.days60, color: AGING_BUCKET_COLORS.days60 },
-      { name: 'days90', value: agingReport.totals.days90, color: AGING_BUCKET_COLORS.days90 },
-      { name: 'over90', value: agingReport.totals.over90, color: AGING_BUCKET_COLORS.over90 },
+      { name: 'current', value: Number(agingReport.totals.current), color: AGING_BUCKET_COLORS.current },
+      { name: 'days30', value: Number(agingReport.totals.days30), color: AGING_BUCKET_COLORS.days30 },
+      { name: 'days60', value: Number(agingReport.totals.days60), color: AGING_BUCKET_COLORS.days60 },
+      { name: 'days90', value: Number(agingReport.totals.days90), color: AGING_BUCKET_COLORS.days90 },
+      { name: 'over90', value: Number(agingReport.totals.over90), color: AGING_BUCKET_COLORS.over90 },
     ].filter((d) => d.value > 0),
   };
 });

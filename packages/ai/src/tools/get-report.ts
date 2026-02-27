@@ -14,8 +14,9 @@ const getReportSchema = z.object({
   ),
 });
 
-function formatAmount(amount: number, currency: string): string {
-  return `${currency} ${amount.toFixed(2)}`;
+function formatAmount(amount: string | number, currency: string): string {
+  const num = typeof amount === 'string' ? Number(amount) : amount;
+  return `${currency} ${num.toFixed(2)}`;
 }
 
 export const getReportTool: Tool = {

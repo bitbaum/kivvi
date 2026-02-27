@@ -133,7 +133,7 @@ export default async function BalanceSheetPage({ searchParams }: PageProps) {
                 </p>
                 <p
                   className={`mt-1 text-xl font-bold ${
-                    report.retainedEarnings >= 0
+                    Number(report.retainedEarnings) >= 0
                       ? 'text-green-600 dark:text-green-400'
                       : 'text-red-600 dark:text-red-400'
                   }`}
@@ -165,8 +165,8 @@ function BalanceSection({
   labels,
 }: {
   title: string;
-  rows: { accountCode: string; accountName: string; balance: number }[];
-  total: number;
+  rows: { accountCode: string; accountName: string; balance: string }[];
+  total: string;
   color: string;
   labels: { account: string; name: string; balance: string; total: string; noRecords: string };
 }) {

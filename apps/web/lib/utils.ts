@@ -5,7 +5,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatCurrency(amount: number, currency: string = 'CHF'): string {
+export function formatCurrency(amount: number | string, currency: string = 'CHF'): string {
+  const num = typeof amount === 'string' ? Number(amount) : amount;
   const formatter = new Intl.NumberFormat('de-CH', {
     style: 'currency',
     currency,
@@ -14,8 +15,8 @@ export function formatCurrency(amount: number, currency: string = 'CHF'): string
   // Intl.NumberFormat de-CH omits the space before the minus sign for negative
   // amounts (e.g. "CHF-0.03"). Reconstruct from parts to ensure consistent
   // spacing: "CHF -0.03".
-  if (amount < 0) {
-    const parts = formatter.formatToParts(amount);
+  if (num < 0) {
+    const parts = formatter.formatToParts(num);
     let result = '';
     for (let i = 0; i < parts.length; i++) {
       const part = parts[i];
@@ -28,7 +29,7 @@ export function formatCurrency(amount: number, currency: string = 'CHF'): string
     return result;
   }
 
-  return formatter.format(amount);
+  return formatter.format(num);
 }
 
 export function formatDate(date: Date | string): string {

@@ -123,19 +123,19 @@ export default async function AgingReportPage({ searchParams }: PageProps) {
                       </Link>
                     </td>
                     <td className="px-6 py-3 text-right text-green-600 dark:text-green-400">
-                      {row.current > 0 ? formatCurrency(row.current) : '-'}
+                      {Number(row.current) > 0 ? formatCurrency(row.current) : '-'}
                     </td>
                     <td className="px-6 py-3 text-right text-yellow-600 dark:text-yellow-400">
-                      {row.days30 > 0 ? formatCurrency(row.days30) : '-'}
+                      {Number(row.days30) > 0 ? formatCurrency(row.days30) : '-'}
                     </td>
                     <td className="px-6 py-3 text-right text-orange-600 dark:text-orange-400">
-                      {row.days60 > 0 ? formatCurrency(row.days60) : '-'}
+                      {Number(row.days60) > 0 ? formatCurrency(row.days60) : '-'}
                     </td>
                     <td className="px-6 py-3 text-right text-red-500 dark:text-red-400">
-                      {row.days90 > 0 ? formatCurrency(row.days90) : '-'}
+                      {Number(row.days90) > 0 ? formatCurrency(row.days90) : '-'}
                     </td>
                     <td className="px-6 py-3 text-right text-red-700 dark:text-red-300">
-                      {row.over90 > 0 ? formatCurrency(row.over90) : '-'}
+                      {Number(row.over90) > 0 ? formatCurrency(row.over90) : '-'}
                     </td>
                     <td className="px-6 py-3 text-right font-semibold">
                       {formatCurrency(row.total)}
@@ -147,27 +147,27 @@ export default async function AgingReportPage({ searchParams }: PageProps) {
                 <tr className="border-t-2 font-semibold">
                   <td className="px-6 py-3">{tc('totals')}</td>
                   <td className="px-6 py-3 text-right text-green-600 dark:text-green-400">
-                    {report.totals.current > 0
+                    {Number(report.totals.current) > 0
                       ? formatCurrency(report.totals.current)
                       : '-'}
                   </td>
                   <td className="px-6 py-3 text-right text-yellow-600 dark:text-yellow-400">
-                    {report.totals.days30 > 0
+                    {Number(report.totals.days30) > 0
                       ? formatCurrency(report.totals.days30)
                       : '-'}
                   </td>
                   <td className="px-6 py-3 text-right text-orange-600 dark:text-orange-400">
-                    {report.totals.days60 > 0
+                    {Number(report.totals.days60) > 0
                       ? formatCurrency(report.totals.days60)
                       : '-'}
                   </td>
                   <td className="px-6 py-3 text-right text-red-500 dark:text-red-400">
-                    {report.totals.days90 > 0
+                    {Number(report.totals.days90) > 0
                       ? formatCurrency(report.totals.days90)
                       : '-'}
                   </td>
                   <td className="px-6 py-3 text-right text-red-700 dark:text-red-300">
-                    {report.totals.over90 > 0
+                    {Number(report.totals.over90) > 0
                       ? formatCurrency(report.totals.over90)
                       : '-'}
                   </td>

@@ -203,7 +203,7 @@ export default async function VatReportPage({ searchParams }: PageProps) {
           {/* VAT Payable Summary */}
           <div
             className={`rounded-xl border-2 p-6 ${
-              report.vatPayable >= 0
+              Number(report.vatPayable) >= 0
                 ? 'border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/30'
                 : 'border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/30'
             }`}
@@ -227,16 +227,16 @@ export default async function VatReportPage({ searchParams }: PageProps) {
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  {report.vatPayable >= 0 ? t('vatPayable') : t('vatRefundable')}
+                  {Number(report.vatPayable) >= 0 ? t('vatPayable') : t('vatRefundable')}
                 </p>
                 <p
                   className={`mt-1 text-2xl font-bold ${
-                    report.vatPayable >= 0
+                    Number(report.vatPayable) >= 0
                       ? 'text-blue-600 dark:text-blue-400'
                       : 'text-green-600 dark:text-green-400'
                   }`}
                 >
-                  {formatCurrency(Math.abs(report.vatPayable))}
+                  {formatCurrency(Math.abs(Number(report.vatPayable)))}
                 </p>
               </div>
             </div>

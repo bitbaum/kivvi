@@ -113,13 +113,13 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
                       {row.creditNoteCount > 0 ? row.creditNoteCount : '-'}
                     </td>
                     <td className="px-6 py-3 text-right text-red-600 dark:text-red-400">
-                      {row.creditNoteAmount > 0
+                      {Number(row.creditNoteAmount) > 0
                         ? `- ${formatCurrency(row.creditNoteAmount)}`
                         : '-'}
                     </td>
                     <td
                       className={`px-6 py-3 text-right font-medium ${
-                        row.netRevenue >= 0
+                        Number(row.netRevenue) >= 0
                           ? 'text-green-600 dark:text-green-400'
                           : 'text-red-600 dark:text-red-400'
                       }`}
@@ -147,13 +147,13 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
                       : '-'}
                   </td>
                   <td className="px-6 py-3 text-right text-red-600 dark:text-red-400">
-                    {report.totals.creditNoteAmount > 0
+                    {Number(report.totals.creditNoteAmount) > 0
                       ? `- ${formatCurrency(report.totals.creditNoteAmount)}`
                       : '-'}
                   </td>
                   <td
                     className={`px-6 py-3 text-right text-lg ${
-                      report.totals.netRevenue >= 0
+                      Number(report.totals.netRevenue) >= 0
                         ? 'text-green-600 dark:text-green-400'
                         : 'text-red-600 dark:text-red-400'
                     }`}
@@ -180,7 +180,7 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
               <div className="rounded-lg border bg-background p-4">
                 <p className="text-sm text-muted-foreground">{t('creditNoteCount')}</p>
                 <p className="mt-1 text-xl font-bold text-red-600 dark:text-red-400">
-                  {report.totals.creditNoteAmount > 0
+                  {Number(report.totals.creditNoteAmount) > 0
                     ? `- ${formatCurrency(report.totals.creditNoteAmount)}`
                     : formatCurrency(0)}
                 </p>
@@ -194,7 +194,7 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
                 </p>
                 <p
                   className={`mt-1 text-2xl font-bold ${
-                    report.totals.netRevenue >= 0
+                    Number(report.totals.netRevenue) >= 0
                       ? 'text-green-600 dark:text-green-400'
                       : 'text-red-600 dark:text-red-400'
                   }`}

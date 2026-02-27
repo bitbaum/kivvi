@@ -120,7 +120,7 @@ async function DashboardCharts() {
   );
   const revenueData = salesReport.rows.map((r) => ({
     month: r.month,
-    revenue: r.revenue,
+    revenue: Number(r.revenue),
   }));
 
   // Chart data: aging analysis
@@ -130,11 +130,11 @@ async function DashboardCharts() {
     new Date().toISOString().split('T')[0]
   );
   const agingData = [
-    { name: t('aging.current'), value: agingReport.totals.current, color: AGING_BUCKET_COLORS.current },
-    { name: t('aging.days30'), value: agingReport.totals.days30, color: AGING_BUCKET_COLORS.days30 },
-    { name: t('aging.days60'), value: agingReport.totals.days60, color: AGING_BUCKET_COLORS.days60 },
-    { name: t('aging.days90'), value: agingReport.totals.days90, color: AGING_BUCKET_COLORS.days90 },
-    { name: t('aging.over90'), value: agingReport.totals.over90, color: AGING_BUCKET_COLORS.over90 },
+    { name: t('aging.current'), value: Number(agingReport.totals.current), color: AGING_BUCKET_COLORS.current },
+    { name: t('aging.days30'), value: Number(agingReport.totals.days30), color: AGING_BUCKET_COLORS.days30 },
+    { name: t('aging.days60'), value: Number(agingReport.totals.days60), color: AGING_BUCKET_COLORS.days60 },
+    { name: t('aging.days90'), value: Number(agingReport.totals.days90), color: AGING_BUCKET_COLORS.days90 },
+    { name: t('aging.over90'), value: Number(agingReport.totals.over90), color: AGING_BUCKET_COLORS.over90 },
   ].filter((d) => d.value > 0);
 
   // Compute narrative data for revenue chart
@@ -154,12 +154,12 @@ async function DashboardCharts() {
 
   // Compute narrative data for aging chart
   let agingNarrative: string | null = null;
-  const agingTotal = agingReport.totals.current + agingReport.totals.days30 +
-    agingReport.totals.days60 + agingReport.totals.days90 + agingReport.totals.over90;
+  const agingTotal = Number(agingReport.totals.current) + Number(agingReport.totals.days30) +
+    Number(agingReport.totals.days60) + Number(agingReport.totals.days90) + Number(agingReport.totals.over90);
   if (agingTotal > 0) {
-    const currentPercent = Math.round((agingReport.totals.current / agingTotal) * 100);
+    const currentPercent = Math.round((Number(agingReport.totals.current) / agingTotal) * 100);
     const overduePercent = Math.round(
-      ((agingReport.totals.days60 + agingReport.totals.days90 + agingReport.totals.over90) / agingTotal) * 100
+      ((Number(agingReport.totals.days60) + Number(agingReport.totals.days90) + Number(agingReport.totals.over90)) / agingTotal) * 100
     );
     agingNarrative = t('charts.agingNarrative', {
       currentPercent,

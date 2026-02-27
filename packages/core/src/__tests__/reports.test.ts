@@ -15,40 +15,39 @@ import {
 
 describe('computeVatAmount', () => {
   it('computes 8.1% VAT (Swiss standard rate)', () => {
-    expect(computeVatAmount('1000.00', '8.1')).toBe(81);
+    expect(computeVatAmount('1000.00', '8.1')).toBe('81.00');
   });
 
   it('computes 2.6% VAT (Swiss reduced rate)', () => {
-    expect(computeVatAmount('1000.00', '2.6')).toBe(26);
+    expect(computeVatAmount('1000.00', '2.6')).toBe('26.00');
   });
 
   it('computes 0% VAT', () => {
-    expect(computeVatAmount('5000.00', '0')).toBe(0);
+    expect(computeVatAmount('5000.00', '0')).toBe('0.00');
   });
 
   it('handles fractional taxable amounts correctly', () => {
-    // 123.45 * 8.1% = 9.99945
-    expect(computeVatAmount('123.45', '8.1')).toBeCloseTo(9.99945, 5);
+    // 123.45 * 8.1% = 9.99945 → rounded to 2dp = 10.00
+    expect(computeVatAmount('123.45', '8.1')).toBe('10.00');
   });
 
   it('handles large amounts without floating-point errors', () => {
-    // 999999.99 * 8.1% = 80999.99919
-    const result = computeVatAmount('999999.99', '8.1');
-    expect(result).toBeCloseTo(80999.99919, 4);
+    // 999999.99 * 8.1% = 80999.999919 → rounded to 2dp = 81000.00
+    expect(computeVatAmount('999999.99', '8.1')).toBe('81000.00');
   });
 
   it('handles zero taxable amount', () => {
-    expect(computeVatAmount('0', '8.1')).toBe(0);
+    expect(computeVatAmount('0', '8.1')).toBe('0.00');
   });
 
   it('handles negative taxable amount (credit notes)', () => {
-    // Credit notes have negative amounts
-    expect(computeVatAmount('-500.00', '8.1')).toBe(-40.5);
+    // -500 * 8.1% = -40.50
+    expect(computeVatAmount('-500.00', '8.1')).toBe('-40.50');
   });
 
   it('computes correctly for small amounts', () => {
-    // 1.00 * 8.1% = 0.081
-    expect(computeVatAmount('1.00', '8.1')).toBeCloseTo(0.081, 5);
+    // 1.00 * 8.1% = 0.081 → rounded to 2dp = 0.08
+    expect(computeVatAmount('1.00', '8.1')).toBe('0.08');
   });
 });
 
@@ -147,17 +146,17 @@ describe('computeProfitLossTotals', () => {
       ['800.00', '300.00']
     );
 
-    expect(result.totalRevenue).toBe(3500);
-    expect(result.totalExpenses).toBe(1100);
-    expect(result.netIncome).toBe(2400);
+    expect(result.totalRevenue).toBe('3500.00');
+    expect(result.totalExpenses).toBe('1100.00');
+    expect(result.netIncome).toBe('2400.00');
   });
 
   it('handles empty arrays (no revenue, no expenses)', () => {
     const result = computeProfitLossTotals([], []);
 
-    expect(result.totalRevenue).toBe(0);
-    expect(result.totalExpenses).toBe(0);
-    expect(result.netIncome).toBe(0);
+    expect(result.totalRevenue).toBe('0.00');
+    expect(result.totalExpenses).toBe('0.00');
+    expect(result.netIncome).toBe('0.00');
   });
 
   it('handles net loss (expenses exceed revenue)', () => {
@@ -166,9 +165,9 @@ describe('computeProfitLossTotals', () => {
       ['1500.00']
     );
 
-    expect(result.totalRevenue).toBe(1000);
-    expect(result.totalExpenses).toBe(1500);
-    expect(result.netIncome).toBe(-500);
+    expect(result.totalRevenue).toBe('1000.00');
+    expect(result.totalExpenses).toBe('1500.00');
+    expect(result.netIncome).toBe('-500.00');
   });
 
   it('handles precise decimal amounts', () => {
@@ -177,9 +176,9 @@ describe('computeProfitLossTotals', () => {
       ['150.50']
     );
 
-    expect(result.totalRevenue).toBe(301);
-    expect(result.totalExpenses).toBe(150.5);
-    expect(result.netIncome).toBe(150.5);
+    expect(result.totalRevenue).toBe('301.00');
+    expect(result.totalExpenses).toBe('150.50');
+    expect(result.netIncome).toBe('150.50');
   });
 
   it('handles null/empty string amounts gracefully', () => {
@@ -188,9 +187,9 @@ describe('computeProfitLossTotals', () => {
       ['0']
     );
 
-    expect(result.totalRevenue).toBe(1500);
-    expect(result.totalExpenses).toBe(0);
-    expect(result.netIncome).toBe(1500);
+    expect(result.totalRevenue).toBe('1500.00');
+    expect(result.totalExpenses).toBe('0.00');
+    expect(result.netIncome).toBe('1500.00');
   });
 });
 
@@ -200,24 +199,24 @@ describe('computeProfitLossTotals', () => {
 
 describe('computeRetainedEarnings', () => {
   it('basic calculation: assets - liabilities - equity', () => {
-    expect(computeRetainedEarnings(100000, 40000, 50000)).toBe(10000);
+    expect(computeRetainedEarnings('100000.00', '40000.00', '50000.00')).toBe('10000.00');
   });
 
   it('returns zero when balanced', () => {
-    expect(computeRetainedEarnings(100000, 60000, 40000)).toBe(0);
+    expect(computeRetainedEarnings('100000.00', '60000.00', '40000.00')).toBe('0.00');
   });
 
   it('returns negative when equity exceeds net assets', () => {
-    expect(computeRetainedEarnings(100000, 60000, 50000)).toBe(-10000);
+    expect(computeRetainedEarnings('100000.00', '60000.00', '50000.00')).toBe('-10000.00');
   });
 
   it('handles zero values', () => {
-    expect(computeRetainedEarnings(0, 0, 0)).toBe(0);
+    expect(computeRetainedEarnings('0', '0', '0')).toBe('0.00');
   });
 
   it('handles decimal amounts without floating-point errors', () => {
     // 100000.50 - 60000.25 - 39999.75 = 0.50
-    expect(computeRetainedEarnings(100000.50, 60000.25, 39999.75)).toBe(0.5);
+    expect(computeRetainedEarnings('100000.50', '60000.25', '39999.75')).toBe('0.50');
   });
 });
 
@@ -239,11 +238,11 @@ describe('mergeSalesRows', () => {
     expect(result).toHaveLength(1);
     expect(result[0].month).toBe('2026-01');
     expect(result[0].invoiceCount).toBe(5);
-    expect(result[0].revenue).toBe(10000);
-    expect(result[0].vatAmount).toBe(810);
+    expect(result[0].revenue).toBe('10000.00');
+    expect(result[0].vatAmount).toBe('810.00');
     expect(result[0].creditNoteCount).toBe(1);
-    expect(result[0].creditNoteAmount).toBe(500);
-    expect(result[0].netRevenue).toBe(9500);
+    expect(result[0].creditNoteAmount).toBe('500.00');
+    expect(result[0].netRevenue).toBe('9500.00');
   });
 
   it('handles months with only invoices', () => {
@@ -256,8 +255,8 @@ describe('mergeSalesRows', () => {
 
     expect(result).toHaveLength(1);
     expect(result[0].creditNoteCount).toBe(0);
-    expect(result[0].creditNoteAmount).toBe(0);
-    expect(result[0].netRevenue).toBe(5000);
+    expect(result[0].creditNoteAmount).toBe('0.00');
+    expect(result[0].netRevenue).toBe('5000.00');
   });
 
   it('handles months with only credit notes', () => {
@@ -271,10 +270,10 @@ describe('mergeSalesRows', () => {
     expect(result).toHaveLength(1);
     expect(result[0].month).toBe('2026-02');
     expect(result[0].invoiceCount).toBe(0);
-    expect(result[0].revenue).toBe(0);
+    expect(result[0].revenue).toBe('0.00');
     expect(result[0].creditNoteCount).toBe(2);
-    expect(result[0].creditNoteAmount).toBe(300);
-    expect(result[0].netRevenue).toBe(-300);
+    expect(result[0].creditNoteAmount).toBe('300.00');
+    expect(result[0].netRevenue).toBe('-300.00');
   });
 
   it('sorts months chronologically', () => {
@@ -305,9 +304,9 @@ describe('mergeSalesRows', () => {
     const result = mergeSalesRows(invoiceRows, creditRows);
 
     expect(result).toHaveLength(3);
-    expect(result[0].netRevenue).toBe(49000);  // 50000 - 1000
-    expect(result[1].netRevenue).toBe(40000);  // 40000 - 0
-    expect(result[2].netRevenue).toBe(59500);  // 60000 - 500
+    expect(result[0].netRevenue).toBe('49000.00');  // 50000 - 1000
+    expect(result[1].netRevenue).toBe('40000.00');  // 40000 - 0
+    expect(result[2].netRevenue).toBe('59500.00');  // 60000 - 500
   });
 
   it('handles empty inputs', () => {
@@ -323,55 +322,55 @@ describe('mergeSalesRows', () => {
 describe('computeSalesTotals', () => {
   it('sums all fields across rows', () => {
     const rows = [
-      { month: '2026-01', invoiceCount: 5, revenue: 10000, vatAmount: 810, creditNoteCount: 1, creditNoteAmount: 500, netRevenue: 9500 },
-      { month: '2026-02', invoiceCount: 3, revenue: 8000, vatAmount: 648, creditNoteCount: 0, creditNoteAmount: 0, netRevenue: 8000 },
+      { month: '2026-01', invoiceCount: 5, revenue: '10000.00', vatAmount: '810.00', creditNoteCount: 1, creditNoteAmount: '500.00', netRevenue: '9500.00' },
+      { month: '2026-02', invoiceCount: 3, revenue: '8000.00', vatAmount: '648.00', creditNoteCount: 0, creditNoteAmount: '0.00', netRevenue: '8000.00' },
     ];
 
     const totals = computeSalesTotals(rows);
 
     expect(totals.invoiceCount).toBe(8);
-    expect(totals.revenue).toBe(18000);
-    expect(totals.vatAmount).toBe(1458);
+    expect(totals.revenue).toBe('18000.00');
+    expect(totals.vatAmount).toBe('1458.00');
     expect(totals.creditNoteCount).toBe(1);
-    expect(totals.creditNoteAmount).toBe(500);
-    expect(totals.netRevenue).toBe(17500);
+    expect(totals.creditNoteAmount).toBe('500.00');
+    expect(totals.netRevenue).toBe('17500.00');
   });
 
   it('returns zeros for empty array', () => {
     const totals = computeSalesTotals([]);
 
     expect(totals.invoiceCount).toBe(0);
-    expect(totals.revenue).toBe(0);
-    expect(totals.vatAmount).toBe(0);
+    expect(totals.revenue).toBe('0.00');
+    expect(totals.vatAmount).toBe('0.00');
     expect(totals.creditNoteCount).toBe(0);
-    expect(totals.creditNoteAmount).toBe(0);
-    expect(totals.netRevenue).toBe(0);
+    expect(totals.creditNoteAmount).toBe('0.00');
+    expect(totals.netRevenue).toBe('0.00');
   });
 
   it('handles single row', () => {
     const rows = [
-      { month: '2026-06', invoiceCount: 1, revenue: 1234.56, vatAmount: 99.99, creditNoteCount: 0, creditNoteAmount: 0, netRevenue: 1234.56 },
+      { month: '2026-06', invoiceCount: 1, revenue: '1234.56', vatAmount: '99.99', creditNoteCount: 0, creditNoteAmount: '0.00', netRevenue: '1234.56' },
     ];
 
     const totals = computeSalesTotals(rows);
 
     expect(totals.invoiceCount).toBe(1);
-    expect(totals.revenue).toBe(1234.56);
-    expect(totals.vatAmount).toBe(99.99);
-    expect(totals.netRevenue).toBe(1234.56);
+    expect(totals.revenue).toBe('1234.56');
+    expect(totals.vatAmount).toBe('99.99');
+    expect(totals.netRevenue).toBe('1234.56');
   });
 
   it('handles decimal precision across many rows', () => {
     const rows = [
-      { month: '2026-01', invoiceCount: 1, revenue: 0.10, vatAmount: 0.01, creditNoteCount: 0, creditNoteAmount: 0, netRevenue: 0.10 },
-      { month: '2026-02', invoiceCount: 1, revenue: 0.20, vatAmount: 0.02, creditNoteCount: 0, creditNoteAmount: 0, netRevenue: 0.20 },
-      { month: '2026-03', invoiceCount: 1, revenue: 0.30, vatAmount: 0.02, creditNoteCount: 0, creditNoteAmount: 0, netRevenue: 0.30 },
+      { month: '2026-01', invoiceCount: 1, revenue: '0.10', vatAmount: '0.01', creditNoteCount: 0, creditNoteAmount: '0.00', netRevenue: '0.10' },
+      { month: '2026-02', invoiceCount: 1, revenue: '0.20', vatAmount: '0.02', creditNoteCount: 0, creditNoteAmount: '0.00', netRevenue: '0.20' },
+      { month: '2026-03', invoiceCount: 1, revenue: '0.30', vatAmount: '0.02', creditNoteCount: 0, creditNoteAmount: '0.00', netRevenue: '0.30' },
     ];
 
     const totals = computeSalesTotals(rows);
 
     // 0.1 + 0.2 + 0.3 = 0.6 exactly (Decimal.js avoids IEEE 754 issues)
-    expect(totals.revenue).toBe(0.6);
-    expect(totals.netRevenue).toBe(0.6);
+    expect(totals.revenue).toBe('0.60');
+    expect(totals.netRevenue).toBe('0.60');
   });
 });

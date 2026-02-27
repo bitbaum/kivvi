@@ -17,11 +17,12 @@ import type { Database } from '@kivvi/database';
 /**
  * Compute VAT amount from a taxable amount and a VAT rate.
  * All math uses Decimal.js — no float errors.
+ * Returns string to preserve precision across function boundaries.
  */
-export function computeVatAmount(taxableAmount: string, vatRate: string): number {
+export function computeVatAmount(taxableAmount: string, vatRate: string): string {
   const taxable = new Decimal(taxableAmount);
   const rate = new Decimal(vatRate);
-  return taxable.times(rate.div(100)).toNumber();
+  return taxable.times(rate.div(100)).toFixed(2);
 }
 
 /**
@@ -50,17 +51,18 @@ export function computeDaysOverdue(dueDate: Date | string, asOfDate: Date | stri
 
 /**
  * Aggregate P&L rows into totals. Pure reduction over pre-computed row data.
+ * Returns strings to preserve Decimal.js precision across function boundaries.
  */
 export function computeProfitLossTotals(
   revenueAmounts: string[],
   expenseAmounts: string[]
-): { totalRevenue: number; totalExpenses: number; netIncome: number } {
-  const totalRevenue = revenueAmounts.reduce((sum, a) => sum.plus(a || '0'), new Decimal(0)).toNumber();
-  const totalExpenses = expenseAmounts.reduce((sum, a) => sum.plus(a || '0'), new Decimal(0)).toNumber();
+): { totalRevenue: string; totalExpenses: string; netIncome: string } {
+  const totalRevenue = revenueAmounts.reduce((sum, a) => sum.plus(a || '0'), new Decimal(0));
+  const totalExpenses = expenseAmounts.reduce((sum, a) => sum.plus(a || '0'), new Decimal(0));
   return {
-    totalRevenue,
-    totalExpenses,
-    netIncome: new Decimal(totalRevenue).minus(totalExpenses).toNumber(),
+    totalRevenue: totalRevenue.toFixed(2),
+    totalExpenses: totalExpenses.toFixed(2),
+    netIncome: totalRevenue.minus(totalExpenses).toFixed(2),
   };
 }
 
@@ -69,16 +71,16 @@ export function computeProfitLossTotals(
  * Retained earnings = Total Assets - Total Liabilities - Total Equity (from accounts).
  */
 export function computeRetainedEarnings(
-  totalAssets: number,
-  totalLiabilities: number,
-  totalEquity: number
-): number {
-  return new Decimal(totalAssets).minus(totalLiabilities).minus(totalEquity).toNumber();
+  totalAssets: string,
+  totalLiabilities: string,
+  totalEquity: string
+): string {
+  return new Decimal(totalAssets).minus(totalLiabilities).minus(totalEquity).toFixed(2);
 }
 
 /**
  * Merge invoice and credit note rows into a unified monthly sales report row.
- * Pure data transformation.
+ * Pure data transformation. Returns string amounts to preserve precision.
  */
 export function mergeSalesRows(
   invoiceRows: Array<{ month: string; count: number; revenue: string; vatAmount: string }>,
@@ -100,32 +102,41 @@ export function mergeSalesRows(
       return {
         month,
         invoiceCount: inv?.count || 0,
-        revenue: revenue.toNumber(),
-        vatAmount: new Decimal(inv?.vatAmount || '0').toNumber(),
+        revenue: revenue.toFixed(2),
+        vatAmount: new Decimal(inv?.vatAmount || '0').toFixed(2),
         creditNoteCount: cn?.count || 0,
-        creditNoteAmount: creditAmount.toNumber(),
-        netRevenue: revenue.minus(creditAmount).toNumber(),
+        creditNoteAmount: creditAmount.toFixed(2),
+        netRevenue: revenue.minus(creditAmount).toFixed(2),
       };
     });
 }
 
 /**
  * Compute sales report totals from rows. Pure reduction.
+ * Accumulates with Decimal.js, converts to string only at boundary.
  */
 export function computeSalesTotals(
   rows: SalesReportRow[]
 ): Omit<SalesReportRow, 'month'> {
-  return rows.reduce(
-    (acc, r) => ({
-      invoiceCount: acc.invoiceCount + r.invoiceCount,
-      revenue: new Decimal(acc.revenue).plus(r.revenue).toNumber(),
-      vatAmount: new Decimal(acc.vatAmount).plus(r.vatAmount).toNumber(),
-      creditNoteCount: acc.creditNoteCount + r.creditNoteCount,
-      creditNoteAmount: new Decimal(acc.creditNoteAmount).plus(r.creditNoteAmount).toNumber(),
-      netRevenue: new Decimal(acc.netRevenue).plus(r.netRevenue).toNumber(),
+  const acc = rows.reduce(
+    (a, r) => ({
+      invoiceCount: a.invoiceCount + r.invoiceCount,
+      revenue: a.revenue.plus(r.revenue),
+      vatAmount: a.vatAmount.plus(r.vatAmount),
+      creditNoteCount: a.creditNoteCount + r.creditNoteCount,
+      creditNoteAmount: a.creditNoteAmount.plus(r.creditNoteAmount),
+      netRevenue: a.netRevenue.plus(r.netRevenue),
     }),
-    { invoiceCount: 0, revenue: 0, vatAmount: 0, creditNoteCount: 0, creditNoteAmount: 0, netRevenue: 0 }
+    { invoiceCount: 0, revenue: new Decimal(0), vatAmount: new Decimal(0), creditNoteCount: 0, creditNoteAmount: new Decimal(0), netRevenue: new Decimal(0) }
   );
+  return {
+    invoiceCount: acc.invoiceCount,
+    revenue: acc.revenue.toFixed(2),
+    vatAmount: acc.vatAmount.toFixed(2),
+    creditNoteCount: acc.creditNoteCount,
+    creditNoteAmount: acc.creditNoteAmount.toFixed(2),
+    netRevenue: acc.netRevenue.toFixed(2),
+  };
 }
 
 // ============================================================================
@@ -135,15 +146,15 @@ export function computeSalesTotals(
 export interface ProfitLossRow {
   accountCode: string;
   accountName: string;
-  amount: number;
+  amount: string;
 }
 
 export interface ProfitLossReport {
   revenue: ProfitLossRow[];
   expenses: ProfitLossRow[];
-  totalRevenue: number;
-  totalExpenses: number;
-  netIncome: number;
+  totalRevenue: string;
+  totalExpenses: string;
+  netIncome: string;
   periodStart: string;
   periodEnd: string;
 }
@@ -199,13 +210,13 @@ export async function getProfitAndLoss(
   const revenue: ProfitLossRow[] = revenueRows.map((r) => ({
     accountCode: r.code,
     accountName: r.name,
-    amount: new Decimal(r.amount || '0').toNumber(),
+    amount: new Decimal(r.amount || '0').toFixed(2),
   }));
 
   const expenses: ProfitLossRow[] = expenseRows.map((r) => ({
     accountCode: r.code,
     accountName: r.name,
-    amount: new Decimal(r.amount || '0').toNumber(),
+    amount: new Decimal(r.amount || '0').toFixed(2),
   }));
 
   const totals = computeProfitLossTotals(
@@ -229,17 +240,17 @@ export async function getProfitAndLoss(
 export interface BalanceSheetRow {
   accountCode: string;
   accountName: string;
-  balance: number;
+  balance: string;
 }
 
 export interface BalanceSheetReport {
   assets: BalanceSheetRow[];
   liabilities: BalanceSheetRow[];
   equity: BalanceSheetRow[];
-  totalAssets: number;
-  totalLiabilities: number;
-  totalEquity: number;
-  retainedEarnings: number;
+  totalAssets: string;
+  totalLiabilities: string;
+  totalEquity: string;
+  retainedEarnings: string;
   asOfDate: string;
 }
 
@@ -278,7 +289,7 @@ export async function getBalanceSheet(
     return rows.map((r) => ({
       accountCode: r.code,
       accountName: r.name,
-      balance: new Decimal(r.balance || '0').toNumber(),
+      balance: new Decimal(r.balance || '0').toFixed(2),
     }));
   };
 
@@ -286,11 +297,10 @@ export async function getBalanceSheet(
   const liabilities = await getBalances('liability', false);
   const equity = await getBalances('equity', false);
 
-  const totalAssets = assets.reduce((sum, r) => sum.plus(r.balance), new Decimal(0)).toNumber();
-  const totalLiabilities = liabilities.reduce((sum, r) => sum.plus(r.balance), new Decimal(0)).toNumber();
-  const totalEquity = equity.reduce((sum, r) => sum.plus(r.balance), new Decimal(0)).toNumber();
+  const totalAssets = assets.reduce((sum, r) => sum.plus(r.balance), new Decimal(0)).toFixed(2);
+  const totalLiabilities = liabilities.reduce((sum, r) => sum.plus(r.balance), new Decimal(0)).toFixed(2);
+  const totalEquity = equity.reduce((sum, r) => sum.plus(r.balance), new Decimal(0)).toFixed(2);
 
-  // Retained earnings = Total Assets - Total Liabilities - Equity from accounts
   const retainedEarnings = computeRetainedEarnings(totalAssets, totalLiabilities, totalEquity);
 
   return {
@@ -311,17 +321,17 @@ export async function getBalanceSheet(
 
 export interface VatReportRow {
   rate: string;
-  taxableAmount: number;
-  vatAmount: number;
+  taxableAmount: string;
+  vatAmount: string;
   documentCount: number;
 }
 
 export interface VatReport {
   salesVat: VatReportRow[];
   purchaseVat: VatReportRow[];
-  totalSalesVat: number;
-  totalPurchaseVat: number;
-  vatPayable: number;
+  totalSalesVat: string;
+  totalPurchaseVat: string;
+  vatPayable: string;
   periodStart: string;
   periodEnd: string;
 }
@@ -353,15 +363,12 @@ export async function getVatReport(
     .groupBy(documentItems.vatRate)
     .orderBy(desc(documentItems.vatRate));
 
-  const salesVat: VatReportRow[] = salesRows.map((r) => {
-    // For credit notes, amounts would be negative, so VAT computation handles both
-    return {
-      rate: r.rate || '0',
-      taxableAmount: new Decimal(r.taxableAmount).toNumber(),
-      vatAmount: computeVatAmount(r.taxableAmount, r.rate || '0'),
-      documentCount: r.documentCount,
-    };
-  });
+  const salesVat: VatReportRow[] = salesRows.map((r) => ({
+    rate: r.rate || '0',
+    taxableAmount: new Decimal(r.taxableAmount).toFixed(2),
+    vatAmount: computeVatAmount(r.taxableAmount, r.rate || '0'),
+    documentCount: r.documentCount,
+  }));
 
   // Purchase VAT from purchase invoices
   const purchaseRows = await db
@@ -384,24 +391,22 @@ export async function getVatReport(
     .groupBy(documentItems.vatRate)
     .orderBy(desc(documentItems.vatRate));
 
-  const purchaseVat: VatReportRow[] = purchaseRows.map((r) => {
-    return {
-      rate: r.rate || '0',
-      taxableAmount: new Decimal(r.taxableAmount).toNumber(),
-      vatAmount: computeVatAmount(r.taxableAmount, r.rate || '0'),
-      documentCount: r.documentCount,
-    };
-  });
+  const purchaseVat: VatReportRow[] = purchaseRows.map((r) => ({
+    rate: r.rate || '0',
+    taxableAmount: new Decimal(r.taxableAmount).toFixed(2),
+    vatAmount: computeVatAmount(r.taxableAmount, r.rate || '0'),
+    documentCount: r.documentCount,
+  }));
 
-  const totalSalesVat = salesVat.reduce((sum, r) => sum.plus(r.vatAmount), new Decimal(0)).toNumber();
-  const totalPurchaseVat = purchaseVat.reduce((sum, r) => sum.plus(r.vatAmount), new Decimal(0)).toNumber();
+  const totalSalesVat = salesVat.reduce((sum, r) => sum.plus(r.vatAmount), new Decimal(0)).toFixed(2);
+  const totalPurchaseVat = purchaseVat.reduce((sum, r) => sum.plus(r.vatAmount), new Decimal(0)).toFixed(2);
 
   return {
     salesVat,
     purchaseVat,
     totalSalesVat,
     totalPurchaseVat,
-    vatPayable: new Decimal(totalSalesVat).minus(totalPurchaseVat).toNumber(),
+    vatPayable: new Decimal(totalSalesVat).minus(totalPurchaseVat).toFixed(2),
     periodStart: startDate,
     periodEnd: endDate,
   };
@@ -414,12 +419,12 @@ export async function getVatReport(
 export interface AgingRow {
   contactId: string;
   contactName: string;
-  current: number;    // Not yet due
-  days30: number;     // 1-30 days overdue
-  days60: number;     // 31-60 days overdue
-  days90: number;     // 61-90 days overdue
-  over90: number;     // >90 days overdue
-  total: number;
+  current: string;    // Not yet due
+  days30: string;     // 1-30 days overdue
+  days60: string;     // 31-60 days overdue
+  days90: string;     // 61-90 days overdue
+  over90: string;     // >90 days overdue
+  total: string;
 }
 
 export interface AgingReport {
@@ -499,7 +504,7 @@ export async function getAgingReport(
     acc[bucket] = acc[bucket].plus(total);
   }
 
-  // Compute totals from Decimal accumulators before converting to number
+  // Compute totals from Decimal accumulators before converting to string
   const accumulators = Array.from(contactMap.values());
   const zero = { current: new Decimal(0), days30: new Decimal(0), days60: new Decimal(0), days90: new Decimal(0), over90: new Decimal(0), total: new Decimal(0) };
   const totalAcc = accumulators.reduce(
@@ -514,27 +519,27 @@ export async function getAgingReport(
     zero
   );
 
-  // Convert to output format — .toNumber() only at the final boundary
+  // Convert to output format — .toString() only at the final boundary
   const rows: AgingRow[] = accumulators
     .map((a) => ({
       contactId: a.contactId,
       contactName: a.contactName,
-      current: a.current.toNumber(),
-      days30: a.days30.toNumber(),
-      days60: a.days60.toNumber(),
-      days90: a.days90.toNumber(),
-      over90: a.over90.toNumber(),
-      total: a.total.toNumber(),
+      current: a.current.toFixed(2),
+      days30: a.days30.toFixed(2),
+      days60: a.days60.toFixed(2),
+      days90: a.days90.toFixed(2),
+      over90: a.over90.toFixed(2),
+      total: a.total.toFixed(2),
     }))
-    .sort((a, b) => b.total - a.total);
+    .sort((a, b) => Number(b.total) - Number(a.total));
 
   const totals = {
-    current: totalAcc.current.toNumber(),
-    days30: totalAcc.days30.toNumber(),
-    days60: totalAcc.days60.toNumber(),
-    days90: totalAcc.days90.toNumber(),
-    over90: totalAcc.over90.toNumber(),
-    total: totalAcc.total.toNumber(),
+    current: totalAcc.current.toFixed(2),
+    days30: totalAcc.days30.toFixed(2),
+    days60: totalAcc.days60.toFixed(2),
+    days90: totalAcc.days90.toFixed(2),
+    over90: totalAcc.over90.toFixed(2),
+    total: totalAcc.total.toFixed(2),
   };
 
   return { rows, totals, asOfDate };
@@ -547,11 +552,11 @@ export async function getAgingReport(
 export interface SalesReportRow {
   month: string;
   invoiceCount: number;
-  revenue: number;
-  vatAmount: number;
+  revenue: string;
+  vatAmount: string;
   creditNoteCount: number;
-  creditNoteAmount: number;
-  netRevenue: number;
+  creditNoteAmount: string;
+  netRevenue: string;
 }
 
 export interface SalesReport {

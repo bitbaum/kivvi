@@ -196,7 +196,7 @@ export default async function ProfitLossPage({ searchParams }: PageProps) {
                 </p>
                 <p
                   className={`mt-1 text-2xl font-bold ${
-                    report.netIncome >= 0
+                    Number(report.netIncome) >= 0
                       ? 'text-green-600 dark:text-green-400'
                       : 'text-red-600 dark:text-red-400'
                   }`}
