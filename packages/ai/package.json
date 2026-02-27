@@ -12,7 +12,7 @@
     "@kivvi/core": "workspace:*",
     "@kivvi/database": "workspace:*",
     "decimal.js": "^10.4.3",
-    "drizzle-orm": "^0.29.3",
+    "drizzle-orm": "^0.30.10",
     "openai": "^4.28.0",
     "zod": "^3.22.4"
   },

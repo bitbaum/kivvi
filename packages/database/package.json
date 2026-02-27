@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.9.0",
-    "drizzle-orm": "^0.30.0",
+    "drizzle-orm": "^0.30.10",
     "node-fetch": "2",
     "postgres": "^3.4.4"
   },

@@ -121,7 +121,7 @@ importers:
         specifier: ^10.4.3
         version: 10.6.0
       drizzle-orm:
-        specifier: ^0.30.0
+        specifier: ^0.30.10
         version: 0.30.10(@neondatabase/serverless@0.9.5)(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(@types/react@18.3.27)(postgres@3.4.8)(react@18.3.1)
       lucide-react:
         specifier: ^0.363.0
@@ -227,8 +227,8 @@ importers:
         specifier: ^10.4.3
         version: 10.6.0
       drizzle-orm:
-        specifier: ^0.29.3
-        version: 0.29.5(@neondatabase/serverless@0.9.5)(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(@types/react@18.3.27)(postgres@3.4.8)(react@18.3.1)
+        specifier: ^0.30.10
+        version: 0.30.10(@neondatabase/serverless@0.9.5)(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(@types/react@18.3.27)(postgres@3.4.8)(react@18.3.1)
       openai:
         specifier: ^4.28.0
         version: 4.104.0(ws@8.19.0)(zod@3.25.76)
@@ -268,7 +268,7 @@ importers:
         specifier: ^0.9.0
         version: 0.9.5
       drizzle-orm:
-        specifier: ^0.30.0
+        specifier: ^0.30.10
         version: 0.30.10(@neondatabase/serverless@0.9.5)(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(@types/react@18.3.27)(postgres@3.4.8)(react@18.3.1)
       node-fetch:
         specifier: '2'
@@ -3053,77 +3053,6 @@ packages:
   drizzle-kit@0.20.18:
     resolution: {integrity: sha512-fLTwcnLqtBxGd+51H/dEm9TC0FW6+cIX/RVPyNcitBO77X9+nkogEfMAJebpd/8Yl4KucmePHRYRWWvUlW0rqg==}
     hasBin: true
-
-  drizzle-orm@0.29.5:
-    resolution: {integrity: sha512-jS3+uyzTz4P0Y2CICx8FmRQ1eplURPaIMWDn/yq6k4ShRFj9V7vlJk67lSf2kyYPzQ60GkkNGXcJcwrxZ6QCRw==}
-    peerDependencies:
-      '@aws-sdk/client-rds-data': '>=3'
-      '@cloudflare/workers-types': '>=3'
-      '@libsql/client': '*'
-      '@neondatabase/serverless': '>=0.1'
-      '@opentelemetry/api': ^1.4.1
-      '@planetscale/database': '>=1'
-      '@types/better-sqlite3': '*'
-      '@types/pg': '*'
-      '@types/react': '>=18'
-      '@types/sql.js': '*'
-      '@vercel/postgres': '*'
-      better-sqlite3: '>=7'
-      bun-types: '*'
-      expo-sqlite: '>=13.2.0'
-      knex: '*'
-      kysely: '*'
-      mysql2: '>=2'
-      pg: '>=8'
-      postgres: '>=3'
-      react: '>=18'
-      sql.js: '>=1'
-      sqlite3: '>=5'
-    peerDependenciesMeta:
-      '@aws-sdk/client-rds-data':
-        optional: true
-      '@cloudflare/workers-types':
-        optional: true
-      '@libsql/client':
-        optional: true
-      '@neondatabase/serverless':
-        optional: true
-      '@opentelemetry/api':
-        optional: true
-      '@planetscale/database':
-        optional: true
-      '@types/better-sqlite3':
-        optional: true
-      '@types/pg':
-        optional: true
-      '@types/react':
-        optional: true
-      '@types/sql.js':
-        optional: true
-      '@vercel/postgres':
-        optional: true
-      better-sqlite3:
-        optional: true
-      bun-types:
-        optional: true
-      expo-sqlite:
-        optional: true
-      knex:
-        optional: true
-      kysely:
-        optional: true
-      mysql2:
-        optional: true
-      pg:
-        optional: true
-      postgres:
-        optional: true
-      react:
-        optional: true
-      sql.js:
-        optional: true
-      sqlite3:
-        optional: true
 
   drizzle-orm@0.30.10:
     resolution: {integrity: sha512-IRy/QmMWw9lAQHpwbUh1b8fcn27S/a9zMIzqea1WNOxK9/4EB8gIo+FZWLiPXzl2n9ixGSv8BhsLZiOppWEwBw==}
@@ -7994,15 +7923,6 @@ snapshots:
       zod: 3.25.76
     transitivePeerDependencies:
       - supports-color
-
-  drizzle-orm@0.29.5(@neondatabase/serverless@0.9.5)(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(@types/react@18.3.27)(postgres@3.4.8)(react@18.3.1):
-    optionalDependencies:
-      '@neondatabase/serverless': 0.9.5
-      '@opentelemetry/api': 1.9.0
-      '@types/pg': 8.11.6
-      '@types/react': 18.3.27
-      postgres: 3.4.8
-      react: 18.3.1
 
   drizzle-orm@0.30.10(@neondatabase/serverless@0.9.5)(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(@types/react@18.3.27)(postgres@3.4.8)(react@18.3.1):
     optionalDependencies:
