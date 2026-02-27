@@ -15,15 +15,7 @@ import type { BulkOperationResult } from '@/app/actions/bulk-operations';
 import { cn, formatCurrency } from '@/lib/utils';
 import { SortableHeader } from '@/components/sortable-header';
 
-const UNIT_LABELS: Record<string, string> = {
-  piece: 'pc',
-  hour: 'h',
-  kg: 'kg',
-  m: 'm',
-  m2: 'm\u00B2',
-  m3: 'm\u00B3',
-  liter: 'l',
-};
+import { UNIT_ABBREVIATIONS } from '@/lib/config/units';
 
 interface ProductItem {
   id: string;
@@ -224,7 +216,7 @@ export function SelectableProductTable({ data, translations, sort }: SelectableP
                 <td className="whitespace-nowrap px-4 py-3 text-right font-medium">
                   {formatCurrency(Number(product.unitPrice), product.currency || 'CHF')}
                   <span className="ml-1 text-xs text-muted-foreground">
-                    /{UNIT_LABELS[product.unit || 'piece'] || product.unit}
+                    /{UNIT_ABBREVIATIONS[product.unit || 'piece'] || product.unit}
                   </span>
                 </td>
                 <td className="hidden whitespace-nowrap px-4 py-3 text-right text-sm lg:table-cell">

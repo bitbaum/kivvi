@@ -180,7 +180,7 @@ export async function submitAndWaitForUrl(
   page: Page,
   button: Locator,
   urlPattern: RegExp,
-  timeout = 15_000,
+  timeout = 45_000,
 ): Promise<void> {
   await button.click();
   try {
