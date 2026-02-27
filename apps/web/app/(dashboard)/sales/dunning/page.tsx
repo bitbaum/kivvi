@@ -34,9 +34,11 @@ export default async function DunningPage() {
     'processing', 'successAll', 'successPartial', 'failedAll',
     'showErrors', 'hideErrors',
   ];
+  // Keys with ICU placeholders must use tb.raw() — client fills via .replace()
+  const rawKeys = new Set(['successAll', 'successPartial', 'failedAll']);
   const bulkLabels: Record<string, string> = {};
   for (const key of bulkActionKeys) {
-    bulkLabels[key] = tb(key);
+    bulkLabels[key] = rawKeys.has(key) ? tb.raw(key) : tb(key);
   }
 
   const columnLabels = {

@@ -54,9 +54,15 @@ export default async function ProductsPage({ searchParams }: PageProps) {
     'successAll', 'successPartial', 'failedAll',
     'showErrors', 'hideErrors',
   ];
+  // Keys with ICU placeholders ({count}, {successCount}, etc.) must use
+  // tb.raw() to avoid ICU parser errors — the client fills them via .replace()
+  const rawKeys = new Set([
+    'successAll', 'successPartial', 'failedAll',
+    'confirmDelete', 'confirmDeactivate', 'confirmMessage',
+  ]);
   const bulkLabels: Record<string, string> = {};
   for (const key of bulkActionKeys) {
-    bulkLabels[key] = tb(key);
+    bulkLabels[key] = rawKeys.has(key) ? tb.raw(key) : tb(key);
   }
 
   const columnLabels = {
