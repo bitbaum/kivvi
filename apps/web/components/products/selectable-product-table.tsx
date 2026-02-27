@@ -9,6 +9,7 @@ import { BulkActionToolbar } from '@/components/bulk-action-toolbar';
 import { BulkResultBanner } from '@/components/bulk-result-banner';
 import {
   bulkDeleteProductsAction,
+  bulkDeactivateProductsAction,
 } from '@/app/actions/bulk-operations';
 import type { BulkOperationResult } from '@/app/actions/bulk-operations';
 import { cn, formatCurrency } from '@/lib/utils';
@@ -99,7 +100,7 @@ export function SelectableProductTable({ data, translations, sort }: SelectableP
     startTransition(async () => {
       const result = action === 'delete'
         ? await bulkDeleteProductsAction({ productIds: selectedIds })
-        : await bulkDeleteProductsAction({ productIds: selectedIds });
+        : await bulkDeactivateProductsAction({ productIds: selectedIds });
       if (result.success && result.data) {
         handleComplete(result.data);
       } else {

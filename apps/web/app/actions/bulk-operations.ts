@@ -288,3 +288,43 @@ export async function bulkDeleteProductsAction(
   }
 }
 
+/** Bulk deactivate contacts (soft delete — sets isActive = false). */
+export async function bulkDeactivateContactsAction(
+  input: unknown
+): Promise<ActionResult<BulkOperationResult>> {
+  try {
+    const { companyId } = await getSession();
+    const data = parseInput(bulkContactIdsSchema, input);
+    if ('success' in data) return data as ActionResult<never>;
+
+    return runBulkOperation(
+      data.contactIds,
+      async (contactId) => { await deleteContact(db, companyId, contactId); return undefined; },
+      () => revalidatePath('/contacts'),
+      'Failed to deactivate contact',
+    );
+  } catch (error) {
+    return { success: false, error: safeErrorMessage(error, 'Failed to bulk deactivate contacts') };
+  }
+}
+
+/** Bulk deactivate products (soft delete — sets isActive = false). */
+export async function bulkDeactivateProductsAction(
+  input: unknown
+): Promise<ActionResult<BulkOperationResult>> {
+  try {
+    const { companyId } = await getSession();
+    const data = parseInput(bulkProductIdsSchema, input);
+    if ('success' in data) return data as ActionResult<never>;
+
+    return runBulkOperation(
+      data.productIds,
+      async (productId) => { await deleteProduct(db, companyId, productId); return undefined; },
+      () => revalidatePath('/products'),
+      'Failed to deactivate product',
+    );
+  } catch (error) {
+    return { success: false, error: safeErrorMessage(error, 'Failed to bulk deactivate products') };
+  }
+}
+

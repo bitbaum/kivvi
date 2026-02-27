@@ -9,6 +9,7 @@ import { BulkActionToolbar } from '@/components/bulk-action-toolbar';
 import { BulkResultBanner } from '@/components/bulk-result-banner';
 import {
   bulkDeleteContactsAction,
+  bulkDeactivateContactsAction,
 } from '@/app/actions/bulk-operations';
 import type { BulkOperationResult } from '@/app/actions/bulk-operations';
 import { cn } from '@/lib/utils';
@@ -86,7 +87,7 @@ export function SelectableContactTable({ data, translations, sort }: SelectableC
     startTransition(async () => {
       const result = action === 'delete'
         ? await bulkDeleteContactsAction({ contactIds: selectedIds })
-        : await bulkDeleteContactsAction({ contactIds: selectedIds });
+        : await bulkDeactivateContactsAction({ contactIds: selectedIds });
       if (result.success && result.data) {
         handleComplete(result.data);
       } else {
