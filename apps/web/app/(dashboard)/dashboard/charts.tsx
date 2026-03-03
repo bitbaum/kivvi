@@ -15,9 +15,10 @@ import {
 
 interface RevenueChartProps {
   data: Array<{ month: string; revenue: number }>;
+  revenueLabel?: string;
 }
 
-export function RevenueChart({ data }: RevenueChartProps) {
+export function RevenueChart({ data, revenueLabel }: RevenueChartProps) {
   return (
     <div className="h-[300px] w-full min-w-0">
       <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={50}>
@@ -28,7 +29,7 @@ export function RevenueChart({ data }: RevenueChartProps) {
           <Tooltip
             formatter={(value: number | undefined) => [
               `CHF ${(value ?? 0).toFixed(2)}`,
-              'Umsatz',
+              revenueLabel || 'Revenue',
             ]}
             contentStyle={{
               backgroundColor: 'hsl(var(--background))',

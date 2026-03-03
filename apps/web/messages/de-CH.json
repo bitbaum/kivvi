@@ -353,6 +353,7 @@
       "weeksAgo": "vor {count} Wochen",
       "noActivity": "Keine Aktivitäten",
       "noActivityDesc": "Es gibt noch keine Aktivitäten in Ihrem Unternehmen.",
+      "loadError": "Letzte Aktivitäten konnten nicht geladen werden. Bitte aktualisieren Sie die Seite.",
       "quote": {
         "draft": "Angebot erstellt",
         "sent": "Angebot versendet",
@@ -427,6 +428,7 @@
     },
     "charts": {
       "revenue": "Umsatzentwicklung",
+      "revenueLabel": "Umsatz",
       "aging": "Fälligkeitsanalyse",
       "noRevenue": "Keine Umsatzdaten vorhanden",
       "noInvoices": "Keine offenen Rechnungen",
@@ -449,7 +451,8 @@
       "bankBalance": "Kontostand",
       "activeContacts": "Aktive Kontakte",
       "activeProducts": "Aktive Produkte",
-      "vsLastMonth": "ggü. Vormonat"
+      "vsLastMonth": "ggü. Vormonat",
+      "loadError": "Kennzahlen konnten nicht geladen werden. Bitte aktualisieren Sie die Seite."
     },
     "healthMetrics": {
       "title": "Geschäftskennzahlen",
@@ -468,9 +471,13 @@
       "title": "KI-Assistent",
       "subtitle": "Fragen Sie Kivvi — Ihre KI analysiert Ihr Unternehmen",
       "overdueInvoices": "Überfällige Rechnungen anzeigen",
+      "overdueInvoicesQuery": "Zeige mir alle überfälligen Rechnungen über CHF 1000",
       "revenueAnalysis": "Umsatzanalyse",
+      "revenueAnalysisQuery": "Analysiere die Umsatzentwicklung der letzten 6 Monate",
       "topCustomers": "Top-Kunden",
+      "topCustomersQuery": "Wer sind meine Top 10 Kunden nach Umsatz?",
       "lowStock": "Niedriger Lagerbestand",
+      "lowStockQuery": "Zeige Produkte mit niedrigem Lagerbestand",
       "openChat": "Chat öffnen"
     },
     "skipToMain": "Zum Hauptinhalt springen",

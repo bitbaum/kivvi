@@ -11,19 +11,19 @@ export function AIAssistantPrompt() {
   const quickPrompts = [
     {
       label: t('overdueInvoices'),
-      query: 'Zeige mir alle überfälligen Rechnungen über CHF 1000',
+      query: t('overdueInvoicesQuery'),
     },
     {
       label: t('revenueAnalysis'),
-      query: 'Analysiere die Umsatzentwicklung der letzten 6 Monate',
+      query: t('revenueAnalysisQuery'),
     },
     {
       label: t('topCustomers'),
-      query: 'Wer sind meine Top 10 Kunden nach Umsatz?',
+      query: t('topCustomersQuery'),
     },
     {
       label: t('lowStock'),
-      query: 'Zeige Produkte mit niedrigem Lagerbestand',
+      query: t('lowStockQuery'),
     },
   ];
 

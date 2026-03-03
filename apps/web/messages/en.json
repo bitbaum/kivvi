@@ -350,6 +350,7 @@
       "weeksAgo": "{count} weeks ago",
       "noActivity": "No activity",
       "noActivityDesc": "There's no activity in your business yet.",
+      "loadError": "Unable to load recent activity. Please refresh the page.",
       "quote": {
         "draft": "Quote created",
         "sent": "Quote sent",
@@ -424,6 +425,7 @@
     },
     "charts": {
       "revenue": "Revenue Trend",
+      "revenueLabel": "Revenue",
       "aging": "Aging Analysis",
       "noRevenue": "No revenue data available",
       "noInvoices": "No open invoices",
@@ -446,7 +448,8 @@
       "bankBalance": "Bank Balance",
       "activeContacts": "Active Contacts",
       "activeProducts": "Active Products",
-      "vsLastMonth": "vs last month"
+      "vsLastMonth": "vs last month",
+      "loadError": "Unable to load metrics. Please refresh the page."
     },
     "healthMetrics": {
       "title": "Business Health",
@@ -465,9 +468,13 @@
       "title": "AI Assistant",
       "subtitle": "Ask Kivvi — your AI analyzes your business",
       "overdueInvoices": "Show overdue invoices",
+      "overdueInvoicesQuery": "Show me all overdue invoices over CHF 1000",
       "revenueAnalysis": "Revenue analysis",
+      "revenueAnalysisQuery": "Analyze the revenue trend for the last 6 months",
       "topCustomers": "Top customers",
+      "topCustomersQuery": "Who are my top 10 customers by revenue?",
       "lowStock": "Low stock items",
+      "lowStockQuery": "Show products with low stock levels",
       "openChat": "Open chat"
     },
     "skipToMain": "Skip to main content",

@@ -5,12 +5,14 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { formatCurrency } from '@/lib/utils';
 import { getTranslations } from 'next-intl/server';
+import { logger } from '@/lib/logger';
 import {
   TrendingUp,
   TrendingDown,
   FileText,
   Wallet,
   AlertCircle,
+  AlertTriangle,
 } from 'lucide-react';
 
 export async function SmartStats() {
@@ -18,9 +20,20 @@ export async function SmartStats() {
   if (!session?.user?.companyId) redirect('/login');
 
   const companyId = session.user.companyId;
-  const stats = await getDashboardStats(db, companyId);
-
   const t = await getTranslations('dashboard');
+
+  let stats;
+  try {
+    stats = await getDashboardStats(db, companyId);
+  } catch (error) {
+    logger.error('Failed to load dashboard stats', error);
+    return (
+      <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-6 text-center dark:border-yellow-900 dark:bg-yellow-950">
+        <AlertTriangle className="mx-auto mb-2 h-6 w-6 text-yellow-600" />
+        <p className="text-sm text-yellow-800 dark:text-yellow-200">{t('stats.loadError')}</p>
+      </div>
+    );
+  }
 
   // Reduced to 4 key cards: revenue, outstanding, overdue, bank balance
   const statCards = [

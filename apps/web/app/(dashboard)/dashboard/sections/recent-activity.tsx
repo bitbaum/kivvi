@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { formatCurrency } from '@/lib/utils';
 import { getTranslations } from 'next-intl/server';
+import { logger } from '@/lib/logger';
 import {
   FileText,
   Receipt,
@@ -12,6 +13,7 @@ import {
   Truck,
   CreditCard,
   AlertCircle,
+  AlertTriangle,
   Package as PackageIcon,
   FileInput,
   Clock,
@@ -22,9 +24,20 @@ export async function RecentActivity() {
   if (!session?.user?.companyId) redirect('/login');
 
   const companyId = session.user.companyId;
-  const activities = await getRecentActivity(db, companyId, 15);
-
   const t = await getTranslations('dashboard');
+
+  let activities;
+  try {
+    activities = await getRecentActivity(db, companyId, 15);
+  } catch (error) {
+    logger.error('Failed to load recent activity', error);
+    return (
+      <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-6 text-center dark:border-yellow-900 dark:bg-yellow-950">
+        <AlertTriangle className="mx-auto mb-2 h-6 w-6 text-yellow-600" />
+        <p className="text-sm text-yellow-800 dark:text-yellow-200">{t('activity.loadError')}</p>
+      </div>
+    );
+  }
 
   const getIconForType = (type: string) => {
     switch (type) {

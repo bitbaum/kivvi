@@ -173,7 +173,7 @@ async function DashboardCharts() {
         <h3 className="mb-4 font-semibold">{t('charts.revenue')}</h3>
         {revenueData.length > 0 ? (
           <>
-            <RevenueChart data={revenueData} />
+            <RevenueChart data={revenueData} revenueLabel={t('charts.revenueLabel')} />
             {revenueNarrative && (
               <p className="mt-3 text-sm text-muted-foreground">{revenueNarrative}</p>
             )}

@@ -6,8 +6,3 @@ export { SmartStats } from './smart-stats';
 export { RecentActivity } from './recent-activity';
 export { AIAssistantPrompt } from './ai-assistant-prompt';
 export { HealthMetrics } from './health-metrics';
-// Kept for backwards compatibility but no longer used in main layout:
-export { QuickActions } from './quick-actions';
-export { AlertsSection } from './alerts-section';
-export { AlertCard } from './alert-card';
-export { WorkflowSuggestions } from './workflow-suggestions';
