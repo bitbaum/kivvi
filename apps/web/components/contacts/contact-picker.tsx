@@ -101,12 +101,13 @@ export function ContactPicker({
   return (
     <>
       <div className="relative" ref={dropdownRef}>
-        <label className="block text-sm font-medium">
+        <label htmlFor="contact-picker-search" className="block text-sm font-medium">
           {contactType === 'vendor' ? t('vendor') : t('customer')}
         </label>
         <div className="relative mt-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
+            id="contact-picker-search"
             type="text"
             value={search}
             onChange={(e) => handleSearch(e.target.value)}

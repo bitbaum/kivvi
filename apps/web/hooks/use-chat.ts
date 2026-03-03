@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useCallback, useRef } from 'react';
+import { useLocale } from 'next-intl';
+import { logger } from '@/lib/logger';
 
 export interface ChatMessage {
   id: string;
@@ -33,6 +35,7 @@ interface UseChatReturn {
 }
 
 export function useChat(options: UseChatOptions = {}): UseChatReturn {
+  const locale = useLocale();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -85,6 +88,7 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
             conversationId,
             providerId: options.providerId,
             modelId: options.modelId,
+            locale,
           }),
           signal: abortControllerRef.current.signal,
         });
@@ -164,7 +168,7 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
               } catch (parseError) {
                 // Ignore parse errors for incomplete JSON
                 if (line.length > 6) {
-                  console.warn('Failed to parse SSE data:', line);
+                  logger.warn('Failed to parse SSE data', line);
                 }
               }
             }
@@ -177,7 +181,7 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
             prev.filter((m) => m.id !== assistantId)
           );
         } else {
-          console.error('Chat error:', error);
+          logger.warn('Chat error', error);
           // Update assistant message to show error
           setMessages((prev) =>
             prev.map((m) =>
@@ -228,7 +232,7 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
         }))
       );
     } catch (error) {
-      console.error('Failed to load conversation:', error);
+      logger.warn('Failed to load conversation', error);
       options.onError?.(error instanceof Error ? error : new Error('Failed to load conversation'));
     } finally {
       setIsLoading(false);

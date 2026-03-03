@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { logger } from '@/lib/logger';
 
 export interface ModelSelection {
   providerId: string;
@@ -30,7 +31,7 @@ export function useModelSelection() {
         }
       }
     } catch (e) {
-      console.warn('Failed to load model selection:', e);
+      logger.warn('Failed to load model selection', e);
     }
     setIsLoaded(true);
   }, []);
@@ -42,7 +43,7 @@ export function useModelSelection() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(newSelection));
     } catch (e) {
-      console.warn('Failed to save model selection:', e);
+      logger.warn('Failed to save model selection', e);
     }
   }, []);
 

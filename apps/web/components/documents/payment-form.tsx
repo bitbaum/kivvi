@@ -13,7 +13,7 @@ export function PaymentForm({
   currency,
 }: {
   documentId: string;
-  outstanding: number;
+  outstanding: string;
   currency: string;
 }) {
   const router = useRouter();
@@ -61,19 +61,21 @@ export function PaymentForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
       <div>
-        <label className="block text-xs font-medium text-muted-foreground">{t('paymentAmount')} ({currency})</label>
+        <label htmlFor="pay-amount" className="block text-xs font-medium text-muted-foreground">{t('paymentAmount')} ({currency})</label>
         <FormInput
+          id="pay-amount"
           name="amount"
           type="number"
           step="0.01"
-          defaultValue={outstanding.toFixed(2)}
+          defaultValue={outstanding}
           required
           className="mt-1"
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-muted-foreground">{t('paymentDate')}</label>
+        <label htmlFor="pay-date" className="block text-xs font-medium text-muted-foreground">{t('paymentDate')}</label>
         <FormInput
+          id="pay-date"
           name="date"
           type="date"
           defaultValue={new Date().toISOString().split('T')[0]}
@@ -82,8 +84,9 @@ export function PaymentForm({
         />
       </div>
       <div>
-        <label className="block text-xs font-medium text-muted-foreground">{t('paymentMethod')}</label>
+        <label htmlFor="pay-method" className="block text-xs font-medium text-muted-foreground">{t('paymentMethod')}</label>
         <FormSelect
+          id="pay-method"
           name="method"
           className="mt-1"
         >
@@ -94,8 +97,9 @@ export function PaymentForm({
         </FormSelect>
       </div>
       <div>
-        <label className="block text-xs font-medium text-muted-foreground">{tc('notes')}</label>
+        <label htmlFor="pay-reference" className="block text-xs font-medium text-muted-foreground">{tc('notes')}</label>
         <FormInput
+          id="pay-reference"
           name="reference"
           type="text"
           placeholder={t('paymentReference')}

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Clock, X, FileText, User, Package, FileCheck, ShoppingCart } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useRecentItems, type RecentItem } from '@/hooks/use-recent-items';
 
 const ICONS = {
@@ -21,6 +22,7 @@ export function RecentItemsDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const [items, setItems] = useState<RecentItem[]>([]);
   const { getRecentItems, clearRecentItems } = useRecentItems();
+  const tc = useTranslations('common');
 
   // Load items on mount and when updated
   useEffect(() => {
@@ -47,7 +49,7 @@ export function RecentItemsDropdown() {
         type="button"
       >
         <Clock className="h-4 w-4" />
-        <span className="hidden sm:inline">Recent</span>
+        <span className="hidden sm:inline">{tc('recentItems')}</span>
       </button>
 
       {isOpen && (
@@ -61,7 +63,7 @@ export function RecentItemsDropdown() {
           {/* Dropdown */}
           <div className="absolute right-0 top-full z-50 mt-2 w-80 rounded-lg border bg-popover shadow-lg">
             <div className="flex items-center justify-between border-b px-4 py-3">
-              <h3 className="font-semibold text-sm">Recent Items</h3>
+              <h3 className="font-semibold text-sm">{tc('recentItems')}</h3>
               <button
                 onClick={() => {
                   clearRecentItems();
@@ -70,7 +72,7 @@ export function RecentItemsDropdown() {
                 className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                 type="button"
               >
-                Clear all
+                {tc('clearAll')}
               </button>
             </div>
 

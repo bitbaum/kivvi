@@ -248,7 +248,7 @@ export default async function DocumentsPage({ searchParams }: PageProps) {
                         )}
                       </td>
                       <td className="px-4 py-3 text-right font-mono">
-                        {doc.total ? formatCurrency(Number(doc.total)) : '—'}
+                        {doc.total ? formatCurrency(doc.total) : '—'}
                       </td>
                       <td className="px-4 py-3">
                         <span

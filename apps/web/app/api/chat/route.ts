@@ -2,10 +2,11 @@
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { aiConversations, aiMessages, companies, type CompanySettings } from '@kivvi/database';
-import { ConversationEngine, createProviderWithFallback, getToolsForPermissions, getBusinessSnapshot, type ExecutionContext, type Message, type ProviderType } from '@kivvi/ai';
+import { ConversationEngine, createProviderWithFallback, getToolsForPermissions, getBusinessSnapshot, getPermissionsForRole, type ExecutionContext, type Message, type ProviderType } from '@kivvi/ai';
 import { eq, and, desc } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 import { DEFAULT_VAT_RATE } from '@/lib/config/vat-rates';
+import { logger } from '@/lib/logger';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -22,7 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { message, conversationId, providerId, modelId } = body;
+    const { message, conversationId, providerId, modelId, locale } = body;
 
     if (!message || typeof message !== 'string') {
       return NextResponse.json(
@@ -104,18 +105,11 @@ export async function POST(request: NextRequest) {
       userName: session.user.name || 'User',
       companyName: session.user.companyName || 'Company',
       vertical: settings.vertical || 'general',
-      permissions: [
-        'invoice:read',
-        'invoice:write',
-        'contact:read',
-        'contact:write',
-        'product:read',
-        'banking:read',
-        'accounting:read',
-      ],
+      permissions: getPermissionsForRole(session.user.role || 'member'),
       conversationId: conversation.id,
       defaultCurrency: 'CHF',
       defaultVatRate: Number(DEFAULT_VAT_RATE),
+      locale: (locale as string) || 'de-CH',
       db,
     };
 
@@ -204,7 +198,7 @@ export async function POST(request: NextRequest) {
             }
           }
         } catch (error) {
-          console.error('Stream error:', error);
+          logger.error('Stream error', error);
           controller.enqueue(
             encoder.encode(`data: ${JSON.stringify({ type: 'error', error: error instanceof Error ? error.message : 'Unknown error' })}\n\n`)
           );
@@ -222,7 +216,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Chat API error:', error);
+    logger.error('Chat API error', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }
@@ -278,7 +272,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ conversations });
     }
   } catch (error) {
-    console.error('Chat GET error:', error);
+    logger.error('Chat GET error', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState, useTransition } from 'react';
+import { useCallback, useMemo, useState, useTransition, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSelection } from '@/hooks/use-selection';
 import { Loader2 } from 'lucide-react';
@@ -13,6 +13,7 @@ import {
 } from '@/app/actions/bulk-operations';
 import type { BulkOperationResult } from '@/app/actions/bulk-operations';
 import { cn } from '@/lib/utils';
+import { useFocusTrap } from '@/hooks/use-focus-trap';
 import { CONTACT_TYPE_STYLES } from '@/lib/config/contact-types';
 import { SortableHeader } from '@/components/sortable-header';
 
@@ -67,6 +68,8 @@ export function SelectableContactTable({ data, translations, sort }: SelectableC
   const [bulkResult, setBulkResult] = useState<BulkOperationResult | null>(null);
   const [isPending, startTransition] = useTransition();
   const [confirmAction, setConfirmAction] = useState<'delete' | 'deactivate' | null>(null);
+  const confirmRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(confirmRef, !!confirmAction);
 
   const handleComplete = useCallback(
     (result: BulkOperationResult) => {
@@ -141,7 +144,7 @@ export function SelectableContactTable({ data, translations, sort }: SelectableC
             role="link"
             tabIndex={0}
             onClick={() => router.push(`/contacts/${contact.id}`)}
-            onKeyDown={(e) => { if (e.key === 'Enter') router.push(`/contacts/${contact.id}`); }}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); router.push(`/contacts/${contact.id}`); } }}
             className={cn(
               'flex cursor-pointer flex-col gap-1 p-4 transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:grid sm:grid-cols-[auto_1fr_2fr_auto_auto] sm:items-center sm:gap-4 sm:px-6 lg:grid-cols-[auto_1fr_2fr_auto_1.5fr_1fr_1fr_auto]',
               isSelected(contact.id) && 'bg-primary/5'
@@ -185,7 +188,7 @@ export function SelectableContactTable({ data, translations, sort }: SelectableC
                   'inline-block rounded-full px-2 py-0.5 text-xs font-medium',
                   contact.isActive
                     ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                    : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
+                    : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300'
                 )}
               >
                 {contact.isActive ? translations.columnLabels.active : translations.columnLabels.inactive}
@@ -223,11 +226,12 @@ export function SelectableContactTable({ data, translations, sort }: SelectableC
       {/* Confirmation dialog */}
       {confirmAction && (
         <div
+          ref={confirmRef}
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
           onKeyDown={(e) => { if (e.key === 'Escape') setConfirmAction(null); }}
         >
           <div role="dialog" aria-modal="true" aria-labelledby="confirm-dialog-title" className="mx-4 w-full max-w-md rounded-xl border bg-card p-6 shadow-xl">
-            <h3 id="confirm-dialog-title" className="text-lg font-semibold">{translations.bulkLabels.confirmTitle}</h3>
+            <h2 id="confirm-dialog-title" className="text-lg font-semibold">{translations.bulkLabels.confirmTitle}</h2>
             <p className="mt-2 text-sm text-muted-foreground">
               {(confirmAction === 'delete' ? translations.bulkLabels.confirmDelete : translations.bulkLabels.confirmDeactivate)
                 .replace('{count}', String(selectedIds.length))}

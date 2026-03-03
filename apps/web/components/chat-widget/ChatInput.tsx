@@ -28,7 +28,8 @@ export function ChatInput({ input, setInput, onSubmit, isLoading, inputRef }: Ch
       <button
         type="submit"
         disabled={!input.trim() || isLoading}
-        className="rounded-lg bg-primary p-2 text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+        className="flex items-center justify-center rounded-lg bg-primary min-h-[44px] min-w-[44px] text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+        aria-label={t('sendMessage')}
       >
         {isLoading ? (
           <Loader2 className="h-5 w-5 animate-spin" />

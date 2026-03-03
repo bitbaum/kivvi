@@ -82,7 +82,7 @@ export function AlertCard({ alert }: AlertCardProps) {
           {items.length > 0 && (
             <div className="space-y-2">
               <div className="space-y-1">
-                {displayItems.map((item: any, index: number) => (
+                {displayItems.map((item: { name?: string; type?: string; articleNumber?: string; count?: number }, index: number) => (
                   <div
                     key={index}
                     className="rounded-md border bg-card/50 p-2 text-sm"

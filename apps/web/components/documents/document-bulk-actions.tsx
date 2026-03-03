@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useRef } from 'react';
 import { Loader2 } from 'lucide-react';
 import type { BulkActionDef } from '@/lib/config/document-types';
 import {
@@ -11,6 +11,7 @@ import {
 } from '@/app/actions/bulk-operations';
 import type { BulkOperationResult } from '@/app/actions/bulk-operations';
 import { cn } from '@/lib/utils';
+import { useFocusTrap } from '@/hooks/use-focus-trap';
 
 interface DocumentBulkActionsProps {
   selectedIds: string[];
@@ -30,6 +31,8 @@ export function DocumentBulkActions({
   const [isPending, startTransition] = useTransition();
   const [confirmAction, setConfirmAction] = useState<BulkActionDef | null>(null);
   const [extensionDays, setExtensionDays] = useState(30);
+  const confirmRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(confirmRef, !!confirmAction);
 
   function isActionApplicable(action: BulkActionDef): boolean {
     if (!action.applicableStatuses) return true;
@@ -117,7 +120,7 @@ export function DocumentBulkActions({
 
       {/* Confirmation dialog */}
       {confirmAction && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div ref={confirmRef} className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="mx-4 w-full max-w-md rounded-xl border bg-card p-6 shadow-xl">
             <h3 className="text-lg font-semibold">{labels.confirmTitle || 'Confirm'}</h3>
             <p className="mt-2 text-sm text-muted-foreground">

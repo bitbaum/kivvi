@@ -5,6 +5,7 @@ import { Download, Loader2 } from 'lucide-react';
 import { exportReportAction, type ExportReportParams } from '@/app/actions/reports';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
+import { logger } from '@/lib/logger';
 
 interface ExportButtonProps {
   reportType: ExportReportParams['reportType'];
@@ -37,7 +38,7 @@ export function ExportButton({
       });
 
       if (!result.success || !result.data) {
-        console.error('Export failed:', result.error);
+        logger.warn('Export failed', result.error);
         toast.error(result.error || tc('error'));
         return;
       }
@@ -55,7 +56,7 @@ export function ExportButton({
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Export error:', error);
+      logger.error('Export error', error);
       toast.error(tc('error'));
     } finally {
       setIsExporting(false);

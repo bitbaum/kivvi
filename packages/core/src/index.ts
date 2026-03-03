@@ -1,29 +1,6 @@
-// Core utilities and types for Kivvi
-
-export interface KivviConfig {
-  companyId: string;
-  currency: string;
-  locale: string;
-  vatRate: number;
-}
-
-export const DEFAULT_CONFIG: KivviConfig = {
-  companyId: '',
-  currency: 'CHF',
-  locale: 'de-CH',
-  vatRate: 8.1,
-};
-
-export function formatCurrency(amount: number, currency = 'CHF'): string {
-  return new Intl.NumberFormat('de-CH', {
-    style: 'currency',
-    currency,
-  }).format(amount);
-}
-
-export function formatDate(date: Date, locale = 'de-CH'): string {
-  return new Intl.DateTimeFormat(locale).format(date);
-}
+// Domain modules re-exported for convenience.
+// NOTE: Do NOT import from this barrel in client components — it pulls in
+// postgres driver via transitive deps.  Import specific domain files instead.
 
 // Domain modules
 export * from './domain/number-sequences';

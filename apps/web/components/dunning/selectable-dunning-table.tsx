@@ -158,7 +158,7 @@ export function SelectableDunningTable({ data, translations }: SelectableDunning
                 {inv.contactName || translations.columnLabels.noCustomer}
               </div>
               <div className="text-right font-medium">
-                {formatCurrency(Number(inv.total))}
+                {formatCurrency(inv.total)}
               </div>
               <div className="px-4 text-center">
                 <span className={cn(

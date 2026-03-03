@@ -9,6 +9,7 @@ import type {
 } from './types';
 import type { OrgProfile } from '@kivvi/database';
 import { getSystemPrompt } from './prompts';
+import { auditToolExecution } from './audit';
 
 export interface ConversationState {
   id: string;
@@ -220,7 +221,12 @@ export class ConversationEngine {
     try {
       // Validate arguments against schema
       const validatedArgs = tool.parameters.parse(toolCall.arguments);
-      return await tool.execute(validatedArgs, context);
+      const result = await tool.execute(validatedArgs, context);
+
+      // Log mutation tools to audit trail (non-blocking)
+      auditToolExecution(toolCall.name, validatedArgs, result, context).catch(() => {});
+
+      return result;
     } catch (error) {
       return {
         success: false,

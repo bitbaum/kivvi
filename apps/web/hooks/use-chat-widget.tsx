@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useEffect, useCallback, type React
 import { useChat, type ChatMessage } from '@/hooks/use-chat';
 import { useModelSelection } from '@/hooks/use-model-selection';
 import type { ModelOption } from '@/components/model-selector';
+import { logger } from '@/lib/logger';
 
 interface ChatWidgetContextValue {
   // Widget state
@@ -45,7 +46,7 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     providerId: selection.providerId,
     modelId: selection.modelId,
     onError: (error) => {
-      console.error('Chat widget error:', error);
+      logger.warn('Chat widget error', error);
     },
   });
 
@@ -54,7 +55,7 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     fetch('/api/models')
       .then((res) => res.json())
       .then((data) => setModels(data.models || []))
-      .catch((err) => console.error('Failed to load models:', err));
+      .catch((err) => logger.warn('Failed to load models', err));
   }, []);
 
   const toggle = useCallback(() => setIsOpen((prev) => !prev), []);

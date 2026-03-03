@@ -74,9 +74,7 @@ export default async function BankingPage() {
                 <div>
                   <p className="text-xs text-muted-foreground">{t('balance')}</p>
                   <p className="text-lg font-semibold">
-                    {account.balance
-                      ? formatCurrency(Number(account.balance), account.currency || 'CHF')
-                      : formatCurrency(0, account.currency || 'CHF')}
+                    {formatCurrency(account.balance || '0', account.currency || 'CHF')}
                   </p>
                 </div>
                 {account.lastSyncAt && (

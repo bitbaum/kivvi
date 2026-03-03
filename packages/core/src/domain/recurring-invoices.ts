@@ -13,6 +13,7 @@ import type {
 } from '@kivvi/database';
 import { convertDocument } from './documents';
 import { buildInvoiceEmailSubject } from './email';
+import { logger } from '../logger';
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -473,7 +474,7 @@ export async function processRecurringInvoices(db: Database, options?: ProcessOp
             config.emailRecipients
           );
         } catch (emailError) {
-          console.error(`Failed to send email for invoice ${invoice.number}:`, emailError);
+          logger.error(`Failed to send email for invoice ${invoice.number}`, emailError);
         }
       }
 

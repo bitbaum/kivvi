@@ -3,6 +3,7 @@
 import { Bot, User, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
+import ReactMarkdown from 'react-markdown';
 import type { ChatMessage } from '@/hooks/use-chat';
 
 interface ChatMessagesProps {
@@ -52,7 +53,13 @@ export function ChatMessages({ messages, isLoading, scrollRef, compact = false }
               )}
             >
               {message.content ? (
-                <p className="whitespace-pre-wrap text-sm">{message.content}</p>
+                message.role === 'assistant' ? (
+                  <div className="prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_table]:text-xs [&_th]:px-2 [&_th]:py-1 [&_td]:px-2 [&_td]:py-1">
+                    <ReactMarkdown>{message.content}</ReactMarkdown>
+                  </div>
+                ) : (
+                  <p className="whitespace-pre-wrap text-sm">{message.content}</p>
+                )
               ) : message.isStreaming ? (
                 <div className="flex items-center gap-1">
                   <Loader2 className="h-4 w-4 animate-spin" />

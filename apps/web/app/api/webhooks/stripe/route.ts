@@ -5,6 +5,7 @@ import { companies } from '@kivvi/database';
 import type { CompanySettings } from '@kivvi/database';
 import { eq, sql } from 'drizzle-orm';
 import type Stripe from 'stripe';
+import { logger } from '@/lib/logger';
 
 export async function POST(request: NextRequest) {
   const body = await request.text();
@@ -16,7 +17,7 @@ export async function POST(request: NextRequest) {
 
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!webhookSecret) {
-    console.error('STRIPE_WEBHOOK_SECRET not configured');
+    logger.error('STRIPE_WEBHOOK_SECRET not configured');
     return NextResponse.json({ error: 'Webhook not configured' }, { status: 500 });
   }
 
@@ -24,7 +25,7 @@ export async function POST(request: NextRequest) {
   try {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (err) {
-    console.error('Webhook signature verification failed:', err);
+    logger.error('Webhook signature verification failed', err);
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
   }
 
@@ -44,7 +45,7 @@ export async function POST(request: NextRequest) {
         break;
     }
   } catch (err) {
-    console.error(`Webhook handler error for ${event.type}:`, err);
+    logger.error(`Webhook handler error for ${event.type}`, err);
     return NextResponse.json({ error: 'Handler failed' }, { status: 500 });
   }
 

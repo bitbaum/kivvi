@@ -1,7 +1,9 @@
 'use client';
 
+import { useRef } from 'react';
 import { X, Command, Slash, Plus, MessageSquare } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useFocusTrap } from '@/hooks/use-focus-trap';
 
 interface KeyboardShortcutsHelpProps {
   isOpen: boolean;
@@ -10,6 +12,8 @@ interface KeyboardShortcutsHelpProps {
 
 export function KeyboardShortcutsHelp({ isOpen, onClose }: KeyboardShortcutsHelpProps) {
   const tc = useTranslations('common');
+  const modalRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(modalRef, isOpen);
 
   if (!isOpen) return null;
 
@@ -45,7 +49,7 @@ export function KeyboardShortcutsHelp({ isOpen, onClose }: KeyboardShortcutsHelp
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div ref={modalRef} className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div role="dialog" aria-modal="true" aria-labelledby="shortcuts-title" className="relative w-full max-w-lg rounded-xl border bg-card p-6 shadow-lg">
         {/* Close button */}
         <button

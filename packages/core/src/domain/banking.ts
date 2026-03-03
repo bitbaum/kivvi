@@ -9,6 +9,7 @@ import {
 } from '@kivvi/database';
 import type { Database, BankAccount, BankTransaction } from '@kivvi/database';
 import { recordPayment } from './documents';
+import { logger } from '../logger';
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -277,7 +278,7 @@ export async function reconcileTransaction(
     });
   } catch (e) {
     // Payment may fail if document is in draft/cancelled — log but don't fail reconciliation
-    console.error('Auto-payment from reconciliation failed:', e);
+    logger.error('Auto-payment from reconciliation failed', e);
   }
 
   return updated;

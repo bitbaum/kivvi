@@ -114,6 +114,7 @@ export interface ExecutionContext {
   conversationId: string;
   defaultCurrency: string;
   defaultVatRate: number;
+  locale?: string; // User's locale (e.g. 'de-CH', 'fr', 'en') for response language
   db: unknown; // Database instance — typed as unknown to avoid coupling ai package to database package
 }
 

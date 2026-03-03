@@ -128,7 +128,7 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
         {onClose && (
           <button
             onClick={onClose}
-            className="ml-auto rounded-lg p-2 hover:bg-muted lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="ml-auto flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg p-2 hover:bg-muted lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label={tc('aria.closeMenu')}
           >
             <X className="h-5 w-5" />

@@ -216,13 +216,13 @@ export default async function MovementsPage({ searchParams }: PageProps) {
                         type: typeFilter,
                         page: movements.page - 1,
                       })}
-                      className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm hover:bg-muted transition-colors"
+                      className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border px-3 py-2 text-sm hover:bg-muted transition-colors"
                     >
                       <ChevronLeft className="h-4 w-4" />
                       {tc('previous')}
                     </Link>
                   ) : (
-                    <span className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm text-muted-foreground opacity-50">
+                    <span className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border px-3 py-2 text-sm text-muted-foreground opacity-50">
                       <ChevronLeft className="h-4 w-4" />
                       {tc('previous')}
                     </span>
@@ -239,13 +239,13 @@ export default async function MovementsPage({ searchParams }: PageProps) {
                         type: typeFilter,
                         page: movements.page + 1,
                       })}
-                      className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm hover:bg-muted transition-colors"
+                      className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border px-3 py-2 text-sm hover:bg-muted transition-colors"
                     >
                       {tc('next')}
                       <ChevronRight className="h-4 w-4" />
                     </Link>
                   ) : (
-                    <span className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm text-muted-foreground opacity-50">
+                    <span className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border px-3 py-2 text-sm text-muted-foreground opacity-50">
                       {tc('next')}
                       <ChevronRight className="h-4 w-4" />
                     </span>

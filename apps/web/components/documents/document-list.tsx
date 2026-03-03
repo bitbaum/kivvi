@@ -106,7 +106,7 @@ export async function DocumentList({ config, result, search, status, headerActio
               <Link
                 key={s}
                 href={href}
-                className={cn('rounded-lg px-3 py-1.5 text-sm font-medium transition-colors', isActive
+                className={cn('rounded-lg px-3 py-2 text-sm font-medium transition-colors min-h-[44px] inline-flex items-center', isActive
                     ? 'bg-primary text-primary-foreground'
                     : 'bg-muted text-muted-foreground hover:bg-muted/80')}
               >
@@ -169,7 +169,7 @@ export async function DocumentList({ config, result, search, status, headerActio
             {result.page > 1 && (
               <Link
                 href={`${config.basePath}?page=${result.page - 1}${status ? `&status=${status}` : ''}${search ? `&search=${search}` : ''}`}
-                className="rounded-lg border px-3 py-1.5 text-sm hover:bg-muted"
+                className="inline-flex min-h-[44px] items-center rounded-lg border px-3 py-2 text-sm hover:bg-muted"
               >
                 {tc('previous')}
               </Link>
@@ -177,7 +177,7 @@ export async function DocumentList({ config, result, search, status, headerActio
             {result.page < result.totalPages && (
               <Link
                 href={`${config.basePath}?page=${result.page + 1}${status ? `&status=${status}` : ''}${search ? `&search=${search}` : ''}`}
-                className="rounded-lg border px-3 py-1.5 text-sm hover:bg-muted"
+                className="inline-flex min-h-[44px] items-center rounded-lg border px-3 py-2 text-sm hover:bg-muted"
               >
                 {tc('next')}
               </Link>

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Upload, X, FileSpreadsheet, AlertCircle } from 'lucide-react';
 import { importTransactionsAction } from '@/app/actions/banking';
 import { useTranslations } from 'next-intl';
+import { useFocusTrap } from '@/hooks/use-focus-trap';
 
 interface ParsedTransaction {
   date: string;
@@ -22,8 +23,10 @@ export function ImportCsv({ bankAccountId }: { bankAccountId: string }) {
   const [transactions, setTransactions] = useState<ParsedTransaction[]>([]);
   const [result, setResult] = useState<{ imported: number } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
   const t = useTranslations('banking');
   const tc = useTranslations('common');
+  useFocusTrap(modalRef, isOpen);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -84,7 +87,7 @@ export function ImportCsv({ bankAccountId }: { bankAccountId: string }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div ref={modalRef} className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="w-full max-w-2xl max-h-[80vh] overflow-hidden rounded-xl border bg-card shadow-lg flex flex-col">
         <div className="flex items-center justify-between border-b px-6 py-4">
           <h2 className="text-lg font-semibold">{t('importCsv')}</h2>

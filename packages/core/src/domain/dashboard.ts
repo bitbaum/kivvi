@@ -10,6 +10,7 @@ import {
 } from '@kivvi/database';
 import type { Database, DocumentType } from '@kivvi/database';
 import { detectOverdueInvoices } from './dunning';
+import { getFinancialSummary } from './documents';
 
 // ============================================================================
 // TYPES
@@ -496,7 +497,8 @@ export async function getRecentActivity(
 
 /**
  * Get enhanced dashboard statistics with links.
- * Returns the same stats as the current dashboard plus linkTo fields.
+ * Delegates core financial metrics to getFinancialSummary() (SSOT)
+ * and adds dashboard-specific extras (bank balance, contact/product counts, MoM comparisons).
  */
 export async function getDashboardStats(
   db: Database,
@@ -512,62 +514,21 @@ export async function getDashboardStats(
   activeProducts: DashboardStat;
 }> {
   const now = new Date();
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const startOfYear = new Date(now.getFullYear(), 0, 1);
 
   // Last month date range for month-over-month comparison
   const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0); // last day of prev month
 
-  // Run all queries in parallel (including last-month comparisons)
+  // Financial metrics from SSOT + dashboard-only queries in parallel
   const [
-    [monthlyRevenue],
-    [yearlyRevenue],
-    [outstanding],
-    [overdue],
-    [drafts],
+    financials,
     [bankBalance],
     [contactCount],
     [productCount],
     [lastMonthRevenue],
     [lastMonthOutstanding],
   ] = await Promise.all([
-    db.select({
-      total: sql<string>`COALESCE(SUM(${documents.total}::numeric), 0)`,
-      count: sql<number>`COUNT(*)::int`,
-    }).from(documents).where(and(
-      eq(documents.companyId, companyId), eq(documents.type, 'invoice'),
-      eq(documents.status, 'paid'), gte(documents.paidDate, startOfMonth)
-    )),
-    db.select({
-      total: sql<string>`COALESCE(SUM(${documents.total}::numeric), 0)`,
-      count: sql<number>`COUNT(*)::int`,
-    }).from(documents).where(and(
-      eq(documents.companyId, companyId), eq(documents.type, 'invoice'),
-      eq(documents.status, 'paid'), gte(documents.paidDate, startOfYear)
-    )),
-    db.select({
-      total: sql<string>`COALESCE(SUM(${documents.total}::numeric), 0)`,
-      count: sql<number>`COUNT(*)::int`,
-    }).from(documents).where(and(
-      eq(documents.companyId, companyId), eq(documents.type, 'invoice'),
-      inArray(documents.status, ['sent', 'confirmed', 'delivered', 'partially_paid'])
-    )),
-    // Overdue: dynamically calculated (past due date AND not paid/cancelled/draft)
-    db.select({
-      total: sql<string>`COALESCE(SUM(${documents.total}::numeric), 0)`,
-      count: sql<number>`COUNT(*)::int`,
-    }).from(documents).where(and(
-      eq(documents.companyId, companyId), eq(documents.type, 'invoice'),
-      sql`${documents.status} NOT IN ('paid', 'cancelled', 'draft')`,
-      sql`${documents.dueDate} IS NOT NULL AND ${documents.dueDate} < NOW()`
-    )),
-    db.select({
-      total: sql<string>`COALESCE(SUM(${documents.total}::numeric), 0)`,
-      count: sql<number>`COUNT(*)::int`,
-    }).from(documents).where(and(
-      eq(documents.companyId, companyId), eq(documents.status, 'draft')
-    )),
+    getFinancialSummary(db, companyId),
     db.select({
       total: sql<string>`COALESCE(SUM(${bankAccounts.balance}::numeric), 0)`,
       count: sql<number>`COUNT(*)::int`,
@@ -600,53 +561,51 @@ export async function getDashboardStats(
   ]);
 
   // Calculate month-over-month change percentages
-  const thisMonthRev = new Decimal(monthlyRevenue?.total || '0');
   const lastMonthRev = new Decimal(lastMonthRevenue?.total || '0');
   const revenueChange = lastMonthRev.gt(0)
-    ? thisMonthRev.minus(lastMonthRev).div(lastMonthRev).times(100).toNumber()
+    ? new Decimal(financials.revenueThisMonth).minus(lastMonthRev).div(lastMonthRev).times(100).toNumber()
     : undefined;
 
-  const thisOutstanding = new Decimal(outstanding?.total || '0');
   const lastOutstanding = new Decimal(lastMonthOutstanding?.total || '0');
   const outstandingChange = lastOutstanding.gt(0)
-    ? thisOutstanding.minus(lastOutstanding).div(lastOutstanding).times(100).toNumber()
+    ? new Decimal(financials.outstandingTotal).minus(lastOutstanding).div(lastOutstanding).times(100).toNumber()
     : undefined;
 
   return {
     revenueThisMonth: {
       labelKey: 'stats.revenueThisMonth',
-      value: thisMonthRev.toNumber(),
-      count: monthlyRevenue?.count || 0,
+      value: financials.revenueThisMonth,
+      count: financials.revenueThisMonthCount,
       linkTo: '/sales/invoices?status=paid',
       changePercent: revenueChange !== undefined ? Math.round(revenueChange * 10) / 10 : undefined,
       type: 'currency',
     },
     revenueThisYear: {
       labelKey: 'stats.revenueThisYear',
-      value: new Decimal(yearlyRevenue?.total || '0').toNumber(),
-      count: yearlyRevenue?.count || 0,
+      value: financials.revenueThisYear,
+      count: 0,
       linkTo: '/reports/sales',
       type: 'currency',
     },
     outstandingInvoices: {
       labelKey: 'stats.outstandingInvoices',
-      value: thisOutstanding.toNumber(),
-      count: outstanding?.count || 0,
+      value: financials.outstandingTotal,
+      count: financials.outstandingCount,
       linkTo: '/sales/invoices?status=sent,confirmed,delivered,partially_paid',
       changePercent: outstandingChange !== undefined ? Math.round(outstandingChange * 10) / 10 : undefined,
       type: 'currency',
     },
     overdueInvoices: {
       labelKey: 'stats.overdueInvoices',
-      value: new Decimal(overdue?.total || '0').toNumber(),
-      count: overdue?.count || 0,
+      value: financials.overdueTotal,
+      count: financials.overdueCount,
       linkTo: '/sales/invoices?status=overdue',
       type: 'currency',
     },
     draftDocuments: {
       labelKey: 'stats.draftDocuments',
-      value: new Decimal(drafts?.total || '0').toNumber(),
-      count: drafts?.count || 0,
+      value: financials.draftsTotal,
+      count: financials.draftsCount,
       linkTo: '/sales?status=draft',
       type: 'currency',
     },

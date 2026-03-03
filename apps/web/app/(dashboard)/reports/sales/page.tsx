@@ -87,38 +87,38 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  <th className="px-6 py-3">{t('month')}</th>
-                  <th className="px-6 py-3 text-right">{t('invoiceCount')}</th>
-                  <th className="px-6 py-3 text-right">{t('revenueGross')}</th>
-                  <th className="px-6 py-3 text-right">{t('vatAmount')}</th>
-                  <th className="px-6 py-3 text-right">{t('creditNoteCount')}</th>
-                  <th className="px-6 py-3 text-right">{tc('amount')}</th>
-                  <th className="px-6 py-3 text-right">{t('netRevenue')}</th>
+                  <th className="sticky left-0 bg-card px-4 py-3 md:px-6">{t('month')}</th>
+                  <th className="hidden px-4 py-3 text-right md:table-cell md:px-6">{t('invoiceCount')}</th>
+                  <th className="hidden px-4 py-3 text-right sm:table-cell md:px-6">{t('revenueGross')}</th>
+                  <th className="hidden px-4 py-3 text-right md:table-cell md:px-6">{t('vatAmount')}</th>
+                  <th className="hidden px-4 py-3 text-right md:table-cell md:px-6">{t('creditNoteCount')}</th>
+                  <th className="hidden px-4 py-3 text-right md:table-cell md:px-6">{tc('amount')}</th>
+                  <th className="px-4 py-3 text-right md:px-6">{t('netRevenue')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
                 {report.rows.map((row) => (
                   <tr key={row.month} className="hover:bg-muted/50">
-                    <td className="px-6 py-3 font-medium">{row.month}</td>
-                    <td className="px-6 py-3 text-right text-muted-foreground">
+                    <td className="sticky left-0 bg-card px-4 py-3 font-medium md:px-6">{row.month}</td>
+                    <td className="hidden px-4 py-3 text-right text-muted-foreground md:table-cell md:px-6">
                       {row.invoiceCount}
                     </td>
-                    <td className="px-6 py-3 text-right">
+                    <td className="hidden px-4 py-3 text-right sm:table-cell md:px-6">
                       {formatCurrency(row.revenue)}
                     </td>
-                    <td className="px-6 py-3 text-right text-muted-foreground">
+                    <td className="hidden px-4 py-3 text-right text-muted-foreground md:table-cell md:px-6">
                       {formatCurrency(row.vatAmount)}
                     </td>
-                    <td className="px-6 py-3 text-right text-muted-foreground">
+                    <td className="hidden px-4 py-3 text-right text-muted-foreground md:table-cell md:px-6">
                       {row.creditNoteCount > 0 ? row.creditNoteCount : '-'}
                     </td>
-                    <td className="px-6 py-3 text-right text-red-600 dark:text-red-400">
+                    <td className="hidden px-4 py-3 text-right text-red-600 md:table-cell dark:text-red-400 md:px-6">
                       {Number(row.creditNoteAmount) > 0
                         ? `- ${formatCurrency(row.creditNoteAmount)}`
                         : '-'}
                     </td>
                     <td
-                      className={`px-6 py-3 text-right font-medium ${
+                      className={`px-4 py-3 text-right font-medium md:px-6 ${
                         Number(row.netRevenue) >= 0
                           ? 'text-green-600 dark:text-green-400'
                           : 'text-red-600 dark:text-red-400'
@@ -131,28 +131,28 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
               </tbody>
               <tfoot>
                 <tr className="border-t-2 font-semibold">
-                  <td className="px-6 py-3">{tc('totals')}</td>
-                  <td className="px-6 py-3 text-right text-muted-foreground">
+                  <td className="sticky left-0 bg-card px-4 py-3 md:px-6">{tc('totals')}</td>
+                  <td className="hidden px-4 py-3 text-right text-muted-foreground md:table-cell md:px-6">
                     {report.totals.invoiceCount}
                   </td>
-                  <td className="px-6 py-3 text-right">
+                  <td className="hidden px-4 py-3 text-right sm:table-cell md:px-6">
                     {formatCurrency(report.totals.revenue)}
                   </td>
-                  <td className="px-6 py-3 text-right text-muted-foreground">
+                  <td className="hidden px-4 py-3 text-right text-muted-foreground md:table-cell md:px-6">
                     {formatCurrency(report.totals.vatAmount)}
                   </td>
-                  <td className="px-6 py-3 text-right text-muted-foreground">
+                  <td className="hidden px-4 py-3 text-right text-muted-foreground md:table-cell md:px-6">
                     {report.totals.creditNoteCount > 0
                       ? report.totals.creditNoteCount
                       : '-'}
                   </td>
-                  <td className="px-6 py-3 text-right text-red-600 dark:text-red-400">
+                  <td className="hidden px-4 py-3 text-right text-red-600 md:table-cell dark:text-red-400 md:px-6">
                     {Number(report.totals.creditNoteAmount) > 0
                       ? `- ${formatCurrency(report.totals.creditNoteAmount)}`
                       : '-'}
                   </td>
                   <td
-                    className={`px-6 py-3 text-right text-lg ${
+                    className={`px-4 py-3 text-right text-lg md:px-6 ${
                       Number(report.totals.netRevenue) >= 0
                         ? 'text-green-600 dark:text-green-400'
                         : 'text-red-600 dark:text-red-400'

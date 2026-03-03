@@ -142,7 +142,7 @@ export async function createDunning(
   companyId: string,
   userId: string,
   invoiceId: string
-): Promise<{ dunningDoc: any; newLevel: DocumentStatus }> {
+): Promise<{ dunningDoc: typeof documents.$inferSelect; newLevel: DocumentStatus }> {
   // Fetch the invoice
   const [invoice] = await db
     .select()

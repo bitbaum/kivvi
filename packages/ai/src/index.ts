@@ -5,6 +5,7 @@ export type { ConversationState, EngineResponse } from './engine';
 export { getSystemPrompt } from './prompts';
 export { getBusinessSnapshot } from './context';
 export { getDefaultTools, getToolsForPermissions } from './tools';
+export { getPermissionsForRole } from './permissions';
 export {
   searchInvoicesTool,
   searchCustomersTool,

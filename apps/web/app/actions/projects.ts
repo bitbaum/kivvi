@@ -9,21 +9,17 @@ import {
   updateProjectSchema,
 } from '@kivvi/core';
 import { type ActionResult, getSession, safeErrorMessage } from './utils';
+import { createAction } from './action-factory';
 
-export async function createProjectAction(input: unknown): Promise<ActionResult> {
-  try {
-    const { companyId } = await getSession();
+export const createProjectAction = createAction<unknown, unknown>({
+  handler: async (input, { companyId, db }) => {
     const parsed = createProjectSchema.safeParse(input);
-    if (!parsed.success) {
-      return { success: false, error: parsed.error.errors[0]?.message || 'Invalid input' };
-    }
-    const project = await createProject(db, companyId, parsed.data);
-    revalidatePath('/projects');
-    return { success: true, data: project };
-  } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to create project') };
-  }
-}
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || 'Invalid input');
+    return createProject(db, companyId, parsed.data);
+  },
+  revalidate: ['/projects'],
+  errorMessage: 'Failed to create project',
+});
 
 export async function updateProjectAction(
   projectId: string,

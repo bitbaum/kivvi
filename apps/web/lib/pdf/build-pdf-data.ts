@@ -1,6 +1,6 @@
 import type { InvoicePdfData } from '@kivvi/core/src/domain/pdf-generation';
 import type { CompanySettings } from '@kivvi/database';
-import { DEFAULT_VAT_RATE } from '@kivvi/core/src/config/vat-rates';
+import { DEFAULT_VAT_RATE } from '@/lib/config/vat-rates';
 
 /**
  * Build InvoicePdfData from a document + company record.

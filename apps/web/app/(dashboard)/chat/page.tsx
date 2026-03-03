@@ -8,6 +8,7 @@ import { useModelSelection } from '@/hooks/use-model-selection';
 import { ModelSelector, type ModelOption } from '@/components/model-selector';
 import { ChatMessages } from '@/components/chat-widget/ChatMessages';
 import { ChatInput } from '@/components/chat-widget/ChatInput';
+import { logger } from '@/lib/logger';
 
 export default function ChatPage() {
   const t = useTranslations('chat');
@@ -31,7 +32,7 @@ export default function ChatPage() {
     providerId: selection.providerId,
     modelId: selection.modelId,
     onError: (error) => {
-      console.error('Chat error:', error);
+      logger.warn('Chat error', error);
     },
   });
 
@@ -42,7 +43,7 @@ export default function ChatPage() {
     fetch('/api/models')
       .then((res) => res.json())
       .then((data) => setModels(data.models || []))
-      .catch((err) => console.error('Failed to load models:', err));
+      .catch((err) => logger.warn('Failed to load models', err));
   }, []);
 
   useEffect(() => {

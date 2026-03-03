@@ -13,25 +13,21 @@ import {
   createSerialNumberSchema,
 } from '@kivvi/core';
 import { type ActionResult, getSession, safeErrorMessage } from './utils';
+import { createAction } from './action-factory';
 
 // ============================================================================
 // WAREHOUSES
 // ============================================================================
 
-export async function createWarehouseAction(input: unknown): Promise<ActionResult> {
-  try {
-    const { companyId } = await getSession();
+export const createWarehouseAction = createAction<unknown, unknown>({
+  handler: async (input, { companyId, db }) => {
     const parsed = createWarehouseSchema.safeParse(input);
-    if (!parsed.success) {
-      return { success: false, error: parsed.error.errors[0]?.message || 'Invalid input' };
-    }
-    const warehouse = await createWarehouse(db, companyId, parsed.data);
-    revalidatePath('/inventory');
-    return { success: true, data: warehouse };
-  } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to create warehouse') };
-  }
-}
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || 'Invalid input');
+    return createWarehouse(db, companyId, parsed.data);
+  },
+  revalidate: ['/inventory'],
+  errorMessage: 'Failed to create warehouse',
+});
 
 export async function updateWarehouseAction(
   warehouseId: string,
@@ -55,39 +51,29 @@ export async function updateWarehouseAction(
 // STOCK MOVEMENTS
 // ============================================================================
 
-export async function createStockMovementAction(input: unknown): Promise<ActionResult> {
-  try {
-    const { companyId } = await getSession();
+export const createStockMovementAction = createAction<unknown, unknown>({
+  handler: async (input, { companyId, db }) => {
     const parsed = createStockMovementSchema.safeParse(input);
-    if (!parsed.success) {
-      return { success: false, error: parsed.error.errors[0]?.message || 'Invalid input' };
-    }
-    const movement = await createStockMovement(db, companyId, parsed.data);
-    revalidatePath('/inventory');
-    return { success: true, data: movement };
-  } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to create stock movement') };
-  }
-}
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || 'Invalid input');
+    return createStockMovement(db, companyId, parsed.data);
+  },
+  revalidate: ['/inventory'],
+  errorMessage: 'Failed to create stock movement',
+});
 
 // ============================================================================
 // SERIAL NUMBERS
 // ============================================================================
 
-export async function createSerialNumberAction(input: unknown): Promise<ActionResult> {
-  try {
-    const { companyId } = await getSession();
+export const createSerialNumberAction = createAction<unknown, unknown>({
+  handler: async (input, { companyId, db }) => {
     const parsed = createSerialNumberSchema.safeParse(input);
-    if (!parsed.success) {
-      return { success: false, error: parsed.error.errors[0]?.message || 'Invalid input' };
-    }
-    const serial = await createSerialNumber(db, companyId, parsed.data);
-    revalidatePath('/inventory');
-    return { success: true, data: serial };
-  } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to create serial number') };
-  }
-}
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || 'Invalid input');
+    return createSerialNumber(db, companyId, parsed.data);
+  },
+  revalidate: ['/inventory'],
+  errorMessage: 'Failed to create serial number',
+});
 
 export async function updateSerialNumberStatusAction(
   serialNumberId: string,

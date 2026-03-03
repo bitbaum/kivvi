@@ -16,9 +16,9 @@ export default async function RepairImportPage() {
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold">Repair Import</h1>
+          <h1 className="text-2xl font-bold">{t('repairImport.title')}</h1>
           <p className="text-sm text-muted-foreground">
-            Re-import line items for invoices and purchase invoices from Kivitendo CSV exports
+            {t('repairImport.description')}
           </p>
         </div>
       </div>

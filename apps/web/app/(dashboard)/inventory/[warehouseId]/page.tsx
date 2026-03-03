@@ -92,14 +92,14 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="rounded-xl border bg-card p-6">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Products</span>
+            <span className="text-sm text-muted-foreground">{t('products')}</span>
             <Package className="h-5 w-5 text-muted-foreground" />
           </div>
           <p className="mt-2 text-2xl font-bold">{totalProducts}</p>
         </div>
         <div className="rounded-xl border bg-card p-6">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Total Items</span>
+            <span className="text-sm text-muted-foreground">{t('totalItems')}</span>
             <Boxes className="h-5 w-5 text-muted-foreground" />
           </div>
           <p className="mt-2 text-2xl font-bold">{totalItems.toString()}</p>
@@ -107,7 +107,7 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
         <div className="rounded-xl border bg-card p-6">
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">
-              Low Stock Alerts
+              {t('lowStockAlerts')}
             </span>
             <AlertTriangle
               className={cn(
@@ -146,10 +146,10 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
           <div className="flex flex-col items-center justify-center py-16">
             <Package className="h-12 w-12 text-muted-foreground/50" />
             <h3 className="mt-4 text-lg font-medium">
-              No stock in this warehouse
+              {t('noStockTitle')}
             </h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Record a stock movement to add products to this warehouse.
+              {t('noStockDescription')}
             </p>
           </div>
         ) : (
@@ -158,13 +158,13 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
               <thead>
                 <tr className="border-b text-left text-sm text-muted-foreground">
                   <th className="whitespace-nowrap px-4 py-3 font-medium">
-                    Product
+                    {t('product')}
                   </th>
                   <th className="whitespace-nowrap px-4 py-3 font-medium">
-                    Article Number
+                    {t('articleNumber')}
                   </th>
                   <th className="whitespace-nowrap px-4 py-3 font-medium text-right">
-                    Quantity
+                    {t('quantity')}
                   </th>
                   <th className="whitespace-nowrap px-4 py-3 font-medium text-right">
                     {t('reserved')}
@@ -173,7 +173,7 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                     {t('available')}
                   </th>
                   <th className="whitespace-nowrap px-4 py-3 font-medium text-right">
-                    Min Stock
+                    {t('minStock')}
                   </th>
                   <th className="whitespace-nowrap px-4 py-3 font-medium">
                     {tc('status')}
@@ -227,16 +227,16 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                         {isOut ? (
                           <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/30 dark:text-red-400">
                             <AlertTriangle className="h-3 w-3" />
-                            Out of stock
+                            {t('outOfStock')}
                           </span>
                         ) : isLow ? (
                           <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
                             <AlertTriangle className="h-3 w-3" />
-                            Low stock
+                            {t('lowStock')}
                           </span>
                         ) : (
                           <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400">
-                            In stock
+                            {t('inStock')}
                           </span>
                         )}
                       </td>

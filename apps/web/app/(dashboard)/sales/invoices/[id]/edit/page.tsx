@@ -53,7 +53,7 @@ export default async function EditInvoicePage({ params }: PageProps) {
         deliveryDate: doc.deliveryDate ? new Date(doc.deliveryDate).toISOString().split('T')[0] : '',
         notes: doc.notes || '',
         internalNotes: doc.internalNotes || '',
-        items: doc.items.map((item: any) => ({
+        items: doc.items.map((item: { id: string; productId: string | null; description: string; quantity: string; unitPrice: string; discount: string | null; vatRate: string | null }) => ({
           id: item.id,
           productId: item.productId || null,
           description: item.description,

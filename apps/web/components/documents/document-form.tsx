@@ -145,8 +145,9 @@ export function DocumentForm({ type }: DocumentFormProps) {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium">{t('issueDate')}</label>
+                <label htmlFor="issueDate" className="block text-sm font-medium">{t('issueDate')}</label>
                 <FormInput
+                  id="issueDate"
                   type="date"
                   value={form.issueDate}
                   onChange={(e) => form.setIssueDate(e.target.value)}

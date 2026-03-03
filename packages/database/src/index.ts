@@ -19,7 +19,12 @@ export function createNeonClient(connectionString: string) {
 
 // For local development / traditional hosting
 export function createPostgresClient(connectionString: string) {
-  const client = postgres(connectionString);
+  const client = postgres(connectionString, {
+    max: parseInt(process.env.DB_POOL_MAX || '10', 10),
+    idle_timeout: parseInt(process.env.DB_IDLE_TIMEOUT || '20', 10),
+    connect_timeout: parseInt(process.env.DB_CONNECT_TIMEOUT || '10', 10),
+    ...(process.env.NODE_ENV === 'production' && { ssl: 'require' as const }),
+  });
   return drizzle(client, { schema });
 }
 

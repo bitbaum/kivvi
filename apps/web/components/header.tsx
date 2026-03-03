@@ -64,13 +64,23 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
       {/* Mobile menu button */}
       <button
         onClick={onMenuClick}
-        className="rounded-lg p-2 hover:bg-muted lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg p-2 hover:bg-muted lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         aria-label={t('aria.openNavigation')}
       >
         <Menu className="h-5 w-5" />
       </button>
 
-      {/* Search — opens command palette */}
+      {/* Mobile search button — visible only below lg breakpoint */}
+      <button
+        type="button"
+        onClick={onCommandPalette}
+        className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg p-2 hover:bg-muted lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        aria-label={t('aria.openCommandPalette')}
+      >
+        <Search className="h-5 w-5" />
+      </button>
+
+      {/* Search — opens command palette (desktop) */}
       <div className="hidden flex-1 lg:block lg:max-w-md">
         <button
           type="button"
@@ -96,7 +106,7 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
         <div className="relative" ref={langRef}>
           <button
             onClick={() => setShowLangMenu(!showLangMenu)}
-            className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="flex min-h-[44px] items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label={`Current language: ${LOCALE_CONFIG[locale].native}`}
             aria-expanded={showLangMenu}
             aria-haspopup="true"
@@ -127,7 +137,7 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
 
         {/* Notifications — disabled until notification system is implemented */}
         <button
-          className="relative rounded-lg p-2 text-muted-foreground cursor-not-allowed"
+          className="relative flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg p-2 text-muted-foreground cursor-not-allowed"
           aria-label={t('aria.notifications')}
           disabled
           title={t('comingSoon')}

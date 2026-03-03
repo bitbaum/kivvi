@@ -4,11 +4,15 @@ import { db } from '@/lib/db';
 import { listAccounts } from '@kivvi/core';
 
 export async function GET() {
-  const session = await auth();
-  if (!session?.user?.companyId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  try {
+    const session = await auth();
+    if (!session?.user?.companyId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-  const accounts = await listAccounts(db, session.user.companyId, { isActive: true });
-  return NextResponse.json(accounts);
+    const accounts = await listAccounts(db, session.user.companyId, { isActive: true });
+    return NextResponse.json(accounts);
+  } catch {
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
 }

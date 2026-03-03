@@ -2,6 +2,7 @@ import PDFDocument from 'pdfkit';
 import Decimal from 'decimal.js';
 import { SwissQRBill } from 'swissqrbill/pdf';
 import type { Data as QRBillData } from 'swissqrbill/types';
+import { logger } from '../logger';
 
 // ============================================================================
 // TYPES
@@ -410,7 +411,7 @@ export async function generateInvoicePdf(data: InvoicePdfData): Promise<Buffer> 
       } catch (qrError) {
         // If QR-bill generation fails (e.g. invalid IBAN format),
         // still produce the PDF without the QR-bill
-        console.error('QR-bill generation failed:', qrError);
+        logger.error('QR-bill generation failed', qrError);
       }
     }
 

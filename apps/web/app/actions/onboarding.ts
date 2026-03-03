@@ -25,6 +25,7 @@ import {
   ensureManufacturers,
   updateSequencesAfterImport,
 } from '@kivvi/core';
+import { DEFAULT_VAT_RATE } from '@kivvi/core/src/config/vat-rates';
 
 // ============================================================================
 // SCHEMAS
@@ -370,7 +371,7 @@ export async function repairDocumentLineItemsAction(
               description: item.description,
               quantity: qty,
               unitPrice,
-              vatRate: '8.1',
+              vatRate: DEFAULT_VAT_RATE,
               total,
             };
           })

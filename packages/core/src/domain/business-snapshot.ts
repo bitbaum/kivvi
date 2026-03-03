@@ -1,6 +1,7 @@
-import { eq, and, sql, count, desc, gte, inArray } from 'drizzle-orm';
+import { eq, and, count, desc } from 'drizzle-orm';
 import { contacts, documents, products, bankAccounts } from '@kivvi/database';
 import type { Database } from '@kivvi/database';
+import { getFinancialSummary } from './documents';
 
 export interface BusinessSnapshot {
   customers: number;
@@ -35,27 +36,23 @@ export interface BusinessSnapshot {
 
 /**
  * Fetch a snapshot of key business metrics for the AI system prompt.
- * All queries run in parallel for speed.
+ * Delegates financial metrics to getFinancialSummary() (SSOT) and
+ * runs additional queries for contacts, products, recent docs, and bank balances.
  */
 export async function fetchBusinessSnapshot(
   db: Database,
   companyId: string
 ): Promise<BusinessSnapshot> {
-  const now = new Date();
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const startOfYear = new Date(now.getFullYear(), 0, 1);
-
   const [
+    financials,
     contactCounts,
     productCounts,
-    monthlyRevenue,
-    yearlyRevenue,
-    outstanding,
-    overdue,
-    drafts,
     recentDocs,
     bankBalanceRows,
   ] = await Promise.all([
+    // Financial metrics (SSOT in documents.ts)
+    getFinancialSummary(db, companyId),
+
     // Contact counts by type
     db
       .select({ type: contacts.type, count: count() })
@@ -69,82 +66,6 @@ export async function fetchBusinessSnapshot(
       .from(products)
       .where(and(eq(products.companyId, companyId), eq(products.isActive, true)))
       .groupBy(products.type),
-
-    // Revenue this month (paid invoices)
-    db
-      .select({
-        total: sql<string>`COALESCE(SUM(${documents.total}::numeric), 0)`,
-        count: count(),
-      })
-      .from(documents)
-      .where(
-        and(
-          eq(documents.companyId, companyId),
-          eq(documents.type, 'invoice'),
-          eq(documents.status, 'paid'),
-          gte(documents.paidDate, startOfMonth)
-        )
-      ),
-
-    // Revenue this year
-    db
-      .select({
-        total: sql<string>`COALESCE(SUM(${documents.total}::numeric), 0)`,
-      })
-      .from(documents)
-      .where(
-        and(
-          eq(documents.companyId, companyId),
-          eq(documents.type, 'invoice'),
-          eq(documents.status, 'paid'),
-          gte(documents.paidDate, startOfYear)
-        )
-      ),
-
-    // Outstanding invoices
-    db
-      .select({
-        total: sql<string>`COALESCE(SUM(${documents.total}::numeric), 0)`,
-        count: count(),
-      })
-      .from(documents)
-      .where(
-        and(
-          eq(documents.companyId, companyId),
-          eq(documents.type, 'invoice'),
-          inArray(documents.status, ['sent', 'confirmed', 'delivered', 'partially_paid'])
-        )
-      ),
-
-    // Overdue invoices
-    db
-      .select({
-        total: sql<string>`COALESCE(SUM(${documents.total}::numeric), 0)`,
-        count: count(),
-      })
-      .from(documents)
-      .where(
-        and(
-          eq(documents.companyId, companyId),
-          eq(documents.type, 'invoice'),
-          eq(documents.status, 'overdue')
-        )
-      ),
-
-    // Draft invoices
-    db
-      .select({
-        total: sql<string>`COALESCE(SUM(${documents.total}::numeric), 0)`,
-        count: count(),
-      })
-      .from(documents)
-      .where(
-        and(
-          eq(documents.companyId, companyId),
-          eq(documents.type, 'invoice'),
-          eq(documents.status, 'draft')
-        )
-      ),
 
     // Last 5 recent documents with contact name
     db
@@ -189,15 +110,7 @@ export async function fetchBusinessSnapshot(
     vendors: vendorCount + bothCount,
     productCount,
     serviceCount,
-    revenueThisMonth: Number(monthlyRevenue[0].total),
-    revenueThisMonthCount: monthlyRevenue[0].count,
-    revenueThisYear: Number(yearlyRevenue[0].total),
-    outstandingTotal: Number(outstanding[0].total),
-    outstandingCount: outstanding[0].count,
-    overdueTotal: Number(overdue[0].total),
-    overdueCount: overdue[0].count,
-    draftsTotal: Number(drafts[0].total),
-    draftsCount: drafts[0].count,
+    ...financials,
     recentDocuments: recentDocs.map((d) => ({
       number: d.number,
       type: d.type,

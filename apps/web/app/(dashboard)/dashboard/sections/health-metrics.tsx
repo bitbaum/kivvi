@@ -4,6 +4,7 @@ import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { formatCurrency } from '@/lib/utils';
+import { logger } from '@/lib/logger';
 import {
   TrendingUp,
   Target,
@@ -24,7 +25,7 @@ export async function HealthMetrics() {
   try {
     metrics = await getBusinessHealthMetrics(db, companyId);
   } catch (error) {
-    console.error('HealthMetrics: failed to load metrics:', error);
+    logger.error('HealthMetrics: failed to load metrics', error);
     return (
       <div className="space-y-4">
         <div>

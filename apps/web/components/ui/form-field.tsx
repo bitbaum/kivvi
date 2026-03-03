@@ -1,3 +1,4 @@
+import { Children, cloneElement, isValidElement } from 'react';
 import { cn } from '@/lib/utils';
 
 interface FormFieldProps {
@@ -12,6 +13,7 @@ interface FormFieldProps {
 /**
  * Reusable form field wrapper that displays label, input, and validation errors.
  * Shows field-level error messages with red border and error text below the input.
+ * Automatically links error messages to inputs via aria-describedby.
  */
 export function FormField({
   label,
@@ -23,6 +25,21 @@ export function FormField({
 }: FormFieldProps) {
   const hasError = error && error.length > 0;
   const errorMessage = hasError ? error[0] : undefined;
+  const errorId = `${name}-error`;
+  const descriptionId = `${name}-description`;
+  const describedBy = [
+    description ? descriptionId : null,
+    hasError ? errorId : null,
+  ].filter(Boolean).join(' ') || undefined;
+
+  // Inject aria-describedby into the first child element
+  const enhancedChildren = describedBy
+    ? Children.map(children, (child, index) =>
+        index === 0 && isValidElement<Record<string, unknown>>(child)
+          ? cloneElement(child, { 'aria-describedby': describedBy } as Record<string, unknown>)
+          : child
+      )
+    : children;
 
   return (
     <div className="space-y-2">
@@ -32,15 +49,15 @@ export function FormField({
       </label>
 
       {description && (
-        <p className="text-xs text-muted-foreground">{description}</p>
+        <p id={descriptionId} className="text-xs text-muted-foreground">{description}</p>
       )}
 
       <div className={cn(hasError && "[&_input]:border-destructive [&_select]:border-destructive [&_textarea]:border-destructive")}>
-        {children}
+        {enhancedChildren}
       </div>
 
       {hasError && (
-        <p className="text-sm text-destructive">
+        <p id={errorId} className="text-sm text-destructive" role="alert">
           {errorMessage}
         </p>
       )}

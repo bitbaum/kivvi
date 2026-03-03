@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { getAllModels } from '@kivvi/ai';
+import { logger } from '@/lib/logger';
 
 export async function GET() {
   try {
@@ -12,7 +13,7 @@ export async function GET() {
     const models = getAllModels();
     return NextResponse.json({ models });
   } catch (error) {
-    console.error('Failed to get models:', error);
+    logger.error('Failed to get models', error);
     return NextResponse.json(
       { error: 'Failed to get models' },
       { status: 500 }

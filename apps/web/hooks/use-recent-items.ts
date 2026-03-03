@@ -1,4 +1,5 @@
-import { useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
+import { logger } from '@/lib/logger';
 
 export interface RecentItem {
   id: string;
@@ -53,7 +54,7 @@ export function useRecentItems() {
       // Dispatch custom event for header to listen
       window.dispatchEvent(new CustomEvent('recentItemsUpdated'));
     } catch (error) {
-      console.error('Failed to save recent item:', error);
+      logger.warn('Failed to save recent item', error);
     }
   }, [getRecentItems]);
 

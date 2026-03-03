@@ -191,7 +191,7 @@ async function OverviewTab({ companyId }: { companyId: string }) {
                   )}
                 </div>
                 <p className="text-sm font-semibold">
-                  {formatCurrency(Number(account.balance || 0), account.currency || 'CHF')}
+                  {formatCurrency(account.balance || '0', account.currency || 'CHF')}
                 </p>
               </Link>
             ))}
@@ -274,7 +274,7 @@ async function BankingTab({ companyId }: { companyId: string }) {
                 <div>
                   <p className="text-xs text-muted-foreground">{t('balance')}</p>
                   <p className="text-lg font-semibold">
-                    {formatCurrency(Number(account.balance || 0), account.currency || 'CHF')}
+                    {formatCurrency(account.balance || '0', account.currency || 'CHF')}
                   </p>
                 </div>
                 {account.lastSyncAt && (

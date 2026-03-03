@@ -7,17 +7,21 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth();
-  if (!session?.user?.companyId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  try {
+    const session = await auth();
+    if (!session?.user?.companyId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { id } = await params;
+    const doc = await getDocument(db, session.user.companyId, id);
+
+    if (!doc) {
+      return NextResponse.json({ error: 'Document not found' }, { status: 404 });
+    }
+
+    return NextResponse.json(doc);
+  } catch {
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
-
-  const { id } = await params;
-  const doc = await getDocument(db, session.user.companyId, id);
-
-  if (!doc) {
-    return NextResponse.json({ error: 'Document not found' }, { status: 404 });
-  }
-
-  return NextResponse.json(doc);
 }

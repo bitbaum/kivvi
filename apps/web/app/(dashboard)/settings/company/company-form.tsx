@@ -6,15 +6,9 @@ import { useTranslations } from 'next-intl';
 import { updateCompanyAction } from '@/app/actions/settings';
 import { cn } from '@/lib/utils';
 import { COUNTRY_OPTIONS } from '@/lib/config/locales';
+import { SUPPORTED_CURRENCIES } from '@/lib/config/currencies';
+import { SWISS_VAT_RATES } from '@/lib/config/vat-rates';
 import { FormInput, FormSelect } from '@/components/ui/form-field';
-
-const CURRENCY_VALUES = ['CHF', 'EUR', 'USD'] as const;
-
-const VAT_RATE_VALUES = [
-  { value: '8.1', labelKey: 'vatRates.normal' },
-  { value: '2.6', labelKey: 'vatRates.reduced' },
-  { value: '0.0', labelKey: 'vatRates.exempt' },
-] as const;
 
 interface CompanyFormProps {
   initialData: {
@@ -261,7 +255,7 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
               name="currency"
               defaultValue={initialData.currency}
             >
-              {CURRENCY_VALUES.map((c) => (
+              {SUPPORTED_CURRENCIES.map((c) => (
                 <option key={c} value={c}>
                   {t(`currencies.${c.toLowerCase()}`)}
                 </option>
@@ -278,9 +272,9 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
               name="defaultVatRate"
               defaultValue={initialData.defaultVatRate}
             >
-              {VAT_RATE_VALUES.map((r) => (
+              {SWISS_VAT_RATES.map((r) => (
                 <option key={r.value} value={r.value}>
-                  {t(r.labelKey)}
+                  {t(`vatRates.${r.labelKey}`)}
                 </option>
               ))}
             </FormSelect>

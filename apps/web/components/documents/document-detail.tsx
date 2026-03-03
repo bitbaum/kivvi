@@ -23,8 +23,9 @@ export async function DocumentDetail({ doc, config }: DocumentDetailProps) {
   const totalPaidDecimal = config.hasPayments
     ? doc.payments?.reduce((sum: Decimal, p: { amount: string }) => sum.plus(new Decimal(p.amount || '0')), new Decimal(0)) || new Decimal(0)
     : new Decimal(0);
-  const totalPaid = totalPaidDecimal.toNumber();
-  const outstanding = new Decimal(doc.total || '0').minus(totalPaidDecimal).toNumber();
+  const totalPaid = totalPaidDecimal.toFixed(2);
+  const outstandingDecimal = new Decimal(doc.total || '0').minus(totalPaidDecimal);
+  const outstanding = outstandingDecimal.toFixed(2);
   const { isOverdue, daysOverdue } = config.hasPayments ? getOverdueInfo(doc) : { isOverdue: false, daysOverdue: 0 };
 
   return (
@@ -32,7 +33,7 @@ export async function DocumentDetail({ doc, config }: DocumentDetailProps) {
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-4">
-          <Link href={config.basePath} className="rounded-lg p-2 hover:bg-muted">
+          <Link href={config.basePath} className="rounded-lg p-2 hover:bg-muted" aria-label={tc('back')}>
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div>
@@ -48,7 +49,7 @@ export async function DocumentDetail({ doc, config }: DocumentDetailProps) {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <a
             href={`/api/documents/${doc.id}/pdf`}
             target="_blank"
@@ -159,11 +160,11 @@ export async function DocumentDetail({ doc, config }: DocumentDetailProps) {
                         <p className="font-medium">{item.description}</p>
                         {item.product && <p className="text-xs text-muted-foreground">{item.product.name}</p>}
                       </td>
-                      <td className="px-4 py-3 text-right">{Number(item.quantity)}</td>
-                      <td className="px-4 py-3 text-right">{formatCurrency(Number(item.unitPrice))}</td>
-                      <td className="px-4 py-3 text-right">{Number(item.discount) > 0 ? `${Number(item.discount)}%` : '-'}</td>
-                      <td className="px-4 py-3 text-right">{Number(item.vatRate)}%</td>
-                      <td className="px-4 py-3 text-right font-medium">{formatCurrency(Number(item.total))}</td>
+                      <td className="px-4 py-3 text-right">{parseFloat(item.quantity)}</td>
+                      <td className="px-4 py-3 text-right">{formatCurrency(item.unitPrice)}</td>
+                      <td className="px-4 py-3 text-right">{parseFloat(item.discount || '0') > 0 ? `${parseFloat(item.discount || '0')}%` : '-'}</td>
+                      <td className="px-4 py-3 text-right">{parseFloat(item.vatRate || '0')}%</td>
+                      <td className="px-4 py-3 text-right font-medium">{formatCurrency(item.total || '0')}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -198,15 +199,15 @@ export async function DocumentDetail({ doc, config }: DocumentDetailProps) {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{tc('subtotal')}</span>
-                <span>{formatCurrency(Number(doc.subtotal))}</span>
+                <span>{formatCurrency(doc.subtotal)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{t('vat')}</span>
-                <span>{formatCurrency(Number(doc.vatAmount))}</span>
+                <span>{formatCurrency(doc.vatAmount)}</span>
               </div>
               <div className="flex justify-between border-t pt-2 text-base font-bold">
                 <span>{tc('total')}</span>
-                <span>{formatCurrency(Number(doc.total))}</span>
+                <span>{formatCurrency(doc.total)}</span>
               </div>
               {config.hasPayments && doc.payments?.length > 0 && (
                 <>
@@ -216,7 +217,7 @@ export async function DocumentDetail({ doc, config }: DocumentDetailProps) {
                   </div>
                   <div className="flex justify-between border-t pt-2 font-bold">
                     <span>{t('outstanding')}</span>
-                    <span className={outstanding > 0 ? 'text-red-600 dark:text-red-400' : ''}>
+                    <span className={outstandingDecimal.gt(0) ? 'text-red-600 dark:text-red-400' : ''}>
                       {formatCurrency(outstanding)}
                     </span>
                   </div>
@@ -236,7 +237,7 @@ export async function DocumentDetail({ doc, config }: DocumentDetailProps) {
                   {doc.payments.map((payment) => (
                     <div key={payment.id} className="flex items-start justify-between text-sm">
                       <div>
-                        <p className="font-medium">{formatCurrency(Number(payment.amount))}</p>
+                        <p className="font-medium">{formatCurrency(payment.amount)}</p>
                         <p className="text-xs text-muted-foreground">
                           {formatDate(payment.date)}
                           {payment.method && ` · ${payment.method.replace('_', ' ')}`}

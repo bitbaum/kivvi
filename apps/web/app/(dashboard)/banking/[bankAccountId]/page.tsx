@@ -94,9 +94,7 @@ export default async function BankAccountDetailPage({ params, searchParams }: Pa
           <div className="text-right">
             <p className="text-xs text-muted-foreground">{t('balance')}</p>
             <p className="text-2xl font-bold">
-              {account.balance
-                ? formatCurrency(Number(account.balance), account.currency || 'CHF')
-                : formatCurrency(0, account.currency || 'CHF')}
+              {formatCurrency(account.balance || '0', account.currency || 'CHF')}
             </p>
           </div>
         </div>
@@ -225,7 +223,7 @@ export default async function BankAccountDetailPage({ params, searchParams }: Pa
                     </div>
                     <div className="text-right text-sm text-muted-foreground">
                       {txn.balance
-                        ? formatCurrency(Number(txn.balance), account.currency || 'CHF')
+                        ? formatCurrency(txn.balance, account.currency || 'CHF')
                         : '-'}
                     </div>
                     <div className="flex items-center justify-center">
@@ -278,13 +276,13 @@ export default async function BankAccountDetailPage({ params, searchParams }: Pa
             {transactions.page > 1 ? (
               <Link
                 href={buildPageUrl(bankAccountId, transactions.page - 1, filter, search)}
-                className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm hover:bg-muted transition-colors"
+                className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border px-3 py-2 text-sm hover:bg-muted transition-colors"
               >
                 <ChevronLeft className="h-4 w-4" />
                 {tc('previous')}
               </Link>
             ) : (
-              <span className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm text-muted-foreground opacity-50">
+              <span className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border px-3 py-2 text-sm text-muted-foreground opacity-50">
                 <ChevronLeft className="h-4 w-4" />
                 {tc('previous')}
               </span>
@@ -297,13 +295,13 @@ export default async function BankAccountDetailPage({ params, searchParams }: Pa
             {transactions.page < transactions.totalPages ? (
               <Link
                 href={buildPageUrl(bankAccountId, transactions.page + 1, filter, search)}
-                className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm hover:bg-muted transition-colors"
+                className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border px-3 py-2 text-sm hover:bg-muted transition-colors"
               >
                 {tc('next')}
                 <ChevronRight className="h-4 w-4" />
               </Link>
             ) : (
-              <span className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm text-muted-foreground opacity-50">
+              <span className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border px-3 py-2 text-sm text-muted-foreground opacity-50">
                 {tc('next')}
                 <ChevronRight className="h-4 w-4" />
               </span>

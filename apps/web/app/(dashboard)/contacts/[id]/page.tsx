@@ -232,7 +232,7 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-medium">
-                        {formatCurrency(Number(doc.total))}
+                        {formatCurrency(doc.total)}
                       </p>
                       <span
                         className={cn(
@@ -270,7 +270,7 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
               />
               <InfoItem
                 label={t('creditLimit')}
-                value={contact.creditLimit ? formatCurrency(Number(contact.creditLimit)) : null}
+                value={contact.creditLimit ? formatCurrency(contact.creditLimit) : null}
               />
             </div>
           </div>

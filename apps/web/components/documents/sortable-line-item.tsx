@@ -118,7 +118,7 @@ export function SortableLineItem({ item, index, updateItem, removeItem, canRemov
             type="button"
             onClick={() => removeItem(item.id)}
             aria-label={tc('aria.removeLineItem')}
-            className="mt-2 rounded-lg p-1.5 text-muted-foreground hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20"
+            className="mt-2 flex items-center justify-center rounded-lg min-h-[44px] min-w-[44px] text-muted-foreground hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20"
           >
             <Trash2 className="h-4 w-4" />
           </button>

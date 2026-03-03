@@ -137,7 +137,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
                 <span className="text-muted-foreground">
                   {t('budgetProgress', {
                     used: formatCurrency(summary.totalInvoiced),
-                    total: formatCurrency(Number(project.budget)),
+                    total: formatCurrency(project.budget),
                   })}
                 </span>
                 <span className="font-medium">{budgetUsedPercent}%</span>
@@ -221,7 +221,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
                           </span>
                         </td>
                         <td className="whitespace-nowrap px-4 py-3 text-right font-medium">
-                          {formatCurrency(Number(doc.total))}
+                          {formatCurrency(doc.total)}
                         </td>
                       </tr>
                     ))}
@@ -295,7 +295,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
                 <div className="flex items-center justify-between px-6 py-3">
                   <span className="text-sm text-muted-foreground">{t('budget')}</span>
                   <span className="text-sm font-medium">
-                    {formatCurrency(Number(project.budget))}
+                    {formatCurrency(project.budget)}
                   </span>
                 </div>
               )}

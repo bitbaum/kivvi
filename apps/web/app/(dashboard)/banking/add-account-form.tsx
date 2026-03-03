@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, X } from 'lucide-react';
 import { createBankAccountAction } from '@/app/actions/banking';
 import { useTranslations } from 'next-intl';
 import { FormInput, FormSelect } from '@/components/ui/form-field';
+import { useFocusTrap } from '@/hooks/use-focus-trap';
 
 export function AddAccountForm() {
   const router = useRouter();
@@ -13,6 +14,8 @@ export function AddAccountForm() {
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const t = useTranslations('banking');
+  const modalRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(modalRef, isOpen);
   const tc = useTranslations('common');
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -51,7 +54,7 @@ export function AddAccountForm() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div ref={modalRef} className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="w-full max-w-md rounded-xl border bg-card p-6 shadow-lg">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">{t('addAccount')}</h2>

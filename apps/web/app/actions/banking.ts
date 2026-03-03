@@ -14,25 +14,21 @@ import {
 } from '@kivvi/core';
 import { z } from 'zod';
 import { type ActionResult, getSession, safeErrorMessage } from './utils';
+import { createAction } from './action-factory';
 
 // ============================================================================
 // BANK ACCOUNTS
 // ============================================================================
 
-export async function createBankAccountAction(input: unknown): Promise<ActionResult> {
-  try {
-    const { companyId } = await getSession();
+export const createBankAccountAction = createAction<unknown, unknown>({
+  handler: async (input, { companyId, db }) => {
     const parsed = createBankAccountSchema.safeParse(input);
-    if (!parsed.success) {
-      return { success: false, error: parsed.error.errors[0]?.message || 'Invalid input' };
-    }
-    const account = await createBankAccount(db, companyId, parsed.data);
-    revalidatePath('/banking');
-    return { success: true, data: account };
-  } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to create bank account') };
-  }
-}
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || 'Invalid input');
+    return createBankAccount(db, companyId, parsed.data);
+  },
+  revalidate: ['/banking'],
+  errorMessage: 'Failed to create bank account',
+});
 
 export async function updateBankAccountAction(
   bankAccountId: string,
@@ -88,28 +84,18 @@ export async function reconcileTransactionAction(
   }
 }
 
-export async function unreconcileTransactionAction(
-  transactionId: string
-): Promise<ActionResult> {
-  try {
-    const { companyId } = await getSession();
-    const txn = await unreconcileTransaction(db, companyId, transactionId);
-    revalidatePath('/banking');
-    return { success: true, data: txn };
-  } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to unreconcile transaction') };
-  }
-}
+export const unreconcileTransactionAction = createAction<string, unknown>({
+  handler: async (transactionId, { companyId, db }) => {
+    return unreconcileTransaction(db, companyId, transactionId);
+  },
+  revalidate: ['/banking'],
+  errorMessage: 'Failed to unreconcile transaction',
+});
 
-export async function autoMatchTransactionsAction(
-  bankAccountId: string
-): Promise<ActionResult<{ matched: number }>> {
-  try {
-    const { companyId } = await getSession();
-    const result = await autoMatchTransactions(db, companyId, bankAccountId);
-    revalidatePath('/banking');
-    return { success: true, data: result };
-  } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to auto-match') };
-  }
-}
+export const autoMatchTransactionsAction = createAction<string, { matched: number }>({
+  handler: async (bankAccountId, { companyId, db }) => {
+    return autoMatchTransactions(db, companyId, bankAccountId);
+  },
+  revalidate: ['/banking'],
+  errorMessage: 'Failed to auto-match',
+});

@@ -113,7 +113,7 @@ export function SelectableDocumentTable({
               role="link"
               tabIndex={0}
               onClick={() => router.push(`${config.basePath}/${doc.id}`)}
-              onKeyDown={(e) => { if (e.key === 'Enter') router.push(`${config.basePath}/${doc.id}`); }}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); router.push(`${config.basePath}/${doc.id}`); } }}
               className={cn(
                 'flex cursor-pointer flex-col gap-1 p-4 hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:grid sm:grid-cols-[auto_1fr_1.5fr_auto_auto_auto] sm:items-center sm:gap-4',
                 isSelected(doc.id) && 'bg-primary/5'
@@ -138,7 +138,7 @@ export function SelectableDocumentTable({
                 {doc.contact?.name || translations.columnLabels.noContact}
               </div>
               <div className="text-right font-medium">
-                {formatCurrency(Number(doc.total))}
+                {formatCurrency(doc.total)}
               </div>
               <div className="px-4 text-center">
                 <span

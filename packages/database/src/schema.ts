@@ -412,7 +412,9 @@ export const bankAccounts = pgTable('bank_accounts', {
   balance: decimal('balance', { precision: 12, scale: 2 }).default('0'),
   lastSyncAt: timestamp('last_sync_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
-});
+}, (table) => ({
+  companyIdIdx: index('bank_accounts_company_id_idx').on(table.companyId),
+}));
 
 export const bankTransactions = pgTable('bank_transactions', {
   id: uuid('id').primaryKey().defaultRandom(),

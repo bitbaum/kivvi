@@ -3,6 +3,7 @@
 import { Component, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { AlertCircle } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 interface Props {
   children: ReactNode;
@@ -47,7 +48,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('ErrorBoundary caught:', error, errorInfo);
+    logger.error('ErrorBoundary caught', error, { componentStack: errorInfo.componentStack ?? undefined });
   }
 
   render() {

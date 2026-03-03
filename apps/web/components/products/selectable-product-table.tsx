@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState, useTransition } from 'react';
+import { useCallback, useMemo, useState, useTransition, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2, Package, Wrench } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -13,6 +13,7 @@ import {
 } from '@/app/actions/bulk-operations';
 import type { BulkOperationResult } from '@/app/actions/bulk-operations';
 import { cn, formatCurrency } from '@/lib/utils';
+import { useFocusTrap } from '@/hooks/use-focus-trap';
 import { SortableHeader } from '@/components/sortable-header';
 
 import { UNIT_ABBREVIATIONS } from '@/lib/config/units';
@@ -72,6 +73,8 @@ export function SelectableProductTable({ data, translations, sort }: SelectableP
   const [bulkResult, setBulkResult] = useState<BulkOperationResult | null>(null);
   const [isPending, startTransition] = useTransition();
   const [confirmAction, setConfirmAction] = useState<'delete' | 'deactivate' | null>(null);
+  const confirmRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(confirmRef, !!confirmAction);
 
   const handleComplete = useCallback(
     (result: BulkOperationResult) => {
@@ -171,7 +174,7 @@ export function SelectableProductTable({ data, translations, sort }: SelectableP
                 key={product.id}
                 tabIndex={0}
                 onClick={() => router.push(`/products/${product.id}`)}
-                onKeyDown={(e) => { if (e.key === 'Enter') router.push(`/products/${product.id}`); }}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); router.push(`/products/${product.id}`); } }}
                 className={cn(
                   'group cursor-pointer transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
                   isSelected(product.id) && 'bg-primary/5'
@@ -214,7 +217,7 @@ export function SelectableProductTable({ data, translations, sort }: SelectableP
                   </span>
                 </td>
                 <td className="whitespace-nowrap px-4 py-3 text-right font-medium">
-                  {formatCurrency(Number(product.unitPrice), product.currency || 'CHF')}
+                  {formatCurrency(product.unitPrice, product.currency || 'CHF')}
                   <span className="ml-1 text-xs text-muted-foreground">
                     /{UNIT_ABBREVIATIONS[product.unit || 'piece'] || product.unit}
                   </span>
@@ -270,11 +273,12 @@ export function SelectableProductTable({ data, translations, sort }: SelectableP
       {/* Confirmation dialog */}
       {confirmAction && (
         <div
+          ref={confirmRef}
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
           onKeyDown={(e) => { if (e.key === 'Escape') setConfirmAction(null); }}
         >
           <div role="dialog" aria-modal="true" aria-labelledby="confirm-dialog-title" className="mx-4 w-full max-w-md rounded-xl border bg-card p-6 shadow-xl">
-            <h3 id="confirm-dialog-title" className="text-lg font-semibold">{translations.bulkLabels.confirmTitle}</h3>
+            <h2 id="confirm-dialog-title" className="text-lg font-semibold">{translations.bulkLabels.confirmTitle}</h2>
             <p className="mt-2 text-sm text-muted-foreground">
               {(confirmAction === 'delete' ? translations.bulkLabels.confirmDelete : translations.bulkLabels.confirmDeactivate)
                 .replace('{count}', String(selectedIds.length))}

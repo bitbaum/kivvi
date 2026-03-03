@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Link from 'next/link';
 import { MoreVertical, Edit, Trash2, Power, PowerOff } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -10,6 +10,7 @@ import {
   toggleRecurringConfigAction,
 } from '@/app/actions/recurring-invoices';
 import { toast } from 'sonner';
+import { useFocusTrap } from '@/hooks/use-focus-trap';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,6 +38,8 @@ export function RecurringConfigRow({ config, periodicityLabel }: RecurringConfig
   const [isDeleting, setIsDeleting] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const confirmRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(confirmRef, showDeleteConfirm);
 
   async function handleDelete() {
     setIsDeleting(true);
@@ -144,7 +147,7 @@ export function RecurringConfigRow({ config, periodicityLabel }: RecurringConfig
 
       {/* Delete confirmation dialog */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowDeleteConfirm(false)}>
+        <div ref={confirmRef} className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowDeleteConfirm(false)}>
           <div className="mx-4 w-full max-w-md rounded-xl border bg-card p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-lg font-semibold">{tc('delete')}</h3>
             <p className="mt-2 text-sm text-muted-foreground">

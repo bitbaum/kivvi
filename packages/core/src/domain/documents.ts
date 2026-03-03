@@ -629,29 +629,27 @@ export async function updateDocumentStatus(
     updateValues.paidDate = new Date();
   }
 
-  const [updated] = await db
-    .update(documents)
-    .set(updateValues)
-    .where(and(
-      eq(documents.id, documentId),
-      eq(documents.companyId, companyId)
-    ))
-    .returning();
+  // Wrap status update + journal entry in a transaction so they're atomic.
+  // If journal entry creation fails, the status update is rolled back.
+  return db.transaction(async (tx) => {
+    const [updated] = await tx
+      .update(documents)
+      .set(updateValues)
+      .where(and(
+        eq(documents.id, documentId),
+        eq(documents.companyId, companyId)
+      ))
+      .returning();
 
-  // Auto-create journal entries for status transitions
-  try {
+    // Auto-create journal entries for status transitions
     if (newStatus === 'sent' && doc.type === 'invoice') {
-      await createInvoiceSentJournalEntry(db, companyId, doc);
+      await createInvoiceSentJournalEntry(tx, companyId, doc);
     } else if (newStatus === 'confirmed' && doc.type === 'purchase_invoice') {
-      await createPurchaseInvoiceJournalEntry(db, companyId, doc);
+      await createPurchaseInvoiceJournalEntry(tx, companyId, doc);
     }
-  } catch (e) {
-    // Log but don't fail the status update if journal entry creation fails
-    // (e.g. chart of accounts not set up yet)
-    console.error('Auto journal entry failed:', e);
-  }
 
-  return updated;
+    return updated;
+  });
 }
 
 /**
@@ -786,15 +784,12 @@ export async function recordPayment(
         eq(documents.companyId, companyId)
       ));
 
-    // Auto-create journal entry for the payment (best effort - don't fail transaction)
-    try {
-      await createPaymentReceivedJournalEntry(tx, companyId, doc, {
-        amount: input.amount,
-        date: new Date(input.date),
-      });
-    } catch (e) {
-      console.error('Auto journal entry for payment failed:', e);
-    }
+    // Auto-create journal entry for the payment.
+    // If this fails, the entire transaction rolls back (accounting must stay consistent).
+    await createPaymentReceivedJournalEntry(tx, companyId, doc, {
+      amount: input.amount,
+      date: new Date(input.date),
+    });
 
     return payment;
   });

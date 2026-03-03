@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
+import { useState, useEffect, useTransition, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, X, Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { createStockMovementAction } from '@/app/actions/inventory';
 import { MOVEMENT_TYPES } from '@/lib/config/inventory';
 import { FormInput, FormSelect } from '@/components/ui/form-field';
+import { useFocusTrap } from '@/hooks/use-focus-trap';
 
 interface Warehouse {
   id: string;
@@ -31,6 +32,8 @@ export function RecordMovementForm({
   const [isPending, startTransition] = useTransition();
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(modalRef, isOpen);
 
   const movementTypeOptions = MOVEMENT_TYPES.map((mt) => ({ value: mt, label: t(mt) }));
 
@@ -117,7 +120,7 @@ export function RecordMovementForm({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div ref={modalRef} className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="w-full max-w-md rounded-xl border bg-card p-6 shadow-lg">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold">{t('recordMovement')}</h2>
@@ -256,14 +259,13 @@ export function RecordMovementForm({
               placeholder={t('placeholders.quantity')}
             />
             <p className="mt-1 text-xs text-muted-foreground">
-              Enter a positive number. Direction is determined by the movement
-              type.
+              {t('quantityHelp')}
             </p>
           </div>
 
           {/* Reference */}
           <div>
-            <label className="mb-1 block text-sm font-medium">Reference</label>
+            <label className="mb-1 block text-sm font-medium">{t('reference')}</label>
             <FormInput
               name="reference"
               type="text"

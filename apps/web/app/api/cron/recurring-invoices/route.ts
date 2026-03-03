@@ -9,6 +9,7 @@ import {
 } from '@kivvi/core/src/domain/email';
 import { getTransporter, getFromEmail } from '@/lib/email/transporter';
 import { isEmailConfigured } from '@/lib/config/email';
+import { logger } from '@/lib/logger';
 
 /**
  * Cron endpoint for processing recurring invoices.
@@ -23,7 +24,7 @@ export async function GET(request: NextRequest) {
     const cronSecret = process.env.CRON_SECRET;
 
     if (!cronSecret) {
-      console.error('CRON_SECRET not configured');
+      logger.error('CRON_SECRET not configured');
       return NextResponse.json(
         { error: 'Cron secret not configured' },
         { status: 500 }
@@ -31,7 +32,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (authHeader !== `Bearer ${cronSecret}`) {
-      console.error('Unauthorized cron request');
+      logger.error('Unauthorized cron request');
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -74,7 +75,7 @@ export async function GET(request: NextRequest) {
                   html: buildInvoiceEmailHtml(emailData),
                 });
               } catch (emailError) {
-                console.error(`Failed to send recurring invoice email to ${recipient}:`, emailError);
+                logger.error(`Failed to send recurring invoice email to ${recipient}`, emailError);
               }
             }
           }
@@ -88,7 +89,7 @@ export async function GET(request: NextRequest) {
       errors: result.errors,
     });
   } catch (error) {
-    console.error('Error processing recurring invoices:', error);
+    logger.error('Error processing recurring invoices', error);
     return NextResponse.json(
       {
         error: error instanceof Error ? error.message : 'Unknown error',

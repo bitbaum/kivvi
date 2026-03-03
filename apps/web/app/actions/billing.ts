@@ -7,6 +7,7 @@ import { companies } from '@kivvi/database';
 import type { CompanySettings } from '@kivvi/database';
 import { eq } from 'drizzle-orm';
 import { getSession, type ActionResult } from './utils';
+import { logger } from '@/lib/logger';
 
 /**
  * Create a Stripe Checkout session for upgrading to premium.
@@ -66,7 +67,7 @@ export async function createCheckoutSessionAction(): Promise<ActionResult<{ url:
 
     return { success: true, data: { url: session.url } };
   } catch (error) {
-    console.error('Checkout session error:', error);
+    logger.error('Checkout session error', error);
     return { success: false, error: 'Failed to create checkout session' };
   }
 }
@@ -101,7 +102,7 @@ export async function createPortalSessionAction(): Promise<ActionResult<{ url: s
 
     return { success: true, data: { url: session.url } };
   } catch (error) {
-    console.error('Portal session error:', error);
+    logger.error('Portal session error', error);
     return { success: false, error: 'Failed to open billing portal' };
   }
 }

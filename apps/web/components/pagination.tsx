@@ -40,13 +40,13 @@ export function Pagination({
         {page > 1 ? (
           <Link
             href={buildHref(page - 1)}
-            className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm hover:bg-muted transition-colors"
+            className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border px-3 py-2 text-sm hover:bg-muted transition-colors"
           >
             <ChevronLeft className="h-4 w-4" />
             {labels.previous}
           </Link>
         ) : (
-          <span className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm text-muted-foreground opacity-50">
+          <span className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border px-3 py-2 text-sm text-muted-foreground opacity-50">
             <ChevronLeft className="h-4 w-4" />
             {labels.previous}
           </span>
@@ -61,13 +61,13 @@ export function Pagination({
         {page < totalPages ? (
           <Link
             href={buildHref(page + 1)}
-            className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm hover:bg-muted transition-colors"
+            className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border px-3 py-2 text-sm hover:bg-muted transition-colors"
           >
             {labels.next}
             <ChevronRight className="h-4 w-4" />
           </Link>
         ) : (
-          <span className="inline-flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm text-muted-foreground opacity-50">
+          <span className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border px-3 py-2 text-sm text-muted-foreground opacity-50">
             {labels.next}
             <ChevronRight className="h-4 w-4" />
           </span>

@@ -30,7 +30,7 @@ export function BulkActionToolbar({
       <div className="h-4 w-px bg-border" />
       <button
         onClick={onClear}
-        className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-sm text-muted-foreground hover:bg-muted"
+        className="inline-flex min-h-[44px] items-center gap-1 rounded-lg px-2 py-1 text-sm text-muted-foreground hover:bg-muted"
       >
         <X className="h-3.5 w-3.5" />
         {clearLabel}

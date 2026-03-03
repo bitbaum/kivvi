@@ -2,14 +2,8 @@ import { eq } from 'drizzle-orm';
 import { companies, type CompanySettings } from '@kivvi/database';
 import type { Database } from '@kivvi/database';
 
-export interface DashboardPreferences {
-  layout?: 'default' | 'compact' | 'detailed';
-  visibleSections?: string[];
-  statsOrder?: string[];
-  chartTypes?: Record<string, 'bar' | 'line' | 'pie'>;
-  maxQuickActions?: number;
-  maxWorkflowSuggestions?: number;
-}
+// Derived from CompanySettings.dashboardPreferences — SSOT is the schema
+export type DashboardPreferences = NonNullable<CompanySettings['dashboardPreferences']>;
 
 /**
  * Get dashboard preferences for a company

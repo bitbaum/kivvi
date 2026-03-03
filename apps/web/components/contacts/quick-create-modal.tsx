@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useRef } from 'react';
 import { X, Loader2, UserPlus } from 'lucide-react';
 import { createContactAction } from '@/app/actions/contacts';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { CONTACT_TYPES } from '@/lib/config/contact-types';
 import { FormInput } from '@/components/ui/form-field';
+import { useFocusTrap } from '@/hooks/use-focus-trap';
 
 interface QuickCreateContactModalProps {
   isOpen: boolean;
@@ -26,6 +27,8 @@ export function QuickCreateContactModal({
   const t = useTranslations('contacts');
   const tc = useTranslations('common');
   const [isPending, startTransition] = useTransition();
+  const modalRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(modalRef, isOpen);
 
   const [name, setName] = useState(initialName);
   const [email, setEmail] = useState('');
@@ -78,7 +81,7 @@ export function QuickCreateContactModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div ref={modalRef} className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <div role="dialog" aria-modal="true" aria-labelledby="quick-create-title" className="relative w-full max-w-md rounded-xl border bg-card p-6 shadow-lg">
         {/* Close button */}
         <button
@@ -86,7 +89,7 @@ export function QuickCreateContactModal({
           onClick={handleClose}
           disabled={isPending}
           aria-label={tc('close')}
-          className="absolute right-4 top-4 rounded-lg p-1 hover:bg-muted"
+          className="absolute right-4 top-4 flex items-center justify-center rounded-lg min-h-[44px] min-w-[44px] hover:bg-muted"
         >
           <X className="h-4 w-4" />
         </button>
@@ -106,7 +109,7 @@ export function QuickCreateContactModal({
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Type selector */}
           <div>
-            <label className="mb-2 block text-sm font-medium">{t('type')} *</label>
+            <span className="mb-2 block text-sm font-medium">{t('type')} *</span>
             <div className="grid grid-cols-3 gap-2">
               {CONTACT_TYPES.map((option) => (
                 <button
@@ -129,8 +132,9 @@ export function QuickCreateContactModal({
 
           {/* Name (required) */}
           <div>
-            <label className="mb-2 block text-sm font-medium">{t('name')} *</label>
+            <label htmlFor="qc-name" className="mb-2 block text-sm font-medium">{t('name')} *</label>
             <FormInput
+              id="qc-name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -146,8 +150,9 @@ export function QuickCreateContactModal({
 
           {/* Email (optional) */}
           <div>
-            <label className="mb-2 block text-sm font-medium">{t('email')}</label>
+            <label htmlFor="qc-email" className="mb-2 block text-sm font-medium">{t('email')}</label>
             <FormInput
+              id="qc-email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -162,8 +167,9 @@ export function QuickCreateContactModal({
 
           {/* Phone (optional) */}
           <div>
-            <label className="mb-2 block text-sm font-medium">{t('phone')}</label>
+            <label htmlFor="qc-phone" className="mb-2 block text-sm font-medium">{t('phone')}</label>
             <FormInput
+              id="qc-phone"
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}

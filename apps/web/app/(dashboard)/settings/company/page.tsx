@@ -7,6 +7,7 @@ import { companies } from '@kivvi/database';
 import type { CompanySettings } from '@kivvi/database';
 import { eq } from 'drizzle-orm';
 import { getTranslations } from 'next-intl/server';
+import { DEFAULT_VAT_RATE } from '@/lib/config/vat-rates';
 import { CompanyForm } from './company-form';
 
 export default async function CompanySettingsPage() {
@@ -56,7 +57,7 @@ export default async function CompanySettingsPage() {
           currency: company.currency || 'CHF',
           iban: settings.bankAccount?.iban || '',
           bankName: settings.bankAccount?.bankName || '',
-          defaultVatRate: settings.defaultVatRate?.toString() || '8.1',
+          defaultVatRate: settings.defaultVatRate?.toString() || DEFAULT_VAT_RATE,
           defaultPaymentTermsDays: settings.defaultPaymentTermsDays?.toString() || '30',
           defaultDocumentFooter: settings.defaultDocumentFooter || '',
         }}

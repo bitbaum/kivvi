@@ -18,25 +18,21 @@ import {
   createFiscalYearSchema,
 } from '@kivvi/core';
 import { type ActionResult, getSession, safeErrorMessage } from './utils';
+import { createAction } from './action-factory';
 
 // ============================================================================
 // CHART OF ACCOUNTS
 // ============================================================================
 
-export async function createAccountAction(input: unknown): Promise<ActionResult> {
-  try {
-    const { companyId } = await getSession();
+export const createAccountAction = createAction<unknown, unknown>({
+  handler: async (input, { companyId, db }) => {
     const parsed = createAccountSchema.safeParse(input);
-    if (!parsed.success) {
-      return { success: false, error: parsed.error.errors[0]?.message || 'Invalid input' };
-    }
-    const account = await createAccount(db, companyId, parsed.data);
-    revalidatePath('/accounting');
-    return { success: true, data: account };
-  } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to create account') };
-  }
-}
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || 'Invalid input');
+    return createAccount(db, companyId, parsed.data);
+  },
+  revalidate: ['/accounting'],
+  errorMessage: 'Failed to create account',
+});
 
 export async function updateAccountAction(
   accountId: string,
@@ -56,95 +52,71 @@ export async function updateAccountAction(
   }
 }
 
-export async function toggleAccountAction(accountId: string): Promise<ActionResult> {
-  try {
-    const { companyId } = await getSession();
-    const account = await toggleAccount(db, companyId, accountId);
-    revalidatePath('/accounting');
-    return { success: true, data: account };
-  } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to toggle account') };
-  }
-}
+export const toggleAccountAction = createAction<string, unknown>({
+  handler: async (accountId, { companyId, db }) => {
+    return toggleAccount(db, companyId, accountId);
+  },
+  revalidate: ['/accounting'],
+  errorMessage: 'Failed to toggle account',
+});
 
-export async function seedChartOfAccountsAction(): Promise<ActionResult<{ count: number }>> {
-  try {
-    const { companyId } = await getSession();
+export const seedChartOfAccountsAction = createAction<void, { count: number }>({
+  handler: async (_input, { companyId, db }) => {
     const count = await seedChartOfAccounts(db, companyId);
-    revalidatePath('/accounting');
-    return { success: true, data: { count } };
-  } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to seed accounts') };
-  }
-}
+    return { count };
+  },
+  revalidate: ['/accounting'],
+  errorMessage: 'Failed to seed accounts',
+});
 
 // ============================================================================
 // JOURNAL ENTRIES
 // ============================================================================
 
-export async function createJournalEntryAction(input: unknown): Promise<ActionResult> {
-  try {
-    const { companyId, userId } = await getSession();
+export const createJournalEntryAction = createAction<unknown, unknown>({
+  handler: async (input, { companyId, userId, db }) => {
     const parsed = createJournalEntrySchema.safeParse(input);
-    if (!parsed.success) {
-      return { success: false, error: parsed.error.errors[0]?.message || 'Invalid input' };
-    }
-    const entry = await createJournalEntry(db, companyId, userId, parsed.data);
-    revalidatePath('/accounting/journal');
-    return { success: true, data: entry };
-  } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to create journal entry') };
-  }
-}
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || 'Invalid input');
+    return createJournalEntry(db, companyId, userId, parsed.data);
+  },
+  revalidate: ['/accounting/journal'],
+  errorMessage: 'Failed to create journal entry',
+});
 
-export async function deleteJournalEntryAction(entryId: string): Promise<ActionResult> {
-  try {
-    const { companyId } = await getSession();
+export const deleteJournalEntryAction = createAction<string, void>({
+  handler: async (entryId, { companyId, db }) => {
     await deleteJournalEntry(db, companyId, entryId);
-    revalidatePath('/accounting/journal');
-    return { success: true };
-  } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to delete journal entry') };
-  }
-}
+  },
+  revalidate: ['/accounting/journal'],
+  errorMessage: 'Failed to delete journal entry',
+});
 
 // ============================================================================
 // FISCAL YEARS
 // ============================================================================
 
-export async function createFiscalYearAction(input: unknown): Promise<ActionResult> {
-  try {
-    const { companyId } = await getSession();
+export const createFiscalYearAction = createAction<unknown, unknown>({
+  handler: async (input, { companyId, db }) => {
     const parsed = createFiscalYearSchema.safeParse(input);
-    if (!parsed.success) {
-      return { success: false, error: parsed.error.errors[0]?.message || 'Invalid input' };
-    }
-    const year = await createFiscalYear(db, companyId, parsed.data);
-    revalidatePath('/accounting/fiscal-years');
-    return { success: true, data: year };
-  } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to create fiscal year') };
-  }
-}
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || 'Invalid input');
+    return createFiscalYear(db, companyId, parsed.data);
+  },
+  revalidate: ['/accounting/fiscal-years'],
+  errorMessage: 'Failed to create fiscal year',
+});
 
-export async function closeFiscalPeriodAction(periodId: string): Promise<ActionResult> {
-  try {
-    const { companyId } = await getSession();
-    const period = await closeFiscalPeriod(db, companyId, periodId);
-    revalidatePath('/accounting/fiscal-years');
-    return { success: true, data: period };
-  } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to close period') };
-  }
-}
+export const closeFiscalPeriodAction = createAction<string, unknown>({
+  handler: async (periodId, { companyId, db }) => {
+    return closeFiscalPeriod(db, companyId, periodId);
+  },
+  revalidate: ['/accounting/fiscal-years'],
+  errorMessage: 'Failed to close period',
+});
 
-export async function closeFiscalYearAction(yearId: string): Promise<ActionResult> {
-  try {
-    const { companyId } = await getSession();
-    const year = await closeFiscalYear(db, companyId, yearId);
-    revalidatePath('/accounting/fiscal-years');
-    return { success: true, data: year };
-  } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to close fiscal year') };
-  }
-}
+export const closeFiscalYearAction = createAction<string, unknown>({
+  handler: async (yearId, { companyId, db }) => {
+    return closeFiscalYear(db, companyId, yearId);
+  },
+  revalidate: ['/accounting/fiscal-years'],
+  errorMessage: 'Failed to close fiscal year',
+});

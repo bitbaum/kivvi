@@ -1,5 +1,3 @@
-'use server';
-
 import { revalidatePath } from 'next/cache';
 import { db } from '@/lib/db';
 import { type ActionResult, getSession, safeErrorMessage } from './utils';

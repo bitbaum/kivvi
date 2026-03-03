@@ -510,7 +510,7 @@ export async function getTrialBalance(
   dateFrom?: string,
   dateTo?: string
 ): Promise<AccountBalance[]> {
-  const dateConditions: any[] = [];
+  const dateConditions: ReturnType<typeof sql>[] = [];
   if (dateFrom) {
     dateConditions.push(sql`${journalEntries.date} >= ${new Date(dateFrom)}`);
   }
