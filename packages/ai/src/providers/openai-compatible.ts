@@ -22,6 +22,34 @@ export abstract class OpenAICompatibleProvider implements AIProvider {
   protected abstract baseUrl: string;
   protected abstract getHeaders(): Record<string, string>;
 
+  /**
+   * Validate the API key by making a lightweight request.
+   * Throws if the key is invalid or the service is unreachable.
+   */
+  async validateConnection(): Promise<void> {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+
+    try {
+      const response = await fetch(`${this.baseUrl}/models`, {
+        headers: this.getHeaders(),
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        const text = await response.text().catch(() => '');
+        throw new Error(`${this.name}: API key invalid (${response.status}${text ? ': ' + text.slice(0, 100) : ''})`);
+      }
+    } catch (error) {
+      if (error instanceof Error && error.message.startsWith(this.name)) {
+        throw error;
+      }
+      throw new Error(`${this.name}: unreachable`);
+    } finally {
+      clearTimeout(timeout);
+    }
+  }
+
   async chat(request: ChatRequest): Promise<ChatResponse> {
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: 'POST',
@@ -45,17 +73,19 @@ export abstract class OpenAICompatibleProvider implements AIProvider {
   }
 
   async *streamChat(request: ChatRequest): AsyncIterable<StreamChunk> {
+    const body = {
+      model: request.model || this.models[0].id,
+      messages: this.formatMessages(request.messages, request.systemPrompt),
+      tools: request.tools?.map((t) => this.formatTool(t)),
+      temperature: request.temperature || 0.7,
+      max_tokens: request.maxTokens || 4096,
+      stream: true,
+    };
+
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: 'POST',
       headers: this.getHeaders(),
-      body: JSON.stringify({
-        model: request.model || this.models[0].id,
-        messages: this.formatMessages(request.messages, request.systemPrompt),
-        tools: request.tools?.map((t) => this.formatTool(t)),
-        temperature: request.temperature || 0.7,
-        max_tokens: request.maxTokens || 4096,
-        stream: true,
-      }),
+      body: JSON.stringify(body),
     });
 
     if (!response.ok) {
@@ -81,6 +111,7 @@ export abstract class OpenAICompatibleProvider implements AIProvider {
       for (const line of lines) {
         if (line.startsWith('data: ')) {
           const data = line.slice(6).trim();
+          if (!data) continue;
           if (data === '[DONE]') {
             // If a tool call was in progress, close it before done
             if (hasActiveToolCall) {

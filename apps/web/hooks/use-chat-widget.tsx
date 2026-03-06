@@ -26,6 +26,7 @@ interface ChatWidgetContextValue {
   selection: { providerId: string; modelId: string };
   selectModel: (providerId: string, modelId: string) => void;
   isModelLoaded: boolean;
+  modelDisplayName: string;
 }
 
 const ChatWidgetContext = createContext<ChatWidgetContextValue | null>(null);
@@ -33,7 +34,7 @@ const ChatWidgetContext = createContext<ChatWidgetContextValue | null>(null);
 export function ChatWidgetProvider({ children }: { children: ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [models, setModels] = useState<ModelOption[]>([]);
-  const { selection, selectModel, isLoaded: isModelLoaded } = useModelSelection();
+  const { selection, selectModel, isLoaded: isModelLoaded, displayName: modelDisplayName } = useModelSelection();
 
   const {
     messages,
@@ -85,6 +86,7 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
         selection,
         selectModel,
         isModelLoaded,
+        modelDisplayName,
       }}
     >
       {children}

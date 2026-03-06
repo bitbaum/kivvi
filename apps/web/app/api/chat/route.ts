@@ -32,9 +32,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Determine provider and model
-    const selectedProvider = (providerId || process.env.AI_PROVIDER || 'openrouter') as ProviderType;
-    const selectedModel = modelId || 'google/gemini-2.0-flash-exp:free';
+    // Determine provider and model — no hardcoded defaults
+    // Let the fallback chain find the first available provider
+    const selectedProvider = (providerId || process.env.AI_PROVIDER) as ProviderType | undefined;
+    const selectedModel = modelId as string | undefined;
 
     // Get or create conversation
     let conversation: { id: string; } | undefined;
@@ -140,14 +141,23 @@ export async function POST(request: NextRequest) {
       }
     };
 
-    const { provider, modelId: fallbackModelId } = await createProviderWithFallback(env, {
-      type: selectedProvider,
-      apiKey: getApiKey(selectedProvider),
-      baseUrl: selectedProvider === 'ollama' ? process.env.OLLAMA_BASE_URL : undefined,
-      model: selectedModel,
-    });
+    const { provider, providerId: activeProviderId, modelId: fallbackModelId } = await createProviderWithFallback(
+      env,
+      selectedProvider
+        ? {
+            type: selectedProvider,
+            apiKey: getApiKey(selectedProvider),
+            baseUrl: selectedProvider === 'ollama' ? process.env.OLLAMA_BASE_URL : undefined,
+            model: selectedModel,
+          }
+        : undefined,
+    );
 
-    const activeModel = selectedModel || fallbackModelId;
+    // Only use the user-selected model if the provider didn't change via fallback
+    const activeModel =
+      selectedModel && activeProviderId === selectedProvider
+        ? selectedModel
+        : fallbackModelId;
 
     // Get tools based on user permissions
     const tools = getToolsForPermissions(context.permissions);
@@ -217,9 +227,11 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     logger.error('Chat API error', error);
+    const message = error instanceof Error ? error.message : 'Internal server error';
+    const isProviderError = message.includes('No AI provider available') || message.includes('API key invalid');
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Internal server error' },
-      { status: 500 }
+      { error: message },
+      { status: isProviderError ? 503 : 500 }
     );
   }
 }

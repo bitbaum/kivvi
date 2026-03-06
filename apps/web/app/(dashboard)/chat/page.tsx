@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Paperclip, Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useChat } from '@/hooks/use-chat';
@@ -12,8 +13,10 @@ import { logger } from '@/lib/logger';
 
 export default function ChatPage() {
   const t = useTranslations('chat');
+  const searchParams = useSearchParams();
   const [models, setModels] = useState<ModelOption[]>([]);
-  const { selection, selectModel, isLoaded } = useModelSelection();
+  const { selection, selectModel, isLoaded, displayName } = useModelSelection();
+  const [initialQuerySent, setInitialQuerySent] = useState(false);
 
   const suggestions = [
     t('suggestions.unpaidInvoices'),
@@ -45,6 +48,15 @@ export default function ChatPage() {
       .then((data) => setModels(data.models || []))
       .catch((err) => logger.warn('Failed to load models', err));
   }, []);
+
+  // Handle ?q= query parameter from dashboard links
+  useEffect(() => {
+    const q = searchParams.get('q');
+    if (q && !initialQuerySent && isLoaded) {
+      setInitialQuerySent(true);
+      sendMessage(q);
+    }
+  }, [searchParams, initialQuerySent, isLoaded, sendMessage]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -104,12 +116,15 @@ export default function ChatPage() {
             selectedModel={selection.modelId}
             onModelChange={selectModel}
             disabled={isLoading || !isLoaded}
+            fallbackLabel={displayName}
           />
-          <p className="text-xs text-muted-foreground">
-            {models.find((m) => m.modelId === selection.modelId)?.isFree
-              ? t('freeModelSelected')
-              : t('paidModel')}
-          </p>
+          {models.length > 0 && (
+            <p className="text-xs text-muted-foreground">
+              {models.find((m) => m.modelId === selection.modelId)?.isFree
+                ? t('freeModelSelected')
+                : t('paidModel')}
+            </p>
+          )}
         </div>
         <div className="flex gap-2">
           <button

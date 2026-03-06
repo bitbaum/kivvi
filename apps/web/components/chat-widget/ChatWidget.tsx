@@ -29,6 +29,7 @@ export function ChatWidget() {
     selection,
     selectModel,
     isModelLoaded,
+    modelDisplayName,
   } = useChatWidget();
 
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -101,7 +102,7 @@ export function ChatWidget() {
           'bg-gradient-to-br from-blue-500 to-indigo-600 text-white',
           'transition-all duration-200 hover:scale-105 hover:shadow-xl active:scale-95',
           'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-          'bottom-6 right-6 lg:bottom-6 lg:right-6',
+          'bottom-6 right-6',
           'motion-reduce:transition-none',
           isOpen && 'pointer-events-none opacity-0'
         )}
@@ -110,18 +111,27 @@ export function ChatWidget() {
         <Sparkles className="h-6 w-6" />
       </button>
 
+      {/* Backdrop overlay — click to close */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/20 lg:hidden"
+          onClick={close}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Panel */}
       <div
         role="dialog"
         aria-label={t('title')}
         className={cn(
-          'fixed z-50 flex flex-col overflow-hidden rounded-2xl border bg-card shadow-2xl',
+          'fixed z-50 flex flex-col overflow-hidden border bg-card shadow-2xl',
           'transition-all duration-200 origin-bottom-right',
           'motion-reduce:transition-none',
-          // Mobile: full screen
-          'inset-2 lg:inset-auto',
+          // Mobile: full screen with slight inset, rounded corners
+          'inset-0 rounded-none sm:inset-4 sm:rounded-2xl',
           // Desktop: fixed size bottom-right
-          'lg:bottom-6 lg:right-6 lg:h-[600px] lg:w-[400px]',
+          'lg:inset-auto lg:bottom-6 lg:right-6 lg:h-[600px] lg:w-[420px] lg:rounded-2xl',
           // Animation
           isOpen
             ? 'scale-100 opacity-100'
@@ -142,6 +152,7 @@ export function ChatWidget() {
             selectedModel={selection.modelId}
             onModelChange={selectModel}
             disabled={isLoading || !isModelLoaded}
+            fallbackLabel={modelDisplayName}
           />
 
           {/* New conversation */}

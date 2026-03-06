@@ -215,7 +215,7 @@ export function getProviderAvailability(env: {
 /**
  * Try to create a provider with fallback.
  * Priority: preferred → groq → xai → openrouter → ollama → anthropic.
- * Returns the first provider that can be initialized.
+ * Returns the first provider that can be initialized AND validated.
  */
 export async function createProviderWithFallback(env: {
   GROQ_API_KEY?: string;
@@ -224,17 +224,22 @@ export async function createProviderWithFallback(env: {
   ANTHROPIC_API_KEY?: string;
   OLLAMA_BASE_URL?: string;
 }, preferred?: ProviderConfig): Promise<{ provider: AIProvider; providerId: ProviderType; modelId: string }> {
+  const errors: string[] = [];
+
   // Try preferred provider first
   if (preferred) {
     try {
       const provider = await createProvider(preferred);
+      if ('validateConnection' in provider && typeof (provider as any).validateConnection === 'function') {
+        await (provider as any).validateConnection();
+      }
       return {
         provider,
         providerId: preferred.type,
         modelId: preferred.model || provider.models[0]?.id || '',
       };
-    } catch {
-      // Fall through to chain
+    } catch (e) {
+      errors.push(`${preferred.type}: ${e instanceof Error ? e.message : 'failed'}`);
     }
   }
 
@@ -261,17 +266,27 @@ export async function createProviderWithFallback(env: {
         apiKey: candidate.apiKey,
         baseUrl: candidate.baseUrl,
       });
+
+      // Validate the connection (checks API key validity / server reachability)
+      if ('validateConnection' in provider && typeof (provider as any).validateConnection === 'function') {
+        await (provider as any).validateConnection();
+      }
+
       return {
         provider,
         providerId: candidate.type,
         modelId: candidate.defaultModel,
       };
-    } catch {
+    } catch (e) {
+      errors.push(`${candidate.type}: ${e instanceof Error ? e.message : 'failed'}`);
       continue;
     }
   }
 
+  const detail = errors.length > 0
+    ? ` Tried: ${errors.join('; ')}`
+    : '';
   throw new Error(
-    'No AI provider available. Configure at least one: GROQ_API_KEY, XAI_API_KEY, OPENROUTER_API_KEY, OLLAMA_BASE_URL, or ANTHROPIC_API_KEY.'
+    `No AI provider available.${detail} Configure a valid API key for at least one provider: GROQ_API_KEY, XAI_API_KEY, OPENROUTER_API_KEY, OLLAMA_BASE_URL, or ANTHROPIC_API_KEY.`
   );
 }

@@ -182,13 +182,28 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
           );
         } else {
           logger.warn('Chat error', error);
+          // Show actionable error for provider issues, generic for others
+          const errorMsg = error instanceof Error ? error.message : '';
+          const isProviderError = errorMsg.includes('No AI provider available');
+          const isApiKeyError = errorMsg.includes('API key invalid') || errorMsg.includes('Invalid API Key');
+          const isUnreachable = errorMsg.includes('not reachable') || errorMsg.includes('unreachable');
+          let displayError: string;
+          if (isProviderError) {
+            displayError = 'Kein AI-Anbieter verfügbar. Bitte konfigurieren Sie einen gültigen API-Schlüssel in den Einstellungen (Groq, Anthropic, OpenRouter oder xAI).';
+          } else if (isApiKeyError) {
+            displayError = 'Der API-Schlüssel ist ungültig oder abgelaufen. Bitte aktualisieren Sie ihn in der .env.local Datei.';
+          } else if (isUnreachable) {
+            displayError = 'Der AI-Server ist nicht erreichbar. Bitte prüfen Sie die Verbindung.';
+          } else {
+            displayError = 'Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.';
+          }
           // Update assistant message to show error
           setMessages((prev) =>
             prev.map((m) =>
               m.id === assistantId
                 ? {
                     ...m,
-                    content: 'Sorry, I encountered an error. Please try again.',
+                    content: displayError,
                     isStreaming: false,
                   }
                 : m

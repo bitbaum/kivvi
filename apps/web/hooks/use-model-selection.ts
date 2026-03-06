@@ -16,6 +16,14 @@ const DEFAULT_MODEL: ModelSelection = {
   modelId: 'llama-3.3-70b-versatile',
 };
 
+// Known model display names for fallback (before API loads)
+const MODEL_DISPLAY_NAMES: Record<string, string> = {
+  'llama-3.3-70b-versatile': 'Llama 3.3 70B',
+  'llama-3.1-8b-instant': 'Llama 3.1 8B',
+  'gemma2-9b-it': 'Gemma 2 9B',
+  'grok-3-mini': 'Grok 3 Mini',
+};
+
 export function useModelSelection() {
   const [selection, setSelection] = useState<ModelSelection>(DEFAULT_MODEL);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -47,9 +55,13 @@ export function useModelSelection() {
     }
   }, []);
 
+  // Derive a display name for the current selection (used as fallback before API loads)
+  const displayName = MODEL_DISPLAY_NAMES[selection.modelId] || selection.modelId;
+
   return {
     selection,
     selectModel,
     isLoaded,
+    displayName,
   };
 }

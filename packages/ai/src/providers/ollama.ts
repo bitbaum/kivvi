@@ -20,8 +20,18 @@ export class OllamaProvider implements AIProvider {
   }
 
   async initialize(): Promise<void> {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000);
+
     try {
-      const response = await fetch(`${this.baseUrl}/api/tags`);
+      const response = await fetch(`${this.baseUrl}/api/tags`, {
+        signal: controller.signal,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Ollama returned ${response.status}`);
+      }
+
       const data = await response.json();
 
       this.models = data.models?.map((model: any) => ({
@@ -31,25 +41,14 @@ export class OllamaProvider implements AIProvider {
         supportsTools: this.supportsTools(model.name),
         supportsVision: model.name.includes('vision') || model.name.includes('llava'),
       })) || [];
-    } catch (error) {
-      console.warn('Failed to fetch Ollama models:', error);
-      // Provide defaults
-      this.models = [
-        {
-          id: 'qwen2.5:32b',
-          name: 'Qwen 2.5 32B',
-          contextWindow: 32768,
-          supportsTools: true,
-          supportsVision: false,
-        },
-        {
-          id: 'llama3.1:8b',
-          name: 'Llama 3.1 8B',
-          contextWindow: 128000,
-          supportsTools: true,
-          supportsVision: false,
-        },
-      ];
+
+      if (this.models.length === 0) {
+        throw new Error('No Ollama models installed');
+      }
+    } catch {
+      throw new Error('Ollama server not reachable at ' + this.baseUrl);
+    } finally {
+      clearTimeout(timeout);
     }
   }
 
