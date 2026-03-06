@@ -1,7 +1,15 @@
 import { NextRequest } from 'next/server';
+import { z } from 'zod';
 import { db } from '@/lib/db';
 import { authenticateApi, apiError, apiSuccess } from '@/lib/api-handler';
 import { listContacts, createContact } from '@kivvi/core';
+
+const querySchema = z.object({
+  page: z.coerce.number().int().positive().default(1),
+  pageSize: z.coerce.number().int().positive().max(200).default(50),
+  search: z.string().optional(),
+  type: z.enum(['customer', 'vendor']).optional(),
+});
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,16 +17,17 @@ export async function GET(request: NextRequest) {
     if (ctx instanceof Response) return ctx;
 
     const url = new URL(request.url);
-    const page = parseInt(url.searchParams.get('page') || '1', 10);
-    const pageSize = Math.min(parseInt(url.searchParams.get('pageSize') || '50', 10), 200);
-    const search = url.searchParams.get('search') || undefined;
-    const type = url.searchParams.get('type') as 'customer' | 'vendor' | undefined;
+    const raw = Object.fromEntries(url.searchParams.entries());
+    const parsed = querySchema.safeParse(raw);
+    if (!parsed.success) {
+      return apiError(`Invalid query parameters: ${parsed.error.issues.map(i => `${i.path}: ${i.message}`).join(', ')}`, 400);
+    }
 
+    const { page, pageSize, ...filters } = parsed.data;
     const result = await listContacts(db, ctx.companyId, {
+      ...filters,
       page,
       pageSize,
-      search,
-      type,
     });
 
     return apiSuccess(result.data, {

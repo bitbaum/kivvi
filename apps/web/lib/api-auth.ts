@@ -54,12 +54,11 @@ export async function validateApiToken(
   // Check expiry
   if (record.expiresAt && new Date(record.expiresAt) < new Date()) return null;
 
-  // Update last used timestamp (fire-and-forget)
+  // Update last used timestamp (fire-and-forget, log failures)
   db.update(apiTokens)
     .set({ lastUsedAt: new Date() })
     .where(eq(apiTokens.id, record.id))
-    .then(() => {})
-    .catch(() => {});
+    .catch((err) => console.error('[api-auth] Failed to update token lastUsedAt:', err));
 
   return {
     companyId: record.companyId,

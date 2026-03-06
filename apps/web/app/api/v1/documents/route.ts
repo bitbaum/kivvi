@@ -1,8 +1,20 @@
 import { NextRequest } from 'next/server';
+import { z } from 'zod';
 import { db } from '@/lib/db';
 import { authenticateApi, apiError, apiSuccess } from '@/lib/api-handler';
 import { listDocuments, createDocument } from '@kivvi/core';
-import type { DocumentType, DocumentStatus } from '@kivvi/database';
+import { documentTypeEnum, documentStatusEnum } from '@kivvi/database/src/schema';
+
+const querySchema = z.object({
+  page: z.coerce.number().int().positive().default(1),
+  pageSize: z.coerce.number().int().positive().max(200).default(50),
+  type: z.enum(documentTypeEnum.enumValues).optional(),
+  status: z.enum(documentStatusEnum.enumValues).optional(),
+  search: z.string().optional(),
+  contactId: z.string().uuid().optional(),
+  sortBy: z.enum(['number', 'issueDate', 'dueDate', 'total', 'createdAt']).optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
+});
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,24 +22,17 @@ export async function GET(request: NextRequest) {
     if (ctx instanceof Response) return ctx;
 
     const url = new URL(request.url);
-    const page = parseInt(url.searchParams.get('page') || '1', 10);
-    const pageSize = Math.min(parseInt(url.searchParams.get('pageSize') || '50', 10), 200);
-    const type = url.searchParams.get('type') as DocumentType | undefined;
-    const status = url.searchParams.get('status') as DocumentStatus | undefined;
-    const search = url.searchParams.get('search') || undefined;
-    const contactId = url.searchParams.get('contactId') || undefined;
-    const sortBy = (url.searchParams.get('sortBy') as 'number' | 'issueDate' | 'dueDate' | 'total' | 'createdAt') || undefined;
-    const sortOrder = (url.searchParams.get('sortOrder') as 'asc' | 'desc') || undefined;
+    const raw = Object.fromEntries(url.searchParams.entries());
+    const parsed = querySchema.safeParse(raw);
+    if (!parsed.success) {
+      return apiError(`Invalid query parameters: ${parsed.error.issues.map(i => `${i.path}: ${i.message}`).join(', ')}`, 400);
+    }
 
+    const { page, pageSize, ...filters } = parsed.data;
     const result = await listDocuments(db, ctx.companyId, {
-      type,
-      status,
-      search,
-      contactId,
+      ...filters,
       page,
       pageSize,
-      sortBy,
-      sortOrder,
     });
 
     return apiSuccess(result.data, {

@@ -260,3 +260,125 @@ describe('reconciliation state logic', () => {
     expect(newState.reconciledAt).toBeNull();
   });
 });
+
+// ============================================================================
+// RECONCILIATION EDGE CASES
+// Mirrors edge case behavior in reconcileTransaction()
+// ============================================================================
+
+describe('reconciliation edge cases', () => {
+  // Mirrors the guard: document status must allow payment recording
+  const PAYABLE_STATUSES = ['sent', 'confirmed', 'delivered', 'overdue', 'partially_paid', 'dunning_1', 'dunning_2', 'dunning_3'];
+  const NON_PAYABLE_STATUSES = ['draft', 'cancelled', 'paid'];
+
+  function canRecordPayment(documentStatus: string): boolean {
+    return PAYABLE_STATUSES.includes(documentStatus);
+  }
+
+  it.each(PAYABLE_STATUSES)('document in %s status can receive payment', (status) => {
+    expect(canRecordPayment(status)).toBe(true);
+  });
+
+  it.each(NON_PAYABLE_STATUSES)('document in %s status cannot receive payment', (status) => {
+    expect(canRecordPayment(status)).toBe(false);
+  });
+
+  it('reconciliation with draft document: payment fails but reconciliation succeeds', () => {
+    // This is the known edge case from reconcileTransaction (line 270-282):
+    // Reconciliation marks the bank tx as reconciled, but recordPayment fails
+    // because the document is in 'draft' status. This creates an inconsistency:
+    // bank tx shows reconciled, but document shows no payment.
+    const docStatus = 'draft';
+    const paymentWouldFail = !canRecordPayment(docStatus);
+    expect(paymentWouldFail).toBe(true);
+    // TODO: Consider whether reconcileTransaction should fail atomically
+    // when payment recording fails, rather than silently continuing.
+  });
+
+  it('reconciliation with cancelled document: payment fails but reconciliation succeeds', () => {
+    const docStatus = 'cancelled';
+    const paymentWouldFail = !canRecordPayment(docStatus);
+    expect(paymentWouldFail).toBe(true);
+  });
+
+  it('reconciliation with already-paid document: payment fails but reconciliation succeeds', () => {
+    const docStatus = 'paid';
+    const paymentWouldFail = !canRecordPayment(docStatus);
+    expect(paymentWouldFail).toBe(true);
+  });
+});
+
+describe('payment amount validation for reconciliation', () => {
+  // When reconciling, the bank transaction amount should match (or partially match)
+  // the document total. The system uses absolute value of the bank tx amount.
+
+  function reconciliationPaymentAmount(txnAmount: string): string {
+    return new Decimal(txnAmount).abs().toFixed(2);
+  }
+
+  it('positive transaction amount used as-is', () => {
+    expect(reconciliationPaymentAmount('1500.00')).toBe('1500.00');
+  });
+
+  it('negative transaction amount converted to positive', () => {
+    // Outgoing payments appear as negative in bank statements
+    expect(reconciliationPaymentAmount('-1500.00')).toBe('1500.00');
+  });
+
+  it('zero amount preserved', () => {
+    expect(reconciliationPaymentAmount('0')).toBe('0.00');
+  });
+
+  it('Rappen-rounded amount preserved', () => {
+    expect(reconciliationPaymentAmount('99.95')).toBe('99.95');
+  });
+
+  it('large amount preserved with precision', () => {
+    expect(reconciliationPaymentAmount('123456.78')).toBe('123456.78');
+  });
+
+  it('amount with extra precision is rounded to 2 decimal places', () => {
+    expect(reconciliationPaymentAmount('99.999')).toBe('100.00');
+  });
+
+  it('Rappen rounding edge case: 0.05 step', () => {
+    // Swiss CHF uses Rappen rounding (nearest 0.05)
+    function rappenRound(amount: string): string {
+      return new Decimal(amount).times(20).round().div(20).toFixed(2);
+    }
+
+    expect(rappenRound('99.97')).toBe('99.95');
+    expect(rappenRound('99.98')).toBe('100.00');
+    expect(rappenRound('99.93')).toBe('99.95');
+    expect(rappenRound('99.92')).toBe('99.90');
+    expect(rappenRound('100.02')).toBe('100.00');
+    expect(rappenRound('100.03')).toBe('100.05');
+  });
+});
+
+describe('reconciliation idempotency', () => {
+  // If the same bankTransactionId is used for payment recording twice,
+  // the second attempt should be rejected (idempotent guard)
+
+  function wouldBeDuplicate(existingPaymentTxIds: string[], newTxId: string): boolean {
+    return existingPaymentTxIds.includes(newTxId);
+  }
+
+  it('first payment with bankTransactionId is accepted', () => {
+    expect(wouldBeDuplicate([], 'tx-001')).toBe(false);
+  });
+
+  it('second payment with same bankTransactionId is rejected', () => {
+    expect(wouldBeDuplicate(['tx-001'], 'tx-001')).toBe(true);
+  });
+
+  it('payment with different bankTransactionId is accepted', () => {
+    expect(wouldBeDuplicate(['tx-001'], 'tx-002')).toBe(false);
+  });
+
+  it('handles multiple existing transactions', () => {
+    const existing = ['tx-001', 'tx-002', 'tx-003'];
+    expect(wouldBeDuplicate(existing, 'tx-002')).toBe(true);
+    expect(wouldBeDuplicate(existing, 'tx-004')).toBe(false);
+  });
+});

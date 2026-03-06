@@ -1,5 +1,6 @@
 'use server';
 
+import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { db } from '@/lib/db';
 import { getSession, safeErrorMessage } from './utils';
@@ -78,6 +79,7 @@ export async function removeMemberAction(
     }
 
     await removeMember(db, session.companyId, parsed.data, session.userId);
+    revalidatePath('/settings/team');
     return { success: true };
   } catch (error) {
     return { success: false, error: safeErrorMessage(error, 'Failed to remove member') };
@@ -106,6 +108,7 @@ export async function updateMemberRoleAction(
       parsedRole.data as MembershipRole,
       session.userId
     );
+    revalidatePath('/settings/team');
     return { success: true };
   } catch (error) {
     return { success: false, error: safeErrorMessage(error, 'Failed to update role') };
