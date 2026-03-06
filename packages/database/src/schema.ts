@@ -10,6 +10,7 @@ import {
   pgEnum,
   date,
   uniqueIndex,
+  unique,
   index,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
@@ -78,6 +79,20 @@ export const recurringPeriodicityEnum = pgEnum('recurring_periodicity', [
   'annual',
 ]);
 
+export const membershipRoleEnum = pgEnum('membership_role', [
+  'owner',
+  'admin',
+  'member',
+  'viewer',
+]);
+
+export const invitationStatusEnum = pgEnum('invitation_status', [
+  'pending',
+  'accepted',
+  'expired',
+  'revoked',
+]);
+
 // ============================================================================
 // AUTH & COMPANIES
 // ============================================================================
@@ -117,6 +132,59 @@ export const passwordResetTokens = pgTable('password_reset_tokens', {
 }, (table) => ({
   tokenIdx: index('password_reset_tokens_token_idx').on(table.token),
   userIdIdx: index('password_reset_tokens_user_id_idx').on(table.userId),
+}));
+
+// ============================================================================
+// MEMBERSHIPS & INVITATIONS
+// ============================================================================
+
+export const memberships = pgTable('memberships', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  companyId: uuid('company_id').references(() => companies.id, { onDelete: 'cascade' }).notNull(),
+  role: membershipRoleEnum('role').default('member').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => ({
+  uniqueMembership: unique().on(table.userId, table.companyId),
+  userIdx: index('memberships_user_id_idx').on(table.userId),
+  companyIdx: index('memberships_company_id_idx').on(table.companyId),
+}));
+
+export const invitations = pgTable('invitations', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  companyId: uuid('company_id').references(() => companies.id, { onDelete: 'cascade' }).notNull(),
+  email: text('email').notNull(),
+  role: membershipRoleEnum('role').default('member').notNull(),
+  status: invitationStatusEnum('status').default('pending').notNull(),
+  invitedBy: uuid('invited_by').references(() => users.id).notNull(),
+  token: text('token').notNull().unique(),
+  expiresAt: timestamp('expires_at').notNull(),
+  acceptedAt: timestamp('accepted_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  tokenIdx: index('invitations_token_idx').on(table.token),
+  emailCompanyIdx: index('invitations_email_company_idx').on(table.email, table.companyId),
+}));
+
+// ============================================================================
+// API TOKENS
+// ============================================================================
+
+export const apiTokens = pgTable('api_tokens', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  companyId: uuid('company_id').references(() => companies.id, { onDelete: 'cascade' }).notNull(),
+  userId: uuid('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  name: text('name').notNull(),
+  tokenHash: text('token_hash').notNull().unique(),
+  tokenPrefix: text('token_prefix').notNull(), // First 8 chars for display: "kv_abc1..."
+  lastUsedAt: timestamp('last_used_at'),
+  expiresAt: timestamp('expires_at'),
+  isActive: boolean('is_active').default(true).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  tokenHashIdx: index('api_tokens_token_hash_idx').on(table.tokenHash),
+  companyIdIdx: index('api_tokens_company_id_idx').on(table.companyId),
 }));
 
 // ============================================================================
@@ -273,7 +341,7 @@ export const documents = pgTable('documents', {
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 }, (table) => ({
-  uniqueNumberPerCompanyType: uniqueIndex('documents_company_id_type_number_idx').on(table.companyId, table.type, table.number),
+  numberPerCompanyType: index('documents_company_id_type_number_idx').on(table.companyId, table.type, table.number),
   companyIdIdx: index('documents_company_id_idx').on(table.companyId),
   companyStatusIdx: index('documents_company_id_status_idx').on(table.companyId, table.status),
   companyTypeIdx: index('documents_company_id_type_idx').on(table.companyId, table.type),
@@ -604,6 +672,8 @@ export const aiActionAudit = pgTable('ai_action_audit', {
 
 export const companiesRelations = relations(companies, ({ many }) => ({
   users: many(users),
+  memberships: many(memberships),
+  invitations: many(invitations),
   contacts: many(contacts),
   documents: many(documents),
   products: many(products),
@@ -618,10 +688,33 @@ export const companiesRelations = relations(companies, ({ many }) => ({
   recurringInvoiceConfigs: many(recurringInvoiceConfigs),
 }));
 
-export const usersRelations = relations(users, ({ one }) => ({
+export const usersRelations = relations(users, ({ one, many }) => ({
   company: one(companies, {
     fields: [users.companyId],
     references: [companies.id],
+  }),
+  memberships: many(memberships),
+}));
+
+export const membershipsRelations = relations(memberships, ({ one }) => ({
+  user: one(users, {
+    fields: [memberships.userId],
+    references: [users.id],
+  }),
+  company: one(companies, {
+    fields: [memberships.companyId],
+    references: [companies.id],
+  }),
+}));
+
+export const invitationsRelations = relations(invitations, ({ one }) => ({
+  company: one(companies, {
+    fields: [invitations.companyId],
+    references: [companies.id],
+  }),
+  inviter: one(users, {
+    fields: [invitations.invitedBy],
+    references: [users.id],
   }),
 }));
 
@@ -1038,9 +1131,16 @@ export type PriceRule = typeof priceRules.$inferSelect;
 export type RecurringInvoiceConfig = typeof recurringInvoiceConfigs.$inferSelect;
 export type NewRecurringInvoiceConfig = typeof recurringInvoiceConfigs.$inferInsert;
 
+export type Membership = typeof memberships.$inferSelect;
+export type NewMembership = typeof memberships.$inferInsert;
+export type Invitation = typeof invitations.$inferSelect;
+export type NewInvitation = typeof invitations.$inferInsert;
+
 // Document type literals for type narrowing
 export type DocumentType = typeof documentTypeEnum.enumValues[number];
 export type DocumentStatus = typeof documentStatusEnum.enumValues[number];
 export type AccountType = typeof accountTypeEnum.enumValues[number];
 export type ContactType = typeof contactTypeEnum.enumValues[number];
+export type MembershipRole = typeof membershipRoleEnum.enumValues[number];
+export type InvitationStatus = typeof invitationStatusEnum.enumValues[number];
 export type RecurringPeriodicity = typeof recurringPeriodicityEnum.enumValues[number];

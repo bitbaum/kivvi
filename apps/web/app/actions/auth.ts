@@ -3,7 +3,7 @@
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import { db } from '@/lib/db';
-import { users, companies } from '@kivvi/database';
+import { users, companies, memberships } from '@kivvi/database';
 import { eq } from 'drizzle-orm';
 import { DEFAULT_VAT_RATE } from '@/lib/config/vat-rates';
 import type { ActionResult } from './utils';
@@ -94,6 +94,13 @@ export async function registerAction(
           role: 'owner',
         })
         .returning();
+
+      // Create membership row (SSOT for company membership)
+      await tx.insert(memberships).values({
+        userId: user.id,
+        companyId: company.id,
+        role: 'owner',
+      });
 
       return {
         userId: user.id,

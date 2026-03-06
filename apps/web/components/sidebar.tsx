@@ -6,7 +6,8 @@ import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import { useChatWidget } from '@/hooks/use-chat-widget';
-import { useEffect } from 'react';
+import { useNavBadges, type NavBadges } from '@/hooks/use-nav-badges';
+import { useEffect, useState, useCallback } from 'react';
 import {
   LayoutDashboard,
   MessageSquare,
@@ -21,7 +22,11 @@ import {
   BarChart3,
   FolderKanban,
   X,
+  ChevronsUpDown,
+  Check,
 } from 'lucide-react';
+import { getMyMembershipsAction, switchCompanyAction } from '@/app/actions/memberships';
+import type { MembershipInfo } from '@kivvi/core/src/domain/memberships';
 
 interface NavItem {
   nameKey: string;
@@ -29,6 +34,8 @@ interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
   /** Additional path prefixes that mark this item as active */
   activePrefixes?: string[];
+  /** Key to look up badge count in NavBadges */
+  badgeKey?: keyof NavBadges;
 }
 
 // Core navigation — flat, 8 items
@@ -41,12 +48,14 @@ const primaryNavigation: NavItem[] = [
     href: '/documents',
     icon: FileText,
     activePrefixes: ['/sales', '/purchasing'],
+    badgeKey: 'documents',
   },
   {
     nameKey: 'money',
     href: '/money',
     icon: Wallet,
     activePrefixes: ['/banking', '/accounting'],
+    badgeKey: 'money',
   },
   { nameKey: 'inventory', href: '/inventory', icon: Warehouse },
   { nameKey: 'projects', href: '/projects', icon: FolderKanban },
@@ -68,8 +77,9 @@ function isNavActive(item: NavItem, pathname: string): boolean {
   return false;
 }
 
-function NavLink({ item, pathname, onClick, t }: { item: NavItem; pathname: string; onClick?: () => void; t: (key: string) => string }) {
+function NavLink({ item, pathname, badges, onClick, t }: { item: NavItem; pathname: string; badges: NavBadges; onClick?: () => void; t: (key: string) => string }) {
   const isActive = isNavActive(item, pathname);
+  const badgeCount = item.badgeKey ? badges[item.badgeKey] : 0;
   return (
     <Link
       href={item.href}
@@ -83,8 +93,26 @@ function NavLink({ item, pathname, onClick, t }: { item: NavItem; pathname: stri
       )}
       aria-current={isActive ? 'page' : undefined}
     >
-      <item.icon className="h-4 w-4" aria-hidden="true" />
-      {t(item.nameKey)}
+      <div className="relative">
+        <item.icon className="h-4 w-4" aria-hidden="true" />
+        {badgeCount > 0 && (
+          <span
+            className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-red-500"
+            aria-label={`${badgeCount}`}
+          />
+        )}
+      </div>
+      <span className="flex-1">{t(item.nameKey)}</span>
+      {badgeCount > 0 && (
+        <span className={cn(
+          'ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-xs font-medium',
+          isActive
+            ? 'bg-primary-foreground/20 text-primary-foreground'
+            : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+        )}>
+          {badgeCount > 99 ? '99+' : badgeCount}
+        </span>
+      )}
     </Link>
   );
 }
@@ -96,10 +124,41 @@ interface SidebarProps {
 
 export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const { data: session, update: updateSession } = useSession();
   const t = useTranslations('nav');
   const tc = useTranslations('common');
   const chatWidget = useChatWidget();
+  const badges = useNavBadges();
+  const [memberships, setMemberships] = useState<MembershipInfo[]>([]);
+  const [companySwitcherOpen, setCompanySwitcherOpen] = useState(false);
+  const [switching, setSwitching] = useState(false);
+
+  // Load memberships for company switcher
+  useEffect(() => {
+    async function loadMemberships() {
+      const result = await getMyMembershipsAction();
+      if (result.success && result.data) {
+        setMemberships(result.data);
+      }
+    }
+    if (session?.user?.id) loadMemberships();
+  }, [session?.user?.id]);
+
+  const handleSwitchCompany = useCallback(async (companyId: string) => {
+    if (companyId === session?.user?.companyId) {
+      setCompanySwitcherOpen(false);
+      return;
+    }
+    setSwitching(true);
+    const result = await switchCompanyAction(companyId);
+    if (result.success) {
+      await updateSession();
+      setCompanySwitcherOpen(false);
+      // Full reload to refresh all server-rendered data
+      window.location.href = '/dashboard';
+    }
+    setSwitching(false);
+  }, [session?.user?.companyId, updateSession]);
 
   // Close sidebar on Escape key
   useEffect(() => {
@@ -136,21 +195,62 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
         )}
       </div>
 
-      {/* Company selector */}
+      {/* Company selector / switcher */}
       <div className="border-b p-4">
-        <Link
-          href="/settings/company"
-          className="flex w-full items-center gap-3 rounded-lg bg-muted p-3 text-left hover:bg-muted/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          aria-label={tc('aria.companySettings')}
-        >
-          <Building2 className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
-          <div className="flex-1 truncate">
-            <p className="text-sm font-medium">
-              {session?.user?.companyName || tc('myCompany')}
-            </p>
-            <p className="text-xs text-muted-foreground">{tc('freePlan')}</p>
+        {memberships.length > 1 ? (
+          <div className="relative">
+            <button
+              onClick={() => setCompanySwitcherOpen(!companySwitcherOpen)}
+              disabled={switching}
+              className="flex w-full items-center gap-3 rounded-lg bg-muted p-3 text-left hover:bg-muted/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              aria-label={tc('aria.switchCompany')}
+              aria-expanded={companySwitcherOpen}
+            >
+              <Building2 className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+              <div className="flex-1 truncate">
+                <p className="text-sm font-medium">
+                  {session?.user?.companyName || tc('myCompany')}
+                </p>
+                <p className="text-xs text-muted-foreground">{tc('freePlan')}</p>
+              </div>
+              <ChevronsUpDown className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+            </button>
+            {companySwitcherOpen && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setCompanySwitcherOpen(false)} />
+                <div className="absolute left-0 right-0 top-full z-20 mt-1 rounded-lg border bg-popover p-1 shadow-md">
+                  {memberships.map((m) => (
+                    <button
+                      key={m.companyId}
+                      onClick={() => handleSwitchCompany(m.companyId)}
+                      className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
+                    >
+                      <Building2 className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                      <span className="flex-1 truncate">{m.companyName}</span>
+                      {m.companyId === session?.user?.companyId && (
+                        <Check className="h-4 w-4 text-primary" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
-        </Link>
+        ) : (
+          <Link
+            href="/settings/company"
+            className="flex w-full items-center gap-3 rounded-lg bg-muted p-3 text-left hover:bg-muted/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            aria-label={tc('aria.companySettings')}
+          >
+            <Building2 className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+            <div className="flex-1 truncate">
+              <p className="text-sm font-medium">
+                {session?.user?.companyName || tc('myCompany')}
+              </p>
+              <p className="text-xs text-muted-foreground">{tc('freePlan')}</p>
+            </div>
+          </Link>
+        )}
       </div>
 
       {/* Main navigation */}
@@ -176,7 +276,7 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
         <div className="my-3 border-t" role="separator" />
 
         {primaryNavigation.map((item) => (
-          <NavLink key={item.href} item={item} pathname={pathname} onClick={onClose} t={t} />
+          <NavLink key={item.href} item={item} pathname={pathname} badges={badges} onClick={onClose} t={t} />
         ))}
       </nav>
 

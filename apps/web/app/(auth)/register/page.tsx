@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Loader2, Check, Eye, EyeOff, Shield } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -11,11 +11,14 @@ import { registerAction } from '@/app/actions/auth';
 
 export default function RegisterPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const t = useTranslations('auth');
+  const callbackUrl = searchParams.get('callbackUrl');
+  const prefillEmail = searchParams.get('email');
 
   const [formData, setFormData] = useState({
     name: '',
-    email: '',
+    email: prefillEmail || '',
     password: '',
     companyName: '',
   });
@@ -58,7 +61,8 @@ export default function RegisterPage() {
         return;
       }
 
-      router.push('/onboarding');
+      // If there's a callbackUrl (e.g., from invitation), go there instead of onboarding
+      router.push(callbackUrl || '/onboarding');
       router.refresh();
     } catch (err) {
       setError(t('errorGeneric'));

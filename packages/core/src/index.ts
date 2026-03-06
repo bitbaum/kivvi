@@ -23,3 +23,5 @@ export * from './domain/recurring-invoices';
 // Import directly: import { generateInvoicePdf } from '@kivvi/core/src/domain/pdf-generation';
 export * from './domain/email';
 export * from './domain/business-snapshot';
+export * from './domain/memberships';
+export * from './domain/invitations';

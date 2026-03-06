@@ -4,9 +4,9 @@ import { DrizzleAdapter } from '@auth/drizzle-adapter';
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import { db } from './db';
-import { users, companies } from '@kivvi/database';
+import { users, companies, memberships } from '@kivvi/database';
 import type { CompanySettings } from '@kivvi/database';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -68,14 +68,32 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.role = user.role ?? 'user';
         token.onboardingComplete = user.onboardingComplete ?? false;
       }
-      // Refresh onboarding status when session is updated
-      if (trigger === 'update' && token.companyId) {
-        const [company] = await db
-          .select({ settings: companies.settings })
-          .from(companies)
-          .where(eq(companies.id, token.companyId as string));
-        const settings = (company?.settings as CompanySettings) ?? {};
-        token.onboardingComplete = !!settings.onboardingCompletedAt;
+      // Refresh session data when session is updated (company switch, onboarding completion)
+      if (trigger === 'update' && token.id) {
+        // Re-read user's current companyId (may have changed via switchCompany)
+        const user = await db.query.users.findFirst({
+          where: eq(users.id, token.id as string),
+        });
+        if (user?.companyId) {
+          token.companyId = user.companyId;
+
+          // Look up role from memberships table (SSOT for roles)
+          const membership = await db.query.memberships.findFirst({
+            where: and(
+              eq(memberships.userId, token.id as string),
+              eq(memberships.companyId, user.companyId)
+            ),
+          });
+          token.role = membership?.role ?? 'member';
+
+          // Refresh company name and onboarding status
+          const company = await db.query.companies.findFirst({
+            where: eq(companies.id, user.companyId),
+          });
+          token.companyName = company?.name ?? null;
+          const settings = (company?.settings as CompanySettings) ?? {};
+          token.onboardingComplete = !!settings.onboardingCompletedAt;
+        }
       }
       return token;
     },
