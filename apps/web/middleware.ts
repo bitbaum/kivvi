@@ -4,7 +4,7 @@ import { checkRateLimit, getRateLimitConfig } from '@/lib/rate-limit';
 
 // Only these routes are accessible without authentication
 const PUBLIC_PATHS = ['/', '/login', '/register', '/forgot-password', '/reset-password'];
-const PUBLIC_PREFIXES = ['/api/auth', '/onboarding'];
+const PUBLIC_PREFIXES = ['/api/auth', '/api/v1', '/onboarding', '/invite'];
 
 function getClientIp(req: { headers: Headers }): string {
   return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
