@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { Plus, Search, FolderKanban, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Search, FolderKanban } from 'lucide-react';
+import { EmptyState } from '@/components/empty-state';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { listProjects } from '@kivvi/core';
@@ -8,6 +9,8 @@ import { cn, formatCurrency, formatDate } from '@/lib/utils';
 import { getTranslations } from 'next-intl/server';
 import { PROJECT_STATUS_STYLES as STATUS_STYLES } from '@/lib/config/project-status';
 import { DEFAULT_PAGE_SIZE } from '@/lib/config/document-types';
+import { PageHeader } from '@/components/page-header';
+import { Pagination } from '@/components/pagination';
 
 interface PageProps {
   searchParams: Promise<{
@@ -47,22 +50,19 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">{t('title')}</h1>
-          <p className="text-muted-foreground">
-            {t('subtitle')}
-          </p>
-        </div>
-        <Link
-          href="/projects/new"
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-        >
-          <Plus className="h-4 w-4" />
-          {t('newProject')}
-        </Link>
-      </div>
+      <PageHeader
+        title={t('title')}
+        subtitle={t('subtitle')}
+        actions={
+          <Link
+            href="/projects/new"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+            {t('newProject')}
+          </Link>
+        }
+      />
 
       {/* Filters */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
@@ -114,24 +114,13 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
       {/* Table */}
       <div className="rounded-xl border bg-card">
         {result.data.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16">
-            <FolderKanban className="h-12 w-12 text-muted-foreground/50" />
-            <h3 className="mt-4 text-lg font-medium">{t('noProjects')}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {search || statusFilter
-                ? t('adjustFilters')
-                : t('createFirstProject')}
-            </p>
-            {!search && !statusFilter && (
-              <Link
-                href="/projects/new"
-                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-              >
-                <Plus className="h-4 w-4" />
-                {t('newProject')}
-              </Link>
-            )}
-          </div>
+          <EmptyState
+            icon={search || statusFilter ? Search : FolderKanban}
+            title={search || statusFilter ? t('adjustFilters') : t('noProjects')}
+            description={search || statusFilter ? t('adjustFilters') : t('createFirstProject')}
+            actionLabel={!search && !statusFilter ? t('newProject') : undefined}
+            actionHref={!search && !statusFilter ? '/projects/new' : undefined}
+          />
         ) : (
           <>
             <div className="overflow-x-auto">
@@ -195,61 +184,23 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
               </table>
             </div>
 
-            {/* Pagination */}
-            {result.totalPages > 1 && (
-              <div className="flex items-center justify-between border-t px-4 py-3">
-                <p className="text-sm text-muted-foreground">
-                  {t('showingProjects', {
-                    from: (result.page - 1) * result.pageSize + 1,
-                    to: Math.min(result.page * result.pageSize, result.total),
-                    total: result.total,
-                  })}
-                </p>
-                <div className="flex items-center gap-2">
-                  {result.page > 1 ? (
-                    <Link
-                      href={buildFilterUrl({
-                        search,
-                        status: statusFilter,
-                        page: result.page - 1,
-                      })}
-                      className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border px-3 py-2 text-sm hover:bg-muted transition-colors"
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                      {tc('previous')}
-                    </Link>
-                  ) : (
-                    <span className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border px-3 py-2 text-sm text-muted-foreground opacity-50">
-                      <ChevronLeft className="h-4 w-4" />
-                      {tc('previous')}
-                    </span>
-                  )}
-
-                  <span className="px-2 text-sm text-muted-foreground">
-                    {t('pageOf', { page: result.page, totalPages: result.totalPages })}
-                  </span>
-
-                  {result.page < result.totalPages ? (
-                    <Link
-                      href={buildFilterUrl({
-                        search,
-                        status: statusFilter,
-                        page: result.page + 1,
-                      })}
-                      className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border px-3 py-2 text-sm hover:bg-muted transition-colors"
-                    >
-                      {tc('next')}
-                      <ChevronRight className="h-4 w-4" />
-                    </Link>
-                  ) : (
-                    <span className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border px-3 py-2 text-sm text-muted-foreground opacity-50">
-                      {tc('next')}
-                      <ChevronRight className="h-4 w-4" />
-                    </span>
-                  )}
-                </div>
-              </div>
-            )}
+            <Pagination
+              page={result.page}
+              totalPages={result.totalPages}
+              total={result.total}
+              pageSize={result.pageSize}
+              buildHref={(p) => buildFilterUrl({ search, status: statusFilter, page: p })}
+              labels={{
+                showing: tc('showing', {
+                  from: (result.page - 1) * result.pageSize + 1,
+                  to: Math.min(result.page * result.pageSize, result.total),
+                  total: result.total,
+                }),
+                previous: tc('previous'),
+                next: tc('next'),
+                pageOf: tc('pageOf', { page: result.page, totalPages: result.totalPages }),
+              }}
+            />
           </>
         )}
       </div>

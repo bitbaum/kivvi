@@ -51,3 +51,6 @@ kivitendo-export/generated/
 # Vercel
 .vercel/
 .vercel
+# Screenshots (dev artifacts)
+/*.png
+.playwright-mcp/

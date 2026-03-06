@@ -87,7 +87,8 @@
       "dismiss": "Dismiss",
       "dragToReorder": "Drag to reorder",
       "removeLineItem": "Remove line item",
-      "selectAll": "Select all"
+      "selectAll": "Select all",
+      "switchCompany": "Switch company"
     },
     "or": "or",
     "comingSoon": "Coming soon",
@@ -493,6 +494,9 @@
       "noActions": "No urgent actions needed.",
       "showAll": "Show all ({count})",
       "showLess": "Show less"
+    },
+    "narrative": {
+      "allGood": "Everything is in order — no open items."
     }
   },
   "footer": {
@@ -550,6 +554,10 @@
     "noDocuments": "No documents yet.",
     "noContacts": "No contacts found",
     "createFirstContact": "Create your first contact to get started.",
+    "summaryCustomers": "{count} Customers",
+    "summaryVendors": "{count} Vendors",
+    "summaryNewThisMonth": "{count} new this month",
+    "lastDocument": "Last Document",
     "searchContacts": "Search contacts...",
     "deleteConfirm": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
     "days": "days",
@@ -636,6 +644,8 @@
     "outOfStock": "Out of Stock",
     "noProducts": "No products found",
     "createFirstProduct": "Create your first product to get started.",
+    "summaryActive": "{count} active products",
+    "summaryLowStock": "{count} below minimum stock",
     "searchProducts": "Search products...",
     "overview": "Overview",
     "metadata": "Metadata",
@@ -797,7 +807,11 @@
       "accountName": "e.g. Business Account",
       "bankName": "e.g. UBS, Credit Suisse, PostFinance"
     },
-    "unreconcile": "Unreconcile"
+    "unreconcile": "Unreconcile",
+    "summaryAccounts": "{count, plural, one {# account} other {# accounts}}",
+    "summaryBalance": "Balance: {amount}",
+    "summaryUnreconciled": "{count, plural, one {# unreconciled} other {# unreconciled}}",
+    "summaryLastTransaction": "Last transaction: {date}"
   },
   "inventory": {
     "title": "Inventory",
@@ -819,6 +833,8 @@
     "fromWarehouse": "From Warehouse",
     "toWarehouse": "To Warehouse",
     "noMovements": "No stock movements found",
+    "noMovementsDesc": "Record your first stock movement to get started.",
+    "adjustFilters": "Try adjusting your filters.",
     "serialNumbers": "Serial Numbers",
     "available": "Available",
     "sold": "Sold",
@@ -864,6 +880,8 @@
     "agingReportDesc": "Outstanding receivables by age.",
     "salesReport": "Sales Report",
     "salesReportDesc": "Monthly revenue overview.",
+    "healthMetrics": "Business Health",
+    "healthMetricsDesc": "Profit margin, conversion rate, payment duration, and more.",
     "asOfDate": "As of Date",
     "fromDate": "From",
     "toDate": "To",
@@ -1146,6 +1164,10 @@
       "noLineItems": "No line items found in CSV",
       "csvParseFailed": "Failed to parse CSV: {message}",
       "repairFailed": "Repair failed"
+    },
+    "team": {
+      "title": "Team",
+      "settingsDesc": "Manage team members and access."
     }
   },
   "auth": {
@@ -1270,6 +1292,7 @@
     "howCanIHelp": "How can I help you?",
     "askDescription": "Ask me to create invoices, check payments, generate reports, or manage your business.",
     "askKivvi": "Ask Kivvi anything...",
+    "sendMessage": "Send message",
     "thinking": "Thinking...",
     "canMakeMistakes": "Kivvi can make mistakes. Review important information.",
     "freeModelSelected": "Free model selected",
@@ -1376,5 +1399,43 @@
     "quickLinks": "Quick Links",
     "qrBillStandard": "Swiss QR-Bill Standard",
     "vatRatesLink": "Swiss VAT Rates (ESTV)"
+  },
+  "team": {
+    "title": "Team",
+    "subtitle": "Manage team members and invitations.",
+    "members": "Team Members",
+    "membersDesc": "People with access to this company.",
+    "pendingInvitations": "Pending Invitations",
+    "invite": "Invite Member",
+    "inviteMember": "Invite a New Member",
+    "email": "Email Address",
+    "role": "Role",
+    "sendInvitation": "Send Invitation",
+    "cancel": "Cancel",
+    "invitationSent": "Invitation sent successfully.",
+    "inviteFailed": "Failed to send invitation.",
+    "removeFailed": "Failed to remove member.",
+    "roleChangeFailed": "Failed to change role.",
+    "revokeFailed": "Failed to revoke invitation.",
+    "removeAccess": "Remove Access",
+    "confirmRemove": "Are you sure you want to remove {name} from this company?",
+    "thisMember": "this member",
+    "confirmRevoke": "Are you sure you want to revoke this invitation?",
+    "revokeInvitation": "Revoke Invitation",
+    "expiresOn": "Expires on {date}",
+    "joinCompany": "Join Company",
+    "invitedTo": "You have been invited to join {company}.",
+    "roleAssignment": "You will be assigned the role: {role}",
+    "acceptInvitation": "Accept Invitation",
+    "acceptFailed": "Failed to accept invitation.",
+    "invitationAccepted": "Invitation accepted!",
+    "redirecting": "Redirecting to dashboard...",
+    "invalidInvitation": "Invalid Invitation",
+    "invitationNotFound": "This invitation could not be found.",
+    "invitationExpired": "Invitation Expired",
+    "invitationExpiredDesc": "This invitation has expired. Please ask the sender to send a new one.",
+    "goToLogin": "Go to Login",
+    "loginToAccept": "Log in to accept",
+    "registerToAccept": "Create an account"
   }
 }

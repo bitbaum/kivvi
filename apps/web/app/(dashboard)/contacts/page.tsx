@@ -1,12 +1,16 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { Plus, Users, Download } from 'lucide-react';
+import { Plus, Users, Download, Search } from 'lucide-react';
+import { EmptyState } from '@/components/empty-state';
 import { getTranslations } from 'next-intl/server';
+import { count, eq, and, gte } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
+import { contacts } from '@kivvi/database';
 import { listContacts } from '@kivvi/core';
 import { cn } from '@/lib/utils';
 import { DEFAULT_PAGE_SIZE } from '@/lib/config/document-types';
+import { PageHeader } from '@/components/page-header';
 import { SelectableContactTable } from '@/components/contacts/selectable-contact-table';
 import { SearchInput } from '@/components/search-input';
 import { Pagination } from '@/components/pagination';
@@ -38,14 +42,40 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
   const sort = (searchParams.sort || 'name') as 'name' | 'contactNumber' | 'createdAt' | 'city';
   const order = (searchParams.order || 'asc') as 'asc' | 'desc';
 
-  const result = await listContacts(db, companyId, {
-    search: search || undefined,
-    type: typeFilter || undefined,
-    page,
-    pageSize: DEFAULT_PAGE_SIZE,
-    sortBy: sort,
-    sortOrder: order,
-  });
+  // Summary counts + list query in parallel
+  const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+
+  const [result, typeCounts, [{ newThisMonth }]] = await Promise.all([
+    listContacts(db, companyId, {
+      search: search || undefined,
+      type: typeFilter || undefined,
+      page,
+      pageSize: DEFAULT_PAGE_SIZE,
+      sortBy: sort,
+      sortOrder: order,
+    }),
+
+    // Count by contact type (active only)
+    db
+      .select({ type: contacts.type, count: count() })
+      .from(contacts)
+      .where(and(eq(contacts.companyId, companyId), eq(contacts.isActive, true)))
+      .groupBy(contacts.type),
+
+    // New contacts this month
+    db
+      .select({ newThisMonth: count() })
+      .from(contacts)
+      .where(and(eq(contacts.companyId, companyId), gte(contacts.createdAt, startOfMonth))),
+  ]);
+
+  // customer + both = Kunden, vendor + both = Lieferanten
+  const customerCount =
+    (typeCounts.find((c) => c.type === 'customer')?.count ?? 0) +
+    (typeCounts.find((c) => c.type === 'both')?.count ?? 0);
+  const vendorCount =
+    (typeCounts.find((c) => c.type === 'vendor')?.count ?? 0) +
+    (typeCounts.find((c) => c.type === 'both')?.count ?? 0);
 
   // Pre-resolve translations for client component
   const bulkActionKeys = [
@@ -73,6 +103,7 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
     email: tc('email'),
     phone: tc('phone'),
     city: t('city'),
+    lastDocument: t('lastDocument'),
     status: tc('status'),
     active: tc('active'),
     inactive: tc('inactive'),
@@ -112,31 +143,28 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">{t('title')}</h1>
-          <p className="text-muted-foreground">
-            {t('subtitle')}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <a
-            href="/api/export/contacts"
-            className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2.5 text-sm font-medium hover:bg-accent transition-colors"
-          >
-            <Download className="h-4 w-4" />
-            {t('exportCsv')}
-          </a>
-          <Link
-            href="/contacts/new"
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-          >
-            <Plus className="h-4 w-4" />
-            {t('newContact')}
-          </Link>
-        </div>
-      </div>
+      <PageHeader
+        title={t('title')}
+        subtitle={t('subtitle')}
+        actions={
+          <>
+            <a
+              href="/api/export/contacts"
+              className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2.5 text-sm font-medium hover:bg-accent transition-colors"
+            >
+              <Download className="h-4 w-4" />
+              {t('exportCsv')}
+            </a>
+            <Link
+              href="/contacts/new"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              <Plus className="h-4 w-4" />
+              {t('newContact')}
+            </Link>
+          </>
+        }
+      />
 
       {/* Filters */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
@@ -154,27 +182,25 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
         </div>
       </div>
 
+      {/* Summary */}
+      <div className="flex flex-wrap items-center gap-3 text-sm">
+        <span className="rounded-full bg-muted px-3 py-1 font-medium">{t('summaryCustomers', { count: customerCount })}</span>
+        <span className="rounded-full bg-muted px-3 py-1 font-medium">{t('summaryVendors', { count: vendorCount })}</span>
+        {newThisMonth > 0 && (
+          <span className="rounded-full bg-green-100 dark:bg-green-900/30 px-3 py-1 font-medium text-green-700 dark:text-green-300">{t('summaryNewThisMonth', { count: newThisMonth })}</span>
+        )}
+      </div>
+
       {/* Table */}
       <div className="rounded-xl border bg-card">
         {result.data.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16">
-            <Users className="h-12 w-12 text-muted-foreground/50" />
-            <h3 className="mt-4 text-lg font-medium">{t('noContacts')}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {search
-                ? tc('noResults')
-                : t('createFirstContact')}
-            </p>
-            {!search && (
-              <Link
-                href="/contacts/new"
-                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-              >
-                <Plus className="h-4 w-4" />
-                {t('newContact')}
-              </Link>
-            )}
-          </div>
+          <EmptyState
+            icon={search ? Search : Users}
+            title={search ? tc('noResults') : t('noContacts')}
+            description={search ? tc('noResults') : t('createFirstContact')}
+            actionLabel={!search ? t('newContact') : undefined}
+            actionHref={!search ? '/contacts/new' : undefined}
+          />
         ) : (
           <>
             <SelectableContactTable
@@ -190,6 +216,7 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
                 mobile: c.mobile,
                 city: c.city,
                 isActive: c.isActive,
+                lastDocumentAt: c.lastDocumentAt,
               }))}
               translations={{ columnLabels, typeLabels, bulkLabels }}
               sort={{ field: sort, order, hrefs: sortHrefs }}

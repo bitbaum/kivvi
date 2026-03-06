@@ -1,11 +1,15 @@
 import Link from 'next/link';
-import { Plus, Package, Download } from 'lucide-react';
+import { Plus, Package, Download, Search } from 'lucide-react';
+import { EmptyState } from '@/components/empty-state';
 import { getTranslations } from 'next-intl/server';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import { db } from '@/lib/db';
 import { listProducts } from '@kivvi/core';
+import { products } from '@kivvi/database';
+import { count, and, eq, sql } from 'drizzle-orm';
 import { DEFAULT_PAGE_SIZE } from '@/lib/config/document-types';
+import { PageHeader } from '@/components/page-header';
 import { SelectableProductTable } from '@/components/products/selectable-product-table';
 import { SearchInput } from '@/components/search-input';
 import { Pagination } from '@/components/pagination';
@@ -37,14 +41,29 @@ export default async function ProductsPage({ searchParams }: PageProps) {
   const sort = (params.sort || 'createdAt') as 'name' | 'articleNumber' | 'unitPrice' | 'createdAt';
   const order = (params.order || 'desc') as 'asc' | 'desc';
 
-  const result = await listProducts(db, session.user.companyId, {
-    search: search || undefined,
-    type: typeFilter || undefined,
-    page,
-    pageSize: DEFAULT_PAGE_SIZE,
-    sortBy: sort,
-    sortOrder: order,
-  });
+  const [result, [{ activeCount }], [{ lowStockCount }]] = await Promise.all([
+    listProducts(db, session.user.companyId, {
+      search: search || undefined,
+      type: typeFilter || undefined,
+      page,
+      pageSize: DEFAULT_PAGE_SIZE,
+      sortBy: sort,
+      sortOrder: order,
+    }),
+    db.select({ activeCount: count() })
+      .from(products)
+      .where(and(
+        eq(products.companyId, session.user.companyId),
+        eq(products.isActive, true),
+      )),
+    db.select({ lowStockCount: count() })
+      .from(products)
+      .where(and(
+        eq(products.companyId, session.user.companyId),
+        eq(products.isActive, true),
+        sql`${products.minStock} IS NOT NULL AND CAST(${products.stockQuantity} AS numeric) <= ${products.minStock}`,
+      )),
+  ]);
 
   // Pre-resolve translations for client component
   const bulkActionKeys = [
@@ -129,31 +148,28 @@ export default async function ProductsPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">{t('title')}</h1>
-          <p className="text-muted-foreground">
-            {t('subtitle')}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <a
-            href="/api/export/products"
-            className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2.5 text-sm font-medium hover:bg-accent transition-colors"
-          >
-            <Download className="h-4 w-4" />
-            {tc('exportCsv')}
-          </a>
-          <Link
-            href="/products/new"
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-          >
-            <Plus className="h-4 w-4" />
-            {t('newProduct')}
-          </Link>
-        </div>
-      </div>
+      <PageHeader
+        title={t('title')}
+        subtitle={t('subtitle')}
+        actions={
+          <>
+            <a
+              href="/api/export/products"
+              className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2.5 text-sm font-medium hover:bg-accent transition-colors"
+            >
+              <Download className="h-4 w-4" />
+              {tc('exportCsv')}
+            </a>
+            <Link
+              href="/products/new"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              <Plus className="h-4 w-4" />
+              {t('newProduct')}
+            </Link>
+          </>
+        }
+      />
 
       {/* Filters */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
@@ -182,27 +198,24 @@ export default async function ProductsPage({ searchParams }: PageProps) {
         </div>
       </div>
 
+      {/* Summary */}
+      <div className="flex flex-wrap items-center gap-3 text-sm">
+        <span className="rounded-full bg-muted px-3 py-1 font-medium">{t('summaryActive', { count: activeCount })}</span>
+        {lowStockCount > 0 && (
+          <span className="rounded-full bg-yellow-100 dark:bg-yellow-900/30 px-3 py-1 font-medium text-yellow-700 dark:text-yellow-300">{t('summaryLowStock', { count: lowStockCount })}</span>
+        )}
+      </div>
+
       {/* Table */}
       <div className="rounded-xl border bg-card">
         {result.data.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16">
-            <Package className="h-12 w-12 text-muted-foreground/50" />
-            <h3 className="mt-4 text-lg font-medium">{t('noProducts')}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {search
-                ? tc('noResults')
-                : t('createFirstProduct')}
-            </p>
-            {!search && (
-              <Link
-                href="/products/new"
-                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-              >
-                <Plus className="h-4 w-4" />
-                {t('newProduct')}
-              </Link>
-            )}
-          </div>
+          <EmptyState
+            icon={search ? Search : Package}
+            title={search ? tc('noResults') : t('noProducts')}
+            description={search ? tc('noResults') : t('createFirstProduct')}
+            actionLabel={!search ? t('newProduct') : undefined}
+            actionHref={!search ? '/products/new' : undefined}
+          />
         ) : (
           <>
             <SelectableProductTable

@@ -97,7 +97,7 @@ export function PriorityActionsClient({ alerts, suggestions }: PriorityActionsCl
     ...suggestions.map((s) => workflowToPriorityAction(s, t)),
   ].sort((a, b) => a.priority - b.priority);
 
-  const maxVisible = 6;
+  const maxVisible = 5;
   const displayedActions = showAll ? actions : actions.slice(0, maxVisible);
   const hasMore = actions.length > maxVisible;
 

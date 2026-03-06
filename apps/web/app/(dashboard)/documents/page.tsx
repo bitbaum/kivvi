@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { FileText, Plus } from 'lucide-react';
+import { FileText, Plus, Search } from 'lucide-react';
+import { EmptyState } from '@/components/empty-state';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { listDocuments } from '@kivvi/core';
@@ -11,10 +12,13 @@ import { cn } from '@/lib/utils';
 import { SearchInput } from '@/components/search-input';
 import { Pagination } from '@/components/pagination';
 import { SortableHeader } from '@/components/sortable-header';
+import { PageHeader } from '@/components/page-header';
+import { documents } from '@kivvi/database';
 import type { DocumentType, DocumentStatus } from '@kivvi/database';
+import { and, eq, sql, count, sum } from 'drizzle-orm';
 
 /** Document types shown as tabs — grouped as outgoing vs incoming */
-const OUTGOING_TYPES: DocumentType[] = ['quote', 'order', 'invoice', 'delivery_note', 'credit_note', 'dunning'];
+const OUTGOING_TYPES: DocumentType[] = ['quote', 'order', 'order_confirmation', 'invoice', 'delivery_note', 'credit_note', 'dunning'];
 const INCOMING_TYPES: DocumentType[] = ['purchase_order', 'purchase_invoice'];
 const ALL_TYPES = [...OUTGOING_TYPES, ...INCOMING_TYPES];
 
@@ -56,6 +60,30 @@ export default async function DocumentsPage({ searchParams }: PageProps) {
     sortOrder: order,
   });
 
+  // Summary stats query — same type filter, no pagination
+  const baseFilters = [eq(documents.companyId, session.user.companyId)];
+  if (selectedType) baseFilters.push(eq(documents.type, selectedType));
+
+  const openStatuses: DocumentStatus[] = ['sent', 'confirmed', 'delivered', 'partially_paid'];
+  const nonTerminalStatuses: DocumentStatus[] = ['sent', 'confirmed', 'delivered', 'partially_paid', 'overdue', 'dunning_1', 'dunning_2', 'dunning_3'];
+
+  const [summaryRow] = await db
+    .select({
+      totalCount: count(),
+      openAmount: sum(
+        sql`CASE WHEN ${documents.status} IN (${sql.join(openStatuses.map(s => sql`${s}`), sql`, `)}) THEN ${documents.total} ELSE 0 END`
+      ),
+      overdueCount: count(
+        sql`CASE WHEN ${documents.status} IN (${sql.join(nonTerminalStatuses.map(s => sql`${s}`), sql`, `)}) AND ${documents.dueDate} < NOW() THEN 1 END`
+      ),
+    })
+    .from(documents)
+    .where(and(...baseFilters));
+
+  const totalCount = summaryRow?.totalCount ?? 0;
+  const openAmount = summaryRow?.openAmount ?? '0';
+  const overdueCount = summaryRow?.overdueCount ?? 0;
+
   // Build query string helper
   function buildHref(overrides: Record<string, string | undefined>) {
     const p = new URLSearchParams();
@@ -86,30 +114,29 @@ export default async function DocumentsPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">{t('title')}</h1>
-          <p className="text-muted-foreground">{t('subtitle')}</p>
-        </div>
-        <div className="relative group">
-          <button className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
-            <Plus className="h-4 w-4" />
-            {t('newDocument')}
-          </button>
-          <div className="absolute right-0 top-full z-10 mt-1 hidden w-56 rounded-lg border bg-popover p-1 shadow-lg group-focus-within:block hover:block">
-            {creatableTypes.map((type) => (
-              <Link
-                key={type}
-                href={`${DOCUMENT_TYPES[type].basePath}/new`}
-                className="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-muted"
-              >
-                {td(DOCUMENT_TYPES[type].label)}
-              </Link>
-            ))}
+      <PageHeader
+        title={t('title')}
+        subtitle={t('subtitle')}
+        actions={
+          <div className="relative group">
+            <button className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+              <Plus className="h-4 w-4" />
+              {t('newDocument')}
+            </button>
+            <div className="absolute right-0 top-full z-10 mt-1 hidden w-56 rounded-lg border bg-popover p-1 shadow-lg group-focus-within:block hover:block">
+              {creatableTypes.map((type) => (
+                <Link
+                  key={type}
+                  href={`${DOCUMENT_TYPES[type].basePath}/new`}
+                  className="flex items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-muted"
+                >
+                  {td(DOCUMENT_TYPES[type].label)}
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* Type tabs */}
       <div className="flex flex-wrap items-center gap-2">
@@ -193,20 +220,31 @@ export default async function DocumentsPage({ searchParams }: PageProps) {
         </div>
       </div>
 
+      {/* Summary stats bar */}
+      <div className="flex flex-wrap items-center gap-3 text-sm">
+        <span className="rounded-full bg-muted px-3 py-1 font-medium">
+          {totalCount} {t('documentsCount')}
+        </span>
+        <span className="rounded-full bg-yellow-100 dark:bg-yellow-900/30 px-3 py-1 font-medium text-yellow-700 dark:text-yellow-300">
+          {formatCurrency(openAmount)} {t('open')}
+        </span>
+        {overdueCount > 0 && (
+          <span className="rounded-full bg-red-100 dark:bg-red-900/30 px-3 py-1 font-medium text-red-700 dark:text-red-300">
+            {overdueCount} {t('overdue')}
+          </span>
+        )}
+      </div>
+
       {/* Table */}
       <div className="rounded-xl border bg-card">
         {result.data.length === 0 ? (
-          <div className="p-12 text-center text-muted-foreground">
-            <FileText className="mx-auto mb-3 h-10 w-10" />
-            <p className="text-lg font-medium">
-              {selectedType
-                ? td('noDocumentsFound', { type: td(DOCUMENT_TYPES[selectedType].labelPlural) })
-                : td('noDocumentsFound', { type: t('title').toLowerCase() })}
-            </p>
-            <p className="mt-1 text-sm">
-              {search || status ? td('adjustFilters') : td('createFirst', { type: td('invoice') })}
-            </p>
-          </div>
+          <EmptyState
+            icon={search || status ? Search : FileText}
+            title={selectedType
+              ? td('noDocumentsFound', { type: td(DOCUMENT_TYPES[selectedType].labelPlural) })
+              : td('noDocumentsFound', { type: t('title').toLowerCase() })}
+            description={search || status ? td('adjustFilters') : td('createFirst', { type: td('invoice') })}
+          />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

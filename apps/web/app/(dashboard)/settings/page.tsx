@@ -1,11 +1,12 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { Building2, User, Hash, ArrowRight, RepeatIcon, CreditCard, Download, Wrench } from 'lucide-react';
+import { Building2, User, Hash, ArrowRight, RepeatIcon, CreditCard, Download, Wrench, Database, Key, Users } from 'lucide-react';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { companies, users } from '@kivvi/database';
 import { eq } from 'drizzle-orm';
 import { getTranslations } from 'next-intl/server';
+import { PageHeader } from '@/components/page-header';
 
 export default async function SettingsPage() {
   const session = await auth();
@@ -54,17 +55,23 @@ export default async function SettingsPage() {
       href: '/settings/billing',
       icon: CreditCard,
     },
+    {
+      title: t('apiTokens.title'),
+      subtitle: t('apiTokens.settingsDesc'),
+      href: '/settings/api-tokens',
+      icon: Key,
+    },
+    {
+      title: t('team.title'),
+      subtitle: t('team.settingsDesc'),
+      href: '/settings/team',
+      icon: Users,
+    },
   ];
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">{t('title')}</h1>
-        <p className="text-muted-foreground">
-          {t('subtitle')}
-        </p>
-      </div>
+      <PageHeader title={t('title')} subtitle={t('subtitle')} />
 
       {/* Section cards */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -108,6 +115,23 @@ export default async function SettingsPage() {
               <h2 className="font-semibold">{t('repairImport.title')}</h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 {t('repairImport.description')}
+              </p>
+            </div>
+          </Link>
+          <Link
+            href="/settings/data-repair"
+            className="group rounded-xl border bg-card p-6 transition-colors hover:bg-muted/50"
+          >
+            <div className="flex items-start justify-between">
+              <div className="rounded-lg border bg-background p-3">
+                <Database className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <ArrowRight className="h-5 w-5 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+            </div>
+            <div className="mt-4">
+              <h2 className="font-semibold">{t('dataRepair.title')}</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {t('dataRepair.description')}
               </p>
             </div>
           </Link>

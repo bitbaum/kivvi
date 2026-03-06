@@ -78,11 +78,13 @@ export interface ContactWithDetails {
 /**
  * List contacts with pagination, search, and filters.
  */
+export type ContactListItem = Contact & { lastDocumentAt: Date | null };
+
 export async function listContacts(
   db: Database,
   companyId: string,
   filters: ContactFilters = {}
-): Promise<PaginatedResult<Contact>> {
+): Promise<PaginatedResult<ContactListItem>> {
   const {
     search,
     type,
@@ -137,10 +139,43 @@ export async function listContacts(
 
   const orderFn = sortOrder === 'desc' ? desc : asc;
 
-  // Fetch page
+  // Fetch page with last document date
   const offset = (page - 1) * pageSize;
   const data = await db
-    .select()
+    .select({
+      id: contacts.id,
+      companyId: contacts.companyId,
+      contactNumber: contacts.contactNumber,
+      type: contacts.type,
+      name: contacts.name,
+      firstName: contacts.firstName,
+      lastName: contacts.lastName,
+      email: contacts.email,
+      phone: contacts.phone,
+      mobile: contacts.mobile,
+      website: contacts.website,
+      address: contacts.address,
+      city: contacts.city,
+      postalCode: contacts.postalCode,
+      country: contacts.country,
+      vatNumber: contacts.vatNumber,
+      iban: contacts.iban,
+      bic: contacts.bic,
+      paymentTermsDays: contacts.paymentTermsDays,
+      creditLimit: contacts.creditLimit,
+      language: contacts.language,
+      notes: contacts.notes,
+      isActive: contacts.isActive,
+      kivitendoId: contacts.kivitendoId,
+      createdAt: contacts.createdAt,
+      updatedAt: contacts.updatedAt,
+      lastDocumentAt: sql<Date | null>`(
+        SELECT MAX(${documents.issueDate})
+        FROM ${documents}
+        WHERE ${documents.contactId} = ${contacts.id}
+          AND ${documents.companyId} = ${contacts.companyId}
+      )`.as('lastDocumentAt'),
+    })
     .from(contacts)
     .where(where)
     .orderBy(orderFn(sortColumn))
@@ -332,7 +367,7 @@ export async function searchContacts(
   db: Database,
   companyId: string,
   query: string
-): Promise<Pick<Contact, 'id' | 'name' | 'contactNumber' | 'email' | 'type'>[]> {
+): Promise<Pick<Contact, 'id' | 'name' | 'contactNumber' | 'email' | 'type' | 'paymentTermsDays'>[]> {
   if (!query || !query.trim()) return [];
 
   const term = `%${query.trim()}%`;
@@ -344,6 +379,7 @@ export async function searchContacts(
       contactNumber: contacts.contactNumber,
       email: contacts.email,
       type: contacts.type,
+      paymentTermsDays: contacts.paymentTermsDays,
     })
     .from(contacts)
     .where(

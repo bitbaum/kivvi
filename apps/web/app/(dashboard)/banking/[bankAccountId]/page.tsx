@@ -6,9 +6,8 @@ import {
   CheckCircle2,
   AlertCircle,
   FileText,
-  ChevronLeft,
-  ChevronRight,
 } from 'lucide-react';
+import { Pagination } from '@/components/pagination';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import {
@@ -266,49 +265,23 @@ export default async function BankAccountDetailPage({ params, searchParams }: Pa
         )}
       </div>
 
-      {/* Pagination */}
-      {transactions.totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            {tc('showing', { from: (transactions.page - 1) * transactions.pageSize + 1, to: Math.min(transactions.page * transactions.pageSize, transactions.total), total: transactions.total })}
-          </p>
-          <div className="flex items-center gap-2">
-            {transactions.page > 1 ? (
-              <Link
-                href={buildPageUrl(bankAccountId, transactions.page - 1, filter, search)}
-                className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border px-3 py-2 text-sm hover:bg-muted transition-colors"
-              >
-                <ChevronLeft className="h-4 w-4" />
-                {tc('previous')}
-              </Link>
-            ) : (
-              <span className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border px-3 py-2 text-sm text-muted-foreground opacity-50">
-                <ChevronLeft className="h-4 w-4" />
-                {tc('previous')}
-              </span>
-            )}
-
-            <span className="text-sm text-muted-foreground">
-              {t('pageInfo', { page: transactions.page, totalPages: transactions.totalPages })}
-            </span>
-
-            {transactions.page < transactions.totalPages ? (
-              <Link
-                href={buildPageUrl(bankAccountId, transactions.page + 1, filter, search)}
-                className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border px-3 py-2 text-sm hover:bg-muted transition-colors"
-              >
-                {tc('next')}
-                <ChevronRight className="h-4 w-4" />
-              </Link>
-            ) : (
-              <span className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border px-3 py-2 text-sm text-muted-foreground opacity-50">
-                {tc('next')}
-                <ChevronRight className="h-4 w-4" />
-              </span>
-            )}
-          </div>
-        </div>
-      )}
+      <Pagination
+        page={transactions.page}
+        totalPages={transactions.totalPages}
+        total={transactions.total}
+        pageSize={transactions.pageSize}
+        buildHref={(p) => buildPageUrl(bankAccountId, p, filter, search)}
+        labels={{
+          showing: tc('showing', {
+            from: (transactions.page - 1) * transactions.pageSize + 1,
+            to: Math.min(transactions.page * transactions.pageSize, transactions.total),
+            total: transactions.total,
+          }),
+          previous: tc('previous'),
+          next: tc('next'),
+          pageOf: tc('pageOf', { page: transactions.page, totalPages: transactions.totalPages }),
+        }}
+      />
     </div>
   );
 }

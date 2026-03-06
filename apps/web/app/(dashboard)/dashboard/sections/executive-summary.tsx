@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { formatCurrency } from '@/lib/utils';
 
-export async function ExecutiveSummary() {
+export async function ExecutiveSummary({ sinceDate }: { sinceDate?: Date }) {
   const session = await auth();
   if (!session?.user?.companyId) redirect('/login');
 
@@ -22,7 +22,7 @@ export async function ExecutiveSummary() {
 
   let summary;
   try {
-    summary = await getExecutiveSummary(db, companyId);
+    summary = await getExecutiveSummary(db, companyId, sinceDate);
   } catch {
     // Fallback to simple greeting if summary fails
     return (
@@ -33,10 +33,10 @@ export async function ExecutiveSummary() {
     );
   }
 
-  // Build narrative from highlights
-  const renderHighlight = (highlight: typeof summary.highlights[0]) => {
+  // Build a single narrative sentence from the most important highlights
+  const narrativeParts: string[] = [];
+  for (const highlight of summary.highlights) {
     const { key, params } = highlight;
-    // Format currency params for display
     const formattedParams: Record<string, string | number> = {};
     for (const [k, v] of Object.entries(params)) {
       if (k === 'amount') {
@@ -45,24 +45,34 @@ export async function ExecutiveSummary() {
         formattedParams[k] = v;
       }
     }
-    return t(key, formattedParams);
-  };
+    // Only include the actionable highlights (outstanding, overdue), not margin
+    if (key === 'summary.outstanding' || key === 'summary.overdue') {
+      narrativeParts.push(t(key, formattedParams));
+    }
+  }
+
+  // Build the narrative: greeting + what matters
+  const narrative = narrativeParts.length > 0
+    ? narrativeParts.join(' ')
+    : t('narrative.allGood');
+
+  const sinceDateLabel = sinceDate
+    ? new Date(sinceDate).toLocaleDateString('de-CH')
+    : null;
 
   return (
-    <div id="main-content" className="space-y-2">
-      <h1 className="text-3xl font-bold">{greeting}</h1>
-      {summary.highlights.length > 0 ? (
-        <p className="text-muted-foreground leading-relaxed">
-          {summary.highlights.map((h, i) => (
-            <span key={i}>
-              {i > 0 && ' '}
-              {renderHighlight(h)}
-            </span>
-          ))}
-        </p>
-      ) : (
-        <p className="text-muted-foreground">{t('hereIsOverview')}</p>
-      )}
+    <div id="main-content" className="space-y-1">
+      <div className="flex items-center gap-3">
+        <h1 className="text-3xl font-bold">{greeting}</h1>
+        {sinceDateLabel && (
+          <span className="inline-flex items-center rounded-full border bg-muted/50 px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+            {t('sinceDate', { date: sinceDateLabel })}
+          </span>
+        )}
+      </div>
+      <p className="text-lg text-muted-foreground leading-relaxed">
+        {narrative}
+      </p>
     </div>
   );
 }

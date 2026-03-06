@@ -12,7 +12,7 @@ interface ContactPickerProps {
   /** Display text for the search input (contact name) */
   displayValue: string;
   /** Called when a contact is selected */
-  onChange: (contactId: string | null, contactName: string) => void;
+  onChange: (contactId: string | null, contactName: string, paymentTermsDays?: number | null) => void;
   /** Filter label: 'customer' or 'vendor' */
   contactType?: 'customer' | 'vendor';
   /** Show the quick-create modal option */
@@ -24,6 +24,7 @@ interface ContactResult {
   name: string;
   contactNumber: string | null;
   email?: string | null;
+  paymentTermsDays?: number | null;
 }
 
 export function ContactPicker({
@@ -80,8 +81,8 @@ export function ContactPicker({
     }
   }, []);
 
-  const selectContact = (contact: { id: string; name: string }) => {
-    onChange(contact.id, contact.name);
+  const selectContact = (contact: ContactResult) => {
+    onChange(contact.id, contact.name, contact.paymentTermsDays);
     setSearch(contact.name);
     setShowDropdown(false);
   };

@@ -3,9 +3,10 @@ import { redirect } from 'next/navigation';
 import {
   ArrowLeft,
   ArrowUpDown,
-  ChevronLeft,
-  ChevronRight,
+  Search,
 } from 'lucide-react';
+import { EmptyState } from '@/components/empty-state';
+import { Pagination } from '@/components/pagination';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { listStockMovements, listWarehouses } from '@kivvi/core';
@@ -128,15 +129,11 @@ export default async function MovementsPage({ searchParams }: PageProps) {
       {/* Movements Table */}
       <div className="rounded-xl border bg-card">
         {movements.data.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16">
-            <ArrowUpDown className="h-12 w-12 text-muted-foreground/50" />
-            <h3 className="mt-4 text-lg font-medium">{t('noMovements')}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {warehouseFilter || typeFilter
-                ? 'Try adjusting your filters.'
-                : 'Record your first stock movement to get started.'}
-            </p>
-          </div>
+          <EmptyState
+            icon={warehouseFilter || typeFilter ? Search : ArrowUpDown}
+            title={t('noMovements')}
+            description={warehouseFilter || typeFilter ? t('adjustFilters') : t('noMovementsDesc')}
+          />
         ) : (
           <>
             <div className="overflow-x-auto">
@@ -200,59 +197,23 @@ export default async function MovementsPage({ searchParams }: PageProps) {
               </table>
             </div>
 
-            {/* Pagination */}
-            {movements.totalPages > 1 && (
-              <div className="flex items-center justify-between border-t px-4 py-3">
-                <p className="text-sm text-muted-foreground">
-                  Showing {(movements.page - 1) * movements.pageSize + 1}-
-                  {Math.min(movements.page * movements.pageSize, movements.total)} of{' '}
-                  {movements.total} movements
-                </p>
-                <div className="flex items-center gap-2">
-                  {movements.page > 1 ? (
-                    <Link
-                      href={buildFilterUrl({
-                        warehouseId: warehouseFilter,
-                        type: typeFilter,
-                        page: movements.page - 1,
-                      })}
-                      className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border px-3 py-2 text-sm hover:bg-muted transition-colors"
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                      {tc('previous')}
-                    </Link>
-                  ) : (
-                    <span className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border px-3 py-2 text-sm text-muted-foreground opacity-50">
-                      <ChevronLeft className="h-4 w-4" />
-                      {tc('previous')}
-                    </span>
-                  )}
-
-                  <span className="text-sm text-muted-foreground">
-                    Page {movements.page} of {movements.totalPages}
-                  </span>
-
-                  {movements.page < movements.totalPages ? (
-                    <Link
-                      href={buildFilterUrl({
-                        warehouseId: warehouseFilter,
-                        type: typeFilter,
-                        page: movements.page + 1,
-                      })}
-                      className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border px-3 py-2 text-sm hover:bg-muted transition-colors"
-                    >
-                      {tc('next')}
-                      <ChevronRight className="h-4 w-4" />
-                    </Link>
-                  ) : (
-                    <span className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border px-3 py-2 text-sm text-muted-foreground opacity-50">
-                      {tc('next')}
-                      <ChevronRight className="h-4 w-4" />
-                    </span>
-                  )}
-                </div>
-              </div>
-            )}
+            <Pagination
+              page={movements.page}
+              totalPages={movements.totalPages}
+              total={movements.total}
+              pageSize={movements.pageSize}
+              buildHref={(p) => buildFilterUrl({ warehouseId: warehouseFilter, type: typeFilter, page: p })}
+              labels={{
+                showing: tc('showing', {
+                  from: (movements.page - 1) * movements.pageSize + 1,
+                  to: Math.min(movements.page * movements.pageSize, movements.total),
+                  total: movements.total,
+                }),
+                previous: tc('previous'),
+                next: tc('next'),
+                pageOf: tc('pageOf', { page: movements.page, totalPages: movements.totalPages }),
+              }}
+            />
           </>
         )}
       </div>

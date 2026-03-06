@@ -16,7 +16,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
   const { id } = await params;
   const doc = await getDocument(db, session.user.companyId, id);
 
-  if (!doc || doc.type !== 'order') notFound();
+  if (!doc || (doc.type !== 'order' && doc.type !== 'order_confirmation')) notFound();
 
-  return <DocumentDetail doc={doc} config={DOCUMENT_TYPES.order} />;
+  return <DocumentDetail doc={doc} config={DOCUMENT_TYPES[doc.type]} />;
 }

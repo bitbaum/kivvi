@@ -6,10 +6,12 @@ import {
   Receipt,
   Clock,
   BarChart3,
+  Heart,
   ArrowRight,
 } from 'lucide-react';
 import { auth } from '@/lib/auth';
 import { getTranslations } from 'next-intl/server';
+import { PageHeader } from '@/components/page-header';
 
 export default async function ReportsPage() {
   const session = await auth();
@@ -58,17 +60,19 @@ export default async function ReportsPage() {
       color: 'text-red-600 dark:text-red-400',
       bgColor: 'bg-red-100 dark:bg-red-900/30',
     },
+    {
+      href: '/reports/health',
+      icon: Heart,
+      title: t('healthMetrics'),
+      description: t('healthMetricsDesc'),
+      color: 'text-pink-600 dark:text-pink-400',
+      bgColor: 'bg-pink-100 dark:bg-pink-900/30',
+    },
   ] as const;
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">{t('title')}</h1>
-        <p className="text-muted-foreground">
-          {t('subtitle')}
-        </p>
-      </div>
+      <PageHeader title={t('title')} subtitle={t('subtitle')} />
 
       {/* Report cards */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

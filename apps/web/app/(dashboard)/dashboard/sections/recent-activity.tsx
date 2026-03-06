@@ -28,7 +28,7 @@ export async function RecentActivity() {
 
   let activities;
   try {
-    activities = await getRecentActivity(db, companyId, 15);
+    activities = await getRecentActivity(db, companyId, 10);
   } catch (error) {
     logger.error('Failed to load recent activity', error);
     return (

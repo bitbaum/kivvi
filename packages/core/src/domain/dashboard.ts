@@ -88,13 +88,19 @@ export interface BusinessHealthMetrics {
  */
 export async function getDashboardAlerts(
   db: Database,
-  companyId: string
+  companyId: string,
+  sinceDate?: Date
 ): Promise<DashboardAlert[]> {
   const alerts: DashboardAlert[] = [];
   const now = new Date();
 
-  // 1. Overdue invoices
-  const overdueInvoices = await detectOverdueInvoices(db, companyId);
+  // 1. Overdue invoices (filtered by sinceDate to exclude old imported data)
+  let overdueInvoices = await detectOverdueInvoices(db, companyId);
+  if (sinceDate) {
+    overdueInvoices = overdueInvoices.filter(
+      (inv) => new Date(inv.issueDate) >= sinceDate
+    );
+  }
   if (overdueInvoices.length > 0) {
     const total = overdueInvoices.reduce((sum, inv) => sum.plus(new Decimal(inv.total || '0')), new Decimal(0)).toNumber();
     alerts.push({
@@ -502,7 +508,8 @@ export async function getRecentActivity(
  */
 export async function getDashboardStats(
   db: Database,
-  companyId: string
+  companyId: string,
+  sinceDate?: Date
 ): Promise<{
   revenueThisMonth: DashboardStat;
   revenueThisYear: DashboardStat;
@@ -528,7 +535,7 @@ export async function getDashboardStats(
     [lastMonthRevenue],
     [lastMonthOutstanding],
   ] = await Promise.all([
-    getFinancialSummary(db, companyId),
+    getFinancialSummary(db, companyId, sinceDate),
     db.select({
       total: sql<string>`COALESCE(SUM(${bankAccounts.balance}::numeric), 0)`,
       count: sql<number>`COUNT(*)::int`,
@@ -749,10 +756,11 @@ export interface ExecutiveSummary {
  */
 export async function getExecutiveSummary(
   db: Database,
-  companyId: string
+  companyId: string,
+  sinceDate?: Date
 ): Promise<ExecutiveSummary> {
   const [stats, health] = await Promise.all([
-    getDashboardStats(db, companyId),
+    getDashboardStats(db, companyId, sinceDate),
     getBusinessHealthMetrics(db, companyId),
   ]);
 

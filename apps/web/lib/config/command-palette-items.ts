@@ -33,7 +33,7 @@ export const DOCUMENT_ROUTE_PREFIX: Record<string, string> = {
   invoice: '/sales/invoices',
   quote: '/sales/quotes',
   order: '/sales/orders',
-  order_confirmation: '/sales/order-confirmations',
+  order_confirmation: '/sales/orders',
   delivery_note: '/sales/delivery-notes',
   credit_note: '/sales/credit-notes',
   dunning: '/sales/dunning',

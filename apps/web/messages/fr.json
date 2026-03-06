@@ -84,7 +84,8 @@
       "dismiss": "Fermer",
       "dragToReorder": "Glisser pour réorganiser",
       "removeLineItem": "Supprimer la ligne",
-      "selectAll": "Tout sélectionner"
+      "selectAll": "Tout sélectionner",
+      "switchCompany": "Changer d'entreprise"
     },
     "or": "ou",
     "comingSoon": "Bientôt disponible",
@@ -393,7 +394,10 @@
       "lowStockQuery": "Afficher les produits avec un stock faible",
       "openChat": "Ouvrir le chat"
     },
-    "skipToMain": "Aller au contenu principal"
+    "skipToMain": "Aller au contenu principal",
+    "narrative": {
+      "allGood": "Tout est en ordre — aucun élément en attente."
+    }
   },
   "footer": {
     "product": "Produit",
@@ -450,6 +454,10 @@
     "noDocuments": "Aucun document pour le moment.",
     "noContacts": "Aucun contact trouvé",
     "createFirstContact": "Créez votre premier contact pour commencer.",
+    "summaryCustomers": "{count} Clients",
+    "summaryVendors": "{count} Fournisseurs",
+    "summaryNewThisMonth": "{count} nouveaux ce mois",
+    "lastDocument": "Dernier document",
     "searchContacts": "Rechercher des contacts...",
     "deleteConfirm": "Êtes-vous sûr de vouloir supprimer « {name} » ? Cette action est irréversible.",
     "days": "jours",
@@ -536,6 +544,8 @@
     "outOfStock": "Rupture de stock",
     "noProducts": "Aucun produit trouvé",
     "createFirstProduct": "Créez votre premier produit pour commencer.",
+    "summaryActive": "{count} produits actifs",
+    "summaryLowStock": "{count} en dessous du stock minimum",
     "searchProducts": "Rechercher des produits...",
     "overview": "Vue d'ensemble",
     "metadata": "Métadonnées",
@@ -696,7 +706,11 @@
       "accountName": "p.ex. Compte professionnel",
       "bankName": "p.ex. UBS, Credit Suisse, PostFinance"
     },
-    "unreconcile": "Annuler le rapprochement"
+    "unreconcile": "Annuler le rapprochement",
+    "summaryAccounts": "{count, plural, one {# compte} other {# comptes}}",
+    "summaryBalance": "Solde : {amount}",
+    "summaryUnreconciled": "{count, plural, one {# non rapproché} other {# non rapprochés}}",
+    "summaryLastTransaction": "Dernière transaction : {date}"
   },
   "inventory": {
     "title": "Inventaire",
@@ -718,6 +732,8 @@
     "fromWarehouse": "Depuis l'entrepôt",
     "toWarehouse": "Vers l'entrepôt",
     "noMovements": "Aucun mouvement de stock trouvé",
+    "noMovementsDesc": "Enregistrez votre premier mouvement de stock.",
+    "adjustFilters": "Essayez d'ajuster vos filtres.",
     "serialNumbers": "Numéros de série",
     "available": "Disponible",
     "sold": "Vendu",
@@ -763,6 +779,8 @@
     "agingReportDesc": "Créances ouvertes par ancienneté.",
     "salesReport": "Rapport des ventes",
     "salesReportDesc": "Aperçu mensuel du chiffre d'affaires.",
+    "healthMetrics": "Indicateurs de santé",
+    "healthMetricsDesc": "Marge bénéficiaire, taux de conversion, délai de paiement et plus.",
     "asOfDate": "À la date du",
     "fromDate": "Du",
     "toDate": "Au",
@@ -1014,6 +1032,10 @@
       "noLineItems": "Aucun poste trouvé dans le CSV",
       "csvParseFailed": "Échec de l'analyse du CSV : {message}",
       "repairFailed": "Réparation échouée"
+    },
+    "team": {
+      "title": "Équipe",
+      "settingsDesc": "Gérer les membres de l'équipe et l'accès."
     }
   },
   "auth": {
@@ -1134,6 +1156,7 @@
     "howCanIHelp": "Comment puis-je vous aider ?",
     "askDescription": "Demandez-moi de créer des factures, vérifier des paiements, générer des rapports ou gérer votre entreprise.",
     "askKivvi": "Demandez à Kivvi...",
+    "sendMessage": "Envoyer le message",
     "thinking": "Réflexion...",
     "canMakeMistakes": "Kivvi peut faire des erreurs. Vérifiez les informations importantes.",
     "freeModelSelected": "Modèle gratuit sélectionné",
@@ -1240,5 +1263,43 @@
     "quickLinks": "Liens utiles",
     "qrBillStandard": "Standard QR-facture suisse",
     "vatRatesLink": "Taux de TVA suisses (AFC)"
+  },
+  "team": {
+    "title": "Équipe",
+    "subtitle": "Gérer les membres de l'équipe et les invitations.",
+    "members": "Membres de l'équipe",
+    "membersDesc": "Personnes ayant accès à cette entreprise.",
+    "pendingInvitations": "Invitations en attente",
+    "invite": "Inviter un membre",
+    "inviteMember": "Inviter un nouveau membre",
+    "email": "Adresse e-mail",
+    "role": "Rôle",
+    "sendInvitation": "Envoyer l'invitation",
+    "cancel": "Annuler",
+    "invitationSent": "Invitation envoyée avec succès.",
+    "inviteFailed": "Impossible d'envoyer l'invitation.",
+    "removeFailed": "Impossible de retirer le membre.",
+    "roleChangeFailed": "Impossible de changer le rôle.",
+    "revokeFailed": "Impossible de révoquer l'invitation.",
+    "removeAccess": "Retirer l'accès",
+    "confirmRemove": "Êtes-vous sûr de vouloir retirer {name} de cette entreprise?",
+    "thisMember": "ce membre",
+    "confirmRevoke": "Êtes-vous sûr de vouloir révoquer cette invitation?",
+    "revokeInvitation": "Révoquer l'invitation",
+    "expiresOn": "Expire le {date}",
+    "joinCompany": "Rejoindre l'entreprise",
+    "invitedTo": "Vous avez été invité à rejoindre {company}.",
+    "roleAssignment": "Le rôle suivant vous sera attribué: {role}",
+    "acceptInvitation": "Accepter l'invitation",
+    "acceptFailed": "Impossible d'accepter l'invitation.",
+    "invitationAccepted": "Invitation acceptée!",
+    "redirecting": "Redirection vers le tableau de bord...",
+    "invalidInvitation": "Invitation invalide",
+    "invitationNotFound": "Cette invitation n'a pas pu être trouvée.",
+    "invitationExpired": "Invitation expirée",
+    "invitationExpiredDesc": "Cette invitation a expiré. Veuillez demander à l'expéditeur d'en envoyer une nouvelle.",
+    "goToLogin": "Aller à la connexion",
+    "loginToAccept": "Se connecter pour accepter",
+    "registerToAccept": "Créer un compte"
   }
 }

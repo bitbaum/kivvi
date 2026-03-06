@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { EmptyState } from '@/components/empty-state';
 import {
   Warehouse as WarehouseIcon,
   AlertTriangle,
@@ -11,6 +12,7 @@ import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { listWarehouses, getLowStockProducts } from '@kivvi/core';
 import { getTranslations } from 'next-intl/server';
+import { PageHeader } from '@/components/page-header';
 import { AddWarehouseForm } from './add-warehouse-form';
 
 export default async function InventoryPage() {
@@ -26,25 +28,22 @@ export default async function InventoryPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">{t('title')}</h1>
-          <p className="text-muted-foreground">
-            {t('subtitle')}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Link
-            href="/inventory/movements"
-            className="inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium hover:bg-muted transition-colors"
-          >
-            <ArrowUpDown className="h-4 w-4" />
-            {t('stockMovements')}
-          </Link>
-          <AddWarehouseForm />
-        </div>
-      </div>
+      <PageHeader
+        title={t('title')}
+        subtitle={t('subtitle')}
+        actions={
+          <>
+            <Link
+              href="/inventory/movements"
+              className="inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium hover:bg-muted transition-colors"
+            >
+              <ArrowUpDown className="h-4 w-4" />
+              {t('stockMovements')}
+            </Link>
+            <AddWarehouseForm />
+          </>
+        }
+      />
 
       {/* Low Stock Alerts */}
       {lowStockProducts.length > 0 && (
@@ -107,15 +106,11 @@ export default async function InventoryPage() {
 
       {/* Warehouse Cards */}
       {warehouses.length === 0 ? (
-        <div className="rounded-xl border bg-card">
-          <div className="flex flex-col items-center justify-center py-16">
-            <WarehouseIcon className="h-12 w-12 text-muted-foreground/50" />
-            <h3 className="mt-4 text-lg font-medium">{t('noWarehouses')}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {t('noWarehouses')}
-            </p>
-          </div>
-        </div>
+        <EmptyState
+          icon={WarehouseIcon}
+          title={t('noWarehouses')}
+          description={t('noWarehouses')}
+        />
       ) : (
         <div>
           <h2 className="mb-4 text-lg font-semibold">{t('warehouses')}</h2>

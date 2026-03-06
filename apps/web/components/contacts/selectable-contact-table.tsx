@@ -12,7 +12,7 @@ import {
   bulkDeactivateContactsAction,
 } from '@/app/actions/bulk-operations';
 import type { BulkOperationResult } from '@/app/actions/bulk-operations';
-import { cn } from '@/lib/utils';
+import { cn, formatDate } from '@/lib/utils';
 import { useFocusTrap } from '@/hooks/use-focus-trap';
 import { CONTACT_TYPE_STYLES } from '@/lib/config/contact-types';
 import { SortableHeader } from '@/components/sortable-header';
@@ -29,6 +29,7 @@ interface ContactItem {
   mobile: string | null;
   city: string | null;
   isActive: boolean | null;
+  lastDocumentAt?: Date | null;
 }
 
 interface Translations {
@@ -39,6 +40,7 @@ interface Translations {
     email: string;
     phone: string;
     city: string;
+    lastDocument: string;
     status: string;
     active: string;
     inactive: string;
@@ -104,7 +106,7 @@ export function SelectableContactTable({ data, translations, sort }: SelectableC
       <BulkResultBanner result={bulkResult} labels={translations.bulkLabels} onDismiss={dismissBanner} />
 
       {/* Table header — hidden on mobile */}
-      <div className="hidden border-b px-6 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground sm:grid sm:grid-cols-[auto_1fr_2fr_auto_auto] sm:gap-4 lg:grid-cols-[auto_1fr_2fr_auto_1.5fr_1fr_1fr_auto]">
+      <div className="hidden border-b px-6 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground sm:grid sm:grid-cols-[auto_1fr_2fr_auto_auto] sm:gap-4 lg:grid-cols-[auto_1fr_2fr_auto_1.5fr_1fr_1fr_1fr_auto]">
         <div className="flex items-center">
           <input
             type="checkbox"
@@ -133,6 +135,7 @@ export function SelectableContactTable({ data, translations, sort }: SelectableC
             <SortableHeader label={translations.columnLabels.city} field="city" currentSort={sort.field} currentOrder={sort.order} href={sort.hrefs.city} />
           ) : translations.columnLabels.city}
         </div>
+        <div className="hidden lg:block">{translations.columnLabels.lastDocument}</div>
         <div>{translations.columnLabels.status}</div>
       </div>
 
@@ -146,7 +149,7 @@ export function SelectableContactTable({ data, translations, sort }: SelectableC
             onClick={() => router.push(`/contacts/${contact.id}`)}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); router.push(`/contacts/${contact.id}`); } }}
             className={cn(
-              'flex cursor-pointer flex-col gap-1 p-4 transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:grid sm:grid-cols-[auto_1fr_2fr_auto_auto] sm:items-center sm:gap-4 sm:px-6 lg:grid-cols-[auto_1fr_2fr_auto_1.5fr_1fr_1fr_auto]',
+              'flex cursor-pointer flex-col gap-1 p-4 transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:grid sm:grid-cols-[auto_1fr_2fr_auto_auto] sm:items-center sm:gap-4 sm:px-6 lg:grid-cols-[auto_1fr_2fr_auto_1.5fr_1fr_1fr_1fr_auto]',
               isSelected(contact.id) && 'bg-primary/5'
             )}
           >
@@ -182,6 +185,9 @@ export function SelectableContactTable({ data, translations, sort }: SelectableC
             <div className="hidden truncate text-sm text-muted-foreground lg:block">{contact.email || '-'}</div>
             <div className="hidden text-sm text-muted-foreground lg:block">{contact.phone || contact.mobile || '-'}</div>
             <div className="hidden text-sm text-muted-foreground lg:block">{contact.city || '-'}</div>
+            <div className="hidden text-sm text-muted-foreground lg:block">
+              {contact.lastDocumentAt ? formatDate(contact.lastDocumentAt) : '-'}
+            </div>
             <div>
               <span
                 className={cn(

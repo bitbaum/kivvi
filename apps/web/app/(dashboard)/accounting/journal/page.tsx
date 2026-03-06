@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { Plus, Search, BookOpen, ChevronLeft, ChevronRight, Download } from 'lucide-react';
+import { Plus, Search, BookOpen, Download } from 'lucide-react';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { listJournalEntries } from '@kivvi/core';
@@ -8,6 +8,8 @@ import { formatCurrency, formatDate, cn } from '@/lib/utils';
 import { getTranslations } from 'next-intl/server';
 import { DEFAULT_PAGE_SIZE } from '@/lib/config/document-types';
 import { SOURCE_TYPE_STYLES } from '@/lib/config/journal';
+import { PageHeader } from '@/components/page-header';
+import { Pagination } from '@/components/pagination';
 
 interface PageProps {
   searchParams: Promise<{
@@ -50,31 +52,28 @@ export default async function JournalPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">{t('journal')}</h1>
-          <p className="text-muted-foreground">
-            {t('viewJournalEntries')}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <a
-            href="/api/export/journal"
-            className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2.5 text-sm font-medium hover:bg-accent transition-colors"
-          >
-            <Download className="h-4 w-4" />
-            {tc('exportCsv')}
-          </a>
-          <Link
-            href="/accounting/journal/new"
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-          >
-            <Plus className="h-4 w-4" />
-            {t('newJournalEntry')}
-          </Link>
-        </div>
-      </div>
+      <PageHeader
+        title={t('journal')}
+        subtitle={t('viewJournalEntries')}
+        actions={
+          <>
+            <a
+              href="/api/export/journal"
+              className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2.5 text-sm font-medium hover:bg-accent transition-colors"
+            >
+              <Download className="h-4 w-4" />
+              {tc('exportCsv')}
+            </a>
+            <Link
+              href="/accounting/journal/new"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              <Plus className="h-4 w-4" />
+              {t('newJournalEntry')}
+            </Link>
+          </>
+        }
+      />
 
       {/* Filters */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
@@ -209,49 +208,23 @@ export default async function JournalPage({ searchParams }: PageProps) {
               ))}
             </div>
 
-            {/* Pagination */}
-            {result.totalPages > 1 && (
-              <div className="flex items-center justify-between border-t px-6 py-4">
-                <p className="text-sm text-muted-foreground">
-                  {tc('showing', { from: (result.page - 1) * result.pageSize + 1, to: Math.min(result.page * result.pageSize, result.total), total: result.total })}
-                </p>
-                <div className="flex items-center gap-2">
-                  {result.page > 1 ? (
-                    <Link
-                      href={buildPageUrl(result.page - 1, { search, sourceType, dateFrom, dateTo })}
-                      className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border px-3 py-2 text-sm hover:bg-muted transition-colors"
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                      {tc('previous')}
-                    </Link>
-                  ) : (
-                    <span className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border px-3 py-2 text-sm text-muted-foreground opacity-50">
-                      <ChevronLeft className="h-4 w-4" />
-                      {tc('previous')}
-                    </span>
-                  )}
-
-                  <span className="text-sm text-muted-foreground">
-                    Page {result.page} of {result.totalPages}
-                  </span>
-
-                  {result.page < result.totalPages ? (
-                    <Link
-                      href={buildPageUrl(result.page + 1, { search, sourceType, dateFrom, dateTo })}
-                      className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border px-3 py-2 text-sm hover:bg-muted transition-colors"
-                    >
-                      {tc('next')}
-                      <ChevronRight className="h-4 w-4" />
-                    </Link>
-                  ) : (
-                    <span className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border px-3 py-2 text-sm text-muted-foreground opacity-50">
-                      {tc('next')}
-                      <ChevronRight className="h-4 w-4" />
-                    </span>
-                  )}
-                </div>
-              </div>
-            )}
+            <Pagination
+              page={result.page}
+              totalPages={result.totalPages}
+              total={result.total}
+              pageSize={result.pageSize}
+              buildHref={(p) => buildPageUrl(p, { search, sourceType, dateFrom, dateTo })}
+              labels={{
+                showing: tc('showing', {
+                  from: (result.page - 1) * result.pageSize + 1,
+                  to: Math.min(result.page * result.pageSize, result.total),
+                  total: result.total,
+                }),
+                previous: tc('previous'),
+                next: tc('next'),
+                pageOf: tc('pageOf', { page: result.page, totalPages: result.totalPages }),
+              }}
+            />
           </>
         )}
       </div>
