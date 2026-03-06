@@ -21,8 +21,15 @@ export function useDocumentForm(config: DocumentTypeConfig) {
   const [internalNotes, setInternalNotes] = useState('');
   const [items, setItems] = useState<LineItem[]>([emptyItem()]);
 
+  // Track last added item for auto-focus
+  const [lastAddedItemId, setLastAddedItemId] = useState<string | null>(null);
+
   // Line item management
-  const addItem = () => setItems([...items, emptyItem()]);
+  const addItem = () => {
+    const newItem = emptyItem();
+    setItems([...items, newItem]);
+    setLastAddedItemId(newItem.id);
+  };
   const removeItem = (id: string) => {
     if (items.length <= 1) return;
     setItems(items.filter((i) => i.id !== id));
@@ -72,6 +79,7 @@ export function useDocumentForm(config: DocumentTypeConfig) {
     items,
     addItem, removeItem, updateItem,
     handleDragEnd,
+    lastAddedItemId, setLastAddedItemId,
     subtotal, vatAmount, total,
   };
 }

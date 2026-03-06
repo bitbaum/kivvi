@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Decimal from 'decimal.js';
@@ -96,7 +96,7 @@ export function EditDocumentForm({ documentId, documentType, config, initialData
   }, new Decimal(0));
   const total = rappenRound(subtotal.plus(vatAmount));
 
-  async function handleSubmit() {
+  const handleSubmit = useCallback(async () => {
     setError(null);
     const validItems = items.filter((i) => i.description.trim());
     if (validItems.length === 0) {
@@ -130,7 +130,19 @@ export function EditDocumentForm({ documentId, documentType, config, initialData
         setError(result.error || tc('error'));
       }
     });
-  }
+  }, [items, documentId, contactId, issueDate, dueDate, deliveryDate, notes, internalNotes, config, t, tc, router, startTransition]);
+
+  // Cmd+Enter (Mac) / Ctrl+Enter (Win/Linux) to submit
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && !isPending) {
+        e.preventDefault();
+        handleSubmit();
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleSubmit, isPending]);
 
   return (
     <div className="space-y-6">
@@ -266,7 +278,14 @@ export function EditDocumentForm({ documentId, documentType, config, initialData
             )}
 
             <button type="button" onClick={handleSubmit} disabled={isPending} className="mt-6 w-full rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50">
-              {isPending ? tc('saving') : tc('saveChanges')}
+              {isPending ? tc('saving') : (
+                <span className="flex items-center justify-center gap-2">
+                  {tc('saveChanges')}
+                  <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded border border-primary-foreground/20 bg-primary-foreground/10 px-1.5 py-0.5 text-[10px] font-mono">
+                    ⌘↵
+                  </kbd>
+                </span>
+              )}
             </button>
           </div>
         </div>

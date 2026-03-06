@@ -1,6 +1,6 @@
 'use client';
 
-import { useTransition, useState } from 'react';
+import { useTransition, useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import Decimal from 'decimal.js';
@@ -81,7 +81,7 @@ export function DocumentForm({ type }: DocumentFormProps) {
     })
   );
 
-  async function handleSubmit() {
+  const handleSubmit = useCallback(async () => {
     setError(null);
 
     const validItems = form.items.filter((i) => i.description.trim());
@@ -116,7 +116,33 @@ export function DocumentForm({ type }: DocumentFormProps) {
         setError(result.error || t('failedToCreate', { type: t(config.label) }));
       }
     });
-  }
+  }, [form, type, config, router, t, startTransition]);
+
+  // Cmd+Enter (Mac) / Ctrl+Enter (Win/Linux) to submit
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && !isPending) {
+        e.preventDefault();
+        handleSubmit();
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [handleSubmit, isPending]);
+
+  // Auto-focus description field when a new line item is added
+  const { lastAddedItemId, setLastAddedItemId } = form;
+  useEffect(() => {
+    if (lastAddedItemId) {
+      requestAnimationFrame(() => {
+        const input = document.querySelector<HTMLInputElement>(
+          `input[data-item-id="${lastAddedItemId}"][data-field="description"]`
+        );
+        input?.focus();
+      });
+      setLastAddedItemId(null);
+    }
+  }, [lastAddedItemId, setLastAddedItemId]);
 
   return (
     <div className="space-y-6">
@@ -139,7 +165,15 @@ export function DocumentForm({ type }: DocumentFormProps) {
             <ContactPicker
               value={form.contactId}
               displayValue={form.contactName}
-              onChange={(id, name) => { form.setContactId(id); form.setContactName(name); }}
+              onChange={(id, name, paymentTermsDays) => {
+                form.setContactId(id);
+                form.setContactName(name);
+                if (config.hasDueDate && paymentTermsDays && form.issueDate) {
+                  const issue = new Date(form.issueDate);
+                  issue.setDate(issue.getDate() + paymentTermsDays);
+                  form.setDueDate(issue.toISOString().split('T')[0]);
+                }
+              }}
               contactType={config.contactFilter === 'vendor' ? 'vendor' : 'customer'}
             />
 
@@ -278,7 +312,14 @@ export function DocumentForm({ type }: DocumentFormProps) {
               disabled={isPending}
               className="mt-6 w-full rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
-              {isPending ? tc('creating') : t('newDocument', { type: t(config.label) })}
+              {isPending ? tc('creating') : (
+                <span className="flex items-center justify-center gap-2">
+                  {t('newDocument', { type: t(config.label) })}
+                  <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded border border-primary-foreground/20 bg-primary-foreground/10 px-1.5 py-0.5 text-[10px] font-mono">
+                    ⌘↵
+                  </kbd>
+                </span>
+              )}
             </button>
 
             <p className="mt-2 text-center text-xs text-muted-foreground">

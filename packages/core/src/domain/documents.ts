@@ -7,6 +7,7 @@ import {
   documentPayments,
   bankTransactions,
   bankAccounts,
+  contacts,
 } from '@kivvi/database';
 import type { Database, DocumentType, DocumentStatus } from '@kivvi/database';
 import type { PaginatedResult } from './contacts';
@@ -402,6 +403,20 @@ export async function createDocument(
       ? generateQRReference(companyId, number)
       : null;
 
+    // Auto-calculate dueDate from contact's paymentTermsDays if not provided
+    let dueDate: Date | null = validated.dueDate ? new Date(validated.dueDate) : null;
+    if (!dueDate && validated.contactId) {
+      const [contact] = await tx
+        .select({ paymentTermsDays: contacts.paymentTermsDays })
+        .from(contacts)
+        .where(and(eq(contacts.id, validated.contactId), eq(contacts.companyId, companyId)));
+      if (contact?.paymentTermsDays) {
+        const issueDate = validated.issueDate ? new Date(validated.issueDate) : new Date();
+        dueDate = new Date(issueDate);
+        dueDate.setDate(dueDate.getDate() + contact.paymentTermsDays);
+      }
+    }
+
     // Insert document
     const [doc] = await tx
       .insert(documents)
@@ -413,7 +428,7 @@ export async function createDocument(
         contactId: validated.contactId ?? null,
         projectId: validated.projectId ?? null,
         issueDate: validated.issueDate ? new Date(validated.issueDate) : new Date(),
-        dueDate: validated.dueDate ? new Date(validated.dueDate) : null,
+        dueDate,
         deliveryDate: validated.deliveryDate ? new Date(validated.deliveryDate) : null,
         currency: validated.currency,
         subtotal: totals.subtotal,
@@ -889,7 +904,8 @@ export async function convertDocument(
  */
 export async function getFinancialSummary(
   db: Database,
-  companyId: string
+  companyId: string,
+  sinceDate?: Date
 ) {
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -937,7 +953,8 @@ export async function getFinancialSummary(
       and(
         eq(documents.companyId, companyId),
         eq(documents.type, 'invoice'),
-        sql`${documents.status} IN ('sent', 'confirmed', 'delivered', 'partially_paid')`
+        sql`${documents.status} IN ('sent', 'confirmed', 'delivered', 'partially_paid')`,
+        sinceDate ? gte(documents.issueDate, sinceDate) : undefined
       )
     );
 
@@ -953,7 +970,8 @@ export async function getFinancialSummary(
         eq(documents.companyId, companyId),
         eq(documents.type, 'invoice'),
         sql`${documents.status} NOT IN ('paid', 'cancelled', 'draft')`,
-        sql`${documents.dueDate} IS NOT NULL AND ${documents.dueDate} < NOW()`
+        sql`${documents.dueDate} IS NOT NULL AND ${documents.dueDate} < NOW()`,
+        sinceDate ? gte(documents.issueDate, sinceDate) : undefined
       )
     );
 

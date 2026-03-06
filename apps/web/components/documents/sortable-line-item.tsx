@@ -56,6 +56,8 @@ export function SortableLineItem({ item, index, updateItem, removeItem, canRemov
             value={item.description}
             onChange={(e) => updateItem(item.id, 'description', e.target.value)}
             placeholder={tc('description')}
+            data-item-id={item.id}
+            data-field="description"
           />
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
             <div>

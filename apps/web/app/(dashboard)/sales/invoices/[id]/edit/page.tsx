@@ -5,7 +5,7 @@ import { getDocument } from '@kivvi/core';
 import { DOCUMENT_TYPES } from '@/lib/config/document-types';
 import { DEFAULT_VAT_RATE } from '@/lib/config/vat-rates';
 import { Breadcrumb } from '@/components/breadcrumb';
-import { EditDocumentForm } from './edit-form';
+import { EditDocumentForm } from '@/components/documents/edit-document-form';
 
 interface PageProps {
   params: Promise<{ id: string }>;
