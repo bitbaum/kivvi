@@ -1,8 +1,9 @@
 import Decimal from 'decimal.js';
-import { eq, and, lt, sql, desc, count, inArray } from 'drizzle-orm';
-import { documents, documentItems, documentPayments, contacts } from '@kivvi/database';
+import { eq, and, lt, sql, desc, count, inArray, ne } from 'drizzle-orm';
+import { documents, documentItems, documentPayments, contacts, companies, users } from '@kivvi/database';
 import type { Database, DocumentStatus } from '@kivvi/database';
 import { getNextNumber } from './number-sequences';
+import { logger } from '../logger';
 
 // ============================================================================
 // TYPES
@@ -250,4 +251,165 @@ export async function getDunningHistory(
     ),
     orderBy: [desc(documents.createdAt)],
   });
+}
+
+// ============================================================================
+// AUTOMATED DUNNING PROCESSING (CRON)
+// ============================================================================
+
+// Days overdue thresholds for auto-escalation
+const DUNNING_THRESHOLDS = {
+  dunning_1: 14,  // 14+ days overdue → create dunning_1
+  dunning_2: 30,  // 30+ days overdue → create dunning_2
+  dunning_3: 60,  // 60+ days overdue → create dunning_3
+} as const;
+
+export interface DunningProcessResult {
+  processed: number;
+  created: number;
+  errors: Array<{ companyId: string; invoiceId: string; error: string }>;
+}
+
+export interface DunningInfo {
+  dunningDocId: string;
+  dunningNumber: string;
+  invoiceId: string;
+  invoiceNumber: string;
+  newLevel: DocumentStatus;
+  contactName: string | null;
+  total: string;
+  currency: string;
+  dueDate: string | null;
+  companyId: string;
+}
+
+export interface ProcessDunningOptions {
+  onDunningCreated?: (info: DunningInfo, emailRecipients: string[]) => Promise<void>;
+}
+
+/**
+ * Process all overdue invoices across all companies.
+ * Called by cron job daily. Auto-escalates dunning levels based on time thresholds.
+ */
+export async function processOverdueInvoices(
+  db: Database,
+  options?: ProcessDunningOptions
+): Promise<DunningProcessResult> {
+  const result: DunningProcessResult = {
+    processed: 0,
+    created: 0,
+    errors: [],
+  };
+
+  // Find all companies that have overdue invoices
+  const companiesWithOverdue = await db
+    .select({ id: companies.id })
+    .from(companies)
+    .where(
+      sql`EXISTS (
+        SELECT 1 FROM ${documents}
+        WHERE ${documents.companyId} = ${companies.id}
+        AND ${documents.type} = 'invoice'
+        AND ${documents.status} IN ('sent', 'confirmed', 'delivered', 'partially_paid', 'overdue', 'dunning_1', 'dunning_2')
+        AND ${documents.dueDate} IS NOT NULL
+        AND ${documents.dueDate} < NOW()
+      )`
+    );
+
+  for (const company of companiesWithOverdue) {
+    try {
+      const overdue = await detectOverdueInvoices(db, company.id);
+      result.processed += overdue.length;
+
+      for (const invoice of overdue) {
+        try {
+          // Determine if this invoice should be escalated
+          const currentLevel = invoice.dunningLevel;
+          let shouldEscalate = false;
+
+          if (currentLevel === 0 && invoice.daysOverdue >= DUNNING_THRESHOLDS.dunning_1) {
+            shouldEscalate = true;
+          } else if (currentLevel === 1 && invoice.daysOverdue >= DUNNING_THRESHOLDS.dunning_2) {
+            shouldEscalate = true;
+          } else if (currentLevel === 2 && invoice.daysOverdue >= DUNNING_THRESHOLDS.dunning_3) {
+            shouldEscalate = true;
+          }
+
+          if (!shouldEscalate) continue;
+
+          // Get system user (first user of the company)
+          const firstUser = await db.query.users.findFirst({
+            where: eq(users.companyId, company.id),
+            columns: { id: true },
+          });
+
+          if (!firstUser) {
+            result.errors.push({
+              companyId: company.id,
+              invoiceId: invoice.id,
+              error: 'No users found for company',
+            });
+            continue;
+          }
+
+          // Create dunning document
+          const { dunningDoc, newLevel } = await createDunning(
+            db,
+            company.id,
+            firstUser.id,
+            invoice.id
+          );
+
+          result.created++;
+
+          // Send email if callback provided and contact has email
+          if (options?.onDunningCreated && invoice.contactId) {
+            const contact = await db.query.contacts.findFirst({
+              where: and(
+                eq(contacts.id, invoice.contactId),
+                eq(contacts.companyId, company.id)
+              ),
+              columns: { email: true, name: true },
+            });
+
+            if (contact?.email) {
+              try {
+                await options.onDunningCreated(
+                  {
+                    dunningDocId: dunningDoc.id,
+                    dunningNumber: dunningDoc.number,
+                    invoiceId: invoice.id,
+                    invoiceNumber: invoice.number,
+                    newLevel,
+                    contactName: contact.name,
+                    total: dunningDoc.total,
+                    currency: dunningDoc.currency,
+                    dueDate: invoice.dueDate ? new Date(invoice.dueDate).toISOString().split('T')[0] : null,
+                    companyId: company.id,
+                  },
+                  [contact.email]
+                );
+              } catch (emailError) {
+                logger.error(`Failed to send dunning email for ${invoice.number}`, emailError);
+              }
+            }
+          }
+        } catch (invoiceError) {
+          result.errors.push({
+            companyId: company.id,
+            invoiceId: invoice.id,
+            error: invoiceError instanceof Error ? invoiceError.message : 'Unknown error',
+          });
+        }
+      }
+    } catch (companyError) {
+      result.errors.push({
+        companyId: company.id,
+        invoiceId: '',
+        error: companyError instanceof Error ? companyError.message : 'Unknown error',
+      });
+    }
+  }
+
+  return result;
 }

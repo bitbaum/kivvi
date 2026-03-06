@@ -206,6 +206,91 @@ export function buildPasswordResetEmailHtml(data: PasswordResetEmailData): strin
 }
 
 // ============================================================================
+// INVITATION EMAIL
+// ============================================================================
+
+export interface InvitationEmailData {
+  inviterName: string;
+  companyName: string;
+  acceptUrl: string;
+  role: string;
+}
+
+export function buildInvitationEmailSubject(data: InvitationEmailData): string {
+  return `Einladung: ${data.companyName} auf Kivvi beitreten`;
+}
+
+export function buildInvitationEmailHtml(data: InvitationEmailData): string {
+  return `<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${buildInvitationEmailSubject(data)}</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f5;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
+          <!-- Header -->
+          <tr>
+            <td style="padding: 32px 40px 24px; border-bottom: 1px solid #e4e4e7;">
+              <h1 style="margin: 0; font-size: 20px; font-weight: 600; color: #18181b;">
+                Kivvi
+              </h1>
+            </td>
+          </tr>
+          <!-- Body -->
+          <tr>
+            <td style="padding: 32px 40px;">
+              <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.6; color: #3f3f46;">
+                Guten Tag
+              </p>
+              <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.6; color: #3f3f46;">
+                ${data.inviterName} hat Sie eingeladen, <strong>${data.companyName}</strong> auf Kivvi beizutreten.
+              </p>
+              <p style="margin: 0 0 20px; font-size: 14px; line-height: 1.6; color: #71717a;">
+                Rolle: <strong>${data.role}</strong>
+              </p>
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 24px 0;">
+                <tr>
+                  <td style="border-radius: 6px; background-color: #2563eb;">
+                    <a href="${data.acceptUrl}" target="_blank" style="display: inline-block; padding: 12px 24px; font-size: 15px; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 500;">
+                      Einladung annehmen
+                    </a>
+                  </td>
+                </tr>
+              </table>
+              <p style="margin: 20px 0; font-size: 14px; line-height: 1.6; color: #71717a;">
+                Diese Einladung ist 7 Tage gültig. Falls Sie diese Einladung nicht erwartet haben, können Sie diese E-Mail ignorieren.
+              </p>
+              <p style="margin: 20px 0; font-size: 13px; line-height: 1.6; color: #a1a1aa;">
+                Falls der Button nicht funktioniert, kopieren Sie diesen Link in Ihren Browser:<br>
+                <a href="${data.acceptUrl}" style="color: #2563eb; word-break: break-all;">${data.acceptUrl}</a>
+              </p>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 24px 40px; background-color: #fafafa; border-top: 1px solid #e4e4e7;">
+              <p style="margin: 0; font-size: 12px; color: #a1a1aa; line-height: 1.5;">
+                Diese E-Mail wurde automatisch versendet.
+              </p>
+              <p style="margin: 8px 0 0; font-size: 11px; color: #a1a1aa; line-height: 1.5;">
+                Versendet mit <a href="https://kivvi.ch" style="color: #2563eb; text-decoration: none;">Kivvi</a> — KI-gestützte ERP-Software für Schweizer Unternehmen
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+// ============================================================================
 // DOCUMENT EMAIL
 // ============================================================================
 

@@ -436,9 +436,10 @@ export interface AgingReport {
 export async function getAgingReport(
   db: Database,
   companyId: string,
-  asOfDate: string
+  asOfDate: string,
+  sinceDate?: Date
 ): Promise<AgingReport> {
-  // Get all unpaid invoices
+  // Get all unpaid invoices (optionally filtered by sinceDate to exclude old imports)
   const unpaidInvoices = await db
     .select({
       id: documents.id,
@@ -453,7 +454,8 @@ export async function getAgingReport(
       and(
         eq(documents.companyId, companyId),
         eq(documents.type, 'invoice'),
-        sql`${documents.status} NOT IN ('draft', 'cancelled', 'paid')`
+        sql`${documents.status} NOT IN ('draft', 'cancelled', 'paid')`,
+        sinceDate ? gte(documents.issueDate, sinceDate) : undefined
       )
     );
 
