@@ -16,6 +16,7 @@ import { db } from '@/lib/db';
 import { getProduct } from '@kivvi/core';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { SWISS_VAT_RATES, DEFAULT_VAT_RATE } from '@/lib/config/vat-rates';
+import { getProductTypeLabels } from '@/lib/config/products';
 import { deleteProductAction } from '@/app/actions/products';
 
 interface PageProps {
@@ -38,10 +39,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  const TYPE_LABELS: Record<string, string> = {
-    product: t('product'),
-    service: t('service'),
-  };
+  const TYPE_LABELS = getProductTypeLabels(t);
 
   const UNIT_LABELS: Record<string, string> = {
     piece: t('units.piece'),

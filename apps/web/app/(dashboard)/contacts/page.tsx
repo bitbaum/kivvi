@@ -10,6 +10,7 @@ import { contacts } from '@kivvi/database';
 import { listContacts } from '@kivvi/core';
 import { cn } from '@/lib/utils';
 import { DEFAULT_PAGE_SIZE } from '@/lib/config/document-types';
+import { getContactTypeLabels } from '@/lib/config/contact-types';
 import { PageHeader } from '@/components/page-header';
 import { SelectableContactTable } from '@/components/contacts/selectable-contact-table';
 import { SearchInput } from '@/components/search-input';
@@ -109,11 +110,7 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
     inactive: tc('inactive'),
   };
 
-  const typeLabels: Record<string, string> = {
-    customer: t('customer'),
-    vendor: t('vendor'),
-    both: t('both'),
-  };
+  const typeLabels = getContactTypeLabels(t);
 
   function buildPageUrl(p: number): string {
     const params = new URLSearchParams();

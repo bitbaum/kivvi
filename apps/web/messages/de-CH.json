@@ -721,6 +721,8 @@
     "reference": "Referenz",
     "sourceType": "Quelle",
     "manual": "Manuell",
+    "invoice": "Rechnung",
+    "payment": "Zahlung",
     "deleteEntry": "Buchung löschen",
     "deleteEntryConfirm": "Möchten Sie diese Buchung wirklich löschen?",
     "entryDeleted": "Buchungssatz gelöscht",

@@ -19,7 +19,7 @@ import { db } from '@/lib/db';
 import { getContact } from '@kivvi/core';
 import { cn, formatCurrency, formatDate } from '@/lib/utils';
 import { STATUS_STYLES, toCamelCase } from '@/lib/config/document-types';
-import { CONTACT_TYPE_STYLES } from '@/lib/config/contact-types';
+import { CONTACT_TYPE_STYLES, getContactTypeLabels } from '@/lib/config/contact-types';
 import { Breadcrumb } from '@/components/breadcrumb';
 import { DeleteContactButton } from './delete-button';
 
@@ -46,11 +46,7 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
 
   const { contact, addresses, recentDocuments } = data;
 
-  const TYPE_LABELS: Record<string, string> = {
-    customer: t('customer'),
-    vendor: t('vendor'),
-    both: t('both'),
-  };
+  const TYPE_LABELS = getContactTypeLabels(t);
 
   return (
     <div className="space-y-6">

@@ -8,7 +8,7 @@ import { getJournalEntry } from '@kivvi/core';
 import { formatCurrency, formatDate, cn } from '@/lib/utils';
 import { DeleteJournalEntryButton } from './delete-button';
 import { getTranslations } from 'next-intl/server';
-import { SOURCE_TYPE_STYLES } from '@/lib/config/journal';
+import { SOURCE_TYPE_STYLES, getSourceTypeLabels } from '@/lib/config/journal';
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -21,11 +21,7 @@ export default async function JournalEntryDetailPage({ params }: PageProps) {
   const t = await getTranslations('accounting');
   const tc = await getTranslations('common');
 
-  const SOURCE_TYPE_LABELS: Record<string, string> = {
-    manual: t('manual'),
-    invoice: 'Invoice',
-    payment: 'Payment',
-  };
+  const SOURCE_TYPE_LABELS = getSourceTypeLabels(t);
 
   const { id } = await params;
   const entry = await getJournalEntry(db, session.user.companyId, id);

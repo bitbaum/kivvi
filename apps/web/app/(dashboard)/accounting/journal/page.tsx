@@ -7,7 +7,7 @@ import { listJournalEntries } from '@kivvi/core';
 import { formatCurrency, formatDate, cn } from '@/lib/utils';
 import { getTranslations } from 'next-intl/server';
 import { DEFAULT_PAGE_SIZE } from '@/lib/config/document-types';
-import { SOURCE_TYPE_STYLES } from '@/lib/config/journal';
+import { SOURCE_TYPE_STYLES, getSourceTypeLabels } from '@/lib/config/journal';
 import { PageHeader } from '@/components/page-header';
 import { Pagination } from '@/components/pagination';
 
@@ -28,11 +28,7 @@ export default async function JournalPage({ searchParams }: PageProps) {
   const t = await getTranslations('accounting');
   const tc = await getTranslations('common');
 
-  const SOURCE_TYPE_LABELS: Record<string, string> = {
-    manual: t('manual'),
-    invoice: 'Invoice',
-    payment: 'Payment',
-  };
+  const SOURCE_TYPE_LABELS = getSourceTypeLabels(t);
 
   const params = await searchParams;
   const page = parseInt(params.page || '1', 10);
@@ -95,9 +91,9 @@ export default async function JournalPage({ searchParams }: PageProps) {
         {/* Source type filter */}
         <div className="flex items-center gap-1 rounded-lg border bg-card p-1">
           <SourceTypeFilterLink label={tc('all')} value="" current={sourceType} search={search} dateFrom={dateFrom} dateTo={dateTo} />
-          <SourceTypeFilterLink label={t('manual')} value="manual" current={sourceType} search={search} dateFrom={dateFrom} dateTo={dateTo} />
-          <SourceTypeFilterLink label="Invoice" value="invoice" current={sourceType} search={search} dateFrom={dateFrom} dateTo={dateTo} />
-          <SourceTypeFilterLink label="Payment" value="payment" current={sourceType} search={search} dateFrom={dateFrom} dateTo={dateTo} />
+          <SourceTypeFilterLink label={SOURCE_TYPE_LABELS.manual} value="manual" current={sourceType} search={search} dateFrom={dateFrom} dateTo={dateTo} />
+          <SourceTypeFilterLink label={SOURCE_TYPE_LABELS.invoice} value="invoice" current={sourceType} search={search} dateFrom={dateFrom} dateTo={dateTo} />
+          <SourceTypeFilterLink label={SOURCE_TYPE_LABELS.payment} value="payment" current={sourceType} search={search} dateFrom={dateFrom} dateTo={dateTo} />
         </div>
       </div>
 

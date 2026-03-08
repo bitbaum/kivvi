@@ -617,6 +617,8 @@
     "reference": "Référence",
     "sourceType": "Source",
     "manual": "Manuel",
+    "invoice": "Facture",
+    "payment": "Paiement",
     "deleteEntry": "Supprimer l'écriture",
     "deleteEntryConfirm": "Êtes-vous sûr de vouloir supprimer cette écriture ?",
     "entryDeleted": "Écriture comptable supprimée",

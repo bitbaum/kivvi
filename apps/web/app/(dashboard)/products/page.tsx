@@ -9,6 +9,7 @@ import { listProducts } from '@kivvi/core';
 import { products } from '@kivvi/database';
 import { count, and, eq, sql } from 'drizzle-orm';
 import { DEFAULT_PAGE_SIZE } from '@/lib/config/document-types';
+import { getProductTypeLabels } from '@/lib/config/products';
 import { PageHeader } from '@/components/page-header';
 import { SelectableProductTable } from '@/components/products/selectable-product-table';
 import { SearchInput } from '@/components/search-input';
@@ -99,10 +100,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
     lowStock: t('lowStock'),
   };
 
-  const typeLabels: Record<string, string> = {
-    product: t('product'),
-    service: t('service'),
-  };
+  const typeLabels = getProductTypeLabels(t);
 
   function buildFilterUrl(overrides: {
     search?: string;

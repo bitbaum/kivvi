@@ -12,3 +12,8 @@ export const CONTACT_TYPE_STYLES: Record<ContactType, string> = {
   vendor: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
   both: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
 };
+
+/** Build translated contact type labels from CONTACT_TYPES (SSOT). */
+export function getContactTypeLabels(t: (key: string) => string): Record<string, string> {
+  return Object.fromEntries(CONTACT_TYPES.map((type) => [type, t(type)]));
+}

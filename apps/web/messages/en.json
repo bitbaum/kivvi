@@ -718,6 +718,8 @@
     "reference": "Reference",
     "sourceType": "Source",
     "manual": "Manual",
+    "invoice": "Invoice",
+    "payment": "Payment",
     "deleteEntry": "Delete Entry",
     "deleteEntryConfirm": "Are you sure you want to delete this entry?",
     "entryDeleted": "Journal entry deleted",

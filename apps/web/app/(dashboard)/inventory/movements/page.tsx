@@ -12,6 +12,7 @@ import { db } from '@/lib/db';
 import { listStockMovements, listWarehouses } from '@kivvi/core';
 import { formatDate, cn } from '@/lib/utils';
 import { getTranslations } from 'next-intl/server';
+import { getMovementTypeLabels } from '@/lib/config/inventory';
 import { RecordMovementForm } from './record-movement-form';
 
 const TYPE_STYLES: Record<string, string> = {
@@ -37,13 +38,7 @@ export default async function MovementsPage({ searchParams }: PageProps) {
   const t = await getTranslations('inventory');
   const tc = await getTranslations('common');
 
-  const TYPE_LABELS: Record<string, string> = {
-    purchase: t('purchase'),
-    sale: t('sale'),
-    adjustment: t('adjustment'),
-    transfer: t('transfer'),
-    return: t('movementType'),
-  };
+  const TYPE_LABELS = getMovementTypeLabels(t);
 
   const params = await searchParams;
   const warehouseFilter = params.warehouseId;
