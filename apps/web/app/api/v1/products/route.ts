@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { db } from '@/lib/db';
 import { authenticateApi, apiError, apiSuccess } from '@/lib/api-handler';
-import { listProducts, createProduct } from '@kivvi/core';
+import { listProducts, createProduct, createProductSchema } from '@kivvi/core';
 
 const querySchema = z.object({
   page: z.coerce.number().int().positive().default(1),
@@ -47,7 +47,11 @@ export async function POST(request: NextRequest) {
     if (ctx instanceof Response) return ctx;
 
     const body = await request.json();
-    const product = await createProduct(db, ctx.companyId, body);
+    const parsed = createProductSchema.safeParse(body);
+    if (!parsed.success) {
+      return apiError(`Invalid body: ${parsed.error.issues.map(i => `${i.path}: ${i.message}`).join(', ')}`, 400);
+    }
+    const product = await createProduct(db, ctx.companyId, parsed.data);
     return apiSuccess(product);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to create product';

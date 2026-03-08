@@ -75,12 +75,26 @@ export async function createWarehouse(
 ): Promise<Warehouse> {
   const validated = createWarehouseSchema.parse(input);
 
-  // If setting as default, unset other defaults
   if (validated.isDefault) {
-    await db
-      .update(warehouses)
-      .set({ isDefault: false })
-      .where(and(eq(warehouses.companyId, companyId), eq(warehouses.isDefault, true)));
+    // Unset other defaults + insert atomically
+    return db.transaction(async (tx) => {
+      await tx
+        .update(warehouses)
+        .set({ isDefault: false })
+        .where(and(eq(warehouses.companyId, companyId), eq(warehouses.isDefault, true)));
+
+      const [warehouse] = await tx
+        .insert(warehouses)
+        .values({
+          companyId,
+          name: validated.name,
+          address: validated.address || null,
+          isDefault: validated.isDefault,
+        })
+        .returning();
+
+      return warehouse;
+    });
   }
 
   const [warehouse] = await db
@@ -105,10 +119,26 @@ export async function updateWarehouse(
   const validated = createWarehouseSchema.parse(input);
 
   if (validated.isDefault) {
-    await db
-      .update(warehouses)
-      .set({ isDefault: false })
-      .where(and(eq(warehouses.companyId, companyId), eq(warehouses.isDefault, true)));
+    // Unset other defaults + update atomically
+    return db.transaction(async (tx) => {
+      await tx
+        .update(warehouses)
+        .set({ isDefault: false })
+        .where(and(eq(warehouses.companyId, companyId), eq(warehouses.isDefault, true)));
+
+      const [warehouse] = await tx
+        .update(warehouses)
+        .set({
+          name: validated.name,
+          address: validated.address || null,
+          isDefault: validated.isDefault,
+        })
+        .where(and(eq(warehouses.id, warehouseId), eq(warehouses.companyId, companyId)))
+        .returning();
+
+      if (!warehouse) throw new Error('Warehouse not found');
+      return warehouse;
+    });
   }
 
   const [warehouse] = await db
@@ -301,53 +331,56 @@ export async function createStockMovement(
     .where(and(eq(products.id, validated.productId), eq(products.companyId, companyId)));
   if (!product) throw new Error('Product not found');
 
-  // Insert movement
-  const [movement] = await db
-    .insert(stockMovements)
-    .values({
-      productId: validated.productId,
-      warehouseId: validated.warehouseId,
-      type: validated.type,
-      quantity: validated.quantity,
-      reference: validated.reference || null,
-      documentId: validated.documentId || null,
-    })
-    .returning();
+  // All mutations atomic: insert movement + update stock level + update cached product quantity
+  return db.transaction(async (tx) => {
+    // Insert movement
+    const [movement] = await tx
+      .insert(stockMovements)
+      .values({
+        productId: validated.productId,
+        warehouseId: validated.warehouseId,
+        type: validated.type,
+        quantity: validated.quantity,
+        reference: validated.reference || null,
+        documentId: validated.documentId || null,
+      })
+      .returning();
 
-  // Update stock level (upsert)
-  const qty = new Decimal(validated.quantity);
-  await db
-    .insert(stockLevels)
-    .values({
-      productId: validated.productId,
-      warehouseId: validated.warehouseId,
-      quantity: validated.quantity,
-      reservedQuantity: '0',
-    })
-    .onConflictDoUpdate({
-      target: [stockLevels.productId, stockLevels.warehouseId],
-      set: {
-        quantity: sql`CAST(${stockLevels.quantity} AS DECIMAL) + ${qty.toString()}`,
-      },
-    });
+    // Update stock level (upsert)
+    const qty = new Decimal(validated.quantity);
+    await tx
+      .insert(stockLevels)
+      .values({
+        productId: validated.productId,
+        warehouseId: validated.warehouseId,
+        quantity: validated.quantity,
+        reservedQuantity: '0',
+      })
+      .onConflictDoUpdate({
+        target: [stockLevels.productId, stockLevels.warehouseId],
+        set: {
+          quantity: sql`CAST(${stockLevels.quantity} AS DECIMAL) + ${qty.toString()}`,
+        },
+      });
 
-  // Update cached product stock quantity
-  const [totalStock] = await db
-    .select({
-      total: sql<string>`COALESCE(SUM(CAST(${stockLevels.quantity} AS DECIMAL)), 0)`,
-    })
-    .from(stockLevels)
-    .where(eq(stockLevels.productId, validated.productId));
+    // Update cached product stock quantity
+    const [totalStock] = await tx
+      .select({
+        total: sql<string>`COALESCE(SUM(CAST(${stockLevels.quantity} AS DECIMAL)), 0)`,
+      })
+      .from(stockLevels)
+      .where(eq(stockLevels.productId, validated.productId));
 
-  await db
-    .update(products)
-    .set({ stockQuantity: totalStock.total })
-    .where(and(
-      eq(products.id, validated.productId),
-      eq(products.companyId, companyId)
-    ));
+    await tx
+      .update(products)
+      .set({ stockQuantity: totalStock.total })
+      .where(and(
+        eq(products.id, validated.productId),
+        eq(products.companyId, companyId)
+      ));
 
-  return movement;
+    return movement;
+  });
 }
 
 // ============================================================================

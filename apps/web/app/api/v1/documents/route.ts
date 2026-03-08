@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { db } from '@/lib/db';
 import { authenticateApi, apiError, apiSuccess } from '@/lib/api-handler';
-import { listDocuments, createDocument } from '@kivvi/core';
+import { listDocuments, createDocument, createDocumentSchema } from '@kivvi/core';
 import { documentTypeEnum, documentStatusEnum } from '@kivvi/database/src/schema';
 
 const querySchema = z.object({
@@ -52,7 +52,11 @@ export async function POST(request: NextRequest) {
     if (ctx instanceof Response) return ctx;
 
     const body = await request.json();
-    const doc = await createDocument(db, ctx.companyId, ctx.userId, body);
+    const parsed = createDocumentSchema.safeParse(body);
+    if (!parsed.success) {
+      return apiError(`Invalid body: ${parsed.error.issues.map(i => `${i.path}: ${i.message}`).join(', ')}`, 400);
+    }
+    const doc = await createDocument(db, ctx.companyId, ctx.userId, parsed.data);
     return apiSuccess(doc);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to create document';
