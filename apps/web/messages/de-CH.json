@@ -816,7 +816,18 @@
     "summaryAccounts": "{count, plural, one {# Konto} other {# Konten}}",
     "summaryBalance": "Saldo: {amount}",
     "summaryUnreconciled": "{count, plural, one {# nicht abgeglichen} other {# nicht abgeglichen}}",
-    "summaryLastTransaction": "Letzte Buchung: {date}"
+    "summaryLastTransaction": "Letzte Buchung: {date}",
+    "importStatement": "Kontoauszug importieren",
+    "supportedFormats": "Unterstützte Formate: CSV (mit Datum + Betrag), CAMT.053/054 (ISO 20022 XML)",
+    "parsingFile": "Datei wird verarbeitet...",
+    "ibanMismatch": "IBAN-Abweichung: Auszug-IBAN {statementIban} stimmt nicht mit Konto-IBAN {accountIban} überein",
+    "skippedDuplicates": "{count, plural, one {# Duplikat} other {# Duplikate}} übersprungen",
+    "debtor": "Auftraggeber",
+    "creditor": "Empfänger",
+    "openingBalance": "Anfangssaldo",
+    "closingBalance": "Schlusssaldo",
+    "camtParseError": "CAMT-Datei konnte nicht gelesen werden. Stellen Sie sicher, dass es sich um eine gültige camt.053 oder camt.054 XML-Datei handelt.",
+    "statementInfo": "{type} | IBAN: {iban} | {count, plural, one {# Buchung} other {# Buchungen}}"
   },
   "inventory": {
     "title": "Lager",

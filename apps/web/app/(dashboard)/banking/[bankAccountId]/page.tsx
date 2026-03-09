@@ -17,7 +17,7 @@ import {
 } from '@kivvi/core';
 import { formatCurrency, formatDate, cn } from '@/lib/utils';
 import { AutoMatchButton } from './auto-match-button';
-import { ImportCsv } from './import-csv';
+import { ImportTransactions } from './import-transactions';
 import { ReconcileButton } from './reconcile-button';
 import { getTranslations } from 'next-intl/server';
 
@@ -129,7 +129,7 @@ export default async function BankAccountDetailPage({ params, searchParams }: Pa
       {/* Actions */}
       <div className="flex flex-wrap items-center gap-3">
         <AutoMatchButton bankAccountId={bankAccountId} />
-        <ImportCsv bankAccountId={bankAccountId} />
+        <ImportTransactions bankAccountId={bankAccountId} />
       </div>
 
       {/* Filters */}

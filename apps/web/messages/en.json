@@ -813,7 +813,18 @@
     "summaryAccounts": "{count, plural, one {# account} other {# accounts}}",
     "summaryBalance": "Balance: {amount}",
     "summaryUnreconciled": "{count, plural, one {# unreconciled} other {# unreconciled}}",
-    "summaryLastTransaction": "Last transaction: {date}"
+    "summaryLastTransaction": "Last transaction: {date}",
+    "importStatement": "Import Statement",
+    "supportedFormats": "Supported formats: CSV (with date + amount columns), CAMT.053/054 (ISO 20022 XML)",
+    "parsingFile": "Parsing file...",
+    "ibanMismatch": "IBAN mismatch: statement IBAN {statementIban} does not match account IBAN {accountIban}",
+    "skippedDuplicates": "Skipped {count, plural, one {# duplicate} other {# duplicates}}",
+    "debtor": "Debtor",
+    "creditor": "Creditor",
+    "openingBalance": "Opening Balance",
+    "closingBalance": "Closing Balance",
+    "camtParseError": "Failed to parse CAMT file. Ensure it is a valid camt.053 or camt.054 XML file.",
+    "statementInfo": "{type} | IBAN: {iban} | {count, plural, one {# entry} other {# entries}}"
   },
   "inventory": {
     "title": "Inventory",

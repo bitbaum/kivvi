@@ -712,7 +712,18 @@
     "summaryAccounts": "{count, plural, one {# compte} other {# comptes}}",
     "summaryBalance": "Solde : {amount}",
     "summaryUnreconciled": "{count, plural, one {# non rapproché} other {# non rapprochés}}",
-    "summaryLastTransaction": "Dernière transaction : {date}"
+    "summaryLastTransaction": "Dernière transaction : {date}",
+    "importStatement": "Importer un relevé",
+    "supportedFormats": "Formats pris en charge : CSV (avec colonnes date + montant), CAMT.053/054 (ISO 20022 XML)",
+    "parsingFile": "Analyse du fichier...",
+    "ibanMismatch": "IBAN différent : l'IBAN du relevé {statementIban} ne correspond pas à l'IBAN du compte {accountIban}",
+    "skippedDuplicates": "{count, plural, one {# doublon ignoré} other {# doublons ignorés}}",
+    "debtor": "Débiteur",
+    "creditor": "Créditeur",
+    "openingBalance": "Solde d'ouverture",
+    "closingBalance": "Solde de clôture",
+    "camtParseError": "Impossible de lire le fichier CAMT. Vérifiez qu'il s'agit d'un fichier XML camt.053 ou camt.054 valide.",
+    "statementInfo": "{type} | IBAN : {iban} | {count, plural, one {# écriture} other {# écritures}}"
   },
   "inventory": {
     "title": "Inventaire",

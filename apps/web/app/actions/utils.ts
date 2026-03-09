@@ -36,6 +36,7 @@ const SAFE_ERROR_PATTERNS = [
   'Unknown sequence',
   'Invalid',
   'required',
+  'IBAN mismatch',
 ];
 
 /**
