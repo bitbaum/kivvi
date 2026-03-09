@@ -358,30 +358,30 @@ export async function reconcileTransaction(
 
   if (!doc) throw new Error('Document not found');
 
-  const [updated] = await db
-    .update(bankTransactions)
-    .set({
-      isReconciled: true,
-      reconciledDocumentId: documentId,
-      reconciledAt: new Date(),
-    })
-    .where(eq(bankTransactions.id, transactionId))
-    .returning();
+  // Reconciliation + payment must be atomic: if payment fails, roll back reconciliation
+  const updated = await db.transaction(async (tx) => {
+    const [reconciled] = await tx
+      .update(bankTransactions)
+      .set({
+        isReconciled: true,
+        reconciledDocumentId: documentId,
+        reconciledAt: new Date(),
+      })
+      .where(eq(bankTransactions.id, transactionId))
+      .returning();
 
-  // Auto-record payment (idempotent — skips if bankTransactionId already used)
-  try {
+    // Auto-record payment (idempotent — skips if bankTransactionId already used)
     const txnAmount = new Decimal(txn.transaction.amount).abs();
-    await recordPayment(db, companyId, documentId, {
+    await recordPayment(tx, companyId, documentId, {
       amount: txnAmount.toFixed(2),
       date: txn.transaction.date.toISOString().split('T')[0],
       method: 'bank_transfer',
       reference: txn.transaction.reference || `Bank tx ${transactionId}`,
       bankTransactionId: transactionId,
     });
-  } catch (e) {
-    // Payment may fail if document is in draft/cancelled — log but don't fail reconciliation
-    logger.error('Auto-payment from reconciliation failed', e);
-  }
+
+    return reconciled;
+  });
 
   return updated;
 }

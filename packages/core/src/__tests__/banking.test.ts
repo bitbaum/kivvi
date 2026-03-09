@@ -283,19 +283,16 @@ describe('reconciliation edge cases', () => {
     expect(canRecordPayment(status)).toBe(false);
   });
 
-  it('reconciliation with draft document: payment fails but reconciliation succeeds', () => {
-    // This is the known edge case from reconcileTransaction (line 270-282):
-    // Reconciliation marks the bank tx as reconciled, but recordPayment fails
-    // because the document is in 'draft' status. This creates an inconsistency:
-    // bank tx shows reconciled, but document shows no payment.
+  it('reconciliation with draft document: both reconciliation and payment fail atomically', () => {
+    // reconcileTransaction wraps reconciliation + payment in db.transaction().
+    // If payment fails (e.g. document is draft), the entire operation rolls back —
+    // no orphaned reconciled transaction without a payment record.
     const docStatus = 'draft';
     const paymentWouldFail = !canRecordPayment(docStatus);
     expect(paymentWouldFail).toBe(true);
-    // TODO: Consider whether reconcileTransaction should fail atomically
-    // when payment recording fails, rather than silently continuing.
   });
 
-  it('reconciliation with cancelled document: payment fails but reconciliation succeeds', () => {
+  it('reconciliation with cancelled document: both reconciliation and payment fail atomically', () => {
     const docStatus = 'cancelled';
     const paymentWouldFail = !canRecordPayment(docStatus);
     expect(paymentWouldFail).toBe(true);

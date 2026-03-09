@@ -128,19 +128,20 @@ export async function resetPasswordAction(
     // Hash new password
     const passwordHash = await bcrypt.hash(password, 12);
 
-    // Update user's password
-    await db
-      .update(users)
-      .set({
-        passwordHash,
-        updatedAt: new Date(),
-      })
-      .where(eq(users.id, resetToken.userId));
+    // Update password + delete token atomically
+    await db.transaction(async (tx) => {
+      await tx
+        .update(users)
+        .set({
+          passwordHash,
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, resetToken.userId));
 
-    // Delete the used token
-    await db
-      .delete(passwordResetTokens)
-      .where(eq(passwordResetTokens.id, resetToken.id));
+      await tx
+        .delete(passwordResetTokens)
+        .where(eq(passwordResetTokens.id, resetToken.id));
+    });
 
     return {
       success: true,

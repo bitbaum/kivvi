@@ -24,8 +24,8 @@ const updateCompanySchema = z.object({
   // Settings JSONB fields
   iban: z.string().max(34).optional().nullable(),
   bankName: z.string().max(200).optional().nullable(),
-  defaultVatRate: z.string().optional().nullable(),
-  defaultPaymentTermsDays: z.string().optional().nullable(),
+  defaultVatRate: z.string().refine((v) => !v || !isNaN(Number(v)), 'Must be a valid number').optional().nullable(),
+  defaultPaymentTermsDays: z.string().refine((v) => !v || !isNaN(Number(v)), 'Must be a valid number').optional().nullable(),
   defaultDocumentFooter: z.string().max(1000).optional().nullable(),
 });
 
@@ -54,10 +54,10 @@ export async function updateCompanyAction(input: unknown): Promise<ActionResult>
         bankName: parsed.data.bankName || existingSettings.bankAccount?.bankName,
       },
       defaultVatRate: parsed.data.defaultVatRate
-        ? parseFloat(parsed.data.defaultVatRate)
+        ? Number(parsed.data.defaultVatRate)
         : existingSettings.defaultVatRate,
       defaultPaymentTermsDays: parsed.data.defaultPaymentTermsDays
-        ? parseInt(parsed.data.defaultPaymentTermsDays, 10)
+        ? Number(parsed.data.defaultPaymentTermsDays)
         : existingSettings.defaultPaymentTermsDays,
       defaultDocumentFooter: parsed.data.defaultDocumentFooter ?? existingSettings.defaultDocumentFooter,
     };
