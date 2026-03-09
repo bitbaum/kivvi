@@ -10,6 +10,7 @@ import {
 import type { Database, BankAccount, BankTransaction } from '@kivvi/database';
 import { recordPayment } from './documents';
 import { logger } from '../logger';
+import { parseCamtXml, normalizeIban, type CamtStatement } from './camt-parser';
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -29,6 +30,12 @@ export const importTransactionSchema = z.object({
   reference: z.string().optional().nullable(),
   amount: z.string().min(1),
   balance: z.string().optional().nullable(),
+  // CAMT.053/054 optional fields
+  entryReference: z.string().optional().nullable(),
+  valueDate: z.string().optional().nullable(),
+  debtorName: z.string().optional().nullable(),
+  creditorName: z.string().optional().nullable(),
+  remittanceInfo: z.string().optional().nullable(),
 });
 
 // ============================================================================
@@ -189,44 +196,139 @@ export async function listTransactions(
   return { data, total: count, page, pageSize, totalPages: Math.ceil(count / pageSize) };
 }
 
+export interface ImportTransactionsOptions {
+  /** CAMT closing balance — used to update bankAccounts.balance instead of last row's balance */
+  closingBalance?: string;
+}
+
 /**
- * Import bank transactions from parsed CSV data.
+ * Import bank transactions from parsed data (CSV or CAMT).
+ * Deduplicates by entryReference when present.
  */
 export async function importTransactions(
   db: Database,
   companyId: string,
   bankAccountId: string,
-  transactions: z.infer<typeof importTransactionSchema>[]
-): Promise<{ imported: number }> {
+  transactions: z.infer<typeof importTransactionSchema>[],
+  options?: ImportTransactionsOptions
+): Promise<{ imported: number; skippedDuplicates: number }> {
   const bankAccount = await getBankAccount(db, companyId, bankAccountId);
   if (!bankAccount) throw new Error('Bank account not found');
 
-  const values = transactions.map((t) => ({
-    bankAccountId,
-    date: new Date(t.date),
-    description: t.description || null,
-    reference: t.reference || null,
-    amount: t.amount,
-    balance: t.balance || null,
-  }));
+  if (transactions.length === 0) return { imported: 0, skippedDuplicates: 0 };
 
-  if (values.length === 0) return { imported: 0 };
+  // Dedup: find existing entryReferences for this bank account
+  const incomingRefs = transactions
+    .map((t) => t.entryReference)
+    .filter((ref): ref is string => !!ref);
 
-  await db.insert(bankTransactions).values(values);
+  let existingRefs = new Set<string>();
+  if (incomingRefs.length > 0) {
+    const existing = await db
+      .select({ ref: bankTransactions.entryReference })
+      .from(bankTransactions)
+      .where(
+        and(
+          eq(bankTransactions.bankAccountId, bankAccountId),
+          sql`${bankTransactions.entryReference} IS NOT NULL`
+        )
+      );
+    existingRefs = new Set(existing.map((r) => r.ref!));
+  }
 
-  // Update bank account balance to the last imported transaction's balance
-  const lastBalance = transactions[transactions.length - 1].balance;
-  if (lastBalance) {
+  let skippedDuplicates = 0;
+  const values = transactions
+    .filter((t) => {
+      if (t.entryReference && existingRefs.has(t.entryReference)) {
+        skippedDuplicates++;
+        return false;
+      }
+      return true;
+    })
+    .map((t) => ({
+      bankAccountId,
+      date: new Date(t.date),
+      description: t.description || null,
+      reference: t.reference || null,
+      amount: t.amount,
+      balance: t.balance || null,
+      entryReference: t.entryReference || null,
+      valueDate: t.valueDate ? new Date(t.valueDate) : null,
+      debtorName: t.debtorName || null,
+      creditorName: t.creditorName || null,
+      remittanceInfo: t.remittanceInfo || null,
+    }));
+
+  if (values.length > 0) {
+    await db.insert(bankTransactions).values(values);
+  }
+
+  // Update bank account balance
+  const balanceToSet = options?.closingBalance || transactions[transactions.length - 1].balance;
+  if (balanceToSet) {
     await db
       .update(bankAccounts)
-      .set({ balance: lastBalance, lastSyncAt: new Date() })
+      .set({ balance: balanceToSet, lastSyncAt: new Date() })
       .where(and(
         eq(bankAccounts.id, bankAccountId),
         eq(bankAccounts.companyId, companyId)
       ));
   }
 
-  return { imported: values.length };
+  return { imported: values.length, skippedDuplicates };
+}
+
+/**
+ * Import a CAMT.053/054 XML statement into bank transactions.
+ * Parses XML, validates IBAN, maps entries, and calls importTransactions().
+ */
+export async function importCamtStatement(
+  db: Database,
+  companyId: string,
+  bankAccountId: string,
+  xml: string
+): Promise<{ imported: number; skippedDuplicates: number; totalEntries: number }> {
+  const statement = parseCamtXml(xml);
+
+  // Validate IBAN match
+  const bankAccount = await getBankAccount(db, companyId, bankAccountId);
+  if (!bankAccount) throw new Error('Bank account not found');
+
+  if (statement.accountIban && bankAccount.iban) {
+    const stmtIban = normalizeIban(statement.accountIban);
+    const acctIban = normalizeIban(bankAccount.iban);
+    if (stmtIban !== acctIban) {
+      throw new Error(
+        `IBAN mismatch: statement has ${stmtIban}, account has ${acctIban}`
+      );
+    }
+  }
+
+  // Map CAMT entries to import schema
+  const transactions: z.infer<typeof importTransactionSchema>[] = statement.entries.map((entry) => ({
+    date: entry.bookingDate,
+    description: entry.description || null,
+    reference: entry.reference || null,
+    amount: entry.amount,
+    balance: null,
+    entryReference: entry.entryReference || null,
+    valueDate: entry.valueDate || null,
+    debtorName: entry.debtorName || null,
+    creditorName: entry.creditorName || null,
+    remittanceInfo: entry.remittanceInfo || null,
+  }));
+
+  const closingBalance = statement.closingBalance?.amount;
+
+  const result = await importTransactions(db, companyId, bankAccountId, transactions, {
+    closingBalance,
+  });
+
+  return {
+    imported: result.imported,
+    skippedDuplicates: result.skippedDuplicates,
+    totalEntries: statement.entries.length,
+  };
 }
 
 /**

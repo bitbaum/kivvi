@@ -13,7 +13,7 @@ import {
   unique,
   index,
 } from 'drizzle-orm/pg-core';
-import { relations } from 'drizzle-orm';
+import { relations, sql } from 'drizzle-orm';
 
 // ============================================================================
 // ENUMS
@@ -495,11 +495,20 @@ export const bankTransactions = pgTable('bank_transactions', {
   isReconciled: boolean('is_reconciled').default(false),
   reconciledDocumentId: uuid('reconciled_document_id').references(() => documents.id),
   reconciledAt: timestamp('reconciled_at'),
+  // CAMT.053/054 fields
+  entryReference: text('entry_reference'),
+  valueDate: timestamp('value_date'),
+  debtorName: text('debtor_name'),
+  creditorName: text('creditor_name'),
+  remittanceInfo: text('remittance_info'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 }, (table) => ({
   bankAccountIdIdx: index('bank_transactions_bank_account_id_idx').on(table.bankAccountId),
   bankAccountReconciledIdx: index('bank_transactions_bank_account_id_is_reconciled_idx').on(table.bankAccountId, table.isReconciled),
   dateIdx: index('bank_transactions_date_idx').on(table.date),
+  entryRefUniqueIdx: uniqueIndex('bank_transactions_entry_ref_unique')
+    .on(table.bankAccountId, table.entryReference)
+    .where(sql`entry_reference IS NOT NULL`),
 }));
 
 // ============================================================================
