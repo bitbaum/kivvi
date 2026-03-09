@@ -11,6 +11,7 @@ export * from './domain/dunning';
 export * from './domain/accounting';
 export * from './domain/accounting-integration';
 export * from './domain/banking';
+export * from './domain/camt-parser';
 export * from './domain/inventory';
 export * from './domain/reports';
 export * from './domain/projects';
