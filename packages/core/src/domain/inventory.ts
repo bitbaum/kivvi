@@ -1,27 +1,27 @@
-import { z } from 'zod';
-import Decimal from 'decimal.js';
-import { eq, and, asc, desc, sql } from 'drizzle-orm';
+import { z } from "zod";
+import Decimal from "decimal.js";
+import { eq, and, asc, desc, sql } from "drizzle-orm";
 import {
   warehouses,
   stockLevels,
   stockMovements,
   serialNumbers,
   products,
-} from '@kivvi/database';
+} from "@kivvi/database";
 import type {
   Database,
   Warehouse,
   StockLevel,
   StockMovement,
   SerialNumber,
-} from '@kivvi/database';
+} from "@kivvi/database";
 
 // ============================================================================
 // VALIDATION SCHEMAS
 // ============================================================================
 
 export const createWarehouseSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(200),
+  name: z.string().min(1, "Name is required").max(200),
   address: z.string().max(500).optional().nullable(),
   isDefault: z.boolean().optional().default(false),
 });
@@ -29,15 +29,15 @@ export const createWarehouseSchema = z.object({
 export const createStockMovementSchema = z.object({
   productId: z.string().uuid(),
   warehouseId: z.string().uuid(),
-  type: z.enum(['purchase', 'sale', 'adjustment', 'transfer', 'return']),
-  quantity: z.string().min(1, 'Quantity is required'),
+  type: z.enum(["purchase", "sale", "adjustment", "transfer", "return"]),
+  quantity: z.string().min(1, "Quantity is required"),
   reference: z.string().optional().nullable(),
   documentId: z.string().uuid().optional().nullable(),
 });
 
 export const createSerialNumberSchema = z.object({
   productId: z.string().uuid(),
-  serialNumber: z.string().min(1, 'Serial number is required'),
+  serialNumber: z.string().min(1, "Serial number is required"),
   warehouseId: z.string().uuid().optional().nullable(),
 });
 
@@ -47,7 +47,7 @@ export const createSerialNumberSchema = z.object({
 
 export async function listWarehouses(
   db: Database,
-  companyId: string
+  companyId: string,
 ): Promise<Warehouse[]> {
   return db
     .select()
@@ -59,19 +59,21 @@ export async function listWarehouses(
 export async function getWarehouse(
   db: Database,
   companyId: string,
-  warehouseId: string
+  warehouseId: string,
 ): Promise<Warehouse | null> {
   const [warehouse] = await db
     .select()
     .from(warehouses)
-    .where(and(eq(warehouses.id, warehouseId), eq(warehouses.companyId, companyId)));
+    .where(
+      and(eq(warehouses.id, warehouseId), eq(warehouses.companyId, companyId)),
+    );
   return warehouse || null;
 }
 
 export async function createWarehouse(
   db: Database,
   companyId: string,
-  input: z.infer<typeof createWarehouseSchema>
+  input: z.infer<typeof createWarehouseSchema>,
 ): Promise<Warehouse> {
   const validated = createWarehouseSchema.parse(input);
 
@@ -81,7 +83,12 @@ export async function createWarehouse(
       await tx
         .update(warehouses)
         .set({ isDefault: false })
-        .where(and(eq(warehouses.companyId, companyId), eq(warehouses.isDefault, true)));
+        .where(
+          and(
+            eq(warehouses.companyId, companyId),
+            eq(warehouses.isDefault, true),
+          ),
+        );
 
       const [warehouse] = await tx
         .insert(warehouses)
@@ -114,7 +121,7 @@ export async function updateWarehouse(
   db: Database,
   companyId: string,
   warehouseId: string,
-  input: z.infer<typeof createWarehouseSchema>
+  input: z.infer<typeof createWarehouseSchema>,
 ): Promise<Warehouse> {
   const validated = createWarehouseSchema.parse(input);
 
@@ -124,7 +131,12 @@ export async function updateWarehouse(
       await tx
         .update(warehouses)
         .set({ isDefault: false })
-        .where(and(eq(warehouses.companyId, companyId), eq(warehouses.isDefault, true)));
+        .where(
+          and(
+            eq(warehouses.companyId, companyId),
+            eq(warehouses.isDefault, true),
+          ),
+        );
 
       const [warehouse] = await tx
         .update(warehouses)
@@ -133,10 +145,15 @@ export async function updateWarehouse(
           address: validated.address || null,
           isDefault: validated.isDefault,
         })
-        .where(and(eq(warehouses.id, warehouseId), eq(warehouses.companyId, companyId)))
+        .where(
+          and(
+            eq(warehouses.id, warehouseId),
+            eq(warehouses.companyId, companyId),
+          ),
+        )
         .returning();
 
-      if (!warehouse) throw new Error('Warehouse not found');
+      if (!warehouse) throw new Error("Warehouse not found");
       return warehouse;
     });
   }
@@ -148,10 +165,12 @@ export async function updateWarehouse(
       address: validated.address || null,
       isDefault: validated.isDefault,
     })
-    .where(and(eq(warehouses.id, warehouseId), eq(warehouses.companyId, companyId)))
+    .where(
+      and(eq(warehouses.id, warehouseId), eq(warehouses.companyId, companyId)),
+    )
     .returning();
 
-  if (!warehouse) throw new Error('Warehouse not found');
+  if (!warehouse) throw new Error("Warehouse not found");
   return warehouse;
 }
 
@@ -168,10 +187,10 @@ export interface StockLevelWithProduct extends StockLevel {
 export async function getStockLevelsByWarehouse(
   db: Database,
   companyId: string,
-  warehouseId: string
+  warehouseId: string,
 ): Promise<StockLevelWithProduct[]> {
   const warehouse = await getWarehouse(db, companyId, warehouseId);
-  if (!warehouse) throw new Error('Warehouse not found');
+  if (!warehouse) throw new Error("Warehouse not found");
 
   const rows = await db
     .select({
@@ -193,31 +212,18 @@ export async function getStockLevelsByWarehouse(
   }));
 }
 
-export async function getStockLevelsByProduct(
-  db: Database,
-  companyId: string,
-  productId: string
-): Promise<(StockLevel & { warehouseName: string })[]> {
-  const rows = await db
-    .select({
-      stockLevel: stockLevels,
-      warehouseName: warehouses.name,
-    })
-    .from(stockLevels)
-    .innerJoin(warehouses, eq(stockLevels.warehouseId, warehouses.id))
-    .where(and(eq(stockLevels.productId, productId), eq(warehouses.companyId, companyId)))
-    .orderBy(asc(warehouses.name));
-
-  return rows.map((r) => ({
-    ...r.stockLevel,
-    warehouseName: r.warehouseName,
-  }));
-}
-
 export async function getLowStockProducts(
   db: Database,
-  companyId: string
-): Promise<{ productId: string; productName: string; articleNumber: string | null; totalStock: number; minStock: number }[]> {
+  companyId: string,
+): Promise<
+  {
+    productId: string;
+    productName: string;
+    articleNumber: string | null;
+    totalStock: number;
+    minStock: number;
+  }[]
+> {
   const rows = await db
     .select({
       productId: products.id,
@@ -231,9 +237,9 @@ export async function getLowStockProducts(
       and(
         eq(products.companyId, companyId),
         eq(products.isActive, true),
-        eq(products.type, 'product'),
-        sql`${products.minStock} IS NOT NULL AND CAST(${products.stockQuantity} AS DECIMAL) < ${products.minStock}`
-      )
+        eq(products.type, "product"),
+        sql`${products.minStock} IS NOT NULL AND CAST(${products.stockQuantity} AS DECIMAL) < ${products.minStock}`,
+      ),
     )
     .orderBy(asc(products.name));
 
@@ -262,8 +268,14 @@ export async function listStockMovements(
     type?: string;
     page?: number;
     pageSize?: number;
-  }
-): Promise<{ data: StockMovementWithDetails[]; total: number; page: number; pageSize: number; totalPages: number }> {
+  },
+): Promise<{
+  data: StockMovementWithDetails[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}> {
   const page = filters.page || 1;
   const pageSize = filters.pageSize || 50;
 
@@ -307,7 +319,13 @@ export async function listStockMovements(
     warehouseName: r.warehouseName,
   }));
 
-  return { data, total: count, page, pageSize, totalPages: Math.ceil(count / pageSize) };
+  return {
+    data,
+    total: count,
+    page,
+    pageSize,
+    totalPages: Math.ceil(count / pageSize),
+  };
 }
 
 /**
@@ -316,20 +334,25 @@ export async function listStockMovements(
 export async function createStockMovement(
   db: Database,
   companyId: string,
-  input: z.infer<typeof createStockMovementSchema>
+  input: z.infer<typeof createStockMovementSchema>,
 ): Promise<StockMovement> {
   const validated = createStockMovementSchema.parse(input);
 
   // Verify warehouse belongs to company
   const warehouse = await getWarehouse(db, companyId, validated.warehouseId);
-  if (!warehouse) throw new Error('Warehouse not found');
+  if (!warehouse) throw new Error("Warehouse not found");
 
   // Verify product belongs to company
   const [product] = await db
     .select()
     .from(products)
-    .where(and(eq(products.id, validated.productId), eq(products.companyId, companyId)));
-  if (!product) throw new Error('Product not found');
+    .where(
+      and(
+        eq(products.id, validated.productId),
+        eq(products.companyId, companyId),
+      ),
+    );
+  if (!product) throw new Error("Product not found");
 
   // All mutations atomic: insert movement + update stock level + update cached product quantity
   return db.transaction(async (tx) => {
@@ -354,7 +377,7 @@ export async function createStockMovement(
         productId: validated.productId,
         warehouseId: validated.warehouseId,
         quantity: validated.quantity,
-        reservedQuantity: '0',
+        reservedQuantity: "0",
       })
       .onConflictDoUpdate({
         target: [stockLevels.productId, stockLevels.warehouseId],
@@ -374,10 +397,12 @@ export async function createStockMovement(
     await tx
       .update(products)
       .set({ stockQuantity: totalStock.total })
-      .where(and(
-        eq(products.id, validated.productId),
-        eq(products.companyId, companyId)
-      ));
+      .where(
+        and(
+          eq(products.id, validated.productId),
+          eq(products.companyId, companyId),
+        ),
+      );
 
     return movement;
   });
@@ -387,38 +412,10 @@ export async function createStockMovement(
 // SERIAL NUMBERS
 // ============================================================================
 
-export async function listSerialNumbers(
-  db: Database,
-  companyId: string,
-  productId: string
-): Promise<(SerialNumber & { warehouseName: string | null })[]> {
-  // Verify product belongs to company
-  const [product] = await db
-    .select()
-    .from(products)
-    .where(and(eq(products.id, productId), eq(products.companyId, companyId)));
-  if (!product) throw new Error('Product not found');
-
-  const rows = await db
-    .select({
-      serial: serialNumbers,
-      warehouseName: warehouses.name,
-    })
-    .from(serialNumbers)
-    .leftJoin(warehouses, eq(serialNumbers.warehouseId, warehouses.id))
-    .where(eq(serialNumbers.productId, productId))
-    .orderBy(asc(serialNumbers.serialNumber));
-
-  return rows.map((r) => ({
-    ...r.serial,
-    warehouseName: r.warehouseName,
-  }));
-}
-
 export async function createSerialNumber(
   db: Database,
   companyId: string,
-  input: z.infer<typeof createSerialNumberSchema>
+  input: z.infer<typeof createSerialNumberSchema>,
 ): Promise<SerialNumber> {
   const validated = createSerialNumberSchema.parse(input);
 
@@ -426,13 +423,19 @@ export async function createSerialNumber(
   const [product] = await db
     .select()
     .from(products)
-    .where(and(eq(products.id, validated.productId), eq(products.companyId, companyId)));
-  if (!product) throw new Error('Product not found');
-  if (!product.serialNumberTracking) throw new Error('Product does not have serial number tracking enabled');
+    .where(
+      and(
+        eq(products.id, validated.productId),
+        eq(products.companyId, companyId),
+      ),
+    );
+  if (!product) throw new Error("Product not found");
+  if (!product.serialNumberTracking)
+    throw new Error("Product does not have serial number tracking enabled");
 
   if (validated.warehouseId) {
     const warehouse = await getWarehouse(db, companyId, validated.warehouseId);
-    if (!warehouse) throw new Error('Warehouse not found');
+    if (!warehouse) throw new Error("Warehouse not found");
   }
 
   const [serial] = await db
@@ -441,7 +444,7 @@ export async function createSerialNumber(
       productId: validated.productId,
       serialNumber: validated.serialNumber,
       warehouseId: validated.warehouseId || null,
-      status: 'available',
+      status: "available",
     })
     .returning();
 
@@ -452,17 +455,22 @@ export async function updateSerialNumberStatus(
   db: Database,
   companyId: string,
   serialNumberId: string,
-  status: 'available' | 'sold' | 'reserved' | 'defective',
-  soldToContactId?: string
+  status: "available" | "sold" | "reserved" | "defective",
+  soldToContactId?: string,
 ): Promise<SerialNumber> {
   // Verify serial number belongs to company's product
   const [serial] = await db
     .select({ serial: serialNumbers, product: products })
     .from(serialNumbers)
     .innerJoin(products, eq(serialNumbers.productId, products.id))
-    .where(and(eq(serialNumbers.id, serialNumberId), eq(products.companyId, companyId)));
+    .where(
+      and(
+        eq(serialNumbers.id, serialNumberId),
+        eq(products.companyId, companyId),
+      ),
+    );
 
-  if (!serial) throw new Error('Serial number not found');
+  if (!serial) throw new Error("Serial number not found");
 
   const [updated] = await db
     .update(serialNumbers)

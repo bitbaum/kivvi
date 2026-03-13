@@ -1,4 +1,4 @@
-import type { CompanySettings } from '@kivvi/database';
+import type { CompanySettings } from "@kivvi/database";
 
 const TRIAL_DURATION_DAYS = 30;
 
@@ -6,7 +6,7 @@ const TRIAL_DURATION_DAYS = 30;
  * Check if the company's plan is active (premium or valid trial).
  */
 export function isPlanActive(settings: CompanySettings): boolean {
-  if (settings.plan === 'premium' && settings.subscriptionStatus === 'active') {
+  if (settings.plan === "premium" && settings.subscriptionStatus === "active") {
     return true;
   }
   return isTrialing(settings);
@@ -27,23 +27,6 @@ export function getTrialDaysRemaining(settings: CompanySettings): number {
   if (!settings.trialEndsAt) return 0;
   const remaining = new Date(settings.trialEndsAt).getTime() - Date.now();
   return Math.max(0, Math.ceil(remaining / (1000 * 60 * 60 * 24)));
-}
-
-/**
- * Determine if the upgrade banner should be shown.
- * Show when: free plan, trial expiring soon (≤7 days), or trial expired.
- */
-export function shouldShowUpgradeBanner(settings: CompanySettings): boolean {
-  if (settings.plan === 'premium' && settings.subscriptionStatus === 'active') {
-    return false;
-  }
-  if (settings.subscriptionStatus === 'past_due') {
-    return true;
-  }
-  const daysRemaining = getTrialDaysRemaining(settings);
-  if (daysRemaining <= 7) return true;
-  if (settings.plan === 'free' && !settings.trialEndsAt) return true;
-  return false;
 }
 
 /**

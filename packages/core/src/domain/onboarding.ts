@@ -1,10 +1,10 @@
-import { eq, sql } from 'drizzle-orm';
-import { companies } from '@kivvi/database';
-import type { Database, CompanySettings } from '@kivvi/database';
-import { seedChartOfAccounts, createFiscalYear } from './accounting';
-import { initializeSequences } from './number-sequences';
-import { createWarehouse } from './inventory';
-import { getDefaultTrialEnd } from './billing';
+import { eq, sql } from "drizzle-orm";
+import { companies } from "@kivvi/database";
+import type { Database, CompanySettings } from "@kivvi/database";
+import { seedChartOfAccounts, createFiscalYear } from "./accounting";
+import { initializeSequences } from "./number-sequences";
+import { createWarehouse } from "./inventory";
+import { getDefaultTrialEnd } from "./billing";
 
 // ============================================================================
 // TYPES
@@ -37,60 +37,62 @@ export interface InitializeCompanyResult {
 export async function initializeCompany(
   db: Database,
   companyId: string,
-  config: InitializeCompanyConfig
+  config: InitializeCompanyConfig,
 ): Promise<InitializeCompanyResult> {
-  // 1. Seed chart of accounts (Swiss KMU Kontenrahmen)
-  const accountsCreated = await seedChartOfAccounts(db, companyId);
+  return await db.transaction(async (tx) => {
+    // 1. Seed chart of accounts (Swiss KMU Kontenrahmen)
+    const accountsCreated = await seedChartOfAccounts(tx, companyId);
 
-  // 2. Initialize number sequences (11 types)
-  await initializeSequences(db, companyId);
+    // 2. Initialize number sequences (11 types)
+    await initializeSequences(tx, companyId);
 
-  // 3. Create default warehouse
-  const warehouse = await createWarehouse(db, companyId, {
-    name: 'Hauptlager',
-    isDefault: true,
+    // 3. Create default warehouse
+    const warehouse = await createWarehouse(tx, companyId, {
+      name: "Hauptlager",
+      isDefault: true,
+    });
+
+    // 4. Create current fiscal year
+    const currentYear = new Date().getFullYear();
+    const fiscalYear = await createFiscalYear(tx, companyId, {
+      name: `Geschäftsjahr ${currentYear}`,
+      startDate: `${currentYear}-01-01`,
+      endDate: `${currentYear}-12-31`,
+    });
+
+    // 5. Update company settings
+    const [company] = await tx
+      .select({ settings: companies.settings })
+      .from(companies)
+      .where(eq(companies.id, companyId));
+
+    const existingSettings = (company?.settings as CompanySettings) || {};
+    const updatedSettings: CompanySettings = {
+      ...existingSettings,
+      defaultVatRate: config.defaultVatRate,
+      defaultPaymentTermsDays: config.defaultPaymentTermsDays,
+      onboardingStep: 3,
+    };
+
+    if (config.bankAccount) {
+      updatedSettings.bankAccount = config.bankAccount;
+    }
+
+    await tx
+      .update(companies)
+      .set({
+        settings: updatedSettings,
+        updatedAt: new Date(),
+      })
+      .where(eq(companies.id, companyId));
+
+    return {
+      accountsCreated,
+      sequencesCreated: 11,
+      warehouseId: warehouse.id,
+      fiscalYearId: fiscalYear.id,
+    };
   });
-
-  // 4. Create current fiscal year
-  const currentYear = new Date().getFullYear();
-  const fiscalYear = await createFiscalYear(db, companyId, {
-    name: `Geschäftsjahr ${currentYear}`,
-    startDate: `${currentYear}-01-01`,
-    endDate: `${currentYear}-12-31`,
-  });
-
-  // 5. Update company settings
-  const [company] = await db
-    .select({ settings: companies.settings })
-    .from(companies)
-    .where(eq(companies.id, companyId));
-
-  const existingSettings = (company?.settings as CompanySettings) || {};
-  const updatedSettings: CompanySettings = {
-    ...existingSettings,
-    defaultVatRate: config.defaultVatRate,
-    defaultPaymentTermsDays: config.defaultPaymentTermsDays,
-    onboardingStep: 3,
-  };
-
-  if (config.bankAccount) {
-    updatedSettings.bankAccount = config.bankAccount;
-  }
-
-  await db
-    .update(companies)
-    .set({
-      settings: updatedSettings,
-      updatedAt: new Date(),
-    })
-    .where(eq(companies.id, companyId));
-
-  return {
-    accountsCreated,
-    sequencesCreated: 11,
-    warehouseId: warehouse.id,
-    fiscalYearId: fiscalYear.id,
-  };
 }
 
 // ============================================================================
@@ -103,7 +105,7 @@ export async function initializeCompany(
 export async function updateOnboardingStep(
   db: Database,
   companyId: string,
-  step: number
+  step: number,
 ): Promise<void> {
   const [company] = await db
     .select({ settings: companies.settings })
@@ -126,7 +128,7 @@ export async function updateOnboardingStep(
  */
 export async function completeOnboarding(
   db: Database,
-  companyId: string
+  companyId: string,
 ): Promise<void> {
   const [company] = await db
     .select({ settings: companies.settings })
@@ -142,7 +144,7 @@ export async function completeOnboarding(
         ...existingSettings,
         onboardingCompletedAt: new Date().toISOString(),
         onboardingStep: 4,
-        plan: 'free' as const,
+        plan: "free" as const,
         trialEndsAt: getDefaultTrialEnd(),
       },
       updatedAt: new Date(),
@@ -155,7 +157,7 @@ export async function completeOnboarding(
  */
 export async function getOnboardingState(
   db: Database,
-  companyId: string
+  companyId: string,
 ): Promise<{ step: number; completedAt: string | null }> {
   const [company] = await db
     .select({ settings: companies.settings })

@@ -1,9 +1,16 @@
-import Decimal from 'decimal.js';
-import { eq, and, lt, sql, desc, count, inArray, ne } from 'drizzle-orm';
-import { documents, documentItems, documentPayments, contacts, companies, users } from '@kivvi/database';
-import type { Database, DocumentStatus } from '@kivvi/database';
-import { getNextNumber } from './number-sequences';
-import { logger } from '../logger';
+import Decimal from "decimal.js";
+import { eq, and, lt, sql, desc, count, inArray, ne } from "drizzle-orm";
+import {
+  documents,
+  documentItems,
+  documentPayments,
+  contacts,
+  companies,
+  users,
+} from "@kivvi/database";
+import type { Database, DocumentStatus } from "@kivvi/database";
+import { getNextNumber } from "./number-sequences";
+import { logger } from "../logger";
 
 // ============================================================================
 // TYPES
@@ -36,17 +43,17 @@ export interface DunningStats {
 // ============================================================================
 
 function getDunningLevel(status: string): number {
-  if (status === 'dunning_3') return 3;
-  if (status === 'dunning_2') return 2;
-  if (status === 'dunning_1') return 1;
+  if (status === "dunning_3") return 3;
+  if (status === "dunning_2") return 2;
+  if (status === "dunning_1") return 1;
   return 0;
 }
 
 function getNextDunningStatus(currentStatus: string): DocumentStatus | null {
   const current = getDunningLevel(currentStatus);
-  if (current === 0) return 'dunning_1';
-  if (current === 1) return 'dunning_2';
-  if (current === 2) return 'dunning_3';
+  if (current === 0) return "dunning_1";
+  if (current === 1) return "dunning_2";
+  if (current === 2) return "dunning_3";
   return null; // Already at max level
 }
 
@@ -60,16 +67,16 @@ function getNextDunningStatus(currentStatus: string): DocumentStatus | null {
  */
 export async function detectOverdueInvoices(
   db: Database,
-  companyId: string
+  companyId: string,
 ): Promise<OverdueInvoice[]> {
   const now = new Date();
 
   const results = await db.query.documents.findMany({
     where: and(
       eq(documents.companyId, companyId),
-      eq(documents.type, 'invoice'),
+      eq(documents.type, "invoice"),
       sql`${documents.status} IN ('sent', 'confirmed', 'delivered', 'partially_paid', 'overdue', 'dunning_1', 'dunning_2', 'dunning_3')`,
-      lt(documents.dueDate, now)
+      lt(documents.dueDate, now),
     ),
     with: {
       contact: { columns: { id: true, name: true } },
@@ -86,7 +93,10 @@ export async function detectOverdueInvoices(
     dueDate: doc.dueDate!,
     total: doc.total,
     status: doc.status,
-    daysOverdue: Math.floor((now.getTime() - new Date(doc.dueDate!).getTime()) / (1000 * 60 * 60 * 24)),
+    daysOverdue: Math.floor(
+      (now.getTime() - new Date(doc.dueDate!).getTime()) /
+        (1000 * 60 * 60 * 24),
+    ),
     dunningLevel: getDunningLevel(doc.status),
   }));
 }
@@ -96,7 +106,7 @@ export async function detectOverdueInvoices(
  */
 export async function getDunningStats(
   db: Database,
-  companyId: string
+  companyId: string,
 ): Promise<DunningStats> {
   const overdue = await detectOverdueInvoices(db, companyId);
 
@@ -113,10 +123,14 @@ export async function getDunningStats(
       .where(inArray(documentPayments.documentId, overdueIds))
       .groupBy(documentPayments.documentId);
 
-    const paidMap = new Map(paymentsByDoc.map((p) => [p.documentId, p.totalPaid]));
+    const paidMap = new Map(
+      paymentsByDoc.map((p) => [p.documentId, p.totalPaid]),
+    );
 
     for (const inv of overdue) {
-      const outstanding = new Decimal(inv.total).minus(new Decimal(paidMap.get(inv.id) || '0'));
+      const outstanding = new Decimal(inv.total).minus(
+        new Decimal(paidMap.get(inv.id) || "0"),
+      );
       if (outstanding.greaterThan(0)) {
         totalOverdueAmount = totalOverdueAmount.plus(outstanding);
       }
@@ -142,8 +156,11 @@ export async function createDunning(
   db: Database,
   companyId: string,
   userId: string,
-  invoiceId: string
-): Promise<{ dunningDoc: typeof documents.$inferSelect; newLevel: DocumentStatus }> {
+  invoiceId: string,
+): Promise<{
+  dunningDoc: typeof documents.$inferSelect;
+  newLevel: DocumentStatus;
+}> {
   // Fetch the invoice
   const [invoice] = await db
     .select()
@@ -152,22 +169,22 @@ export async function createDunning(
       and(
         eq(documents.id, invoiceId),
         eq(documents.companyId, companyId),
-        eq(documents.type, 'invoice')
-      )
+        eq(documents.type, "invoice"),
+      ),
     )
     .limit(1);
 
   if (!invoice) {
-    throw new Error('Invoice not found');
+    throw new Error("Invoice not found");
   }
 
-  if (invoice.status === 'paid' || invoice.status === 'cancelled') {
+  if (invoice.status === "paid" || invoice.status === "cancelled") {
     throw new Error(`Cannot create dunning for a ${invoice.status} invoice`);
   }
 
   const nextStatus = getNextDunningStatus(invoice.status);
   if (!nextStatus) {
-    throw new Error('Invoice is already at maximum dunning level');
+    throw new Error("Invoice is already at maximum dunning level");
   }
 
   // Calculate outstanding amount (total - paid)
@@ -178,11 +195,11 @@ export async function createDunning(
     .from(documentPayments)
     .where(eq(documentPayments.documentId, invoiceId));
 
-  const totalPaid = new Decimal(paymentsResult?.totalPaid || '0');
+  const totalPaid = new Decimal(paymentsResult?.totalPaid || "0");
   const outstanding = new Decimal(invoice.total).minus(totalPaid).toFixed(2);
 
   // Generate dunning document number
-  const number = await getNextNumber(db, companyId, 'dunning');
+  const number = await getNextNumber(db, companyId, "dunning");
 
   // Wrap dunning document + item + invoice status update in transaction
   return db.transaction(async (tx) => {
@@ -191,16 +208,16 @@ export async function createDunning(
       .insert(documents)
       .values({
         companyId,
-        type: 'dunning',
-        status: 'draft',
+        type: "dunning",
+        status: "draft",
         number,
         contactId: invoice.contactId,
         issueDate: new Date(),
         currency: invoice.currency,
         subtotal: outstanding,
-        vatAmount: '0',
+        vatAmount: "0",
         total: outstanding,
-        notes: `Dunning notice for invoice ${invoice.number}. Payment was due on ${invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString('de-CH') : 'unknown'}. Outstanding amount: CHF ${outstanding}.`,
+        notes: `Dunning notice for invoice ${invoice.number}. Payment was due on ${invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString("de-CH") : "unknown"}. Outstanding amount: CHF ${outstanding}.`,
         convertedFromId: invoice.id,
         createdBy: userId,
       })
@@ -211,10 +228,10 @@ export async function createDunning(
       documentId: dunningDoc.id,
       position: 0,
       description: `Outstanding amount for invoice ${invoice.number}`,
-      quantity: '1',
+      quantity: "1",
       unitPrice: outstanding,
-      discount: '0',
-      vatRate: '0',
+      discount: "0",
+      vatRate: "0",
       total: outstanding,
     });
 
@@ -225,31 +242,11 @@ export async function createDunning(
         status: nextStatus,
         updatedAt: new Date(),
       })
-      .where(and(
-        eq(documents.id, invoiceId),
-        eq(documents.companyId, companyId)
-      ));
+      .where(
+        and(eq(documents.id, invoiceId), eq(documents.companyId, companyId)),
+      );
 
     return { dunningDoc, newLevel: nextStatus };
-  });
-}
-
-/**
- * Get dunning history for a specific invoice.
- * Returns all dunning documents linked to this invoice.
- */
-export async function getDunningHistory(
-  db: Database,
-  companyId: string,
-  invoiceId: string
-) {
-  return db.query.documents.findMany({
-    where: and(
-      eq(documents.companyId, companyId),
-      eq(documents.type, 'dunning'),
-      eq(documents.convertedFromId, invoiceId)
-    ),
-    orderBy: [desc(documents.createdAt)],
   });
 }
 
@@ -259,9 +256,9 @@ export async function getDunningHistory(
 
 // Days overdue thresholds for auto-escalation
 const DUNNING_THRESHOLDS = {
-  dunning_1: 14,  // 14+ days overdue → create dunning_1
-  dunning_2: 30,  // 30+ days overdue → create dunning_2
-  dunning_3: 60,  // 60+ days overdue → create dunning_3
+  dunning_1: 14, // 14+ days overdue → create dunning_1
+  dunning_2: 30, // 30+ days overdue → create dunning_2
+  dunning_3: 60, // 60+ days overdue → create dunning_3
 } as const;
 
 export interface DunningProcessResult {
@@ -284,7 +281,10 @@ export interface DunningInfo {
 }
 
 export interface ProcessDunningOptions {
-  onDunningCreated?: (info: DunningInfo, emailRecipients: string[]) => Promise<void>;
+  onDunningCreated?: (
+    info: DunningInfo,
+    emailRecipients: string[],
+  ) => Promise<void>;
 }
 
 /**
@@ -293,7 +293,7 @@ export interface ProcessDunningOptions {
  */
 export async function processOverdueInvoices(
   db: Database,
-  options?: ProcessDunningOptions
+  options?: ProcessDunningOptions,
 ): Promise<DunningProcessResult> {
   const result: DunningProcessResult = {
     processed: 0,
@@ -313,7 +313,7 @@ export async function processOverdueInvoices(
         AND ${documents.status} IN ('sent', 'confirmed', 'delivered', 'partially_paid', 'overdue', 'dunning_1', 'dunning_2')
         AND ${documents.dueDate} IS NOT NULL
         AND ${documents.dueDate} < NOW()
-      )`
+      )`,
     );
 
   for (const company of companiesWithOverdue) {
@@ -327,11 +327,20 @@ export async function processOverdueInvoices(
           const currentLevel = invoice.dunningLevel;
           let shouldEscalate = false;
 
-          if (currentLevel === 0 && invoice.daysOverdue >= DUNNING_THRESHOLDS.dunning_1) {
+          if (
+            currentLevel === 0 &&
+            invoice.daysOverdue >= DUNNING_THRESHOLDS.dunning_1
+          ) {
             shouldEscalate = true;
-          } else if (currentLevel === 1 && invoice.daysOverdue >= DUNNING_THRESHOLDS.dunning_2) {
+          } else if (
+            currentLevel === 1 &&
+            invoice.daysOverdue >= DUNNING_THRESHOLDS.dunning_2
+          ) {
             shouldEscalate = true;
-          } else if (currentLevel === 2 && invoice.daysOverdue >= DUNNING_THRESHOLDS.dunning_3) {
+          } else if (
+            currentLevel === 2 &&
+            invoice.daysOverdue >= DUNNING_THRESHOLDS.dunning_3
+          ) {
             shouldEscalate = true;
           }
 
@@ -347,7 +356,7 @@ export async function processOverdueInvoices(
             result.errors.push({
               companyId: company.id,
               invoiceId: invoice.id,
-              error: 'No users found for company',
+              error: "No users found for company",
             });
             continue;
           }
@@ -357,7 +366,7 @@ export async function processOverdueInvoices(
             db,
             company.id,
             firstUser.id,
-            invoice.id
+            invoice.id,
           );
 
           result.created++;
@@ -367,7 +376,7 @@ export async function processOverdueInvoices(
             const contact = await db.query.contacts.findFirst({
               where: and(
                 eq(contacts.id, invoice.contactId),
-                eq(contacts.companyId, company.id)
+                eq(contacts.companyId, company.id),
               ),
               columns: { email: true, name: true },
             });
@@ -384,13 +393,18 @@ export async function processOverdueInvoices(
                     contactName: contact.name,
                     total: dunningDoc.total,
                     currency: dunningDoc.currency,
-                    dueDate: invoice.dueDate ? new Date(invoice.dueDate).toISOString().split('T')[0] : null,
+                    dueDate: invoice.dueDate
+                      ? new Date(invoice.dueDate).toISOString().split("T")[0]
+                      : null,
                     companyId: company.id,
                   },
-                  [contact.email]
+                  [contact.email],
                 );
               } catch (emailError) {
-                logger.error(`Failed to send dunning email for ${invoice.number}`, emailError);
+                logger.error(
+                  `Failed to send dunning email for ${invoice.number}`,
+                  emailError,
+                );
               }
             }
           }
@@ -398,15 +412,21 @@ export async function processOverdueInvoices(
           result.errors.push({
             companyId: company.id,
             invoiceId: invoice.id,
-            error: invoiceError instanceof Error ? invoiceError.message : 'Unknown error',
+            error:
+              invoiceError instanceof Error
+                ? invoiceError.message
+                : "Unknown error",
           });
         }
       }
     } catch (companyError) {
       result.errors.push({
         companyId: company.id,
-        invoiceId: '',
-        error: companyError instanceof Error ? companyError.message : 'Unknown error',
+        invoiceId: "",
+        error:
+          companyError instanceof Error
+            ? companyError.message
+            : "Unknown error",
       });
     }
   }

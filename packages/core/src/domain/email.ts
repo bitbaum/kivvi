@@ -12,27 +12,20 @@ export interface InvoiceEmailData {
   currency: string;
   dueDate?: string;
   pdfUrl?: string;
-  plan?: 'free' | 'premium';
+  plan?: "free" | "premium";
 }
+
+import { DOCUMENT_TYPE_LABELS_DE } from "./document-conversions";
 
 // ============================================================================
 // SUBJECT LINE
 // ============================================================================
 
-const TYPE_LABELS: Record<string, string> = {
-  invoice: 'Rechnung',
-  quote: 'Angebot',
-  order: 'Auftragsbestätigung',
-  order_confirmation: 'Auftragsbestätigung',
-  credit_note: 'Gutschrift',
-  delivery_note: 'Lieferschein',
-  dunning: 'Zahlungserinnerung',
-  purchase_order: 'Bestellung',
-  purchase_invoice: 'Eingangsrechnung',
-};
-
 export function buildInvoiceEmailSubject(data: InvoiceEmailData): string {
-  const typeLabel = TYPE_LABELS[data.documentType] || data.documentType;
+  const typeLabel =
+    DOCUMENT_TYPE_LABELS_DE[
+      data.documentType as keyof typeof DOCUMENT_TYPE_LABELS_DE
+    ] || data.documentType;
   return `${typeLabel} ${data.documentNumber} - ${data.companyName}`;
 }
 
@@ -46,7 +39,7 @@ export function buildInvoiceEmailSubject(data: InvoiceEmailData): string {
 function formatDateSwiss(dateStr: string): string {
   const d = new Date(dateStr);
   if (isNaN(d.getTime())) return dateStr;
-  return d.toLocaleDateString('de-CH');
+  return d.toLocaleDateString("de-CH");
 }
 
 /**
@@ -56,8 +49,8 @@ function formatDateSwiss(dateStr: string): string {
 function formatAmountSwiss(amount: string, currency: string): string {
   const num = Number(amount);
   if (isNaN(num)) return `${currency} ${amount}`;
-  return new Intl.NumberFormat('de-CH', {
-    style: 'currency',
+  return new Intl.NumberFormat("de-CH", {
+    style: "currency",
     currency,
   }).format(num);
 }
@@ -65,57 +58,66 @@ function formatAmountSwiss(amount: string, currency: string): string {
 /**
  * Returns the German greeting and body text based on document type.
  */
-function getDocumentBody(data: InvoiceEmailData): { greeting: string; body: string; closing: string } {
-  const typeLabel = TYPE_LABELS[data.documentType] || data.documentType;
+function getDocumentBody(data: InvoiceEmailData): {
+  greeting: string;
+  body: string;
+  closing: string;
+} {
+  const typeLabel =
+    DOCUMENT_TYPE_LABELS_DE[
+      data.documentType as keyof typeof DOCUMENT_TYPE_LABELS_DE
+    ] || data.documentType;
   const formattedTotal = formatAmountSwiss(data.total, data.currency);
 
   const greeting = `Guten Tag ${data.recipientName}`;
 
   let body: string;
   switch (data.documentType) {
-    case 'invoice':
+    case "invoice":
       body = `Anbei erhalten Sie unsere ${typeLabel} <strong>${data.documentNumber}</strong> über <strong>${formattedTotal}</strong>.`;
       if (data.dueDate) {
         body += `<br><br>Zahlbar bis: <strong>${formatDateSwiss(data.dueDate)}</strong>`;
       }
       break;
-    case 'quote':
+    case "quote":
       body = `Anbei erhalten Sie unser ${typeLabel} <strong>${data.documentNumber}</strong> über <strong>${formattedTotal}</strong>.`;
       if (data.dueDate) {
         body += `<br><br>Gültig bis: <strong>${formatDateSwiss(data.dueDate)}</strong>`;
       }
-      body += '<br><br>Wir freuen uns auf Ihre Rückmeldung.';
+      body += "<br><br>Wir freuen uns auf Ihre Rückmeldung.";
       break;
-    case 'credit_note':
+    case "credit_note":
       body = `Anbei erhalten Sie unsere ${typeLabel} <strong>${data.documentNumber}</strong> über <strong>${formattedTotal}</strong>.`;
       break;
-    case 'dunning':
-      body = `Wir erlauben uns, Sie an die ausstehende Zahlung zu erinnern.<br><br>` +
+    case "dunning":
+      body =
+        `Wir erlauben uns, Sie an die ausstehende Zahlung zu erinnern.<br><br>` +
         `${typeLabel}: <strong>${data.documentNumber}</strong><br>` +
         `Betrag: <strong>${formattedTotal}</strong>`;
       if (data.dueDate) {
         body += `<br>Fällig seit: <strong>${formatDateSwiss(data.dueDate)}</strong>`;
       }
-      body += '<br><br>Falls Sie die Zahlung bereits veranlasst haben, betrachten Sie dieses Schreiben als gegenstandslos.';
+      body +=
+        "<br><br>Falls Sie die Zahlung bereits veranlasst haben, betrachten Sie dieses Schreiben als gegenstandslos.";
       break;
-    case 'delivery_note':
+    case "delivery_note":
       body = `Anbei erhalten Sie unseren ${typeLabel} <strong>${data.documentNumber}</strong>.`;
       break;
-    case 'order':
-    case 'order_confirmation':
+    case "order":
+    case "order_confirmation":
       body = `Anbei erhalten Sie unsere ${typeLabel} <strong>${data.documentNumber}</strong> über <strong>${formattedTotal}</strong>.`;
       break;
-    case 'purchase_order':
+    case "purchase_order":
       body = `Anbei erhalten Sie unsere ${typeLabel} <strong>${data.documentNumber}</strong> über <strong>${formattedTotal}</strong>.`;
       break;
-    case 'purchase_invoice':
+    case "purchase_invoice":
       body = `Anbei erhalten Sie unsere ${typeLabel} <strong>${data.documentNumber}</strong> über <strong>${formattedTotal}</strong>.`;
       break;
     default:
       body = `Anbei erhalten Sie das Dokument <strong>${data.documentNumber}</strong> über <strong>${formattedTotal}</strong>.`;
   }
 
-  const closing = 'Freundliche Grüsse';
+  const closing = "Freundliche Grüsse";
 
   return { greeting, body, closing };
 }
@@ -131,13 +133,17 @@ export interface PasswordResetEmailData {
   companyName?: string;
 }
 
-export function buildPasswordResetEmailSubject(data: PasswordResetEmailData): string {
-  const companyName = data.companyName || 'Kivvi';
+export function buildPasswordResetEmailSubject(
+  data: PasswordResetEmailData,
+): string {
+  const companyName = data.companyName || "Kivvi";
   return `Passwort zurücksetzen - ${companyName}`;
 }
 
-export function buildPasswordResetEmailHtml(data: PasswordResetEmailData): string {
-  const companyName = data.companyName || 'Kivvi';
+export function buildPasswordResetEmailHtml(
+  data: PasswordResetEmailData,
+): string {
+  const companyName = data.companyName || "Kivvi";
 
   return `<!DOCTYPE html>
 <html lang="de">
@@ -337,10 +343,14 @@ export function buildInvoiceEmailHtml(data: InvoiceEmailData): string {
             <td style="padding: 24px 40px; background-color: #fafafa; border-top: 1px solid #e4e4e7;">
               <p style="margin: 0; font-size: 12px; color: #a1a1aa; line-height: 1.5;">
                 Diese E-Mail wurde automatisch von ${data.companyName} versendet.
-              </p>${data.plan !== 'premium' ? `
+              </p>${
+                data.plan !== "premium"
+                  ? `
               <p style="margin: 8px 0 0; font-size: 11px; color: #a1a1aa; line-height: 1.5;">
                 Versendet mit <a href="https://kivvi.ch" style="color: #2563eb; text-decoration: none;">Kivvi</a> — KI-gestützte ERP-Software für Schweizer Unternehmen
-              </p>` : ''}
+              </p>`
+                  : ""
+              }
             </td>
           </tr>
         </table>

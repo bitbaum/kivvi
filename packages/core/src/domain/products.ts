@@ -1,35 +1,53 @@
-import { z } from 'zod';
-import { eq, and, or, ilike, desc, asc, count } from 'drizzle-orm';
-import {
-  products,
-  manufacturers,
-  productGroups,
-} from '@kivvi/database';
-import type { Database } from '@kivvi/database';
-import { getNextNumber } from './number-sequences';
-import type { PaginatedResult } from './contacts';
+import { z } from "zod";
+import { eq, and, or, ilike, desc, asc, count } from "drizzle-orm";
+import { products, manufacturers, productGroups } from "@kivvi/database";
+import type { Database } from "@kivvi/database";
+import { getNextNumber } from "./number-sequences";
+import type { PaginatedResult } from "./contacts";
 
 // ============================================================================
 // VALIDATION SCHEMAS
 // ============================================================================
 
 export const createProductSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(255),
+  name: z.string().min(1, "Name is required").max(255),
   description: z.string().max(5000).optional().nullable(),
-  type: z.enum(['product', 'service']),
+  type: z.enum(["product", "service"]),
   sku: z.string().max(100).optional().nullable(),
   ean: z.string().max(50).optional().nullable(),
   manufacturerId: z.string().uuid().optional().nullable(),
   productGroupId: z.string().uuid().optional().nullable(),
-  unitPrice: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Invalid price format'),
-  purchasePrice: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Invalid price format').optional().nullable(),
-  currency: z.string().default('CHF'),
-  vatRate: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Invalid VAT rate'),
-  unit: z.enum(['piece', 'hour', 'kg', 'm', 'm2', 'm3', 'liter']).default('piece'),
-  weight: z.string().regex(/^\d+(\.\d{1,3})?$/, 'Invalid weight').optional().nullable(),
-  width: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Invalid width').optional().nullable(),
-  height: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Invalid height').optional().nullable(),
-  depth: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Invalid depth').optional().nullable(),
+  unitPrice: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid price format"),
+  purchasePrice: z
+    .string()
+    .regex(/^\d+(\.\d{1,2})?$/, "Invalid price format")
+    .optional()
+    .nullable(),
+  currency: z.string().default("CHF"),
+  vatRate: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid VAT rate"),
+  unit: z
+    .enum(["piece", "hour", "kg", "m", "m2", "m3", "liter"])
+    .default("piece"),
+  weight: z
+    .string()
+    .regex(/^\d+(\.\d{1,3})?$/, "Invalid weight")
+    .optional()
+    .nullable(),
+  width: z
+    .string()
+    .regex(/^\d+(\.\d{1,2})?$/, "Invalid width")
+    .optional()
+    .nullable(),
+  height: z
+    .string()
+    .regex(/^\d+(\.\d{1,2})?$/, "Invalid height")
+    .optional()
+    .nullable(),
+  depth: z
+    .string()
+    .regex(/^\d+(\.\d{1,2})?$/, "Invalid depth")
+    .optional()
+    .nullable(),
   minStock: z.coerce.number().int().min(0).optional().nullable(),
   serialNumberTracking: z.boolean().default(false),
   shopVisible: z.boolean().default(false),
@@ -47,14 +65,14 @@ export type UpdateProductInput = z.infer<typeof updateProductSchema>;
 
 export interface ProductFilters {
   search?: string;
-  type?: 'product' | 'service';
+  type?: "product" | "service";
   productGroupId?: string;
   manufacturerId?: string;
   isActive?: boolean;
   page?: number;
   pageSize?: number;
-  sortBy?: 'name' | 'articleNumber' | 'unitPrice' | 'createdAt';
-  sortOrder?: 'asc' | 'desc';
+  sortBy?: "name" | "articleNumber" | "unitPrice" | "createdAt";
+  sortOrder?: "asc" | "desc";
 }
 
 // PaginatedResult is exported from contacts.ts — no need to duplicate here
@@ -69,7 +87,7 @@ export interface ProductFilters {
 export async function listProducts(
   db: Database,
   companyId: string,
-  filters: ProductFilters = {}
+  filters: ProductFilters = {},
 ): Promise<PaginatedResult<typeof products.$inferSelect>> {
   const {
     search,
@@ -79,8 +97,8 @@ export async function listProducts(
     isActive = true,
     page = 1,
     pageSize = 25,
-    sortBy = 'createdAt',
-    sortOrder = 'desc',
+    sortBy = "createdAt",
+    sortOrder = "desc",
   } = filters;
 
   // Build conditions
@@ -108,8 +126,8 @@ export async function listProducts(
         ilike(products.name, `%${search}%`),
         ilike(products.articleNumber, `%${search}%`),
         ilike(products.sku, `%${search}%`),
-        ilike(products.ean, `%${search}%`)
-      )!
+        ilike(products.ean, `%${search}%`),
+      )!,
     );
   }
 
@@ -129,7 +147,7 @@ export async function listProducts(
     createdAt: products.createdAt,
   }[sortBy];
 
-  const orderFn = sortOrder === 'asc' ? asc : desc;
+  const orderFn = sortOrder === "asc" ? asc : desc;
 
   // Query with pagination
   const data = await db
@@ -155,13 +173,10 @@ export async function listProducts(
 export async function getProduct(
   db: Database,
   companyId: string,
-  productId: string
+  productId: string,
 ) {
   const result = await db.query.products.findFirst({
-    where: and(
-      eq(products.id, productId),
-      eq(products.companyId, companyId)
-    ),
+    where: and(eq(products.id, productId), eq(products.companyId, companyId)),
     with: {
       manufacturer: true,
       productGroup: true,
@@ -184,23 +199,33 @@ async function validateProductFKs(
   db: Database,
   companyId: string,
   manufacturerId?: string | null,
-  productGroupId?: string | null
+  productGroupId?: string | null,
 ) {
   if (manufacturerId) {
     const [mfg] = await db
       .select({ id: manufacturers.id })
       .from(manufacturers)
-      .where(and(eq(manufacturers.id, manufacturerId), eq(manufacturers.companyId, companyId)))
+      .where(
+        and(
+          eq(manufacturers.id, manufacturerId),
+          eq(manufacturers.companyId, companyId),
+        ),
+      )
       .limit(1);
-    if (!mfg) throw new Error('Manufacturer not found');
+    if (!mfg) throw new Error("Manufacturer not found");
   }
   if (productGroupId) {
     const [grp] = await db
       .select({ id: productGroups.id })
       .from(productGroups)
-      .where(and(eq(productGroups.id, productGroupId), eq(productGroups.companyId, companyId)))
+      .where(
+        and(
+          eq(productGroups.id, productGroupId),
+          eq(productGroups.companyId, companyId),
+        ),
+      )
       .limit(1);
-    if (!grp) throw new Error('Product group not found');
+    if (!grp) throw new Error("Product group not found");
   }
 }
 
@@ -210,16 +235,21 @@ async function validateProductFKs(
 export async function createProduct(
   db: Database,
   companyId: string,
-  input: CreateProductInput
+  input: CreateProductInput,
 ) {
   // Validate input
   const validated = createProductSchema.parse(input);
 
   // Verify FK ownership
-  await validateProductFKs(db, companyId, validated.manufacturerId, validated.productGroupId);
+  await validateProductFKs(
+    db,
+    companyId,
+    validated.manufacturerId,
+    validated.productGroupId,
+  );
 
   // Generate article number
-  const articleNumber = await getNextNumber(db, companyId, 'product');
+  const articleNumber = await getNextNumber(db, companyId, "product");
 
   // Insert product
   const [product] = await db
@@ -260,7 +290,7 @@ export async function updateProduct(
   db: Database,
   companyId: string,
   productId: string,
-  input: UpdateProductInput
+  input: UpdateProductInput,
 ) {
   // Validate input
   const validated = updateProductSchema.parse(input);
@@ -273,11 +303,16 @@ export async function updateProduct(
     .limit(1);
 
   if (existing.length === 0) {
-    throw new Error('Product not found');
+    throw new Error("Product not found");
   }
 
   // Verify FK ownership
-  await validateProductFKs(db, companyId, validated.manufacturerId, validated.productGroupId);
+  await validateProductFKs(
+    db,
+    companyId,
+    validated.manufacturerId,
+    validated.productGroupId,
+  );
 
   // Build update values, only including fields that were provided
   const updateValues: Record<string, unknown> = {
@@ -285,24 +320,33 @@ export async function updateProduct(
   };
 
   if (validated.name !== undefined) updateValues.name = validated.name;
-  if (validated.description !== undefined) updateValues.description = validated.description;
+  if (validated.description !== undefined)
+    updateValues.description = validated.description;
   if (validated.type !== undefined) updateValues.type = validated.type;
   if (validated.sku !== undefined) updateValues.sku = validated.sku;
   if (validated.ean !== undefined) updateValues.ean = validated.ean;
-  if (validated.manufacturerId !== undefined) updateValues.manufacturerId = validated.manufacturerId;
-  if (validated.productGroupId !== undefined) updateValues.productGroupId = validated.productGroupId;
-  if (validated.unitPrice !== undefined) updateValues.unitPrice = validated.unitPrice;
-  if (validated.purchasePrice !== undefined) updateValues.purchasePrice = validated.purchasePrice;
-  if (validated.currency !== undefined) updateValues.currency = validated.currency;
+  if (validated.manufacturerId !== undefined)
+    updateValues.manufacturerId = validated.manufacturerId;
+  if (validated.productGroupId !== undefined)
+    updateValues.productGroupId = validated.productGroupId;
+  if (validated.unitPrice !== undefined)
+    updateValues.unitPrice = validated.unitPrice;
+  if (validated.purchasePrice !== undefined)
+    updateValues.purchasePrice = validated.purchasePrice;
+  if (validated.currency !== undefined)
+    updateValues.currency = validated.currency;
   if (validated.vatRate !== undefined) updateValues.vatRate = validated.vatRate;
   if (validated.unit !== undefined) updateValues.unit = validated.unit;
   if (validated.weight !== undefined) updateValues.weight = validated.weight;
   if (validated.width !== undefined) updateValues.width = validated.width;
   if (validated.height !== undefined) updateValues.height = validated.height;
   if (validated.depth !== undefined) updateValues.depth = validated.depth;
-  if (validated.minStock !== undefined) updateValues.minStock = validated.minStock;
-  if (validated.serialNumberTracking !== undefined) updateValues.serialNumberTracking = validated.serialNumberTracking;
-  if (validated.shopVisible !== undefined) updateValues.shopVisible = validated.shopVisible;
+  if (validated.minStock !== undefined)
+    updateValues.minStock = validated.minStock;
+  if (validated.serialNumberTracking !== undefined)
+    updateValues.serialNumberTracking = validated.serialNumberTracking;
+  if (validated.shopVisible !== undefined)
+    updateValues.shopVisible = validated.shopVisible;
 
   const [updated] = await db
     .update(products)
@@ -319,7 +363,7 @@ export async function updateProduct(
 export async function deleteProduct(
   db: Database,
   companyId: string,
-  productId: string
+  productId: string,
 ) {
   // Verify product belongs to company
   const existing = await db
@@ -329,7 +373,7 @@ export async function deleteProduct(
     .limit(1);
 
   if (existing.length === 0) {
-    throw new Error('Product not found');
+    throw new Error("Product not found");
   }
 
   const [deleted] = await db
@@ -348,7 +392,7 @@ export async function deleteProduct(
 export async function searchProducts(
   db: Database,
   companyId: string,
-  query: string
+  query: string,
 ) {
   if (!query || query.length < 1) return [];
 
@@ -372,34 +416,12 @@ export async function searchProducts(
         or(
           ilike(products.name, `%${query}%`),
           ilike(products.articleNumber, `%${query}%`),
-          ilike(products.sku, `%${query}%`)
-        )
-      )
+          ilike(products.sku, `%${query}%`),
+        ),
+      ),
     )
     .orderBy(asc(products.name))
     .limit(20);
 
   return results;
-}
-
-/**
- * Get all manufacturers for a company (for filter/select dropdowns).
- */
-export async function listManufacturers(db: Database, companyId: string) {
-  return db
-    .select()
-    .from(manufacturers)
-    .where(eq(manufacturers.companyId, companyId))
-    .orderBy(asc(manufacturers.name));
-}
-
-/**
- * Get all product groups for a company (for filter/select dropdowns).
- */
-export async function listProductGroups(db: Database, companyId: string) {
-  return db
-    .select()
-    .from(productGroups)
-    .where(eq(productGroups.companyId, companyId))
-    .orderBy(asc(productGroups.name));
 }
