@@ -23,10 +23,13 @@
     "db:generate": "turbo db:generate",
     "db:migrate": "turbo db:migrate",
     "db:studio": "pnpm --filter @kivvi/database db:studio",
-    "format": "prettier --write \"**/*.{ts,tsx,md,json}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.3.3",
     "prettier": "^3.2.4",
     "tsx": "^4.21.0",
     "turbo": "^2.0.0",
@@ -35,6 +38,18 @@
   "packageManager": "pnpm@9.0.0",
   "engines": {
     "node": ">=20.0.0"
+  },
+  "lint-staged": {
+    "apps/web/**/*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "packages/**/*.{ts,tsx}": [
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
   },
   "dependencies": {
     "@types/pdfkit": "^0.17.4",
