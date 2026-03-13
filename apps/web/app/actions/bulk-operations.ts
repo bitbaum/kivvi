@@ -1,21 +1,29 @@
-'use server';
+"use server";
 
-import { z } from 'zod';
-import { revalidatePath } from 'next/cache';
-import { db } from '@/lib/db';
+import { z } from "zod";
+import { revalidatePath } from "next/cache";
+import { db } from "@/lib/db";
 import {
   convertDocument,
   updateDocumentStatus,
   deleteDocument,
   createDunning,
   extendQuoteValidity,
-} from '@kivvi/core';
-import { deleteContact } from '@kivvi/core/src/domain/contacts';
-import { deleteProduct } from '@kivvi/core/src/domain/products';
-import { reconcileTransaction, matchTransactionToDocument } from '@kivvi/core/src/domain/banking';
-import type { DocumentType, DocumentStatus } from '@kivvi/database';
-import { type ActionResult, getSession, safeErrorMessage } from './utils';
-import { revalidateDocumentPaths } from './utils/revalidate-documents';
+} from "@kivvi/core";
+import { deleteContact } from "@kivvi/core/src/domain/contacts";
+import { deleteProduct } from "@kivvi/core/src/domain/products";
+import {
+  reconcileTransaction,
+  matchTransactionToDocument,
+} from "@kivvi/core/src/domain/banking";
+import type { DocumentType, DocumentStatus } from "@kivvi/database";
+import {
+  type ActionResult,
+  getSession,
+  requireRole,
+  safeErrorMessage,
+} from "./utils";
+import { revalidateDocumentPaths } from "./utils/revalidate-documents";
 
 // ============================================================================
 // TYPES
@@ -32,43 +40,73 @@ export interface BulkOperationResult<T = unknown> {
 // ============================================================================
 
 const documentTypeValues = [
-  'quote', 'order', 'order_confirmation', 'delivery_note',
-  'invoice', 'credit_note', 'purchase_order', 'purchase_invoice', 'dunning',
+  "quote",
+  "order",
+  "order_confirmation",
+  "delivery_note",
+  "invoice",
+  "credit_note",
+  "purchase_order",
+  "purchase_invoice",
+  "dunning",
 ] as const;
 
 const documentStatusValues = [
-  'draft', 'sent', 'confirmed', 'delivered', 'paid', 'partially_paid',
-  'overdue', 'cancelled', 'dunning_1', 'dunning_2', 'dunning_3',
+  "draft",
+  "sent",
+  "confirmed",
+  "delivered",
+  "paid",
+  "partially_paid",
+  "overdue",
+  "cancelled",
+  "dunning_1",
+  "dunning_2",
+  "dunning_3",
 ] as const;
 
 const bulkConvertSchema = z.object({
-  documentIds: z.array(z.string().uuid()).min(1, 'At least one document ID is required'),
+  documentIds: z
+    .array(z.string().uuid())
+    .min(1, "At least one document ID is required"),
   targetType: z.enum(documentTypeValues),
 });
 
 const bulkSendDunningSchema = z.object({
-  invoiceIds: z.array(z.string().uuid()).min(1, 'At least one invoice ID is required'),
+  invoiceIds: z
+    .array(z.string().uuid())
+    .min(1, "At least one invoice ID is required"),
 });
 
 const bulkExtendQuoteValiditySchema = z.object({
-  quoteIds: z.array(z.string().uuid()).min(1, 'At least one quote ID is required'),
+  quoteIds: z
+    .array(z.string().uuid())
+    .min(1, "At least one quote ID is required"),
   extensionDays: z.number().int().min(1).max(365),
 });
 
 const bulkMatchTransactionsSchema = z.object({
-  transactionIds: z.array(z.string().uuid()).min(1, 'At least one transaction ID is required'),
+  transactionIds: z
+    .array(z.string().uuid())
+    .min(1, "At least one transaction ID is required"),
 });
 
 const bulkDocumentIdsSchema = z.object({
-  documentIds: z.array(z.string().uuid()).min(1, 'At least one document ID is required'),
+  documentIds: z
+    .array(z.string().uuid())
+    .min(1, "At least one document ID is required"),
 });
 
 const bulkContactIdsSchema = z.object({
-  contactIds: z.array(z.string().uuid()).min(1, 'At least one contact ID is required'),
+  contactIds: z
+    .array(z.string().uuid())
+    .min(1, "At least one contact ID is required"),
 });
 
 const bulkProductIdsSchema = z.object({
-  productIds: z.array(z.string().uuid()).min(1, 'At least one product ID is required'),
+  productIds: z
+    .array(z.string().uuid())
+    .min(1, "At least one product ID is required"),
 });
 
 /**
@@ -82,14 +120,18 @@ async function runBulkOperation<T = unknown>(
   revalidate: () => void,
   errorLabel: string,
 ): Promise<ActionResult<BulkOperationResult<T>>> {
-  const results: BulkOperationResult<T>['results'] = [];
+  const results: BulkOperationResult<T>["results"] = [];
 
   for (const id of ids) {
     try {
       const data = await operation(id);
       results.push({ id, success: true, ...(data !== undefined && { data }) });
     } catch (error) {
-      results.push({ id, success: false, error: safeErrorMessage(error, errorLabel) });
+      results.push({
+        id,
+        success: false,
+        error: safeErrorMessage(error, errorLabel),
+      });
     }
   }
 
@@ -103,11 +145,17 @@ async function runBulkOperation<T = unknown>(
   return { success: true, data: { successCount, failureCount, results } };
 }
 
-function parseInput<T>(schema: z.ZodType<T>, input: unknown): ActionResult<T> | T {
+function parseInput<T>(
+  schema: z.ZodType<T>,
+  input: unknown,
+): ActionResult<T> | T {
   const parsed = schema.safeParse(input);
   if (!parsed.success) {
     const firstError = parsed.error.errors[0];
-    return { success: false, error: `${firstError.path.join('.')}: ${firstError.message}` };
+    return {
+      success: false,
+      error: `${firstError.path.join(".")}: ${firstError.message}`,
+    };
   }
   return parsed.data;
 }
@@ -118,213 +166,296 @@ function parseInput<T>(schema: z.ZodType<T>, input: unknown): ActionResult<T> | 
 
 /** Bulk convert documents to a different type (e.g. quotes → invoices). */
 export async function bulkConvertDocumentsAction(
-  input: unknown
+  input: unknown,
 ): Promise<ActionResult<BulkOperationResult<{ id: string; number: string }>>> {
   try {
-    const { companyId, userId } = await getSession();
+    const { companyId, userId } = await requireRole("member");
     const data = parseInput(bulkConvertSchema, input);
-    if ('success' in data) return data as ActionResult<never>;
+    if ("success" in data) return data as ActionResult<never>;
 
     return runBulkOperation(
       data.documentIds,
       async (docId) => {
-        const newDoc = await convertDocument(db, companyId, userId, docId, data.targetType as DocumentType);
+        const newDoc = await convertDocument(
+          db,
+          companyId,
+          userId,
+          docId,
+          data.targetType as DocumentType,
+        );
         return { id: newDoc.id, number: newDoc.number };
       },
       () => revalidateDocumentPaths(data.targetType),
-      'Failed to convert document',
+      "Failed to convert document",
     );
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to bulk convert documents') };
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to bulk convert documents"),
+    };
   }
 }
 
 /** Bulk send dunning notices for overdue invoices. */
 export async function bulkSendDunningAction(
-  input: unknown
-): Promise<ActionResult<BulkOperationResult<{ dunningDocId: string; dunningNumber: string }>>> {
+  input: unknown,
+): Promise<
+  ActionResult<
+    BulkOperationResult<{ dunningDocId: string; dunningNumber: string }>
+  >
+> {
   try {
-    const { companyId, userId } = await getSession();
+    const { companyId, userId } = await requireRole("member");
     const data = parseInput(bulkSendDunningSchema, input);
-    if ('success' in data) return data as ActionResult<never>;
+    if ("success" in data) return data as ActionResult<never>;
 
     return runBulkOperation(
       data.invoiceIds,
       async (invoiceId) => {
-        const { dunningDoc } = await createDunning(db, companyId, userId, invoiceId);
-        return { dunningDocId: dunningDoc.id, dunningNumber: dunningDoc.number };
+        const { dunningDoc } = await createDunning(
+          db,
+          companyId,
+          userId,
+          invoiceId,
+        );
+        return {
+          dunningDocId: dunningDoc.id,
+          dunningNumber: dunningDoc.number,
+        };
       },
-      () => { revalidateDocumentPaths('invoice'); revalidateDocumentPaths('dunning'); },
-      'Failed to create dunning',
+      () => {
+        revalidateDocumentPaths("invoice");
+        revalidateDocumentPaths("dunning");
+      },
+      "Failed to create dunning",
     );
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to bulk send dunning notices') };
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to bulk send dunning notices"),
+    };
   }
 }
 
 /** Bulk extend quote validity by adding days to dueDate. */
 export async function bulkExtendQuoteValidityAction(
-  input: unknown
+  input: unknown,
 ): Promise<ActionResult<BulkOperationResult<{ newDueDate: string }>>> {
   try {
-    const { companyId } = await getSession();
+    const { companyId } = await requireRole("member");
     const data = parseInput(bulkExtendQuoteValiditySchema, input);
-    if ('success' in data) return data as ActionResult<never>;
+    if ("success" in data) return data as ActionResult<never>;
 
     return runBulkOperation(
       data.quoteIds,
-      async (quoteId) => extendQuoteValidity(db, companyId, quoteId, data.extensionDays),
-      () => revalidateDocumentPaths('quote'),
-      'Failed to extend quote validity',
+      async (quoteId) =>
+        extendQuoteValidity(db, companyId, quoteId, data.extensionDays),
+      () => revalidateDocumentPaths("quote"),
+      "Failed to extend quote validity",
     );
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to bulk extend quote validity') };
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to bulk extend quote validity"),
+    };
   }
 }
 
 /** Bulk match bank transactions to invoices. */
 export async function bulkMatchTransactionsAction(
-  input: unknown
-): Promise<ActionResult<BulkOperationResult<{ documentId: string; documentNumber: string }>>> {
+  input: unknown,
+): Promise<
+  ActionResult<
+    BulkOperationResult<{ documentId: string; documentNumber: string }>
+  >
+> {
   try {
-    const { companyId } = await getSession();
+    const { companyId } = await requireRole("member");
     const data = parseInput(bulkMatchTransactionsSchema, input);
-    if ('success' in data) return data as ActionResult<never>;
+    if ("success" in data) return data as ActionResult<never>;
 
     return runBulkOperation(
       data.transactionIds,
       async (txnId) => {
         const match = await matchTransactionToDocument(db, companyId, txnId);
-        if (!match) throw new Error('No matching invoice found');
+        if (!match) throw new Error("No matching invoice found");
         await reconcileTransaction(db, companyId, txnId, match.documentId);
         return match;
       },
-      () => { revalidatePath('/banking'); revalidateDocumentPaths('invoice'); },
-      'Failed to match transaction',
+      () => {
+        revalidatePath("/banking");
+        revalidateDocumentPaths("invoice");
+      },
+      "Failed to match transaction",
     );
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to bulk match transactions') };
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to bulk match transactions"),
+    };
   }
 }
 
 /** Bulk change document status (e.g. mark drafts as sent). */
 export async function bulkStatusChangeAction(
-  input: unknown
+  input: unknown,
 ): Promise<ActionResult<BulkOperationResult>> {
   try {
-    const { companyId } = await getSession();
-    const schema = bulkDocumentIdsSchema.extend({ targetStatus: z.enum(documentStatusValues) });
+    const { companyId } = await requireRole("member");
+    const schema = bulkDocumentIdsSchema.extend({
+      targetStatus: z.enum(documentStatusValues),
+    });
     const data = parseInput(schema, input);
-    if ('success' in data) return data as ActionResult<never>;
+    if ("success" in data) return data as ActionResult<never>;
 
     return runBulkOperation(
       data.documentIds,
-      async (docId) => { await updateDocumentStatus(db, companyId, docId, data.targetStatus as DocumentStatus); return undefined; },
-      () => revalidatePath('/'),
-      'Failed to update status',
+      async (docId) => {
+        await updateDocumentStatus(
+          db,
+          companyId,
+          docId,
+          data.targetStatus as DocumentStatus,
+        );
+        return undefined;
+      },
+      () => revalidatePath("/"),
+      "Failed to update status",
     );
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to bulk update status') };
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to bulk update status"),
+    };
   }
 }
 
 /** Bulk delete documents (draft-only enforced by domain). */
 export async function bulkDeleteDocumentsAction(
-  input: unknown
+  input: unknown,
 ): Promise<ActionResult<BulkOperationResult>> {
   try {
-    const { companyId } = await getSession();
+    const { companyId } = await requireRole("member");
     const data = parseInput(bulkDocumentIdsSchema, input);
-    if ('success' in data) return data as ActionResult<never>;
+    if ("success" in data) return data as ActionResult<never>;
 
     return runBulkOperation(
       data.documentIds,
-      async (docId) => { await deleteDocument(db, companyId, docId); return undefined; },
-      () => revalidatePath('/'),
-      'Failed to delete document',
+      async (docId) => {
+        await deleteDocument(db, companyId, docId);
+        return undefined;
+      },
+      () => revalidatePath("/"),
+      "Failed to delete document",
     );
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to bulk delete documents') };
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to bulk delete documents"),
+    };
   }
 }
 
 /** Bulk delete contacts. */
 export async function bulkDeleteContactsAction(
-  input: unknown
+  input: unknown,
 ): Promise<ActionResult<BulkOperationResult>> {
   try {
-    const { companyId } = await getSession();
+    const { companyId } = await requireRole("member");
     const data = parseInput(bulkContactIdsSchema, input);
-    if ('success' in data) return data as ActionResult<never>;
+    if ("success" in data) return data as ActionResult<never>;
 
     return runBulkOperation(
       data.contactIds,
-      async (contactId) => { await deleteContact(db, companyId, contactId); return undefined; },
-      () => revalidatePath('/contacts'),
-      'Failed to delete contact',
+      async (contactId) => {
+        await deleteContact(db, companyId, contactId);
+        return undefined;
+      },
+      () => revalidatePath("/contacts"),
+      "Failed to delete contact",
     );
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to bulk delete contacts') };
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to bulk delete contacts"),
+    };
   }
 }
 
 /** Bulk delete products. */
 export async function bulkDeleteProductsAction(
-  input: unknown
+  input: unknown,
 ): Promise<ActionResult<BulkOperationResult>> {
   try {
-    const { companyId } = await getSession();
+    const { companyId } = await requireRole("member");
     const data = parseInput(bulkProductIdsSchema, input);
-    if ('success' in data) return data as ActionResult<never>;
+    if ("success" in data) return data as ActionResult<never>;
 
     return runBulkOperation(
       data.productIds,
-      async (productId) => { await deleteProduct(db, companyId, productId); return undefined; },
-      () => revalidatePath('/products'),
-      'Failed to delete product',
+      async (productId) => {
+        await deleteProduct(db, companyId, productId);
+        return undefined;
+      },
+      () => revalidatePath("/products"),
+      "Failed to delete product",
     );
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to bulk delete products') };
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to bulk delete products"),
+    };
   }
 }
 
 /** Bulk deactivate contacts (soft delete — sets isActive = false). */
 export async function bulkDeactivateContactsAction(
-  input: unknown
+  input: unknown,
 ): Promise<ActionResult<BulkOperationResult>> {
   try {
-    const { companyId } = await getSession();
+    const { companyId } = await requireRole("member");
     const data = parseInput(bulkContactIdsSchema, input);
-    if ('success' in data) return data as ActionResult<never>;
+    if ("success" in data) return data as ActionResult<never>;
 
     return runBulkOperation(
       data.contactIds,
-      async (contactId) => { await deleteContact(db, companyId, contactId); return undefined; },
-      () => revalidatePath('/contacts'),
-      'Failed to deactivate contact',
+      async (contactId) => {
+        await deleteContact(db, companyId, contactId);
+        return undefined;
+      },
+      () => revalidatePath("/contacts"),
+      "Failed to deactivate contact",
     );
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to bulk deactivate contacts') };
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to bulk deactivate contacts"),
+    };
   }
 }
 
 /** Bulk deactivate products (soft delete — sets isActive = false). */
 export async function bulkDeactivateProductsAction(
-  input: unknown
+  input: unknown,
 ): Promise<ActionResult<BulkOperationResult>> {
   try {
-    const { companyId } = await getSession();
+    const { companyId } = await requireRole("member");
     const data = parseInput(bulkProductIdsSchema, input);
-    if ('success' in data) return data as ActionResult<never>;
+    if ("success" in data) return data as ActionResult<never>;
 
     return runBulkOperation(
       data.productIds,
-      async (productId) => { await deleteProduct(db, companyId, productId); return undefined; },
-      () => revalidatePath('/products'),
-      'Failed to deactivate product',
+      async (productId) => {
+        await deleteProduct(db, companyId, productId);
+        return undefined;
+      },
+      () => revalidatePath("/products"),
+      "Failed to deactivate product",
     );
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to bulk deactivate products') };
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to bulk deactivate products"),
+    };
   }
 }
-

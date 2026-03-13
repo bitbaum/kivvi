@@ -1,7 +1,7 @@
-'use server';
+"use server";
 
-import { revalidatePath } from 'next/cache';
-import { db } from '@/lib/db';
+import { revalidatePath } from "next/cache";
+import { db } from "@/lib/db";
 import {
   documents,
   documentItems,
@@ -9,17 +9,20 @@ import {
   numberSequences,
   contacts,
   products,
-} from '@kivvi/database';
-import { eq, and, sql, lt, ne, isNull } from 'drizzle-orm';
-import Decimal from 'decimal.js';
-import { type ActionResult, getSession, safeErrorMessage } from './utils';
+} from "@kivvi/database";
+import { eq, and, sql, lt, ne, isNull } from "drizzle-orm";
+import Decimal from "decimal.js";
 import {
-  updateSequencesAfterImport,
-} from '@kivvi/core';
+  type ActionResult,
+  getSession,
+  requireRole,
+  safeErrorMessage,
+} from "./utils";
+import { updateSequencesAfterImport } from "@kivvi/core";
 import {
   createInvoiceSentJournalEntry,
   createPurchaseInvoiceJournalEntry,
-} from '@kivvi/core';
+} from "@kivvi/core";
 
 // ============================================================================
 // TASK #16: REPAIR NUMBER SEQUENCES
@@ -33,7 +36,7 @@ export async function repairNumberSequencesAction(): Promise<
   ActionResult<{ updated: Record<string, number> }>
 > {
   try {
-    const { companyId } = await getSession();
+    const { companyId } = await requireRole("admin");
     const updated: Record<string, number> = {};
 
     // Call the existing function first
@@ -56,14 +59,14 @@ export async function repairNumberSequencesAction(): Promise<
     // Double-check: also do a raw numeric extraction for any formats
     // that the standard function might miss (e.g., kivitendo R2026082 format)
     const docTypes = [
-      { seqType: 'invoice', docType: 'invoice' },
-      { seqType: 'quote', docType: 'quote' },
-      { seqType: 'order', docType: 'order' },
-      { seqType: 'delivery_note', docType: 'delivery_note' },
-      { seqType: 'purchase_invoice', docType: 'purchase_invoice' },
-      { seqType: 'purchase_order', docType: 'purchase_order' },
-      { seqType: 'credit_note', docType: 'credit_note' },
-      { seqType: 'dunning', docType: 'dunning' },
+      { seqType: "invoice", docType: "invoice" },
+      { seqType: "quote", docType: "quote" },
+      { seqType: "order", docType: "order" },
+      { seqType: "delivery_note", docType: "delivery_note" },
+      { seqType: "purchase_invoice", docType: "purchase_invoice" },
+      { seqType: "purchase_order", docType: "purchase_order" },
+      { seqType: "credit_note", docType: "credit_note" },
+      { seqType: "dunning", docType: "dunning" },
     ] as const;
 
     for (const { seqType, docType } of docTypes) {
@@ -71,13 +74,12 @@ export async function repairNumberSequencesAction(): Promise<
       const [countResult] = await db
         .select({ count: sql<number>`COUNT(*)` })
         .from(documents)
-        .where(and(
-          eq(documents.companyId, companyId),
-          eq(documents.type, docType)
-        ));
+        .where(
+          and(eq(documents.companyId, companyId), eq(documents.type, docType)),
+        );
 
       const count = Number(countResult?.count || 0);
-      const currentSeq = seqs.find(s => s.type === seqType);
+      const currentSeq = seqs.find((s) => s.type === seqType);
 
       // If count is high but sequence is low, something went wrong
       if (count > 0 && currentSeq && currentSeq.nextNumber <= count) {
@@ -85,10 +87,12 @@ export async function repairNumberSequencesAction(): Promise<
         const allDocs = await db
           .select({ number: documents.number })
           .from(documents)
-          .where(and(
-            eq(documents.companyId, companyId),
-            eq(documents.type, docType)
-          ));
+          .where(
+            and(
+              eq(documents.companyId, companyId),
+              eq(documents.type, docType),
+            ),
+          );
 
         let maxNum = 0;
         for (const doc of allDocs) {
@@ -114,10 +118,12 @@ export async function repairNumberSequencesAction(): Promise<
             await db
               .update(numberSequences)
               .set({ nextNumber: newNext })
-              .where(and(
-                eq(numberSequences.companyId, companyId),
-                eq(numberSequences.type, seqType)
-              ));
+              .where(
+                and(
+                  eq(numberSequences.companyId, companyId),
+                  eq(numberSequences.type, seqType),
+                ),
+              );
             updated[`${currentSeq?.prefix} (${seqType})`] = newNext;
           }
         }
@@ -140,16 +146,18 @@ export async function repairNumberSequencesAction(): Promise<
       }
     }
     if (maxContactNum > 0) {
-      const contactSeq = seqs.find(s => s.type === 'contact');
+      const contactSeq = seqs.find((s) => s.type === "contact");
       if (!contactSeq || contactSeq.nextNumber <= maxContactNum) {
         await db
           .update(numberSequences)
           .set({ nextNumber: maxContactNum + 1 })
-          .where(and(
-            eq(numberSequences.companyId, companyId),
-            eq(numberSequences.type, 'contact')
-          ));
-        updated['K (contact)'] = maxContactNum + 1;
+          .where(
+            and(
+              eq(numberSequences.companyId, companyId),
+              eq(numberSequences.type, "contact"),
+            ),
+          );
+        updated["K (contact)"] = maxContactNum + 1;
       }
     }
 
@@ -169,23 +177,28 @@ export async function repairNumberSequencesAction(): Promise<
       }
     }
     if (maxProductNum > 0) {
-      const productSeq = seqs.find(s => s.type === 'product');
+      const productSeq = seqs.find((s) => s.type === "product");
       if (!productSeq || productSeq.nextNumber <= maxProductNum) {
         await db
           .update(numberSequences)
           .set({ nextNumber: maxProductNum + 1 })
-          .where(and(
-            eq(numberSequences.companyId, companyId),
-            eq(numberSequences.type, 'product')
-          ));
-        updated['ART (product)'] = maxProductNum + 1;
+          .where(
+            and(
+              eq(numberSequences.companyId, companyId),
+              eq(numberSequences.type, "product"),
+            ),
+          );
+        updated["ART (product)"] = maxProductNum + 1;
       }
     }
 
-    revalidatePath('/');
+    revalidatePath("/");
     return { success: true, data: { updated } };
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to repair number sequences') };
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to repair number sequences"),
+    };
   }
 }
 
@@ -199,43 +212,49 @@ export async function repairNumberSequencesAction(): Promise<
  * Only affects invoices older than the cutoff date with status "sent".
  */
 export async function repairInvoiceStatusesAction(
-  cutoffDate?: string // ISO date string, defaults to 2026-01-01
-): Promise<ActionResult<{ updatedInvoices: number; updatedPurchaseInvoices: number }>> {
+  cutoffDate?: string, // ISO date string, defaults to 2026-01-01
+): Promise<
+  ActionResult<{ updatedInvoices: number; updatedPurchaseInvoices: number }>
+> {
   try {
-    const { companyId } = await getSession();
-    const cutoff = cutoffDate ? new Date(cutoffDate) : new Date('2026-01-01');
+    const { companyId } = await requireRole("admin");
+    const cutoff = cutoffDate ? new Date(cutoffDate) : new Date("2026-01-01");
 
     // Update sales invoices: sent → paid (historical)
     const invoiceResult = await db
       .update(documents)
       .set({
-        status: 'paid',
+        status: "paid",
         updatedAt: new Date(),
       })
-      .where(and(
-        eq(documents.companyId, companyId),
-        eq(documents.type, 'invoice'),
-        eq(documents.status, 'sent'),
-        lt(documents.issueDate, cutoff)
-      ))
+      .where(
+        and(
+          eq(documents.companyId, companyId),
+          eq(documents.type, "invoice"),
+          eq(documents.status, "sent"),
+          lt(documents.issueDate, cutoff),
+        ),
+      )
       .returning({ id: documents.id });
 
     // Update purchase invoices: sent → paid (historical)
     const purchaseResult = await db
       .update(documents)
       .set({
-        status: 'paid',
+        status: "paid",
         updatedAt: new Date(),
       })
-      .where(and(
-        eq(documents.companyId, companyId),
-        eq(documents.type, 'purchase_invoice'),
-        eq(documents.status, 'sent'),
-        lt(documents.issueDate, cutoff)
-      ))
+      .where(
+        and(
+          eq(documents.companyId, companyId),
+          eq(documents.type, "purchase_invoice"),
+          eq(documents.status, "sent"),
+          lt(documents.issueDate, cutoff),
+        ),
+      )
       .returning({ id: documents.id });
 
-    revalidatePath('/');
+    revalidatePath("/");
     return {
       success: true,
       data: {
@@ -244,7 +263,10 @@ export async function repairInvoiceStatusesAction(
       },
     };
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to repair invoice statuses') };
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to repair invoice statuses"),
+    };
   }
 }
 
@@ -257,10 +279,15 @@ export async function repairInvoiceStatusesAction(
  * Skips documents that already have entries (idempotent via sourceId check).
  */
 export async function generateMissingJournalEntriesAction(): Promise<
-  ActionResult<{ invoiceEntries: number; purchaseEntries: number; skipped: number; errors: string[] }>
+  ActionResult<{
+    invoiceEntries: number;
+    purchaseEntries: number;
+    skipped: number;
+    errors: string[];
+  }>
 > {
   try {
-    const { companyId } = await getSession();
+    const { companyId } = await requireRole("admin");
 
     let invoiceEntries = 0;
     let purchaseEntries = 0;
@@ -273,7 +300,9 @@ export async function generateMissingJournalEntriesAction(): Promise<
       .from(journalEntries)
       .where(eq(journalEntries.companyId, companyId));
 
-    const existingSourceIds = new Set(existingEntries.map(e => e.sourceId).filter(Boolean));
+    const existingSourceIds = new Set(
+      existingEntries.map((e) => e.sourceId).filter(Boolean),
+    );
 
     // Process sales invoices (status: sent, paid, partially_paid, overdue)
     const invoices = await db
@@ -287,12 +316,14 @@ export async function generateMissingJournalEntriesAction(): Promise<
         status: documents.status,
       })
       .from(documents)
-      .where(and(
-        eq(documents.companyId, companyId),
-        eq(documents.type, 'invoice'),
-        ne(documents.status, 'draft'),
-        ne(documents.status, 'cancelled')
-      ));
+      .where(
+        and(
+          eq(documents.companyId, companyId),
+          eq(documents.type, "invoice"),
+          ne(documents.status, "draft"),
+          ne(documents.status, "cancelled"),
+        ),
+      );
 
     for (const inv of invoices) {
       if (existingSourceIds.has(inv.id)) {
@@ -301,9 +332,9 @@ export async function generateMissingJournalEntriesAction(): Promise<
       }
 
       try {
-        const total = inv.total || '0';
-        const subtotal = inv.subtotal || '0';
-        const vatAmount = inv.vatAmount || '0';
+        const total = inv.total || "0";
+        const subtotal = inv.subtotal || "0";
+        const vatAmount = inv.vatAmount || "0";
 
         // Skip if total is 0
         if (new Decimal(total).isZero()) {
@@ -313,7 +344,7 @@ export async function generateMissingJournalEntriesAction(): Promise<
 
         await createInvoiceSentJournalEntry(db, companyId, {
           id: inv.id,
-          number: inv.number || 'UNKNOWN',
+          number: inv.number || "UNKNOWN",
           total,
           vatAmount,
           subtotal,
@@ -321,7 +352,7 @@ export async function generateMissingJournalEntriesAction(): Promise<
         });
         invoiceEntries++;
       } catch (err) {
-        const msg = err instanceof Error ? err.message : 'Unknown error';
+        const msg = err instanceof Error ? err.message : "Unknown error";
         if (errors.length < 10) {
           errors.push(`Invoice ${inv.number}: ${msg}`);
         }
@@ -340,12 +371,14 @@ export async function generateMissingJournalEntriesAction(): Promise<
         status: documents.status,
       })
       .from(documents)
-      .where(and(
-        eq(documents.companyId, companyId),
-        eq(documents.type, 'purchase_invoice'),
-        ne(documents.status, 'draft'),
-        ne(documents.status, 'cancelled')
-      ));
+      .where(
+        and(
+          eq(documents.companyId, companyId),
+          eq(documents.type, "purchase_invoice"),
+          ne(documents.status, "draft"),
+          ne(documents.status, "cancelled"),
+        ),
+      );
 
     for (const pi of purchaseInvoices) {
       if (existingSourceIds.has(pi.id)) {
@@ -354,9 +387,9 @@ export async function generateMissingJournalEntriesAction(): Promise<
       }
 
       try {
-        const total = pi.total || '0';
-        const subtotal = pi.subtotal || '0';
-        const vatAmount = pi.vatAmount || '0';
+        const total = pi.total || "0";
+        const subtotal = pi.subtotal || "0";
+        const vatAmount = pi.vatAmount || "0";
 
         if (new Decimal(total).isZero()) {
           skipped++;
@@ -365,7 +398,7 @@ export async function generateMissingJournalEntriesAction(): Promise<
 
         await createPurchaseInvoiceJournalEntry(db, companyId, {
           id: pi.id,
-          number: pi.number || 'UNKNOWN',
+          number: pi.number || "UNKNOWN",
           total,
           vatAmount,
           subtotal,
@@ -373,20 +406,23 @@ export async function generateMissingJournalEntriesAction(): Promise<
         });
         purchaseEntries++;
       } catch (err) {
-        const msg = err instanceof Error ? err.message : 'Unknown error';
+        const msg = err instanceof Error ? err.message : "Unknown error";
         if (errors.length < 10) {
           errors.push(`Purchase ${pi.number}: ${msg}`);
         }
       }
     }
 
-    revalidatePath('/');
+    revalidatePath("/");
     return {
       success: true,
       data: { invoiceEntries, purchaseEntries, skipped, errors },
     };
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to generate journal entries') };
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to generate journal entries"),
+    };
   }
 }
 
@@ -402,7 +438,7 @@ export async function repairPaidDatesAction(): Promise<
   ActionResult<{ updated: number }>
 > {
   try {
-    const { companyId } = await getSession();
+    const { companyId } = await requireRole("admin");
 
     const result = await db
       .update(documents)
@@ -410,17 +446,22 @@ export async function repairPaidDatesAction(): Promise<
         paidDate: sql`${documents.issueDate}`,
         updatedAt: new Date(),
       })
-      .where(and(
-        eq(documents.companyId, companyId),
-        eq(documents.status, 'paid'),
-        isNull(documents.paidDate)
-      ))
+      .where(
+        and(
+          eq(documents.companyId, companyId),
+          eq(documents.status, "paid"),
+          isNull(documents.paidDate),
+        ),
+      )
       .returning({ id: documents.id });
 
-    revalidatePath('/');
+    revalidatePath("/");
     return { success: true, data: { updated: result.length } };
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to repair paid dates') };
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to repair paid dates"),
+    };
   }
 }
 
@@ -459,48 +500,56 @@ export async function getDataRepairStatusAction(): Promise<
     const [sentInvoices] = await db
       .select({ count: sql<number>`COUNT(*)` })
       .from(documents)
-      .where(and(
-        eq(documents.companyId, companyId),
-        eq(documents.type, 'invoice'),
-        eq(documents.status, 'sent'),
-        lt(documents.issueDate, new Date('2026-01-01'))
-      ));
+      .where(
+        and(
+          eq(documents.companyId, companyId),
+          eq(documents.type, "invoice"),
+          eq(documents.status, "sent"),
+          lt(documents.issueDate, new Date("2026-01-01")),
+        ),
+      );
 
     // Count sent purchase invoices before 2026
     const [sentPurchaseInvoices] = await db
       .select({ count: sql<number>`COUNT(*)` })
       .from(documents)
-      .where(and(
-        eq(documents.companyId, companyId),
-        eq(documents.type, 'purchase_invoice'),
-        eq(documents.status, 'sent'),
-        lt(documents.issueDate, new Date('2026-01-01'))
-      ));
+      .where(
+        and(
+          eq(documents.companyId, companyId),
+          eq(documents.type, "purchase_invoice"),
+          eq(documents.status, "sent"),
+          lt(documents.issueDate, new Date("2026-01-01")),
+        ),
+      );
 
     // Count documents without items
     const [docsWithoutItems] = await db
       .select({ count: sql<number>`COUNT(*)` })
       .from(documents)
-      .where(and(
-        eq(documents.companyId, companyId),
-        isNull(
-          db
-            .select({ id: documentItems.id })
-            .from(documentItems)
-            .where(eq(documentItems.documentId, documents.id))
-            .limit(1)
-        )
-      ));
+      .where(
+        and(
+          eq(documents.companyId, companyId),
+          isNull(
+            db
+              .select({ id: documentItems.id })
+              .from(documentItems)
+              .where(eq(documentItems.documentId, documents.id))
+              .limit(1),
+          ),
+        ),
+      );
 
     // Count paid invoices without paidDate
     const [paidNoPaidDate] = await db
       .select({ count: sql<number>`COUNT(*)` })
       .from(documents)
-      .where(and(
-        eq(documents.companyId, companyId),
-        eq(documents.status, 'paid'),
-        isNull(documents.paidDate)
-      ));
+      .where(
+        and(
+          eq(documents.companyId, companyId),
+          eq(documents.status, "paid"),
+          isNull(documents.paidDate),
+        ),
+      );
 
     // Count total journal entries
     const [journalCount] = await db
@@ -512,26 +561,35 @@ export async function getDataRepairStatusAction(): Promise<
     const [shouldHaveEntries] = await db
       .select({ count: sql<number>`COUNT(*)` })
       .from(documents)
-      .where(and(
-        eq(documents.companyId, companyId),
-        sql`${documents.type} IN ('invoice', 'purchase_invoice')`,
-        ne(documents.status, 'draft'),
-        ne(documents.status, 'cancelled')
-      ));
+      .where(
+        and(
+          eq(documents.companyId, companyId),
+          sql`${documents.type} IN ('invoice', 'purchase_invoice')`,
+          ne(documents.status, "draft"),
+          ne(documents.status, "cancelled"),
+        ),
+      );
 
     return {
       success: true,
       data: {
         sequences,
         sentInvoicesBefore2026: Number(sentInvoices?.count || 0),
-        sentPurchaseInvoicesBefore2026: Number(sentPurchaseInvoices?.count || 0),
+        sentPurchaseInvoicesBefore2026: Number(
+          sentPurchaseInvoices?.count || 0,
+        ),
         documentsWithoutItems: Number(docsWithoutItems?.count || 0),
-        documentsWithoutJournalEntries: Number(shouldHaveEntries?.count || 0) - Number(journalCount?.count || 0),
+        documentsWithoutJournalEntries:
+          Number(shouldHaveEntries?.count || 0) -
+          Number(journalCount?.count || 0),
         totalJournalEntries: Number(journalCount?.count || 0),
         paidInvoicesWithoutPaidDate: Number(paidNoPaidDate?.count || 0),
       },
     };
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to get repair status') };
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to get repair status"),
+    };
   }
 }

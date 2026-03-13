@@ -1,21 +1,23 @@
-'use server';
+"use server";
 
-import { redirect } from 'next/navigation';
-import { stripe } from '@/lib/stripe';
-import { db } from '@/lib/db';
-import { companies } from '@kivvi/database';
-import type { CompanySettings } from '@kivvi/database';
-import { eq } from 'drizzle-orm';
-import { getSession, type ActionResult } from './utils';
-import { logger } from '@/lib/logger';
+import { redirect } from "next/navigation";
+import { stripe } from "@/lib/stripe";
+import { db } from "@/lib/db";
+import { companies } from "@kivvi/database";
+import type { CompanySettings } from "@kivvi/database";
+import { eq } from "drizzle-orm";
+import { getSession, requireRole, type ActionResult } from "./utils";
+import { logger } from "@/lib/logger";
 
 /**
  * Create a Stripe Checkout session for upgrading to premium.
  * Returns the checkout URL for client-side redirect.
  */
-export async function createCheckoutSessionAction(): Promise<ActionResult<{ url: string }>> {
+export async function createCheckoutSessionAction(): Promise<
+  ActionResult<{ url: string }>
+> {
   try {
-    const { companyId } = await getSession();
+    const { companyId } = await requireRole("owner");
 
     const [company] = await db
       .select()
@@ -23,7 +25,7 @@ export async function createCheckoutSessionAction(): Promise<ActionResult<{ url:
       .where(eq(companies.id, companyId));
 
     if (!company) {
-      return { success: false, error: 'Company not found' };
+      return { success: false, error: "Company not found" };
     }
 
     const settings = (company.settings as CompanySettings) || {};
@@ -49,12 +51,12 @@ export async function createCheckoutSessionAction(): Promise<ActionResult<{ url:
 
     const priceId = process.env.STRIPE_PRICE_ID;
     if (!priceId) {
-      return { success: false, error: 'Stripe price not configured' };
+      return { success: false, error: "Stripe price not configured" };
     }
 
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
-      mode: 'subscription',
+      mode: "subscription",
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${process.env.NEXTAUTH_URL}/settings/billing?success=true`,
       cancel_url: `${process.env.NEXTAUTH_URL}/settings/billing?cancelled=true`,
@@ -62,13 +64,13 @@ export async function createCheckoutSessionAction(): Promise<ActionResult<{ url:
     });
 
     if (!session.url) {
-      return { success: false, error: 'Failed to create checkout session' };
+      return { success: false, error: "Failed to create checkout session" };
     }
 
     return { success: true, data: { url: session.url } };
   } catch (error) {
-    logger.error('Checkout session error', error);
-    return { success: false, error: 'Failed to create checkout session' };
+    logger.error("Checkout session error", error);
+    return { success: false, error: "Failed to create checkout session" };
   }
 }
 
@@ -76,9 +78,11 @@ export async function createCheckoutSessionAction(): Promise<ActionResult<{ url:
  * Create a Stripe Customer Portal session for managing subscription.
  * Returns the portal URL for client-side redirect.
  */
-export async function createPortalSessionAction(): Promise<ActionResult<{ url: string }>> {
+export async function createPortalSessionAction(): Promise<
+  ActionResult<{ url: string }>
+> {
   try {
-    const { companyId } = await getSession();
+    const { companyId } = await requireRole("owner");
 
     const [company] = await db
       .select()
@@ -86,13 +90,13 @@ export async function createPortalSessionAction(): Promise<ActionResult<{ url: s
       .where(eq(companies.id, companyId));
 
     if (!company) {
-      return { success: false, error: 'Company not found' };
+      return { success: false, error: "Company not found" };
     }
 
     const settings = (company.settings as CompanySettings) || {};
 
     if (!settings.stripeCustomerId) {
-      return { success: false, error: 'No billing account found' };
+      return { success: false, error: "No billing account found" };
     }
 
     const session = await stripe.billingPortal.sessions.create({
@@ -102,7 +106,7 @@ export async function createPortalSessionAction(): Promise<ActionResult<{ url: s
 
     return { success: true, data: { url: session.url } };
   } catch (error) {
-    logger.error('Portal session error', error);
-    return { success: false, error: 'Failed to open billing portal' };
+    logger.error("Portal session error", error);
+    return { success: false, error: "Failed to open billing portal" };
   }
 }

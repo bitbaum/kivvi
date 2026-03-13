@@ -1,23 +1,28 @@
-'use server';
+"use server";
 
-import { z } from 'zod';
-import { eq } from 'drizzle-orm';
-import { db } from '@/lib/db';
-import { companies } from '@kivvi/database';
-import type { CompanySettings } from '@kivvi/database';
-import { getDocument } from '@kivvi/core';
-import { generateInvoicePdf } from '@kivvi/core/src/domain/pdf-generation';
-import { buildInvoicePdfData } from '@/lib/pdf/build-pdf-data';
+import { z } from "zod";
+import { eq } from "drizzle-orm";
+import { db } from "@/lib/db";
+import { companies } from "@kivvi/database";
+import type { CompanySettings } from "@kivvi/database";
+import { getDocument } from "@kivvi/core";
+import { generateInvoicePdf } from "@kivvi/core/src/domain/pdf-generation";
+import { buildInvoicePdfData } from "@/lib/pdf/build-pdf-data";
 import {
   buildInvoiceEmailHtml,
   buildInvoiceEmailSubject,
   buildPasswordResetEmailHtml,
   buildPasswordResetEmailSubject,
-} from '@kivvi/core/src/domain/email';
-import { type ActionResult, getSession, safeErrorMessage } from './utils';
-import { revalidatePath } from 'next/cache';
-import { getTransporter, getFromEmail } from '@/lib/email/transporter';
-import { isEmailConfigured } from '@/lib/config/email';
+} from "@kivvi/core/src/domain/email";
+import {
+  type ActionResult,
+  getSession,
+  requireRole,
+  safeErrorMessage,
+} from "./utils";
+import { revalidatePath } from "next/cache";
+import { getTransporter, getFromEmail } from "@/lib/email/transporter";
+import { isEmailConfigured } from "@/lib/config/email";
 
 // ============================================================================
 // VALIDATION
@@ -25,7 +30,7 @@ import { isEmailConfigured } from '@/lib/config/email';
 
 const sendEmailSchema = z.object({
   documentId: z.string().uuid(),
-  recipientEmail: z.string().email('Ungültige E-Mail-Adresse'),
+  recipientEmail: z.string().email("Ungültige E-Mail-Adresse"),
 });
 
 // ============================================================================
@@ -34,10 +39,10 @@ const sendEmailSchema = z.object({
 
 export async function sendDocumentEmailAction(
   documentId: string,
-  recipientEmail: string
+  recipientEmail: string,
 ): Promise<ActionResult<{ messageId: string }>> {
   try {
-    const { companyId } = await getSession();
+    const { companyId } = await requireRole("member");
 
     // Validate inputs
     const parsed = sendEmailSchema.safeParse({ documentId, recipientEmail });
@@ -48,11 +53,15 @@ export async function sendDocumentEmailAction(
 
     // Fetch document with tenant isolation
     const doc = await getDocument(db, companyId, parsed.data.documentId);
-    if (!doc) return { success: false, error: 'Dokument nicht gefunden' };
+    if (!doc) return { success: false, error: "Dokument nicht gefunden" };
 
     // Check email configuration
     if (!isEmailConfigured()) {
-      return { success: false, error: 'E-Mail-Versand ist nicht konfiguriert (EMAIL_USER und EMAIL_PASS fehlen)' };
+      return {
+        success: false,
+        error:
+          "E-Mail-Versand ist nicht konfiguriert (EMAIL_USER und EMAIL_PASS fehlen)",
+      };
     }
 
     const transporter = getTransporter();
@@ -63,19 +72,21 @@ export async function sendDocumentEmailAction(
       .from(companies)
       .where(eq(companies.id, companyId));
 
-    const companyName = company?.name || 'Kivvi';
+    const companyName = company?.name || "Kivvi";
     const settings = (company?.settings as CompanySettings) ?? {};
-    const plan = settings.plan || 'free';
+    const plan = settings.plan || "free";
 
     const emailData = {
       recipientEmail: parsed.data.recipientEmail,
-      recipientName: doc.contact?.name || 'Kunde',
+      recipientName: doc.contact?.name || "Kunde",
       companyName,
       documentNumber: doc.number,
       documentType: doc.type,
       total: doc.total,
       currency: doc.currency,
-      dueDate: doc.dueDate ? new Date(doc.dueDate).toISOString().split('T')[0] : undefined,
+      dueDate: doc.dueDate
+        ? new Date(doc.dueDate).toISOString().split("T")[0]
+        : undefined,
       plan,
     };
 
@@ -95,7 +106,7 @@ export async function sendDocumentEmailAction(
         {
           filename: `${doc.number}.pdf`,
           content: pdfBuffer,
-          contentType: 'application/pdf',
+          contentType: "application/pdf",
         },
       ],
     });
@@ -103,9 +114,12 @@ export async function sendDocumentEmailAction(
     // Revalidate the document detail page to reflect any future "last emailed" state
     revalidatePath(`/sales/invoices/${documentId}`);
 
-    return { success: true, data: { messageId: info.messageId || '' } };
+    return { success: true, data: { messageId: info.messageId || "" } };
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'E-Mail konnte nicht gesendet werden') };
+    return {
+      success: false,
+      error: safeErrorMessage(error, "E-Mail konnte nicht gesendet werden"),
+    };
   }
 }
 
@@ -120,10 +134,12 @@ export async function sendDocumentEmailAction(
 export async function sendPasswordResetEmail(
   recipientEmail: string,
   recipientName: string,
-  resetUrl: string
+  resetUrl: string,
 ): Promise<void> {
   if (!isEmailConfigured()) {
-    throw new Error('E-Mail-Versand ist nicht konfiguriert (EMAIL_USER und EMAIL_PASS fehlen)');
+    throw new Error(
+      "E-Mail-Versand ist nicht konfiguriert (EMAIL_USER und EMAIL_PASS fehlen)",
+    );
   }
 
   const transporter = getTransporter();
@@ -132,7 +148,7 @@ export async function sendPasswordResetEmail(
     recipientEmail,
     recipientName,
     resetUrl,
-    companyName: 'Kivvi',
+    companyName: "Kivvi",
   };
 
   await transporter.sendMail({

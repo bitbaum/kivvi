@@ -1,7 +1,7 @@
-'use server';
+"use server";
 
-import { revalidatePath } from 'next/cache';
-import { db } from '@/lib/db';
+import { revalidatePath } from "next/cache";
+import { db } from "@/lib/db";
 import {
   createContact,
   updateContact,
@@ -9,24 +9,30 @@ import {
   searchContacts,
   createContactSchema,
   updateContactSchema,
-} from '@kivvi/core';
-import { type ActionResult, getSession, safeErrorMessage, formatZodError } from './utils';
-import { parseFormData } from './parse-form-data';
+} from "@kivvi/core";
+import {
+  type ActionResult,
+  getSession,
+  requireRole,
+  safeErrorMessage,
+  formatZodError,
+} from "./utils";
+import { parseFormData } from "./parse-form-data";
 
 // ============================================================================
 // SERVER ACTIONS
 // ============================================================================
 
 export async function createContactAction(
-  formData: FormData
+  formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
   try {
-    const { companyId } = await getSession();
+    const { companyId } = await requireRole("member");
     const raw = parseFormData(formData);
 
     const input = {
-      type: raw.type as 'customer' | 'vendor' | 'both',
-      name: raw.name ?? '',
+      type: raw.type as "customer" | "vendor" | "both",
+      name: raw.name ?? "",
       firstName: raw.firstName,
       lastName: raw.lastName,
       email: raw.email,
@@ -40,7 +46,9 @@ export async function createContactAction(
       vatNumber: raw.vatNumber,
       iban: raw.iban,
       bic: raw.bic,
-      paymentTermsDays: raw.paymentTermsDays ? parseInt(raw.paymentTermsDays, 10) : null,
+      paymentTermsDays: raw.paymentTermsDays
+        ? parseInt(raw.paymentTermsDays, 10)
+        : null,
       creditLimit: raw.creditLimit,
       language: raw.language,
       notes: raw.notes,
@@ -55,26 +63,26 @@ export async function createContactAction(
 
     const contact = await createContact(db, companyId, parsed.data);
 
-    revalidatePath('/contacts');
+    revalidatePath("/contacts");
     return { success: true, data: { id: contact.id } };
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, 'Failed to create contact'),
+      error: safeErrorMessage(error, "Failed to create contact"),
     };
   }
 }
 
 export async function updateContactAction(
   id: string,
-  formData: FormData
+  formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
   try {
-    const { companyId } = await getSession();
+    const { companyId } = await requireRole("member");
     const raw = parseFormData(formData);
 
     const input = {
-      type: raw.type as 'customer' | 'vendor' | 'both' | undefined,
+      type: raw.type as "customer" | "vendor" | "both" | undefined,
       name: raw.name ?? undefined,
       firstName: raw.firstName,
       lastName: raw.lastName,
@@ -89,7 +97,9 @@ export async function updateContactAction(
       vatNumber: raw.vatNumber,
       iban: raw.iban,
       bic: raw.bic,
-      paymentTermsDays: raw.paymentTermsDays ? parseInt(raw.paymentTermsDays, 10) : undefined,
+      paymentTermsDays: raw.paymentTermsDays
+        ? parseInt(raw.paymentTermsDays, 10)
+        : undefined,
       creditLimit: raw.creditLimit,
       language: raw.language,
       notes: raw.notes,
@@ -104,37 +114,35 @@ export async function updateContactAction(
 
     const contact = await updateContact(db, companyId, id, parsed.data);
 
-    revalidatePath('/contacts');
+    revalidatePath("/contacts");
     revalidatePath(`/contacts/${id}`);
     return { success: true, data: { id: contact.id } };
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, 'Failed to update contact'),
+      error: safeErrorMessage(error, "Failed to update contact"),
     };
   }
 }
 
-export async function deleteContactAction(
-  id: string
-): Promise<ActionResult> {
+export async function deleteContactAction(id: string): Promise<ActionResult> {
   try {
-    const { companyId } = await getSession();
+    const { companyId } = await requireRole("member");
 
     await deleteContact(db, companyId, id);
 
-    revalidatePath('/contacts');
+    revalidatePath("/contacts");
     return { success: true };
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, 'Failed to delete contact'),
+      error: safeErrorMessage(error, "Failed to delete contact"),
     };
   }
 }
 
 export async function searchContactsAction(
-  query: string
+  query: string,
 ): Promise<ActionResult<Awaited<ReturnType<typeof searchContacts>>>> {
   try {
     const { companyId } = await getSession();
@@ -143,7 +151,7 @@ export async function searchContactsAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, 'Search failed'),
+      error: safeErrorMessage(error, "Search failed"),
     };
   }
 }

@@ -1,28 +1,36 @@
-'use server';
+"use server";
 
-import { revalidatePath } from 'next/cache';
-import { db } from '@/lib/db';
-import { apiTokens } from '@kivvi/database';
-import { eq, and } from 'drizzle-orm';
-import { z } from 'zod';
-import { type ActionResult, getSession, safeErrorMessage } from './utils';
-import { generateApiToken } from '@/lib/api-auth';
+import { revalidatePath } from "next/cache";
+import { db } from "@/lib/db";
+import { apiTokens } from "@kivvi/database";
+import { eq, and } from "drizzle-orm";
+import { z } from "zod";
+import {
+  type ActionResult,
+  getSession,
+  requireRole,
+  safeErrorMessage,
+} from "./utils";
+import { generateApiToken } from "@/lib/api-auth";
 
 const createTokenSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(100),
+  name: z.string().min(1, "Name is required").max(100),
 });
 
 /**
  * Create a new API token. Returns the raw token ONCE — it cannot be retrieved later.
  */
 export async function createApiTokenAction(
-  input: unknown
+  input: unknown,
 ): Promise<ActionResult<{ id: string; rawToken: string; prefix: string }>> {
   try {
-    const { companyId, userId } = await getSession();
+    const { companyId, userId } = await requireRole("admin");
     const parsed = createTokenSchema.safeParse(input);
     if (!parsed.success) {
-      return { success: false, error: parsed.error.errors[0]?.message || 'Invalid input' };
+      return {
+        success: false,
+        error: parsed.error.errors[0]?.message || "Invalid input",
+      };
     }
 
     const { rawToken, tokenHash, tokenPrefix } = generateApiToken();
@@ -38,13 +46,16 @@ export async function createApiTokenAction(
       })
       .returning({ id: apiTokens.id });
 
-    revalidatePath('/settings');
+    revalidatePath("/settings");
     return {
       success: true,
       data: { id: token.id, rawToken, prefix: tokenPrefix },
     };
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to create API token') };
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to create API token"),
+    };
   }
 }
 
@@ -52,15 +63,17 @@ export async function createApiTokenAction(
  * List all API tokens for the current company. Does NOT return the token itself.
  */
 export async function listApiTokensAction(): Promise<
-  ActionResult<Array<{
-    id: string;
-    name: string;
-    tokenPrefix: string;
-    lastUsedAt: Date | null;
-    expiresAt: Date | null;
-    isActive: boolean;
-    createdAt: Date;
-  }>>
+  ActionResult<
+    Array<{
+      id: string;
+      name: string;
+      tokenPrefix: string;
+      lastUsedAt: Date | null;
+      expiresAt: Date | null;
+      isActive: boolean;
+      createdAt: Date;
+    }>
+  >
 > {
   try {
     const { companyId } = await getSession();
@@ -80,7 +93,10 @@ export async function listApiTokensAction(): Promise<
 
     return { success: true, data: tokens };
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to list API tokens') };
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to list API tokens"),
+    };
   }
 }
 
@@ -88,28 +104,28 @@ export async function listApiTokensAction(): Promise<
  * Revoke (deactivate) an API token.
  */
 export async function revokeApiTokenAction(
-  tokenId: string
+  tokenId: string,
 ): Promise<ActionResult> {
   try {
-    const { companyId } = await getSession();
+    const { companyId } = await requireRole("admin");
 
     const [updated] = await db
       .update(apiTokens)
       .set({ isActive: false })
-      .where(and(
-        eq(apiTokens.id, tokenId),
-        eq(apiTokens.companyId, companyId)
-      ))
+      .where(and(eq(apiTokens.id, tokenId), eq(apiTokens.companyId, companyId)))
       .returning({ id: apiTokens.id });
 
     if (!updated) {
-      return { success: false, error: 'Token not found' };
+      return { success: false, error: "Token not found" };
     }
 
-    revalidatePath('/settings');
+    revalidatePath("/settings");
     return { success: true };
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to revoke API token') };
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to revoke API token"),
+    };
   }
 }
 
@@ -117,26 +133,26 @@ export async function revokeApiTokenAction(
  * Delete an API token permanently.
  */
 export async function deleteApiTokenAction(
-  tokenId: string
+  tokenId: string,
 ): Promise<ActionResult> {
   try {
-    const { companyId } = await getSession();
+    const { companyId } = await requireRole("admin");
 
     const [deleted] = await db
       .delete(apiTokens)
-      .where(and(
-        eq(apiTokens.id, tokenId),
-        eq(apiTokens.companyId, companyId)
-      ))
+      .where(and(eq(apiTokens.id, tokenId), eq(apiTokens.companyId, companyId)))
       .returning({ id: apiTokens.id });
 
     if (!deleted) {
-      return { success: false, error: 'Token not found' };
+      return { success: false, error: "Token not found" };
     }
 
-    revalidatePath('/settings');
+    revalidatePath("/settings");
     return { success: true };
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to delete API token') };
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to delete API token"),
+    };
   }
 }

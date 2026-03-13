@@ -1,6 +1,12 @@
-import { revalidatePath } from 'next/cache';
-import { db } from '@/lib/db';
-import { type ActionResult, getSession, safeErrorMessage } from './utils';
+import { revalidatePath } from "next/cache";
+import { db } from "@/lib/db";
+import {
+  type ActionResult,
+  getSession,
+  requireRole,
+  safeErrorMessage,
+} from "./utils";
+import type { MembershipRole } from "@kivvi/database";
 
 type Database = typeof db;
 
@@ -12,7 +18,7 @@ interface ActionContext {
 
 /**
  * Factory for creating server actions with standard boilerplate:
- * - Authentication (getSession)
+ * - Authentication (getSession) or RBAC (requireRole)
  * - Error handling (safeErrorMessage)
  * - Path revalidation
  *
@@ -23,10 +29,13 @@ export function createAction<TInput, TResult>(opts: {
   handler: (input: TInput, ctx: ActionContext) => Promise<TResult>;
   revalidate?: string[];
   errorMessage: string;
+  minRole?: MembershipRole;
 }): (input: TInput) => Promise<ActionResult<TResult>> {
   return async (input: TInput): Promise<ActionResult<TResult>> => {
     try {
-      const { companyId, userId } = await getSession();
+      const { companyId, userId } = opts.minRole
+        ? await requireRole(opts.minRole)
+        : await getSession();
       const result = await opts.handler(input, { companyId, userId, db });
 
       if (opts.revalidate) {
@@ -37,7 +46,10 @@ export function createAction<TInput, TResult>(opts: {
 
       return { success: true, data: result };
     } catch (error) {
-      return { success: false, error: safeErrorMessage(error, opts.errorMessage) };
+      return {
+        success: false,
+        error: safeErrorMessage(error, opts.errorMessage),
+      };
     }
   };
 }

@@ -1,12 +1,17 @@
-'use server';
+"use server";
 
-import { revalidatePath } from 'next/cache';
-import { db } from '@/lib/db';
-import { companies, users, numberSequences } from '@kivvi/database';
-import type { CompanySettings } from '@kivvi/database';
-import { eq, and } from 'drizzle-orm';
-import { z } from 'zod';
-import { type ActionResult, getSession, safeErrorMessage } from './utils';
+import { revalidatePath } from "next/cache";
+import { db } from "@/lib/db";
+import { companies, users, numberSequences } from "@kivvi/database";
+import type { CompanySettings } from "@kivvi/database";
+import { eq, and } from "drizzle-orm";
+import { z } from "zod";
+import {
+  type ActionResult,
+  getSession,
+  requireRole,
+  safeErrorMessage,
+} from "./utils";
 
 // ============================================================================
 // COMPANY SETTINGS
@@ -19,22 +24,35 @@ const updateCompanySchema = z.object({
   address: z.string().max(500).optional().nullable(),
   city: z.string().max(100).optional().nullable(),
   postalCode: z.string().max(20).optional().nullable(),
-  country: z.string().max(2).optional().default('CH'),
-  currency: z.string().max(3).optional().default('CHF'),
+  country: z.string().max(2).optional().default("CH"),
+  currency: z.string().max(3).optional().default("CHF"),
   // Settings JSONB fields
   iban: z.string().max(34).optional().nullable(),
   bankName: z.string().max(200).optional().nullable(),
-  defaultVatRate: z.string().refine((v) => !v || !isNaN(Number(v)), 'Must be a valid number').optional().nullable(),
-  defaultPaymentTermsDays: z.string().refine((v) => !v || !isNaN(Number(v)), 'Must be a valid number').optional().nullable(),
+  defaultVatRate: z
+    .string()
+    .refine((v) => !v || !isNaN(Number(v)), "Must be a valid number")
+    .optional()
+    .nullable(),
+  defaultPaymentTermsDays: z
+    .string()
+    .refine((v) => !v || !isNaN(Number(v)), "Must be a valid number")
+    .optional()
+    .nullable(),
   defaultDocumentFooter: z.string().max(1000).optional().nullable(),
 });
 
-export async function updateCompanyAction(input: unknown): Promise<ActionResult> {
+export async function updateCompanyAction(
+  input: unknown,
+): Promise<ActionResult> {
   try {
-    const { companyId } = await getSession();
+    const { companyId } = await requireRole("admin");
     const parsed = updateCompanySchema.safeParse(input);
     if (!parsed.success) {
-      return { success: false, error: parsed.error.errors[0]?.message || 'Invalid input' };
+      return {
+        success: false,
+        error: parsed.error.errors[0]?.message || "Invalid input",
+      };
     }
 
     // Read existing settings to merge (preserve AI config, plan, etc.)
@@ -51,7 +69,8 @@ export async function updateCompanyAction(input: unknown): Promise<ActionResult>
       bankAccount: {
         ...existingSettings.bankAccount,
         iban: parsed.data.iban || existingSettings.bankAccount?.iban,
-        bankName: parsed.data.bankName || existingSettings.bankAccount?.bankName,
+        bankName:
+          parsed.data.bankName || existingSettings.bankAccount?.bankName,
       },
       defaultVatRate: parsed.data.defaultVatRate
         ? Number(parsed.data.defaultVatRate)
@@ -59,7 +78,9 @@ export async function updateCompanyAction(input: unknown): Promise<ActionResult>
       defaultPaymentTermsDays: parsed.data.defaultPaymentTermsDays
         ? Number(parsed.data.defaultPaymentTermsDays)
         : existingSettings.defaultPaymentTermsDays,
-      defaultDocumentFooter: parsed.data.defaultDocumentFooter ?? existingSettings.defaultDocumentFooter,
+      defaultDocumentFooter:
+        parsed.data.defaultDocumentFooter ??
+        existingSettings.defaultDocumentFooter,
     };
 
     const [company] = await db
@@ -79,10 +100,104 @@ export async function updateCompanyAction(input: unknown): Promise<ActionResult>
       .where(eq(companies.id, companyId))
       .returning();
 
-    revalidatePath('/settings');
+    revalidatePath("/settings");
     return { success: true, data: company };
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to update company settings') };
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to update company settings"),
+    };
+  }
+}
+
+// ============================================================================
+// COMPANY LOGO
+// ============================================================================
+
+const MAX_LOGO_SIZE = 500 * 1024; // 500KB
+const ALLOWED_LOGO_TYPES = ["image/png", "image/jpeg", "image/svg+xml"];
+
+export async function uploadLogoAction(
+  formData: FormData,
+): Promise<ActionResult> {
+  try {
+    const { companyId } = await requireRole("admin");
+
+    const file = formData.get("logo") as File | null;
+    if (!file || file.size === 0) {
+      return { success: false, error: "No file provided" };
+    }
+
+    if (!ALLOWED_LOGO_TYPES.includes(file.type)) {
+      return {
+        success: false,
+        error: "Invalid file type. Use PNG, JPEG, or SVG.",
+      };
+    }
+
+    if (file.size > MAX_LOGO_SIZE) {
+      return { success: false, error: "File too large. Maximum 500KB." };
+    }
+
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const base64 = `data:${file.type};base64,${buffer.toString("base64")}`;
+
+    const [existing] = await db
+      .select({ settings: companies.settings })
+      .from(companies)
+      .where(eq(companies.id, companyId));
+
+    const existingSettings = (existing?.settings as CompanySettings) ?? {};
+
+    await db
+      .update(companies)
+      .set({
+        settings: {
+          ...existingSettings,
+          logoBase64: base64,
+          logoMimeType: file.type,
+        },
+        updatedAt: new Date(),
+      })
+      .where(eq(companies.id, companyId));
+
+    revalidatePath("/settings");
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to upload logo"),
+    };
+  }
+}
+
+export async function removeLogoAction(): Promise<ActionResult> {
+  try {
+    const { companyId } = await requireRole("admin");
+
+    const [existing] = await db
+      .select({ settings: companies.settings })
+      .from(companies)
+      .where(eq(companies.id, companyId));
+
+    const existingSettings = (existing?.settings as CompanySettings) ?? {};
+    const { logoBase64: _, logoMimeType: __, ...rest } = existingSettings;
+
+    await db
+      .update(companies)
+      .set({
+        settings: rest,
+        updatedAt: new Date(),
+      })
+      .where(eq(companies.id, companyId));
+
+    revalidatePath("/settings");
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to remove logo"),
+    };
   }
 }
 
@@ -95,12 +210,17 @@ const updateProfileSchema = z.object({
   email: z.string().email(),
 });
 
-export async function updateProfileAction(input: unknown): Promise<ActionResult> {
+export async function updateProfileAction(
+  input: unknown,
+): Promise<ActionResult> {
   try {
     const { userId } = await getSession();
     const parsed = updateProfileSchema.safeParse(input);
     if (!parsed.success) {
-      return { success: false, error: parsed.error.errors[0]?.message || 'Invalid input' };
+      return {
+        success: false,
+        error: parsed.error.errors[0]?.message || "Invalid input",
+      };
     }
     const [user] = await db
       .update(users)
@@ -112,10 +232,16 @@ export async function updateProfileAction(input: unknown): Promise<ActionResult>
       .where(eq(users.id, userId))
       .returning();
 
-    revalidatePath('/settings');
-    return { success: true, data: { id: user.id, name: user.name, email: user.email } };
+    revalidatePath("/settings");
+    return {
+      success: true,
+      data: { id: user.id, name: user.name, email: user.email },
+    };
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to update profile') };
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to update profile"),
+    };
   }
 }
 
@@ -131,13 +257,16 @@ const updateSequenceSchema = z.object({
 
 export async function updateNumberSequenceAction(
   sequenceId: string,
-  input: unknown
+  input: unknown,
 ): Promise<ActionResult> {
   try {
     const { companyId } = await getSession();
     const parsed = updateSequenceSchema.safeParse(input);
     if (!parsed.success) {
-      return { success: false, error: parsed.error.errors[0]?.message || 'Invalid input' };
+      return {
+        success: false,
+        error: parsed.error.errors[0]?.message || "Invalid input",
+      };
     }
     const [seq] = await db
       .update(numberSequences)
@@ -146,13 +275,21 @@ export async function updateNumberSequenceAction(
         nextNumber: parsed.data.nextNumber,
         format: parsed.data.format,
       })
-      .where(and(eq(numberSequences.id, sequenceId), eq(numberSequences.companyId, companyId)))
+      .where(
+        and(
+          eq(numberSequences.id, sequenceId),
+          eq(numberSequences.companyId, companyId),
+        ),
+      )
       .returning();
 
-    if (!seq) return { success: false, error: 'Sequence not found' };
-    revalidatePath('/settings');
+    if (!seq) return { success: false, error: "Sequence not found" };
+    revalidatePath("/settings");
     return { success: true, data: seq };
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to update number sequence') };
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to update number sequence"),
+    };
   }
 }
