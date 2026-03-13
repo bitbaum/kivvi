@@ -66,6 +66,9 @@
     "goHome": "Aller au tableau de bord",
     "exported": "Export terminé",
     "exportCsv": "Exporter CSV",
+    "export": "Exporter",
+    "exporting": "Exportation...",
+    "dashboard": "Tableau de bord",
     "aria": {
       "mainNavigation": "Navigation principale",
       "primaryNavigation": "Navigation primaire",
@@ -209,6 +212,10 @@
     "vatRate": "TVA %",
     "position": "Pos.",
     "internalNotes": "Notes internes",
+    "pdfPreview": "Aperçu PDF",
+    "created": "Document créé",
+    "updated": "Document mis à jour",
+    "deleted": "Document supprimé",
     "notesOnDocument": "Notes visibles sur le {type}...",
     "internalNotesHint": "Notes internes (non visibles sur le {type})...",
     "summary": "Résumé",
@@ -305,7 +312,17 @@
       "items": "éléments",
       "showMore": "Afficher {count} de plus",
       "showLess": "Afficher moins",
-      "viewDetails": "Voir les détails"
+      "viewDetails": "Voir les détails",
+      "overdueInvoices": "Factures en retard",
+      "overdueInvoicesDesc": "{count, plural, one {# facture} other {# factures}} en retard",
+      "expiringQuotes": "Devis expirants",
+      "expiringQuotesDesc": "{count, plural, one {# devis} other {# devis}} expirant dans les 7 prochains jours",
+      "draftDocuments": "Documents brouillons",
+      "draftDocumentsDesc": "{count, plural, one {# document} other {# documents}} en brouillon",
+      "lowStock": "Stock faible",
+      "lowStockDesc": "{count, plural, one {# produit} other {# produits}} en dessous du stock minimum",
+      "unreconciledTransactions": "Transactions non rapprochées",
+      "unreconciledTransactionsDesc": "{count, plural, one {# transaction bancaire} other {# transactions bancaires}} non rapprochées"
     },
     "workflow": {
       "title": "Suggestions de flux",
@@ -314,7 +331,19 @@
       "checkBackLater": "Revenez plus tard.",
       "highPriority": "Élevée",
       "mediumPriority": "Moyenne",
-      "lowPriority": "Basse"
+      "lowPriority": "Basse",
+      "convertQuoteTitle": "Convertir le devis en commande",
+      "convertQuoteDesc": "Le devis {number} a été envoyé il y a {days} jours",
+      "convertQuoteAction": "Convertir en commande",
+      "invoiceOrderTitle": "Facturer la commande",
+      "invoiceOrderDesc": "La commande {number} a été livrée il y a {days} jours",
+      "invoiceOrderAction": "Créer une facture",
+      "confirmDeliveryTitle": "Confirmer la livraison",
+      "confirmDeliveryDesc": "Le bon de livraison {number} a été envoyé il y a {days} jours",
+      "confirmDeliveryAction": "Marquer comme livré",
+      "startDunningTitle": "Créer un rappel",
+      "startDunningDesc": "La facture {number} est en retard de {days} jours",
+      "startDunningAction": "Créer un rappel"
     },
     "activity": {
       "title": "Activité récente",
@@ -326,10 +355,64 @@
       "weeksAgo": "il y a {count} semaines",
       "noActivity": "Aucune activité",
       "noActivityDesc": "Il n'y a pas encore d'activité dans votre entreprise.",
-      "loadError": "Impossible de charger l'activité récente. Veuillez actualiser la page."
+      "loadError": "Impossible de charger l'activité récente. Veuillez actualiser la page.",
+      "quote": {
+        "draft": "Devis créé",
+        "sent": "Devis envoyé",
+        "confirmed": "Devis confirmé",
+        "cancelled": "Devis annulé"
+      },
+      "order": {
+        "draft": "Commande créée",
+        "sent": "Commande envoyée",
+        "confirmed": "Commande confirmée",
+        "delivered": "Commande livrée",
+        "cancelled": "Commande annulée"
+      },
+      "order_confirmation": {
+        "draft": "Confirmation de commande créée",
+        "sent": "Confirmation de commande envoyée",
+        "confirmed": "Confirmation de commande confirmée"
+      },
+      "delivery_note": {
+        "draft": "Bon de livraison créé",
+        "sent": "Bon de livraison envoyé",
+        "delivered": "Bon de livraison livré"
+      },
+      "invoice": {
+        "draft": "Facture créée",
+        "sent": "Facture envoyée",
+        "confirmed": "Facture confirmée",
+        "delivered": "Facture livrée",
+        "paid": "Facture payée",
+        "partially_paid": "Facture partiellement payée",
+        "overdue": "Facture en retard",
+        "cancelled": "Facture annulée",
+        "dunning_1": "Facture premier rappel",
+        "dunning_2": "Facture deuxième rappel",
+        "dunning_3": "Facture dernier avis"
+      },
+      "credit_note": {
+        "draft": "Note de crédit créée",
+        "sent": "Note de crédit envoyée",
+        "paid": "Note de crédit payée"
+      },
+      "purchase_order": {
+        "draft": "Bon de commande créé",
+        "sent": "Bon de commande envoyé",
+        "confirmed": "Bon de commande confirmé",
+        "delivered": "Bon de commande livré"
+      },
+      "purchase_invoice": {
+        "draft": "Facture fournisseur créée",
+        "sent": "Facture fournisseur envoyée",
+        "paid": "Facture fournisseur payée"
+      },
+      "dunning": {
+        "draft": "Rappel créé",
+        "sent": "Rappel envoyé"
+      }
     },
-    "allCaughtUp": "Tout est à jour!",
-    "noUrgentActions": "Aucune action urgente",
     "createInvoice": "Créer une facture",
     "createQuote": "Créer un devis",
     "createOrder": "Créer une commande",
@@ -350,7 +433,12 @@
       "revenueLabel": "Chiffre d'affaires",
       "aging": "Analyse d'échéance",
       "noRevenue": "Aucune donnée de chiffre d'affaires disponible",
-      "noInvoices": "Aucune facture ouverte"
+      "noInvoices": "Aucune facture ouverte",
+      "revenueNarrative": {
+        "above": "Le chiffre d'affaires a culminé en {peakMonth} à {peakAmount}. Le mois en cours ({currentAmount}) est au-dessus de la moyenne.",
+        "below": "Le chiffre d'affaires a culminé en {peakMonth} à {peakAmount}. Le mois en cours ({currentAmount}) est en dessous de la moyenne."
+      },
+      "agingNarrative": "{currentPercent}% des factures impayées sont à jour. {overduePercent}% sont en retard de plus de 60 jours."
     },
     "stats": {
       "title": "Indicateurs clés",
@@ -395,9 +483,28 @@
       "openChat": "Ouvrir le chat"
     },
     "skipToMain": "Aller au contenu principal",
+    "summary": {
+      "revenueCollected": "Ce mois, vous avez encaissé {amount} provenant de {count, plural, one {# facture} other {# factures}}.",
+      "outstanding": "{amount} en attente sur {count, plural, one {# facture} other {# factures}}.",
+      "overdue": "{amount} de {count, plural, one {# facture} other {# factures}} en retard.",
+      "marginHealthy": "Votre marge bénéficiaire est de {margin}% — une base solide.",
+      "marginModerate": "Votre marge bénéficiaire est de {margin}% — dans une fourchette acceptable.",
+      "marginLow": "Votre marge bénéficiaire n'est que de {margin}% — les dépenses sont élevées par rapport aux encaissements."
+    },
+    "priorities": {
+      "title": "Vos priorités",
+      "subtitle": "Actions à entreprendre classées par urgence",
+      "allClear": "Tout est en ordre !",
+      "noActions": "Aucune action urgente requise.",
+      "showAll": "Tout afficher ({count})",
+      "showLess": "Afficher moins"
+    },
+    "sinceDate": "Depuis le {date}",
     "narrative": {
       "allGood": "Tout est en ordre — aucun élément en attente."
-    }
+    },
+    "allCaughtUp": "Tout est à jour!",
+    "noUrgentActions": "Aucune action urgente"
   },
   "footer": {
     "product": "Produit",
@@ -469,7 +576,6 @@
     "contactDetails": "Coordonnées",
     "searchCustomers": "Rechercher des clients...",
     "searchVendors": "Rechercher des fournisseurs...",
-    "exportCsv": "Exporter CSV",
     "quickCreate": "Création rapide",
     "quickCreateDesc": "Créez un nouveau contact avec les informations essentielles.",
     "quickCreateNote": "Vous pourrez ajouter d'autres détails ultérieurement.",
@@ -477,19 +583,20 @@
     "namePlaceholder": "Nom de l'entreprise ou personne",
     "emailPlaceholder": "contact@exemple.ch",
     "phonePlaceholder": "+41 79 123 45 67",
+    "exportCsv": "Exporter CSV",
     "types": {
       "customer": "Client",
       "vendor": "Fournisseur",
       "both": "Les deux"
     },
-    "internalNotes": "Notes internes",
-    "created": "Contact créé",
-    "updated": "Contact mis à jour",
-    "deleted": "Contact supprimé",
     "placeholders": {
       "companyName": "p.ex. Müller SA",
       "vatNumber": "CHE-123.456.789 TVA"
-    }
+    },
+    "internalNotes": "Notes internes",
+    "created": "Contact créé",
+    "updated": "Contact mis à jour",
+    "deleted": "Contact supprimé"
   },
   "products": {
     "title": "Produits",
@@ -567,7 +674,10 @@
     "outgoing": "Sortants",
     "incoming": "Entrants",
     "newDocument": "Nouveau document",
-    "filterByType": "Filtrer par type"
+    "filterByType": "Filtrer par type",
+    "documentsCount": "Documents",
+    "open": "ouvert(s)",
+    "overdue": "en retard"
   },
   "moneyHub": {
     "title": "Finances",
@@ -610,6 +720,7 @@
     "seedAccounts": "Charger le plan comptable PME suisse",
     "seedConfirm": "Voulez-vous charger le plan comptable PME suisse ? Cela créera 227 comptes standard.",
     "seedSuccess": "{count} comptes ont été créés.",
+    "accountsConfigured": "{count} comptes configurés",
     "noAccounts": "Aucun compte trouvé",
     "searchAccounts": "Rechercher des comptes...",
     "newJournalEntry": "Nouvelle écriture",
@@ -921,6 +1032,21 @@
       "address": "Adresse",
       "preferences": "Préférences",
       "defaultCurrency": "Devise par défaut",
+      "bankDetails": "Coordonnées bancaires",
+      "iban": "IBAN",
+      "bankName": "Nom de la banque",
+      "defaultVatRate": "Taux de TVA par défaut",
+      "paymentTermsDays": "Délai de paiement par défaut (jours)",
+      "paymentTermsDaysHint": "Nombre de jours jusqu'à l'échéance des nouvelles factures.",
+      "documentFooter": "Pied de page des documents",
+      "defaultDocumentFooter": "Pied de page par défaut",
+      "defaultDocumentFooterHint": "Affiché sur les documents si aucune note individuelle n'est définie.",
+      "logo": "Logo de l'entreprise",
+      "uploadLogo": "Importer le logo",
+      "removeLogo": "Supprimer le logo",
+      "logoMaxSize": "Max. 500 Ko",
+      "logoFormats": "PNG, JPEG ou SVG",
+      "savedSuccessfully": "Paramètres enregistrés",
       "placeholders": {
         "bankName": "p.ex. UBS, ZKB, PostFinance",
         "documentFooter": "p.ex. Payable dans les 30 jours nets",
@@ -954,10 +1080,31 @@
         "journal": "Écriture comptable"
       }
     },
+    "billing": {
+      "title": "Facturation",
+      "settingsDesc": "Abonnement et paramètres de paiement.",
+      "subtitle": "Gérez votre abonnement et vos informations de facturation.",
+      "currentPlan": "Plan actuel",
+      "active": "Actif",
+      "pastDue": "En retard",
+      "cancelled": "Annulé",
+      "trialRemaining": "{days} jours restants dans votre essai",
+      "pastDueMessage": "Votre paiement est en retard. Veuillez mettre à jour votre moyen de paiement pour éviter une interruption de service.",
+      "upgrade": "Mettre à niveau",
+      "manageSubscription": "Gérer l'abonnement",
+      "upgradeError": "Échec de la mise à niveau. Veuillez réessayer.",
+      "manageError": "Échec de l'ouverture du portail de facturation. Veuillez réessayer."
+    },
     "dataTools": "Outils de données",
     "repairImport": {
       "title": "Réparer l'import",
       "description": "Réimporter les lignes de position depuis les exports CSV Kivitendo"
+    },
+    "dataPrivacy": {
+      "title": "Données et confidentialité",
+      "exportTitle": "Exporter toutes les données",
+      "exportDescription": "Téléchargez un export complet de toutes les données de votre entreprise au format JSON (conforme au RGPD).",
+      "downloadButton": "Télécharger l'export des données"
     },
     "recurring": {
       "title": "Factures récurrentes",
@@ -1046,6 +1193,77 @@
       "csvParseFailed": "Échec de l'analyse du CSV : {message}",
       "repairFailed": "Réparation échouée"
     },
+    "dataRepair": {
+      "title": "Réparation des données",
+      "description": "Corrigez les problèmes connus avec les données importées.",
+      "status": "État actuel",
+      "loading": "Chargement de l’état...",
+      "sequences": "Séquences de numérotation",
+      "sequencesDesc": "Réinitialiser les séquences de numérotation à MAX(existant)+1. Corrige le problème où les nouveaux documents commencent au numéro 1.",
+      "sequenceType": "Type",
+      "sequencePrefix": "Préfixe",
+      "sequenceNext": "Prochain numéro",
+      "repairSequences": "Réparer les séquences",
+      "repairingSequences": "Réparation des séquences...",
+      "sequencesRepaired": "Séquences de numérotation réparées avec succès",
+      "invoiceStatuses": "Statuts des factures",
+      "invoiceStatusesDesc": "Passer les factures historiques antérieures à la date limite de « envoyée » à « payée ». Ce sont des anciennes données déjà payées.",
+      "sentInvoices": "{count} factures de vente avec le statut « envoyée »",
+      "sentPurchaseInvoices": "{count} factures fournisseur avec le statut « envoyée »",
+      "cutoffDate": "Date limite",
+      "repairStatuses": "Réparer les statuts",
+      "repairingStatuses": "Réparation des statuts...",
+      "statusesRepaired": "{invoices} factures et {purchases} factures fournisseur mises à jour",
+      "journalEntries": "Écritures comptables",
+      "journalEntriesDesc": "Générer rétroactivement les écritures comptables pour les factures existantes. Les écritures déjà existantes seront ignorées.",
+      "totalEntries": "{count} écritures comptables existantes",
+      "missingEntries": "{count} documents sans écritures comptables",
+      "generateEntries": "Générer les écritures",
+      "generatingEntries": "Génération des écritures...",
+      "entriesGenerated": "{invoices} écritures de vente et {purchases} écritures fournisseur créées, {skipped} ignorées",
+      "paidDates": "Date de paiement",
+      "paidDatesDesc": "Factures payées sans date de paiement. Définit la date de paiement sur la date de facturation comme meilleure approximation pour les données historiques.",
+      "paidDatesCount": "{count} factures payées sans date de paiement",
+      "repairPaidDates": "Réparer les dates de paiement",
+      "repairingPaidDates": "Réparation des dates de paiement...",
+      "paidDatesRepaired": "{count} dates de paiement réparées avec succès",
+      "noIssuesFound": "Aucun problème trouvé",
+      "allGood": "Toutes les données sont correctes. Il n’y a rien à réparer.",
+      "errorsOccurred": "Des erreurs se sont produites",
+      "repairFailed": "La réparation a échoué"
+    },
+    "apiTokens": {
+      "title": "Clés API",
+      "description": "Créez et gérez des clés API pour l’accès programmatique à vos données.",
+      "settingsDesc": "Accès programmatique à vos données via l’API REST.",
+      "createToken": "Créer une nouvelle clé",
+      "tokenName": "Nom",
+      "tokenNamePlaceholder": "p. ex. Intégration Shopware",
+      "tokenCreated": "Clé API créée",
+      "tokenCreatedDesc": "Copiez la clé maintenant. Elle ne sera affichée qu’une seule fois.",
+      "copyToken": "Copier",
+      "copied": "Copiée",
+      "close": "Fermer",
+      "noTokens": "Aucune clé API.",
+      "noTokensDesc": "Créez une clé API pour accéder à vos données de manière programmatique.",
+      "revoke": "Révoquer",
+      "delete": "Supprimer",
+      "revoked": "Révoquée",
+      "deleted": "Supprimée",
+      "active": "Active",
+      "inactive": "Inactive",
+      "lastUsed": "Dernière utilisation",
+      "never": "Jamais",
+      "created": "Créée",
+      "confirmRevoke": "Êtes-vous sûr ? Cette clé sera immédiatement invalidée.",
+      "confirmDelete": "Êtes-vous sûr ? Cette clé sera définitivement supprimée.",
+      "apiDocs": "Documentation API",
+      "apiDocsDesc": "Authentifiez-vous avec l’en-tête : Authorization: Bearer kv_...",
+      "endpoints": "Points d’accès disponibles",
+      "endpointContacts": "GET/POST /api/v1/contacts",
+      "endpointDocuments": "GET/POST /api/v1/documents",
+      "endpointProducts": "GET/POST /api/v1/products"
+    },
     "team": {
       "title": "Équipe",
       "settingsDesc": "Gérer les membres de l'équipe et l'accès."
@@ -1097,6 +1315,10 @@
     "errorGeneric": "Une erreur est survenue. Veuillez réessayer.",
     "termsAndPrivacy": "En continuant, vous acceptez nos <terms>Conditions d'utilisation</terms> et notre <privacy>Politique de confidentialité</privacy>.",
     "passwordMinLength": "Au moins 8 caractères",
+    "showPassword": "Afficher le mot de passe",
+    "hidePassword": "Masquer le mot de passe",
+    "heroSubtitle": "Kivvi automatise votre facturation, comptabilité et vos paiements pour que vous puissiez vous concentrer sur l'essentiel.",
+    "securityNote": "Vos données sont chiffrées et restent en Suisse. Hébergez votre IA vous-même pour une confidentialité totale.",
     "placeholders": {
       "fullName": "Jean Dupont",
       "companyName": "Exemple SA"
@@ -1149,8 +1371,11 @@
       "products": "Produits",
       "productsDesc": "Produits & services",
       "documents": "Documents",
-      "documentsDesc": "Factures & factures d'achat",
+      "documentsDesc": "Devis, commandes, factures, bons de livraison",
+      "quotes": "Devis",
+      "salesOrders": "Commandes",
       "salesInvoices": "Factures de vente",
+      "deliveryNotes": "Bons de livraison",
       "purchaseInvoices": "Factures d'achat",
       "accounting": "Comptabilité",
       "accountingDesc": "Écritures & niveaux de stock",
