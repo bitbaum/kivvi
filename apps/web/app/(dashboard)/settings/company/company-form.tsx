@@ -1,14 +1,18 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Loader2, CheckCircle2 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { updateCompanyAction } from '@/app/actions/settings';
-import { cn } from '@/lib/utils';
-import { COUNTRY_OPTIONS } from '@/lib/config/locales';
-import { SUPPORTED_CURRENCIES } from '@/lib/config/currencies';
-import { SWISS_VAT_RATES } from '@/lib/config/vat-rates';
-import { FormInput, FormSelect } from '@/components/ui/form-field';
+import { useState, useRef } from "react";
+import { Loader2, CheckCircle2, Upload, Trash2, ImageIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
+import {
+  updateCompanyAction,
+  uploadLogoAction,
+  removeLogoAction,
+} from "@/app/actions/settings";
+import { cn } from "@/lib/utils";
+import { COUNTRY_OPTIONS } from "@/lib/config/locales";
+import { SUPPORTED_CURRENCIES } from "@/lib/config/currencies";
+import { SWISS_VAT_RATES } from "@/lib/config/vat-rates";
+import { FormInput, FormSelect } from "@/components/ui/form-field";
 
 interface CompanyFormProps {
   initialData: {
@@ -25,15 +29,67 @@ interface CompanyFormProps {
     defaultVatRate: string;
     defaultPaymentTermsDays: string;
     defaultDocumentFooter: string;
+    logoBase64: string | null;
   };
 }
 
 export function CompanyForm({ initialData }: CompanyFormProps) {
-  const t = useTranslations('settings');
-  const tc = useTranslations('common');
+  const t = useTranslations("settings");
+  const tc = useTranslations("common");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [logoPreview, setLogoPreview] = useState<string | null>(
+    initialData.logoBase64,
+  );
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingLogo(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("logo", file);
+
+      const result = await uploadLogoAction(formData);
+      if (result.success) {
+        // Show preview from file
+        const reader = new FileReader();
+        reader.onload = () => setLogoPreview(reader.result as string);
+        reader.readAsDataURL(file);
+      } else {
+        setError(result.error || tc("error"));
+      }
+    } catch {
+      setError(tc("error"));
+    } finally {
+      setIsUploadingLogo(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
+  async function handleLogoRemove() {
+    setIsUploadingLogo(true);
+    setError(null);
+
+    try {
+      const result = await removeLogoAction();
+      if (result.success) {
+        setLogoPreview(null);
+      } else {
+        setError(result.error || tc("error"));
+      }
+    } catch {
+      setError(tc("error"));
+    } finally {
+      setIsUploadingLogo(false);
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -44,19 +100,21 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
     try {
       const formData = new FormData(e.currentTarget);
       const input = {
-        name: formData.get('name') as string,
-        legalName: (formData.get('legalName') as string) || null,
-        vatNumber: (formData.get('vatNumber') as string) || null,
-        address: (formData.get('address') as string) || null,
-        city: (formData.get('city') as string) || null,
-        postalCode: (formData.get('postalCode') as string) || null,
-        country: formData.get('country') as string,
-        currency: formData.get('currency') as string,
-        iban: (formData.get('iban') as string) || null,
-        bankName: (formData.get('bankName') as string) || null,
-        defaultVatRate: (formData.get('defaultVatRate') as string) || null,
-        defaultPaymentTermsDays: (formData.get('defaultPaymentTermsDays') as string) || null,
-        defaultDocumentFooter: (formData.get('defaultDocumentFooter') as string) || null,
+        name: formData.get("name") as string,
+        legalName: (formData.get("legalName") as string) || null,
+        vatNumber: (formData.get("vatNumber") as string) || null,
+        address: (formData.get("address") as string) || null,
+        city: (formData.get("city") as string) || null,
+        postalCode: (formData.get("postalCode") as string) || null,
+        country: formData.get("country") as string,
+        currency: formData.get("currency") as string,
+        iban: (formData.get("iban") as string) || null,
+        bankName: (formData.get("bankName") as string) || null,
+        defaultVatRate: (formData.get("defaultVatRate") as string) || null,
+        defaultPaymentTermsDays:
+          (formData.get("defaultPaymentTermsDays") as string) || null,
+        defaultDocumentFooter:
+          (formData.get("defaultDocumentFooter") as string) || null,
       };
 
       const result = await updateCompanyAction(input);
@@ -65,10 +123,10 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
       } else {
-        setError(result.error || tc('error'));
+        setError(result.error || tc("error"));
       }
     } catch {
-      setError(tc('error'));
+      setError(tc("error"));
     } finally {
       setIsSubmitting(false);
     }
@@ -87,19 +145,88 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
       {success && (
         <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-400">
           <CheckCircle2 className="h-4 w-4" />
-          {t('company.savedSuccessfully')}
+          {t("company.savedSuccessfully")}
         </div>
       )}
+
+      {/* Company Logo */}
+      <section className="rounded-xl border bg-card">
+        <div className="border-b px-6 py-4">
+          <h2 className="font-semibold">{t("company.logo")}</h2>
+        </div>
+        <div className="p-6">
+          <div className="flex flex-col items-start gap-4 sm:flex-row sm:gap-6">
+            {/* Preview */}
+            <div className="flex h-24 w-full max-w-[176px] shrink-0 items-center justify-center rounded-lg border-2 border-dashed bg-muted/30">
+              {logoPreview ? (
+                /* eslint-disable-next-line @next/next/no-img-element -- base64 data URI, next/image optimization not applicable */
+                <img
+                  src={logoPreview}
+                  alt="Company logo"
+                  className="max-h-20 max-w-40 object-contain"
+                />
+              ) : (
+                <ImageIcon className="h-8 w-8 text-muted-foreground/50" />
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="flex flex-col gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/svg+xml"
+                onChange={handleLogoUpload}
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploadingLogo}
+                className={cn(
+                  "inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm hover:bg-muted transition-colors",
+                  isUploadingLogo && "opacity-50 cursor-not-allowed",
+                )}
+              >
+                {isUploadingLogo ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Upload className="h-4 w-4" />
+                )}
+                {t("company.uploadLogo")}
+              </button>
+              {logoPreview && (
+                <button
+                  type="button"
+                  onClick={handleLogoRemove}
+                  disabled={isUploadingLogo}
+                  className={cn(
+                    "inline-flex items-center gap-2 rounded-lg border border-destructive/30 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors",
+                    isUploadingLogo && "opacity-50 cursor-not-allowed",
+                  )}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  {t("company.removeLogo")}
+                </button>
+              )}
+              <p className="text-xs text-muted-foreground">
+                {t("company.logoFormats")} · {t("company.logoMaxSize")}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Company Information */}
       <section className="rounded-xl border bg-card">
         <div className="border-b px-6 py-4">
-          <h2 className="font-semibold">{t('company.companyInfo')}</h2>
+          <h2 className="font-semibold">{t("company.companyInfo")}</h2>
         </div>
         <div className="grid gap-6 p-6 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
-              {t('company.companyName')} <span className="text-destructive">*</span>
+              {t("company.companyName")}{" "}
+              <span className="text-destructive">*</span>
             </label>
             <FormInput
               type="text"
@@ -112,8 +239,11 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
           </div>
 
           <div className="sm:col-span-2">
-            <label htmlFor="legalName" className="mb-1.5 block text-sm font-medium">
-              {t('company.legalName')}
+            <label
+              htmlFor="legalName"
+              className="mb-1.5 block text-sm font-medium"
+            >
+              {t("company.legalName")}
             </label>
             <FormInput
               type="text"
@@ -125,15 +255,18 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
           </div>
 
           <div>
-            <label htmlFor="vatNumber" className="mb-1.5 block text-sm font-medium">
-              {t('company.vatNumber')}
+            <label
+              htmlFor="vatNumber"
+              className="mb-1.5 block text-sm font-medium"
+            >
+              {t("company.vatNumber")}
             </label>
             <FormInput
               type="text"
               id="vatNumber"
               name="vatNumber"
               maxLength={50}
-              placeholder={t('company.placeholders.vatNumber')}
+              placeholder={t("company.placeholders.vatNumber")}
               defaultValue={initialData.vatNumber}
             />
           </div>
@@ -143,11 +276,14 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
       {/* Address */}
       <section className="rounded-xl border bg-card">
         <div className="border-b px-6 py-4">
-          <h2 className="font-semibold">{t('company.address')}</h2>
+          <h2 className="font-semibold">{t("company.address")}</h2>
         </div>
         <div className="grid gap-6 p-6 sm:grid-cols-2">
           <div className="sm:col-span-2">
-            <label htmlFor="address" className="mb-1.5 block text-sm font-medium">
+            <label
+              htmlFor="address"
+              className="mb-1.5 block text-sm font-medium"
+            >
               Street Address
             </label>
             <FormInput
@@ -160,7 +296,10 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
           </div>
 
           <div>
-            <label htmlFor="postalCode" className="mb-1.5 block text-sm font-medium">
+            <label
+              htmlFor="postalCode"
+              className="mb-1.5 block text-sm font-medium"
+            >
               Postal Code
             </label>
             <FormInput
@@ -186,7 +325,10 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
           </div>
 
           <div>
-            <label htmlFor="country" className="mb-1.5 block text-sm font-medium">
+            <label
+              htmlFor="country"
+              className="mb-1.5 block text-sm font-medium"
+            >
               Country
             </label>
             <FormSelect
@@ -207,12 +349,12 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
       {/* Bank Details */}
       <section className="rounded-xl border bg-card">
         <div className="border-b px-6 py-4">
-          <h2 className="font-semibold">{t('company.bankDetails')}</h2>
+          <h2 className="font-semibold">{t("company.bankDetails")}</h2>
         </div>
         <div className="grid gap-6 p-6 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <label htmlFor="iban" className="mb-1.5 block text-sm font-medium">
-              {t('company.iban')}
+              {t("company.iban")}
             </label>
             <FormInput
               type="text"
@@ -225,15 +367,18 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
           </div>
 
           <div className="sm:col-span-2">
-            <label htmlFor="bankName" className="mb-1.5 block text-sm font-medium">
-              {t('company.bankName')}
+            <label
+              htmlFor="bankName"
+              className="mb-1.5 block text-sm font-medium"
+            >
+              {t("company.bankName")}
             </label>
             <FormInput
               type="text"
               id="bankName"
               name="bankName"
               maxLength={200}
-              placeholder={t('company.placeholders.bankName')}
+              placeholder={t("company.placeholders.bankName")}
               defaultValue={initialData.bankName}
             />
           </div>
@@ -243,12 +388,15 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
       {/* Preferences */}
       <section className="rounded-xl border bg-card">
         <div className="border-b px-6 py-4">
-          <h2 className="font-semibold">{t('company.preferences')}</h2>
+          <h2 className="font-semibold">{t("company.preferences")}</h2>
         </div>
         <div className="grid gap-6 p-6 sm:grid-cols-2">
           <div>
-            <label htmlFor="currency" className="mb-1.5 block text-sm font-medium">
-              {t('company.defaultCurrency')}
+            <label
+              htmlFor="currency"
+              className="mb-1.5 block text-sm font-medium"
+            >
+              {t("company.defaultCurrency")}
             </label>
             <FormSelect
               id="currency"
@@ -264,8 +412,11 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
           </div>
 
           <div>
-            <label htmlFor="defaultVatRate" className="mb-1.5 block text-sm font-medium">
-              {t('company.defaultVatRate')}
+            <label
+              htmlFor="defaultVatRate"
+              className="mb-1.5 block text-sm font-medium"
+            >
+              {t("company.defaultVatRate")}
             </label>
             <FormSelect
               id="defaultVatRate"
@@ -281,8 +432,11 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
           </div>
 
           <div>
-            <label htmlFor="defaultPaymentTermsDays" className="mb-1.5 block text-sm font-medium">
-              {t('company.paymentTermsDays')}
+            <label
+              htmlFor="defaultPaymentTermsDays"
+              className="mb-1.5 block text-sm font-medium"
+            >
+              {t("company.paymentTermsDays")}
             </label>
             <FormInput
               type="number"
@@ -293,7 +447,7 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
               defaultValue={initialData.defaultPaymentTermsDays}
             />
             <p className="mt-1 text-xs text-muted-foreground">
-              {t('company.paymentTermsDaysHint')}
+              {t("company.paymentTermsDaysHint")}
             </p>
           </div>
         </div>
@@ -302,11 +456,14 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
       {/* Document Footer */}
       <section className="rounded-xl border bg-card">
         <div className="border-b px-6 py-4">
-          <h2 className="font-semibold">{t('company.documentFooter')}</h2>
+          <h2 className="font-semibold">{t("company.documentFooter")}</h2>
         </div>
         <div className="p-6">
-          <label htmlFor="defaultDocumentFooter" className="mb-1.5 block text-sm font-medium">
-            {t('company.defaultDocumentFooter')}
+          <label
+            htmlFor="defaultDocumentFooter"
+            className="mb-1.5 block text-sm font-medium"
+          >
+            {t("company.defaultDocumentFooter")}
           </label>
           <textarea
             id="defaultDocumentFooter"
@@ -314,11 +471,11 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
             rows={3}
             maxLength={1000}
             className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            placeholder={t('company.placeholders.documentFooter')}
+            placeholder={t("company.placeholders.documentFooter")}
             defaultValue={initialData.defaultDocumentFooter}
           />
           <p className="mt-1 text-xs text-muted-foreground">
-            {t('company.defaultDocumentFooterHint')}
+            {t("company.defaultDocumentFooterHint")}
           </p>
         </div>
       </section>
@@ -329,12 +486,12 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
           type="submit"
           disabled={isSubmitting}
           className={cn(
-            'inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors',
-            isSubmitting && 'opacity-50 cursor-not-allowed'
+            "inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors",
+            isSubmitting && "opacity-50 cursor-not-allowed",
           )}
         >
           {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-          {isSubmitting ? tc('saving') : tc('saveChanges')}
+          {isSubmitting ? tc("saving") : tc("saveChanges")}
         </button>
       </div>
     </form>

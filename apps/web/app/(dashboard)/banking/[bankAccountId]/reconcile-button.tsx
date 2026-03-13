@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useState, useTransition, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import { Link2, Unlink, Search, FileText } from 'lucide-react';
+import { useState, useTransition, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { Link2, Unlink, Search, FileText } from "lucide-react";
 import {
   reconcileTransactionAction,
   unreconcileTransactionAction,
-} from '@/app/actions/banking';
-import { useTranslations } from 'next-intl';
+} from "@/app/actions/banking";
+import { useTranslations } from "next-intl";
 
 interface MatchedDocument {
   id: string;
@@ -38,23 +38,27 @@ export function ReconcileButton({
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const t = useTranslations('banking');
-  const tc = useTranslations('common');
+  const t = useTranslations("banking");
+  const tc = useTranslations("common");
 
   // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
         setIsOpen(false);
       }
     }
     if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
+      return () =>
+        document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [isOpen]);
 
@@ -72,7 +76,7 @@ export function ReconcileButton({
       try {
         const res = await fetch(
           `/api/documents/search?q=${encodeURIComponent(search)}`,
-          { signal: controller.signal }
+          { signal: controller.signal },
         );
         if (res.ok) {
           const data = await res.json();
@@ -97,10 +101,10 @@ export function ReconcileButton({
       const res = await reconcileTransactionAction(transactionId, documentId);
       if (res.success) {
         setIsOpen(false);
-        setSearch('');
+        setSearch("");
         router.refresh();
       } else {
-        setError(res.error || tc('error'));
+        setError(res.error || tc("error"));
       }
     });
   }
@@ -112,7 +116,7 @@ export function ReconcileButton({
       if (res.success) {
         router.refresh();
       } else {
-        setError(res.error || tc('error'));
+        setError(res.error || tc("error"));
       }
     });
   }
@@ -123,11 +127,11 @@ export function ReconcileButton({
         <button
           onClick={handleUnreconcile}
           disabled={isPending}
-          className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors disabled:opacity-50"
-          title={t('unreconcile')}
+          className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors disabled:opacity-50 min-h-[44px]"
+          title={t("unreconcile")}
         >
           <Unlink className="h-3 w-3" />
-          {isPending ? '...' : t('unlink')}
+          {isPending ? "..." : t("unlink")}
         </button>
         {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
       </div>
@@ -139,10 +143,10 @@ export function ReconcileButton({
       <button
         onClick={() => setIsOpen(!isOpen)}
         disabled={isPending}
-        className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary hover:bg-primary/20 transition-colors disabled:opacity-50"
+        className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary hover:bg-primary/20 transition-colors disabled:opacity-50 min-h-[44px]"
       >
         <Link2 className="h-3 w-3" />
-        {t('match')}
+        {t("match")}
       </button>
 
       {isOpen && (
@@ -154,7 +158,7 @@ export function ReconcileButton({
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder={t('searchInvoices')}
+                placeholder={t("searchInvoices")}
                 autoFocus
                 className="w-full rounded-lg border bg-background py-1.5 pl-8 pr-3 text-sm outline-none focus:ring-2 focus:ring-primary"
               />
@@ -164,15 +168,15 @@ export function ReconcileButton({
           <div className="max-h-48 overflow-y-auto border-t">
             {isSearching ? (
               <p className="p-3 text-center text-xs text-muted-foreground">
-                {t('searching')}
+                {t("searching")}
               </p>
             ) : search.length < 2 ? (
               <p className="p-3 text-center text-xs text-muted-foreground">
-                {t('typeAtLeast')}
+                {t("typeAtLeast")}
               </p>
             ) : results.length === 0 ? (
               <p className="p-3 text-center text-xs text-muted-foreground">
-                {t('noDocumentsFound')}
+                {t("noDocumentsFound")}
               </p>
             ) : (
               <div className="divide-y">
@@ -181,12 +185,14 @@ export function ReconcileButton({
                     key={doc.id}
                     onClick={() => handleReconcile(doc.id)}
                     disabled={isPending}
-                    className="flex w-full items-center gap-3 px-3 py-2.5 text-left hover:bg-muted/50 transition-colors disabled:opacity-50"
+                    className="flex w-full items-center gap-3 px-3 py-2.5 text-left hover:bg-muted/50 transition-colors disabled:opacity-50 min-h-[44px]"
                   >
                     <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">{doc.number}</span>
+                        <span className="text-sm font-medium">
+                          {doc.number}
+                        </span>
                         <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium uppercase">
                           {doc.type}
                         </span>

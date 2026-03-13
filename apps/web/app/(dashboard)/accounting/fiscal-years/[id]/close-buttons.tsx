@@ -1,11 +1,14 @@
-'use client';
+"use client";
 
-import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
-import { Lock, Loader2 } from 'lucide-react';
-import { closeFiscalYearAction, closeFiscalPeriodAction } from '@/app/actions/accounting';
-import { useTranslations } from 'next-intl';
-import { toast } from 'sonner';
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { Lock, Loader2 } from "lucide-react";
+import {
+  closeFiscalYearAction,
+  closeFiscalPeriodAction,
+} from "@/app/actions/accounting";
+import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 
 // ============================================================================
 // CLOSE YEAR BUTTON
@@ -20,17 +23,17 @@ export function CloseYearButton({ yearId, yearName }: CloseYearButtonProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [showConfirm, setShowConfirm] = useState(false);
-  const t = useTranslations('accounting');
-  const tc = useTranslations('common');
+  const t = useTranslations("accounting");
+  const tc = useTranslations("common");
 
   function handleClose() {
     startTransition(async () => {
       const result = await closeFiscalYearAction(yearId);
       if (result.success) {
-        toast.success(t('yearClosed'));
+        toast.success(t("yearClosed"));
         router.refresh();
       } else {
-        toast.error(result.error || tc('error'));
+        toast.error(result.error || tc("error"));
       }
       setShowConfirm(false);
     });
@@ -40,22 +43,22 @@ export function CloseYearButton({ yearId, yearName }: CloseYearButtonProps) {
     return (
       <div className="flex items-center gap-2">
         <span className="text-sm text-muted-foreground">
-          {t('closeYearConfirm')}
+          {t("closeYearConfirm")}
         </span>
         <button
           onClick={handleClose}
           disabled={isPending}
-          className="inline-flex items-center gap-1 rounded-lg bg-destructive px-3 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-1 rounded-lg bg-destructive px-3 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
         >
           {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-          {tc('confirm')}
+          {tc("confirm")}
         </button>
         <button
           onClick={() => setShowConfirm(false)}
           disabled={isPending}
-          className="rounded-lg border px-3 py-2 text-sm font-medium hover:bg-muted transition-colors"
+          className="rounded-lg border px-3 py-2 text-sm font-medium hover:bg-muted transition-colors min-h-[44px]"
         >
-          {tc('cancel')}
+          {tc("cancel")}
         </button>
       </div>
     );
@@ -64,10 +67,10 @@ export function CloseYearButton({ yearId, yearName }: CloseYearButtonProps) {
   return (
     <button
       onClick={() => setShowConfirm(true)}
-      className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted transition-colors"
+      className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted transition-colors min-h-[44px]"
     >
       <Lock className="h-4 w-4" />
-      {t('closeYear')}
+      {t("closeYear")}
     </button>
   );
 }
@@ -81,21 +84,24 @@ interface ClosePeriodButtonProps {
   periodName: string;
 }
 
-export function ClosePeriodButton({ periodId, periodName }: ClosePeriodButtonProps) {
+export function ClosePeriodButton({
+  periodId,
+  periodName,
+}: ClosePeriodButtonProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [showConfirm, setShowConfirm] = useState(false);
-  const t = useTranslations('accounting');
-  const tc = useTranslations('common');
+  const t = useTranslations("accounting");
+  const tc = useTranslations("common");
 
   function handleClose() {
     startTransition(async () => {
       const result = await closeFiscalPeriodAction(periodId);
       if (result.success) {
-        toast.success(t('periodClosed'));
+        toast.success(t("periodClosed"));
         router.refresh();
       } else {
-        toast.error(result.error || tc('error'));
+        toast.error(result.error || tc("error"));
       }
       setShowConfirm(false);
     });
@@ -104,21 +110,23 @@ export function ClosePeriodButton({ periodId, periodName }: ClosePeriodButtonPro
   if (showConfirm) {
     return (
       <span className="inline-flex items-center gap-2">
-        <span className="text-xs text-muted-foreground">{t('closePeriodConfirm')}</span>
+        <span className="text-xs text-muted-foreground">
+          {t("closePeriodConfirm")}
+        </span>
         <button
           onClick={handleClose}
           disabled={isPending}
-          className="inline-flex items-center gap-1 rounded-md bg-destructive px-2 py-1 text-xs font-medium text-destructive-foreground hover:bg-destructive/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-1 rounded-md bg-destructive px-2 py-1 text-xs font-medium text-destructive-foreground hover:bg-destructive/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
         >
           {isPending && <Loader2 className="h-3 w-3 animate-spin" />}
-          {tc('yes')}
+          {tc("yes")}
         </button>
         <button
           onClick={() => setShowConfirm(false)}
           disabled={isPending}
-          className="rounded-md border px-2 py-1 text-xs font-medium hover:bg-muted transition-colors"
+          className="rounded-md border px-2 py-1 text-xs font-medium hover:bg-muted transition-colors min-h-[44px]"
         >
-          {tc('no')}
+          {tc("no")}
         </button>
       </span>
     );
@@ -127,10 +135,10 @@ export function ClosePeriodButton({ periodId, periodName }: ClosePeriodButtonPro
   return (
     <button
       onClick={() => setShowConfirm(true)}
-      className="inline-flex items-center gap-1 rounded-md border px-2.5 py-1 text-xs font-medium hover:bg-muted transition-colors"
+      className="inline-flex items-center gap-1 rounded-md border px-2.5 py-1 text-xs font-medium hover:bg-muted transition-colors min-h-[44px]"
     >
       <Lock className="h-3 w-3" />
-      {t('closePeriod')}
+      {t("closePeriod")}
     </button>
   );
 }

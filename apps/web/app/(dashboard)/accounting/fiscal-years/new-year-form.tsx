@@ -1,19 +1,19 @@
-'use client';
+"use client";
 
-import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
-import { Plus, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
-import { createFiscalYearAction } from '@/app/actions/accounting';
-import { useTranslations } from 'next-intl';
-import { FormInput } from '@/components/ui/form-field';
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { Plus, Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import { createFiscalYearAction } from "@/app/actions/accounting";
+import { useTranslations } from "next-intl";
+import { FormInput } from "@/components/ui/form-field";
 
 export function NewYearForm() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const t = useTranslations('accounting');
-  const tc = useTranslations('common');
+  const t = useTranslations("accounting");
+  const tc = useTranslations("common");
 
   const currentYear = new Date().getFullYear();
   const [name, setName] = useState(String(currentYear));
@@ -33,7 +33,7 @@ export function NewYearForm() {
         setEndDate(`${currentYear}-12-31`);
         router.refresh();
       } else {
-        setError(result.error || tc('error'));
+        setError(result.error || tc("error"));
       }
     });
   }
@@ -43,11 +43,11 @@ export function NewYearForm() {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex w-full items-center justify-between px-6 py-4 text-sm font-medium hover:bg-muted/50 transition-colors"
+        className="flex w-full items-center justify-between px-6 py-4 text-sm font-medium hover:bg-muted/50 transition-colors min-h-[44px]"
       >
         <span className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
-          {t('newFiscalYear')}
+          {t("newFiscalYear")}
         </span>
         {isOpen ? (
           <ChevronUp className="h-4 w-4 text-muted-foreground" />
@@ -70,14 +70,14 @@ export function NewYearForm() {
                 htmlFor="fiscal-year-name"
                 className="mb-1.5 block text-sm font-medium"
               >
-                {tc('name')}
+                {tc("name")}
               </label>
               <FormInput
                 id="fiscal-year-name"
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder={t('placeholders.yearName')}
+                placeholder={t("placeholders.yearName")}
                 required
               />
             </div>
@@ -87,7 +87,7 @@ export function NewYearForm() {
                 htmlFor="fiscal-year-start"
                 className="mb-1.5 block text-sm font-medium"
               >
-                {t('startDate')}
+                {t("startDate")}
               </label>
               <FormInput
                 id="fiscal-year-start"
@@ -103,7 +103,7 @@ export function NewYearForm() {
                 htmlFor="fiscal-year-end"
                 className="mb-1.5 block text-sm font-medium"
               >
-                {t('endDate')}
+                {t("endDate")}
               </label>
               <FormInput
                 id="fiscal-year-end"
@@ -116,25 +116,25 @@ export function NewYearForm() {
           </div>
 
           <p className="text-xs text-muted-foreground">
-            {t('periodsAutoCreated')}
+            {t("periodsAutoCreated")}
           </p>
 
           <div className="flex items-center gap-3">
             <button
               type="submit"
               disabled={isPending}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-h-[44px]"
             >
               {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-              {t('newFiscalYear')}
+              {t("newFiscalYear")}
             </button>
             <button
               type="button"
               onClick={() => setIsOpen(false)}
               disabled={isPending}
-              className="rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted transition-colors"
+              className="rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted transition-colors min-h-[44px]"
             >
-              {tc('cancel')}
+              {tc("cancel")}
             </button>
           </div>
         </form>
