@@ -1,8 +1,11 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useTranslations } from 'next-intl';
-import type { MappingProfile, MappingField } from '@kivvi/core/src/domain/import-mappings';
+import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
+import type {
+  MappingProfile,
+  MappingField,
+} from "@kivvi/core/src/domain/import-mappings";
 
 interface ColumnMapperProps {
   headers: string[];
@@ -10,8 +13,12 @@ interface ColumnMapperProps {
   onMappingConfirmed: (mapping: MappingField[]) => void;
 }
 
-export function ColumnMapper({ headers, profile, onMappingConfirmed }: ColumnMapperProps) {
-  const t = useTranslations('onboarding');
+export function ColumnMapper({
+  headers,
+  profile,
+  onMappingConfirmed,
+}: ColumnMapperProps) {
+  const t = useTranslations("onboarding");
   const [mapping, setMapping] = useState<MappingField[]>(profile.fields);
 
   // Auto-set initial mapping from profile
@@ -22,29 +29,35 @@ export function ColumnMapper({ headers, profile, onMappingConfirmed }: ColumnMap
   const handleSourceChange = (targetField: string, newSource: string) => {
     setMapping((prev) =>
       prev.map((f) =>
-        f.target === targetField ? { ...f, source: newSource } : f
-      )
+        f.target === targetField ? { ...f, source: newSource } : f,
+      ),
     );
   };
 
   const handleConfirm = () => {
     // Only include fields that have a source column
-    const validMapping = mapping.filter((f) => f.source && headers.includes(f.source));
+    const validMapping = mapping.filter(
+      (f) => f.source && headers.includes(f.source),
+    );
     onMappingConfirmed(validMapping);
   };
 
   return (
     <div className="space-y-4">
       <div className="text-sm text-muted-foreground">
-        {t('autoDetected', { name: profile.name })}
+        {t("autoDetected", { name: profile.name })}
       </div>
 
-      <div className="max-h-80 overflow-y-auto rounded-lg border">
+      <div className="max-h-80 overflow-auto rounded-lg border">
         <table className="w-full text-sm">
           <thead className="sticky top-0 bg-muted">
             <tr>
-              <th className="px-3 py-2 text-left font-medium">{t('targetField')}</th>
-              <th className="px-3 py-2 text-left font-medium">{t('sourceColumn')}</th>
+              <th className="px-3 py-2 text-left font-medium">
+                {t("targetField")}
+              </th>
+              <th className="px-3 py-2 text-left font-medium">
+                {t("sourceColumn")}
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -61,10 +74,12 @@ export function ColumnMapper({ headers, profile, onMappingConfirmed }: ColumnMap
                 <td className="px-3 py-2">
                   <select
                     value={field.source}
-                    onChange={(e) => handleSourceChange(field.target, e.target.value)}
+                    onChange={(e) =>
+                      handleSourceChange(field.target, e.target.value)
+                    }
                     className="w-full rounded border bg-background px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                   >
-                    <option value="">-- {t('skip')} --</option>
+                    <option value="">-- {t("skip")} --</option>
                     {headers.map((h) => (
                       <option key={h} value={h}>
                         {h}
@@ -83,7 +98,7 @@ export function ColumnMapper({ headers, profile, onMappingConfirmed }: ColumnMap
           onClick={handleConfirm}
           className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
         >
-          {t('confirmMapping')}
+          {t("confirmMapping")}
         </button>
       </div>
     </div>

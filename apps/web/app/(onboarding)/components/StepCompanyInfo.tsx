@@ -1,45 +1,60 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Loader2, Building2 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { updateCompanyInfoAction } from '@/app/actions/onboarding';
+import { useState } from "react";
+import { Loader2, Building2 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { updateCompanyInfoAction } from "@/app/actions/onboarding";
+
+export interface CompanyData {
+  name: string;
+  legalName: string | null;
+  address: string | null;
+  postalCode: string | null;
+  city: string | null;
+  country: string;
+  vatNumber: string | null;
+}
 
 interface StepCompanyInfoProps {
-  companyData: Record<string, any> | null;
+  companyData: CompanyData | null;
   onComplete: () => void;
 }
 
-export function StepCompanyInfo({ companyData, onComplete }: StepCompanyInfoProps) {
-  const t = useTranslations('onboarding');
-  const ts = useTranslations('settings');
-  const tc = useTranslations('common');
+export function StepCompanyInfo({
+  companyData,
+  onComplete,
+}: StepCompanyInfoProps) {
+  const t = useTranslations("onboarding");
+  const ts = useTranslations("settings");
+  const tc = useTranslations("common");
   const [formData, setFormData] = useState({
-    name: companyData?.name || '',
-    legalName: companyData?.legalName || '',
-    address: companyData?.address || '',
-    postalCode: companyData?.postalCode || '',
-    city: companyData?.city || '',
-    country: companyData?.country || 'CH',
-    vatNumber: companyData?.vatNumber || '',
+    name: companyData?.name || "",
+    legalName: companyData?.legalName || "",
+    address: companyData?.address || "",
+    postalCode: companyData?.postalCode || "",
+    city: companyData?.city || "",
+    country: companyData?.country || "CH",
+    vatNumber: companyData?.vatNumber || "",
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsLoading(true);
 
     const result = await updateCompanyInfoAction(formData);
     if (result.success) {
       onComplete();
     } else {
-      setError(result.error || tc('error'));
+      setError(result.error || tc("error"));
       setIsLoading(false);
     }
   };
@@ -49,10 +64,11 @@ export function StepCompanyInfo({ companyData, onComplete }: StepCompanyInfoProp
       <div className="mb-6">
         <div className="mb-2 flex items-center gap-2">
           <Building2 className="h-5 w-5 text-primary" />
-          <h2 className="text-xl font-semibold">{t('step1Title')}</h2>
+          <h2 className="text-xl font-semibold">{t("step1Title")}</h2>
         </div>
         <p className="text-sm text-muted-foreground">
-          Tell us about your company. This information will appear on invoices and documents.
+          Tell us about your company. This information will appear on invoices
+          and documents.
         </p>
       </div>
 
@@ -66,7 +82,7 @@ export function StepCompanyInfo({ companyData, onComplete }: StepCompanyInfoProp
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
-              {t('companyName')} *
+              {t("companyName")} *
             </label>
             <input
               id="name"
@@ -80,8 +96,11 @@ export function StepCompanyInfo({ companyData, onComplete }: StepCompanyInfoProp
           </div>
 
           <div className="sm:col-span-2">
-            <label htmlFor="legalName" className="mb-1.5 block text-sm font-medium">
-              {ts('company.legalName')}
+            <label
+              htmlFor="legalName"
+              className="mb-1.5 block text-sm font-medium"
+            >
+              {ts("company.legalName")}
             </label>
             <input
               id="legalName"
@@ -89,14 +108,17 @@ export function StepCompanyInfo({ companyData, onComplete }: StepCompanyInfoProp
               type="text"
               value={formData.legalName}
               onChange={handleChange}
-              placeholder={t('placeholders.companyName')}
+              placeholder={t("placeholders.companyName")}
               className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 
           <div className="sm:col-span-2">
-            <label htmlFor="address" className="mb-1.5 block text-sm font-medium">
-              {t('companyAddress')}
+            <label
+              htmlFor="address"
+              className="mb-1.5 block text-sm font-medium"
+            >
+              {t("companyAddress")}
             </label>
             <input
               id="address"
@@ -110,7 +132,10 @@ export function StepCompanyInfo({ companyData, onComplete }: StepCompanyInfoProp
           </div>
 
           <div>
-            <label htmlFor="postalCode" className="mb-1.5 block text-sm font-medium">
+            <label
+              htmlFor="postalCode"
+              className="mb-1.5 block text-sm font-medium"
+            >
               Postal code
             </label>
             <input
@@ -140,7 +165,10 @@ export function StepCompanyInfo({ companyData, onComplete }: StepCompanyInfoProp
           </div>
 
           <div>
-            <label htmlFor="country" className="mb-1.5 block text-sm font-medium">
+            <label
+              htmlFor="country"
+              className="mb-1.5 block text-sm font-medium"
+            >
               Country
             </label>
             <select
@@ -150,16 +178,19 @@ export function StepCompanyInfo({ companyData, onComplete }: StepCompanyInfoProp
               onChange={handleChange}
               className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
             >
-              <option value="CH">{t('countries.ch')}</option>
-              <option value="DE">{t('countries.de')}</option>
-              <option value="AT">{t('countries.at')}</option>
-              <option value="LI">{t('countries.li')}</option>
+              <option value="CH">{t("countries.ch")}</option>
+              <option value="DE">{t("countries.de")}</option>
+              <option value="AT">{t("countries.at")}</option>
+              <option value="LI">{t("countries.li")}</option>
             </select>
           </div>
 
           <div>
-            <label htmlFor="vatNumber" className="mb-1.5 block text-sm font-medium">
-              {t('vatNumber')}
+            <label
+              htmlFor="vatNumber"
+              className="mb-1.5 block text-sm font-medium"
+            >
+              {t("vatNumber")}
             </label>
             <input
               id="vatNumber"
@@ -167,7 +198,7 @@ export function StepCompanyInfo({ companyData, onComplete }: StepCompanyInfoProp
               type="text"
               value={formData.vatNumber}
               onChange={handleChange}
-              placeholder={t('placeholders.vatNumber')}
+              placeholder={t("placeholders.vatNumber")}
               className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
@@ -180,7 +211,7 @@ export function StepCompanyInfo({ companyData, onComplete }: StepCompanyInfoProp
             className="flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
             {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-            {isLoading ? tc('saving') : tc('next')}
+            {isLoading ? tc("saving") : tc("next")}
           </button>
         </div>
       </form>

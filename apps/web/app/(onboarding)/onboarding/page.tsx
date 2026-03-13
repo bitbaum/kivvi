@@ -1,21 +1,27 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
-import { Loader2 } from 'lucide-react';
-import { getOnboardingStateAction, getCompanyDetailsAction } from '@/app/actions/onboarding';
-import { OnboardingShell } from '../components/OnboardingShell';
-import { StepCompanyInfo } from '../components/StepCompanyInfo';
-import { StepBusinessConfig } from '../components/StepBusinessConfig';
-import { StepDataImport } from '../components/StepDataImport';
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { Loader2 } from "lucide-react";
+import {
+  getOnboardingStateAction,
+  getCompanyDetailsAction,
+} from "@/app/actions/onboarding";
+import { OnboardingShell } from "../components/OnboardingShell";
+import {
+  StepCompanyInfo,
+  type CompanyData,
+} from "../components/StepCompanyInfo";
+import { StepBusinessConfig } from "../components/StepBusinessConfig";
+import { StepDataImport } from "../components/StepDataImport";
 
 export default function OnboardingPage() {
   const router = useRouter();
   const { update: updateSession } = useSession();
   const [currentStep, setCurrentStep] = useState<number>(0); // 0 = loading
-  const [companyName, setCompanyName] = useState('');
-  const [companyData, setCompanyData] = useState<Record<string, any> | null>(null);
+  const [companyName, setCompanyName] = useState("");
+  const [companyData, setCompanyData] = useState<CompanyData | null>(null);
 
   useEffect(() => {
     async function loadState() {
@@ -26,11 +32,11 @@ export default function OnboardingPage() {
 
       if (stateResult.success && stateResult.data) {
         if (stateResult.data.completedAt) {
-          router.push('/dashboard');
+          router.push("/dashboard");
           return;
         }
         setCurrentStep(stateResult.data.step || 1);
-        setCompanyName(stateResult.data.companyName || '');
+        setCompanyName(stateResult.data.companyName || "");
       } else {
         setCurrentStep(1);
       }
@@ -42,16 +48,19 @@ export default function OnboardingPage() {
     loadState();
   }, [router]);
 
-  const handleStepComplete = useCallback(async (nextStep: number) => {
-    if (nextStep > 4) {
-      // Onboarding done — refresh session to get onboardingComplete flag
-      await updateSession({});
-      router.push('/dashboard');
-      router.refresh();
-    } else {
-      setCurrentStep(nextStep);
-    }
-  }, [router, updateSession]);
+  const handleStepComplete = useCallback(
+    async (nextStep: number) => {
+      if (nextStep > 4) {
+        // Onboarding done — refresh session to get onboardingComplete flag
+        await updateSession({});
+        router.push("/dashboard");
+        router.refresh();
+      } else {
+        setCurrentStep(nextStep);
+      }
+    },
+    [router, updateSession],
+  );
 
   if (currentStep === 0) {
     return (
@@ -76,9 +85,7 @@ export default function OnboardingPage() {
         />
       )}
       {currentStep >= 3 && (
-        <StepDataImport
-          onComplete={() => handleStepComplete(5)}
-        />
+        <StepDataImport onComplete={() => handleStepComplete(5)} />
       )}
     </OnboardingShell>
   );
