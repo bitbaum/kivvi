@@ -1,5 +1,5 @@
-import Anthropic from '@anthropic-ai/sdk';
-import { z } from 'zod';
+import Anthropic from "@anthropic-ai/sdk";
+import { z } from "zod";
 import type {
   AIProvider,
   AIModel,
@@ -9,17 +9,17 @@ import type {
   StreamChunk,
   Tool,
   ToolCall,
-} from '../types';
+} from "../types";
 
 export class AnthropicProvider implements AIProvider {
-  id = 'anthropic';
-  name = 'Anthropic Claude';
-  type = 'cloud' as const;
+  id = "anthropic";
+  name = "Anthropic Claude";
+  type = "cloud" as const;
 
   models: AIModel[] = [
     {
-      id: 'claude-sonnet-4-20250514',
-      name: 'Claude Sonnet 4',
+      id: "claude-sonnet-4-20250514",
+      name: "Claude Sonnet 4",
       contextWindow: 200000,
       supportsTools: true,
       supportsVision: true,
@@ -27,17 +27,8 @@ export class AnthropicProvider implements AIProvider {
       costPer1kOutput: 0.015,
     },
     {
-      id: 'claude-3-5-sonnet-20241022',
-      name: 'Claude 3.5 Sonnet',
-      contextWindow: 200000,
-      supportsTools: true,
-      supportsVision: true,
-      costPer1kInput: 0.003,
-      costPer1kOutput: 0.015,
-    },
-    {
-      id: 'claude-3-5-haiku-20241022',
-      name: 'Claude 3.5 Haiku',
+      id: "claude-haiku-4-5-20251001",
+      name: "Claude Haiku 4.5",
       contextWindow: 200000,
       supportsTools: true,
       supportsVision: true,
@@ -83,30 +74,33 @@ export class AnthropicProvider implements AIProvider {
 
   private formatMessages(messages: Message[]): Anthropic.MessageParam[] {
     return messages
-      .filter((m) => m.role !== 'system')
+      .filter((m) => m.role !== "system")
       .map((msg): Anthropic.MessageParam => {
-        if (msg.role === 'tool') {
+        if (msg.role === "tool") {
           return {
-            role: 'user' as const,
+            role: "user" as const,
             content: [
               {
-                type: 'tool_result' as const,
+                type: "tool_result" as const,
                 tool_use_id: msg.toolCallId!,
-                content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content),
+                content:
+                  typeof msg.content === "string"
+                    ? msg.content
+                    : JSON.stringify(msg.content),
               },
             ],
           };
         }
 
-        if (msg.role === 'assistant' && msg.toolCalls?.length) {
+        if (msg.role === "assistant" && msg.toolCalls?.length) {
           return {
-            role: 'assistant' as const,
+            role: "assistant" as const,
             content: [
               ...(msg.content
-                ? [{ type: 'text' as const, text: msg.content as string }]
+                ? [{ type: "text" as const, text: msg.content as string }]
                 : []),
               ...msg.toolCalls.map((tc) => ({
-                type: 'tool_use' as const,
+                type: "tool_use" as const,
                 id: tc.id,
                 name: tc.name,
                 input: tc.arguments,
@@ -116,18 +110,18 @@ export class AnthropicProvider implements AIProvider {
         }
 
         return {
-          role: msg.role as 'user' | 'assistant',
+          role: msg.role as "user" | "assistant",
           content:
-            typeof msg.content === 'string'
+            typeof msg.content === "string"
               ? msg.content
               : msg.content.map((part) =>
-                  part.type === 'text'
-                    ? { type: 'text' as const, text: part.text! }
+                  part.type === "text"
+                    ? { type: "text" as const, text: part.text! }
                     : // Justified: Anthropic API accepts URL image sources, but SDK v0.24 types only include base64
                       ({
-                        type: 'image',
-                        source: { type: 'url', url: part.imageUrl! },
-                      } as unknown as Anthropic.ImageBlockParam)
+                        type: "image",
+                        source: { type: "url", url: part.imageUrl! },
+                      } as unknown as Anthropic.ImageBlockParam),
                 ),
         };
       });
@@ -149,7 +143,9 @@ export class AnthropicProvider implements AIProvider {
       const properties: Record<string, unknown> = {};
       const required: string[] = [];
 
-      for (const [key, value] of Object.entries(schema.shape as z.ZodRawShape)) {
+      for (const [key, value] of Object.entries(
+        schema.shape as z.ZodRawShape,
+      )) {
         properties[key] = this.zodToJsonSchema(value);
         if (!value.isOptional()) {
           required.push(key);
@@ -157,44 +153,48 @@ export class AnthropicProvider implements AIProvider {
       }
 
       return {
-        type: 'object',
+        type: "object",
         properties,
         required: required.length > 0 ? required : undefined,
       };
     }
     if (schema instanceof z.ZodString) {
-      return { type: 'string', description: schema.description };
+      return { type: "string", description: schema.description };
     }
     if (schema instanceof z.ZodNumber) {
-      return { type: 'number', description: schema.description };
+      return { type: "number", description: schema.description };
     }
     if (schema instanceof z.ZodBoolean) {
-      return { type: 'boolean', description: schema.description };
+      return { type: "boolean", description: schema.description };
     }
     if (schema instanceof z.ZodArray) {
       return {
-        type: 'array',
+        type: "array",
         items: this.zodToJsonSchema(schema.element),
         description: schema.description,
       };
     }
     if (schema instanceof z.ZodEnum) {
-      return { type: 'string', enum: schema.options, description: schema.description };
+      return {
+        type: "string",
+        enum: schema.options,
+        description: schema.description,
+      };
     }
     if (schema instanceof z.ZodOptional) {
       return this.zodToJsonSchema(schema.unwrap());
     }
-    return { type: 'string' };
+    return { type: "string" };
   }
 
   private parseResponse(response: Anthropic.Message): ChatResponse {
-    let content = '';
+    let content = "";
     const toolCalls: ToolCall[] = [];
 
     for (const block of response.content) {
-      if (block.type === 'text') {
+      if (block.type === "text") {
         content += block.text;
-      } else if (block.type === 'tool_use') {
+      } else if (block.type === "tool_use") {
         toolCalls.push({
           id: block.id,
           name: block.name,
@@ -214,14 +214,16 @@ export class AnthropicProvider implements AIProvider {
     };
   }
 
-  private parseStreamEvent(event: Anthropic.RawMessageStreamEvent): StreamChunk | null {
-    if (event.type === 'content_block_start') {
-      if (event.content_block.type === 'text') {
-        return { type: 'text', content: '' };
+  private parseStreamEvent(
+    event: Anthropic.RawMessageStreamEvent,
+  ): StreamChunk | null {
+    if (event.type === "content_block_start") {
+      if (event.content_block.type === "text") {
+        return { type: "text", content: "" };
       }
-      if (event.content_block.type === 'tool_use') {
+      if (event.content_block.type === "tool_use") {
         return {
-          type: 'tool_call_start',
+          type: "tool_call_start",
           toolCall: {
             id: event.content_block.id,
             name: event.content_block.name,
@@ -230,21 +232,21 @@ export class AnthropicProvider implements AIProvider {
       }
     }
 
-    if (event.type === 'content_block_delta') {
-      if (event.delta.type === 'text_delta') {
-        return { type: 'text', content: event.delta.text };
+    if (event.type === "content_block_delta") {
+      if (event.delta.type === "text_delta") {
+        return { type: "text", content: event.delta.text };
       }
-      if (event.delta.type === 'input_json_delta') {
-        return { type: 'tool_call_delta', content: event.delta.partial_json };
+      if (event.delta.type === "input_json_delta") {
+        return { type: "tool_call_delta", content: event.delta.partial_json };
       }
     }
 
-    if (event.type === 'content_block_stop') {
-      return { type: 'tool_call_end' };
+    if (event.type === "content_block_stop") {
+      return { type: "tool_call_end" };
     }
 
-    if (event.type === 'message_stop') {
-      return { type: 'done' };
+    if (event.type === "message_stop") {
+      return { type: "done" };
     }
 
     return null;

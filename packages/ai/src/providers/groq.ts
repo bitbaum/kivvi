@@ -1,5 +1,5 @@
-import type { AIModel } from '../types';
-import { OpenAICompatibleProvider } from './openai-compatible';
+import type { AIModel } from "../types";
+import { OpenAICompatibleProvider } from "./openai-compatible";
 
 /**
  * Groq provider — fast inference platform with free tier.
@@ -7,14 +7,14 @@ import { OpenAICompatibleProvider } from './openai-compatible';
  * Free tier: generous rate limits on open-source models.
  */
 export class GroqProvider extends OpenAICompatibleProvider {
-  id = 'groq';
-  name = 'Groq';
-  type = 'cloud' as const;
+  id = "groq";
+  name = "Groq";
+  type = "cloud" as const;
 
   models: AIModel[] = [
     {
-      id: 'llama-3.3-70b-versatile',
-      name: 'Llama 3.3 70B',
+      id: "llama-3.3-70b-versatile",
+      name: "Llama 3.3 70B",
       contextWindow: 128000,
       supportsTools: true,
       supportsVision: false,
@@ -22,27 +22,9 @@ export class GroqProvider extends OpenAICompatibleProvider {
       costPer1kOutput: 0,
     },
     {
-      id: 'llama-3.1-8b-instant',
-      name: 'Llama 3.1 8B Instant',
+      id: "llama-3.1-8b-instant",
+      name: "Llama 3.1 8B Instant",
       contextWindow: 128000,
-      supportsTools: true,
-      supportsVision: false,
-      costPer1kInput: 0,
-      costPer1kOutput: 0,
-    },
-    {
-      id: 'gemma2-9b-it',
-      name: 'Gemma 2 9B',
-      contextWindow: 8192,
-      supportsTools: true,
-      supportsVision: false,
-      costPer1kInput: 0,
-      costPer1kOutput: 0,
-    },
-    {
-      id: 'mixtral-8x7b-32768',
-      name: 'Mixtral 8x7B',
-      contextWindow: 32768,
       supportsTools: true,
       supportsVision: false,
       costPer1kInput: 0,
@@ -50,7 +32,7 @@ export class GroqProvider extends OpenAICompatibleProvider {
     },
   ];
 
-  protected baseUrl = 'https://api.groq.com/openai/v1';
+  protected baseUrl = "https://api.groq.com/openai/v1";
   private apiKey: string;
 
   constructor(apiKey: string) {
@@ -60,8 +42,8 @@ export class GroqProvider extends OpenAICompatibleProvider {
 
   protected getHeaders(): Record<string, string> {
     return {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${this.apiKey}`,
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${this.apiKey}`,
     };
   }
 }
