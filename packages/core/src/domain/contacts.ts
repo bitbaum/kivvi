@@ -1,20 +1,25 @@
-import { z } from 'zod';
-import { eq, and, or, ilike, sql, desc, asc } from 'drizzle-orm';
-import { contacts, contactAddresses, documents } from '@kivvi/database';
-import type { Database } from '@kivvi/database';
-import type { Contact, ContactAddress } from '@kivvi/database';
-import { getNextNumber } from './number-sequences';
+import { z } from "zod";
+import { eq, and, or, ilike, sql, desc, asc } from "drizzle-orm";
+import { contacts, contactAddresses, documents } from "@kivvi/database";
+import type { Database } from "@kivvi/database";
+import type { Contact, ContactAddress } from "@kivvi/database";
+import { getNextNumber } from "./number-sequences";
 
 // ============================================================================
 // VALIDATION SCHEMAS
 // ============================================================================
 
 export const createContactSchema = z.object({
-  type: z.enum(['customer', 'vendor', 'both']),
-  name: z.string().min(1, 'Name is required').max(200),
+  type: z.enum(["customer", "vendor", "both"]),
+  name: z.string().min(1, "Name is required").max(200),
   firstName: z.string().max(100).optional().nullable(),
   lastName: z.string().max(100).optional().nullable(),
-  email: z.string().email('Invalid email').optional().nullable().or(z.literal('')),
+  email: z
+    .string()
+    .email("Invalid email")
+    .optional()
+    .nullable()
+    .or(z.literal("")),
   phone: z.string().max(30).optional().nullable(),
   mobile: z.string().max(30).optional().nullable(),
   website: z.string().max(200).optional().nullable(),
@@ -25,7 +30,13 @@ export const createContactSchema = z.object({
   vatNumber: z.string().max(30).optional().nullable(),
   iban: z.string().max(34).optional().nullable(),
   bic: z.string().max(11).optional().nullable(),
-  paymentTermsDays: z.coerce.number().int().min(0).max(365).optional().nullable(),
+  paymentTermsDays: z.coerce
+    .number()
+    .int()
+    .min(0)
+    .max(365)
+    .optional()
+    .nullable(),
   creditLimit: z.string().optional().nullable(),
   language: z.string().max(5).optional().nullable(),
   notes: z.string().max(5000).optional().nullable(),
@@ -42,12 +53,12 @@ export type UpdateContactInput = z.infer<typeof updateContactSchema>;
 
 export interface ContactFilters {
   search?: string;
-  type?: 'customer' | 'vendor' | 'both';
+  type?: "customer" | "vendor" | "both";
   isActive?: boolean;
   page?: number;
   pageSize?: number;
-  sortBy?: 'name' | 'contactNumber' | 'createdAt' | 'city';
-  sortOrder?: 'asc' | 'desc';
+  sortBy?: "name" | "contactNumber" | "createdAt" | "city";
+  sortOrder?: "asc" | "desc";
 }
 
 export interface PaginatedResult<T> {
@@ -83,7 +94,7 @@ export type ContactListItem = Contact & { lastDocumentAt: Date | null };
 export async function listContacts(
   db: Database,
   companyId: string,
-  filters: ContactFilters = {}
+  filters: ContactFilters = {},
 ): Promise<PaginatedResult<ContactListItem>> {
   const {
     search,
@@ -91,8 +102,8 @@ export async function listContacts(
     isActive = true,
     page = 1,
     pageSize = 25,
-    sortBy = 'name',
-    sortOrder = 'asc',
+    sortBy = "name",
+    sortOrder = "asc",
   } = filters;
 
   // Build WHERE conditions
@@ -116,7 +127,7 @@ export async function listContacts(
         ilike(contacts.city, term),
         ilike(contacts.firstName, term),
         ilike(contacts.lastName, term),
-      )!
+      )!,
     );
   }
 
@@ -130,14 +141,15 @@ export async function listContacts(
   const total = Number(countResult[0]?.count ?? 0);
 
   // Sort
-  const sortColumn = {
-    name: contacts.name,
-    contactNumber: contacts.contactNumber,
-    createdAt: contacts.createdAt,
-    city: contacts.city,
-  }[sortBy] ?? contacts.name;
+  const sortColumn =
+    {
+      name: contacts.name,
+      contactNumber: contacts.contactNumber,
+      createdAt: contacts.createdAt,
+      city: contacts.city,
+    }[sortBy] ?? contacts.name;
 
-  const orderFn = sortOrder === 'desc' ? desc : asc;
+  const orderFn = sortOrder === "desc" ? desc : asc;
 
   // Fetch page with last document date
   const offset = (page - 1) * pageSize;
@@ -174,7 +186,7 @@ export async function listContacts(
         FROM ${documents}
         WHERE ${documents.contactId} = ${contacts.id}
           AND ${documents.companyId} = ${contacts.companyId}
-      )`.as('lastDocumentAt'),
+      )`.as("lastDocumentAt"),
     })
     .from(contacts)
     .where(where)
@@ -197,18 +209,13 @@ export async function listContacts(
 export async function getContact(
   db: Database,
   companyId: string,
-  contactId: string
+  contactId: string,
 ): Promise<ContactWithDetails | null> {
   // Fetch contact
   const result = await db
     .select()
     .from(contacts)
-    .where(
-      and(
-        eq(contacts.id, contactId),
-        eq(contacts.companyId, companyId)
-      )
-    )
+    .where(and(eq(contacts.id, contactId), eq(contacts.companyId, companyId)))
     .limit(1);
 
   const contact = result[0];
@@ -234,8 +241,8 @@ export async function getContact(
     .where(
       and(
         eq(documents.contactId, contactId),
-        eq(documents.companyId, companyId)
-      )
+        eq(documents.companyId, companyId),
+      ),
     )
     .orderBy(desc(documents.issueDate))
     .limit(10);
@@ -249,17 +256,17 @@ export async function getContact(
 export async function createContact(
   db: Database,
   companyId: string,
-  input: CreateContactInput
+  input: CreateContactInput,
 ): Promise<Contact> {
   const validated = createContactSchema.parse(input);
 
   // Generate contact number
-  const contactNumber = await getNextNumber(db, companyId, 'contact');
+  const contactNumber = await getNextNumber(db, companyId, "contact");
 
   // Clean empty strings to null
   const cleanedInput: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(validated)) {
-    cleanedInput[key] = value === '' ? null : value;
+    cleanedInput[key] = value === "" ? null : value;
   }
 
   const [created] = await db
@@ -267,7 +274,7 @@ export async function createContact(
     .values({
       companyId,
       contactNumber,
-      type: cleanedInput.type as 'customer' | 'vendor' | 'both',
+      type: cleanedInput.type as "customer" | "vendor" | "both",
       name: cleanedInput.name as string,
       firstName: cleanedInput.firstName as string | null,
       lastName: cleanedInput.lastName as string | null,
@@ -278,13 +285,13 @@ export async function createContact(
       address: cleanedInput.address as string | null,
       city: cleanedInput.city as string | null,
       postalCode: cleanedInput.postalCode as string | null,
-      country: (cleanedInput.country as string) || 'CH',
+      country: (cleanedInput.country as string) || "CH",
       vatNumber: cleanedInput.vatNumber as string | null,
       iban: cleanedInput.iban as string | null,
       bic: cleanedInput.bic as string | null,
       paymentTermsDays: (cleanedInput.paymentTermsDays as number) ?? 30,
       creditLimit: cleanedInput.creditLimit as string | null,
-      language: (cleanedInput.language as string) || 'de',
+      language: (cleanedInput.language as string) || "de",
       notes: cleanedInput.notes as string | null,
     })
     .returning();
@@ -299,14 +306,14 @@ export async function updateContact(
   db: Database,
   companyId: string,
   contactId: string,
-  input: UpdateContactInput
+  input: UpdateContactInput,
 ): Promise<Contact> {
   const validated = updateContactSchema.parse(input);
 
   // Clean empty strings to null
   const cleanedInput: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(validated)) {
-    cleanedInput[key] = value === '' ? null : value;
+    cleanedInput[key] = value === "" ? null : value;
   }
 
   const [updated] = await db
@@ -315,16 +322,11 @@ export async function updateContact(
       ...cleanedInput,
       updatedAt: new Date(),
     })
-    .where(
-      and(
-        eq(contacts.id, contactId),
-        eq(contacts.companyId, companyId)
-      )
-    )
+    .where(and(eq(contacts.id, contactId), eq(contacts.companyId, companyId)))
     .returning();
 
   if (!updated) {
-    throw new Error('Contact not found');
+    throw new Error("Contact not found");
   }
 
   return updated;
@@ -336,7 +338,7 @@ export async function updateContact(
 export async function deleteContact(
   db: Database,
   companyId: string,
-  contactId: string
+  contactId: string,
 ): Promise<Contact> {
   const [deleted] = await db
     .update(contacts)
@@ -344,16 +346,11 @@ export async function deleteContact(
       isActive: false,
       updatedAt: new Date(),
     })
-    .where(
-      and(
-        eq(contacts.id, contactId),
-        eq(contacts.companyId, companyId)
-      )
-    )
+    .where(and(eq(contacts.id, contactId), eq(contacts.companyId, companyId)))
     .returning();
 
   if (!deleted) {
-    throw new Error('Contact not found');
+    throw new Error("Contact not found");
   }
 
   return deleted;
@@ -366,8 +363,13 @@ export async function deleteContact(
 export async function searchContacts(
   db: Database,
   companyId: string,
-  query: string
-): Promise<Pick<Contact, 'id' | 'name' | 'contactNumber' | 'email' | 'type' | 'paymentTermsDays'>[]> {
+  query: string,
+): Promise<
+  Pick<
+    Contact,
+    "id" | "name" | "contactNumber" | "email" | "type" | "paymentTermsDays"
+  >[]
+> {
   if (!query || !query.trim()) return [];
 
   const term = `%${query.trim()}%`;
@@ -390,11 +392,163 @@ export async function searchContacts(
           ilike(contacts.name, term),
           ilike(contacts.email, term),
           ilike(contacts.contactNumber, term),
-        )
-      )
+        ),
+      ),
     )
     .orderBy(asc(contacts.name))
     .limit(10);
 
   return results;
+}
+
+// ============================================================================
+// CONTACT ADDRESSES
+// ============================================================================
+
+export const createAddressSchema = z.object({
+  type: z.enum(["billing", "shipping", "other"]),
+  name: z.string().max(200).optional().nullable(),
+  address: z.string().max(500).optional().nullable(),
+  city: z.string().max(100).optional().nullable(),
+  postalCode: z.string().max(20).optional().nullable(),
+  country: z.string().max(2).optional().default("CH"),
+  isDefault: z.boolean().optional().default(false),
+});
+
+export const updateAddressSchema = createAddressSchema.partial();
+
+export type CreateAddressInput = z.infer<typeof createAddressSchema>;
+export type UpdateAddressInput = z.infer<typeof updateAddressSchema>;
+
+/**
+ * Add an address to a contact. If isDefault is true, unset other defaults of the same type.
+ */
+export async function createContactAddress(
+  db: Database,
+  companyId: string,
+  contactId: string,
+  input: CreateAddressInput,
+): Promise<ContactAddress> {
+  const validated = createAddressSchema.parse(input);
+
+  // Verify contact belongs to company
+  const [contact] = await db
+    .select({ id: contacts.id })
+    .from(contacts)
+    .where(and(eq(contacts.id, contactId), eq(contacts.companyId, companyId)));
+
+  if (!contact) throw new Error("Contact not found");
+
+  return db.transaction(async (tx) => {
+    // If setting as default, unset other defaults of same type
+    if (validated.isDefault) {
+      await tx
+        .update(contactAddresses)
+        .set({ isDefault: false })
+        .where(
+          and(
+            eq(contactAddresses.contactId, contactId),
+            eq(contactAddresses.type, validated.type),
+          ),
+        );
+    }
+
+    const [addr] = await tx
+      .insert(contactAddresses)
+      .values({
+        contactId,
+        type: validated.type,
+        name: validated.name || null,
+        address: validated.address || null,
+        city: validated.city || null,
+        postalCode: validated.postalCode || null,
+        country: validated.country || "CH",
+        isDefault: validated.isDefault ?? false,
+      })
+      .returning();
+
+    return addr;
+  });
+}
+
+/**
+ * Update a contact address. Verifies contact belongs to company.
+ */
+export async function updateContactAddress(
+  db: Database,
+  companyId: string,
+  contactId: string,
+  addressId: string,
+  input: UpdateAddressInput,
+): Promise<ContactAddress> {
+  const validated = updateAddressSchema.parse(input);
+
+  // Verify contact belongs to company
+  const [contact] = await db
+    .select({ id: contacts.id })
+    .from(contacts)
+    .where(and(eq(contacts.id, contactId), eq(contacts.companyId, companyId)));
+
+  if (!contact) throw new Error("Contact not found");
+
+  return db.transaction(async (tx) => {
+    // If setting as default and type is specified or we need to check existing type
+    if (validated.isDefault && validated.type) {
+      await tx
+        .update(contactAddresses)
+        .set({ isDefault: false })
+        .where(
+          and(
+            eq(contactAddresses.contactId, contactId),
+            eq(contactAddresses.type, validated.type),
+          ),
+        );
+    }
+
+    const [updated] = await tx
+      .update(contactAddresses)
+      .set({
+        ...validated,
+      })
+      .where(
+        and(
+          eq(contactAddresses.id, addressId),
+          eq(contactAddresses.contactId, contactId),
+        ),
+      )
+      .returning();
+
+    if (!updated) throw new Error("Address not found");
+    return updated;
+  });
+}
+
+/**
+ * Delete a contact address. Verifies contact belongs to company.
+ */
+export async function deleteContactAddress(
+  db: Database,
+  companyId: string,
+  contactId: string,
+  addressId: string,
+): Promise<void> {
+  // Verify contact belongs to company
+  const [contact] = await db
+    .select({ id: contacts.id })
+    .from(contacts)
+    .where(and(eq(contacts.id, contactId), eq(contacts.companyId, companyId)));
+
+  if (!contact) throw new Error("Contact not found");
+
+  const result = await db
+    .delete(contactAddresses)
+    .where(
+      and(
+        eq(contactAddresses.id, addressId),
+        eq(contactAddresses.contactId, contactId),
+      ),
+    )
+    .returning();
+
+  if (result.length === 0) throw new Error("Address not found");
 }

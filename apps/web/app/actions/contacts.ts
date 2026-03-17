@@ -9,6 +9,11 @@ import {
   searchContacts,
   createContactSchema,
   updateContactSchema,
+  createContactAddress,
+  updateContactAddress,
+  deleteContactAddress,
+  createAddressSchema,
+  updateAddressSchema,
 } from "@kivvi/core";
 import {
   type ActionResult,
@@ -152,6 +157,89 @@ export async function searchContactsAction(
     return {
       success: false,
       error: safeErrorMessage(error, "Search failed"),
+    };
+  }
+}
+
+// ============================================================================
+// CONTACT ADDRESS ACTIONS
+// ============================================================================
+
+export async function createContactAddressAction(
+  contactId: string,
+  input: unknown,
+): Promise<ActionResult<{ id: string }>> {
+  try {
+    const { companyId } = await requireRole("member");
+    const parsed = createAddressSchema.safeParse(input);
+    if (!parsed.success) {
+      const { error, fieldErrors } = formatZodError(parsed.error);
+      return { success: false, error, fieldErrors };
+    }
+
+    const addr = await createContactAddress(
+      db,
+      companyId,
+      contactId,
+      parsed.data,
+    );
+
+    revalidatePath(`/contacts/${contactId}`);
+    return { success: true, data: { id: addr.id } };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to create address"),
+    };
+  }
+}
+
+export async function updateContactAddressAction(
+  contactId: string,
+  addressId: string,
+  input: unknown,
+): Promise<ActionResult<{ id: string }>> {
+  try {
+    const { companyId } = await requireRole("member");
+    const parsed = updateAddressSchema.safeParse(input);
+    if (!parsed.success) {
+      const { error, fieldErrors } = formatZodError(parsed.error);
+      return { success: false, error, fieldErrors };
+    }
+
+    const addr = await updateContactAddress(
+      db,
+      companyId,
+      contactId,
+      addressId,
+      parsed.data,
+    );
+
+    revalidatePath(`/contacts/${contactId}`);
+    return { success: true, data: { id: addr.id } };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to update address"),
+    };
+  }
+}
+
+export async function deleteContactAddressAction(
+  contactId: string,
+  addressId: string,
+): Promise<ActionResult> {
+  try {
+    const { companyId } = await requireRole("member");
+
+    await deleteContactAddress(db, companyId, contactId, addressId);
+
+    revalidatePath(`/contacts/${contactId}`);
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to delete address"),
     };
   }
 }

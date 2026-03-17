@@ -1,5 +1,5 @@
-import Link from 'next/link';
-import { redirect, notFound } from 'next/navigation';
+import Link from "next/link";
+import { redirect, notFound } from "next/navigation";
 import {
   ArrowLeft,
   Pencil,
@@ -12,33 +12,39 @@ import {
   CreditCard,
   FileText,
   MapPinned,
-} from 'lucide-react';
-import { getTranslations } from 'next-intl/server';
-import { auth } from '@/lib/auth';
-import { db } from '@/lib/db';
-import { getContact } from '@kivvi/core';
-import { cn, formatCurrency, formatDate } from '@/lib/utils';
-import { STATUS_STYLES, toCamelCase } from '@/lib/config/document-types';
-import { CONTACT_TYPE_STYLES, getContactTypeLabels } from '@/lib/config/contact-types';
-import { Breadcrumb } from '@/components/breadcrumb';
-import { DeleteContactButton } from './delete-button';
-
+} from "lucide-react";
+import { getTranslations } from "next-intl/server";
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { getContact } from "@kivvi/core";
+import { cn, formatCurrency, formatDate, isValidUUID } from "@/lib/utils";
+import { STATUS_STYLES, toCamelCase } from "@/lib/config/document-types";
+import {
+  CONTACT_TYPE_STYLES,
+  getContactTypeLabels,
+} from "@/lib/config/contact-types";
+import { Breadcrumb } from "@/components/breadcrumb";
+import { DeleteContactButton } from "./delete-button";
+import { AddressManager } from "./address-manager";
 
 interface ContactDetailPageProps {
   params: { id: string };
 }
 
-export default async function ContactDetailPage({ params }: ContactDetailPageProps) {
+export default async function ContactDetailPage({
+  params,
+}: ContactDetailPageProps) {
   const session = await auth();
   if (!session?.user?.companyId) {
-    redirect('/login');
+    redirect("/login");
   }
 
-  const t = await getTranslations('contacts');
-  const tc = await getTranslations('common');
-  const td = await getTranslations('documents');
-  const ts = await getTranslations('status');
+  const t = await getTranslations("contacts");
+  const tc = await getTranslations("common");
+  const td = await getTranslations("documents");
+  const ts = await getTranslations("status");
 
+  if (!isValidUUID(params.id)) notFound();
   const data = await getContact(db, session.user.companyId, params.id);
   if (!data) {
     notFound();
@@ -52,8 +58,8 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
     <div className="space-y-6">
       <Breadcrumb
         items={[
-          { label: tc('dashboard'), href: '/dashboard' },
-          { label: t('title'), href: '/contacts' },
+          { label: tc("dashboard"), href: "/dashboard" },
+          { label: t("title"), href: "/contacts" },
           { label: contact.name },
         ]}
       />
@@ -64,7 +70,7 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
         >
           <ArrowLeft className="h-4 w-4" />
-          {tc('back')} {t('title')}
+          {tc("back")} {t("title")}
         </Link>
 
         <div className="flex items-start justify-between">
@@ -73,21 +79,23 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
               <h1 className="text-3xl font-bold">{contact.name}</h1>
               <span
                 className={cn(
-                  'inline-block rounded-full px-2.5 py-0.5 text-xs font-medium',
-                  CONTACT_TYPE_STYLES[contact.type as keyof typeof CONTACT_TYPE_STYLES] || ''
+                  "inline-block rounded-full px-2.5 py-0.5 text-xs font-medium",
+                  CONTACT_TYPE_STYLES[
+                    contact.type as keyof typeof CONTACT_TYPE_STYLES
+                  ] || "",
                 )}
               >
                 {TYPE_LABELS[contact.type] || contact.type}
               </span>
               <span
                 className={cn(
-                  'inline-block rounded-full px-2.5 py-0.5 text-xs font-medium',
+                  "inline-block rounded-full px-2.5 py-0.5 text-xs font-medium",
                   contact.isActive
-                    ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                    : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400'
+                    ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                    : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400",
                 )}
               >
-                {contact.isActive ? tc('active') : tc('inactive')}
+                {contact.isActive ? tc("active") : tc("inactive")}
               </span>
             </div>
             {contact.contactNumber && (
@@ -97,7 +105,9 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
             )}
             {(contact.firstName || contact.lastName) && (
               <p className="text-muted-foreground">
-                {[contact.firstName, contact.lastName].filter(Boolean).join(' ')}
+                {[contact.firstName, contact.lastName]
+                  .filter(Boolean)
+                  .join(" ")}
               </p>
             )}
           </div>
@@ -108,9 +118,12 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
               className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted transition-colors"
             >
               <Pencil className="h-4 w-4" />
-              {tc('edit')}
+              {tc("edit")}
             </Link>
-            <DeleteContactButton contactId={contact.id} contactName={contact.name} />
+            <DeleteContactButton
+              contactId={contact.id}
+              contactName={contact.name}
+            />
           </div>
         </div>
       </div>
@@ -122,13 +135,29 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
           {/* Contact Information */}
           <div className="rounded-xl border bg-card">
             <div className="border-b px-6 py-4">
-              <h2 className="font-semibold">{t('contactInformation')}</h2>
+              <h2 className="font-semibold">{t("contactInformation")}</h2>
             </div>
             <div className="grid gap-6 p-6 sm:grid-cols-2">
-              <InfoRow icon={<Mail className="h-4 w-4" />} label={tc('email')} value={contact.email} />
-              <InfoRow icon={<Phone className="h-4 w-4" />} label={tc('phone')} value={contact.phone} />
-              <InfoRow icon={<Phone className="h-4 w-4" />} label={t('mobile')} value={contact.mobile} />
-              <InfoRow icon={<Globe className="h-4 w-4" />} label={t('website')} value={contact.website} />
+              <InfoRow
+                icon={<Mail className="h-4 w-4" />}
+                label={tc("email")}
+                value={contact.email}
+              />
+              <InfoRow
+                icon={<Phone className="h-4 w-4" />}
+                label={tc("phone")}
+                value={contact.phone}
+              />
+              <InfoRow
+                icon={<Phone className="h-4 w-4" />}
+                label={t("mobile")}
+                value={contact.mobile}
+              />
+              <InfoRow
+                icon={<Globe className="h-4 w-4" />}
+                label={t("website")}
+                value={contact.website}
+              />
             </div>
           </div>
 
@@ -137,7 +166,7 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
             <div className="border-b px-6 py-4">
               <h2 className="font-semibold flex items-center gap-2">
                 <MapPin className="h-4 w-4" />
-                {t('primaryAddress')}
+                {t("primaryAddress")}
               </h2>
             </div>
             <div className="p-6">
@@ -152,64 +181,27 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
                   {contact.country && <p>{contact.country}</p>}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">{tc('notSet')}</p>
+                <p className="text-sm text-muted-foreground">{tc("notSet")}</p>
               )}
             </div>
           </div>
 
-          {/* Additional Addresses */}
-          {addresses.length > 0 && (
-            <div className="rounded-xl border bg-card">
-              <div className="border-b px-6 py-4">
-                <h2 className="font-semibold flex items-center gap-2">
-                  <MapPinned className="h-4 w-4" />
-                  {t('additionalAddresses')} ({addresses.length})
-                </h2>
-              </div>
-              <div className="divide-y">
-                {addresses.map((addr) => (
-                  <div key={addr.id} className="p-6">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="inline-block rounded-full bg-muted px-2 py-0.5 text-xs font-medium capitalize">
-                        {addr.type}
-                      </span>
-                      {addr.isDefault && (
-                        <span className="inline-block rounded-full bg-primary/10 text-primary px-2 py-0.5 text-xs font-medium">
-                          {t('defaultAddress')}
-                        </span>
-                      )}
-                      {addr.name && (
-                        <span className="text-sm font-medium">{addr.name}</span>
-                      )}
-                    </div>
-                    <div className="text-sm text-muted-foreground space-y-1">
-                      {addr.address && <p>{addr.address}</p>}
-                      {(addr.postalCode || addr.city) && (
-                        <p>
-                          {addr.postalCode} {addr.city}
-                        </p>
-                      )}
-                      {addr.country && <p>{addr.country}</p>}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+          {/* Addresses */}
+          <AddressManager contactId={contact.id} addresses={addresses} />
 
           {/* Recent Documents */}
           <div className="rounded-xl border bg-card">
             <div className="border-b px-6 py-4">
               <h2 className="font-semibold flex items-center gap-2">
                 <FileText className="h-4 w-4" />
-                {t('recentDocuments')}
+                {t("recentDocuments")}
               </h2>
             </div>
             {recentDocuments.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12">
                 <FileText className="h-8 w-8 text-muted-foreground/50" />
                 <p className="mt-2 text-sm text-muted-foreground">
-                  {t('noDocuments')}
+                  {t("noDocuments")}
                 </p>
               </div>
             ) : (
@@ -222,7 +214,7 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
                     <div>
                       <p className="text-sm font-medium">{doc.number}</p>
                       <p className="text-xs text-muted-foreground">
-                        {td(toCamelCase(doc.type))} &middot;{' '}
+                        {td(toCamelCase(doc.type))} &middot;{" "}
                         {formatDate(doc.issueDate)}
                       </p>
                     </div>
@@ -232,8 +224,8 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
                       </p>
                       <span
                         className={cn(
-                          'inline-block rounded-full px-2 py-0.5 text-xs font-medium',
-                          STATUS_STYLES[doc.status] || STATUS_STYLES.draft
+                          "inline-block rounded-full px-2 py-0.5 text-xs font-medium",
+                          STATUS_STYLES[doc.status] || STATUS_STYLES.draft,
                         )}
                       >
                         {ts(toCamelCase(doc.status))}
@@ -253,20 +245,28 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
             <div className="border-b px-6 py-4">
               <h2 className="font-semibold flex items-center gap-2">
                 <CreditCard className="h-4 w-4" />
-                {t('financialDetails')}
+                {t("financialDetails")}
               </h2>
             </div>
             <div className="space-y-4 p-6">
-              <InfoItem label={t('vatNumber')} value={contact.vatNumber} />
-              <InfoItem label={t('iban')} value={contact.iban} />
-              <InfoItem label={t('bic')} value={contact.bic} />
+              <InfoItem label={t("vatNumber")} value={contact.vatNumber} />
+              <InfoItem label={t("iban")} value={contact.iban} />
+              <InfoItem label={t("bic")} value={contact.bic} />
               <InfoItem
-                label={t('paymentTerms')}
-                value={contact.paymentTermsDays ? `${contact.paymentTermsDays} ${t('days')}` : null}
+                label={t("paymentTerms")}
+                value={
+                  contact.paymentTermsDays
+                    ? `${contact.paymentTermsDays} ${t("days")}`
+                    : null
+                }
               />
               <InfoItem
-                label={t('creditLimit')}
-                value={contact.creditLimit ? formatCurrency(contact.creditLimit) : null}
+                label={t("creditLimit")}
+                value={
+                  contact.creditLimit
+                    ? formatCurrency(contact.creditLimit)
+                    : null
+                }
               />
             </div>
           </div>
@@ -276,22 +276,25 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
             <div className="border-b px-6 py-4">
               <h2 className="font-semibold flex items-center gap-2">
                 <Building2 className="h-4 w-4" />
-                {tc('settings')}
+                {tc("settings")}
               </h2>
             </div>
             <div className="space-y-4 p-6">
-              <InfoItem label={t('language')} value={contact.language?.toUpperCase()} />
               <InfoItem
-                label={t('createdAt')}
+                label={t("language")}
+                value={contact.language?.toUpperCase()}
+              />
+              <InfoItem
+                label={t("createdAt")}
                 value={formatDate(contact.createdAt)}
               />
               <InfoItem
-                label={t('updatedAt')}
+                label={t("updatedAt")}
                 value={formatDate(contact.updatedAt)}
               />
               {contact.kivitendoId && (
                 <InfoItem
-                  label={t('kivitendoId')}
+                  label={t("kivitendoId")}
                   value={contact.kivitendoId.toString()}
                 />
               )}
@@ -302,7 +305,7 @@ export default async function ContactDetailPage({ params }: ContactDetailPagePro
           {contact.notes && (
             <div className="rounded-xl border bg-card">
               <div className="border-b px-6 py-4">
-                <h2 className="font-semibold">{tc('notes')}</h2>
+                <h2 className="font-semibold">{tc("notes")}</h2>
               </div>
               <div className="p-6">
                 <p className="text-sm whitespace-pre-wrap">{contact.notes}</p>
@@ -333,7 +336,7 @@ function InfoRow({
       <div className="mt-0.5 text-muted-foreground">{icon}</div>
       <div>
         <p className="text-xs text-muted-foreground">{label}</p>
-        <p className="text-sm">{value || '-'}</p>
+        <p className="text-sm">{value || "-"}</p>
       </div>
     </div>
   );
@@ -349,7 +352,7 @@ function InfoItem({
   return (
     <div>
       <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="text-sm font-medium">{value || '-'}</p>
+      <p className="text-sm font-medium">{value || "-"}</p>
     </div>
   );
 }
