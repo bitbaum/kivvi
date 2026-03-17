@@ -1,13 +1,13 @@
-'use server';
+"use server";
 
-import { revalidatePath } from 'next/cache';
-import { db } from '@/lib/db';
-import { companies, documents, documentItems } from '@kivvi/database';
-import type { CompanySettings } from '@kivvi/database';
-import { eq, and } from 'drizzle-orm';
-import Decimal from 'decimal.js';
-import { z } from 'zod';
-import { type ActionResult, getSession, safeErrorMessage } from './utils';
+import { revalidatePath } from "next/cache";
+import { db } from "@/lib/db";
+import { companies, documents, documentItems } from "@kivvi/database";
+import type { CompanySettings } from "@kivvi/database";
+import { eq, and } from "drizzle-orm";
+import Decimal from "decimal.js";
+import { z } from "zod";
+import { type ActionResult, getSession, safeErrorMessage } from "./utils";
 import {
   initializeCompany,
   completeOnboarding,
@@ -24,25 +24,25 @@ import {
   ensureProductGroups,
   ensureManufacturers,
   updateSequencesAfterImport,
-} from '@kivvi/core';
-import { DEFAULT_VAT_RATE } from '@kivvi/core/src/config/vat-rates';
+} from "@kivvi/core";
+import { DEFAULT_VAT_RATE } from "@kivvi/core/src/config/vat-rates";
 
 // ============================================================================
 // SCHEMAS
 // ============================================================================
 
 const companyInfoSchema = z.object({
-  name: z.string().min(1, 'Company name is required').max(200),
+  name: z.string().min(1, "Company name is required").max(200),
   legalName: z.string().max(200).optional().nullable(),
   address: z.string().max(500).optional().nullable(),
   postalCode: z.string().max(20).optional().nullable(),
   city: z.string().max(100).optional().nullable(),
-  country: z.string().max(2).optional().default('CH'),
+  country: z.string().max(2).optional().default("CH"),
   vatNumber: z.string().max(50).optional().nullable(),
 });
 
 const businessConfigSchema = z.object({
-  defaultVatRate: z.number().min(0).max(100),
+  defaultVatRate: z.coerce.number().min(0).max(100),
   defaultPaymentTermsDays: z.number().int().min(0).max(365).default(30),
   bankIban: z.string().max(34).optional().nullable(),
   bankName: z.string().max(200).optional().nullable(),
@@ -53,13 +53,16 @@ const businessConfigSchema = z.object({
 // ============================================================================
 
 export async function updateCompanyInfoAction(
-  input: unknown
+  input: unknown,
 ): Promise<ActionResult> {
   try {
     const { companyId } = await getSession();
     const parsed = companyInfoSchema.safeParse(input);
     if (!parsed.success) {
-      return { success: false, error: parsed.error.errors[0]?.message || 'Invalid input' };
+      return {
+        success: false,
+        error: parsed.error.errors[0]?.message || "Invalid input",
+      };
     }
 
     await db
@@ -80,7 +83,10 @@ export async function updateCompanyInfoAction(
 
     return { success: true };
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to update company info') };
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to update company info"),
+    };
   }
 }
 
@@ -89,13 +95,18 @@ export async function updateCompanyInfoAction(
 // ============================================================================
 
 export async function initializeCompanyAction(
-  input: unknown
-): Promise<ActionResult<{ accountsCreated: number; sequencesCreated: number }>> {
+  input: unknown,
+): Promise<
+  ActionResult<{ accountsCreated: number; sequencesCreated: number }>
+> {
   try {
     const { companyId } = await getSession();
     const parsed = businessConfigSchema.safeParse(input);
     if (!parsed.success) {
-      return { success: false, error: parsed.error.errors[0]?.message || 'Invalid input' };
+      return {
+        success: false,
+        error: parsed.error.errors[0]?.message || "Invalid input",
+      };
     }
 
     const result = await initializeCompany(db, companyId, {
@@ -115,7 +126,10 @@ export async function initializeCompanyAction(
       },
     };
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to initialize company') };
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to initialize company"),
+    };
   }
 }
 
@@ -126,34 +140,63 @@ export async function initializeCompanyAction(
 export async function executeImportAction(
   entityType: string,
   rows: Array<Record<string, string | null>>,
-  structuredItems?: Record<string, Array<{ position: number; articleNumber: string; description: string; quantity: string; unit: string }>>
-): Promise<ActionResult<{ inserted: number; skipped: number; errors: string[] }>> {
+  structuredItems?: Record<
+    string,
+    Array<{
+      position: number;
+      articleNumber: string;
+      description: string;
+      quantity: string;
+      unit: string;
+    }>
+  >,
+): Promise<
+  ActionResult<{ inserted: number; skipped: number; errors: string[] }>
+> {
   try {
     const { companyId, userId } = await getSession();
 
     let result;
 
     switch (entityType) {
-      case 'customer': {
-        result = await bulkInsertContacts(db, companyId, rows, 'customer');
+      case "customer": {
+        result = await bulkInsertContacts(db, companyId, rows, "customer");
         break;
       }
-      case 'vendor': {
-        result = await bulkInsertContacts(db, companyId, rows, 'vendor');
+      case "vendor": {
+        result = await bulkInsertContacts(db, companyId, rows, "vendor");
         break;
       }
-      case 'product': {
+      case "product": {
         // Extract unique product groups and manufacturers from rows
-        const groupNames = rows.map((r) => r.productGroup).filter(Boolean) as string[];
-        const manufacturerNames = rows.map((r) => r.manufacturer).filter(Boolean) as string[];
+        const groupNames = rows
+          .map((r) => r.productGroup)
+          .filter(Boolean) as string[];
+        const manufacturerNames = rows
+          .map((r) => r.manufacturer)
+          .filter(Boolean) as string[];
 
-        const productGroupMap = await ensureProductGroups(db, companyId, groupNames);
-        const manufacturerMap = await ensureManufacturers(db, companyId, manufacturerNames);
+        const productGroupMap = await ensureProductGroups(
+          db,
+          companyId,
+          groupNames,
+        );
+        const manufacturerMap = await ensureManufacturers(
+          db,
+          companyId,
+          manufacturerNames,
+        );
 
-        result = await bulkInsertProducts(db, companyId, rows, productGroupMap, manufacturerMap);
+        result = await bulkInsertProducts(
+          db,
+          companyId,
+          rows,
+          productGroupMap,
+          manufacturerMap,
+        );
         break;
       }
-      case 'invoice': {
+      case "invoice": {
         const contactLookup = await buildContactLookup(db, companyId);
         const structuredItemsMap = structuredItems
           ? new Map(Object.entries(structuredItems))
@@ -161,10 +204,19 @@ export async function executeImportAction(
         const invoiceProductLookup = structuredItemsMap
           ? await buildProductLookup(db, companyId)
           : undefined;
-        result = await bulkInsertDocuments(db, companyId, userId, rows, contactLookup, 'invoice', structuredItemsMap, invoiceProductLookup);
+        result = await bulkInsertDocuments(
+          db,
+          companyId,
+          userId,
+          rows,
+          contactLookup,
+          "invoice",
+          structuredItemsMap,
+          invoiceProductLookup,
+        );
         break;
       }
-      case 'purchase_invoice': {
+      case "purchase_invoice": {
         const contactLookup = await buildContactLookup(db, companyId);
         const piStructuredItemsMap = structuredItems
           ? new Map(Object.entries(structuredItems))
@@ -172,28 +224,73 @@ export async function executeImportAction(
         const piProductLookup = piStructuredItemsMap
           ? await buildProductLookup(db, companyId)
           : undefined;
-        result = await bulkInsertDocuments(db, companyId, userId, rows, contactLookup, 'purchase_invoice', piStructuredItemsMap, piProductLookup);
+        result = await bulkInsertDocuments(
+          db,
+          companyId,
+          userId,
+          rows,
+          contactLookup,
+          "purchase_invoice",
+          piStructuredItemsMap,
+          piProductLookup,
+        );
         break;
       }
-      case 'journal_entry': {
+      case "order":
+      case "quote":
+      case "delivery_note": {
+        const docContactLookup = await buildContactLookup(db, companyId);
+        const docStructuredItems = structuredItems
+          ? new Map(Object.entries(structuredItems))
+          : undefined;
+        const docProductLookup = docStructuredItems
+          ? await buildProductLookup(db, companyId)
+          : undefined;
+        result = await bulkInsertDocuments(
+          db,
+          companyId,
+          userId,
+          rows,
+          docContactLookup,
+          entityType as "order" | "quote" | "delivery_note",
+          docStructuredItems,
+          docProductLookup,
+        );
+        break;
+      }
+      case "journal_entry": {
         const accountCodeMap = await buildAccountCodeMap(db, companyId);
-        result = await bulkInsertJournalEntries(db, companyId, rows, accountCodeMap);
+        result = await bulkInsertJournalEntries(
+          db,
+          companyId,
+          rows,
+          accountCodeMap,
+        );
         break;
       }
-      case 'stock': {
+      case "stock": {
         // Find default warehouse
-        const { warehouses } = await import('@kivvi/database');
+        const { warehouses } = await import("@kivvi/database");
         const [warehouse] = await db
           .select({ id: warehouses.id })
           .from(warehouses)
           .where(eq(warehouses.companyId, companyId));
 
         if (!warehouse) {
-          return { success: false, error: 'No warehouse found. Complete step 2 first.' };
+          return {
+            success: false,
+            error: "No warehouse found. Complete step 2 first.",
+          };
         }
 
         const productLookup = await buildProductLookup(db, companyId);
-        result = await bulkInsertStockLevels(db, companyId, warehouse.id, rows, productLookup);
+        result = await bulkInsertStockLevels(
+          db,
+          companyId,
+          warehouse.id,
+          rows,
+          productLookup,
+        );
         break;
       }
       default:
@@ -202,7 +299,7 @@ export async function executeImportAction(
 
     return { success: true, data: result };
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Import failed') };
+    return { success: false, error: safeErrorMessage(error, "Import failed") };
   }
 }
 
@@ -219,10 +316,13 @@ export async function completeOnboardingAction(): Promise<ActionResult> {
     // Update sequences to avoid collisions with imported data
     await updateSequencesAfterImport(db, companyId);
 
-    revalidatePath('/');
+    revalidatePath("/");
     return { success: true };
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to complete onboarding') };
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to complete onboarding"),
+    };
   }
 }
 
@@ -231,7 +331,11 @@ export async function completeOnboardingAction(): Promise<ActionResult> {
 // ============================================================================
 
 export async function getOnboardingStateAction(): Promise<
-  ActionResult<{ step: number; completedAt: string | null; companyName: string | null }>
+  ActionResult<{
+    step: number;
+    completedAt: string | null;
+    companyName: string | null;
+  }>
 > {
   try {
     const { companyId } = await getSession();
@@ -250,23 +354,28 @@ export async function getOnboardingStateAction(): Promise<
       },
     };
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to get onboarding state') };
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to get onboarding state"),
+    };
   }
 }
 
 /**
  * Get company details for pre-filling the onboarding form.
  */
-export async function getCompanyDetailsAction(): Promise<ActionResult<{
-  name: string;
-  legalName: string | null;
-  address: string | null;
-  postalCode: string | null;
-  city: string | null;
-  country: string;
-  vatNumber: string | null;
-  settings: CompanySettings;
-}>> {
+export async function getCompanyDetailsAction(): Promise<
+  ActionResult<{
+    name: string;
+    legalName: string | null;
+    address: string | null;
+    postalCode: string | null;
+    city: string | null;
+    country: string;
+    vatNumber: string | null;
+    settings: CompanySettings;
+  }>
+> {
   try {
     const { companyId } = await getSession();
 
@@ -276,7 +385,7 @@ export async function getCompanyDetailsAction(): Promise<ActionResult<{
       .where(eq(companies.id, companyId));
 
     if (!company) {
-      return { success: false, error: 'Company not found' };
+      return { success: false, error: "Company not found" };
     }
 
     return {
@@ -287,13 +396,16 @@ export async function getCompanyDetailsAction(): Promise<ActionResult<{
         address: company.address,
         postalCode: company.postalCode,
         city: company.city,
-        country: company.country ?? 'CH',
+        country: company.country ?? "CH",
         vatNumber: company.vatNumber,
         settings: (company.settings as CompanySettings) || {},
       },
     };
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to get company details') };
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to get company details"),
+    };
   }
 }
 
@@ -302,8 +414,17 @@ export async function getCompanyDetailsAction(): Promise<ActionResult<{
 // ============================================================================
 
 export async function repairDocumentLineItemsAction(
-  entityType: 'invoice' | 'purchase_invoice',
-  structuredItems: Record<string, Array<{ position: number; articleNumber: string; description: string; quantity: string; unit: string }>>
+  entityType: "invoice" | "purchase_invoice",
+  structuredItems: Record<
+    string,
+    Array<{
+      position: number;
+      articleNumber: string;
+      description: string;
+      quantity: string;
+      unit: string;
+    }>
+  >,
 ): Promise<ActionResult<{ updated: number; skipped: number }>> {
   try {
     const { companyId } = await getSession();
@@ -326,8 +447,8 @@ export async function repairDocumentLineItemsAction(
           and(
             eq(documents.companyId, companyId),
             eq(documents.number, docNumber),
-            eq(documents.type, entityType)
-          )
+            eq(documents.type, entityType),
+          ),
         );
 
       if (!doc) {
@@ -350,19 +471,22 @@ export async function repairDocumentLineItemsAction(
               ? productLookup.get(item.articleNumber) || null
               : null;
             const productId = product?.id || null;
-            const qty = item.quantity || '1';
+            const qty = item.quantity || "1";
 
-            let unitPrice = '0';
-            if (product?.unitPrice && product.unitPrice !== '0') {
+            let unitPrice = "0";
+            if (product?.unitPrice && product.unitPrice !== "0") {
               unitPrice = product.unitPrice;
             } else if (items.length === 1 && docTotal.gt(0)) {
-              const qtyDec = new Decimal(qty || '1');
+              const qtyDec = new Decimal(qty || "1");
               if (qtyDec.gt(0)) {
                 unitPrice = docTotal.div(qtyDec).toDecimalPlaces(2).toString();
               }
             }
 
-            const total = new Decimal(qty || '0').times(new Decimal(unitPrice)).toDecimalPlaces(2).toString();
+            const total = new Decimal(qty || "0")
+              .times(new Decimal(unitPrice))
+              .toDecimalPlaces(2)
+              .toString();
 
             return {
               documentId: doc.id,
@@ -374,16 +498,19 @@ export async function repairDocumentLineItemsAction(
               vatRate: DEFAULT_VAT_RATE,
               total,
             };
-          })
+          }),
         );
       });
 
       updated++;
     }
 
-    revalidatePath('/');
+    revalidatePath("/");
     return { success: true, data: { updated, skipped } };
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to repair line items') };
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to repair line items"),
+    };
   }
 }

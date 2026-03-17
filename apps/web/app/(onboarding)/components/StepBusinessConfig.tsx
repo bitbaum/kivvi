@@ -1,30 +1,36 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Loader2, Settings, Check } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { initializeCompanyAction } from '@/app/actions/onboarding';
-import { SWISS_VAT_RATES, DEFAULT_VAT_RATE } from '@/lib/config/vat-rates';
+import { useState } from "react";
+import { Loader2, Settings, Check } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { initializeCompanyAction } from "@/app/actions/onboarding";
+import { SWISS_VAT_RATES, DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
 
 interface StepBusinessConfigProps {
   onComplete: () => void;
   onBack: () => void;
 }
 
-export function StepBusinessConfig({ onComplete, onBack }: StepBusinessConfigProps) {
-  const t = useTranslations('onboarding');
-  const tc = useTranslations('common');
+export function StepBusinessConfig({
+  onComplete,
+  onBack,
+}: StepBusinessConfigProps) {
+  const t = useTranslations("onboarding");
+  const tc = useTranslations("common");
   const [vatRate, setVatRate] = useState(DEFAULT_VAT_RATE);
   const [paymentTerms, setPaymentTerms] = useState(30);
-  const [bankIban, setBankIban] = useState('');
-  const [bankName, setBankName] = useState('');
+  const [bankIban, setBankIban] = useState("");
+  const [bankName, setBankName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [setupResult, setSetupResult] = useState<{ accountsCreated: number; sequencesCreated: number } | null>(null);
+  const [error, setError] = useState("");
+  const [setupResult, setSetupResult] = useState<{
+    accountsCreated: number;
+    sequencesCreated: number;
+  } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsLoading(true);
 
     const result = await initializeCompanyAction({
@@ -39,7 +45,7 @@ export function StepBusinessConfig({ onComplete, onBack }: StepBusinessConfigPro
       // Brief delay to show the success state
       setTimeout(() => onComplete(), 1500);
     } else {
-      setError(result.error || tc('error'));
+      setError(result.error || tc("error"));
       setIsLoading(false);
     }
   };
@@ -51,12 +57,14 @@ export function StepBusinessConfig({ onComplete, onBack }: StepBusinessConfigPro
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
             <Check className="h-8 w-8 text-green-600 dark:text-green-400" />
           </div>
-          <h2 className="mb-2 text-xl font-semibold">Business setup complete</h2>
+          <h2 className="mb-2 text-xl font-semibold">{t("setupComplete")}</h2>
           <div className="space-y-1 text-sm text-muted-foreground">
-            <p>{setupResult.accountsCreated} accounts created (Swiss KMU Kontenrahmen)</p>
-            <p>{setupResult.sequencesCreated} number sequences initialized</p>
-            <p>Default warehouse &quot;Hauptlager&quot; created</p>
-            <p>Fiscal year {new Date().getFullYear()} with 12 periods</p>
+            <p>{t("setupAccounts", { count: setupResult.accountsCreated })}</p>
+            <p>
+              {t("setupSequences", { count: setupResult.sequencesCreated })}
+            </p>
+            <p>{t("setupWarehouse")}</p>
+            <p>{t("setupFiscalYear", { year: new Date().getFullYear() })}</p>
           </div>
         </div>
       </div>
@@ -68,11 +76,9 @@ export function StepBusinessConfig({ onComplete, onBack }: StepBusinessConfigPro
       <div className="mb-6">
         <div className="mb-2 flex items-center gap-2">
           <Settings className="h-5 w-5 text-primary" />
-          <h2 className="text-xl font-semibold">{t('step2Title')}</h2>
+          <h2 className="text-xl font-semibold">{t("step2Title")}</h2>
         </div>
-        <p className="text-sm text-muted-foreground">
-          Configure your defaults. This will set up your chart of accounts, number sequences, and warehouse.
-        </p>
+        <p className="text-sm text-muted-foreground">{t("step2Description")}</p>
       </div>
 
       {error && (
@@ -84,15 +90,21 @@ export function StepBusinessConfig({ onComplete, onBack }: StepBusinessConfigPro
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* VAT Rate */}
         <div>
-          <label className="mb-3 block text-sm font-medium">{t('defaultVatRate')}</label>
+          <label className="mb-3 block text-sm font-medium">
+            {t("defaultVatRate")}
+          </label>
           <div className="grid gap-3 sm:grid-cols-3">
-            {SWISS_VAT_RATES.map((rate) => ({ value: rate.value, label: `${rate.value}%`, desc: rate.labelKey.charAt(0).toUpperCase() + rate.labelKey.slice(1) + ' rate' })).map((option) => (
+            {SWISS_VAT_RATES.map((rate) => ({
+              value: rate.value,
+              label: `${rate.value}%`,
+              desc: t(`vatRates.${rate.labelKey}`),
+            })).map((option) => (
               <label
                 key={option.value}
                 className={`flex cursor-pointer items-center gap-3 rounded-lg border p-4 transition-colors ${
                   vatRate === option.value
-                    ? 'border-primary bg-primary/5 ring-1 ring-primary'
-                    : 'hover:bg-muted/50'
+                    ? "border-primary bg-primary/5 ring-1 ring-primary"
+                    : "hover:bg-muted/50"
                 }`}
               >
                 <input
@@ -105,7 +117,9 @@ export function StepBusinessConfig({ onComplete, onBack }: StepBusinessConfigPro
                 />
                 <div
                   className={`flex h-4 w-4 items-center justify-center rounded-full border-2 ${
-                    vatRate === option.value ? 'border-primary' : 'border-muted-foreground/40'
+                    vatRate === option.value
+                      ? "border-primary"
+                      : "border-muted-foreground/40"
                   }`}
                 >
                   {vatRate === option.value && (
@@ -114,7 +128,9 @@ export function StepBusinessConfig({ onComplete, onBack }: StepBusinessConfigPro
                 </div>
                 <div>
                   <div className="font-medium">{option.label}</div>
-                  <div className="text-xs text-muted-foreground">{option.desc}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {option.desc}
+                  </div>
                 </div>
               </label>
             ))}
@@ -123,8 +139,11 @@ export function StepBusinessConfig({ onComplete, onBack }: StepBusinessConfigPro
 
         {/* Payment Terms */}
         <div>
-          <label htmlFor="paymentTerms" className="mb-1.5 block text-sm font-medium">
-            {t('paymentTermsDays')}
+          <label
+            htmlFor="paymentTerms"
+            className="mb-1.5 block text-sm font-medium"
+          >
+            {t("paymentTermsDays")}
           </label>
           <input
             id="paymentTerms"
@@ -136,16 +155,19 @@ export function StepBusinessConfig({ onComplete, onBack }: StepBusinessConfigPro
             className="w-full max-w-xs rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
           />
           <p className="mt-1 text-xs text-muted-foreground">
-            Net payment within this many days
+            {t("paymentTermsHint")}
           </p>
         </div>
 
         {/* Bank Details */}
         <div>
-          <h3 className="mb-3 text-sm font-medium">{t('bankIban')}</h3>
+          <h3 className="mb-3 text-sm font-medium">{t("bankIban")}</h3>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label htmlFor="bankIban" className="mb-1.5 block text-sm text-muted-foreground">
+              <label
+                htmlFor="bankIban"
+                className="mb-1.5 block text-sm text-muted-foreground"
+              >
                 IBAN
               </label>
               <input
@@ -158,8 +180,11 @@ export function StepBusinessConfig({ onComplete, onBack }: StepBusinessConfigPro
               />
             </div>
             <div>
-              <label htmlFor="bankName" className="mb-1.5 block text-sm text-muted-foreground">
-                Bank name
+              <label
+                htmlFor="bankName"
+                className="mb-1.5 block text-sm text-muted-foreground"
+              >
+                {t("bankNameLabel")}
               </label>
               <input
                 id="bankName"
@@ -175,12 +200,14 @@ export function StepBusinessConfig({ onComplete, onBack }: StepBusinessConfigPro
 
         {/* What will be created */}
         <div className="rounded-lg bg-muted/50 p-4">
-          <h3 className="mb-2 text-sm font-medium">This will automatically create:</h3>
+          <h3 className="mb-2 text-sm font-medium">{t("willCreate.title")}</h3>
           <ul className="space-y-1 text-sm text-muted-foreground">
-            <li>227 Swiss KMU chart of accounts</li>
-            <li>11 number sequences (invoices, quotes, orders, etc.)</li>
-            <li>Default warehouse &quot;Hauptlager&quot;</li>
-            <li>Fiscal year {new Date().getFullYear()} with 12 monthly periods</li>
+            <li>{t("willCreate.accounts")}</li>
+            <li>{t("willCreate.sequences")}</li>
+            <li>{t("willCreate.warehouse")}</li>
+            <li>
+              {t("willCreate.fiscalYear", { year: new Date().getFullYear() })}
+            </li>
           </ul>
         </div>
 
@@ -191,7 +218,7 @@ export function StepBusinessConfig({ onComplete, onBack }: StepBusinessConfigPro
             disabled={isLoading}
             className="rounded-lg border px-6 py-2.5 font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
           >
-            {t('back')}
+            {t("back")}
           </button>
           <button
             type="submit"
@@ -199,7 +226,7 @@ export function StepBusinessConfig({ onComplete, onBack }: StepBusinessConfigPro
             className="flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
             {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-            {isLoading ? t('completing') : t('completeSetup')}
+            {isLoading ? t("completing") : t("completeSetup")}
           </button>
         </div>
       </form>
