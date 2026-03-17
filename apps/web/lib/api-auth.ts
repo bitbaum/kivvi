@@ -1,19 +1,24 @@
-import { createHash, randomBytes } from 'crypto';
-import { eq, and } from 'drizzle-orm';
-import { apiTokens } from '@kivvi/database';
-import { db } from './db';
+import { createHash, randomBytes } from "crypto";
+import { eq, and } from "drizzle-orm";
+import { apiTokens } from "@kivvi/database";
+import { db } from "./db";
+import { logger } from "./logger";
 
-const TOKEN_PREFIX = 'kv_';
+const TOKEN_PREFIX = "kv_";
 
 /**
  * Generate a new API token. Returns the raw token (only shown once)
  * and the hash to store in the database.
  */
-export function generateApiToken(): { rawToken: string; tokenHash: string; tokenPrefix: string } {
+export function generateApiToken(): {
+  rawToken: string;
+  tokenHash: string;
+  tokenPrefix: string;
+} {
   const bytes = randomBytes(32);
-  const rawToken = TOKEN_PREFIX + bytes.toString('base64url');
+  const rawToken = TOKEN_PREFIX + bytes.toString("base64url");
   const tokenHash = hashToken(rawToken);
-  const tokenPrefix = rawToken.slice(0, 11) + '...';
+  const tokenPrefix = rawToken.slice(0, 11) + "...";
   return { rawToken, tokenHash, tokenPrefix };
 }
 
@@ -21,7 +26,7 @@ export function generateApiToken(): { rawToken: string; tokenHash: string; token
  * Hash a token using SHA-256 for storage.
  */
 export function hashToken(token: string): string {
-  return createHash('sha256').update(token).digest('hex');
+  return createHash("sha256").update(token).digest("hex");
 }
 
 /**
@@ -29,7 +34,7 @@ export function hashToken(token: string): string {
  * if valid, or null if invalid/expired/inactive.
  */
 export async function validateApiToken(
-  token: string
+  token: string,
 ): Promise<{ companyId: string; userId: string; tokenId: string } | null> {
   if (!token.startsWith(TOKEN_PREFIX)) return null;
 
@@ -44,10 +49,9 @@ export async function validateApiToken(
       expiresAt: apiTokens.expiresAt,
     })
     .from(apiTokens)
-    .where(and(
-      eq(apiTokens.tokenHash, tokenHash),
-      eq(apiTokens.isActive, true)
-    ));
+    .where(
+      and(eq(apiTokens.tokenHash, tokenHash), eq(apiTokens.isActive, true)),
+    );
 
   if (!record) return null;
 
@@ -58,7 +62,7 @@ export async function validateApiToken(
   db.update(apiTokens)
     .set({ lastUsedAt: new Date() })
     .where(eq(apiTokens.id, record.id))
-    .catch((err) => console.error('[api-auth] Failed to update token lastUsedAt:', err));
+    .catch((err) => logger.warn("Failed to update token lastUsedAt", err));
 
   return {
     companyId: record.companyId,

@@ -198,7 +198,7 @@ export async function getDashboardStats(
       labelKey: "stats.bankBalance",
       value: new Decimal(bankBalance?.total || "0").toNumber(),
       count: bankBalance?.count || 0,
-      linkTo: "/banking/accounts",
+      linkTo: "/banking",
       type: "currency",
     },
     activeContacts: {

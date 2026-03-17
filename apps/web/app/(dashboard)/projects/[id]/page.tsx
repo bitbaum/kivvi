@@ -1,5 +1,5 @@
-import Link from 'next/link';
-import { redirect, notFound } from 'next/navigation';
+import Link from "next/link";
+import { redirect, notFound } from "next/navigation";
 import {
   ArrowLeft,
   Pencil,
@@ -8,15 +8,25 @@ import {
   Receipt,
   Calendar,
   User,
-} from 'lucide-react';
-import { auth } from '@/lib/auth';
-import { db } from '@/lib/db';
-import { getProject, getProjectDocuments, getProjectSummary } from '@kivvi/core';
-import { cn, formatCurrency, formatDate } from '@/lib/utils';
-import { getTranslations } from 'next-intl/server';
-import { STATUS_STYLES as DOC_STATUS_STYLES, toCamelCase } from '@/lib/config/document-types';
-import { PROJECT_STATUS_STYLES as STATUS_STYLES } from '@/lib/config/project-status';
-import { ProjectEditForm } from './edit-form';
+} from "lucide-react";
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
+import {
+  getProject,
+  getProjectDocuments,
+  getProjectSummary,
+} from "@kivvi/core";
+import { cn, formatCurrency, formatDate, isValidUUID } from "@/lib/utils";
+import { getTranslations } from "next-intl/server";
+import {
+  STATUS_STYLES as DOC_STATUS_STYLES,
+  toCamelCase,
+} from "@/lib/config/document-types";
+import {
+  PROJECT_STATUS_STYLES as STATUS_STYLES,
+  PROJECT_STATUS_LABEL_KEYS,
+} from "@/lib/config/project-status";
+import { ProjectEditForm } from "./edit-form";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -25,22 +35,16 @@ interface PageProps {
 export default async function ProjectDetailPage({ params }: PageProps) {
   const session = await auth();
   if (!session?.user?.companyId) {
-    redirect('/login');
+    redirect("/login");
   }
 
-  const t = await getTranslations('projects');
-  const tc = await getTranslations('common');
-  const td = await getTranslations('documents');
-  const ts = await getTranslations('status');
-
-  const STATUS_LABELS: Record<string, string> = {
-    active: t('statusActive'),
-    completed: t('statusCompleted'),
-    on_hold: t('statusOnHold'),
-    cancelled: t('statusCancelled'),
-  };
+  const t = await getTranslations("projects");
+  const tc = await getTranslations("common");
+  const td = await getTranslations("documents");
+  const ts = await getTranslations("status");
 
   const { id } = await params;
+  if (!isValidUUID(id)) notFound();
   const companyId = session.user.companyId;
 
   const [project, documents, summary] = await Promise.all([
@@ -57,7 +61,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
     project.budget && Number(project.budget) > 0
       ? Math.min(
           100,
-          Math.round((summary.totalInvoiced / Number(project.budget)) * 100)
+          Math.round((summary.totalInvoiced / Number(project.budget)) * 100),
         )
       : null;
 
@@ -77,11 +81,16 @@ export default async function ProjectDetailPage({ params }: PageProps) {
               <h1 className="text-3xl font-bold">{project.name}</h1>
               <span
                 className={cn(
-                  'inline-block rounded-full px-3 py-1 text-xs font-medium',
-                  STATUS_STYLES[project.status ?? 'active'] || ''
+                  "inline-block rounded-full px-3 py-1 text-xs font-medium",
+                  STATUS_STYLES[project.status ?? "active"] || "",
                 )}
               >
-                {STATUS_LABELS[project.status ?? 'active'] || project.status}
+                {t(
+                  PROJECT_STATUS_LABEL_KEYS[
+                    (project.status ??
+                      "active") as keyof typeof PROJECT_STATUS_LABEL_KEYS
+                  ] || "statusActive",
+                )}
               </span>
             </div>
             {project.contactName && (
@@ -101,14 +110,14 @@ export default async function ProjectDetailPage({ params }: PageProps) {
         <div className="rounded-xl border bg-card p-6">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <FileText className="h-4 w-4" />
-            {t('documents')}
+            {t("documents")}
           </div>
           <p className="mt-2 text-3xl font-bold">{summary.totalDocuments}</p>
         </div>
         <div className="rounded-xl border bg-card p-6">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Receipt className="h-4 w-4" />
-            {t('totalInvoiced')}
+            {t("totalInvoiced")}
           </div>
           <p className="mt-2 text-3xl font-bold">
             {formatCurrency(summary.totalInvoiced)}
@@ -117,7 +126,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
         <div className="rounded-xl border bg-card p-6">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <DollarSign className="h-4 w-4" />
-            {t('revenuePaid')}
+            {t("revenuePaid")}
           </div>
           <p className="mt-2 text-3xl font-bold">
             {formatCurrency(summary.totalRevenue)}
@@ -132,10 +141,10 @@ export default async function ProjectDetailPage({ params }: PageProps) {
           {/* Budget progress */}
           {project.budget && Number(project.budget) > 0 && (
             <div className="rounded-xl border bg-card p-6">
-              <h2 className="mb-4 font-semibold">{t('budget')}</h2>
+              <h2 className="mb-4 font-semibold">{t("budget")}</h2>
               <div className="flex items-center justify-between text-sm mb-2">
                 <span className="text-muted-foreground">
-                  {t('budgetProgress', {
+                  {t("budgetProgress", {
                     used: formatCurrency(summary.totalInvoiced),
                     total: formatCurrency(project.budget),
                   })}
@@ -145,12 +154,12 @@ export default async function ProjectDetailPage({ params }: PageProps) {
               <div className="h-3 w-full overflow-hidden rounded-full bg-muted">
                 <div
                   className={cn(
-                    'h-full rounded-full transition-all',
+                    "h-full rounded-full transition-all",
                     budgetUsedPercent !== null && budgetUsedPercent >= 100
-                      ? 'bg-red-500'
+                      ? "bg-red-500"
                       : budgetUsedPercent !== null && budgetUsedPercent >= 80
-                        ? 'bg-yellow-500'
-                        : 'bg-primary'
+                        ? "bg-yellow-500"
+                        : "bg-primary",
                   )}
                   style={{ width: `${budgetUsedPercent || 0}%` }}
                 />
@@ -161,8 +170,10 @@ export default async function ProjectDetailPage({ params }: PageProps) {
           {/* Description */}
           {project.description && (
             <div className="rounded-xl border bg-card p-6">
-              <h2 className="mb-4 font-semibold">{tc('description')}</h2>
-              <p className="text-sm whitespace-pre-wrap">{project.description}</p>
+              <h2 className="mb-4 font-semibold">{tc("description")}</h2>
+              <p className="text-sm whitespace-pre-wrap">
+                {project.description}
+              </p>
             </div>
           )}
 
@@ -170,13 +181,13 @@ export default async function ProjectDetailPage({ params }: PageProps) {
           <div className="rounded-xl border bg-card">
             <div className="flex items-center gap-2 border-b px-6 py-4">
               <FileText className="h-4 w-4 text-muted-foreground" />
-              <h2 className="font-semibold">{t('linkedDocuments')}</h2>
+              <h2 className="font-semibold">{t("linkedDocuments")}</h2>
             </div>
             {documents.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12">
                 <FileText className="h-8 w-8 text-muted-foreground/50" />
                 <p className="mt-2 text-sm text-muted-foreground">
-                  {t('noLinkedDocuments')}
+                  {t("noLinkedDocuments")}
                 </p>
               </div>
             ) : (
@@ -184,12 +195,24 @@ export default async function ProjectDetailPage({ params }: PageProps) {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b text-muted-foreground">
-                      <th className="px-4 py-3 text-left font-medium">{tc('type')}</th>
-                      <th className="px-4 py-3 text-left font-medium">{tc('number')}</th>
-                      <th className="px-4 py-3 text-left font-medium">{tc('name')}</th>
-                      <th className="px-4 py-3 text-left font-medium">{tc('date')}</th>
-                      <th className="px-4 py-3 text-left font-medium">{tc('status')}</th>
-                      <th className="px-4 py-3 text-right font-medium">{tc('total')}</th>
+                      <th className="px-4 py-3 text-left font-medium">
+                        {tc("type")}
+                      </th>
+                      <th className="px-4 py-3 text-left font-medium">
+                        {tc("number")}
+                      </th>
+                      <th className="px-4 py-3 text-left font-medium">
+                        {tc("name")}
+                      </th>
+                      <th className="px-4 py-3 text-left font-medium">
+                        {tc("date")}
+                      </th>
+                      <th className="px-4 py-3 text-left font-medium">
+                        {tc("status")}
+                      </th>
+                      <th className="px-4 py-3 text-right font-medium">
+                        {tc("total")}
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
@@ -205,7 +228,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
                           {doc.number}
                         </td>
                         <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
-                          {doc.contactName || '-'}
+                          {doc.contactName || "-"}
                         </td>
                         <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
                           {formatDate(doc.issueDate)}
@@ -213,8 +236,9 @@ export default async function ProjectDetailPage({ params }: PageProps) {
                         <td className="whitespace-nowrap px-4 py-3">
                           <span
                             className={cn(
-                              'inline-block rounded-full px-2 py-0.5 text-xs font-medium',
-                              DOC_STATUS_STYLES[doc.status] || DOC_STATUS_STYLES.draft
+                              "inline-block rounded-full px-2 py-0.5 text-xs font-medium",
+                              DOC_STATUS_STYLES[doc.status] ||
+                                DOC_STATUS_STYLES.draft,
                             )}
                           >
                             {ts(toCamelCase(doc.status))}
@@ -236,16 +260,16 @@ export default async function ProjectDetailPage({ params }: PageProps) {
             projectId={project.id}
             initialData={{
               name: project.name,
-              description: project.description || '',
-              contactId: project.contactId || '',
-              status: project.status ?? 'active',
-              budget: project.budget ? String(project.budget) : '',
+              description: project.description || "",
+              contactId: project.contactId || "",
+              status: project.status ?? "active",
+              budget: project.budget ? String(project.budget) : "",
               startDate: project.startDate
-                ? new Date(project.startDate).toISOString().split('T')[0]
-                : '',
+                ? new Date(project.startDate).toISOString().split("T")[0]
+                : "",
               endDate: project.endDate
-                ? new Date(project.endDate).toISOString().split('T')[0]
-                : '',
+                ? new Date(project.endDate).toISOString().split("T")[0]
+                : "",
             }}
           />
         </div>
@@ -257,7 +281,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
             <div className="rounded-xl border bg-card p-6">
               <h2 className="mb-4 font-semibold flex items-center gap-2">
                 <User className="h-4 w-4 text-muted-foreground" />
-                {t('client')}
+                {t("client")}
               </h2>
               <div className="space-y-1 text-sm">
                 <p className="font-medium">{project.contactName}</p>
@@ -266,7 +290,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
                 href={`/contacts/${project.contactId}`}
                 className="mt-3 inline-block text-sm text-primary hover:underline"
               >
-                {t('viewContact')}
+                {t("viewContact")}
               </Link>
             </div>
           )}
@@ -276,47 +300,66 @@ export default async function ProjectDetailPage({ params }: PageProps) {
             <div className="border-b px-6 py-4">
               <h2 className="font-semibold flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
-                {t('details')}
+                {t("details")}
               </h2>
             </div>
             <div className="divide-y">
               <div className="flex items-center justify-between px-6 py-3">
-                <span className="text-sm text-muted-foreground">{tc('status')}</span>
+                <span className="text-sm text-muted-foreground">
+                  {tc("status")}
+                </span>
                 <span
                   className={cn(
-                    'inline-block rounded-full px-2 py-0.5 text-xs font-medium',
-                    STATUS_STYLES[project.status ?? 'active'] || ''
+                    "inline-block rounded-full px-2 py-0.5 text-xs font-medium",
+                    STATUS_STYLES[project.status ?? "active"] || "",
                   )}
                 >
-                  {STATUS_LABELS[project.status ?? 'active'] || project.status}
+                  {t(
+                    PROJECT_STATUS_LABEL_KEYS[
+                      (project.status ??
+                        "active") as keyof typeof PROJECT_STATUS_LABEL_KEYS
+                    ] || "statusActive",
+                  )}
                 </span>
               </div>
               {project.budget && (
                 <div className="flex items-center justify-between px-6 py-3">
-                  <span className="text-sm text-muted-foreground">{t('budget')}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {t("budget")}
+                  </span>
                   <span className="text-sm font-medium">
                     {formatCurrency(project.budget)}
                   </span>
                 </div>
               )}
               <div className="flex items-center justify-between px-6 py-3">
-                <span className="text-sm text-muted-foreground">{t('startDate')}</span>
+                <span className="text-sm text-muted-foreground">
+                  {t("startDate")}
+                </span>
                 <span className="text-sm">
-                  {project.startDate ? formatDate(project.startDate) : tc('notSet')}
+                  {project.startDate
+                    ? formatDate(project.startDate)
+                    : tc("notSet")}
                 </span>
               </div>
               <div className="flex items-center justify-between px-6 py-3">
-                <span className="text-sm text-muted-foreground">{t('endDate')}</span>
+                <span className="text-sm text-muted-foreground">
+                  {t("endDate")}
+                </span>
                 <span className="text-sm">
-                  {project.endDate ? formatDate(project.endDate) : tc('notSet')}
+                  {project.endDate ? formatDate(project.endDate) : tc("notSet")}
                 </span>
               </div>
               <div className="flex items-center justify-between px-6 py-3">
-                <span className="text-sm text-muted-foreground">{t('createdAt')}</span>
+                <span className="text-sm text-muted-foreground">
+                  {t("createdAt")}
+                </span>
                 <span className="text-sm">{formatDate(project.createdAt)}</span>
               </div>
               <div className="flex items-center justify-between px-6 py-3">
-                <span className="text-sm text-muted-foreground">{t('updatedAt')}</span>
+                <span className="text-sm text-muted-foreground">
+                  {t("updatedAt")}
+                </span>
                 <span className="text-sm">{formatDate(project.updatedAt)}</span>
               </div>
             </div>

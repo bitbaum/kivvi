@@ -1,12 +1,12 @@
 # Kivvi
 
-**Business on Autopilot.** AI-first ERP for Swiss businesses.
+**Operations on Autopilot.** AI-first ERP for Swiss organizations.
 
 ---
 
 ## What is Kivvi?
 
-Kivvi is an intelligent ERP system that runs your business operations automatically. Unlike traditional ERPs where you navigate menus and fill forms, Kivvi watches your business activity and takes action.
+Kivvi is an intelligent ERP system that automates your organization's operations. Unlike traditional ERPs where you navigate menus and fill forms, Kivvi watches your activity and takes action.
 
 - **Meeting ended?** Invoice drafted and ready to send.
 - **Payment received?** Automatically matched and reconciled.
@@ -87,14 +87,14 @@ kivvi/
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| Frontend | Next.js 14, React, Tailwind, shadcn/ui |
-| Backend | Next.js API Routes, TypeScript |
-| Database | PostgreSQL, Drizzle ORM |
-| AI | Anthropic Claude, OpenAI, Ollama (self-hosted) |
-| Auth | NextAuth.js |
-| Deployment | Vercel, Docker |
+| Layer      | Technology                                     |
+| ---------- | ---------------------------------------------- |
+| Frontend   | Next.js 14, React, Tailwind, shadcn/ui         |
+| Backend    | Next.js API Routes, TypeScript                 |
+| Database   | PostgreSQL, Drizzle ORM                        |
+| AI         | Anthropic Claude, OpenAI, Ollama (self-hosted) |
+| Auth       | NextAuth.js                                    |
+| Deployment | Vercel, Docker                                 |
 
 ## Roadmap
 

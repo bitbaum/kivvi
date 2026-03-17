@@ -1,16 +1,19 @@
-import Link from 'next/link';
-import { redirect } from 'next/navigation';
-import { Plus, Search, FolderKanban } from 'lucide-react';
-import { EmptyState } from '@/components/empty-state';
-import { auth } from '@/lib/auth';
-import { db } from '@/lib/db';
-import { listProjects } from '@kivvi/core';
-import { cn, formatCurrency, formatDate } from '@/lib/utils';
-import { getTranslations } from 'next-intl/server';
-import { PROJECT_STATUS_STYLES as STATUS_STYLES } from '@/lib/config/project-status';
-import { DEFAULT_PAGE_SIZE } from '@/lib/config/document-types';
-import { PageHeader } from '@/components/page-header';
-import { Pagination } from '@/components/pagination';
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { Plus, Search, FolderKanban } from "lucide-react";
+import { EmptyState } from "@/components/empty-state";
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { listProjects } from "@kivvi/core";
+import { cn, formatCurrency, formatDate } from "@/lib/utils";
+import { getTranslations } from "next-intl/server";
+import {
+  PROJECT_STATUS_STYLES as STATUS_STYLES,
+  PROJECT_STATUS_LABEL_KEYS,
+} from "@/lib/config/project-status";
+import { DEFAULT_PAGE_SIZE } from "@/lib/config/document-types";
+import { PageHeader } from "@/components/page-header";
+import { Pagination } from "@/components/pagination";
 
 interface PageProps {
   searchParams: Promise<{
@@ -23,23 +26,21 @@ interface PageProps {
 export default async function ProjectsPage({ searchParams }: PageProps) {
   const session = await auth();
   if (!session?.user?.companyId) {
-    redirect('/login');
+    redirect("/login");
   }
 
-  const t = await getTranslations('projects');
-  const tc = await getTranslations('common');
-
-  const STATUS_LABELS: Record<string, string> = {
-    active: t('statusActive'),
-    completed: t('statusCompleted'),
-    on_hold: t('statusOnHold'),
-    cancelled: t('statusCancelled'),
-  };
+  const t = await getTranslations("projects");
+  const tc = await getTranslations("common");
 
   const params = await searchParams;
-  const search = params.search || '';
-  const statusFilter = params.status as 'active' | 'completed' | 'on_hold' | 'cancelled' | undefined;
-  const page = Math.max(1, parseInt(params.page || '1', 10));
+  const search = params.search || "";
+  const statusFilter = params.status as
+    | "active"
+    | "completed"
+    | "on_hold"
+    | "cancelled"
+    | undefined;
+  const page = Math.max(1, parseInt(params.page || "1", 10));
 
   const result = await listProjects(db, session.user.companyId, {
     search: search || undefined,
@@ -51,15 +52,15 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={t('title')}
-        subtitle={t('subtitle')}
+        title={t("title")}
+        subtitle={t("subtitle")}
         actions={
           <Link
             href="/projects/new"
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
           >
             <Plus className="h-4 w-4" />
-            {t('newProject')}
+            {t("newProject")}
           </Link>
         }
       />
@@ -75,7 +76,7 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
           <input
             type="text"
             name="search"
-            placeholder={t('searchProjects')}
+            placeholder={t("searchProjects")}
             defaultValue={search}
             className="w-full rounded-lg border bg-card py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
           />
@@ -86,27 +87,27 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
           <StatusFilterLink
             href={buildFilterUrl({ search, status: undefined })}
             active={!statusFilter}
-            label={tc('all')}
+            label={tc("all")}
           />
           <StatusFilterLink
-            href={buildFilterUrl({ search, status: 'active' })}
-            active={statusFilter === 'active'}
-            label={t('statusActive')}
+            href={buildFilterUrl({ search, status: "active" })}
+            active={statusFilter === "active"}
+            label={t("statusActive")}
           />
           <StatusFilterLink
-            href={buildFilterUrl({ search, status: 'completed' })}
-            active={statusFilter === 'completed'}
-            label={t('statusCompleted')}
+            href={buildFilterUrl({ search, status: "completed" })}
+            active={statusFilter === "completed"}
+            label={t("statusCompleted")}
           />
           <StatusFilterLink
-            href={buildFilterUrl({ search, status: 'on_hold' })}
-            active={statusFilter === 'on_hold'}
-            label={t('statusOnHold')}
+            href={buildFilterUrl({ search, status: "on_hold" })}
+            active={statusFilter === "on_hold"}
+            label={t("statusOnHold")}
           />
           <StatusFilterLink
-            href={buildFilterUrl({ search, status: 'cancelled' })}
-            active={statusFilter === 'cancelled'}
-            label={t('statusCancelled')}
+            href={buildFilterUrl({ search, status: "cancelled" })}
+            active={statusFilter === "cancelled"}
+            label={t("statusCancelled")}
           />
         </div>
       </div>
@@ -116,10 +117,16 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
         {result.data.length === 0 ? (
           <EmptyState
             icon={search || statusFilter ? Search : FolderKanban}
-            title={search || statusFilter ? t('adjustFilters') : t('noProjects')}
-            description={search || statusFilter ? t('adjustFilters') : t('createFirstProject')}
-            actionLabel={!search && !statusFilter ? t('newProject') : undefined}
-            actionHref={!search && !statusFilter ? '/projects/new' : undefined}
+            title={
+              search || statusFilter ? t("adjustFilters") : t("noProjects")
+            }
+            description={
+              search || statusFilter
+                ? t("adjustFilters")
+                : t("createFirstProject")
+            }
+            actionLabel={!search && !statusFilter ? t("newProject") : undefined}
+            actionHref={!search && !statusFilter ? "/projects/new" : undefined}
           />
         ) : (
           <>
@@ -127,12 +134,24 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
               <table className="w-full">
                 <thead>
                   <tr className="border-b text-left text-sm text-muted-foreground">
-                    <th className="whitespace-nowrap px-4 py-3 font-medium">{tc('name')}</th>
-                    <th className="whitespace-nowrap px-4 py-3 font-medium">{t('client')}</th>
-                    <th className="whitespace-nowrap px-4 py-3 font-medium">{tc('status')}</th>
-                    <th className="whitespace-nowrap px-4 py-3 font-medium text-right">{t('budget')}</th>
-                    <th className="whitespace-nowrap px-4 py-3 font-medium">{t('startDate')}</th>
-                    <th className="whitespace-nowrap px-4 py-3 font-medium">{t('endDate')}</th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">
+                      {tc("name")}
+                    </th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">
+                      {t("client")}
+                    </th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">
+                      {tc("status")}
+                    </th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium text-right">
+                      {t("budget")}
+                    </th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">
+                      {t("startDate")}
+                    </th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">
+                      {t("endDate")}
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
@@ -155,28 +174,33 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
                         )}
                       </td>
                       <td className="whitespace-nowrap px-4 py-3 text-sm text-muted-foreground">
-                        {project.contactName || '-'}
+                        {project.contactName || "-"}
                       </td>
                       <td className="whitespace-nowrap px-4 py-3">
                         <span
                           className={cn(
-                            'inline-block rounded-full px-2 py-0.5 text-xs font-medium',
-                            STATUS_STYLES[project.status ?? 'active'] || ''
+                            "inline-block rounded-full px-2 py-0.5 text-xs font-medium",
+                            STATUS_STYLES[project.status ?? "active"] || "",
                           )}
                         >
-                          {STATUS_LABELS[project.status ?? 'active'] || project.status}
+                          {t(
+                            PROJECT_STATUS_LABEL_KEYS[
+                              (project.status ??
+                                "active") as keyof typeof PROJECT_STATUS_LABEL_KEYS
+                            ] || "statusActive",
+                          )}
                         </span>
                       </td>
                       <td className="whitespace-nowrap px-4 py-3 text-right text-sm font-medium">
-                        {project.budget
-                          ? formatCurrency(project.budget)
-                          : '-'}
+                        {project.budget ? formatCurrency(project.budget) : "-"}
                       </td>
                       <td className="whitespace-nowrap px-4 py-3 text-sm text-muted-foreground">
-                        {project.startDate ? formatDate(project.startDate) : '-'}
+                        {project.startDate
+                          ? formatDate(project.startDate)
+                          : "-"}
                       </td>
                       <td className="whitespace-nowrap px-4 py-3 text-sm text-muted-foreground">
-                        {project.endDate ? formatDate(project.endDate) : '-'}
+                        {project.endDate ? formatDate(project.endDate) : "-"}
                       </td>
                     </tr>
                   ))}
@@ -189,16 +213,21 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
               totalPages={result.totalPages}
               total={result.total}
               pageSize={result.pageSize}
-              buildHref={(p) => buildFilterUrl({ search, status: statusFilter, page: p })}
+              buildHref={(p) =>
+                buildFilterUrl({ search, status: statusFilter, page: p })
+              }
               labels={{
-                showing: tc('showing', {
+                showing: tc("showing", {
                   from: (result.page - 1) * result.pageSize + 1,
                   to: Math.min(result.page * result.pageSize, result.total),
                   total: result.total,
                 }),
-                previous: tc('previous'),
-                next: tc('next'),
-                pageOf: tc('pageOf', { page: result.page, totalPages: result.totalPages }),
+                previous: tc("previous"),
+                next: tc("next"),
+                pageOf: tc("pageOf", {
+                  page: result.page,
+                  totalPages: result.totalPages,
+                }),
               }}
             />
           </>
@@ -226,8 +255,8 @@ function StatusFilterLink({
       href={href}
       className={
         active
-          ? 'rounded-md bg-background px-3 py-1.5 text-sm font-medium shadow-sm'
-          : 'rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground'
+          ? "rounded-md bg-background px-3 py-1.5 text-sm font-medium shadow-sm"
+          : "rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
       }
     >
       {label}
@@ -245,9 +274,10 @@ function buildFilterUrl(params: {
   page?: number;
 }) {
   const searchParams = new URLSearchParams();
-  if (params.search) searchParams.set('search', params.search);
-  if (params.status) searchParams.set('status', params.status);
-  if (params.page && params.page > 1) searchParams.set('page', String(params.page));
+  if (params.search) searchParams.set("search", params.search);
+  if (params.status) searchParams.set("status", params.status);
+  if (params.page && params.page > 1)
+    searchParams.set("page", String(params.page));
   const qs = searchParams.toString();
-  return `/projects${qs ? `?${qs}` : ''}`;
+  return `/projects${qs ? `?${qs}` : ""}`;
 }

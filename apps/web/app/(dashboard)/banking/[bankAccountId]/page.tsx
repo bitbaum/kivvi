@@ -15,7 +15,9 @@ import {
   listTransactions,
   getReconciliationSummary,
 } from "@kivvi/core";
-import { formatCurrency, formatDate, cn } from "@/lib/utils";
+import { formatCurrency, formatDate, cn, isValidUUID } from "@/lib/utils";
+import { DOCUMENT_TYPES } from "@/lib/config/document-types";
+import type { DocumentType } from "@kivvi/database";
 import { AutoMatchButton } from "./auto-match-button";
 import { ImportTransactions } from "./import-transactions";
 import { ReconcileButton } from "./reconcile-button";
@@ -41,6 +43,7 @@ export default async function BankAccountDetailPage({
   const tc = await getTranslations("common");
 
   const { bankAccountId } = await params;
+  if (!isValidUUID(bankAccountId)) notFound();
   const sp = await searchParams;
 
   const account = await getBankAccount(
@@ -260,7 +263,7 @@ export default async function BankAccountDetailPage({
                             {t("reconciled")}
                           </span>
                           <Link
-                            href={`/sales/invoices/${txn.matchedDocument.id}`}
+                            href={`${DOCUMENT_TYPES[txn.matchedDocument.type as DocumentType].basePath}/${txn.matchedDocument.id}`}
                             className="text-xs text-primary hover:underline"
                           >
                             {txn.matchedDocument.number}

@@ -1,13 +1,20 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { ChevronDown, ChevronUp, Loader2, Pencil } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { updateProjectAction } from '@/app/actions/projects';
-import { cn } from '@/lib/utils';
-import { PROJECT_STATUSES, PROJECT_STATUS_LABEL_KEYS } from '@/lib/config/project-status';
-import { FormInput, FormSelect, FormTextarea } from '@/components/ui/form-field';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { ChevronDown, ChevronUp, Loader2, Pencil } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { updateProjectAction } from "@/app/actions/projects";
+import { cn } from "@/lib/utils";
+import {
+  PROJECT_STATUSES,
+  PROJECT_STATUS_LABEL_KEYS,
+} from "@/lib/config/project-status";
+import {
+  FormInput,
+  FormSelect,
+  FormTextarea,
+} from "@/components/ui/form-field";
 
 interface ProjectEditFormProps {
   projectId: string;
@@ -22,11 +29,17 @@ interface ProjectEditFormProps {
   };
 }
 
-export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps) {
+export function ProjectEditForm({
+  projectId,
+  initialData,
+}: ProjectEditFormProps) {
   const router = useRouter();
-  const t = useTranslations('projects');
-  const tc = useTranslations('common');
-  const statusOptions = PROJECT_STATUSES.map((s) => ({ value: s, label: t(PROJECT_STATUS_LABEL_KEYS[s]) }));
+  const t = useTranslations("projects");
+  const tc = useTranslations("common");
+  const statusOptions = PROJECT_STATUSES.map((s) => ({
+    value: s,
+    label: t(PROJECT_STATUS_LABEL_KEYS[s]),
+  }));
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,15 +54,15 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
     try {
       const formData = new FormData(e.currentTarget);
       const input = {
-        name: formData.get('name') as string,
-        description: (formData.get('description') as string) || undefined,
-        contactId: (formData.get('contactId') as string) || undefined,
-        status: formData.get('status') as string,
-        budget: formData.get('budget')
-          ? Number(formData.get('budget') as string)
+        name: formData.get("name") as string,
+        description: (formData.get("description") as string) || undefined,
+        contactId: (formData.get("contactId") as string) || undefined,
+        status: formData.get("status") as string,
+        budget: formData.get("budget")
+          ? (formData.get("budget") as string)
           : undefined,
-        startDate: (formData.get('startDate') as string) || undefined,
-        endDate: (formData.get('endDate') as string) || undefined,
+        startDate: (formData.get("startDate") as string) || undefined,
+        endDate: (formData.get("endDate") as string) || undefined,
       };
 
       const result = await updateProjectAction(projectId, input);
@@ -60,10 +73,10 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
         // Auto-hide success message after 3 seconds
         setTimeout(() => setSuccess(false), 3000);
       } else {
-        setError(result.error || tc('error'));
+        setError(result.error || tc("error"));
       }
     } catch {
-      setError(tc('error'));
+      setError(tc("error"));
     } finally {
       setIsSubmitting(false);
     }
@@ -79,7 +92,7 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
       >
         <span className="flex items-center gap-2 font-semibold">
           <Pencil className="h-4 w-4 text-muted-foreground" />
-          {t('editProject')}
+          {t("editProject")}
         </span>
         {isOpen ? (
           <ChevronUp className="h-4 w-4 text-muted-foreground" />
@@ -100,7 +113,7 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
           {/* Success banner */}
           {success && (
             <div className="mb-6 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800 dark:border-green-900/50 dark:bg-green-900/20 dark:text-green-400">
-              {tc('saveChanges')}
+              {tc("saveChanges")}
             </div>
           )}
 
@@ -108,8 +121,11 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
             <div className="grid gap-6 sm:grid-cols-2">
               {/* Name */}
               <div className="sm:col-span-2">
-                <label htmlFor="edit-name" className="mb-1.5 block text-sm font-medium">
-                  {t('projectName')} <span className="text-destructive">*</span>
+                <label
+                  htmlFor="edit-name"
+                  className="mb-1.5 block text-sm font-medium"
+                >
+                  {t("projectName")} <span className="text-destructive">*</span>
                 </label>
                 <FormInput
                   type="text"
@@ -123,8 +139,11 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
 
               {/* Description */}
               <div className="sm:col-span-2">
-                <label htmlFor="edit-description" className="mb-1.5 block text-sm font-medium">
-                  {tc('description')}
+                <label
+                  htmlFor="edit-description"
+                  className="mb-1.5 block text-sm font-medium"
+                >
+                  {tc("description")}
                 </label>
                 <FormTextarea
                   id="edit-description"
@@ -138,8 +157,11 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
 
               {/* Status */}
               <div>
-                <label htmlFor="edit-status" className="mb-1.5 block text-sm font-medium">
-                  {tc('status')}
+                <label
+                  htmlFor="edit-status"
+                  className="mb-1.5 block text-sm font-medium"
+                >
+                  {tc("status")}
                 </label>
                 <FormSelect
                   id="edit-status"
@@ -156,8 +178,11 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
 
               {/* Budget */}
               <div>
-                <label htmlFor="edit-budget" className="mb-1.5 block text-sm font-medium">
-                  {t('budget')} (CHF)
+                <label
+                  htmlFor="edit-budget"
+                  className="mb-1.5 block text-sm font-medium"
+                >
+                  {t("budget")} (CHF)
                 </label>
                 <FormInput
                   type="number"
@@ -171,7 +196,10 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
 
               {/* Contact ID */}
               <div className="sm:col-span-2">
-                <label htmlFor="edit-contactId" className="mb-1.5 block text-sm font-medium">
+                <label
+                  htmlFor="edit-contactId"
+                  className="mb-1.5 block text-sm font-medium"
+                >
                   Client (Contact ID)
                 </label>
                 <FormInput
@@ -184,8 +212,11 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
 
               {/* Start Date */}
               <div>
-                <label htmlFor="edit-startDate" className="mb-1.5 block text-sm font-medium">
-                  {t('startDate')}
+                <label
+                  htmlFor="edit-startDate"
+                  className="mb-1.5 block text-sm font-medium"
+                >
+                  {t("startDate")}
                 </label>
                 <FormInput
                   type="date"
@@ -197,8 +228,11 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
 
               {/* End Date */}
               <div>
-                <label htmlFor="edit-endDate" className="mb-1.5 block text-sm font-medium">
-                  {t('endDate')}
+                <label
+                  htmlFor="edit-endDate"
+                  className="mb-1.5 block text-sm font-medium"
+                >
+                  {t("endDate")}
                 </label>
                 <FormInput
                   type="date"
@@ -216,18 +250,18 @@ export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps
                 onClick={() => setIsOpen(false)}
                 className="rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted transition-colors"
               >
-                {tc('cancel')}
+                {tc("cancel")}
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
                 className={cn(
-                  'inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors',
-                  isSubmitting && 'opacity-50 cursor-not-allowed'
+                  "inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors",
+                  isSubmitting && "opacity-50 cursor-not-allowed",
                 )}
               >
                 {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
-                {isSubmitting ? tc('saving') : tc('saveChanges')}
+                {isSubmitting ? tc("saving") : tc("saveChanges")}
               </button>
             </div>
           </form>
