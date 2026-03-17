@@ -31,6 +31,7 @@ import {
   switchCompanyAction,
   createCompanyAction,
 } from "@/app/actions/memberships";
+import { KivviLogo } from "@/components/kivvi-logo";
 import type { MembershipInfo } from "@kivvi/core/src/domain/memberships";
 
 interface NavItem {
@@ -265,10 +266,7 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
           className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
           aria-label={tc("aria.kivviHome")}
         >
-          <div
-            className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600"
-            aria-hidden="true"
-          />
+          <KivviLogo size={32} />
           <span className="text-xl font-bold">Kivvi</span>
         </Link>
         {/* Mobile close button */}

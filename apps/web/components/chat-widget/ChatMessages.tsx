@@ -40,7 +40,7 @@ export function ChatMessages({
                 compact ? "h-6 w-6" : "h-8 w-8",
                 message.role === "user"
                   ? "bg-primary text-primary-foreground"
-                  : "bg-gradient-to-br from-blue-500 to-indigo-600 text-white",
+                  : "brand-gradient text-white",
               )}
             >
               {message.role === "user" ? (
@@ -147,7 +147,7 @@ export function ChatMessages({
           <div className="flex gap-4">
             <div
               className={cn(
-                "flex shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white",
+                "flex shrink-0 items-center justify-center rounded-full brand-gradient text-white",
                 compact ? "h-6 w-6" : "h-8 w-8",
               )}
             >

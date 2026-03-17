@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useTranslations } from 'next-intl';
+import { useTranslations } from "next-intl";
 
 interface OnboardingShellProps {
   currentStep: number;
@@ -8,11 +8,15 @@ interface OnboardingShellProps {
   children: React.ReactNode;
 }
 
-export function OnboardingShell({ currentStep, totalSteps, children }: OnboardingShellProps) {
-  const t = useTranslations('onboarding');
+export function OnboardingShell({
+  currentStep,
+  totalSteps,
+  children,
+}: OnboardingShellProps) {
+  const t = useTranslations("onboarding");
   const progress = Math.min((currentStep / totalSteps) * 100, 100);
 
-  const stepLabels = [t('step1Title'), t('step2Title'), t('step3Title')];
+  const stepLabels = [t("step1Title"), t("step2Title"), t("step3Title")];
 
   return (
     <div>
@@ -30,7 +34,7 @@ export function OnboardingShell({ currentStep, totalSteps, children }: Onboardin
         {/* Progress bar */}
         <div className="h-2 overflow-hidden rounded-full bg-muted">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-500"
+            className="h-full rounded-full brand-gradient transition-all duration-500"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -41,16 +45,14 @@ export function OnboardingShell({ currentStep, totalSteps, children }: Onboardin
             <div key={label} className="flex items-center gap-1.5">
               <div
                 className={`h-2.5 w-2.5 rounded-full transition-colors ${
-                  i + 1 <= currentStep
-                    ? 'bg-primary'
-                    : 'bg-muted-foreground/30'
+                  i + 1 <= currentStep ? "bg-primary" : "bg-muted-foreground/30"
                 }`}
               />
               <span
                 className={`hidden text-xs sm:inline ${
                   i + 1 <= currentStep
-                    ? 'text-foreground'
-                    : 'text-muted-foreground'
+                    ? "text-foreground"
+                    : "text-muted-foreground"
                 }`}
               >
                 {label}

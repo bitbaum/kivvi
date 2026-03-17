@@ -1,4 +1,5 @@
-import Link from 'next/link';
+import Link from "next/link";
+import { KivviLogo } from "@/components/kivvi-logo";
 
 export default function OnboardingLayout({
   children,
@@ -10,7 +11,7 @@ export default function OnboardingLayout({
       {/* Header */}
       <header className="flex h-16 items-center justify-between border-b bg-background px-6">
         <Link href="/" className="inline-flex items-center gap-2">
-          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600" />
+          <KivviLogo size={32} />
           <span className="text-xl font-bold">Kivvi</span>
         </Link>
       </header>

@@ -73,7 +73,7 @@ export default function ChatPage() {
       {/* Messages area */}
       {messages.length === 0 ? (
         <div className="flex flex-1 flex-col items-center justify-center px-4">
-          <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600">
+          <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full brand-gradient">
             <Sparkles className="h-8 w-8 text-white" />
           </div>
           <h2 className="mb-2 text-2xl font-semibold">{t("howCanIHelp")}</h2>

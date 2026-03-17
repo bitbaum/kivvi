@@ -99,7 +99,7 @@ export function ChatWidget() {
         onClick={toggle}
         className={cn(
           "fixed z-50 flex h-14 w-14 items-center justify-center rounded-full shadow-lg",
-          "bg-gradient-to-br from-blue-500 to-indigo-600 text-white",
+          "brand-gradient text-white",
           "transition-all duration-200 hover:scale-105 hover:shadow-xl active:scale-95",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
           "bottom-6 right-6",
@@ -140,7 +140,7 @@ export function ChatWidget() {
       >
         {/* Header */}
         <div className="flex items-center gap-1.5 border-b px-3 py-2">
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full brand-gradient">
             <Sparkles className="h-3.5 w-3.5 text-white" />
           </div>
           <span className="text-sm font-semibold">Kivvi</span>
@@ -190,7 +190,7 @@ export function ChatWidget() {
         {/* Messages or Empty State */}
         {messages.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center px-4">
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full brand-gradient">
               <Sparkles className="h-6 w-6 text-white" />
             </div>
             <h3 className="mb-1 text-lg font-semibold">{t("howCanIHelp")}</h3>

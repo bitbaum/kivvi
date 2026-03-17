@@ -1,30 +1,31 @@
-'use client';
+"use client";
 
-import { Suspense, useState } from 'react';
-import Link from 'next/link';
-import { Loader2, ArrowLeft, Mail } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { requestPasswordResetAction } from '@/app/actions/password-reset';
-import { LanguageSwitcher } from '@/components/language-switcher';
+import { Suspense, useState } from "react";
+import Link from "next/link";
+import { Loader2, ArrowLeft, Mail } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { requestPasswordResetAction } from "@/app/actions/password-reset";
+import { LanguageSwitcher } from "@/components/language-switcher";
+import { KivviLogo } from "@/components/kivvi-logo";
 
 function ForgotPasswordForm() {
-  const t = useTranslations('auth');
+  const t = useTranslations("auth");
 
-  const [email, setEmail] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsLoading(true);
 
     try {
       const result = await requestPasswordResetAction({ email });
 
       if (!result.success) {
-        setError(result.error || t('errorGeneric'));
+        setError(result.error || t("errorGeneric"));
         setIsLoading(false);
         return;
       }
@@ -32,7 +33,7 @@ function ForgotPasswordForm() {
       setSuccess(true);
       setIsLoading(false);
     } catch (err) {
-      setError(t('errorGeneric'));
+      setError(t("errorGeneric"));
       setIsLoading(false);
     }
   };
@@ -48,9 +49,7 @@ function ForgotPasswordForm() {
         {/* Logo */}
         <div className="mb-8 text-center">
           <Link href="/" className="inline-flex items-center gap-2.5">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600">
-              <span className="text-lg font-bold text-white">K</span>
-            </div>
+            <KivviLogo size={40} />
             <span className="text-2xl font-bold">Kivvi</span>
           </Link>
         </div>
@@ -62,29 +61,40 @@ function ForgotPasswordForm() {
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
                 <Mail className="h-6 w-6 text-green-600" />
               </div>
-              <h1 className="mb-2 text-2xl font-semibold">{t('checkYourEmail')}</h1>
+              <h1 className="mb-2 text-2xl font-semibold">
+                {t("checkYourEmail")}
+              </h1>
               <p className="mb-6 text-muted-foreground">
-                {t('resetEmailSent')}
+                {t("resetEmailSent")}
               </p>
               <Link
                 href="/login"
                 className="flex items-center justify-center gap-2 rounded-lg border bg-background py-2.5 text-sm font-medium shadow-sm hover:bg-muted"
               >
                 <ArrowLeft className="h-4 w-4" />
-                {t('backToSignIn')}
+                {t("backToSignIn")}
               </Link>
             </>
           ) : (
             <>
-              <h1 className="mb-2 text-2xl font-semibold">{t('resetPassword')}</h1>
+              <h1 className="mb-2 text-2xl font-semibold">
+                {t("resetPassword")}
+              </h1>
               <p className="mb-6 text-muted-foreground">
-                {t('resetPasswordSubtitle')}
+                {t("resetPasswordSubtitle")}
               </p>
 
               {error && (
                 <div className="mb-4 flex items-center gap-2 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
-                  <svg className="h-4 w-4 shrink-0" viewBox="0 0 16 16" fill="currentColor">
-                    <path fillRule="evenodd" d="M8 15A7 7 0 108 1a7 7 0 000 14zM8 4a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 018 4zm0 8a1 1 0 100-2 1 1 0 000 2z" />
+                  <svg
+                    className="h-4 w-4 shrink-0"
+                    viewBox="0 0 16 16"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M8 15A7 7 0 108 1a7 7 0 000 14zM8 4a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 018 4zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                    />
                   </svg>
                   {error}
                 </div>
@@ -92,8 +102,11 @@ function ForgotPasswordForm() {
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                  <label htmlFor="email" className="mb-1.5 block text-sm font-medium">
-                    {t('emailAddress')}
+                  <label
+                    htmlFor="email"
+                    className="mb-1.5 block text-sm font-medium"
+                  >
+                    {t("emailAddress")}
                   </label>
                   <input
                     id="email"
@@ -113,7 +126,7 @@ function ForgotPasswordForm() {
                   className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-all hover:bg-primary/90 disabled:opacity-50"
                 >
                   {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-                  {isLoading ? t('sendingResetLink') : t('sendResetLink')}
+                  {isLoading ? t("sendingResetLink") : t("sendResetLink")}
                 </button>
               </form>
 
@@ -123,7 +136,7 @@ function ForgotPasswordForm() {
                   className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
                 >
                   <ArrowLeft className="h-4 w-4" />
-                  {t('backToSignIn')}
+                  {t("backToSignIn")}
                 </Link>
               </div>
             </>
@@ -131,9 +144,17 @@ function ForgotPasswordForm() {
         </div>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          {t.rich('termsAndPrivacy', {
-            terms: (chunks) => <Link href="/terms" className="hover:underline">{chunks}</Link>,
-            privacy: (chunks) => <Link href="/privacy" className="hover:underline">{chunks}</Link>,
+          {t.rich("termsAndPrivacy", {
+            terms: (chunks) => (
+              <Link href="/terms" className="hover:underline">
+                {chunks}
+              </Link>
+            ),
+            privacy: (chunks) => (
+              <Link href="/privacy" className="hover:underline">
+                {chunks}
+              </Link>
+            ),
           })}
         </p>
       </div>
