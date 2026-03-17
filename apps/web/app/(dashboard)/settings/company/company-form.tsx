@@ -30,6 +30,9 @@ interface CompanyFormProps {
     defaultPaymentTermsDays: string;
     defaultDocumentFooter: string;
     logoBase64: string | null;
+    aiProvider: string;
+    aiModel: string;
+    aiApiKey: string;
   };
 }
 
@@ -115,6 +118,9 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
           (formData.get("defaultPaymentTermsDays") as string) || null,
         defaultDocumentFooter:
           (formData.get("defaultDocumentFooter") as string) || null,
+        aiProvider: (formData.get("aiProvider") as string) || null,
+        aiModel: (formData.get("aiModel") as string) || null,
+        aiApiKey: (formData.get("aiApiKey") as string) || null,
       };
 
       const result = await updateCompanyAction(input);
@@ -477,6 +483,78 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
           <p className="mt-1 text-xs text-muted-foreground">
             {t("company.defaultDocumentFooterHint")}
           </p>
+        </div>
+      </section>
+
+      {/* AI Configuration */}
+      <section className="rounded-xl border bg-card">
+        <div className="border-b px-6 py-4">
+          <h2 className="font-semibold">{t("company.aiConfig")}</h2>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {t("company.aiConfigHint")}
+          </p>
+        </div>
+        <div className="grid gap-6 p-6 sm:grid-cols-2">
+          <div>
+            <label
+              htmlFor="aiProvider"
+              className="mb-1.5 block text-sm font-medium"
+            >
+              {t("company.aiProvider")}
+            </label>
+            <FormSelect
+              id="aiProvider"
+              name="aiProvider"
+              defaultValue={initialData.aiProvider}
+            >
+              <option value="">{t("company.aiProviderDefault")}</option>
+              <option value="anthropic">Anthropic (Claude)</option>
+              <option value="openrouter">OpenRouter</option>
+              <option value="groq">Groq</option>
+              <option value="xai">xAI (Grok)</option>
+              <option value="ollama">Ollama</option>
+            </FormSelect>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {t("company.aiProviderHint")}
+            </p>
+          </div>
+
+          <div>
+            <label
+              htmlFor="aiModel"
+              className="mb-1.5 block text-sm font-medium"
+            >
+              {t("company.aiModel")}
+            </label>
+            <FormInput
+              type="text"
+              id="aiModel"
+              name="aiModel"
+              maxLength={100}
+              placeholder={t("company.placeholders.aiModel")}
+              defaultValue={initialData.aiModel}
+            />
+          </div>
+
+          <div className="sm:col-span-2">
+            <label
+              htmlFor="aiApiKey"
+              className="mb-1.5 block text-sm font-medium"
+            >
+              {t("company.aiApiKey")}
+            </label>
+            <FormInput
+              type="password"
+              id="aiApiKey"
+              name="aiApiKey"
+              maxLength={200}
+              placeholder={t("company.placeholders.aiApiKey")}
+              defaultValue={initialData.aiApiKey}
+            />
+            <p className="mt-1 text-xs text-muted-foreground">
+              {t("company.aiApiKeyHint")}
+            </p>
+          </div>
         </div>
       </section>
 

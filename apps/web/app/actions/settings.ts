@@ -40,6 +40,9 @@ const updateCompanySchema = z.object({
     .optional()
     .nullable(),
   defaultDocumentFooter: z.string().max(1000).optional().nullable(),
+  aiProvider: z.string().max(20).optional().nullable(),
+  aiModel: z.string().max(100).optional().nullable(),
+  aiApiKey: z.string().max(200).optional().nullable(),
 });
 
 export async function updateCompanyAction(
@@ -76,11 +79,18 @@ export async function updateCompanyAction(
         ? Number(parsed.data.defaultVatRate)
         : existingSettings.defaultVatRate,
       defaultPaymentTermsDays: parsed.data.defaultPaymentTermsDays
-        ? Number(parsed.data.defaultPaymentTermsDays)
+        ? parseInt(parsed.data.defaultPaymentTermsDays, 10)
         : existingSettings.defaultPaymentTermsDays,
       defaultDocumentFooter:
         parsed.data.defaultDocumentFooter ??
         existingSettings.defaultDocumentFooter,
+      aiProvider: (parsed.data.aiProvider ||
+        existingSettings.aiProvider) as CompanySettings["aiProvider"],
+      aiModel: parsed.data.aiModel || existingSettings.aiModel,
+      // Only update API key if not the mask placeholder
+      ...(parsed.data.aiApiKey && parsed.data.aiApiKey !== "********"
+        ? { aiApiKey: parsed.data.aiApiKey }
+        : {}),
     };
 
     const [company] = await db

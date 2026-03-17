@@ -1,41 +1,35 @@
-'use client';
+"use client";
 
-import { useRef, useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { Paperclip, Sparkles } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { useChat } from '@/hooks/use-chat';
-import { useModelSelection } from '@/hooks/use-model-selection';
-import { ModelSelector, type ModelOption } from '@/components/model-selector';
-import { ChatMessages } from '@/components/chat-widget/ChatMessages';
-import { ChatInput } from '@/components/chat-widget/ChatInput';
-import { logger } from '@/lib/logger';
+import { useRef, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useChat } from "@/hooks/use-chat";
+import { useModelSelection } from "@/hooks/use-model-selection";
+import { ModelSelector, type ModelOption } from "@/components/model-selector";
+import { ChatMessages } from "@/components/chat-widget/ChatMessages";
+import { ChatInput } from "@/components/chat-widget/ChatInput";
+import { logger } from "@/lib/logger";
 
 export default function ChatPage() {
-  const t = useTranslations('chat');
+  const t = useTranslations("chat");
   const searchParams = useSearchParams();
   const [models, setModels] = useState<ModelOption[]>([]);
   const { selection, selectModel, isLoaded, displayName } = useModelSelection();
   const [initialQuerySent, setInitialQuerySent] = useState(false);
 
   const suggestions = [
-    t('suggestions.unpaidInvoices'),
-    t('suggestions.createInvoice'),
-    t('suggestions.revenueThisMonth'),
-    t('suggestions.reconcileTransactions'),
+    t("suggestions.unpaidInvoices"),
+    t("suggestions.createInvoice"),
+    t("suggestions.revenueThisMonth"),
+    t("suggestions.reconcileTransactions"),
   ];
 
-  const {
-    messages,
-    input,
-    setInput,
-    isLoading,
-    sendMessage,
-  } = useChat({
+  const { messages, input, setInput, isLoading, sendMessage } = useChat({
     providerId: selection.providerId,
     modelId: selection.modelId,
     onError: (error) => {
-      logger.warn('Chat error', error);
+      logger.warn("Chat error", error);
     },
   });
 
@@ -43,15 +37,15 @@ export default function ChatPage() {
 
   // Fetch available models
   useEffect(() => {
-    fetch('/api/models')
+    fetch("/api/models")
       .then((res) => res.json())
       .then((data) => setModels(data.models || []))
-      .catch((err) => logger.warn('Failed to load models', err));
+      .catch((err) => logger.warn("Failed to load models", err));
   }, []);
 
   // Handle ?q= query parameter from dashboard links
   useEffect(() => {
-    const q = searchParams.get('q');
+    const q = searchParams.get("q");
     if (q && !initialQuerySent && isLoaded) {
       setInitialQuerySent(true);
       sendMessage(q);
@@ -82,9 +76,9 @@ export default function ChatPage() {
           <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600">
             <Sparkles className="h-8 w-8 text-white" />
           </div>
-          <h2 className="mb-2 text-2xl font-semibold">{t('howCanIHelp')}</h2>
+          <h2 className="mb-2 text-2xl font-semibold">{t("howCanIHelp")}</h2>
           <p className="mb-8 text-center text-muted-foreground">
-            {t('askDescription')}
+            {t("askDescription")}
           </p>
 
           <div className="grid w-full max-w-lg gap-2 sm:grid-cols-2">
@@ -121,29 +115,19 @@ export default function ChatPage() {
           {models.length > 0 && (
             <p className="text-xs text-muted-foreground">
               {models.find((m) => m.modelId === selection.modelId)?.isFree
-                ? t('freeModelSelected')
-                : t('paidModel')}
+                ? t("freeModelSelected")
+                : t("paidModel")}
             </p>
           )}
         </div>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground"
-          >
-            <Paperclip className="h-5 w-5" />
-          </button>
-          <div className="flex-1">
-            <ChatInput
-              input={input}
-              setInput={setInput}
-              onSubmit={handleSubmit}
-              isLoading={isLoading}
-            />
-          </div>
-        </div>
+        <ChatInput
+          input={input}
+          setInput={setInput}
+          onSubmit={handleSubmit}
+          isLoading={isLoading}
+        />
         <p className="mt-2 text-center text-xs text-muted-foreground">
-          {t('canMakeMistakes')}
+          {t("canMakeMistakes")}
         </p>
       </div>
     </div>

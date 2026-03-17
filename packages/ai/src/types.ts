@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 // ============================================================================
 // PROVIDER TYPES
@@ -7,7 +7,7 @@ import { z } from 'zod';
 export interface AIProvider {
   id: string;
   name: string;
-  type: 'cloud' | 'self-hosted' | 'openrouter';
+  type: "cloud" | "self-hosted" | "openrouter";
   models: AIModel[];
   chat(request: ChatRequest): Promise<ChatResponse>;
   streamChat(request: ChatRequest): AsyncIterable<StreamChunk>;
@@ -47,20 +47,25 @@ export interface ChatResponse {
 }
 
 export interface StreamChunk {
-  type: 'text' | 'tool_call_start' | 'tool_call_delta' | 'tool_call_end' | 'done';
+  type:
+    | "text"
+    | "tool_call_start"
+    | "tool_call_delta"
+    | "tool_call_end"
+    | "done";
   content?: string;
   toolCall?: Partial<ToolCall>;
 }
 
 export interface Message {
-  role: 'user' | 'assistant' | 'system' | 'tool';
+  role: "user" | "assistant" | "system" | "tool";
   content: string | ContentPart[];
   toolCalls?: ToolCall[];
   toolCallId?: string;
 }
 
 export interface ContentPart {
-  type: 'text' | 'image';
+  type: "text" | "image";
   text?: string;
   imageUrl?: string;
 }
@@ -88,8 +93,6 @@ export interface ToolResult {
   data?: unknown;
   error?: string;
   message?: string;
-  requiresConfirmation?: boolean;
-  confirmationMessage?: string;
   actions?: UIAction[];
 }
 
@@ -97,7 +100,7 @@ export interface UIAction {
   label: string;
   action: string;
   params?: Record<string, unknown>;
-  variant?: 'default' | 'primary' | 'destructive';
+  variant?: "default" | "primary" | "destructive";
 }
 
 // ============================================================================
@@ -119,30 +122,30 @@ export interface ExecutionContext {
 }
 
 export type VerticalType =
-  | 'general'
-  | 'financial-advisory'
-  | 'legal'
-  | 'medical'
-  | 'nonprofit'
-  | 'retail'
-  | 'manufacturing';
+  | "general"
+  | "financial-advisory"
+  | "legal"
+  | "medical"
+  | "nonprofit"
+  | "retail"
+  | "manufacturing";
 
 export type Permission =
-  | 'invoice:read'
-  | 'invoice:write'
-  | 'invoice:delete'
-  | 'contact:read'
-  | 'contact:write'
-  | 'product:read'
-  | 'product:write'
-  | 'banking:read'
-  | 'banking:write'
-  | 'accounting:read'
-  | 'accounting:write'
-  | 'project:read'
-  | 'project:write'
-  | 'settings:read'
-  | 'settings:write';
+  | "invoice:read"
+  | "invoice:write"
+  | "invoice:delete"
+  | "contact:read"
+  | "contact:write"
+  | "product:read"
+  | "product:write"
+  | "banking:read"
+  | "banking:write"
+  | "accounting:read"
+  | "accounting:write"
+  | "project:read"
+  | "project:write"
+  | "settings:read"
+  | "settings:write";
 
 // ============================================================================
 // DECISION ENGINE TYPES
@@ -153,7 +156,6 @@ export interface AIDecision {
   confidence: number;
   params?: Record<string, unknown>;
   explanation?: string;
-  requiresConfirmation?: boolean;
   notifyHuman?: boolean;
   question?: string;
   options?: DecisionOption[];
@@ -167,9 +169,9 @@ export interface DecisionOption {
 
 export interface ConfidenceFactors {
   dataCompleteness: number; // 0-1: How complete is the input data
-  patternMatch: number;     // 0-1: How well does this match known patterns
-  ambiguity: number;        // 0-1: How ambiguous is the request (lower is better)
-  riskLevel: number;        // 0-1: How risky is the action (lower is better)
+  patternMatch: number; // 0-1: How well does this match known patterns
+  ambiguity: number; // 0-1: How ambiguous is the request (lower is better)
+  riskLevel: number; // 0-1: How risky is the action (lower is better)
 }
 
 export function calculateConfidence(factors: ConfidenceFactors): number {

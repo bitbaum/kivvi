@@ -270,7 +270,7 @@
       "afternoon": "Bon après-midi",
       "evening": "Bonsoir"
     },
-    "hereIsOverview": "Voici un aperçu de votre entreprise.",
+    "hereIsOverview": "Voici un aperçu de votre organisation.",
     "revenueThisMonth": "Chiffre d'affaires ce mois",
     "openInvoices": "Factures ouvertes",
     "overdueInvoices": "Factures en retard",
@@ -347,14 +347,14 @@
     },
     "activity": {
       "title": "Activité récente",
-      "subtitle": "Dernières modifications dans votre entreprise",
+      "subtitle": "Dernières modifications dans votre organisation",
       "justNow": "À l'instant",
       "minutesAgo": "il y a {count} minutes",
       "hoursAgo": "il y a {count} heures",
       "daysAgo": "il y a {count} jours",
       "weeksAgo": "il y a {count} semaines",
       "noActivity": "Aucune activité",
-      "noActivityDesc": "Il n'y a pas encore d'activité dans votre entreprise.",
+      "noActivityDesc": "Il n'y a pas encore d'activité dans votre organisation.",
       "loadError": "Impossible de charger l'activité récente. Veuillez actualiser la page.",
       "quote": {
         "draft": "Devis créé",
@@ -442,7 +442,7 @@
     },
     "stats": {
       "title": "Indicateurs clés",
-      "subtitle": "Indicateurs commerciaux importants en un coup d'œil",
+      "subtitle": "Indicateurs clés importants en un coup d'œil",
       "document": "Document",
       "documents": "Documents",
       "revenueThisMonth": "Chiffre d'affaires ce mois",
@@ -458,7 +458,7 @@
     },
     "healthMetrics": {
       "title": "Santé financière",
-      "subtitle": "Indicateurs de performance clés pour votre entreprise",
+      "subtitle": "Indicateurs de performance clés en un coup d'œil",
       "profitMargin": "Marge bénéficiaire",
       "conversionRate": "Taux de conversion",
       "avgInvoice": "Facture moyenne",
@@ -471,7 +471,7 @@
     },
     "aiAssistant": {
       "title": "Assistant IA",
-      "subtitle": "Demandez à Kivvi — votre IA analyse votre entreprise",
+      "subtitle": "Demandez à Kivvi — votre IA analyse votre organisation",
       "overdueInvoices": "Afficher les factures en retard",
       "overdueInvoicesQuery": "Montrez-moi toutes les factures en retard de plus de CHF 1000",
       "revenueAnalysis": "Analyse du chiffre d'affaires",
@@ -520,7 +520,7 @@
     "terms": "Conditions",
     "imprint": "Mentions légales",
     "allRightsReserved": "Tous droits réservés.",
-    "tagline": "ERP IA-First pour les PME suisses"
+    "tagline": "ERP IA-First pour les organisations suisses"
   },
   "contacts": {
     "title": "Contacts",
@@ -596,7 +596,14 @@
     "internalNotes": "Notes internes",
     "created": "Contact créé",
     "updated": "Contact mis à jour",
-    "deleted": "Contact supprimé"
+    "deleted": "Contact supprimé",
+    "addAddress": "Ajouter une adresse",
+    "noAddresses": "Aucune adresse supplémentaire.",
+    "addressLine": "Adresse",
+    "setAsDefault": "Définir par défaut",
+    "addressType_billing": "Facturation",
+    "addressType_shipping": "Livraison",
+    "addressType_other": "Autre"
   },
   "products": {
     "title": "Produits",
@@ -1016,7 +1023,7 @@
   },
   "settings": {
     "title": "Paramètres",
-    "subtitle": "Gérez votre entreprise, profil et séquences de numérotation.",
+    "subtitle": "Gérez votre organisation, profil et séquences de numérotation.",
     "companySettings": "Paramètres de l'entreprise",
     "companySettingsDesc": "Nom, adresse et configuration de l'entreprise.",
     "userProfile": "Profil utilisateur",
@@ -1047,10 +1054,20 @@
       "logoMaxSize": "Max. 500 Ko",
       "logoFormats": "PNG, JPEG ou SVG",
       "savedSuccessfully": "Paramètres enregistrés",
+      "aiConfig": "Configuration IA",
+      "aiConfigHint": "Configurez votre propre fournisseur IA et clé API pour cette entreprise. Remplace les valeurs par défaut du système.",
+      "aiProvider": "Fournisseur IA",
+      "aiProviderDefault": "Par défaut du système",
+      "aiProviderHint": "Choisissez un fournisseur IA ou utilisez la valeur par défaut du système.",
+      "aiModel": "Modèle",
+      "aiApiKey": "Clé API",
+      "aiApiKeyHint": "Votre clé API est stockée de manière chiffrée et jamais affichée en clair.",
       "placeholders": {
         "bankName": "p.ex. UBS, ZKB, PostFinance",
         "documentFooter": "p.ex. Payable dans les 30 jours nets",
-        "vatNumber": "CHE-123.456.789 TVA"
+        "vatNumber": "CHE-123.456.789 TVA",
+        "aiModel": "p.ex. claude-sonnet-4-20250514",
+        "aiApiKey": "sk-..."
       }
     },
     "profileSection": {
@@ -1103,7 +1120,7 @@
     "dataPrivacy": {
       "title": "Données et confidentialité",
       "exportTitle": "Exporter toutes les données",
-      "exportDescription": "Téléchargez un export complet de toutes les données de votre entreprise au format JSON (conforme au RGPD).",
+      "exportDescription": "Téléchargez un export complet de toutes les données de votre organisation au format JSON (conforme au RGPD).",
       "downloadButton": "Télécharger l'export des données"
     },
     "recurring": {
@@ -1304,7 +1321,7 @@
     "invalidResetTokenMessage": "Ce lien de réinitialisation est invalide ou a expiré. Veuillez en demander un nouveau.",
     "passwordMismatch": "Les mots de passe ne correspondent pas",
     "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
-    "businessOnAutopilot": "Business en pilote automatique",
+    "businessOnAutopilot": "Opérations en pilote automatique",
     "features": {
       "aiInvoices": "L'IA crée et envoie les factures automatiquement",
       "bankMatching": "Transactions bancaires rapprochées automatiquement",
@@ -1359,6 +1376,26 @@
     "dragAndDrop": "Glissez-déposez ou cliquez",
     "preview": "Aperçu ({rows} lignes au total)",
     "showingColumns": "Affichage de {shown} sur {total} colonnes",
+    "step2Description": "Configurez vos paramètres par défaut. Cela créera votre plan comptable, séquences de numérotation et entrepôt.",
+    "setupComplete": "Configuration terminée",
+    "setupAccounts": "{count} comptes créés (plan comptable PME suisse)",
+    "setupSequences": "{count} séquences de numérotation initialisées",
+    "setupWarehouse": "Entrepôt par défaut \"Hauptlager\" créé",
+    "setupFiscalYear": "Exercice fiscal {year} avec 12 périodes",
+    "paymentTermsHint": "Paiement net dans ce nombre de jours",
+    "bankNameLabel": "Nom de la banque",
+    "vatRates": {
+      "standard": "Taux normal",
+      "reduced": "Taux réduit",
+      "exempt": "Exonéré"
+    },
+    "willCreate": {
+      "title": "Ceci créera automatiquement :",
+      "accounts": "139 comptes du plan comptable PME suisse",
+      "sequences": "11 séquences de numérotation (factures, devis, commandes, etc.)",
+      "warehouse": "Entrepôt par défaut \"Hauptlager\"",
+      "fiscalYear": "Exercice fiscal {year} avec 12 périodes mensuelles"
+    },
     "placeholders": {
       "companyName": "p.ex. Exemple SA",
       "vatNumber": "CHE-123.456.789 TVA"
@@ -1392,7 +1429,7 @@
   "chat": {
     "title": "Assistant IA",
     "howCanIHelp": "Comment puis-je vous aider ?",
-    "askDescription": "Demandez-moi de créer des factures, vérifier des paiements, générer des rapports ou gérer votre entreprise.",
+    "askDescription": "Demandez-moi de créer des factures, vérifier des paiements, générer des rapports ou gérer vos opérations.",
     "askKivvi": "Demandez à Kivvi...",
     "sendMessage": "Envoyer le message",
     "thinking": "Réflexion...",
@@ -1421,14 +1458,14 @@
   "landing": {
     "signIn": "Se connecter",
     "getStarted": "Commencer",
-    "aiFirstErp": "ERP IA-First pour les entreprises suisses",
-    "heroTitle": "Business en",
+    "aiFirstErp": "ERP IA-First pour les organisations suisses",
+    "heroTitle": "Opérations en",
     "heroTitleHighlight": "pilote automatique",
     "heroDescription": "Kivvi gère vos factures, rapproche vos transactions bancaires et pilote vos opérations automatiquement. Vous vous concentrez sur l'essentiel.",
     "startFreeTrial": "Essai gratuit",
     "watchDemo": "Voir la démo",
     "featureAiTitle": "L'IA qui agit",
-    "featureAiDesc": "Pas un simple chatbot. Kivvi observe votre entreprise, prend des décisions et exécute des tâches de manière autonome.",
+    "featureAiDesc": "Pas un simple chatbot. Kivvi observe votre organisation, prend des décisions et exécute des tâches de manière autonome.",
     "featureSwissTitle": "Conforme suisse",
     "featureSwissDesc": "QR-factures, taux de TVA suisses et intégrations bancaires locales dès le premier jour.",
     "featureDataTitle": "Vos données, votre IA",
@@ -1438,10 +1475,10 @@
     "step1Desc": "Kivvi surveille les réunions, factures et paiements.",
     "step2Title": "L'IA apprend vos habitudes",
     "step2Desc": "À qui vous facturez, combien, quelles conditions. Votre flux de travail est repris.",
-    "step3Title": "Le business tourne tout seul",
+    "step3Title": "Ça tourne tout seul",
     "step3Desc": "Factures envoyées, paiements rapprochés, relances planifiées. Vous ne faites que vérifier.",
     "readyToAutomate": "Prêt à automatiser ?",
-    "joinSwissBusiness": "Rejoignez les entreprises suisses en pilote automatique.",
+    "joinSwissBusiness": "Rejoignez les organisations suisses en pilote automatique.",
     "getStartedFree": "Commencer gratuitement",
     "footer": "Développé par RevampIT. Open source sous licence MIT."
   },
@@ -1495,7 +1532,7 @@
     "aiAssistant": "Assistant IA",
     "aiAssistantDesc": "Demandez à Kivvi de créer des factures, rechercher des contacts, vérifier les paiements ou générer des rapports. Allez à l'assistant IA dans la barre latérale.",
     "gettingStarted": "Premiers pas",
-    "gettingStartedDesc": "Configurez votre entreprise dans les paramètres, ajoutez des contacts et des produits, puis créez votre première facture sous Ventes.",
+    "gettingStartedDesc": "Configurez votre organisation dans les paramètres, ajoutez des contacts et des produits, puis créez votre première facture sous Ventes.",
     "support": "Support",
     "supportDesc": "Besoin d'aide ? Contactez-nous à",
     "quickLinks": "Liens utiles",
@@ -1539,5 +1576,11 @@
     "goToLogin": "Aller à la connexion",
     "loginToAccept": "Se connecter pour accepter",
     "registerToAccept": "Créer un compte"
+  },
+  "errors": {
+    "unexpected": "Une erreur est survenue",
+    "unexpectedDescription": "Une erreur inattendue s'est produite. Veuillez réessayer ou contacter le support si le problème persiste.",
+    "errorId": "ID de l'erreur",
+    "retry": "Réessayer"
   }
 }

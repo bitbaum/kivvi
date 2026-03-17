@@ -1,28 +1,28 @@
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
-import { auth } from '@/lib/auth';
-import { db } from '@/lib/db';
-import { companies } from '@kivvi/database';
-import type { CompanySettings } from '@kivvi/database';
-import { eq } from 'drizzle-orm';
-import { getTranslations } from 'next-intl/server';
-import { DEFAULT_VAT_RATE } from '@/lib/config/vat-rates';
-import { CompanyForm } from './company-form';
+import { redirect } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { companies } from "@kivvi/database";
+import type { CompanySettings } from "@kivvi/database";
+import { eq } from "drizzle-orm";
+import { getTranslations } from "next-intl/server";
+import { DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
+import { CompanyForm } from "./company-form";
 
 export default async function CompanySettingsPage() {
   const session = await auth();
-  if (!session?.user?.companyId) redirect('/login');
+  if (!session?.user?.companyId) redirect("/login");
 
-  const t = await getTranslations('settings');
-  const tc = await getTranslations('common');
+  const t = await getTranslations("settings");
+  const tc = await getTranslations("common");
 
   const [company] = await db
     .select()
     .from(companies)
     .where(eq(companies.id, session.user.companyId));
 
-  if (!company) redirect('/settings');
+  if (!company) redirect("/settings");
 
   const settings = (company.settings as CompanySettings) ?? {};
 
@@ -34,32 +34,36 @@ export default async function CompanySettingsPage() {
         className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
-        {tc('back')}
+        {tc("back")}
       </Link>
 
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">{t('companySettings')}</h1>
-        <p className="text-muted-foreground">
-          {t('companySettingsDesc')}
-        </p>
+        <h1 className="text-3xl font-bold">{t("companySettings")}</h1>
+        <p className="text-muted-foreground">{t("companySettingsDesc")}</p>
       </div>
 
       <CompanyForm
         initialData={{
           name: company.name,
-          legalName: company.legalName || '',
-          vatNumber: company.vatNumber || '',
-          address: company.address || '',
-          city: company.city || '',
-          postalCode: company.postalCode || '',
-          country: company.country || 'CH',
-          currency: company.currency || 'CHF',
-          iban: settings.bankAccount?.iban || '',
-          bankName: settings.bankAccount?.bankName || '',
-          defaultVatRate: settings.defaultVatRate?.toString() || DEFAULT_VAT_RATE,
-          defaultPaymentTermsDays: settings.defaultPaymentTermsDays?.toString() || '30',
-          defaultDocumentFooter: settings.defaultDocumentFooter || '',
+          legalName: company.legalName || "",
+          vatNumber: company.vatNumber || "",
+          address: company.address || "",
+          city: company.city || "",
+          postalCode: company.postalCode || "",
+          country: company.country || "CH",
+          currency: company.currency || "CHF",
+          iban: settings.bankAccount?.iban || "",
+          bankName: settings.bankAccount?.bankName || "",
+          defaultVatRate:
+            settings.defaultVatRate?.toString() || DEFAULT_VAT_RATE,
+          defaultPaymentTermsDays:
+            settings.defaultPaymentTermsDays?.toString() || "30",
+          defaultDocumentFooter: settings.defaultDocumentFooter || "",
+          logoBase64: settings.logoBase64 || null,
+          aiProvider: settings.aiProvider || "",
+          aiModel: settings.aiModel || "",
+          aiApiKey: settings.aiApiKey ? "********" : "",
         }}
       />
     </div>

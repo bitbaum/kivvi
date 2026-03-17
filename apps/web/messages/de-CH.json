@@ -270,7 +270,7 @@
       "afternoon": "Guten Tag",
       "evening": "Guten Abend"
     },
-    "hereIsOverview": "Hier ist die Übersicht Ihres Unternehmens.",
+    "hereIsOverview": "Hier ist die Übersicht Ihrer Organisation.",
     "revenueThisMonth": "Umsatz diesen Monat",
     "openInvoices": "Offene Rechnungen",
     "overdueInvoices": "Überfällige Rechnungen",
@@ -347,14 +347,14 @@
     },
     "activity": {
       "title": "Letzte Aktivitäten",
-      "subtitle": "Neueste Änderungen in Ihrem Unternehmen",
+      "subtitle": "Neueste Änderungen in Ihrer Organisation",
       "justNow": "Gerade eben",
       "minutesAgo": "vor {count} Minuten",
       "hoursAgo": "vor {count} Stunden",
       "daysAgo": "vor {count} Tagen",
       "weeksAgo": "vor {count} Wochen",
       "noActivity": "Keine Aktivitäten",
-      "noActivityDesc": "Es gibt noch keine Aktivitäten in Ihrem Unternehmen.",
+      "noActivityDesc": "Es gibt noch keine Aktivitäten in Ihrer Organisation.",
       "loadError": "Letzte Aktivitäten konnten nicht geladen werden. Bitte aktualisieren Sie die Seite.",
       "quote": {
         "draft": "Angebot erstellt",
@@ -458,7 +458,7 @@
     },
     "healthMetrics": {
       "title": "Geschäftskennzahlen",
-      "subtitle": "Wichtige Leistungsindikatoren für Ihr Unternehmen",
+      "subtitle": "Wichtige Leistungsindikatoren auf einen Blick",
       "profitMargin": "Gewinnmarge",
       "conversionRate": "Conversion-Rate",
       "avgInvoice": "Durchschn. Rechnung",
@@ -471,7 +471,7 @@
     },
     "aiAssistant": {
       "title": "KI-Assistent",
-      "subtitle": "Fragen Sie Kivvi — Ihre KI analysiert Ihr Unternehmen",
+      "subtitle": "Fragen Sie Kivvi — Ihre KI analysiert Ihre Organisation",
       "overdueInvoices": "Überfällige Rechnungen anzeigen",
       "overdueInvoicesQuery": "Zeige mir alle überfälligen Rechnungen über CHF 1000",
       "revenueAnalysis": "Umsatzanalyse",
@@ -518,7 +518,7 @@
     "terms": "AGB",
     "imprint": "Impressum",
     "allRightsReserved": "Alle Rechte vorbehalten.",
-    "tagline": "KI-First ERP für Schweizer KMU"
+    "tagline": "KI-First ERP für Schweizer Organisationen"
   },
   "contacts": {
     "title": "Kontakte",
@@ -590,7 +590,14 @@
     "placeholders": {
       "companyName": "z.B. Müller AG",
       "vatNumber": "CHE-123.456.789 MWST"
-    }
+    },
+    "addAddress": "Adresse hinzufügen",
+    "noAddresses": "Keine weiteren Adressen.",
+    "addressLine": "Adresse",
+    "setAsDefault": "Als Standard setzen",
+    "addressType_billing": "Rechnung",
+    "addressType_shipping": "Lieferung",
+    "addressType_other": "Andere"
   },
   "products": {
     "title": "Produkte",
@@ -1010,7 +1017,7 @@
   },
   "settings": {
     "title": "Einstellungen",
-    "subtitle": "Verwalten Sie Ihr Unternehmen, Profil und Nummernkreise.",
+    "subtitle": "Verwalten Sie Ihre Organisation, Profil und Nummernkreise.",
     "companySettings": "Unternehmenseinstellungen",
     "companySettingsDesc": "Firmenname, Adresse und Geschäftskonfiguration.",
     "userProfile": "Benutzerprofil",
@@ -1041,10 +1048,20 @@
       "logoMaxSize": "Max. 500 KB",
       "logoFormats": "PNG, JPEG oder SVG",
       "savedSuccessfully": "Einstellungen gespeichert",
+      "aiConfig": "KI-Konfiguration",
+      "aiConfigHint": "Eigenen KI-Anbieter und API-Schlüssel für dieses Unternehmen konfigurieren. Überschreibt die System-Standardwerte.",
+      "aiProvider": "KI-Anbieter",
+      "aiProviderDefault": "System-Standard",
+      "aiProviderHint": "Wählen Sie einen KI-Anbieter oder verwenden Sie den System-Standard.",
+      "aiModel": "Modell",
+      "aiApiKey": "API-Schlüssel",
+      "aiApiKeyHint": "Ihr API-Schlüssel wird verschlüsselt gespeichert und nie im Klartext angezeigt.",
       "placeholders": {
         "bankName": "z.B. UBS, ZKB, PostFinance",
         "documentFooter": "z.B. Zahlbar innert 30 Tagen netto",
-        "vatNumber": "CHE-123.456.789 MWST"
+        "vatNumber": "CHE-123.456.789 MWST",
+        "aiModel": "z.B. claude-sonnet-4-20250514",
+        "aiApiKey": "sk-..."
       }
     },
     "profileSection": {
@@ -1297,7 +1314,7 @@
     "invalidResetTokenMessage": "Dieser Link zum Zurücksetzen des Passworts ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen an.",
     "passwordMismatch": "Passwörter stimmen nicht überein",
     "passwordTooShort": "Passwort muss mindestens 8 Zeichen lang sein",
-    "businessOnAutopilot": "Business auf Autopilot",
+    "businessOnAutopilot": "Abläufe auf Autopilot",
     "features": {
       "aiInvoices": "KI erstellt und versendet Rechnungen automatisch",
       "bankMatching": "Banktransaktionen automatisch abgeglichen",
@@ -1352,6 +1369,26 @@
     "dragAndDrop": "Drag & Drop oder klicken",
     "preview": "Vorschau ({rows} Zeilen gesamt)",
     "showingColumns": "Zeige {shown} von {total} Spalten",
+    "step2Description": "Konfigurieren Sie Ihre Standardeinstellungen. Dies richtet Ihren Kontenrahmen, Nummernkreise und Lager ein.",
+    "setupComplete": "Geschäftseinrichtung abgeschlossen",
+    "setupAccounts": "{count} Konten erstellt (Schweizer KMU Kontenrahmen)",
+    "setupSequences": "{count} Nummernkreise initialisiert",
+    "setupWarehouse": "Standardlager \"Hauptlager\" erstellt",
+    "setupFiscalYear": "Geschäftsjahr {year} mit 12 Perioden",
+    "paymentTermsHint": "Netto-Zahlung innerhalb dieser Anzahl Tage",
+    "bankNameLabel": "Bankname",
+    "vatRates": {
+      "standard": "Normalsatz",
+      "reduced": "Reduzierter Satz",
+      "exempt": "Befreit"
+    },
+    "willCreate": {
+      "title": "Folgendes wird automatisch erstellt:",
+      "accounts": "139 Schweizer KMU Kontenrahmen",
+      "sequences": "11 Nummernkreise (Rechnungen, Angebote, Aufträge usw.)",
+      "warehouse": "Standardlager \"Hauptlager\"",
+      "fiscalYear": "Geschäftsjahr {year} mit 12 Monatsperioden"
+    },
     "placeholders": {
       "companyName": "z.B. Muster GmbH",
       "vatNumber": "CHE-123.456.789 MWST"
@@ -1385,7 +1422,7 @@
   "chat": {
     "title": "KI-Assistent",
     "howCanIHelp": "Wie kann ich Ihnen helfen?",
-    "askDescription": "Fragen Sie mich, Rechnungen zu erstellen, Zahlungen zu prüfen, Berichte zu generieren oder Ihr Unternehmen zu verwalten.",
+    "askDescription": "Fragen Sie mich, Rechnungen zu erstellen, Zahlungen zu prüfen, Berichte zu generieren oder Ihre Abläufe zu verwalten.",
     "askKivvi": "Kivvi fragen...",
     "sendMessage": "Nachricht senden",
     "thinking": "Denke nach...",
@@ -1414,14 +1451,14 @@
   "landing": {
     "signIn": "Anmelden",
     "getStarted": "Jetzt starten",
-    "aiFirstErp": "KI-First ERP für Schweizer Unternehmen",
-    "heroTitle": "Business auf",
+    "aiFirstErp": "KI-First ERP für Schweizer Organisationen",
+    "heroTitle": "Abläufe auf",
     "heroTitleHighlight": "Autopilot",
-    "heroDescription": "Kivvi erstellt Ihre Rechnungen, gleicht Banktransaktionen ab und steuert Ihre Geschäftsprozesse automatisch. Sie konzentrieren sich auf das Wesentliche.",
+    "heroDescription": "Kivvi erstellt Ihre Rechnungen, gleicht Banktransaktionen ab und steuert Ihre Prozesse automatisch. Sie konzentrieren sich auf das Wesentliche.",
     "startFreeTrial": "Kostenlos testen",
     "watchDemo": "Demo ansehen",
     "featureAiTitle": "KI die handelt",
-    "featureAiDesc": "Kein Chatbot. Kivvi beobachtet Ihr Unternehmen, trifft Entscheidungen und führt Aufgaben autonom aus.",
+    "featureAiDesc": "Kein Chatbot. Kivvi beobachtet Ihre Organisation, trifft Entscheidungen und führt Aufgaben autonom aus.",
     "featureSwissTitle": "Swiss Compliant",
     "featureSwissDesc": "QR-Rechnungen, Schweizer MWST-Sätze und lokale Banking-Integrationen von Anfang an.",
     "featureDataTitle": "Ihre Daten, Ihre KI",
@@ -1431,10 +1468,10 @@
     "step1Desc": "Kivvi überwacht Meetings, Rechnungen und Zahlungen.",
     "step2Title": "KI lernt Ihre Muster",
     "step2Desc": "Wem Sie Rechnungen stellen, wie viel, welche Konditionen. Ihr Workflow wird übernommen.",
-    "step3Title": "Business läuft von selbst",
+    "step3Title": "Läuft von selbst",
     "step3Desc": "Rechnungen versendet, Zahlungen abgeglichen, Follow-ups geplant. Sie prüfen nur noch.",
     "readyToAutomate": "Bereit für Automatisierung?",
-    "joinSwissBusiness": "Schliessen Sie sich Schweizer Unternehmen an, die auf Autopilot laufen.",
+    "joinSwissBusiness": "Schliessen Sie sich Schweizer Organisationen an, die auf Autopilot laufen.",
     "getStartedFree": "Kostenlos starten",
     "footer": "Entwickelt von RevampIT. Open Source unter MIT-Lizenz."
   },
@@ -1488,7 +1525,7 @@
     "aiAssistant": "KI-Assistent",
     "aiAssistantDesc": "Bitten Sie Kivvi, Rechnungen zu erstellen, Kontakte zu suchen, Zahlungen zu prüfen oder Berichte zu generieren. Gehen Sie zum KI-Assistenten in der Seitenleiste.",
     "gettingStarted": "Erste Schritte",
-    "gettingStartedDesc": "Richten Sie Ihr Unternehmen in den Einstellungen ein, fügen Sie Kontakte und Produkte hinzu und erstellen Sie dann Ihre erste Rechnung unter Verkauf.",
+    "gettingStartedDesc": "Richten Sie Ihre Organisation in den Einstellungen ein, fügen Sie Kontakte und Produkte hinzu und erstellen Sie dann Ihre erste Rechnung unter Verkauf.",
     "support": "Support",
     "supportDesc": "Brauchen Sie Hilfe? Kontaktieren Sie uns unter",
     "quickLinks": "Nützliche Links",
@@ -1532,5 +1569,11 @@
     "goToLogin": "Zum Login",
     "loginToAccept": "Einloggen um anzunehmen",
     "registerToAccept": "Konto erstellen"
+  },
+  "errors": {
+    "unexpected": "Etwas ist schiefgelaufen",
+    "unexpectedDescription": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut oder kontaktieren Sie den Support, wenn das Problem weiterhin besteht.",
+    "errorId": "Fehler-ID",
+    "retry": "Erneut versuchen"
   }
 }

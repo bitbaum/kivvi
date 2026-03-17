@@ -270,7 +270,7 @@
       "afternoon": "Good afternoon",
       "evening": "Good evening"
     },
-    "hereIsOverview": "Here's an overview of your business.",
+    "hereIsOverview": "Here's an overview of your organization.",
     "revenueThisMonth": "Revenue this month",
     "openInvoices": "Open Invoices",
     "overdueInvoices": "Overdue Invoices",
@@ -347,14 +347,14 @@
     },
     "activity": {
       "title": "Recent Activity",
-      "subtitle": "Latest changes in your business",
+      "subtitle": "Latest changes in your organization",
       "justNow": "Just now",
       "minutesAgo": "{count} minutes ago",
       "hoursAgo": "{count} hours ago",
       "daysAgo": "{count} days ago",
       "weeksAgo": "{count} weeks ago",
       "noActivity": "No activity",
-      "noActivityDesc": "There's no activity in your business yet.",
+      "noActivityDesc": "There's no activity in your organization yet.",
       "loadError": "Unable to load recent activity. Please refresh the page.",
       "quote": {
         "draft": "Quote created",
@@ -442,7 +442,7 @@
     },
     "stats": {
       "title": "Key Metrics",
-      "subtitle": "Important business metrics at a glance",
+      "subtitle": "Important key metrics at a glance",
       "document": "Document",
       "documents": "Documents",
       "revenueThisMonth": "Revenue This Month",
@@ -457,8 +457,8 @@
       "loadError": "Unable to load metrics. Please refresh the page."
     },
     "healthMetrics": {
-      "title": "Business Health",
-      "subtitle": "Key performance indicators for your business",
+      "title": "Financial Health",
+      "subtitle": "Key performance indicators at a glance",
       "profitMargin": "Profit Margin",
       "conversionRate": "Conversion Rate",
       "avgInvoice": "Avg Invoice",
@@ -471,7 +471,7 @@
     },
     "aiAssistant": {
       "title": "AI Assistant",
-      "subtitle": "Ask Kivvi — your AI analyzes your business",
+      "subtitle": "Ask Kivvi — your AI analyzes your organization",
       "overdueInvoices": "Show overdue invoices",
       "overdueInvoicesQuery": "Show me all overdue invoices over CHF 1000",
       "revenueAnalysis": "Revenue analysis",
@@ -518,7 +518,7 @@
     "terms": "Terms",
     "imprint": "Imprint",
     "allRightsReserved": "All rights reserved.",
-    "tagline": "AI-First ERP for Swiss SMEs"
+    "tagline": "AI-First ERP for Swiss Organizations"
   },
   "contacts": {
     "title": "Contacts",
@@ -594,7 +594,14 @@
     "internalNotes": "Internal notes",
     "created": "Contact created",
     "updated": "Contact updated",
-    "deleted": "Contact deleted"
+    "deleted": "Contact deleted",
+    "addAddress": "Add Address",
+    "noAddresses": "No additional addresses.",
+    "addressLine": "Address",
+    "setAsDefault": "Set as default",
+    "addressType_billing": "Billing",
+    "addressType_shipping": "Shipping",
+    "addressType_other": "Other"
   },
   "products": {
     "title": "Products",
@@ -901,7 +908,7 @@
     "agingReportDesc": "Outstanding receivables by age.",
     "salesReport": "Sales Report",
     "salesReportDesc": "Monthly revenue overview.",
-    "healthMetrics": "Business Health",
+    "healthMetrics": "Financial Health",
     "healthMetricsDesc": "Profit margin, conversion rate, payment duration, and more.",
     "asOfDate": "As of Date",
     "fromDate": "From",
@@ -1014,7 +1021,7 @@
   },
   "settings": {
     "title": "Settings",
-    "subtitle": "Manage your company, profile, and number sequences.",
+    "subtitle": "Manage your organization, profile, and number sequences.",
     "companySettings": "Company Settings",
     "companySettingsDesc": "Company name, address, and business configuration.",
     "userProfile": "User Profile",
@@ -1045,10 +1052,20 @@
       "logoMaxSize": "Max 500 KB",
       "logoFormats": "PNG, JPEG, or SVG",
       "savedSuccessfully": "Settings saved",
+      "aiConfig": "AI Configuration",
+      "aiConfigHint": "Configure your own AI provider and API key for this company. Overrides system defaults.",
+      "aiProvider": "AI Provider",
+      "aiProviderDefault": "System Default",
+      "aiProviderHint": "Choose an AI provider or use the system default.",
+      "aiModel": "Model",
+      "aiApiKey": "API Key",
+      "aiApiKeyHint": "Your API key is stored encrypted and never shown in plain text.",
       "placeholders": {
         "bankName": "e.g. UBS, ZKB, PostFinance",
         "documentFooter": "e.g. Payable within 30 days net",
-        "vatNumber": "CHE-123.456.789 MWST"
+        "vatNumber": "CHE-123.456.789 MWST",
+        "aiModel": "e.g. claude-sonnet-4-20250514",
+        "aiApiKey": "sk-..."
       }
     },
     "profileSection": {
@@ -1302,7 +1319,7 @@
     "invalidResetTokenMessage": "This password reset link is invalid or has expired. Please request a new one.",
     "passwordMismatch": "Passwords do not match",
     "passwordTooShort": "Password must be at least 8 characters long",
-    "businessOnAutopilot": "Business on Autopilot",
+    "businessOnAutopilot": "Operations on Autopilot",
     "features": {
       "aiInvoices": "AI creates and sends invoices automatically",
       "bankMatching": "Bank transactions matched and reconciled",
@@ -1357,6 +1374,26 @@
     "dragAndDrop": "Drag & drop or click",
     "preview": "Preview ({rows} rows total)",
     "showingColumns": "Showing {shown} of {total} columns",
+    "step2Description": "Configure your defaults. This will set up your chart of accounts, number sequences, and warehouse.",
+    "setupComplete": "Business setup complete",
+    "setupAccounts": "{count} accounts created (Swiss KMU Kontenrahmen)",
+    "setupSequences": "{count} number sequences initialized",
+    "setupWarehouse": "Default warehouse \"Hauptlager\" created",
+    "setupFiscalYear": "Fiscal year {year} with 12 periods",
+    "paymentTermsHint": "Net payment within this many days",
+    "bankNameLabel": "Bank name",
+    "vatRates": {
+      "standard": "Standard rate",
+      "reduced": "Reduced rate",
+      "exempt": "Exempt"
+    },
+    "willCreate": {
+      "title": "This will automatically create:",
+      "accounts": "139 Swiss KMU chart of accounts",
+      "sequences": "11 number sequences (invoices, quotes, orders, etc.)",
+      "warehouse": "Default warehouse \"Hauptlager\"",
+      "fiscalYear": "Fiscal year {year} with 12 monthly periods"
+    },
     "placeholders": {
       "companyName": "e.g. Muster GmbH",
       "vatNumber": "CHE-123.456.789 MWST"
@@ -1390,7 +1427,7 @@
   "chat": {
     "title": "AI Assistant",
     "howCanIHelp": "How can I help you?",
-    "askDescription": "Ask me to create invoices, check payments, generate reports, or manage your business.",
+    "askDescription": "Ask me to create invoices, check payments, generate reports, or manage your operations.",
     "askKivvi": "Ask Kivvi anything...",
     "sendMessage": "Send message",
     "thinking": "Thinking...",
@@ -1419,14 +1456,14 @@
   "landing": {
     "signIn": "Sign in",
     "getStarted": "Get Started",
-    "aiFirstErp": "AI-First ERP for Swiss Businesses",
-    "heroTitle": "Business on",
+    "aiFirstErp": "AI-First ERP for Swiss Organizations",
+    "heroTitle": "Operations on",
     "heroTitleHighlight": "Autopilot",
-    "heroDescription": "Kivvi handles your invoices, reconciles your bank transactions, and runs your business operations automatically. You focus on what matters.",
+    "heroDescription": "Kivvi handles your invoices, reconciles your bank transactions, and automates your operations. You focus on what matters.",
     "startFreeTrial": "Start Free Trial",
     "watchDemo": "Watch Demo",
     "featureAiTitle": "AI That Acts",
-    "featureAiDesc": "Not just a chatbot. Kivvi observes your business, makes decisions, and executes tasks autonomously.",
+    "featureAiDesc": "Not just a chatbot. Kivvi observes your organization, makes decisions, and executes tasks autonomously.",
     "featureSwissTitle": "Swiss Compliant",
     "featureSwissDesc": "QR-bills, Swiss VAT rates, and local banking integrations built-in from day one.",
     "featureDataTitle": "Your Data, Your AI",
@@ -1436,10 +1473,10 @@
     "step1Desc": "Kivvi watches for meetings, invoices, and payments.",
     "step2Title": "AI learns your patterns",
     "step2Desc": "Who you bill, how much, what terms. It picks up your workflow.",
-    "step3Title": "Business runs itself",
+    "step3Title": "It runs itself",
     "step3Desc": "Invoices sent, payments matched, follow-ups scheduled. You just review.",
     "readyToAutomate": "Ready to automate?",
-    "joinSwissBusiness": "Join Swiss businesses running on autopilot.",
+    "joinSwissBusiness": "Join Swiss organizations running on autopilot.",
     "getStartedFree": "Get Started Free",
     "footer": "Built by RevampIT. Open source under MIT license."
   },
@@ -1493,7 +1530,7 @@
     "aiAssistant": "AI Assistant",
     "aiAssistantDesc": "Ask Kivvi to create invoices, search contacts, check payments, or generate reports. Go to AI Assistant in the sidebar.",
     "gettingStarted": "Getting Started",
-    "gettingStartedDesc": "Set up your company in Settings, add contacts and products, then create your first invoice under Sales.",
+    "gettingStartedDesc": "Set up your organization in Settings, add contacts and products, then create your first invoice under Sales.",
     "support": "Support",
     "supportDesc": "Need help? Contact us at",
     "quickLinks": "Quick Links",
@@ -1537,5 +1574,11 @@
     "goToLogin": "Go to Login",
     "loginToAccept": "Log in to accept",
     "registerToAccept": "Create an account"
+  },
+  "errors": {
+    "unexpected": "Something went wrong",
+    "unexpectedDescription": "An unexpected error occurred. Please try again or contact support if the problem persists.",
+    "errorId": "Error ID",
+    "retry": "Try again"
   }
 }
