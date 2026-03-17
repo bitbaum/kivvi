@@ -1,23 +1,31 @@
-import { z } from 'zod';
-import Decimal from 'decimal.js';
-import { eq, and, asc, desc, sql, ilike, between } from 'drizzle-orm';
+import { z } from "zod";
+import Decimal from "decimal.js";
+import { eq, and, asc, desc, sql, ilike, between } from "drizzle-orm";
 import {
   accounts,
   journalEntries,
   journalLines,
   fiscalYears,
   fiscalPeriods,
-} from '@kivvi/database';
-import type { Database, Account, AccountType, JournalEntry, JournalLine, FiscalYear, FiscalPeriod } from '@kivvi/database';
+} from "@kivvi/database";
+import type {
+  Database,
+  Account,
+  AccountType,
+  JournalEntry,
+  JournalLine,
+  FiscalYear,
+  FiscalPeriod,
+} from "@kivvi/database";
 
 // ============================================================================
 // VALIDATION SCHEMAS
 // ============================================================================
 
 export const createAccountSchema = z.object({
-  code: z.string().min(1, 'Code is required').max(10),
-  name: z.string().min(1, 'Name is required').max(200),
-  type: z.enum(['asset', 'liability', 'equity', 'revenue', 'expense']),
+  code: z.string().min(1, "Code is required").max(10),
+  name: z.string().min(1, "Name is required").max(200),
+  type: z.enum(["asset", "liability", "equity", "revenue", "expense"]),
   parentId: z.string().uuid().optional().nullable(),
 });
 
@@ -31,16 +39,16 @@ export const journalLineSchema = z.object({
 });
 
 export const createJournalEntrySchema = z.object({
-  date: z.string().min(1, 'Date is required'),
+  date: z.string().min(1, "Date is required"),
   reference: z.string().optional().nullable(),
-  description: z.string().min(1, 'Description is required'),
-  lines: z.array(journalLineSchema).min(2, 'At least 2 lines required'),
+  description: z.string().min(1, "Description is required"),
+  lines: z.array(journalLineSchema).min(2, "At least 2 lines required"),
 });
 
 export const createFiscalYearSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  startDate: z.string().min(1, 'Start date is required'),
-  endDate: z.string().min(1, 'End date is required'),
+  name: z.string().min(1, "Name is required"),
+  startDate: z.string().min(1, "Start date is required"),
+  endDate: z.string().min(1, "End date is required"),
 });
 
 // ============================================================================
@@ -50,7 +58,7 @@ export const createFiscalYearSchema = z.object({
 export async function listAccounts(
   db: Database,
   companyId: string,
-  filters?: { type?: AccountType; search?: string; isActive?: boolean }
+  filters?: { type?: AccountType; search?: string; isActive?: boolean },
 ): Promise<Account[]> {
   const conditions = [eq(accounts.companyId, companyId)];
 
@@ -59,7 +67,7 @@ export async function listAccounts(
   }
   if (filters?.search) {
     conditions.push(
-      sql`(${accounts.code} ILIKE ${`%${filters.search}%`} OR ${accounts.name} ILIKE ${`%${filters.search}%`})`
+      sql`(${accounts.code} ILIKE ${`%${filters.search}%`} OR ${accounts.name} ILIKE ${`%${filters.search}%`})`,
     );
   }
   if (filters?.isActive !== undefined) {
@@ -76,7 +84,7 @@ export async function listAccounts(
 export async function getAccount(
   db: Database,
   companyId: string,
-  accountId: string
+  accountId: string,
 ): Promise<Account | null> {
   const [account] = await db
     .select()
@@ -88,7 +96,7 @@ export async function getAccount(
 export async function createAccount(
   db: Database,
   companyId: string,
-  input: z.infer<typeof createAccountSchema>
+  input: z.infer<typeof createAccountSchema>,
 ): Promise<Account> {
   const validated = createAccountSchema.parse(input);
 
@@ -96,7 +104,9 @@ export async function createAccount(
   const [existing] = await db
     .select()
     .from(accounts)
-    .where(and(eq(accounts.companyId, companyId), eq(accounts.code, validated.code)));
+    .where(
+      and(eq(accounts.companyId, companyId), eq(accounts.code, validated.code)),
+    );
   if (existing) {
     throw new Error(`Account with code ${validated.code} already exists`);
   }
@@ -119,7 +129,7 @@ export async function updateAccount(
   db: Database,
   companyId: string,
   accountId: string,
-  input: z.infer<typeof updateAccountSchema>
+  input: z.infer<typeof updateAccountSchema>,
 ): Promise<Account> {
   const validated = updateAccountSchema.parse(input);
 
@@ -132,8 +142,8 @@ export async function updateAccount(
         and(
           eq(accounts.companyId, companyId),
           eq(accounts.code, validated.code),
-          sql`${accounts.id} != ${accountId}`
-        )
+          sql`${accounts.id} != ${accountId}`,
+        ),
       );
     if (existing) {
       throw new Error(`Account with code ${validated.code} already exists`);
@@ -146,17 +156,17 @@ export async function updateAccount(
     .where(and(eq(accounts.id, accountId), eq(accounts.companyId, companyId)))
     .returning();
 
-  if (!account) throw new Error('Account not found');
+  if (!account) throw new Error("Account not found");
   return account;
 }
 
 export async function toggleAccount(
   db: Database,
   companyId: string,
-  accountId: string
+  accountId: string,
 ): Promise<Account> {
   const account = await getAccount(db, companyId, accountId);
-  if (!account) throw new Error('Account not found');
+  if (!account) throw new Error("Account not found");
 
   const [updated] = await db
     .update(accounts)
@@ -172,10 +182,11 @@ export async function toggleAccount(
  */
 export async function seedChartOfAccounts(
   db: Database,
-  companyId: string
+  companyId: string,
 ): Promise<number> {
   // Dynamic import to avoid bundling seed data unless needed
-  const { SWISS_KMU_ACCOUNTS } = await import('@kivvi/database/src/seeds/swiss-kmu-kontenrahmen');
+  const { SWISS_KMU_ACCOUNTS } =
+    await import("@kivvi/database/src/seeds/swiss-kmu-kontenrahmen");
 
   const values = SWISS_KMU_ACCOUNTS.map((a) => ({
     companyId,
@@ -197,19 +208,19 @@ export async function seedChartOfAccounts(
  * Returns { valid, totalDebits, totalCredits } without touching the database.
  */
 export function validateJournalBalance(
-  lines: Array<{ debit?: string | null; credit?: string | null }>
+  lines: Array<{ debit?: string | null; credit?: string | null }>,
 ): { valid: boolean; totalDebits: string; totalCredits: string } {
   const totalDebits = lines.reduce(
-    (sum, l) => sum.plus(new Decimal(l.debit || '0')),
-    new Decimal(0)
+    (sum, l) => sum.plus(new Decimal(l.debit || "0")),
+    new Decimal(0),
   );
   const totalCredits = lines.reduce(
-    (sum, l) => sum.plus(new Decimal(l.credit || '0')),
-    new Decimal(0)
+    (sum, l) => sum.plus(new Decimal(l.credit || "0")),
+    new Decimal(0),
   );
 
   return {
-    valid: totalDebits.minus(totalCredits).abs().lte('0.005'),
+    valid: totalDebits.minus(totalCredits).abs().lte("0.005"),
     totalDebits: totalDebits.toFixed(2),
     totalCredits: totalCredits.toFixed(2),
   };
@@ -221,27 +232,42 @@ export function validateJournalBalance(
  * Pure date math — no DB access.
  */
 export function generateFiscalPeriods(
-  startDateStr: string
+  startDateStr: string,
 ): Array<{ name: string; startDate: string; endDate: string }> {
   const start = new Date(startDateStr);
   const monthNames = [
-    'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
-    'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember',
+    "Januar",
+    "Februar",
+    "März",
+    "April",
+    "Mai",
+    "Juni",
+    "Juli",
+    "August",
+    "September",
+    "Oktober",
+    "November",
+    "Dezember",
   ];
 
-  const periods: Array<{ name: string; startDate: string; endDate: string }> = [];
+  const periods: Array<{ name: string; startDate: string; endDate: string }> =
+    [];
 
   // Format as YYYY-MM-DD using local date parts (not UTC — toISOString shifts dates in CET)
   const fmtDate = (d: Date) => {
     const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
     return `${y}-${m}-${day}`;
   };
 
   for (let i = 0; i < 12; i++) {
     const periodStart = new Date(start.getFullYear(), start.getMonth() + i, 1);
-    const periodEnd = new Date(start.getFullYear(), start.getMonth() + i + 1, 0);
+    const periodEnd = new Date(
+      start.getFullYear(),
+      start.getMonth() + i + 1,
+      0,
+    );
 
     periods.push({
       name: `${monthNames[periodStart.getMonth()]} ${periodStart.getFullYear()}`,
@@ -273,8 +299,14 @@ export interface JournalEntryFilters {
 export async function listJournalEntries(
   db: Database,
   companyId: string,
-  filters?: JournalEntryFilters
-): Promise<{ data: JournalEntry[]; total: number; page: number; pageSize: number; totalPages: number }> {
+  filters?: JournalEntryFilters,
+): Promise<{
+  data: JournalEntry[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}> {
   const page = filters?.page || 1;
   const pageSize = filters?.pageSize || 25;
 
@@ -282,10 +314,16 @@ export async function listJournalEntries(
 
   if (filters?.dateFrom && filters?.dateTo) {
     conditions.push(
-      between(journalEntries.date, new Date(filters.dateFrom), new Date(filters.dateTo))
+      between(
+        journalEntries.date,
+        new Date(filters.dateFrom),
+        new Date(filters.dateTo),
+      ),
     );
   } else if (filters?.dateFrom) {
-    conditions.push(sql`${journalEntries.date} >= ${new Date(filters.dateFrom)}`);
+    conditions.push(
+      sql`${journalEntries.date} >= ${new Date(filters.dateFrom)}`,
+    );
   } else if (filters?.dateTo) {
     conditions.push(sql`${journalEntries.date} <= ${new Date(filters.dateTo)}`);
   }
@@ -296,7 +334,7 @@ export async function listJournalEntries(
 
   if (filters?.search) {
     conditions.push(
-      sql`(${journalEntries.reference} ILIKE ${`%${filters.search}%`} OR ${journalEntries.description} ILIKE ${`%${filters.search}%`})`
+      sql`(${journalEntries.reference} ILIKE ${`%${filters.search}%`} OR ${journalEntries.description} ILIKE ${`%${filters.search}%`})`,
     );
   }
 
@@ -327,12 +365,17 @@ export async function listJournalEntries(
 export async function getJournalEntry(
   db: Database,
   companyId: string,
-  entryId: string
+  entryId: string,
 ): Promise<JournalEntryWithLines | null> {
   const [entry] = await db
     .select()
     .from(journalEntries)
-    .where(and(eq(journalEntries.id, entryId), eq(journalEntries.companyId, companyId)));
+    .where(
+      and(
+        eq(journalEntries.id, entryId),
+        eq(journalEntries.companyId, companyId),
+      ),
+    );
 
   if (!entry) return null;
 
@@ -369,7 +412,7 @@ export async function createJournalEntry(
   db: Database,
   companyId: string,
   userId: string,
-  input: z.infer<typeof createJournalEntrySchema>
+  input: z.infer<typeof createJournalEntrySchema>,
 ): Promise<JournalEntry> {
   const validated = createJournalEntrySchema.parse(input);
 
@@ -377,7 +420,7 @@ export async function createJournalEntry(
   const balance = validateJournalBalance(validated.lines);
   if (!balance.valid) {
     throw new Error(
-      `Journal entry must balance. Debits: ${balance.totalDebits}, Credits: ${balance.totalCredits}`
+      `Journal entry must balance. Debits: ${balance.totalDebits}, Credits: ${balance.totalCredits}`,
     );
   }
 
@@ -390,7 +433,7 @@ export async function createJournalEntry(
         date: new Date(validated.date),
         reference: validated.reference || null,
         description: validated.description,
-        sourceType: 'manual',
+        sourceType: "manual",
         createdBy: userId,
       })
       .returning();
@@ -403,7 +446,7 @@ export async function createJournalEntry(
         debit: line.debit || null,
         credit: line.credit || null,
         description: line.description || null,
-      }))
+      })),
     );
 
     return entry;
@@ -422,15 +465,25 @@ export async function createAutoJournalEntry(
     description: string;
     sourceType: string;
     sourceId: string;
-    lines: Array<{ accountCode: string; debit?: string; credit?: string; description?: string }>;
-  }
+    lines: Array<{
+      accountCode: string;
+      debit?: string;
+      credit?: string;
+      description?: string;
+    }>;
+  },
 ): Promise<JournalEntry> {
   // Resolve account codes to IDs
   const accountCodes = input.lines.map((l) => l.accountCode);
   const accountRows = await db
     .select({ id: accounts.id, code: accounts.code })
     .from(accounts)
-    .where(and(eq(accounts.companyId, companyId), sql`${accounts.code} = ANY(${accountCodes})`));
+    .where(
+      and(
+        eq(accounts.companyId, companyId),
+        sql`${accounts.code} = ANY(${accountCodes})`,
+      ),
+    );
 
   const codeToId = new Map(accountRows.map((a) => [a.code, a.id]));
 
@@ -462,7 +515,7 @@ export async function createAutoJournalEntry(
         debit: line.debit || null,
         credit: line.credit || null,
         description: line.description || null,
-      }))
+      })),
     );
 
     return entry;
@@ -472,22 +525,32 @@ export async function createAutoJournalEntry(
 export async function deleteJournalEntry(
   db: Database,
   companyId: string,
-  entryId: string
+  entryId: string,
 ): Promise<void> {
   const [entry] = await db
     .select()
     .from(journalEntries)
-    .where(and(eq(journalEntries.id, entryId), eq(journalEntries.companyId, companyId)));
+    .where(
+      and(
+        eq(journalEntries.id, entryId),
+        eq(journalEntries.companyId, companyId),
+      ),
+    );
 
-  if (!entry) throw new Error('Journal entry not found');
-  if (entry.sourceType !== 'manual') {
-    throw new Error('Only manual journal entries can be deleted');
+  if (!entry) throw new Error("Journal entry not found");
+  if (entry.sourceType !== "manual") {
+    throw new Error("Only manual journal entries can be deleted");
   }
 
   // Lines cascade via FK
   await db
     .delete(journalEntries)
-    .where(and(eq(journalEntries.id, entryId), eq(journalEntries.companyId, companyId)));
+    .where(
+      and(
+        eq(journalEntries.id, entryId),
+        eq(journalEntries.companyId, companyId),
+      ),
+    );
 }
 
 // ============================================================================
@@ -508,7 +571,7 @@ export async function getTrialBalance(
   db: Database,
   companyId: string,
   dateFrom?: string,
-  dateTo?: string
+  dateTo?: string,
 ): Promise<AccountBalance[]> {
   const dateConditions: ReturnType<typeof sql>[] = [];
   if (dateFrom) {
@@ -518,7 +581,8 @@ export async function getTrialBalance(
     dateConditions.push(sql`${journalEntries.date} <= ${new Date(dateTo)}`);
   }
 
-  const dateFilter = dateConditions.length > 0 ? and(...dateConditions) : undefined;
+  const dateFilter =
+    dateConditions.length > 0 ? and(...dateConditions) : undefined;
 
   const result = await db
     .select({
@@ -536,8 +600,8 @@ export async function getTrialBalance(
       and(
         eq(journalLines.journalEntryId, journalEntries.id),
         eq(journalEntries.companyId, companyId),
-        ...(dateFilter ? [dateFilter] : [])
-      )
+        ...(dateFilter ? [dateFilter] : []),
+      ),
     )
     .where(and(eq(accounts.companyId, companyId), eq(accounts.isActive, true)))
     .groupBy(accounts.id, accounts.code, accounts.name, accounts.type)
@@ -559,7 +623,7 @@ export async function getTrialBalance(
 
 export async function listFiscalYears(
   db: Database,
-  companyId: string
+  companyId: string,
 ): Promise<FiscalYear[]> {
   return db
     .select()
@@ -571,12 +635,14 @@ export async function listFiscalYears(
 export async function getFiscalYear(
   db: Database,
   companyId: string,
-  yearId: string
+  yearId: string,
 ): Promise<(FiscalYear & { periods: FiscalPeriod[] }) | null> {
   const [year] = await db
     .select()
     .from(fiscalYears)
-    .where(and(eq(fiscalYears.id, yearId), eq(fiscalYears.companyId, companyId)));
+    .where(
+      and(eq(fiscalYears.id, yearId), eq(fiscalYears.companyId, companyId)),
+    );
 
   if (!year) return null;
 
@@ -592,7 +658,7 @@ export async function getFiscalYear(
 export async function createFiscalYear(
   db: Database,
   companyId: string,
-  input: z.infer<typeof createFiscalYearSchema>
+  input: z.infer<typeof createFiscalYearSchema>,
 ): Promise<FiscalYear> {
   const validated = createFiscalYearSchema.parse(input);
 
@@ -624,7 +690,7 @@ export async function createFiscalYear(
 export async function closeFiscalPeriod(
   db: Database,
   companyId: string,
-  periodId: string
+  periodId: string,
 ): Promise<FiscalPeriod> {
   // Verify period belongs to company's fiscal year
   const [period] = await db
@@ -634,10 +700,12 @@ export async function closeFiscalPeriod(
     })
     .from(fiscalPeriods)
     .innerJoin(fiscalYears, eq(fiscalPeriods.fiscalYearId, fiscalYears.id))
-    .where(and(eq(fiscalPeriods.id, periodId), eq(fiscalYears.companyId, companyId)));
+    .where(
+      and(eq(fiscalPeriods.id, periodId), eq(fiscalYears.companyId, companyId)),
+    );
 
-  if (!period) throw new Error('Period not found');
-  if (period.period.isClosed) throw new Error('Period is already closed');
+  if (!period) throw new Error("Period not found");
+  if (period.period.isClosed) throw new Error("Period is already closed");
 
   const [updated] = await db
     .update(fiscalPeriods)
@@ -648,27 +716,176 @@ export async function closeFiscalPeriod(
   return updated;
 }
 
+/** Swiss KMU account code for annual profit/loss (Jahresgewinn/Jahresverlust) */
+const ANNUAL_PROFIT_LOSS_ACCOUNT = "2950";
+
 export async function closeFiscalYear(
   db: Database,
   companyId: string,
-  yearId: string
+  yearId: string,
+  userId: string,
 ): Promise<FiscalYear> {
   const year = await getFiscalYear(db, companyId, yearId);
-  if (!year) throw new Error('Fiscal year not found');
-  if (year.isClosed) throw new Error('Fiscal year is already closed');
+  if (!year) throw new Error("Fiscal year not found");
+  if (year.isClosed) throw new Error("Fiscal year is already closed");
 
-  // Wrap period updates + year update in transaction
   return db.transaction(async (tx) => {
-    // Close all open periods
+    // 1. Get all revenue & expense account balances for this fiscal year
+    const plBalances = await tx
+      .select({
+        accountId: accounts.id,
+        code: accounts.code,
+        type: accounts.type,
+        totalDebit: sql<string>`COALESCE(SUM(CAST(${journalLines.debit} AS DECIMAL)), 0)`,
+        totalCredit: sql<string>`COALESCE(SUM(CAST(${journalLines.credit} AS DECIMAL)), 0)`,
+      })
+      .from(accounts)
+      .innerJoin(journalLines, eq(journalLines.accountId, accounts.id))
+      .innerJoin(
+        journalEntries,
+        and(
+          eq(journalLines.journalEntryId, journalEntries.id),
+          eq(journalEntries.companyId, companyId),
+          sql`${journalEntries.date} >= ${year.startDate}`,
+          sql`${journalEntries.date} <= ${year.endDate}`,
+        ),
+      )
+      .where(
+        and(
+          eq(accounts.companyId, companyId),
+          sql`${accounts.type} IN ('revenue', 'expense')`,
+        ),
+      )
+      .groupBy(accounts.id, accounts.code, accounts.type);
+
+    // 2. Build closing journal lines — zero out each P&L account
+    const closingLines: Array<{
+      journalEntryId: string;
+      accountId: string;
+      debit: string | null;
+      credit: string | null;
+      description: string | null;
+    }> = [];
+
+    let totalProfitLoss = new Decimal(0);
+
+    for (const acct of plBalances) {
+      const balance = new Decimal(acct.totalDebit).minus(acct.totalCredit);
+      if (balance.isZero()) continue;
+
+      // Revenue accounts have credit balance (credit > debit), so balance is negative
+      // To close: debit the revenue account (reduce it to zero)
+      // Expense accounts have debit balance (debit > credit), so balance is positive
+      // To close: credit the expense account (reduce it to zero)
+      if (balance.greaterThan(0)) {
+        // Debit balance (expense) → credit to close
+        closingLines.push({
+          journalEntryId: "", // placeholder, set after entry creation
+          accountId: acct.accountId,
+          debit: null,
+          credit: balance.toFixed(2),
+          description: null,
+        });
+      } else {
+        // Credit balance (revenue) → debit to close
+        closingLines.push({
+          journalEntryId: "", // placeholder
+          accountId: acct.accountId,
+          debit: balance.abs().toFixed(2),
+          credit: null,
+          description: null,
+        });
+      }
+
+      // Net profit/loss: revenue (negative balance) becomes positive profit
+      // totalProfitLoss accumulates: negative = profit, positive = loss
+      totalProfitLoss = totalProfitLoss.plus(balance);
+    }
+
+    // 3. Create closing journal entry if there are P&L balances to close
+    if (closingLines.length > 0) {
+      // Find the 2950 account (Jahresgewinn/Jahresverlust)
+      const [profitLossAccount] = await tx
+        .select({ id: accounts.id })
+        .from(accounts)
+        .where(
+          and(
+            eq(accounts.companyId, companyId),
+            eq(accounts.code, ANNUAL_PROFIT_LOSS_ACCOUNT),
+          ),
+        );
+
+      if (!profitLossAccount) {
+        throw new Error(
+          `Account ${ANNUAL_PROFIT_LOSS_ACCOUNT} (Jahresgewinn/Jahresverlust) not found. Cannot create closing entries.`,
+        );
+      }
+
+      const [closingEntry] = await tx
+        .insert(journalEntries)
+        .values({
+          companyId,
+          date: new Date(year.endDate),
+          reference: `CLOSING-${year.name}`,
+          description: `Jahresabschluss ${year.name} — Erfolgsrechnung abschliessen`,
+          sourceType: "year_end_closing",
+          createdBy: userId,
+        })
+        .returning();
+
+      // Set journalEntryId on all closing lines
+      const linesWithEntryId = closingLines.map((l) => ({
+        ...l,
+        journalEntryId: closingEntry.id,
+      }));
+
+      // Add the balancing line to 2950
+      // totalProfitLoss is positive for loss, negative for profit
+      // If profit (negative totalProfitLoss): credit 2950
+      // If loss (positive totalProfitLoss): debit 2950
+      if (!totalProfitLoss.isZero()) {
+        if (totalProfitLoss.greaterThan(0)) {
+          // Loss: debit 2950
+          linesWithEntryId.push({
+            journalEntryId: closingEntry.id,
+            accountId: profitLossAccount.id,
+            debit: totalProfitLoss.toFixed(2),
+            credit: null,
+            description: null,
+          });
+        } else {
+          // Profit: credit 2950
+          linesWithEntryId.push({
+            journalEntryId: closingEntry.id,
+            accountId: profitLossAccount.id,
+            debit: null,
+            credit: totalProfitLoss.abs().toFixed(2),
+            description: null,
+          });
+        }
+      }
+
+      await tx.insert(journalLines).values(linesWithEntryId);
+    }
+
+    // 4. Close all open periods
     await tx
       .update(fiscalPeriods)
       .set({ isClosed: true })
-      .where(and(eq(fiscalPeriods.fiscalYearId, yearId), eq(fiscalPeriods.isClosed, false)));
+      .where(
+        and(
+          eq(fiscalPeriods.fiscalYearId, yearId),
+          eq(fiscalPeriods.isClosed, false),
+        ),
+      );
 
+    // 5. Mark year as closed
     const [updated] = await tx
       .update(fiscalYears)
       .set({ isClosed: true })
-      .where(and(eq(fiscalYears.id, yearId), eq(fiscalYears.companyId, companyId)))
+      .where(
+        and(eq(fiscalYears.id, yearId), eq(fiscalYears.companyId, companyId)),
+      )
       .returning();
 
     return updated;

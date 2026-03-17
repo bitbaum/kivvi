@@ -135,8 +135,8 @@ export const closeFiscalPeriodAction = createAction<string, unknown>({
 });
 
 export const closeFiscalYearAction = createAction<string, unknown>({
-  handler: async (yearId, { companyId, db }) => {
-    return closeFiscalYear(db, companyId, yearId);
+  handler: async (yearId, { companyId, userId, db }) => {
+    return closeFiscalYear(db, companyId, yearId, userId);
   },
   revalidate: ["/accounting/fiscal-years"],
   errorMessage: "Failed to close fiscal year",

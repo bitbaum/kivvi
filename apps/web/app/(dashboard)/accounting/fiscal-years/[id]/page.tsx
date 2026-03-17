@@ -4,7 +4,7 @@ import { ArrowLeft, Calendar } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getFiscalYear } from "@kivvi/core";
-import { formatDate } from "@/lib/utils";
+import { formatDate, isValidUUID } from "@/lib/utils";
 import { CloseYearButton, ClosePeriodButton } from "./close-buttons";
 import { getTranslations } from "next-intl/server";
 
@@ -20,6 +20,7 @@ export default async function FiscalYearDetailPage({ params }: PageProps) {
   const tc = await getTranslations("common");
 
   const { id } = await params;
+  if (!isValidUUID(id)) notFound();
   const fiscalYear = await getFiscalYear(db, session.user.companyId, id);
 
   if (!fiscalYear) {
