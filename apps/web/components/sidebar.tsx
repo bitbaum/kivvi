@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useSession } from 'next-auth/react';
-import { useTranslations } from 'next-intl';
-import { cn } from '@/lib/utils';
-import { useChatWidget } from '@/hooks/use-chat-widget';
-import { useNavBadges, type NavBadges } from '@/hooks/use-nav-badges';
-import { useEffect, useState, useCallback } from 'react';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
+import { cn } from "@/lib/utils";
+import { useChatWidget } from "@/hooks/use-chat-widget";
+import { useNavBadges, type NavBadges } from "@/hooks/use-nav-badges";
+import { useEffect, useState, useCallback } from "react";
 import {
   LayoutDashboard,
   MessageSquare,
@@ -24,9 +24,14 @@ import {
   X,
   ChevronsUpDown,
   Check,
-} from 'lucide-react';
-import { getMyMembershipsAction, switchCompanyAction } from '@/app/actions/memberships';
-import type { MembershipInfo } from '@kivvi/core/src/domain/memberships';
+  Plus,
+} from "lucide-react";
+import {
+  getMyMembershipsAction,
+  switchCompanyAction,
+  createCompanyAction,
+} from "@/app/actions/memberships";
+import type { MembershipInfo } from "@kivvi/core/src/domain/memberships";
 
 interface NavItem {
   nameKey: string;
@@ -40,44 +45,57 @@ interface NavItem {
 
 // Core navigation — flat, 8 items
 const primaryNavigation: NavItem[] = [
-  { nameKey: 'home', href: '/dashboard', icon: LayoutDashboard },
-  { nameKey: 'people', href: '/contacts', icon: Users },
-  { nameKey: 'catalog', href: '/products', icon: Package },
+  { nameKey: "home", href: "/dashboard", icon: LayoutDashboard },
+  { nameKey: "people", href: "/contacts", icon: Users },
+  { nameKey: "catalog", href: "/products", icon: Package },
   {
-    nameKey: 'documents',
-    href: '/documents',
+    nameKey: "documents",
+    href: "/documents",
     icon: FileText,
-    activePrefixes: ['/sales', '/purchasing'],
-    badgeKey: 'documents',
+    activePrefixes: ["/sales", "/purchasing"],
+    badgeKey: "documents",
   },
   {
-    nameKey: 'money',
-    href: '/money',
+    nameKey: "money",
+    href: "/money",
     icon: Wallet,
-    activePrefixes: ['/banking', '/accounting'],
-    badgeKey: 'money',
+    activePrefixes: ["/banking", "/accounting"],
+    badgeKey: "money",
   },
-  { nameKey: 'inventory', href: '/inventory', icon: Warehouse },
-  { nameKey: 'projects', href: '/projects', icon: FolderKanban },
-  { nameKey: 'reports', href: '/reports', icon: BarChart3 },
+  { nameKey: "inventory", href: "/inventory", icon: Warehouse },
+  { nameKey: "projects", href: "/projects", icon: FolderKanban },
+  { nameKey: "reports", href: "/reports", icon: BarChart3 },
 ];
 
 const secondaryNavigation: NavItem[] = [
-  { nameKey: 'settings', href: '/settings', icon: Settings },
-  { nameKey: 'help', href: '/help', icon: HelpCircle },
+  { nameKey: "settings", href: "/settings", icon: Settings },
+  { nameKey: "help", href: "/help", icon: HelpCircle },
 ];
 
 function isNavActive(item: NavItem, pathname: string): boolean {
-  if (pathname === item.href || pathname.startsWith(item.href + '/')) return true;
+  if (pathname === item.href || pathname.startsWith(item.href + "/"))
+    return true;
   if (item.activePrefixes) {
     return item.activePrefixes.some(
-      (prefix) => pathname === prefix || pathname.startsWith(prefix + '/')
+      (prefix) => pathname === prefix || pathname.startsWith(prefix + "/"),
     );
   }
   return false;
 }
 
-function NavLink({ item, pathname, badges, onClick, t }: { item: NavItem; pathname: string; badges: NavBadges; onClick?: () => void; t: (key: string) => string }) {
+function NavLink({
+  item,
+  pathname,
+  badges,
+  onClick,
+  t,
+}: {
+  item: NavItem;
+  pathname: string;
+  badges: NavBadges;
+  onClick?: () => void;
+  t: (key: string) => string;
+}) {
   const isActive = isNavActive(item, pathname);
   const badgeCount = item.badgeKey ? badges[item.badgeKey] : 0;
   return (
@@ -85,13 +103,13 @@ function NavLink({ item, pathname, badges, onClick, t }: { item: NavItem; pathna
       href={item.href}
       onClick={onClick}
       className={cn(
-        'flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+        "flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
         isActive
-          ? 'bg-primary text-primary-foreground'
-          : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+          ? "bg-primary text-primary-foreground"
+          : "text-muted-foreground hover:bg-muted hover:text-foreground",
       )}
-      aria-current={isActive ? 'page' : undefined}
+      aria-current={isActive ? "page" : undefined}
     >
       <div className="relative">
         <item.icon className="h-4 w-4" aria-hidden="true" />
@@ -104,16 +122,75 @@ function NavLink({ item, pathname, badges, onClick, t }: { item: NavItem; pathna
       </div>
       <span className="flex-1">{t(item.nameKey)}</span>
       {badgeCount > 0 && (
-        <span className={cn(
-          'ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-xs font-medium',
-          isActive
-            ? 'bg-primary-foreground/20 text-primary-foreground'
-            : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-        )}>
-          {badgeCount > 99 ? '99+' : badgeCount}
+        <span
+          className={cn(
+            "ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-xs font-medium",
+            isActive
+              ? "bg-primary-foreground/20 text-primary-foreground"
+              : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+          )}
+        >
+          {badgeCount > 99 ? "99+" : badgeCount}
         </span>
       )}
     </Link>
+  );
+}
+
+function CreateCompanyForm({
+  onCreated,
+  onCancel,
+  tc,
+}: {
+  onCreated: () => void;
+  onCancel: () => void;
+  tc: (key: string) => string;
+}) {
+  const { update: updateSession } = useSession();
+  const [name, setName] = useState("");
+  const [creating, setCreating] = useState(false);
+
+  const handleSubmit = async () => {
+    const trimmed = name.trim();
+    if (trimmed.length < 2) return;
+    setCreating(true);
+    const result = await createCompanyAction({ companyName: trimmed });
+    if (result.success) {
+      await updateSession();
+      onCreated();
+      window.location.href = "/onboarding";
+    }
+    setCreating(false);
+  };
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleSubmit();
+      }}
+      className="flex items-center gap-1"
+    >
+      <input
+        autoFocus
+        type="text"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder={tc("organizationName")}
+        disabled={creating}
+        className="flex-1 rounded-md border bg-background px-2 py-1.5 text-sm outline-none focus:ring-2 focus:ring-ring"
+        onKeyDown={(e) => {
+          if (e.key === "Escape") onCancel();
+        }}
+      />
+      <button
+        type="submit"
+        disabled={creating || name.trim().length < 2}
+        className="rounded-md bg-primary px-2 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+      >
+        {creating ? tc("creatingOrganization") : tc("create")}
+      </button>
+    </form>
   );
 }
 
@@ -125,13 +202,14 @@ interface SidebarProps {
 export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { data: session, update: updateSession } = useSession();
-  const t = useTranslations('nav');
-  const tc = useTranslations('common');
+  const t = useTranslations("nav");
+  const tc = useTranslations("common");
   const chatWidget = useChatWidget();
   const badges = useNavBadges();
   const [memberships, setMemberships] = useState<MembershipInfo[]>([]);
   const [companySwitcherOpen, setCompanySwitcherOpen] = useState(false);
   const [switching, setSwitching] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false);
 
   // Load memberships for company switcher
   useEffect(() => {
@@ -144,43 +222,53 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
     if (session?.user?.id) loadMemberships();
   }, [session?.user?.id]);
 
-  const handleSwitchCompany = useCallback(async (companyId: string) => {
-    if (companyId === session?.user?.companyId) {
-      setCompanySwitcherOpen(false);
-      return;
-    }
-    setSwitching(true);
-    const result = await switchCompanyAction(companyId);
-    if (result.success) {
-      await updateSession();
-      setCompanySwitcherOpen(false);
-      // Full reload to refresh all server-rendered data
-      window.location.href = '/dashboard';
-    }
-    setSwitching(false);
-  }, [session?.user?.companyId, updateSession]);
+  const handleSwitchCompany = useCallback(
+    async (companyId: string) => {
+      if (companyId === session?.user?.companyId) {
+        setCompanySwitcherOpen(false);
+        return;
+      }
+      setSwitching(true);
+      const result = await switchCompanyAction(companyId);
+      if (result.success) {
+        await updateSession();
+        setCompanySwitcherOpen(false);
+        // Full reload to refresh all server-rendered data
+        window.location.href = "/dashboard";
+      }
+      setSwitching(false);
+    },
+    [session?.user?.companyId, updateSession],
+  );
 
   // Close sidebar on Escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen && onClose) {
+      if (e.key === "Escape" && isOpen && onClose) {
         onClose();
       }
     };
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
   }, [isOpen, onClose]);
 
   const sidebarContent = (
-    <aside className="flex w-64 flex-shrink-0 flex-col border-r bg-card h-full" role="navigation" aria-label={tc('aria.mainNavigation')}>
+    <aside
+      className="flex w-64 flex-shrink-0 flex-col border-r bg-card h-full"
+      role="navigation"
+      aria-label={tc("aria.mainNavigation")}
+    >
       {/* Logo */}
       <div className="flex h-16 items-center gap-2 border-b px-6">
         <Link
           href="/dashboard"
           className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded"
-          aria-label={tc('aria.kivviHome')}
+          aria-label={tc("aria.kivviHome")}
         >
-          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600" aria-hidden="true" />
+          <div
+            className="h-8 w-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600"
+            aria-hidden="true"
+          />
           <span className="text-xl font-bold">Kivvi</span>
         </Link>
         {/* Mobile close button */}
@@ -188,7 +276,7 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
           <button
             onClick={onClose}
             className="ml-auto flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg p-2 hover:bg-muted lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            aria-label={tc('aria.closeMenu')}
+            aria-label={tc("aria.closeMenu")}
           >
             <X className="h-5 w-5" />
           </button>
@@ -203,21 +291,32 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
               onClick={() => setCompanySwitcherOpen(!companySwitcherOpen)}
               disabled={switching}
               className="flex w-full items-center gap-3 rounded-lg bg-muted p-3 text-left hover:bg-muted/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              aria-label={tc('aria.switchCompany')}
+              aria-label={tc("aria.switchCompany")}
               aria-expanded={companySwitcherOpen}
             >
-              <Building2 className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+              <Building2
+                className="h-5 w-5 text-muted-foreground"
+                aria-hidden="true"
+              />
               <div className="flex-1 truncate">
                 <p className="text-sm font-medium">
-                  {session?.user?.companyName || tc('myCompany')}
+                  {session?.user?.companyName || tc("myCompany")}
                 </p>
-                <p className="text-xs text-muted-foreground">{tc('freePlan')}</p>
+                <p className="text-xs text-muted-foreground">
+                  {tc("freePlan")}
+                </p>
               </div>
-              <ChevronsUpDown className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+              <ChevronsUpDown
+                className="h-4 w-4 text-muted-foreground"
+                aria-hidden="true"
+              />
             </button>
             {companySwitcherOpen && (
               <>
-                <div className="fixed inset-0 z-10" onClick={() => setCompanySwitcherOpen(false)} />
+                <div
+                  className="fixed inset-0 z-10"
+                  onClick={() => setCompanySwitcherOpen(false)}
+                />
                 <div className="absolute left-0 right-0 top-full z-20 mt-1 rounded-lg border bg-popover p-1 shadow-md">
                   {memberships.map((m) => (
                     <button
@@ -225,36 +324,87 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
                       onClick={() => handleSwitchCompany(m.companyId)}
                       className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
                     >
-                      <Building2 className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                      <Building2
+                        className="h-4 w-4 text-muted-foreground"
+                        aria-hidden="true"
+                      />
                       <span className="flex-1 truncate">{m.companyName}</span>
                       {m.companyId === session?.user?.companyId && (
                         <Check className="h-4 w-4 text-primary" />
                       )}
                     </button>
                   ))}
+                  <div className="my-1 border-t" />
+                  {showCreateForm ? (
+                    <div className="px-1">
+                      <CreateCompanyForm
+                        tc={tc}
+                        onCreated={() => {
+                          setCompanySwitcherOpen(false);
+                          setShowCreateForm(false);
+                        }}
+                        onCancel={() => setShowCreateForm(false)}
+                      />
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setShowCreateForm(true)}
+                      className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm text-muted-foreground hover:bg-muted transition-colors"
+                    >
+                      <Plus className="h-4 w-4" aria-hidden="true" />
+                      <span>{tc("createOrganization")}</span>
+                    </button>
+                  )}
                 </div>
               </>
             )}
           </div>
         ) : (
-          <Link
-            href="/settings/company"
-            className="flex w-full items-center gap-3 rounded-lg bg-muted p-3 text-left hover:bg-muted/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            aria-label={tc('aria.companySettings')}
-          >
-            <Building2 className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
-            <div className="flex-1 truncate">
-              <p className="text-sm font-medium">
-                {session?.user?.companyName || tc('myCompany')}
-              </p>
-              <p className="text-xs text-muted-foreground">{tc('freePlan')}</p>
-            </div>
-          </Link>
+          <div>
+            <Link
+              href="/settings/company"
+              className="flex w-full items-center gap-3 rounded-lg bg-muted p-3 text-left hover:bg-muted/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              aria-label={tc("aria.companySettings")}
+            >
+              <Building2
+                className="h-5 w-5 text-muted-foreground"
+                aria-hidden="true"
+              />
+              <div className="flex-1 truncate">
+                <p className="text-sm font-medium">
+                  {session?.user?.companyName || tc("myCompany")}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {tc("freePlan")}
+                </p>
+              </div>
+            </Link>
+            {showCreateForm ? (
+              <div className="mt-2">
+                <CreateCompanyForm
+                  tc={tc}
+                  onCreated={() => setShowCreateForm(false)}
+                  onCancel={() => setShowCreateForm(false)}
+                />
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowCreateForm(true)}
+                className="mt-1 flex w-full items-center gap-3 rounded-md px-3 py-1.5 text-left text-xs text-muted-foreground hover:bg-muted transition-colors"
+              >
+                <Plus className="h-3.5 w-3.5" aria-hidden="true" />
+                <span>{tc("createOrganization")}</span>
+              </button>
+            )}
+          </div>
         )}
       </div>
 
       {/* Main navigation */}
-      <nav className="flex-1 space-y-1 overflow-y-auto p-4" aria-label={tc('aria.primaryNavigation')}>
+      <nav
+        className="flex-1 space-y-1 overflow-y-auto p-4"
+        aria-label={tc("aria.primaryNavigation")}
+      >
         {/* AI Assistant — opens widget */}
         <button
           onClick={() => {
@@ -262,26 +412,33 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
             onClose?.();
           }}
           className={cn(
-            'flex w-full min-h-[44px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+            "flex w-full min-h-[44px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
             chatWidget.isOpen
-              ? 'bg-primary text-primary-foreground'
-              : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:bg-muted hover:text-foreground",
           )}
         >
           <MessageSquare className="h-4 w-4" aria-hidden="true" />
-          {t('aiAssistant')}
+          {t("aiAssistant")}
         </button>
 
         <div className="my-3 border-t" role="separator" />
 
         {primaryNavigation.map((item) => (
-          <NavLink key={item.href} item={item} pathname={pathname} badges={badges} onClick={onClose} t={t} />
+          <NavLink
+            key={item.href}
+            item={item}
+            pathname={pathname}
+            badges={badges}
+            onClick={onClose}
+            t={t}
+          />
         ))}
       </nav>
 
       {/* Secondary navigation */}
-      <nav className="border-t p-4" aria-label={tc('aria.secondaryNavigation')}>
+      <nav className="border-t p-4" aria-label={tc("aria.secondaryNavigation")}>
         {secondaryNavigation.map((item) => {
           const isActive = isNavActive(item, pathname);
           return (
@@ -290,13 +447,13 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
               href={item.href}
               onClick={onClose}
               className={cn(
-                'flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                "flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                 isActive
-                  ? 'bg-muted text-foreground'
-                  : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                  ? "bg-muted text-foreground"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
               )}
-              aria-current={isActive ? 'page' : undefined}
+              aria-current={isActive ? "page" : undefined}
             >
               <item.icon className="h-4 w-4" aria-hidden="true" />
               {t(item.nameKey)}
@@ -320,7 +477,11 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
             onClick={onClose}
             aria-hidden="true"
           />
-          <div className="fixed inset-y-0 left-0 z-50 lg:hidden" role="dialog" aria-modal="true">
+          <div
+            className="fixed inset-y-0 left-0 z-50 lg:hidden"
+            role="dialog"
+            aria-modal="true"
+          >
             {sidebarContent}
           </div>
         </>

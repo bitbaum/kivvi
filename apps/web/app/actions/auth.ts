@@ -1,22 +1,25 @@
-'use server';
+"use server";
 
-import { z } from 'zod';
-import bcrypt from 'bcryptjs';
-import { db } from '@/lib/db';
-import { users, companies, memberships } from '@kivvi/database';
-import { eq } from 'drizzle-orm';
-import { DEFAULT_VAT_RATE } from '@/lib/config/vat-rates';
-import type { ActionResult } from './utils';
+import { z } from "zod";
+import bcrypt from "bcryptjs";
+import { db } from "@/lib/db";
+import { users } from "@kivvi/database";
+import { eq } from "drizzle-orm";
+import {
+  createOwnedCompany,
+  createCompanySchema,
+} from "@kivvi/core/src/domain/memberships";
+import type { ActionResult } from "./utils";
 
 // ============================================================================
 // VALIDATION SCHEMAS
 // ============================================================================
 
 export const registerSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-  companyName: z.string().min(2, 'Company name must be at least 2 characters'),
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+  companyName: createCompanySchema.shape.companyName,
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;
@@ -37,7 +40,7 @@ export interface RegisterResult {
  * Creates both company and user atomically in a transaction.
  */
 export async function registerAction(
-  input: unknown
+  input: unknown,
 ): Promise<ActionResult<RegisterResult>> {
   try {
     // Validate input
@@ -45,7 +48,7 @@ export async function registerAction(
     if (!parsed.success) {
       return {
         success: false,
-        error: parsed.error.errors[0]?.message || 'Validation failed',
+        error: parsed.error.errors[0]?.message || "Validation failed",
       };
     }
 
@@ -59,54 +62,39 @@ export async function registerAction(
     if (existingUser) {
       return {
         success: false,
-        error: 'An account with this email already exists',
+        error: "An account with this email already exists",
       };
     }
 
     // Hash password
     const passwordHash = await bcrypt.hash(password, 12);
 
-    // Create company and user atomically in transaction
+    // Create company, user, and owner membership atomically
     const result = await db.transaction(async (tx) => {
-      // Create company
-      const [company] = await tx
-        .insert(companies)
-        .values({
-          name: companyName,
-          currency: 'CHF',
-          country: 'CH',
-          settings: {
-            defaultVatRate: Number(DEFAULT_VAT_RATE),
-            invoicePrefix: 'INV',
-            invoiceNextNumber: 1,
-          },
-        })
-        .returning();
-
-      // Create user with owner role
+      // Create user first (needed for membership FK)
       const [user] = await tx
         .insert(users)
         .values({
           name,
           email: email.toLowerCase(),
           passwordHash,
-          companyId: company.id,
-          role: 'owner',
         })
         .returning();
 
-      // Create membership row (SSOT for company membership)
-      await tx.insert(memberships).values({
-        userId: user.id,
-        companyId: company.id,
-        role: 'owner',
-      });
+      // Create company + owner membership (single source of truth)
+      const company = await createOwnedCompany(tx, user.id, companyName);
+
+      // Set user's active company
+      await tx
+        .update(users)
+        .set({ companyId: company.companyId })
+        .where(eq(users.id, user.id));
 
       return {
         userId: user.id,
-        companyId: company.id,
+        companyId: company.companyId,
         email: user.email,
-        companyName: company.name,
+        companyName: company.companyName,
       };
     });
 
@@ -117,7 +105,7 @@ export async function registerAction(
   } catch {
     return {
       success: false,
-      error: 'Failed to create account',
+      error: "Failed to create account",
     };
   }
 }

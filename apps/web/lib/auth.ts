@@ -1,12 +1,13 @@
-import NextAuth from 'next-auth';
-import Credentials from 'next-auth/providers/credentials';
-import { DrizzleAdapter } from '@auth/drizzle-adapter';
-import { z } from 'zod';
-import bcrypt from 'bcryptjs';
-import { db } from './db';
-import { users, companies, memberships } from '@kivvi/database';
-import type { CompanySettings } from '@kivvi/database';
-import { eq, and } from 'drizzle-orm';
+import NextAuth from "next-auth";
+import Credentials from "next-auth/providers/credentials";
+import { DrizzleAdapter } from "@auth/drizzle-adapter";
+import { z } from "zod";
+import bcrypt from "bcryptjs";
+import { db } from "./db";
+import { users, companies } from "@kivvi/database";
+import type { CompanySettings } from "@kivvi/database";
+import { eq } from "drizzle-orm";
+import { findMembership } from "@kivvi/core/src/domain/memberships";
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -16,17 +17,17 @@ const loginSchema = z.object({
 export const { handlers, signIn, signOut, auth } = NextAuth({
   // Justified: adapter type mismatch between @auth/drizzle-adapter and next-auth versions
   adapter: DrizzleAdapter(db) as any,
-  session: { strategy: 'jwt' },
+  session: { strategy: "jwt" },
   pages: {
-    signIn: '/login',
-    newUser: '/register',
+    signIn: "/login",
+    newUser: "/register",
   },
   providers: [
     Credentials({
-      name: 'credentials',
+      name: "credentials",
       credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         const parsed = loginSchema.safeParse(credentials);
@@ -44,8 +45,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const isValid = await bcrypt.compare(password, user.passwordHash);
         if (!isValid) return null;
 
-        const companyData = user.company as { name: string; settings: CompanySettings | null } | null;
+        const companyData = user.company as {
+          name: string;
+          settings: CompanySettings | null;
+        } | null;
         const settings = companyData?.settings ?? {};
+
+        // Read role from memberships table (SSOT), not users.role
+        let role: string = "member";
+        if (user.companyId) {
+          const membership = await findMembership(db, user.id, user.companyId);
+          role = membership?.role ?? "member";
+        }
 
         return {
           id: user.id,
@@ -53,7 +64,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           name: user.name,
           companyId: user.companyId,
           companyName: companyData?.name ?? null,
-          role: user.role ?? 'user',
+          role,
           onboardingComplete: !!settings.onboardingCompletedAt,
         };
       },
@@ -65,11 +76,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.id = user.id!;
         token.companyId = user.companyId ?? null;
         token.companyName = user.companyName ?? null;
-        token.role = user.role ?? 'user';
+        token.role = user.role ?? "member";
         token.onboardingComplete = user.onboardingComplete ?? false;
       }
       // Refresh session data when session is updated (company switch, onboarding completion)
-      if (trigger === 'update' && token.id) {
+      if (trigger === "update" && token.id) {
         // Re-read user's current companyId (may have changed via switchCompany)
         const user = await db.query.users.findFirst({
           where: eq(users.id, token.id as string),
@@ -78,13 +89,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           token.companyId = user.companyId;
 
           // Look up role from memberships table (SSOT for roles)
-          const membership = await db.query.memberships.findFirst({
-            where: and(
-              eq(memberships.userId, token.id as string),
-              eq(memberships.companyId, user.companyId)
-            ),
-          });
-          token.role = membership?.role ?? 'member';
+          const membership = await findMembership(
+            db,
+            token.id as string,
+            user.companyId,
+          );
+          token.role = membership?.role ?? "member";
 
           // Refresh company name and onboarding status
           const company = await db.query.companies.findFirst({

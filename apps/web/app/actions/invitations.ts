@@ -17,7 +17,7 @@ import type {
   InvitationWithCompany,
 } from "@kivvi/core/src/domain/invitations";
 import type { MembershipRole } from "@kivvi/database";
-import { companies, users } from "@kivvi/database";
+import { companies, users, INVITABLE_ROLES } from "@kivvi/database";
 import { eq } from "drizzle-orm";
 import {
   buildInvitationEmailHtml,
@@ -49,7 +49,7 @@ export async function inviteMemberAction(
     const parsed = z
       .object({
         email: z.string().email("Invalid email address"),
-        role: z.enum(["admin", "member", "viewer"]).default("member"),
+        role: z.enum(INVITABLE_ROLES).default("member"),
       })
       .safeParse(input);
 

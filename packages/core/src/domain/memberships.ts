@@ -1,8 +1,14 @@
-import { z } from 'zod';
-import { eq, and } from 'drizzle-orm';
-import { memberships, users, companies } from '@kivvi/database';
-import type { Database } from '@kivvi/database';
-import type { MembershipRole } from '@kivvi/database';
+import { z } from "zod";
+import { eq, and } from "drizzle-orm";
+import {
+  memberships,
+  users,
+  companies,
+  MEMBERSHIP_ROLES,
+} from "@kivvi/database";
+import type { Database } from "@kivvi/database";
+import type { MembershipRole } from "@kivvi/database";
+import { DEFAULT_VAT_RATE } from "../config/vat-rates";
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -10,7 +16,7 @@ import type { MembershipRole } from '@kivvi/database';
 
 export const updateMemberRoleSchema = z.object({
   userId: z.string().uuid(),
-  role: z.enum(['owner', 'admin', 'member', 'viewer']),
+  role: z.enum(MEMBERSHIP_ROLES),
 });
 
 export const switchCompanySchema = z.object({
@@ -40,11 +46,28 @@ export interface CompanyMember {
 // ============================================================================
 
 /**
+ * Find a user's membership in a specific company. Returns null if not found.
+ * Used across auth, role checks, and company switching.
+ */
+export async function findMembership(
+  db: Database,
+  userId: string,
+  companyId: string,
+) {
+  return db.query.memberships.findFirst({
+    where: and(
+      eq(memberships.userId, userId),
+      eq(memberships.companyId, companyId),
+    ),
+  });
+}
+
+/**
  * Get all memberships for a user (for company switcher).
  */
 export async function getUserMemberships(
   db: Database,
-  userId: string
+  userId: string,
 ): Promise<MembershipInfo[]> {
   const rows = await db
     .select({
@@ -64,7 +87,7 @@ export async function getUserMemberships(
  */
 export async function getCompanyMembers(
   db: Database,
-  companyId: string
+  companyId: string,
 ): Promise<CompanyMember[]> {
   const rows = await db
     .select({
@@ -88,7 +111,7 @@ export async function addMember(
   db: Database,
   companyId: string,
   userId: string,
-  role: MembershipRole = 'member'
+  role: MembershipRole = "member",
 ) {
   const [membership] = await db
     .insert(memberships)
@@ -106,42 +129,41 @@ export async function removeMember(
   db: Database,
   companyId: string,
   userId: string,
-  requestedBy: string
+  requestedBy: string,
 ): Promise<void> {
   await db.transaction(async (tx) => {
-    // Find the membership to remove
-    const membership = await tx.query.memberships.findFirst({
-      where: and(
-        eq(memberships.companyId, companyId),
-        eq(memberships.userId, userId)
-      ),
-    });
-
+    const membership = await findMembership(tx, userId, companyId);
     if (!membership) {
-      throw new Error('Membership not found');
+      throw new Error("Membership not found");
     }
 
     // If removing an owner, ensure there's at least one other owner
-    if (membership.role === 'owner') {
+    if (membership.role === "owner") {
       const owners = await tx
         .select({ id: memberships.id })
         .from(memberships)
-        .where(and(
-          eq(memberships.companyId, companyId),
-          eq(memberships.role, 'owner')
-        ));
+        .where(
+          and(
+            eq(memberships.companyId, companyId),
+            eq(memberships.role, "owner"),
+          ),
+        );
 
       if (owners.length <= 1) {
-        throw new Error('Cannot remove the last owner. Transfer ownership first.');
+        throw new Error(
+          "Cannot remove the last owner. Transfer ownership first.",
+        );
       }
     }
 
     await tx
       .delete(memberships)
-      .where(and(
-        eq(memberships.companyId, companyId),
-        eq(memberships.userId, userId)
-      ));
+      .where(
+        and(
+          eq(memberships.companyId, companyId),
+          eq(memberships.userId, userId),
+        ),
+      );
 
     // If the removed user's active company is this one, clear it
     if (userId !== requestedBy) {
@@ -171,50 +193,53 @@ export async function updateMemberRole(
   companyId: string,
   userId: string,
   newRole: MembershipRole,
-  requestedBy: string
+  requestedBy: string,
 ): Promise<void> {
   await db.transaction(async (tx) => {
     // Verify requester has permission
-    const requesterMembership = await tx.query.memberships.findFirst({
-      where: and(
-        eq(memberships.companyId, companyId),
-        eq(memberships.userId, requestedBy)
-      ),
-    });
-
-    if (!requesterMembership || !['owner', 'admin'].includes(requesterMembership.role)) {
-      throw new Error('Unauthorized: only owners and admins can change roles');
+    const requesterMembership = await findMembership(
+      tx,
+      requestedBy,
+      companyId,
+    );
+    if (
+      !requesterMembership ||
+      !["owner", "admin"].includes(requesterMembership.role)
+    ) {
+      throw new Error("Unauthorized: only owners and admins can change roles");
     }
 
     // Only owners can promote to owner/admin
-    if (['owner', 'admin'].includes(newRole) && requesterMembership.role !== 'owner') {
-      throw new Error('Unauthorized: only owners can promote to owner or admin');
+    if (
+      ["owner", "admin"].includes(newRole) &&
+      requesterMembership.role !== "owner"
+    ) {
+      throw new Error(
+        "Unauthorized: only owners can promote to owner or admin",
+      );
     }
 
-    // Find the target membership
-    const targetMembership = await tx.query.memberships.findFirst({
-      where: and(
-        eq(memberships.companyId, companyId),
-        eq(memberships.userId, userId)
-      ),
-    });
-
+    const targetMembership = await findMembership(tx, userId, companyId);
     if (!targetMembership) {
-      throw new Error('Membership not found');
+      throw new Error("Membership not found");
     }
 
     // If demoting from owner, ensure there's at least one other owner
-    if (targetMembership.role === 'owner' && newRole !== 'owner') {
+    if (targetMembership.role === "owner" && newRole !== "owner") {
       const owners = await tx
         .select({ id: memberships.id })
         .from(memberships)
-        .where(and(
-          eq(memberships.companyId, companyId),
-          eq(memberships.role, 'owner')
-        ));
+        .where(
+          and(
+            eq(memberships.companyId, companyId),
+            eq(memberships.role, "owner"),
+          ),
+        );
 
       if (owners.length <= 1) {
-        throw new Error('Cannot demote the last owner. Promote another member to owner first.');
+        throw new Error(
+          "Cannot demote the last owner. Promote another member to owner first.",
+        );
       }
     }
 
@@ -225,6 +250,64 @@ export async function updateMemberRole(
   });
 }
 
+export const createCompanySchema = z.object({
+  companyName: z.string().min(2).max(200),
+});
+
+/**
+ * Create a new company with owner membership inside an existing transaction.
+ * Used by both registration (auth.ts) and self-service company creation.
+ */
+export async function createOwnedCompany(
+  tx: Database,
+  userId: string,
+  companyName: string,
+): Promise<{ companyId: string; companyName: string }> {
+  const [company] = await tx
+    .insert(companies)
+    .values({
+      name: companyName,
+      currency: "CHF",
+      country: "CH",
+      settings: {
+        defaultVatRate: Number(DEFAULT_VAT_RATE),
+        invoicePrefix: "INV",
+        invoiceNextNumber: 1,
+      },
+    })
+    .returning();
+
+  await tx.insert(memberships).values({
+    userId,
+    companyId: company.id,
+    role: "owner",
+  });
+
+  return { companyId: company.id, companyName: company.name };
+}
+
+/**
+ * Create a new company for an existing user.
+ * Creates company + owner membership + switches active company, all atomically.
+ */
+export async function createCompanyForUser(
+  db: Database,
+  userId: string,
+  companyName: string,
+): Promise<{ companyId: string; companyName: string }> {
+  return await db.transaction(async (tx) => {
+    const result = await createOwnedCompany(tx, userId, companyName);
+
+    // Switch user's active company to the new one
+    await tx
+      .update(users)
+      .set({ companyId: result.companyId })
+      .where(eq(users.id, userId));
+
+    return result;
+  });
+}
+
 /**
  * Switch active company for a user. Updates users.companyId.
  * Guard: user must have a membership in the target company.
@@ -232,18 +315,11 @@ export async function updateMemberRole(
 export async function switchCompany(
   db: Database,
   userId: string,
-  targetCompanyId: string
+  targetCompanyId: string,
 ): Promise<{ companyId: string; companyName: string; role: MembershipRole }> {
-  // Verify membership exists
-  const membership = await db.query.memberships.findFirst({
-    where: and(
-      eq(memberships.userId, userId),
-      eq(memberships.companyId, targetCompanyId)
-    ),
-  });
-
+  const membership = await findMembership(db, userId, targetCompanyId);
   if (!membership) {
-    throw new Error('You are not a member of this company');
+    throw new Error("You are not a member of this company");
   }
 
   // Update active company pointer
@@ -259,7 +335,7 @@ export async function switchCompany(
 
   return {
     companyId: targetCompanyId,
-    companyName: company?.name ?? '',
+    companyName: company?.name ?? "",
     role: membership.role,
   };
 }

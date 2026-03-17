@@ -1465,6 +1465,13 @@ export type DocumentStatus = (typeof documentStatusEnum.enumValues)[number];
 export type AccountType = (typeof accountTypeEnum.enumValues)[number];
 export type ContactType = (typeof contactTypeEnum.enumValues)[number];
 export type MembershipRole = (typeof membershipRoleEnum.enumValues)[number];
+export const MEMBERSHIP_ROLES = membershipRoleEnum.enumValues;
+/** Roles assignable via invitation (owner excluded — ownership is granted at company creation) */
+export const INVITABLE_ROLES = [
+  "admin",
+  "member",
+  "viewer",
+] as const satisfies readonly MembershipRole[];
 export type InvitationStatus = (typeof invitationStatusEnum.enumValues)[number];
 export type RecurringPeriodicity =
   (typeof recurringPeriodicityEnum.enumValues)[number];
