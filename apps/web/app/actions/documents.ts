@@ -12,7 +12,11 @@ import {
   createDocumentSchema,
   updateDocumentSchema,
 } from "@kivvi/core";
-import type { DocumentType, DocumentStatus } from "@kivvi/database";
+import {
+  documentStatusEnum,
+  type DocumentType,
+  type DocumentStatus,
+} from "@kivvi/database";
 import {
   type ActionResult,
   getSession,
@@ -26,22 +30,8 @@ import { revalidateDocumentPaths } from "./utils/revalidate-documents";
 // VALIDATION SCHEMAS FOR UNVALIDATED PARAMS
 // ============================================================================
 
-const documentStatusValues = [
-  "draft",
-  "sent",
-  "confirmed",
-  "delivered",
-  "paid",
-  "partially_paid",
-  "overdue",
-  "cancelled",
-  "dunning_1",
-  "dunning_2",
-  "dunning_3",
-] as const;
-
 const updateStatusSchema = z.object({
-  newStatus: z.enum(documentStatusValues),
+  newStatus: z.enum(documentStatusEnum.enumValues),
 });
 
 const recordPaymentSchema = z.object({

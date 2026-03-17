@@ -16,7 +16,12 @@ import {
   reconcileTransaction,
   matchTransactionToDocument,
 } from "@kivvi/core/src/domain/banking";
-import type { DocumentType, DocumentStatus } from "@kivvi/database";
+import {
+  documentTypeEnum,
+  documentStatusEnum,
+  type DocumentType,
+  type DocumentStatus,
+} from "@kivvi/database";
 import {
   type ActionResult,
   getSession,
@@ -39,37 +44,11 @@ export interface BulkOperationResult<T = unknown> {
 // VALIDATION SCHEMAS
 // ============================================================================
 
-const documentTypeValues = [
-  "quote",
-  "order",
-  "order_confirmation",
-  "delivery_note",
-  "invoice",
-  "credit_note",
-  "purchase_order",
-  "purchase_invoice",
-  "dunning",
-] as const;
-
-const documentStatusValues = [
-  "draft",
-  "sent",
-  "confirmed",
-  "delivered",
-  "paid",
-  "partially_paid",
-  "overdue",
-  "cancelled",
-  "dunning_1",
-  "dunning_2",
-  "dunning_3",
-] as const;
-
 const bulkConvertSchema = z.object({
   documentIds: z
     .array(z.string().uuid())
     .min(1, "At least one document ID is required"),
-  targetType: z.enum(documentTypeValues),
+  targetType: z.enum(documentTypeEnum.enumValues),
 });
 
 const bulkSendDunningSchema = z.object({
@@ -303,7 +282,7 @@ export async function bulkStatusChangeAction(
   try {
     const { companyId } = await requireRole("member");
     const schema = bulkDocumentIdsSchema.extend({
-      targetStatus: z.enum(documentStatusValues),
+      targetStatus: z.enum(documentStatusEnum.enumValues),
     });
     const data = parseInput(schema, input);
     if ("success" in data) return data as ActionResult<never>;

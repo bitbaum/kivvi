@@ -1,12 +1,13 @@
-import { FileText, Plus, Search } from 'lucide-react';
-import Link from 'next/link';
-import { getTranslations } from 'next-intl/server';
-import type { DocumentTypeConfig } from '@/lib/config/document-types';
-import { getFilterStatuses, toCamelCase } from '@/lib/config/document-types';
-import type { PaginatedResult } from '@kivvi/core';
-import type { DocumentListItem } from '@kivvi/core/src/domain/documents';
-import { SelectableDocumentTable } from './selectable-document-table';
-import { cn } from '@/lib/utils';
+import { FileText, Plus, Search } from "lucide-react";
+import Link from "next/link";
+import { getTranslations } from "next-intl/server";
+import type { DocumentTypeConfig } from "@/lib/config/document-types";
+import { getFilterStatuses, toCamelCase } from "@/lib/config/document-types";
+import type { PaginatedResult } from "@kivvi/core";
+import type { DocumentListItem } from "@kivvi/core/src/domain/documents";
+import { documentStatusEnum } from "@kivvi/database";
+import { SelectableDocumentTable } from "./selectable-document-table";
+import { cn } from "@/lib/utils";
 
 interface DocumentListProps {
   config: DocumentTypeConfig;
@@ -16,15 +17,21 @@ interface DocumentListProps {
   headerActions?: React.ReactNode;
 }
 
-export async function DocumentList({ config, result, search, status, headerActions }: DocumentListProps) {
-  const t = await getTranslations('documents');
-  const ts = await getTranslations('status');
-  const tc = await getTranslations('common');
-  const tb = await getTranslations('bulkActions');
+export async function DocumentList({
+  config,
+  result,
+  search,
+  status,
+  headerActions,
+}: DocumentListProps) {
+  const t = await getTranslations("documents");
+  const ts = await getTranslations("status");
+  const tc = await getTranslations("common");
+  const tb = await getTranslations("bulkActions");
   const filterStatuses = getFilterStatuses(config.type);
 
   // Pre-resolve translations for the client component
-  const allStatuses = ['draft', 'sent', 'confirmed', 'delivered', 'paid', 'partiallyPaid', 'overdue', 'cancelled', 'dunning1', 'dunning2', 'dunning3'];
+  const allStatuses = documentStatusEnum.enumValues.map(toCamelCase);
   const statusLabels: Record<string, string> = {};
   for (const s of allStatuses) {
     statusLabels[s] = ts(s);
@@ -32,17 +39,37 @@ export async function DocumentList({ config, result, search, status, headerActio
 
   // Pre-resolve bulk action labels
   const bulkActionKeys = [
-    'selected', 'clearSelection', 'convertToOrder', 'convertToInvoice',
-    'convertToDeliveryNote', 'convertToCreditNote', 'convertToPurchaseInvoice',
-    'extendValidity', 'markAsSent', 'markDelivered', 'confirm', 'delete',
-    'days', 'confirmTitle', 'confirmMessage', 'cancel', 'processing',
-    'confirmAction', 'successAll', 'successPartial', 'failedAll',
-    'showErrors', 'hideErrors',
+    "selected",
+    "clearSelection",
+    "convertToOrder",
+    "convertToInvoice",
+    "convertToDeliveryNote",
+    "convertToCreditNote",
+    "convertToPurchaseInvoice",
+    "extendValidity",
+    "markAsSent",
+    "markDelivered",
+    "confirm",
+    "delete",
+    "days",
+    "confirmTitle",
+    "confirmMessage",
+    "cancel",
+    "processing",
+    "confirmAction",
+    "successAll",
+    "successPartial",
+    "failedAll",
+    "showErrors",
+    "hideErrors",
   ];
   // Keys with ICU placeholders ({count}, {action}, etc.) must use
   // tb.raw() to avoid ICU parser errors — the client fills them via .replace()
   const rawKeys = new Set([
-    'successAll', 'successPartial', 'failedAll', 'confirmMessage',
+    "successAll",
+    "successPartial",
+    "failedAll",
+    "confirmMessage",
   ]);
   const bulkLabels: Record<string, string> = {};
   for (const key of bulkActionKeys) {
@@ -50,12 +77,13 @@ export async function DocumentList({ config, result, search, status, headerActio
   }
 
   const columnLabels = {
-    number: tc('number'),
-    contact: config.contactFilter === 'vendor' ? t('vendor') : t('customer'),
-    total: tc('total'),
-    status: tc('status'),
-    date: tc('date'),
-    noContact: config.contactFilter === 'vendor' ? t('noVendor') : t('noCustomer'),
+    number: tc("number"),
+    contact: config.contactFilter === "vendor" ? t("vendor") : t("customer"),
+    total: tc("total"),
+    status: tc("status"),
+    date: tc("date"),
+    noContact:
+      config.contactFilter === "vendor" ? t("noVendor") : t("noCustomer"),
   };
 
   return (
@@ -65,7 +93,7 @@ export async function DocumentList({ config, result, search, status, headerActio
         <div>
           <h1 className="text-3xl font-bold">{t(config.labelPlural)}</h1>
           <p className="text-muted-foreground">
-            {t('manageAndTrack', { type: t(config.labelPlural) })}
+            {t("manageAndTrack", { type: t(config.labelPlural) })}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -76,7 +104,7 @@ export async function DocumentList({ config, result, search, status, headerActio
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
             >
               <Plus className="h-4 w-4" />
-              {t('newDocument', { type: t(config.label) })}
+              {t("newDocument", { type: t(config.label) })}
             </Link>
           )}
         </div>
@@ -89,7 +117,7 @@ export async function DocumentList({ config, result, search, status, headerActio
           <input
             name="search"
             type="text"
-            placeholder={t('searchDocuments', { type: t(config.labelPlural) })}
+            placeholder={t("searchDocuments", { type: t(config.labelPlural) })}
             defaultValue={search}
             className="w-full rounded-lg border bg-background py-2 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary"
           />
@@ -98,19 +126,23 @@ export async function DocumentList({ config, result, search, status, headerActio
 
         <div className="flex gap-2">
           {filterStatuses.map((s) => {
-            const isActive = s === 'all' ? !status : status === s;
-            const href = s === 'all'
-              ? `${config.basePath}${search ? `?search=${search}` : ''}`
-              : `${config.basePath}?status=${s}${search ? `&search=${search}` : ''}`;
+            const isActive = s === "all" ? !status : status === s;
+            const href =
+              s === "all"
+                ? `${config.basePath}${search ? `?search=${search}` : ""}`
+                : `${config.basePath}?status=${s}${search ? `&search=${search}` : ""}`;
             return (
               <Link
                 key={s}
                 href={href}
-                className={cn('rounded-lg px-3 py-2 text-sm font-medium transition-colors min-h-[44px] inline-flex items-center', isActive
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted text-muted-foreground hover:bg-muted/80')}
+                className={cn(
+                  "rounded-lg px-3 py-2 text-sm font-medium transition-colors min-h-[44px] inline-flex items-center",
+                  isActive
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground hover:bg-muted/80",
+                )}
               >
-                {s === 'all' ? tc('all') : ts(toCamelCase(s))}
+                {s === "all" ? tc("all") : ts(toCamelCase(s))}
               </Link>
             );
           })}
@@ -122,11 +154,13 @@ export async function DocumentList({ config, result, search, status, headerActio
         {result.data.length === 0 ? (
           <div className="p-12 text-center text-muted-foreground">
             <FileText className="mx-auto mb-3 h-10 w-10" />
-            <p className="text-lg font-medium">{t('noDocumentsFound', { type: t(config.labelPlural) })}</p>
+            <p className="text-lg font-medium">
+              {t("noDocumentsFound", { type: t(config.labelPlural) })}
+            </p>
             <p className="mt-1 text-sm">
               {search || status
-                ? t('adjustFilters')
-                : t('createFirst', { type: t(config.label) })}
+                ? t("adjustFilters")
+                : t("createFirst", { type: t(config.label) })}
             </p>
             {!search && !status && config.canCreate && (
               <Link
@@ -134,7 +168,7 @@ export async function DocumentList({ config, result, search, status, headerActio
                 className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
               >
                 <Plus className="h-4 w-4" />
-                {t('newDocument', { type: t(config.label) })}
+                {t("newDocument", { type: t(config.label) })}
               </Link>
             )}
           </div>
@@ -159,7 +193,7 @@ export async function DocumentList({ config, result, search, status, headerActio
       {result.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            {tc('showing', {
+            {tc("showing", {
               from: (result.page - 1) * result.pageSize + 1,
               to: Math.min(result.page * result.pageSize, result.total),
               total: result.total,
@@ -168,18 +202,18 @@ export async function DocumentList({ config, result, search, status, headerActio
           <div className="flex gap-2">
             {result.page > 1 && (
               <Link
-                href={`${config.basePath}?page=${result.page - 1}${status ? `&status=${status}` : ''}${search ? `&search=${search}` : ''}`}
+                href={`${config.basePath}?page=${result.page - 1}${status ? `&status=${status}` : ""}${search ? `&search=${search}` : ""}`}
                 className="inline-flex min-h-[44px] items-center rounded-lg border px-3 py-2 text-sm hover:bg-muted"
               >
-                {tc('previous')}
+                {tc("previous")}
               </Link>
             )}
             {result.page < result.totalPages && (
               <Link
-                href={`${config.basePath}?page=${result.page + 1}${status ? `&status=${status}` : ''}${search ? `&search=${search}` : ''}`}
+                href={`${config.basePath}?page=${result.page + 1}${status ? `&status=${status}` : ""}${search ? `&search=${search}` : ""}`}
                 className="inline-flex min-h-[44px] items-center rounded-lg border px-3 py-2 text-sm hover:bg-muted"
               >
-                {tc('next')}
+                {tc("next")}
               </Link>
             )}
           </div>

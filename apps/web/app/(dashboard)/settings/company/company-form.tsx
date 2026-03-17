@@ -1,18 +1,16 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { Loader2, CheckCircle2, Upload, Trash2, ImageIcon } from "lucide-react";
+import { useState } from "react";
+import { Loader2, CheckCircle2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import {
-  updateCompanyAction,
-  uploadLogoAction,
-  removeLogoAction,
-} from "@/app/actions/settings";
+import { updateCompanyAction } from "@/app/actions/settings";
 import { cn } from "@/lib/utils";
 import { COUNTRY_OPTIONS } from "@/lib/config/locales";
 import { SUPPORTED_CURRENCIES } from "@/lib/config/currencies";
 import { SWISS_VAT_RATES } from "@/lib/config/vat-rates";
 import { FormInput, FormSelect } from "@/components/ui/form-field";
+import { LogoUpload } from "./logo-upload";
+import { AIConfigSection } from "./ai-config-section";
 
 interface CompanyFormProps {
   initialData: {
@@ -42,57 +40,6 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [logoPreview, setLogoPreview] = useState<string | null>(
-    initialData.logoBase64,
-  );
-  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setIsUploadingLogo(true);
-    setError(null);
-
-    try {
-      const formData = new FormData();
-      formData.append("logo", file);
-
-      const result = await uploadLogoAction(formData);
-      if (result.success) {
-        // Show preview from file
-        const reader = new FileReader();
-        reader.onload = () => setLogoPreview(reader.result as string);
-        reader.readAsDataURL(file);
-      } else {
-        setError(result.error || tc("error"));
-      }
-    } catch {
-      setError(tc("error"));
-    } finally {
-      setIsUploadingLogo(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
-  }
-
-  async function handleLogoRemove() {
-    setIsUploadingLogo(true);
-    setError(null);
-
-    try {
-      const result = await removeLogoAction();
-      if (result.success) {
-        setLogoPreview(null);
-      } else {
-        setError(result.error || tc("error"));
-      }
-    } catch {
-      setError(tc("error"));
-    } finally {
-      setIsUploadingLogo(false);
-    }
-  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -156,72 +103,10 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
       )}
 
       {/* Company Logo */}
-      <section className="rounded-xl border bg-card">
-        <div className="border-b px-6 py-4">
-          <h2 className="font-semibold">{t("company.logo")}</h2>
-        </div>
-        <div className="p-6">
-          <div className="flex flex-col items-start gap-4 sm:flex-row sm:gap-6">
-            {/* Preview */}
-            <div className="flex h-24 w-full max-w-[176px] shrink-0 items-center justify-center rounded-lg border-2 border-dashed bg-muted/30">
-              {logoPreview ? (
-                /* eslint-disable-next-line @next/next/no-img-element -- base64 data URI, next/image optimization not applicable */
-                <img
-                  src={logoPreview}
-                  alt="Company logo"
-                  className="max-h-20 max-w-40 object-contain"
-                />
-              ) : (
-                <ImageIcon className="h-8 w-8 text-muted-foreground/50" />
-              )}
-            </div>
-
-            {/* Actions */}
-            <div className="flex flex-col gap-2">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/png,image/jpeg,image/svg+xml"
-                onChange={handleLogoUpload}
-                className="hidden"
-              />
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isUploadingLogo}
-                className={cn(
-                  "inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm hover:bg-muted transition-colors",
-                  isUploadingLogo && "opacity-50 cursor-not-allowed",
-                )}
-              >
-                {isUploadingLogo ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Upload className="h-4 w-4" />
-                )}
-                {t("company.uploadLogo")}
-              </button>
-              {logoPreview && (
-                <button
-                  type="button"
-                  onClick={handleLogoRemove}
-                  disabled={isUploadingLogo}
-                  className={cn(
-                    "inline-flex items-center gap-2 rounded-lg border border-destructive/30 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 transition-colors",
-                    isUploadingLogo && "opacity-50 cursor-not-allowed",
-                  )}
-                >
-                  <Trash2 className="h-4 w-4" />
-                  {t("company.removeLogo")}
-                </button>
-              )}
-              <p className="text-xs text-muted-foreground">
-                {t("company.logoFormats")} · {t("company.logoMaxSize")}
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <LogoUpload
+        initialLogoBase64={initialData.logoBase64}
+        onError={setError}
+      />
 
       {/* Company Information */}
       <section className="rounded-xl border bg-card">
@@ -487,76 +372,7 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
       </section>
 
       {/* AI Configuration */}
-      <section className="rounded-xl border bg-card">
-        <div className="border-b px-6 py-4">
-          <h2 className="font-semibold">{t("company.aiConfig")}</h2>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {t("company.aiConfigHint")}
-          </p>
-        </div>
-        <div className="grid gap-6 p-6 sm:grid-cols-2">
-          <div>
-            <label
-              htmlFor="aiProvider"
-              className="mb-1.5 block text-sm font-medium"
-            >
-              {t("company.aiProvider")}
-            </label>
-            <FormSelect
-              id="aiProvider"
-              name="aiProvider"
-              defaultValue={initialData.aiProvider}
-            >
-              <option value="">{t("company.aiProviderDefault")}</option>
-              <option value="anthropic">Anthropic (Claude)</option>
-              <option value="openrouter">OpenRouter</option>
-              <option value="groq">Groq</option>
-              <option value="xai">xAI (Grok)</option>
-              <option value="ollama">Ollama</option>
-            </FormSelect>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {t("company.aiProviderHint")}
-            </p>
-          </div>
-
-          <div>
-            <label
-              htmlFor="aiModel"
-              className="mb-1.5 block text-sm font-medium"
-            >
-              {t("company.aiModel")}
-            </label>
-            <FormInput
-              type="text"
-              id="aiModel"
-              name="aiModel"
-              maxLength={100}
-              placeholder={t("company.placeholders.aiModel")}
-              defaultValue={initialData.aiModel}
-            />
-          </div>
-
-          <div className="sm:col-span-2">
-            <label
-              htmlFor="aiApiKey"
-              className="mb-1.5 block text-sm font-medium"
-            >
-              {t("company.aiApiKey")}
-            </label>
-            <FormInput
-              type="password"
-              id="aiApiKey"
-              name="aiApiKey"
-              maxLength={200}
-              placeholder={t("company.placeholders.aiApiKey")}
-              defaultValue={initialData.aiApiKey}
-            />
-            <p className="mt-1 text-xs text-muted-foreground">
-              {t("company.aiApiKeyHint")}
-            </p>
-          </div>
-        </div>
-      </section>
+      <AIConfigSection initialData={initialData} />
 
       {/* Submit */}
       <div className="flex items-center justify-end">
