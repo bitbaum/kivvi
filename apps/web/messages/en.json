@@ -1063,6 +1063,10 @@
       "aiModel": "Model",
       "aiApiKey": "API Key",
       "aiApiKeyHint": "Your API key is stored encrypted and never shown in plain text.",
+      "streetAddress": "Street Address",
+      "postalCode": "Postal Code",
+      "city": "City",
+      "country": "Country",
       "placeholders": {
         "bankName": "e.g. UBS, ZKB, PostFinance",
         "documentFooter": "e.g. Payable within 30 days net",
@@ -1190,7 +1194,7 @@
       "usd": "USD - US Dollar"
     },
     "vatRates": {
-      "normal": "8.1% (Normal)",
+      "standard": "8.1% (Normal)",
       "reduced": "2.6% (Reduced)",
       "exempt": "0% (Exempt)"
     },

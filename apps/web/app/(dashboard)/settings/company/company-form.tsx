@@ -175,7 +175,7 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
               htmlFor="address"
               className="mb-1.5 block text-sm font-medium"
             >
-              Street Address
+              {t("company.streetAddress")}
             </label>
             <FormInput
               type="text"
@@ -191,7 +191,7 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
               htmlFor="postalCode"
               className="mb-1.5 block text-sm font-medium"
             >
-              Postal Code
+              {t("company.postalCode")}
             </label>
             <FormInput
               type="text"
@@ -204,7 +204,7 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
 
           <div>
             <label htmlFor="city" className="mb-1.5 block text-sm font-medium">
-              City
+              {t("company.city")}
             </label>
             <FormInput
               type="text"
@@ -220,7 +220,7 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
               htmlFor="country"
               className="mb-1.5 block text-sm font-medium"
             >
-              Country
+              {t("company.country")}
             </label>
             <FormSelect
               id="country"
