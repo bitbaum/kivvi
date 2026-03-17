@@ -1,6 +1,6 @@
-import type { InvoicePdfData } from '@kivvi/core/src/domain/pdf-generation';
-import type { CompanySettings } from '@kivvi/database';
-import { DEFAULT_VAT_RATE } from '@/lib/config/vat-rates';
+import type { InvoicePdfData } from "@kivvi/core/src/domain/pdf-generation";
+import type { CompanySettings } from "@kivvi/database";
+import { DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
 
 /**
  * Build InvoicePdfData from a document + company record.
@@ -13,7 +13,14 @@ export function buildInvoicePdfData(
     number: string;
     issueDate: Date | string;
     dueDate?: Date | string | null;
-    contact?: { name?: string | null; address?: string | null; city?: string | null; postalCode?: string | null; country?: string | null; [key: string]: unknown } | null;
+    contact?: {
+      name?: string | null;
+      address?: string | null;
+      city?: string | null;
+      postalCode?: string | null;
+      country?: string | null;
+      [key: string]: unknown;
+    } | null;
     items?: Array<{
       position?: number | null;
       description: string;
@@ -50,22 +57,28 @@ export function buildInvoicePdfData(
   return {
     // Company info
     companyName: company.legalName || company.name,
-    companyAddress: company.address || '',
-    companyCity: company.city || '',
-    companyPostalCode: company.postalCode || '',
-    companyCountry: company.country || 'CH',
+    companyAddress: company.address || "",
+    companyCity: company.city || "",
+    companyPostalCode: company.postalCode || "",
+    companyCountry: company.country || "CH",
     companyVatNumber: company.vatNumber || undefined,
     companyIban: settings.bankAccount?.iban || undefined,
+    companyLogoBase64: settings.logoBase64 || undefined,
 
     // Document info
     number: doc.number,
-    issueDate: doc.issueDate instanceof Date ? doc.issueDate.toISOString() : String(doc.issueDate),
+    issueDate:
+      doc.issueDate instanceof Date
+        ? doc.issueDate.toISOString()
+        : String(doc.issueDate),
     dueDate: doc.dueDate
-      ? (doc.dueDate instanceof Date ? doc.dueDate.toISOString() : String(doc.dueDate))
+      ? doc.dueDate instanceof Date
+        ? doc.dueDate.toISOString()
+        : String(doc.dueDate)
       : undefined,
 
     // Contact info
-    contactName: doc.contact?.name || '',
+    contactName: doc.contact?.name || "",
     contactAddress: doc.contact?.address || undefined,
     contactCity: doc.contact?.city || undefined,
     contactPostalCode: doc.contact?.postalCode || undefined,
@@ -78,7 +91,7 @@ export function buildInvoicePdfData(
       quantity: item.quantity,
       unitPrice: item.unitPrice,
       vatRate: item.vatRate || DEFAULT_VAT_RATE,
-      discount: item.discount || '0',
+      discount: item.discount || "0",
       total: item.total,
     })),
 
