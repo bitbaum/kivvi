@@ -24,6 +24,7 @@ import {
   getContactTypeLabels,
 } from "@/lib/config/contact-types";
 import { Breadcrumb } from "@/components/breadcrumb";
+import { CopyButton } from "@/components/copy-button";
 import { DeleteContactButton } from "./delete-button";
 import { AddressManager } from "./address-manager";
 
@@ -67,7 +68,7 @@ export default async function ContactDetailPage({
       <div>
         <Link
           href="/contacts"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
+          className="inline-flex min-h-[44px] items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
         >
           <ArrowLeft className="h-4 w-4" />
           {tc("back")} {t("title")}
@@ -142,16 +143,19 @@ export default async function ContactDetailPage({
                 icon={<Mail className="h-4 w-4" />}
                 label={tc("email")}
                 value={contact.email}
+                copyable
               />
               <InfoRow
                 icon={<Phone className="h-4 w-4" />}
                 label={tc("phone")}
                 value={contact.phone}
+                copyable
               />
               <InfoRow
                 icon={<Phone className="h-4 w-4" />}
                 label={t("mobile")}
                 value={contact.mobile}
+                copyable
               />
               <InfoRow
                 icon={<Globe className="h-4 w-4" />}
@@ -191,11 +195,17 @@ export default async function ContactDetailPage({
 
           {/* Recent Documents */}
           <div className="rounded-xl border bg-card">
-            <div className="border-b px-6 py-4">
+            <div className="flex items-center justify-between border-b px-6 py-4">
               <h2 className="font-semibold flex items-center gap-2">
                 <FileText className="h-4 w-4" />
                 {t("recentDocuments")}
               </h2>
+              <Link
+                href={`/documents?contactId=${contact.id}`}
+                className="text-sm text-primary hover:underline"
+              >
+                {tc("viewAll")}
+              </Link>
             </div>
             {recentDocuments.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12">
@@ -249,9 +259,13 @@ export default async function ContactDetailPage({
               </h2>
             </div>
             <div className="space-y-4 p-6">
-              <InfoItem label={t("vatNumber")} value={contact.vatNumber} />
-              <InfoItem label={t("iban")} value={contact.iban} />
-              <InfoItem label={t("bic")} value={contact.bic} />
+              <InfoItem
+                label={t("vatNumber")}
+                value={contact.vatNumber}
+                copyable
+              />
+              <InfoItem label={t("iban")} value={contact.iban} copyable />
+              <InfoItem label={t("bic")} value={contact.bic} copyable />
               <InfoItem
                 label={t("paymentTerms")}
                 value={
@@ -326,17 +340,22 @@ function InfoRow({
   icon,
   label,
   value,
+  copyable,
 }: {
   icon: React.ReactNode;
   label: string;
   value: string | null | undefined;
+  copyable?: boolean;
 }) {
   return (
     <div className="flex items-start gap-3">
       <div className="mt-0.5 text-muted-foreground">{icon}</div>
       <div>
         <p className="text-xs text-muted-foreground">{label}</p>
-        <p className="text-sm">{value || "-"}</p>
+        <div className="flex items-center gap-1">
+          <p className="text-sm">{value || "-"}</p>
+          {copyable && value && <CopyButton value={value} />}
+        </div>
       </div>
     </div>
   );
@@ -345,14 +364,19 @@ function InfoRow({
 function InfoItem({
   label,
   value,
+  copyable,
 }: {
   label: string;
   value: string | null | undefined;
+  copyable?: boolean;
 }) {
   return (
     <div>
       <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="text-sm font-medium">{value || "-"}</p>
+      <div className="flex items-center gap-1">
+        <p className="text-sm font-medium">{value || "-"}</p>
+        {copyable && value && <CopyButton value={value} />}
+      </div>
     </div>
   );
 }

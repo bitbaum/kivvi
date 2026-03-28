@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { Tool, ExecutionContext, ToolResult } from "../types";
 import { getDb } from "./utils";
+import { DEFAULT_VAT_RATE } from "@kivvi/core/src/config/vat-rates";
 
 const createProductSchema = z.object({
   name: z.string().min(1).describe("Product or service name"),
@@ -14,7 +15,7 @@ const createProductSchema = z.object({
     .describe("Unit price in the company default currency (e.g. 49.90)"),
   vatRate: z
     .number()
-    .default(8.1)
+    .default(Number(DEFAULT_VAT_RATE))
     .describe(
       "VAT rate as percentage (8.1 for standard Swiss VAT, 2.6 for reduced, 0 for exempt)",
     ),

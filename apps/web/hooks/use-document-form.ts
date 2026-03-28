@@ -1,24 +1,30 @@
-import { useState } from 'react';
-import Decimal from 'decimal.js';
-import type { DragEndEvent } from '@dnd-kit/core';
-import { arrayMove } from '@dnd-kit/sortable';
-import { DEFAULT_PAYMENT_TERMS_DAYS, type DocumentTypeConfig } from '@/lib/config/document-types';
-import { rappenRound } from '@kivvi/core/src/utils/swiss-currency';
-import type { LineItem } from '@/components/documents/document-form';
-import { emptyItem, calculateItemTotal } from '@/components/documents/document-form';
+import { useState } from "react";
+import type { DragEndEvent } from "@dnd-kit/core";
+import { arrayMove } from "@dnd-kit/sortable";
+import {
+  DEFAULT_PAYMENT_TERMS_DAYS,
+  type DocumentTypeConfig,
+} from "@/lib/config/document-types";
+import type { LineItem } from "@/components/documents/document-form";
+import { emptyItem } from "@/components/documents/document-form";
+import { calculateDocumentTotals } from "@/components/documents/calculate-item-total";
 
 export function useDocumentForm(config: DocumentTypeConfig) {
   const [contactId, setContactId] = useState<string | null>(null);
-  const [contactName, setContactName] = useState('');
-  const [issueDate, setIssueDate] = useState(new Date().toISOString().split('T')[0]);
+  const [contactName, setContactName] = useState("");
+  const [issueDate, setIssueDate] = useState(
+    new Date().toISOString().split("T")[0],
+  );
   const [dueDate, setDueDate] = useState(
     config.hasDueDate
-      ? new Date(Date.now() + DEFAULT_PAYMENT_TERMS_DAYS * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-      : ''
+      ? new Date(Date.now() + DEFAULT_PAYMENT_TERMS_DAYS * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0]
+      : "",
   );
-  const [deliveryDate, setDeliveryDate] = useState('');
-  const [notes, setNotes] = useState('');
-  const [internalNotes, setInternalNotes] = useState('');
+  const [deliveryDate, setDeliveryDate] = useState("");
+  const [notes, setNotes] = useState("");
+  const [internalNotes, setInternalNotes] = useState("");
   const [items, setItems] = useState<LineItem[]>([emptyItem()]);
 
   // Track last added item for auto-focus
@@ -35,10 +41,10 @@ export function useDocumentForm(config: DocumentTypeConfig) {
     setItems(items.filter((i) => i.id !== id));
   };
   const updateItem = (id: string, field: keyof LineItem, value: string) => {
-    if (field === 'discount') {
+    if (field === "discount") {
       const num = parseFloat(value);
-      if (!isNaN(num) && num > 100) value = '100';
-      if (!isNaN(num) && num < 0) value = '0';
+      if (!isNaN(num) && num > 100) value = "100";
+      if (!isNaN(num) && num < 0) value = "0";
     }
     setItems(items.map((i) => (i.id === id ? { ...i, [field]: value } : i)));
   };
@@ -55,31 +61,33 @@ export function useDocumentForm(config: DocumentTypeConfig) {
     }
   };
 
-  // Totals (decimal.js for exact arithmetic)
-  const subtotal = items.reduce((sum, item) => sum.plus(calculateItemTotal(item)), new Decimal(0));
-  const vatAmount = items.reduce((sum, item) => {
-    const lineTotal = calculateItemTotal(item);
-    try {
-      const vatRate = new Decimal(item.vatRate || '0');
-      return sum.plus(lineTotal.times(vatRate).div(100).toDecimalPlaces(2));
-    } catch {
-      return sum;
-    }
-  }, new Decimal(0));
-  const total = rappenRound(subtotal.plus(vatAmount));
+  // Totals (decimal.js for exact arithmetic, single source of calculation logic)
+  const { subtotal, vatAmount, total } = calculateDocumentTotals(items);
 
   return {
-    contactId, setContactId,
-    contactName, setContactName,
-    issueDate, setIssueDate,
-    dueDate, setDueDate,
-    deliveryDate, setDeliveryDate,
-    notes, setNotes,
-    internalNotes, setInternalNotes,
+    contactId,
+    setContactId,
+    contactName,
+    setContactName,
+    issueDate,
+    setIssueDate,
+    dueDate,
+    setDueDate,
+    deliveryDate,
+    setDeliveryDate,
+    notes,
+    setNotes,
+    internalNotes,
+    setInternalNotes,
     items,
-    addItem, removeItem, updateItem,
+    addItem,
+    removeItem,
+    updateItem,
     handleDragEnd,
-    lastAddedItemId, setLastAddedItemId,
-    subtotal, vatAmount, total,
+    lastAddedItemId,
+    setLastAddedItemId,
+    subtotal,
+    vatAmount,
+    total,
   };
 }

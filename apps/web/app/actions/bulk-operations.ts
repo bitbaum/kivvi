@@ -9,7 +9,10 @@ import {
   deleteDocument,
   createDunning,
   extendQuoteValidity,
+  recordPayment,
+  getDocument,
 } from "@kivvi/core";
+import Decimal from "decimal.js";
 import { deleteContact } from "@kivvi/core/src/domain/contacts";
 import { deleteProduct } from "@kivvi/core/src/domain/products";
 import {
@@ -305,6 +308,55 @@ export async function bulkStatusChangeAction(
     return {
       success: false,
       error: safeErrorMessage(error, "Failed to bulk update status"),
+    };
+  }
+}
+
+/** Bulk mark documents as paid by recording full outstanding payment for each. */
+export async function bulkMarkPaidAction(
+  input: unknown,
+): Promise<ActionResult<BulkOperationResult>> {
+  try {
+    const { companyId } = await requireRole("member");
+    const schema = bulkDocumentIdsSchema.extend({
+      paymentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+      method: z
+        .enum(["bank_transfer", "cash", "card", "other"])
+        .default("bank_transfer"),
+    });
+    const data = parseInput(schema, input);
+    if ("success" in data) return data as ActionResult<never>;
+
+    return runBulkOperation(
+      data.documentIds,
+      async (docId) => {
+        // Get document to calculate outstanding
+        const doc = await getDocument(db, companyId, docId);
+        if (!doc) throw new Error("Document not found");
+
+        const total = new Decimal(doc.total);
+        const paid = (doc.payments || []).reduce(
+          (sum: Decimal, p: { amount: string }) => sum.plus(p.amount),
+          new Decimal(0),
+        );
+        const outstanding = total.minus(paid);
+        if (outstanding.lte(0)) return undefined; // Already fully paid
+
+        await recordPayment(db, companyId, docId, {
+          amount: outstanding.toFixed(2),
+          date: data.paymentDate,
+          method: data.method as "bank_transfer" | "cash" | "card" | "other",
+          reference: `Bulk payment ${data.paymentDate}`,
+        });
+        return undefined;
+      },
+      () => revalidatePath("/"),
+      "Failed to record payment",
+    );
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to bulk mark as paid"),
     };
   }
 }

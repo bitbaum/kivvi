@@ -44,7 +44,7 @@ export default async function JournalEntryDetailPage({ params }: PageProps) {
       <div>
         <Link
           href="/accounting/journal"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
+          className="inline-flex min-h-[44px] items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
         >
           <ArrowLeft className="h-4 w-4" />
           {tc("back")} {t("journal")}

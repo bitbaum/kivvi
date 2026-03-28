@@ -59,7 +59,7 @@ function ForgotPasswordForm() {
           {success ? (
             <>
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-                <Mail className="h-6 w-6 text-green-600" />
+                <Mail className="h-6 w-6 text-green-600 dark:text-green-400" />
               </div>
               <h1 className="mb-2 text-2xl font-semibold">
                 {t("checkYourEmail")}
@@ -69,7 +69,7 @@ function ForgotPasswordForm() {
               </p>
               <Link
                 href="/login"
-                className="flex items-center justify-center gap-2 rounded-lg border bg-background py-2.5 text-sm font-medium shadow-sm hover:bg-muted"
+                className="flex min-h-[44px] items-center justify-center gap-2 rounded-lg border bg-background py-2.5 text-sm font-medium shadow-sm hover:bg-muted"
               >
                 <ArrowLeft className="h-4 w-4" />
                 {t("backToSignIn")}
@@ -133,7 +133,7 @@ function ForgotPasswordForm() {
               <div className="mt-6 text-center">
                 <Link
                   href="/login"
-                  className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+                  className="inline-flex min-h-[44px] items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
                 >
                   <ArrowLeft className="h-4 w-4" />
                   {t("backToSignIn")}

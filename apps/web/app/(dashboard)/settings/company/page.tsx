@@ -31,7 +31,7 @@ export default async function CompanySettingsPage() {
       {/* Back link */}
       <Link
         href="/settings"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        className="inline-flex min-h-[44px] items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
         {tc("back")}

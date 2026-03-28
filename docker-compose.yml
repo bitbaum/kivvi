@@ -18,14 +18,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # Redis (caching, sessions, queues)
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-
   # Ollama (optional - for self-hosted AI)
   ollama:
     image: ollama/ollama:latest
@@ -46,5 +38,4 @@ services:
 
 volumes:
   postgres_data:
-  redis_data:
   ollama_models:

@@ -494,6 +494,14 @@ export async function createAutoJournalEntry(
     }
   }
 
+  // Validate debits == credits before inserting
+  const balance = validateJournalBalance(input.lines);
+  if (!balance.valid) {
+    throw new Error(
+      `Auto journal entry must balance. Debits: ${balance.totalDebits}, Credits: ${balance.totalCredits} (source: ${input.sourceType} ${input.sourceId})`,
+    );
+  }
+
   // Wrap journal entry + lines insert in transaction
   return db.transaction(async (tx) => {
     const [entry] = await tx

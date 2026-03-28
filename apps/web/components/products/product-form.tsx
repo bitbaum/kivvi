@@ -85,7 +85,7 @@ export function ProductForm({ mode, product }: ProductFormProps) {
       <div className="flex items-center gap-4">
         <Link
           href={backHref}
-          className="rounded-lg border p-2 hover:bg-muted transition-colors"
+          className="min-h-[44px] min-w-[44px] rounded-lg border p-2 hover:bg-muted transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
         </Link>
@@ -340,7 +340,7 @@ export function ProductForm({ mode, product }: ProductFormProps) {
                   id="serialNumberTracking"
                   name="serialNumberTracking"
                   defaultChecked={product?.serialNumberTracking ?? false}
-                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                  className="h-4 w-4 rounded border-input text-primary focus:ring-primary"
                 />
                 <label
                   htmlFor="serialNumberTracking"
@@ -365,7 +365,7 @@ export function ProductForm({ mode, product }: ProductFormProps) {
                 id="shopVisible"
                 name="shopVisible"
                 defaultChecked={product?.shopVisible ?? false}
-                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                className="h-4 w-4 rounded border-input text-primary focus:ring-primary"
               />
               <div>
                 <label htmlFor="shopVisible" className="text-sm font-medium">

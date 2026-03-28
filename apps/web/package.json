@@ -20,8 +20,6 @@
     "@kivvi/ai": "workspace:*",
     "@kivvi/core": "workspace:*",
     "@kivvi/database": "workspace:*",
-    "@kivvi/events": "workspace:*",
-    "@kivvi/ui": "workspace:*",
     "@radix-ui/react-avatar": "^1.0.4",
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-dropdown-menu": "^2.0.6",

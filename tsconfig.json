@@ -17,9 +17,7 @@
     "paths": {
       "@kivvi/core": ["packages/core/src"],
       "@kivvi/database": ["packages/database/src"],
-      "@kivvi/ai": ["packages/ai/src"],
-      "@kivvi/events": ["packages/events/src"],
-      "@kivvi/ui": ["packages/ui/src"]
+      "@kivvi/ai": ["packages/ai/src"]
     }
   },
   "exclude": ["node_modules"]

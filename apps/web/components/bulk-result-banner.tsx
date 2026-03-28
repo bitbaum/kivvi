@@ -1,9 +1,16 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { CheckCircle, AlertTriangle, XCircle, ChevronDown, ChevronUp, X } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { cn } from '@/lib/utils';
+import { useState, useEffect } from "react";
+import {
+  CheckCircle,
+  AlertTriangle,
+  XCircle,
+  ChevronDown,
+  ChevronUp,
+  X,
+} from "lucide-react";
+import { useTranslations } from "next-intl";
+import { cn } from "@/lib/utils";
 
 interface BulkResult {
   successCount: number;
@@ -17,8 +24,12 @@ interface BulkResultBannerProps {
   onDismiss: () => void;
 }
 
-export function BulkResultBanner({ result, labels, onDismiss }: BulkResultBannerProps) {
-  const tc = useTranslations('common');
+export function BulkResultBanner({
+  result,
+  labels,
+  onDismiss,
+}: BulkResultBannerProps) {
+  const tc = useTranslations("common");
   const [showErrors, setShowErrors] = useState(false);
 
   useEffect(() => {
@@ -33,24 +44,28 @@ export function BulkResultBanner({ result, labels, onDismiss }: BulkResultBanner
   const isFullFailure = result.successCount === 0;
 
   const bgClass = isFullSuccess
-    ? 'border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-950/50 dark:text-green-300'
+    ? "border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-950/50 dark:text-green-300"
     : isFullFailure
-      ? 'border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/50 dark:text-red-300'
-      : 'border-yellow-200 bg-yellow-50 text-yellow-800 dark:border-yellow-800 dark:bg-yellow-950/50 dark:text-yellow-300';
+      ? "border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/50 dark:text-red-300"
+      : "border-yellow-200 bg-yellow-50 text-yellow-800 dark:border-yellow-800 dark:bg-yellow-950/50 dark:text-yellow-300";
 
-  const Icon = isFullSuccess ? CheckCircle : isFullFailure ? XCircle : AlertTriangle;
-  const message = isFullSuccess
-    ? labels.successAll.replace('{count}', String(result.successCount))
+  const Icon = isFullSuccess
+    ? CheckCircle
     : isFullFailure
-      ? labels.failedAll.replace('{count}', String(result.failureCount))
+      ? XCircle
+      : AlertTriangle;
+  const message = isFullSuccess
+    ? labels.successAll.replace("{count}", String(result.successCount))
+    : isFullFailure
+      ? labels.failedAll.replace("{count}", String(result.failureCount))
       : labels.successPartial
-          .replace('{successCount}', String(result.successCount))
-          .replace('{failureCount}', String(result.failureCount));
+          .replace("{successCount}", String(result.successCount))
+          .replace("{failureCount}", String(result.failureCount));
 
   const errors = result.results.filter((r) => !r.success);
 
   return (
-    <div role="alert" className={cn('rounded-lg border p-3', bgClass)}>
+    <div role="alert" className={cn("rounded-lg border p-3", bgClass)}>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Icon className="h-4 w-4 flex-shrink-0" />
@@ -61,11 +76,19 @@ export function BulkResultBanner({ result, labels, onDismiss }: BulkResultBanner
               className="inline-flex items-center gap-1 text-xs underline"
             >
               {showErrors ? labels.hideErrors : labels.showErrors}
-              {showErrors ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+              {showErrors ? (
+                <ChevronUp className="h-3 w-3" />
+              ) : (
+                <ChevronDown className="h-3 w-3" />
+              )}
             </button>
           )}
         </div>
-        <button onClick={onDismiss} aria-label={tc('aria.dismiss')} className="rounded p-0.5 hover:bg-black/10 dark:hover:bg-white/10">
+        <button
+          onClick={onDismiss}
+          aria-label={tc("aria.dismiss")}
+          className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded hover:bg-black/10 dark:hover:bg-white/10"
+        >
           <X className="h-3.5 w-3.5" />
         </button>
       </div>

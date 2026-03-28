@@ -53,14 +53,14 @@ export async function sendDocumentEmailAction(
 
     // Fetch document with tenant isolation
     const doc = await getDocument(db, companyId, parsed.data.documentId);
-    if (!doc) return { success: false, error: "Dokument nicht gefunden" };
+    if (!doc) return { success: false, error: "Document not found" };
 
     // Check email configuration
     if (!isEmailConfigured()) {
       return {
         success: false,
         error:
-          "E-Mail-Versand ist nicht konfiguriert (EMAIL_USER und EMAIL_PASS fehlen)",
+          "E-Mail-Versand ist nicht konfiguriert. Bitte setzen Sie EMAIL_USER und EMAIL_PASS in den Umgebungsvariablen oder kontaktieren Sie den Administrator.",
       };
     }
 
@@ -138,7 +138,7 @@ export async function sendPasswordResetEmail(
 ): Promise<void> {
   if (!isEmailConfigured()) {
     throw new Error(
-      "E-Mail-Versand ist nicht konfiguriert (EMAIL_USER und EMAIL_PASS fehlen)",
+      "E-Mail-Versand ist nicht konfiguriert. Bitte setzen Sie EMAIL_USER und EMAIL_PASS in den Umgebungsvariablen oder kontaktieren Sie den Administrator.",
     );
   }
 

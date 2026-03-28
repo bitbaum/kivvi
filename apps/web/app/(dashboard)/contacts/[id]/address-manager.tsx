@@ -128,7 +128,7 @@ export function AddressManager({ contactId, addresses }: AddressManagerProps) {
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => startEdit(addr)}
-                  className="rounded-lg p-2 hover:bg-muted transition-colors"
+                  className="min-h-[44px] min-w-[44px] rounded-lg p-2 hover:bg-muted transition-colors"
                 >
                   <Pencil className="h-3.5 w-3.5" />
                 </button>

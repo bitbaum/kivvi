@@ -1,14 +1,14 @@
-import Link from 'next/link';
-import { redirect } from 'next/navigation';
-import { ArrowLeft, BarChart3, FileText, TrendingUp } from 'lucide-react';
-import { auth } from '@/lib/auth';
-import { db } from '@/lib/db';
-import { getSalesReport } from '@kivvi/core';
-import { formatCurrency } from '@/lib/utils';
-import { DateRangeForm } from '../date-range-form';
-import { ExportButton } from '../export-button';
-import { EmptyState } from '@/components/empty-state';
-import { getTranslations } from 'next-intl/server';
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { ArrowLeft, BarChart3, FileText, TrendingUp } from "lucide-react";
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { getSalesReport } from "@kivvi/core";
+import { formatCurrency } from "@/lib/utils";
+import { DateRangeForm } from "../date-range-form";
+import { ExportButton } from "../export-button";
+import { EmptyState } from "@/components/empty-state";
+import { getTranslations } from "next-intl/server";
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -16,11 +16,11 @@ interface PageProps {
 
 export default async function SalesReportPage({ searchParams }: PageProps) {
   const session = await auth();
-  if (!session?.user?.companyId) redirect('/login');
+  if (!session?.user?.companyId) redirect("/login");
 
-  const t = await getTranslations('reports');
-  const tc = await getTranslations('common');
-  const ta = await getTranslations('accounting');
+  const t = await getTranslations("reports");
+  const tc = await getTranslations("common");
+  const ta = await getTranslations("accounting");
 
   const params = await searchParams;
   const now = new Date();
@@ -31,7 +31,7 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
     db,
     session.user.companyId,
     startDate,
-    endDate
+    endDate,
   );
 
   const hasData = report.rows.length > 0;
@@ -42,17 +42,15 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
       <div>
         <Link
           href="/reports"
-          className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="mb-4 inline-flex min-h-[44px] items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
-          {tc('back')} {t('title')}
+          {tc("back")} {t("title")}
         </Link>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold">{t('salesReport')}</h1>
-            <p className="text-muted-foreground">
-              {t('salesReportDesc')}
-            </p>
+            <h1 className="text-3xl font-bold">{t("salesReport")}</h1>
+            <p className="text-muted-foreground">{t("salesReportDesc")}</p>
           </div>
           <ExportButton
             reportType="sales"
@@ -71,35 +69,51 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
       {!hasData ? (
         <EmptyState
           icon={TrendingUp}
-          title={t('noSalesData')}
-          description={t('noSalesDataDesc', { start: startDate, end: endDate })}
-          actionLabel={tc('createInvoice')}
+          title={t("noSalesData")}
+          description={t("noSalesDataDesc", { start: startDate, end: endDate })}
+          actionLabel={tc("createInvoice")}
           actionHref="/sales/invoices/new"
-          secondaryActionLabel={tc('adjustDateRange')}
+          secondaryActionLabel={tc("adjustDateRange")}
         />
       ) : (
         <div className="rounded-xl border bg-card">
           <div className="flex items-center gap-2 border-b p-4">
             <BarChart3 className="h-5 w-5 text-red-600 dark:text-red-400" />
-            <h2 className="font-semibold">{t('monthlySales')}</h2>
+            <h2 className="font-semibold">{t("monthlySales")}</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  <th className="sticky left-0 bg-card px-4 py-3 md:px-6">{t('month')}</th>
-                  <th className="hidden px-4 py-3 text-right md:table-cell md:px-6">{t('invoiceCount')}</th>
-                  <th className="hidden px-4 py-3 text-right sm:table-cell md:px-6">{t('revenueGross')}</th>
-                  <th className="hidden px-4 py-3 text-right md:table-cell md:px-6">{t('vatAmount')}</th>
-                  <th className="hidden px-4 py-3 text-right md:table-cell md:px-6">{t('creditNoteCount')}</th>
-                  <th className="hidden px-4 py-3 text-right md:table-cell md:px-6">{tc('amount')}</th>
-                  <th className="px-4 py-3 text-right md:px-6">{t('netRevenue')}</th>
+                  <th className="sticky left-0 bg-card px-4 py-3 md:px-6">
+                    {t("month")}
+                  </th>
+                  <th className="hidden px-4 py-3 text-right md:table-cell md:px-6">
+                    {t("invoiceCount")}
+                  </th>
+                  <th className="hidden px-4 py-3 text-right sm:table-cell md:px-6">
+                    {t("revenueGross")}
+                  </th>
+                  <th className="hidden px-4 py-3 text-right md:table-cell md:px-6">
+                    {t("vatAmount")}
+                  </th>
+                  <th className="hidden px-4 py-3 text-right md:table-cell md:px-6">
+                    {t("creditNoteCount")}
+                  </th>
+                  <th className="hidden px-4 py-3 text-right md:table-cell md:px-6">
+                    {tc("amount")}
+                  </th>
+                  <th className="px-4 py-3 text-right md:px-6">
+                    {t("netRevenue")}
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y">
                 {report.rows.map((row) => (
                   <tr key={row.month} className="hover:bg-muted/50">
-                    <td className="sticky left-0 bg-card px-4 py-3 font-medium md:px-6">{row.month}</td>
+                    <td className="sticky left-0 bg-card px-4 py-3 font-medium md:px-6">
+                      {row.month}
+                    </td>
                     <td className="hidden px-4 py-3 text-right text-muted-foreground md:table-cell md:px-6">
                       {row.invoiceCount}
                     </td>
@@ -110,18 +124,18 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
                       {formatCurrency(row.vatAmount)}
                     </td>
                     <td className="hidden px-4 py-3 text-right text-muted-foreground md:table-cell md:px-6">
-                      {row.creditNoteCount > 0 ? row.creditNoteCount : '-'}
+                      {row.creditNoteCount > 0 ? row.creditNoteCount : "-"}
                     </td>
                     <td className="hidden px-4 py-3 text-right text-red-600 md:table-cell dark:text-red-400 md:px-6">
                       {Number(row.creditNoteAmount) > 0
                         ? `- ${formatCurrency(row.creditNoteAmount)}`
-                        : '-'}
+                        : "-"}
                     </td>
                     <td
                       className={`px-4 py-3 text-right font-medium md:px-6 ${
                         Number(row.netRevenue) >= 0
-                          ? 'text-green-600 dark:text-green-400'
-                          : 'text-red-600 dark:text-red-400'
+                          ? "text-green-600 dark:text-green-400"
+                          : "text-red-600 dark:text-red-400"
                       }`}
                     >
                       {formatCurrency(row.netRevenue)}
@@ -131,7 +145,9 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
               </tbody>
               <tfoot>
                 <tr className="border-t-2 font-semibold">
-                  <td className="sticky left-0 bg-card px-4 py-3 md:px-6">{tc('totals')}</td>
+                  <td className="sticky left-0 bg-card px-4 py-3 md:px-6">
+                    {tc("totals")}
+                  </td>
                   <td className="hidden px-4 py-3 text-right text-muted-foreground md:table-cell md:px-6">
                     {report.totals.invoiceCount}
                   </td>
@@ -144,18 +160,18 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
                   <td className="hidden px-4 py-3 text-right text-muted-foreground md:table-cell md:px-6">
                     {report.totals.creditNoteCount > 0
                       ? report.totals.creditNoteCount
-                      : '-'}
+                      : "-"}
                   </td>
                   <td className="hidden px-4 py-3 text-right text-red-600 md:table-cell dark:text-red-400 md:px-6">
                     {Number(report.totals.creditNoteAmount) > 0
                       ? `- ${formatCurrency(report.totals.creditNoteAmount)}`
-                      : '-'}
+                      : "-"}
                   </td>
                   <td
                     className={`px-4 py-3 text-right text-lg md:px-6 ${
                       Number(report.totals.netRevenue) >= 0
-                        ? 'text-green-600 dark:text-green-400'
-                        : 'text-red-600 dark:text-red-400'
+                        ? "text-green-600 dark:text-green-400"
+                        : "text-red-600 dark:text-red-400"
                     }`}
                   >
                     {formatCurrency(report.totals.netRevenue)}
@@ -169,34 +185,40 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
           <div className="border-t p-6">
             <div className="grid gap-4 sm:grid-cols-3">
               <div className="rounded-lg border bg-background p-4">
-                <p className="text-sm text-muted-foreground">{ta('revenue')} {tc('total')}</p>
+                <p className="text-sm text-muted-foreground">
+                  {ta("revenue")} {tc("total")}
+                </p>
                 <p className="mt-1 text-xl font-bold">
                   {formatCurrency(report.totals.revenue)}
                 </p>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  {t('fromInvoices', { count: report.totals.invoiceCount })}
+                  {t("fromInvoices", { count: report.totals.invoiceCount })}
                 </p>
               </div>
               <div className="rounded-lg border bg-background p-4">
-                <p className="text-sm text-muted-foreground">{t('creditNoteCount')}</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("creditNoteCount")}
+                </p>
                 <p className="mt-1 text-xl font-bold text-red-600 dark:text-red-400">
                   {Number(report.totals.creditNoteAmount) > 0
                     ? `- ${formatCurrency(report.totals.creditNoteAmount)}`
                     : formatCurrency(0)}
                 </p>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  {t('creditNotesCount', { count: report.totals.creditNoteCount })}
+                  {t("creditNotesCount", {
+                    count: report.totals.creditNoteCount,
+                  })}
                 </p>
               </div>
               <div className="rounded-lg border-2 border-primary/20 bg-primary/5 p-4">
                 <p className="text-sm font-medium text-muted-foreground">
-                  {t('netRevenue')}
+                  {t("netRevenue")}
                 </p>
                 <p
                   className={`mt-1 text-2xl font-bold ${
                     Number(report.totals.netRevenue) >= 0
-                      ? 'text-green-600 dark:text-green-400'
-                      : 'text-red-600 dark:text-red-400'
+                      ? "text-green-600 dark:text-green-400"
+                      : "text-red-600 dark:text-red-400"
                   }`}
                 >
                   {formatCurrency(report.totals.netRevenue)}

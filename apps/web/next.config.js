@@ -8,8 +8,6 @@ const nextConfig = {
     '@kivvi/core',
     '@kivvi/database',
     '@kivvi/ai',
-    '@kivvi/events',
-    '@kivvi/ui',
   ],
   experimental: {
     serverComponentsExternalPackages: ['@anthropic-ai/sdk', 'pdfkit', 'swissqrbill'],

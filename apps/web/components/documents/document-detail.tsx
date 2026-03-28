@@ -5,6 +5,7 @@ import {
   AlertTriangle,
   CheckCircle2,
   Download,
+  Printer,
   FileText,
 } from "lucide-react";
 import Link from "next/link";
@@ -18,6 +19,9 @@ import {
 import { DocumentDeleteButton } from "./document-delete";
 import { SendEmailButton } from "./send-email-dialog";
 import { PaymentForm } from "./payment-form";
+import { DocumentDuplicateButton } from "./document-duplicate";
+import { PrintButton } from "./print-button";
+import { SendAndMarkButton } from "./send-and-mark-button";
 import type { DocumentTypeConfig } from "@/lib/config/document-types";
 import {
   getOverdueInfo,
@@ -56,7 +60,7 @@ export async function DocumentDetail({ doc, config }: DocumentDetailProps) {
         <div className="flex items-center gap-4">
           <Link
             href={config.basePath}
-            className="rounded-lg p-2 hover:bg-muted"
+            className="min-h-[44px] min-w-[44px] rounded-lg p-2 hover:bg-muted"
             aria-label={tc("back")}
           >
             <ArrowLeft className="h-5 w-5" />
@@ -91,6 +95,11 @@ export async function DocumentDetail({ doc, config }: DocumentDetailProps) {
             <Download className="h-4 w-4" />
             PDF
           </a>
+          <PrintButton documentId={doc.id} />
+          <DocumentDuplicateButton
+            documentId={doc.id}
+            documentType={doc.type}
+          />
           {doc.status !== "draft" && doc.status !== "cancelled" && (
             <SendEmailButton
               documentId={doc.id}
@@ -98,13 +107,19 @@ export async function DocumentDetail({ doc, config }: DocumentDetailProps) {
             />
           )}
           {doc.status === "draft" && (
-            <Link
-              href={`${config.basePath}/${doc.id}/edit`}
-              className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm hover:bg-muted min-h-[44px]"
-            >
-              <Pencil className="h-4 w-4" />
-              {tc("edit")}
-            </Link>
+            <>
+              <Link
+                href={`${config.basePath}/${doc.id}/edit`}
+                className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm hover:bg-muted min-h-[44px]"
+              >
+                <Pencil className="h-4 w-4" />
+                {tc("edit")}
+              </Link>
+              <SendAndMarkButton
+                documentId={doc.id}
+                contactEmail={doc.contact?.email || undefined}
+              />
+            </>
           )}
           <DocumentStatusActions
             documentId={doc.id}

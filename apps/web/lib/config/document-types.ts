@@ -1,5 +1,5 @@
-import type { DocumentType, DocumentStatus } from '@kivvi/database';
-import { VALID_CONVERSIONS } from '@kivvi/core/src/domain/document-conversions';
+import type { DocumentType, DocumentStatus } from "@kivvi/database";
+import { VALID_CONVERSIONS } from "@kivvi/core/src/domain/document-conversions";
 
 // ============================================================================
 // DOCUMENT TYPE CONFIG — SSOT for all document type behavior
@@ -13,7 +13,7 @@ export interface DocumentTypeConfig {
   labelPlural: string;
   basePath: string;
   /** Which contact types can be selected (customer for sales, vendor for purchasing) */
-  contactFilter: 'customer' | 'vendor' | 'all';
+  contactFilter: "customer" | "vendor" | "all";
   /** Valid statuses for this document type (subset of all statuses) */
   statuses: DocumentStatus[];
   /** Available status transitions from the UI */
@@ -38,7 +38,7 @@ export interface StatusAction {
   /** Translation key within 'statusActions' namespace — use t(action.label) */
   label: string;
   targetStatus: DocumentStatus;
-  variant: 'primary' | 'default' | 'destructive';
+  variant: "primary" | "default" | "destructive";
 }
 
 export interface BulkActionDef {
@@ -47,8 +47,14 @@ export interface BulkActionDef {
   /** Translation key within 'bulkActions' namespace */
   label: string;
   /** Action type — dispatched to the correct server action */
-  action: 'convert' | 'status_change' | 'delete' | 'extend_validity' | 'dunning';
-  variant: 'default' | 'primary' | 'destructive';
+  action:
+    | "convert"
+    | "status_change"
+    | "delete"
+    | "extend_validity"
+    | "dunning"
+    | "mark_paid";
+  variant: "default" | "primary" | "destructive";
   /** Only show when all selected docs match one of these statuses */
   applicableStatuses?: DocumentStatus[];
   /** Target document type for convert actions */
@@ -86,17 +92,19 @@ export function toCamelCase(snakeCase: string): string {
 // ============================================================================
 
 export const STATUS_STYLES: Record<string, string> = {
-  draft: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400',
-  sent: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-  confirmed: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-  delivered: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
-  paid: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-  partially_paid: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-  overdue: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-  cancelled: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400',
-  dunning_1: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-  dunning_2: 'bg-red-200 text-red-900 dark:bg-red-900/40 dark:text-red-300',
-  dunning_3: 'bg-red-300 text-red-900 dark:bg-red-900/50 dark:text-red-200',
+  draft: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400",
+  sent: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+  confirmed: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+  delivered:
+    "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
+  paid: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+  partially_paid:
+    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+  overdue: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
+  cancelled: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400",
+  dunning_1: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
+  dunning_2: "bg-red-200 text-red-900 dark:bg-red-900/40 dark:text-red-300",
+  dunning_3: "bg-red-300 text-red-900 dark:bg-red-900/50 dark:text-red-200",
 };
 
 // Status labels are in translation files under the 'status' namespace.
@@ -108,41 +116,41 @@ export const STATUS_STYLES: Record<string, string> = {
 
 const COMMON_SALES_ACTIONS: Partial<Record<DocumentStatus, StatusAction[]>> = {
   draft: [
-    { label: 'markAsSent', targetStatus: 'sent', variant: 'primary' },
-    { label: 'cancel', targetStatus: 'cancelled', variant: 'destructive' },
+    { label: "markAsSent", targetStatus: "sent", variant: "primary" },
+    { label: "cancel", targetStatus: "cancelled", variant: "destructive" },
   ],
   sent: [
-    { label: 'confirm', targetStatus: 'confirmed', variant: 'primary' },
-    { label: 'cancel', targetStatus: 'cancelled', variant: 'destructive' },
+    { label: "confirm", targetStatus: "confirmed", variant: "primary" },
+    { label: "cancel", targetStatus: "cancelled", variant: "destructive" },
   ],
   confirmed: [
-    { label: 'markDelivered', targetStatus: 'delivered', variant: 'primary' },
-    { label: 'cancel', targetStatus: 'cancelled', variant: 'destructive' },
+    { label: "markDelivered", targetStatus: "delivered", variant: "primary" },
+    { label: "cancel", targetStatus: "cancelled", variant: "destructive" },
   ],
   delivered: [
-    { label: 'cancel', targetStatus: 'cancelled', variant: 'destructive' },
+    { label: "cancel", targetStatus: "cancelled", variant: "destructive" },
   ],
   overdue: [
-    { label: 'cancel', targetStatus: 'cancelled', variant: 'destructive' },
+    { label: "cancel", targetStatus: "cancelled", variant: "destructive" },
   ],
 };
 
 export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
   quote: {
-    type: 'quote',
-    label: 'quote',
-    labelPlural: 'quotePlural',
-    basePath: '/sales/quotes',
-    contactFilter: 'customer',
-    statuses: ['draft', 'sent', 'confirmed', 'cancelled'],
+    type: "quote",
+    label: "quote",
+    labelPlural: "quotePlural",
+    basePath: "/sales/quotes",
+    contactFilter: "customer",
+    statuses: ["draft", "sent", "confirmed", "cancelled"],
     actions: {
       draft: [
-        { label: 'markAsSent', targetStatus: 'sent', variant: 'primary' },
-        { label: 'cancel', targetStatus: 'cancelled', variant: 'destructive' },
+        { label: "markAsSent", targetStatus: "sent", variant: "primary" },
+        { label: "cancel", targetStatus: "cancelled", variant: "destructive" },
       ],
       sent: [
-        { label: 'confirm', targetStatus: 'confirmed', variant: 'primary' },
-        { label: 'cancel', targetStatus: 'cancelled', variant: 'destructive' },
+        { label: "confirm", targetStatus: "confirmed", variant: "primary" },
+        { label: "cancel", targetStatus: "cancelled", variant: "destructive" },
       ],
     },
     conversionTargets: VALID_CONVERSIONS.quote ?? [],
@@ -150,49 +158,106 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
     hasDeliveryDate: false,
     hasPayments: false,
     canCreate: true,
-    dueDateLabel: 'validUntil',
+    dueDateLabel: "validUntil",
     bulkActions: [
-      { id: 'convert_to_order', label: 'convertToOrder', action: 'convert', variant: 'default', targetType: 'order' },
-      { id: 'convert_to_invoice', label: 'convertToInvoice', action: 'convert', variant: 'primary', targetType: 'invoice' },
-      { id: 'extend_validity', label: 'extendValidity', action: 'extend_validity', variant: 'default' },
-      { id: 'mark_sent', label: 'markAsSent', action: 'status_change', variant: 'default', targetStatus: 'sent', applicableStatuses: ['draft'] },
-      { id: 'delete', label: 'delete', action: 'delete', variant: 'destructive', applicableStatuses: ['draft'], requiresConfirmation: true },
+      {
+        id: "convert_to_order",
+        label: "convertToOrder",
+        action: "convert",
+        variant: "default",
+        targetType: "order",
+      },
+      {
+        id: "convert_to_invoice",
+        label: "convertToInvoice",
+        action: "convert",
+        variant: "primary",
+        targetType: "invoice",
+      },
+      {
+        id: "extend_validity",
+        label: "extendValidity",
+        action: "extend_validity",
+        variant: "default",
+      },
+      {
+        id: "mark_sent",
+        label: "markAsSent",
+        action: "status_change",
+        variant: "default",
+        targetStatus: "sent",
+        applicableStatuses: ["draft"],
+      },
+      {
+        id: "delete",
+        label: "delete",
+        action: "delete",
+        variant: "destructive",
+        applicableStatuses: ["draft"],
+        requiresConfirmation: true,
+      },
     ],
   },
   order: {
-    type: 'order',
-    label: 'order',
-    labelPlural: 'orderPlural',
-    basePath: '/sales/orders',
-    contactFilter: 'customer',
-    statuses: ['draft', 'sent', 'confirmed', 'delivered', 'cancelled'],
+    type: "order",
+    label: "order",
+    labelPlural: "orderPlural",
+    basePath: "/sales/orders",
+    contactFilter: "customer",
+    statuses: ["draft", "sent", "confirmed", "delivered", "cancelled"],
     actions: COMMON_SALES_ACTIONS,
     conversionTargets: VALID_CONVERSIONS.order ?? [],
     hasDueDate: false,
     hasDeliveryDate: true,
     hasPayments: false,
     canCreate: true,
-    dueDateLabel: 'deliveryDate',
+    dueDateLabel: "deliveryDate",
     bulkActions: [
-      { id: 'convert_to_invoice', label: 'convertToInvoice', action: 'convert', variant: 'primary', targetType: 'invoice' },
-      { id: 'convert_to_delivery_note', label: 'convertToDeliveryNote', action: 'convert', variant: 'default', targetType: 'delivery_note' },
-      { id: 'mark_sent', label: 'markAsSent', action: 'status_change', variant: 'default', targetStatus: 'sent', applicableStatuses: ['draft'] },
-      { id: 'delete', label: 'delete', action: 'delete', variant: 'destructive', applicableStatuses: ['draft'], requiresConfirmation: true },
+      {
+        id: "convert_to_invoice",
+        label: "convertToInvoice",
+        action: "convert",
+        variant: "primary",
+        targetType: "invoice",
+      },
+      {
+        id: "convert_to_delivery_note",
+        label: "convertToDeliveryNote",
+        action: "convert",
+        variant: "default",
+        targetType: "delivery_note",
+      },
+      {
+        id: "mark_sent",
+        label: "markAsSent",
+        action: "status_change",
+        variant: "default",
+        targetStatus: "sent",
+        applicableStatuses: ["draft"],
+      },
+      {
+        id: "delete",
+        label: "delete",
+        action: "delete",
+        variant: "destructive",
+        applicableStatuses: ["draft"],
+        requiresConfirmation: true,
+      },
     ],
   },
   order_confirmation: {
-    type: 'order_confirmation',
-    label: 'orderConfirmation',
-    labelPlural: 'orderConfirmationPlural',
-    basePath: '/sales/orders',
-    contactFilter: 'customer',
-    statuses: ['draft', 'sent', 'confirmed', 'cancelled'],
+    type: "order_confirmation",
+    label: "orderConfirmation",
+    labelPlural: "orderConfirmationPlural",
+    basePath: "/sales/orders",
+    contactFilter: "customer",
+    statuses: ["draft", "sent", "confirmed", "cancelled"],
     actions: {
       draft: [
-        { label: 'markAsSent', targetStatus: 'sent', variant: 'primary' },
+        { label: "markAsSent", targetStatus: "sent", variant: "primary" },
       ],
       sent: [
-        { label: 'confirm', targetStatus: 'confirmed', variant: 'primary' },
+        { label: "confirm", targetStatus: "confirmed", variant: "primary" },
       ],
     },
     conversionTargets: VALID_CONVERSIONS.order_confirmation ?? [],
@@ -200,27 +265,57 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
     hasDeliveryDate: true,
     hasPayments: false,
     canCreate: false,
-    dueDateLabel: 'deliveryDate',
+    dueDateLabel: "deliveryDate",
     bulkActions: [
-      { id: 'convert_to_invoice', label: 'convertToInvoice', action: 'convert', variant: 'primary', targetType: 'invoice' },
-      { id: 'convert_to_delivery_note', label: 'convertToDeliveryNote', action: 'convert', variant: 'default', targetType: 'delivery_note' },
-      { id: 'mark_sent', label: 'markAsSent', action: 'status_change', variant: 'default', targetStatus: 'sent', applicableStatuses: ['draft'] },
-      { id: 'delete', label: 'delete', action: 'delete', variant: 'destructive', applicableStatuses: ['draft'], requiresConfirmation: true },
+      {
+        id: "convert_to_invoice",
+        label: "convertToInvoice",
+        action: "convert",
+        variant: "primary",
+        targetType: "invoice",
+      },
+      {
+        id: "convert_to_delivery_note",
+        label: "convertToDeliveryNote",
+        action: "convert",
+        variant: "default",
+        targetType: "delivery_note",
+      },
+      {
+        id: "mark_sent",
+        label: "markAsSent",
+        action: "status_change",
+        variant: "default",
+        targetStatus: "sent",
+        applicableStatuses: ["draft"],
+      },
+      {
+        id: "delete",
+        label: "delete",
+        action: "delete",
+        variant: "destructive",
+        applicableStatuses: ["draft"],
+        requiresConfirmation: true,
+      },
     ],
   },
   delivery_note: {
-    type: 'delivery_note',
-    label: 'deliveryNote',
-    labelPlural: 'deliveryNotePlural',
-    basePath: '/sales/delivery-notes',
-    contactFilter: 'customer',
-    statuses: ['draft', 'sent', 'delivered', 'cancelled'],
+    type: "delivery_note",
+    label: "deliveryNote",
+    labelPlural: "deliveryNotePlural",
+    basePath: "/sales/delivery-notes",
+    contactFilter: "customer",
+    statuses: ["draft", "sent", "delivered", "cancelled"],
     actions: {
       draft: [
-        { label: 'markAsSent', targetStatus: 'sent', variant: 'primary' },
+        { label: "markAsSent", targetStatus: "sent", variant: "primary" },
       ],
       sent: [
-        { label: 'markDelivered', targetStatus: 'delivered', variant: 'primary' },
+        {
+          label: "markDelivered",
+          targetStatus: "delivered",
+          variant: "primary",
+        },
       ],
     },
     conversionTargets: VALID_CONVERSIONS.delivery_note ?? [],
@@ -228,48 +323,117 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
     hasDeliveryDate: true,
     hasPayments: false,
     canCreate: false,
-    dueDateLabel: 'deliveryDate',
+    dueDateLabel: "deliveryDate",
     bulkActions: [
-      { id: 'mark_sent', label: 'markAsSent', action: 'status_change', variant: 'default', targetStatus: 'sent', applicableStatuses: ['draft'] },
-      { id: 'mark_delivered', label: 'markDelivered', action: 'status_change', variant: 'primary', targetStatus: 'delivered', applicableStatuses: ['sent'] },
-      { id: 'delete', label: 'delete', action: 'delete', variant: 'destructive', applicableStatuses: ['draft'], requiresConfirmation: true },
+      {
+        id: "mark_sent",
+        label: "markAsSent",
+        action: "status_change",
+        variant: "default",
+        targetStatus: "sent",
+        applicableStatuses: ["draft"],
+      },
+      {
+        id: "mark_delivered",
+        label: "markDelivered",
+        action: "status_change",
+        variant: "primary",
+        targetStatus: "delivered",
+        applicableStatuses: ["sent"],
+      },
+      {
+        id: "delete",
+        label: "delete",
+        action: "delete",
+        variant: "destructive",
+        applicableStatuses: ["draft"],
+        requiresConfirmation: true,
+      },
     ],
   },
   invoice: {
-    type: 'invoice',
-    label: 'invoice',
-    labelPlural: 'invoicePlural',
-    basePath: '/sales/invoices',
-    contactFilter: 'customer',
-    statuses: ['draft', 'sent', 'confirmed', 'delivered', 'paid', 'partially_paid', 'overdue', 'cancelled', 'dunning_1', 'dunning_2', 'dunning_3'],
+    type: "invoice",
+    label: "invoice",
+    labelPlural: "invoicePlural",
+    basePath: "/sales/invoices",
+    contactFilter: "customer",
+    statuses: [
+      "draft",
+      "sent",
+      "confirmed",
+      "delivered",
+      "paid",
+      "partially_paid",
+      "overdue",
+      "cancelled",
+      "dunning_1",
+      "dunning_2",
+      "dunning_3",
+    ],
     actions: COMMON_SALES_ACTIONS,
     conversionTargets: VALID_CONVERSIONS.invoice ?? [],
     hasDueDate: true,
     hasDeliveryDate: false,
     hasPayments: true,
     canCreate: true,
-    dueDateLabel: 'dueDate',
+    dueDateLabel: "dueDate",
     bulkActions: [
-      { id: 'mark_sent', label: 'markAsSent', action: 'status_change', variant: 'default', targetStatus: 'sent', applicableStatuses: ['draft'] },
-      { id: 'convert_to_credit_note', label: 'convertToCreditNote', action: 'convert', variant: 'default', targetType: 'credit_note' },
-      { id: 'delete', label: 'delete', action: 'delete', variant: 'destructive', applicableStatuses: ['draft'], requiresConfirmation: true },
+      {
+        id: "mark_sent",
+        label: "markAsSent",
+        action: "status_change",
+        variant: "default",
+        targetStatus: "sent",
+        applicableStatuses: ["draft"],
+      },
+      {
+        id: "mark_paid",
+        label: "markAsPaid",
+        action: "mark_paid",
+        variant: "primary",
+        applicableStatuses: [
+          "sent",
+          "confirmed",
+          "delivered",
+          "partially_paid",
+          "overdue",
+          "dunning_1",
+          "dunning_2",
+          "dunning_3",
+        ],
+      },
+      {
+        id: "convert_to_credit_note",
+        label: "convertToCreditNote",
+        action: "convert",
+        variant: "default",
+        targetType: "credit_note",
+      },
+      {
+        id: "delete",
+        label: "delete",
+        action: "delete",
+        variant: "destructive",
+        applicableStatuses: ["draft"],
+        requiresConfirmation: true,
+      },
     ],
   },
   credit_note: {
-    type: 'credit_note',
-    label: 'creditNote',
-    labelPlural: 'creditNotePlural',
-    basePath: '/sales/credit-notes',
-    contactFilter: 'customer',
-    statuses: ['draft', 'sent', 'paid', 'cancelled'],
+    type: "credit_note",
+    label: "creditNote",
+    labelPlural: "creditNotePlural",
+    basePath: "/sales/credit-notes",
+    contactFilter: "customer",
+    statuses: ["draft", "sent", "paid", "cancelled"],
     actions: {
       draft: [
-        { label: 'markAsSent', targetStatus: 'sent', variant: 'primary' },
-        { label: 'cancel', targetStatus: 'cancelled', variant: 'destructive' },
+        { label: "markAsSent", targetStatus: "sent", variant: "primary" },
+        { label: "cancel", targetStatus: "cancelled", variant: "destructive" },
       ],
       sent: [
-        { label: 'markAsPaid', targetStatus: 'paid', variant: 'primary' },
-        { label: 'cancel', targetStatus: 'cancelled', variant: 'destructive' },
+        { label: "markAsPaid", targetStatus: "paid", variant: "primary" },
+        { label: "cancel", targetStatus: "cancelled", variant: "destructive" },
       ],
     },
     conversionTargets: VALID_CONVERSIONS.credit_note ?? [],
@@ -277,22 +441,36 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
     hasDeliveryDate: false,
     hasPayments: false,
     canCreate: false,
-    dueDateLabel: 'dueDate',
+    dueDateLabel: "dueDate",
     bulkActions: [
-      { id: 'mark_sent', label: 'markAsSent', action: 'status_change', variant: 'default', targetStatus: 'sent', applicableStatuses: ['draft'] },
-      { id: 'delete', label: 'delete', action: 'delete', variant: 'destructive', applicableStatuses: ['draft'], requiresConfirmation: true },
+      {
+        id: "mark_sent",
+        label: "markAsSent",
+        action: "status_change",
+        variant: "default",
+        targetStatus: "sent",
+        applicableStatuses: ["draft"],
+      },
+      {
+        id: "delete",
+        label: "delete",
+        action: "delete",
+        variant: "destructive",
+        applicableStatuses: ["draft"],
+        requiresConfirmation: true,
+      },
     ],
   },
   dunning: {
-    type: 'dunning',
-    label: 'dunning',
-    labelPlural: 'dunningPlural',
-    basePath: '/sales/dunning',
-    contactFilter: 'customer',
-    statuses: ['draft', 'sent', 'cancelled'],
+    type: "dunning",
+    label: "dunning",
+    labelPlural: "dunningPlural",
+    basePath: "/sales/dunning",
+    contactFilter: "customer",
+    statuses: ["draft", "sent", "cancelled"],
     actions: {
       draft: [
-        { label: 'markAsSent', targetStatus: 'sent', variant: 'primary' },
+        { label: "markAsSent", targetStatus: "sent", variant: "primary" },
       ],
     },
     conversionTargets: VALID_CONVERSIONS.dunning ?? [],
@@ -300,48 +478,82 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
     hasDeliveryDate: false,
     hasPayments: false,
     canCreate: false,
-    dueDateLabel: 'dueDate',
+    dueDateLabel: "dueDate",
     bulkActions: [
-      { id: 'mark_sent', label: 'markAsSent', action: 'status_change', variant: 'default', targetStatus: 'sent', applicableStatuses: ['draft'] },
+      {
+        id: "mark_sent",
+        label: "markAsSent",
+        action: "status_change",
+        variant: "default",
+        targetStatus: "sent",
+        applicableStatuses: ["draft"],
+      },
     ],
   },
   purchase_order: {
-    type: 'purchase_order',
-    label: 'purchaseOrder',
-    labelPlural: 'purchaseOrderPlural',
-    basePath: '/purchasing/purchase-orders',
-    contactFilter: 'vendor',
-    statuses: ['draft', 'sent', 'confirmed', 'delivered', 'cancelled'],
+    type: "purchase_order",
+    label: "purchaseOrder",
+    labelPlural: "purchaseOrderPlural",
+    basePath: "/purchasing/purchase-orders",
+    contactFilter: "vendor",
+    statuses: ["draft", "sent", "confirmed", "delivered", "cancelled"],
     actions: COMMON_SALES_ACTIONS,
     conversionTargets: VALID_CONVERSIONS.purchase_order ?? [],
     hasDueDate: false,
     hasDeliveryDate: true,
     hasPayments: false,
     canCreate: true,
-    dueDateLabel: 'expectedDelivery',
+    dueDateLabel: "expectedDelivery",
     bulkActions: [
-      { id: 'convert_to_purchase_invoice', label: 'convertToPurchaseInvoice', action: 'convert', variant: 'primary', targetType: 'purchase_invoice' },
-      { id: 'mark_sent', label: 'markAsSent', action: 'status_change', variant: 'default', targetStatus: 'sent', applicableStatuses: ['draft'] },
-      { id: 'delete', label: 'delete', action: 'delete', variant: 'destructive', applicableStatuses: ['draft'], requiresConfirmation: true },
+      {
+        id: "convert_to_purchase_invoice",
+        label: "convertToPurchaseInvoice",
+        action: "convert",
+        variant: "primary",
+        targetType: "purchase_invoice",
+      },
+      {
+        id: "mark_sent",
+        label: "markAsSent",
+        action: "status_change",
+        variant: "default",
+        targetStatus: "sent",
+        applicableStatuses: ["draft"],
+      },
+      {
+        id: "delete",
+        label: "delete",
+        action: "delete",
+        variant: "destructive",
+        applicableStatuses: ["draft"],
+        requiresConfirmation: true,
+      },
     ],
   },
   purchase_invoice: {
-    type: 'purchase_invoice',
-    label: 'purchaseInvoice',
-    labelPlural: 'purchaseInvoicePlural',
-    basePath: '/purchasing/purchase-invoices',
-    contactFilter: 'vendor',
-    statuses: ['draft', 'confirmed', 'paid', 'partially_paid', 'overdue', 'cancelled'],
+    type: "purchase_invoice",
+    label: "purchaseInvoice",
+    labelPlural: "purchaseInvoicePlural",
+    basePath: "/purchasing/purchase-invoices",
+    contactFilter: "vendor",
+    statuses: [
+      "draft",
+      "confirmed",
+      "paid",
+      "partially_paid",
+      "overdue",
+      "cancelled",
+    ],
     actions: {
       draft: [
-        { label: 'confirm', targetStatus: 'confirmed', variant: 'primary' },
-        { label: 'cancel', targetStatus: 'cancelled', variant: 'destructive' },
+        { label: "confirm", targetStatus: "confirmed", variant: "primary" },
+        { label: "cancel", targetStatus: "cancelled", variant: "destructive" },
       ],
       confirmed: [
-        { label: 'cancel', targetStatus: 'cancelled', variant: 'destructive' },
+        { label: "cancel", targetStatus: "cancelled", variant: "destructive" },
       ],
       overdue: [
-        { label: 'cancel', targetStatus: 'cancelled', variant: 'destructive' },
+        { label: "cancel", targetStatus: "cancelled", variant: "destructive" },
       ],
     },
     conversionTargets: VALID_CONVERSIONS.purchase_invoice ?? [],
@@ -349,10 +561,31 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
     hasDeliveryDate: false,
     hasPayments: true,
     canCreate: true,
-    dueDateLabel: 'dueDate',
+    dueDateLabel: "dueDate",
     bulkActions: [
-      { id: 'confirm', label: 'confirm', action: 'status_change', variant: 'primary', targetStatus: 'confirmed', applicableStatuses: ['draft'] },
-      { id: 'delete', label: 'delete', action: 'delete', variant: 'destructive', applicableStatuses: ['draft'], requiresConfirmation: true },
+      {
+        id: "confirm",
+        label: "confirm",
+        action: "status_change",
+        variant: "primary",
+        targetStatus: "confirmed",
+        applicableStatuses: ["draft"],
+      },
+      {
+        id: "mark_paid",
+        label: "markAsPaid",
+        action: "mark_paid",
+        variant: "primary",
+        applicableStatuses: ["confirmed", "partially_paid", "overdue"],
+      },
+      {
+        id: "delete",
+        label: "delete",
+        action: "delete",
+        variant: "destructive",
+        applicableStatuses: ["draft"],
+        requiresConfirmation: true,
+      },
     ],
   },
 };
@@ -370,16 +603,18 @@ export function getDocumentTypeConfig(type: DocumentType): DocumentTypeConfig {
  * Get the filter status tabs shown on the list page for a document type.
  * Returns the most commonly used statuses for filtering.
  */
-export function getFilterStatuses(type: DocumentType): (DocumentStatus | 'all')[] {
+export function getFilterStatuses(
+  type: DocumentType,
+): (DocumentStatus | "all")[] {
   const config = DOCUMENT_TYPES[type];
-  const base: (DocumentStatus | 'all')[] = ['all'];
+  const base: (DocumentStatus | "all")[] = ["all"];
 
-  if (config.statuses.includes('draft')) base.push('draft');
-  if (config.statuses.includes('sent')) base.push('sent');
-  if (config.statuses.includes('confirmed')) base.push('confirmed');
-  if (config.statuses.includes('paid')) base.push('paid');
-  if (config.statuses.includes('overdue')) base.push('overdue');
-  if (config.statuses.includes('cancelled')) base.push('cancelled');
+  if (config.statuses.includes("draft")) base.push("draft");
+  if (config.statuses.includes("sent")) base.push("sent");
+  if (config.statuses.includes("confirmed")) base.push("confirmed");
+  if (config.statuses.includes("paid")) base.push("paid");
+  if (config.statuses.includes("overdue")) base.push("overdue");
+  if (config.statuses.includes("cancelled")) base.push("cancelled");
 
   return base;
 }

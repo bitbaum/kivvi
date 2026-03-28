@@ -4,7 +4,7 @@ import { FileText, Plus, Search } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { listDocuments } from "@kivvi/core";
+import { listDocuments, getDocumentSummary } from "@kivvi/core";
 import {
   DOCUMENT_TYPES,
   DEFAULT_PAGE_SIZE,
@@ -15,12 +15,11 @@ import { formatCurrency, formatDate } from "@/lib/utils";
 import { getTranslations } from "next-intl/server";
 import { cn } from "@/lib/utils";
 import { SearchInput } from "@/components/search-input";
+import { DateRangeFilter } from "@/components/date-range-filter";
 import { Pagination } from "@/components/pagination";
 import { SortableHeader } from "@/components/sortable-header";
 import { PageHeader } from "@/components/page-header";
-import { documents } from "@kivvi/database";
 import type { DocumentType, DocumentStatus } from "@kivvi/database";
-import { and, eq, sql, count, sum } from "drizzle-orm";
 
 /** Document types shown as tabs — grouped as outgoing vs incoming */
 const OUTGOING_TYPES: DocumentType[] = [
@@ -40,9 +39,12 @@ interface PageProps {
     type?: string;
     status?: string;
     search?: string;
+    contactId?: string;
     page?: string;
     sort?: string;
     order?: string;
+    dateFrom?: string;
+    dateTo?: string;
   }>;
 }
 
@@ -59,6 +61,9 @@ export default async function DocumentsPage({ searchParams }: PageProps) {
   const selectedType = params.type as DocumentType | undefined;
   const status = params.status as DocumentStatus | undefined;
   const search = params.search;
+  const contactId = params.contactId;
+  const dateFrom = params.dateFrom;
+  const dateTo = params.dateTo;
   const page = parseInt(params.page || "1", 10);
   const sort = (params.sort || "issueDate") as
     | "number"
@@ -72,55 +77,21 @@ export default async function DocumentsPage({ searchParams }: PageProps) {
     type: selectedType,
     status,
     search,
+    contactId,
+    dateFrom,
+    dateTo,
     page,
     pageSize: DEFAULT_PAGE_SIZE,
     sortBy: sort,
     sortOrder: order,
   });
 
-  // Summary stats query — same type filter, no pagination
-  const baseFilters = [eq(documents.companyId, session.user.companyId)];
-  if (selectedType) baseFilters.push(eq(documents.type, selectedType));
-
-  const openStatuses: DocumentStatus[] = [
-    "sent",
-    "confirmed",
-    "delivered",
-    "partially_paid",
-  ];
-  const nonTerminalStatuses: DocumentStatus[] = [
-    "sent",
-    "confirmed",
-    "delivered",
-    "partially_paid",
-    "overdue",
-    "dunning_1",
-    "dunning_2",
-    "dunning_3",
-  ];
-
-  const [summaryRow] = await db
-    .select({
-      totalCount: count(),
-      openAmount: sum(
-        sql`CASE WHEN ${documents.status} IN (${sql.join(
-          openStatuses.map((s) => sql`${s}`),
-          sql`, `,
-        )}) THEN ${documents.total} ELSE 0 END`,
-      ),
-      overdueCount: count(
-        sql`CASE WHEN ${documents.status} IN (${sql.join(
-          nonTerminalStatuses.map((s) => sql`${s}`),
-          sql`, `,
-        )}) AND ${documents.dueDate} < NOW() THEN 1 END`,
-      ),
-    })
-    .from(documents)
-    .where(and(...baseFilters));
-
-  const totalCount = summaryRow?.totalCount ?? 0;
-  const openAmount = summaryRow?.openAmount ?? "0";
-  const overdueCount = summaryRow?.overdueCount ?? 0;
+  // Summary stats — delegates to domain function
+  const { totalCount, openAmount, overdueCount } = await getDocumentSummary(
+    db,
+    session.user.companyId,
+    selectedType,
+  );
 
   // Build query string helper
   function buildHref(overrides: Record<string, string | undefined>) {
@@ -129,6 +100,9 @@ export default async function DocumentsPage({ searchParams }: PageProps) {
       type: selectedType,
       status,
       search,
+      contactId,
+      dateFrom,
+      dateTo,
       sort: sort !== "issueDate" ? sort : undefined,
       order: order !== "desc" ? order : undefined,
       ...overrides,
@@ -149,6 +123,9 @@ export default async function DocumentsPage({ searchParams }: PageProps) {
     if (selectedType) p.set("type", selectedType);
     if (status) p.set("status", status);
     if (search) p.set("search", search);
+    if (contactId) p.set("contactId", contactId);
+    if (dateFrom) p.set("dateFrom", dateFrom);
+    if (dateTo) p.set("dateTo", dateTo);
     p.set("sort", s);
     p.set("order", o);
     return `/documents?${p.toString()}`;
@@ -228,12 +205,25 @@ export default async function DocumentsPage({ searchParams }: PageProps) {
         ))}
       </div>
 
-      {/* Search + Status filters */}
+      {/* Search + Date range + Status filters */}
       <div className="flex flex-wrap items-center gap-3">
         <SearchInput
           basePath="/documents"
           placeholder={`${tc("search")}...`}
-          preserveParams={["type", "status", "sort", "order"]}
+          preserveParams={[
+            "type",
+            "status",
+            "sort",
+            "order",
+            "dateFrom",
+            "dateTo",
+          ]}
+        />
+        <DateRangeFilter
+          basePath="/documents"
+          preserveParams={["type", "status", "search", "sort", "order"]}
+          labelFrom={tc("from")}
+          labelTo={tc("to")}
         />
 
         <div className="flex gap-2">
@@ -286,7 +276,7 @@ export default async function DocumentsPage({ searchParams }: PageProps) {
       <div className="rounded-xl border bg-card">
         {result.data.length === 0 ? (
           <EmptyState
-            icon={search || status ? Search : FileText}
+            icon={search || status || dateFrom || dateTo ? Search : FileText}
             title={
               selectedType
                 ? td("noDocumentsFound", {
@@ -295,9 +285,19 @@ export default async function DocumentsPage({ searchParams }: PageProps) {
                 : td("noDocumentsFound", { type: t("title").toLowerCase() })
             }
             description={
-              search || status
+              search || status || dateFrom || dateTo
                 ? td("adjustFilters")
                 : td("createFirst", { type: td("invoice") })
+            }
+            actionLabel={
+              !(search || status || dateFrom || dateTo)
+                ? td("createNew", { type: td("invoice") })
+                : undefined
+            }
+            actionHref={
+              !(search || status || dateFrom || dateTo)
+                ? "/documents/new?type=invoice"
+                : undefined
             }
           />
         ) : (

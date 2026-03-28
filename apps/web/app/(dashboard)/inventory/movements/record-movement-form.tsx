@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useTransition, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import { Plus, X, Search } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { createStockMovementAction } from '@/app/actions/inventory';
-import { MOVEMENT_TYPES } from '@/lib/config/inventory';
-import { FormInput, FormSelect } from '@/components/ui/form-field';
-import { useFocusTrap } from '@/hooks/use-focus-trap';
+import { useState, useEffect, useTransition, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { Plus, X, Search } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { createStockMovementAction } from "@/app/actions/inventory";
+import { MOVEMENT_TYPES } from "@/lib/config/inventory";
+import { FormInput, FormSelect } from "@/components/ui/form-field";
+import { useFocusTrap } from "@/hooks/use-focus-trap";
 
 interface Warehouse {
   id: string;
@@ -27,30 +27,33 @@ export function RecordMovementForm({
   warehouses: Warehouse[];
 }) {
   const router = useRouter();
-  const t = useTranslations('inventory');
-  const tc = useTranslations('common');
+  const t = useTranslations("inventory");
+  const tc = useTranslations("common");
   const [isPending, startTransition] = useTransition();
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   useFocusTrap(modalRef, isOpen);
 
-  const movementTypeOptions = MOVEMENT_TYPES.map((mt) => ({ value: mt, label: t(mt) }));
+  const movementTypeOptions = MOVEMENT_TYPES.map((mt) => ({
+    value: mt,
+    label: t(mt),
+  }));
 
   // Product picker state
   const [products, setProducts] = useState<Product[]>([]);
   const [productsLoading, setProductsLoading] = useState(false);
-  const [productSearch, setProductSearch] = useState('');
+  const [productSearch, setProductSearch] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showProductDropdown, setShowProductDropdown] = useState(false);
 
   useEffect(() => {
     if (isOpen && products.length === 0) {
       setProductsLoading(true);
-      fetch('/api/products')
+      fetch("/api/products")
         .then((res) => res.json())
         .then((data) => setProducts(data))
-        .catch(() => setError(tc('error')))
+        .catch(() => setError(tc("error")))
         .finally(() => setProductsLoading(false));
     }
   }, [isOpen, products.length, tc]);
@@ -69,21 +72,21 @@ export function RecordMovementForm({
     setError(null);
 
     if (!selectedProduct) {
-      setError('Please select a product');
+      setError("Please select a product");
       return;
     }
 
     const formData = new FormData(e.currentTarget);
     const input = {
       productId: selectedProduct.id,
-      warehouseId: formData.get('warehouseId') as string,
-      type: formData.get('type') as string,
-      quantity: formData.get('quantity') as string,
-      reference: (formData.get('reference') as string) || undefined,
+      warehouseId: formData.get("warehouseId") as string,
+      type: formData.get("type") as string,
+      quantity: formData.get("quantity") as string,
+      reference: (formData.get("reference") as string) || undefined,
     };
 
     if (!input.warehouseId || !input.type || !input.quantity) {
-      setError('All required fields must be filled in');
+      setError("All required fields must be filled in");
       return;
     }
 
@@ -92,10 +95,10 @@ export function RecordMovementForm({
       if (result.success) {
         setIsOpen(false);
         setSelectedProduct(null);
-        setProductSearch('');
+        setProductSearch("");
         router.refresh();
       } else {
-        setError(result.error || tc('error'));
+        setError(result.error || tc("error"));
       }
     });
   }
@@ -104,7 +107,7 @@ export function RecordMovementForm({
     setIsOpen(false);
     setError(null);
     setSelectedProduct(null);
-    setProductSearch('');
+    setProductSearch("");
   }
 
   if (!isOpen) {
@@ -114,16 +117,19 @@ export function RecordMovementForm({
         className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
       >
         <Plus className="h-4 w-4" />
-        {t('recordMovement')}
+        {t("recordMovement")}
       </button>
     );
   }
 
   return (
-    <div ref={modalRef} className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div
+      ref={modalRef}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+    >
       <div className="w-full max-w-md rounded-xl border bg-card p-6 shadow-lg">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">{t('recordMovement')}</h2>
+          <h2 className="text-lg font-semibold">{t("recordMovement")}</h2>
           <button
             onClick={handleClose}
             className="rounded-lg p-1 hover:bg-muted transition-colors"
@@ -143,14 +149,14 @@ export function RecordMovementForm({
                 <div>
                   <p className="text-sm font-medium">{selectedProduct.name}</p>
                   <p className="text-xs text-muted-foreground">
-                    {selectedProduct.articleNumber || selectedProduct.sku || ''}
+                    {selectedProduct.articleNumber || selectedProduct.sku || ""}
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => {
                     setSelectedProduct(null);
-                    setProductSearch('');
+                    setProductSearch("");
                   }}
                   className="rounded p-0.5 hover:bg-muted"
                 >
@@ -171,8 +177,8 @@ export function RecordMovementForm({
                     onFocus={() => setShowProductDropdown(true)}
                     placeholder={
                       productsLoading
-                        ? `${tc('loading')}...`
-                        : `${tc('search')}...`
+                        ? `${tc("loading")}...`
+                        : `${tc("search")}...`
                     }
                     className="pl-9 pr-3"
                     disabled={productsLoading}
@@ -182,7 +188,7 @@ export function RecordMovementForm({
                   <div className="absolute left-0 right-0 z-10 mt-1 max-h-48 overflow-y-auto rounded-lg border bg-card shadow-lg">
                     {filteredProducts.length === 0 ? (
                       <p className="p-3 text-center text-sm text-muted-foreground">
-                        {tc('noResults')}
+                        {tc("noResults")}
                       </p>
                     ) : (
                       filteredProducts.slice(0, 20).map((product) => (
@@ -192,13 +198,13 @@ export function RecordMovementForm({
                           onClick={() => {
                             setSelectedProduct(product);
                             setShowProductDropdown(false);
-                            setProductSearch('');
+                            setProductSearch("");
                           }}
                           className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
                         >
                           <span className="font-medium">{product.name}</span>
                           <span className="ml-2 text-xs text-muted-foreground">
-                            {product.articleNumber || ''}
+                            {product.articleNumber || ""}
                           </span>
                         </button>
                       ))
@@ -212,12 +218,9 @@ export function RecordMovementForm({
           {/* Warehouse */}
           <div>
             <label className="mb-1 block text-sm font-medium">
-              {t('warehouses')} <span className="text-red-500">*</span>
+              {t("warehouses")} <span className="text-red-500">*</span>
             </label>
-            <FormSelect
-              name="warehouseId"
-              required
-            >
+            <FormSelect name="warehouseId" required>
               <option value="">Select warehouse...</option>
               {warehouses.map((wh) => (
                 <option key={wh.id} value={wh.id}>
@@ -230,12 +233,9 @@ export function RecordMovementForm({
           {/* Movement Type */}
           <div>
             <label className="mb-1 block text-sm font-medium">
-              {t('movementType')} <span className="text-red-500">*</span>
+              {t("movementType")} <span className="text-red-500">*</span>
             </label>
-            <FormSelect
-              name="type"
-              required
-            >
+            <FormSelect name="type" required>
               <option value="">Select type...</option>
               {movementTypeOptions.map((mt) => (
                 <option key={mt.value} value={mt.value}>
@@ -256,24 +256,28 @@ export function RecordMovementForm({
               required
               min="0.01"
               step="0.01"
-              placeholder={t('placeholders.quantity')}
+              placeholder={t("placeholders.quantity")}
             />
             <p className="mt-1 text-xs text-muted-foreground">
-              {t('quantityHelp')}
+              {t("quantityHelp")}
             </p>
           </div>
 
           {/* Reference */}
           <div>
-            <label className="mb-1 block text-sm font-medium">{t('reference')}</label>
+            <label className="mb-1 block text-sm font-medium">
+              {t("reference")}
+            </label>
             <FormInput
               name="reference"
               type="text"
-              placeholder={t('placeholders.movementReference')}
+              placeholder={t("placeholders.movementReference")}
             />
           </div>
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && (
+            <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+          )}
 
           <div className="flex gap-2 pt-2">
             <button
@@ -281,14 +285,14 @@ export function RecordMovementForm({
               disabled={isPending}
               className="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
-              {isPending ? tc('saving') : t('recordMovement')}
+              {isPending ? tc("saving") : t("recordMovement")}
             </button>
             <button
               type="button"
               onClick={handleClose}
               className="rounded-lg border px-4 py-2 text-sm hover:bg-muted transition-colors"
             >
-              {tc('cancel')}
+              {tc("cancel")}
             </button>
           </div>
         </form>

@@ -75,12 +75,6 @@ importers:
       '@kivvi/database':
         specifier: workspace:*
         version: link:../../packages/database
-      '@kivvi/events':
-        specifier: workspace:*
-        version: link:../../packages/events
-      '@kivvi/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
       '@radix-ui/react-avatar':
         specifier: ^1.0.4
         version: 1.1.11(@types/react-dom@18.3.7(@types/react@18.3.27))(@types/react@18.3.27)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -304,29 +298,6 @@ importers:
       ws:
         specifier: ^8.19.0
         version: 8.19.0
-
-  packages/events:
-    dependencies:
-      zod:
-        specifier: ^3.22.4
-        version: 3.25.76
-    devDependencies:
-      typescript:
-        specifier: ^5.3.3
-        version: 5.9.3
-
-  packages/ui:
-    dependencies:
-      react:
-        specifier: ^18.2.0
-        version: 18.3.1
-    devDependencies:
-      '@types/react':
-        specifier: ^18.2.0
-        version: 18.3.27
-      typescript:
-        specifier: ^5.3.3
-        version: 5.9.3
 
 packages:
 

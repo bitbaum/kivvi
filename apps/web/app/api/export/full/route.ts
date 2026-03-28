@@ -1,7 +1,7 @@
-import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { db } from '@/lib/db';
-import { eq, inArray } from 'drizzle-orm';
+import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { eq, inArray } from "drizzle-orm";
 import {
   companies,
   contacts,
@@ -23,7 +23,7 @@ import {
   numberSequences,
   fiscalYears,
   fiscalPeriods,
-} from '@kivvi/database';
+} from "@kivvi/database";
 
 /**
  * Full data export for GDPR compliance.
@@ -32,7 +32,16 @@ import {
 export async function GET() {
   const session = await auth();
   if (!session?.user?.companyId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Only admins/owners can export full company data
+  const role = session.user.role ?? "member";
+  if (!["admin", "owner"].includes(role)) {
+    return NextResponse.json(
+      { error: "Insufficient permissions" },
+      { status: 403 },
+    );
   }
 
   const companyId = session.user.companyId;
@@ -56,15 +65,27 @@ export async function GET() {
     db.select().from(companies).where(eq(companies.id, companyId)),
     db.select().from(contacts).where(eq(contacts.companyId, companyId)),
     db.select().from(products).where(eq(products.companyId, companyId)),
-    db.select().from(productGroups).where(eq(productGroups.companyId, companyId)),
-    db.select().from(manufacturers).where(eq(manufacturers.companyId, companyId)),
+    db
+      .select()
+      .from(productGroups)
+      .where(eq(productGroups.companyId, companyId)),
+    db
+      .select()
+      .from(manufacturers)
+      .where(eq(manufacturers.companyId, companyId)),
     db.select().from(documents).where(eq(documents.companyId, companyId)),
     db.select().from(accounts).where(eq(accounts.companyId, companyId)),
-    db.select().from(journalEntries).where(eq(journalEntries.companyId, companyId)),
+    db
+      .select()
+      .from(journalEntries)
+      .where(eq(journalEntries.companyId, companyId)),
     db.select().from(bankAccounts).where(eq(bankAccounts.companyId, companyId)),
     db.select().from(projects).where(eq(projects.companyId, companyId)),
     db.select().from(warehouses).where(eq(warehouses.companyId, companyId)),
-    db.select().from(numberSequences).where(eq(numberSequences.companyId, companyId)),
+    db
+      .select()
+      .from(numberSequences)
+      .where(eq(numberSequences.companyId, companyId)),
     db.select().from(fiscalYears).where(eq(fiscalYears.companyId, companyId)),
   ]);
 
@@ -87,25 +108,46 @@ export async function GET() {
     periodsData,
   ] = await Promise.all([
     contactIds.length > 0
-      ? db.select().from(contactAddresses).where(inArray(contactAddresses.contactId, contactIds))
+      ? db
+          .select()
+          .from(contactAddresses)
+          .where(inArray(contactAddresses.contactId, contactIds))
       : Promise.resolve([]),
     docIds.length > 0
-      ? db.select().from(documentItems).where(inArray(documentItems.documentId, docIds))
+      ? db
+          .select()
+          .from(documentItems)
+          .where(inArray(documentItems.documentId, docIds))
       : Promise.resolve([]),
     docIds.length > 0
-      ? db.select().from(documentPayments).where(inArray(documentPayments.documentId, docIds))
+      ? db
+          .select()
+          .from(documentPayments)
+          .where(inArray(documentPayments.documentId, docIds))
       : Promise.resolve([]),
     entryIds.length > 0
-      ? db.select().from(journalLines).where(inArray(journalLines.journalEntryId, entryIds))
+      ? db
+          .select()
+          .from(journalLines)
+          .where(inArray(journalLines.journalEntryId, entryIds))
       : Promise.resolve([]),
     bankAccountIds.length > 0
-      ? db.select().from(bankTransactions).where(inArray(bankTransactions.bankAccountId, bankAccountIds))
+      ? db
+          .select()
+          .from(bankTransactions)
+          .where(inArray(bankTransactions.bankAccountId, bankAccountIds))
       : Promise.resolve([]),
     warehouseIds.length > 0 && productIds.length > 0
-      ? db.select().from(stockLevels).where(inArray(stockLevels.warehouseId, warehouseIds))
+      ? db
+          .select()
+          .from(stockLevels)
+          .where(inArray(stockLevels.warehouseId, warehouseIds))
       : Promise.resolve([]),
     fiscalYearIds.length > 0
-      ? db.select().from(fiscalPeriods).where(inArray(fiscalPeriods.fiscalYearId, fiscalYearIds))
+      ? db
+          .select()
+          .from(fiscalPeriods)
+          .where(inArray(fiscalPeriods.fiscalYearId, fiscalYearIds))
       : Promise.resolve([]),
   ]);
 
@@ -134,12 +176,12 @@ export async function GET() {
   };
 
   const json = JSON.stringify(exportData, null, 2);
-  const date = new Date().toISOString().split('T')[0];
+  const date = new Date().toISOString().split("T")[0];
 
   return new Response(json, {
     headers: {
-      'Content-Type': 'application/json; charset=utf-8',
-      'Content-Disposition': `attachment; filename="kivvi-export-${date}.json"`,
+      "Content-Type": "application/json; charset=utf-8",
+      "Content-Disposition": `attachment; filename="kivvi-export-${date}.json"`,
     },
   });
 }

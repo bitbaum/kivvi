@@ -1,6 +1,18 @@
-import { z } from 'zod';
-import Decimal from 'decimal.js';
-import { eq, and, or, ilike, gte, lte, desc, asc, sql, count } from 'drizzle-orm';
+import { z } from "zod";
+import Decimal from "decimal.js";
+import {
+  eq,
+  and,
+  or,
+  ilike,
+  gte,
+  lte,
+  desc,
+  asc,
+  sql,
+  count,
+  sum,
+} from "drizzle-orm";
 import {
   documents,
   documentItems,
@@ -8,18 +20,20 @@ import {
   bankTransactions,
   bankAccounts,
   contacts,
-} from '@kivvi/database';
-import type { Database, DocumentType, DocumentStatus } from '@kivvi/database';
-import type { PaginatedResult } from './contacts';
-import { rappenRound } from '../utils/swiss-currency';
-import { getNextNumber } from './number-sequences';
+} from "@kivvi/database";
+import type { Database, DocumentType, DocumentStatus } from "@kivvi/database";
+import type { PaginatedResult } from "./contacts";
+import { rappenRound } from "../utils/swiss-currency";
+import { getNextNumber } from "./number-sequences";
 import {
   createInvoiceSentJournalEntry,
   createPurchaseInvoiceJournalEntry,
+  createCreditNoteSentJournalEntry,
+  createCancellationReversalJournalEntry,
   createPaymentReceivedJournalEntry,
-} from './accounting-integration';
-import { DEFAULT_VAT_RATE } from '../config/vat-rates';
-import { VALID_CONVERSIONS } from './document-conversions';
+} from "./accounting-integration";
+import { DEFAULT_VAT_RATE } from "../config/vat-rates";
+import { VALID_CONVERSIONS } from "./document-conversions";
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -28,28 +42,43 @@ import { VALID_CONVERSIONS } from './document-conversions';
 const documentItemSchema = z.object({
   productId: z.string().uuid().optional().nullable(),
   position: z.number().int().min(0),
-  description: z.string().min(1, 'Description is required'),
-  quantity: z.string().regex(/^\d+(\.\d{1,4})?$/, 'Invalid quantity'),
-  unitPrice: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Invalid unit price'),
-  discount: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Invalid discount').default('0')
-    .refine((v) => parseFloat(v) <= 100, 'Discount cannot exceed 100%'),
-  vatRate: z.string().regex(/^\d+(\.\d{1,2})?$/, 'Invalid VAT rate').default(DEFAULT_VAT_RATE),
+  description: z.string().min(1, "Description is required"),
+  quantity: z.string().regex(/^\d+(\.\d{1,4})?$/, "Invalid quantity"),
+  unitPrice: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid unit price"),
+  discount: z
+    .string()
+    .regex(/^\d+(\.\d{1,2})?$/, "Invalid discount")
+    .default("0")
+    .refine((v) => parseFloat(v) <= 100, "Discount cannot exceed 100%"),
+  vatRate: z
+    .string()
+    .regex(/^\d+(\.\d{1,2})?$/, "Invalid VAT rate")
+    .default(DEFAULT_VAT_RATE),
 });
 
 export const createDocumentSchema = z.object({
   type: z.enum([
-    'quote', 'order', 'order_confirmation', 'delivery_note',
-    'invoice', 'credit_note', 'purchase_order', 'purchase_invoice', 'dunning',
+    "quote",
+    "order",
+    "order_confirmation",
+    "delivery_note",
+    "invoice",
+    "credit_note",
+    "purchase_order",
+    "purchase_invoice",
+    "dunning",
   ]),
   contactId: z.string().uuid().optional().nullable(),
   projectId: z.string().uuid().optional().nullable(),
   issueDate: z.string().optional(), // ISO date string
   dueDate: z.string().optional().nullable(),
   deliveryDate: z.string().optional().nullable(),
-  currency: z.string().default('CHF'),
+  currency: z.string().default("CHF"),
   notes: z.string().max(5000).optional().nullable(),
   internalNotes: z.string().max(5000).optional().nullable(),
-  items: z.array(documentItemSchema).min(1, 'At least one line item is required'),
+  items: z
+    .array(documentItemSchema)
+    .min(1, "At least one line item is required"),
 });
 
 export const updateDocumentSchema = z.object({
@@ -61,7 +90,10 @@ export const updateDocumentSchema = z.object({
   currency: z.string().optional(),
   notes: z.string().max(5000).optional().nullable(),
   internalNotes: z.string().max(5000).optional().nullable(),
-  items: z.array(documentItemSchema).min(1, 'At least one line item is required').optional(),
+  items: z
+    .array(documentItemSchema)
+    .min(1, "At least one line item is required")
+    .optional(),
 });
 
 export type CreateDocumentInput = z.infer<typeof createDocumentSchema>;
@@ -73,15 +105,15 @@ export type DocumentItemInput = z.infer<typeof documentItemSchema>;
 // ============================================================================
 
 const VALID_TRANSITIONS: Record<string, string[]> = {
-  draft: ['sent', 'cancelled'],
-  sent: ['confirmed', 'paid', 'partially_paid', 'overdue', 'cancelled'],
-  confirmed: ['delivered', 'paid', 'partially_paid', 'overdue', 'cancelled'],
-  delivered: ['paid', 'partially_paid', 'overdue', 'cancelled'],
-  partially_paid: ['paid', 'overdue', 'cancelled'],
-  overdue: ['paid', 'partially_paid', 'dunning_1', 'cancelled'],
-  dunning_1: ['paid', 'partially_paid', 'dunning_2', 'cancelled'],
-  dunning_2: ['paid', 'partially_paid', 'dunning_3', 'cancelled'],
-  dunning_3: ['paid', 'partially_paid', 'cancelled'],
+  draft: ["sent", "cancelled"],
+  sent: ["confirmed", "paid", "partially_paid", "overdue", "cancelled"],
+  confirmed: ["delivered", "paid", "partially_paid", "overdue", "cancelled"],
+  delivered: ["paid", "partially_paid", "overdue", "cancelled"],
+  partially_paid: ["paid", "overdue", "cancelled"],
+  overdue: ["paid", "partially_paid", "dunning_1", "cancelled"],
+  dunning_1: ["paid", "partially_paid", "dunning_2", "cancelled"],
+  dunning_2: ["paid", "partially_paid", "dunning_3", "cancelled"],
+  dunning_3: ["paid", "partially_paid", "cancelled"],
   paid: [],
   cancelled: [],
 };
@@ -111,9 +143,9 @@ export function calculateTotals(items: DocumentItemInput[]): CalculatedTotals {
   const itemTotals: string[] = [];
 
   for (const item of items) {
-    const qty = new Decimal(item.quantity || '0');
-    const price = new Decimal(item.unitPrice || '0');
-    const discountPct = new Decimal(item.discount || '0');
+    const qty = new Decimal(item.quantity || "0");
+    const price = new Decimal(item.unitPrice || "0");
+    const discountPct = new Decimal(item.discount || "0");
     const vatPct = new Decimal(item.vatRate || DEFAULT_VAT_RATE);
 
     const lineGross = qty.times(price);
@@ -152,11 +184,11 @@ function hashToDigits(input: string, length: number): string {
   let hash = 0;
   for (let i = 0; i < input.length; i++) {
     const char = input.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
+    hash = (hash << 5) - hash + char;
     hash = hash & hash; // Convert to 32bit integer
   }
   // Convert to positive and pad to desired length
-  const digits = Math.abs(hash).toString().padStart(length, '0');
+  const digits = Math.abs(hash).toString().padStart(length, "0");
   return digits.slice(0, length);
 }
 
@@ -183,14 +215,17 @@ function calculateMod10CheckDigit(input: string): string {
  * Swiss QR-bill has been legally required since June 30, 2020, with the grace period
  * ending October 1, 2022. All invoices must include a valid QR reference.
  */
-export function generateQRReference(companyId: string, documentNumber: string): string {
+export function generateQRReference(
+  companyId: string,
+  documentNumber: string,
+): string {
   // Generate 10-digit company identifier from company ID hash
   const companyHash = hashToDigits(companyId, 10);
 
   // Extract numeric part from document number and pad to 16 digits
   // Example: "RE-2026-00123" -> "202600123"
-  const numericPart = documentNumber.replace(/\D/g, '');
-  const docNum = numericPart.padStart(16, '0').slice(-16);
+  const numericPart = documentNumber.replace(/\D/g, "");
+  const docNum = numericPart.padStart(16, "0").slice(-16);
 
   // Combine company hash + document number (26 digits)
   const baseReference = companyHash + docNum;
@@ -207,29 +242,39 @@ export function generateQRReference(companyId: string, documentNumber: string): 
 // ============================================================================
 
 /** Return type of getDocument — document with all relations loaded */
-export type DocumentWithRelations = NonNullable<Awaited<ReturnType<typeof getDocument>>>;
+export type DocumentWithRelations = NonNullable<
+  Awaited<ReturnType<typeof getDocument>>
+>;
 
 /** Single document row as returned in list queries */
-export type DocumentListItem = typeof documents.$inferSelect & { contact?: { id: string; name: string } | null };
+export type DocumentListItem = typeof documents.$inferSelect & {
+  contact?: { id: string; name: string } | null;
+};
 
 /**
  * Calculate overdue status for a document.
  * Business logic extracted from components to avoid duplication.
  */
-export function getOverdueInfo(doc: { status: string; dueDate: Date | string | null }): {
+export function getOverdueInfo(doc: {
+  status: string;
+  dueDate: Date | string | null;
+}): {
   isOverdue: boolean;
   daysOverdue: number;
 } {
   const isOverdue =
-    doc.status !== 'paid' &&
-    doc.status !== 'cancelled' &&
-    doc.status !== 'draft' &&
+    doc.status !== "paid" &&
+    doc.status !== "cancelled" &&
+    doc.status !== "draft" &&
     !!doc.dueDate &&
     new Date(doc.dueDate) < new Date();
 
   const daysOverdue =
     isOverdue && doc.dueDate
-      ? Math.floor((Date.now() - new Date(doc.dueDate).getTime()) / (1000 * 60 * 60 * 24))
+      ? Math.floor(
+          (Date.now() - new Date(doc.dueDate).getTime()) /
+            (1000 * 60 * 60 * 24),
+        )
       : 0;
 
   return { isOverdue, daysOverdue };
@@ -249,8 +294,8 @@ export interface DocumentFilters {
   dateTo?: string;
   page?: number;
   pageSize?: number;
-  sortBy?: 'number' | 'issueDate' | 'dueDate' | 'total' | 'createdAt';
-  sortOrder?: 'asc' | 'desc';
+  sortBy?: "number" | "issueDate" | "dueDate" | "total" | "createdAt";
+  sortOrder?: "asc" | "desc";
 }
 
 // ============================================================================
@@ -263,8 +308,14 @@ export interface DocumentFilters {
 export async function listDocuments(
   db: Database,
   companyId: string,
-  filters: DocumentFilters = {}
-): Promise<PaginatedResult<typeof documents.$inferSelect & { contact?: { id: string; name: string } | null }>> {
+  filters: DocumentFilters = {},
+): Promise<
+  PaginatedResult<
+    typeof documents.$inferSelect & {
+      contact?: { id: string; name: string } | null;
+    }
+  >
+> {
   const {
     type,
     status,
@@ -275,18 +326,18 @@ export async function listDocuments(
     dateTo,
     page = 1,
     pageSize = 25,
-    sortBy = 'issueDate',
-    sortOrder = 'desc',
+    sortBy = "issueDate",
+    sortOrder = "desc",
   } = filters;
 
   const conditions = [eq(documents.companyId, companyId)];
 
   if (type) conditions.push(eq(documents.type, type));
-  if (status === 'overdue') {
+  if (status === "overdue") {
     // Dynamic overdue: past due date AND not paid/cancelled/draft
     conditions.push(
       sql`${documents.status} NOT IN ('paid', 'cancelled', 'draft')`,
-      sql`${documents.dueDate} IS NOT NULL AND ${documents.dueDate} < NOW()`
+      sql`${documents.dueDate} IS NOT NULL AND ${documents.dueDate} < NOW()`,
     );
   } else if (status) {
     conditions.push(eq(documents.status, status));
@@ -300,10 +351,7 @@ export async function listDocuments(
   if (search && search.trim()) {
     const term = `%${search.trim()}%`;
     conditions.push(
-      or(
-        ilike(documents.number, term),
-        ilike(documents.notes, term),
-      )!
+      or(ilike(documents.number, term), ilike(documents.notes, term))!,
     );
   }
 
@@ -316,15 +364,16 @@ export async function listDocuments(
     .where(whereClause);
 
   // Sort
-  const sortColumn = {
-    number: documents.number,
-    issueDate: documents.issueDate,
-    dueDate: documents.dueDate,
-    total: documents.total,
-    createdAt: documents.createdAt,
-  }[sortBy] ?? documents.issueDate;
+  const sortColumn =
+    {
+      number: documents.number,
+      issueDate: documents.issueDate,
+      dueDate: documents.dueDate,
+      total: documents.total,
+      createdAt: documents.createdAt,
+    }[sortBy] ?? documents.issueDate;
 
-  const orderFn = sortOrder === 'asc' ? asc : desc;
+  const orderFn = sortOrder === "asc" ? asc : desc;
 
   // Query with contact relation
   const data = await db.query.documents.findMany({
@@ -354,12 +403,12 @@ export async function listDocuments(
 export async function getDocument(
   db: Database,
   companyId: string,
-  documentId: string
+  documentId: string,
 ) {
   const doc = await db.query.documents.findFirst({
     where: and(
       eq(documents.id, documentId),
-      eq(documents.companyId, companyId)
+      eq(documents.companyId, companyId),
     ),
     with: {
       contact: true,
@@ -386,7 +435,7 @@ export async function createDocument(
   db: Database,
   companyId: string,
   userId: string,
-  input: CreateDocumentInput
+  input: CreateDocumentInput,
 ) {
   const validated = createDocumentSchema.parse(input);
 
@@ -399,19 +448,29 @@ export async function createDocument(
     const totals = calculateTotals(validated.items);
 
     // Generate QR reference for invoices (Swiss legal requirement)
-    const qrReference = validated.type === 'invoice'
-      ? generateQRReference(companyId, number)
-      : null;
+    const qrReference =
+      validated.type === "invoice"
+        ? generateQRReference(companyId, number)
+        : null;
 
     // Auto-calculate dueDate from contact's paymentTermsDays if not provided
-    let dueDate: Date | null = validated.dueDate ? new Date(validated.dueDate) : null;
+    let dueDate: Date | null = validated.dueDate
+      ? new Date(validated.dueDate)
+      : null;
     if (!dueDate && validated.contactId) {
       const [contact] = await tx
         .select({ paymentTermsDays: contacts.paymentTermsDays })
         .from(contacts)
-        .where(and(eq(contacts.id, validated.contactId), eq(contacts.companyId, companyId)));
+        .where(
+          and(
+            eq(contacts.id, validated.contactId),
+            eq(contacts.companyId, companyId),
+          ),
+        );
       if (contact?.paymentTermsDays) {
-        const issueDate = validated.issueDate ? new Date(validated.issueDate) : new Date();
+        const issueDate = validated.issueDate
+          ? new Date(validated.issueDate)
+          : new Date();
         dueDate = new Date(issueDate);
         dueDate.setDate(dueDate.getDate() + contact.paymentTermsDays);
       }
@@ -423,13 +482,17 @@ export async function createDocument(
       .values({
         companyId,
         type: validated.type,
-        status: 'draft',
+        status: "draft",
         number,
         contactId: validated.contactId ?? null,
         projectId: validated.projectId ?? null,
-        issueDate: validated.issueDate ? new Date(validated.issueDate) : new Date(),
+        issueDate: validated.issueDate
+          ? new Date(validated.issueDate)
+          : new Date(),
         dueDate,
-        deliveryDate: validated.deliveryDate ? new Date(validated.deliveryDate) : null,
+        deliveryDate: validated.deliveryDate
+          ? new Date(validated.deliveryDate)
+          : null,
         currency: validated.currency,
         subtotal: totals.subtotal,
         vatAmount: totals.vatAmount,
@@ -451,10 +514,10 @@ export async function createDocument(
           description: item.description,
           quantity: item.quantity,
           unitPrice: item.unitPrice,
-          discount: item.discount || '0',
+          discount: item.discount || "0",
           vatRate: item.vatRate || DEFAULT_VAT_RATE,
           total: totals.itemTotals[index],
-        }))
+        })),
       );
     }
 
@@ -470,7 +533,7 @@ export async function extendQuoteValidity(
   db: Database,
   companyId: string,
   quoteId: string,
-  extensionDays: number
+  extensionDays: number,
 ): Promise<{ newDueDate: string }> {
   const [quote] = await db
     .select()
@@ -478,13 +541,13 @@ export async function extendQuoteValidity(
     .where(and(eq(documents.id, quoteId), eq(documents.companyId, companyId)))
     .limit(1);
 
-  if (!quote) throw new Error('Quote not found');
-  if (quote.type !== 'quote') throw new Error('Document is not a quote');
+  if (!quote) throw new Error("Quote not found");
+  if (quote.type !== "quote") throw new Error("Document is not a quote");
 
   const currentDueDate = quote.dueDate ? new Date(quote.dueDate) : new Date();
   const newDueDate = new Date(currentDueDate);
   newDueDate.setDate(newDueDate.getDate() + extensionDays);
-  const newDueDateStr = newDueDate.toISOString().split('T')[0];
+  const newDueDateStr = newDueDate.toISOString().split("T")[0];
 
   await updateDocument(db, companyId, quoteId, { dueDate: newDueDateStr });
   return { newDueDate: newDueDateStr };
@@ -499,7 +562,7 @@ export async function updateDocument(
   db: Database,
   companyId: string,
   documentId: string,
-  input: UpdateDocumentInput
+  input: UpdateDocumentInput,
 ) {
   const validated = updateDocumentSchema.parse(input);
 
@@ -507,29 +570,33 @@ export async function updateDocument(
   const existing = await db
     .select()
     .from(documents)
-    .where(and(eq(documents.id, documentId), eq(documents.companyId, companyId)))
+    .where(
+      and(eq(documents.id, documentId), eq(documents.companyId, companyId)),
+    )
     .limit(1);
 
   if (existing.length === 0) {
-    throw new Error('Document not found');
+    throw new Error("Document not found");
   }
 
   const doc = existing[0];
 
   // Only drafts can have items/contact/dates modified
-  if (doc.status !== 'draft') {
+  if (doc.status !== "draft") {
     // Non-draft: only allow notes updates (no transaction needed)
     const [updated] = await db
       .update(documents)
       .set({
         notes: validated.notes !== undefined ? validated.notes : doc.notes,
-        internalNotes: validated.internalNotes !== undefined ? validated.internalNotes : doc.internalNotes,
+        internalNotes:
+          validated.internalNotes !== undefined
+            ? validated.internalNotes
+            : doc.internalNotes,
         updatedAt: new Date(),
       })
-      .where(and(
-        eq(documents.id, documentId),
-        eq(documents.companyId, companyId)
-      ))
+      .where(
+        and(eq(documents.id, documentId), eq(documents.companyId, companyId)),
+      )
       .returning();
 
     return updated;
@@ -541,14 +608,24 @@ export async function updateDocument(
     return db.transaction(async (tx) => {
       const updateValues: Record<string, unknown> = { updatedAt: new Date() };
 
-      if (validated.contactId !== undefined) updateValues.contactId = validated.contactId;
-      if (validated.projectId !== undefined) updateValues.projectId = validated.projectId;
-      if (validated.issueDate) updateValues.issueDate = new Date(validated.issueDate);
-      if (validated.dueDate !== undefined) updateValues.dueDate = validated.dueDate ? new Date(validated.dueDate) : null;
-      if (validated.deliveryDate !== undefined) updateValues.deliveryDate = validated.deliveryDate ? new Date(validated.deliveryDate) : null;
+      if (validated.contactId !== undefined)
+        updateValues.contactId = validated.contactId;
+      if (validated.projectId !== undefined)
+        updateValues.projectId = validated.projectId;
+      if (validated.issueDate)
+        updateValues.issueDate = new Date(validated.issueDate);
+      if (validated.dueDate !== undefined)
+        updateValues.dueDate = validated.dueDate
+          ? new Date(validated.dueDate)
+          : null;
+      if (validated.deliveryDate !== undefined)
+        updateValues.deliveryDate = validated.deliveryDate
+          ? new Date(validated.deliveryDate)
+          : null;
       if (validated.currency) updateValues.currency = validated.currency;
       if (validated.notes !== undefined) updateValues.notes = validated.notes;
-      if (validated.internalNotes !== undefined) updateValues.internalNotes = validated.internalNotes;
+      if (validated.internalNotes !== undefined)
+        updateValues.internalNotes = validated.internalNotes;
 
       // Recalculate totals
       const totals = calculateTotals(items);
@@ -557,7 +634,9 @@ export async function updateDocument(
       updateValues.total = totals.total;
 
       // Delete existing items and re-insert (in same transaction)
-      await tx.delete(documentItems).where(eq(documentItems.documentId, documentId));
+      await tx
+        .delete(documentItems)
+        .where(eq(documentItems.documentId, documentId));
       await tx.insert(documentItems).values(
         items.map((item, index) => ({
           documentId,
@@ -566,19 +645,18 @@ export async function updateDocument(
           description: item.description,
           quantity: item.quantity,
           unitPrice: item.unitPrice,
-          discount: item.discount || '0',
+          discount: item.discount || "0",
           vatRate: item.vatRate || DEFAULT_VAT_RATE,
           total: totals.itemTotals[index],
-        }))
+        })),
       );
 
       const [updated] = await tx
         .update(documents)
         .set(updateValues)
-        .where(and(
-          eq(documents.id, documentId),
-          eq(documents.companyId, companyId)
-        ))
+        .where(
+          and(eq(documents.id, documentId), eq(documents.companyId, companyId)),
+        )
         .returning();
 
       return updated;
@@ -588,22 +666,31 @@ export async function updateDocument(
   // No items update: simple field updates (no transaction needed)
   const updateValues: Record<string, unknown> = { updatedAt: new Date() };
 
-  if (validated.contactId !== undefined) updateValues.contactId = validated.contactId;
-  if (validated.projectId !== undefined) updateValues.projectId = validated.projectId;
-  if (validated.issueDate) updateValues.issueDate = new Date(validated.issueDate);
-  if (validated.dueDate !== undefined) updateValues.dueDate = validated.dueDate ? new Date(validated.dueDate) : null;
-  if (validated.deliveryDate !== undefined) updateValues.deliveryDate = validated.deliveryDate ? new Date(validated.deliveryDate) : null;
+  if (validated.contactId !== undefined)
+    updateValues.contactId = validated.contactId;
+  if (validated.projectId !== undefined)
+    updateValues.projectId = validated.projectId;
+  if (validated.issueDate)
+    updateValues.issueDate = new Date(validated.issueDate);
+  if (validated.dueDate !== undefined)
+    updateValues.dueDate = validated.dueDate
+      ? new Date(validated.dueDate)
+      : null;
+  if (validated.deliveryDate !== undefined)
+    updateValues.deliveryDate = validated.deliveryDate
+      ? new Date(validated.deliveryDate)
+      : null;
   if (validated.currency) updateValues.currency = validated.currency;
   if (validated.notes !== undefined) updateValues.notes = validated.notes;
-  if (validated.internalNotes !== undefined) updateValues.internalNotes = validated.internalNotes;
+  if (validated.internalNotes !== undefined)
+    updateValues.internalNotes = validated.internalNotes;
 
   const [updated] = await db
     .update(documents)
     .set(updateValues)
-    .where(and(
-      eq(documents.id, documentId),
-      eq(documents.companyId, companyId)
-    ))
+    .where(
+      and(eq(documents.id, documentId), eq(documents.companyId, companyId)),
+    )
     .returning();
 
   return updated;
@@ -616,16 +703,18 @@ export async function updateDocumentStatus(
   db: Database,
   companyId: string,
   documentId: string,
-  newStatus: DocumentStatus
+  newStatus: DocumentStatus,
 ) {
   const existing = await db
     .select()
     .from(documents)
-    .where(and(eq(documents.id, documentId), eq(documents.companyId, companyId)))
+    .where(
+      and(eq(documents.id, documentId), eq(documents.companyId, companyId)),
+    )
     .limit(1);
 
   if (existing.length === 0) {
-    throw new Error('Document not found');
+    throw new Error("Document not found");
   }
 
   const doc = existing[0];
@@ -640,7 +729,7 @@ export async function updateDocumentStatus(
   };
 
   // Set paidDate when marking as paid
-  if (newStatus === 'paid') {
+  if (newStatus === "paid") {
     updateValues.paidDate = new Date();
   }
 
@@ -650,17 +739,33 @@ export async function updateDocumentStatus(
     const [updated] = await tx
       .update(documents)
       .set(updateValues)
-      .where(and(
-        eq(documents.id, documentId),
-        eq(documents.companyId, companyId)
-      ))
+      .where(
+        and(eq(documents.id, documentId), eq(documents.companyId, companyId)),
+      )
       .returning();
 
     // Auto-create journal entries for status transitions
-    if (newStatus === 'sent' && doc.type === 'invoice') {
+    if (newStatus === "sent" && doc.type === "invoice") {
       await createInvoiceSentJournalEntry(tx, companyId, doc);
-    } else if (newStatus === 'confirmed' && doc.type === 'purchase_invoice') {
+    } else if (newStatus === "sent" && doc.type === "credit_note") {
+      await createCreditNoteSentJournalEntry(tx, companyId, doc);
+    } else if (newStatus === "confirmed" && doc.type === "purchase_invoice") {
       await createPurchaseInvoiceJournalEntry(tx, companyId, doc);
+    } else if (
+      newStatus === "cancelled" &&
+      (doc.type === "invoice" || doc.type === "purchase_invoice")
+    ) {
+      // Only reverse if a journal entry was previously created (sent/confirmed status)
+      if (
+        doc.status === "sent" ||
+        doc.status === "confirmed" ||
+        doc.status === "delivered" ||
+        doc.status === "overdue" ||
+        doc.status === "partially_paid" ||
+        doc.status?.startsWith("dunning_")
+      ) {
+        await createCancellationReversalJournalEntry(tx, companyId, doc);
+      }
     }
 
     return updated;
@@ -673,27 +778,30 @@ export async function updateDocumentStatus(
 export async function deleteDocument(
   db: Database,
   companyId: string,
-  documentId: string
+  documentId: string,
 ) {
   const existing = await db
     .select()
     .from(documents)
-    .where(and(eq(documents.id, documentId), eq(documents.companyId, companyId)))
+    .where(
+      and(eq(documents.id, documentId), eq(documents.companyId, companyId)),
+    )
     .limit(1);
 
   if (existing.length === 0) {
-    throw new Error('Document not found');
+    throw new Error("Document not found");
   }
 
-  if (existing[0].status !== 'draft') {
-    throw new Error('Only draft documents can be deleted');
+  if (existing[0].status !== "draft") {
+    throw new Error("Only draft documents can be deleted");
   }
 
   // Items and payments cascade-delete via FK
-  await db.delete(documents).where(and(
-    eq(documents.id, documentId),
-    eq(documents.companyId, companyId)
-  ));
+  await db
+    .delete(documents)
+    .where(
+      and(eq(documents.id, documentId), eq(documents.companyId, companyId)),
+    );
 
   return existing[0];
 }
@@ -710,23 +818,31 @@ export async function recordPayment(
   input: {
     amount: string;
     date: string;
-    method?: 'bank_transfer' | 'cash' | 'card' | 'other';
+    method?: "bank_transfer" | "cash" | "card" | "other";
     reference?: string;
     bankTransactionId?: string;
-  }
+  },
 ) {
   // Verify document (outside transaction - read-only)
   const [doc] = await db
     .select()
     .from(documents)
-    .where(and(eq(documents.id, documentId), eq(documents.companyId, companyId)))
+    .where(
+      and(eq(documents.id, documentId), eq(documents.companyId, companyId)),
+    )
     .limit(1);
 
   if (!doc) {
-    throw new Error('Document not found');
+    throw new Error("Document not found");
   }
 
-  if (doc.status === 'draft' || doc.status === 'cancelled') {
+  // Only invoices and purchase invoices can receive payments
+  const payableTypes = ["invoice", "purchase_invoice"];
+  if (!payableTypes.includes(doc.type)) {
+    throw new Error(`Cannot record payment for a ${doc.type} document`);
+  }
+
+  if (doc.status === "draft" || doc.status === "cancelled") {
     throw new Error(`Cannot record payment for a ${doc.status} document`);
   }
 
@@ -745,16 +861,38 @@ export async function recordPayment(
     const [txn] = await db
       .select({ companyId: bankAccounts.companyId })
       .from(bankTransactions)
-      .innerJoin(bankAccounts, eq(bankTransactions.bankAccountId, bankAccounts.id))
+      .innerJoin(
+        bankAccounts,
+        eq(bankTransactions.bankAccountId, bankAccounts.id),
+      )
       .where(eq(bankTransactions.id, input.bankTransactionId))
       .limit(1);
     if (!txn || txn.companyId !== companyId) {
-      throw new Error('Bank transaction not found');
+      throw new Error("Bank transaction not found");
     }
   }
 
   // Wrap payment + status update in transaction
   return db.transaction(async (tx) => {
+    // Validate: payment must not exceed remaining balance
+    const existingPayments = await tx
+      .select({
+        totalPaid: sql<string>`COALESCE(SUM(${documentPayments.amount}::numeric), 0)`,
+      })
+      .from(documentPayments)
+      .where(eq(documentPayments.documentId, documentId));
+
+    const alreadyPaid = new Decimal(existingPayments[0]?.totalPaid || "0");
+    const docTotal = new Decimal(doc.total);
+    const remaining = docTotal.minus(alreadyPaid);
+    const paymentAmount = new Decimal(input.amount);
+
+    if (paymentAmount.gt(remaining)) {
+      throw new Error(
+        `Cannot record payment: amount ${input.amount} exceeds remaining balance ${remaining.toFixed(2)}`,
+      );
+    }
+
     // Insert payment
     const [payment] = await tx
       .insert(documentPayments)
@@ -762,42 +900,32 @@ export async function recordPayment(
         documentId,
         amount: input.amount,
         date: new Date(input.date),
-        method: input.method ?? 'bank_transfer',
+        method: input.method ?? "bank_transfer",
         reference: input.reference ?? null,
         bankTransactionId: input.bankTransactionId ?? null,
       })
       .returning();
 
-    // Calculate total paid using Decimal for exact comparison
-    const paymentsResult = await tx
-      .select({
-        totalPaid: sql<string>`COALESCE(SUM(${documentPayments.amount}::numeric), 0)`,
-      })
-      .from(documentPayments)
-      .where(eq(documentPayments.documentId, documentId));
-
-    const totalPaid = new Decimal(paymentsResult[0]?.totalPaid || '0');
-    const docTotal = new Decimal(doc.total);
+    const totalPaid = alreadyPaid.plus(paymentAmount);
 
     // Update document status (in same transaction)
     let newStatus: DocumentStatus;
     if (totalPaid.gte(docTotal)) {
-      newStatus = 'paid';
+      newStatus = "paid";
     } else {
-      newStatus = 'partially_paid';
+      newStatus = "partially_paid";
     }
 
     await tx
       .update(documents)
       .set({
         status: newStatus,
-        paidDate: newStatus === 'paid' ? new Date() : null,
+        paidDate: newStatus === "paid" ? new Date() : null,
         updatedAt: new Date(),
       })
-      .where(and(
-        eq(documents.id, documentId),
-        eq(documents.companyId, companyId)
-      ));
+      .where(
+        and(eq(documents.id, documentId), eq(documents.companyId, companyId)),
+      );
 
     // Auto-create journal entry for the payment.
     // If this fails, the entire transaction rolls back (accounting must stay consistent).
@@ -820,13 +948,13 @@ export async function convertDocument(
   companyId: string,
   userId: string,
   sourceDocumentId: string,
-  targetType: DocumentType
+  targetType: DocumentType,
 ) {
   // Get the source document with items (outside transaction - read-only)
   const source = await db.query.documents.findFirst({
     where: and(
       eq(documents.id, sourceDocumentId),
-      eq(documents.companyId, companyId)
+      eq(documents.companyId, companyId),
     ),
     with: {
       items: true,
@@ -834,7 +962,7 @@ export async function convertDocument(
   });
 
   if (!source) {
-    throw new Error('Source document not found');
+    throw new Error("Source document not found");
   }
 
   // Validate conversion path (SSOT: document-conversions.ts)
@@ -849,9 +977,8 @@ export async function convertDocument(
     const number = await getNextNumber(tx, companyId, targetType);
 
     // Generate QR reference if converting to invoice
-    const qrReference = targetType === 'invoice'
-      ? generateQRReference(companyId, number)
-      : null;
+    const qrReference =
+      targetType === "invoice" ? generateQRReference(companyId, number) : null;
 
     // Create new document
     const [newDoc] = await tx
@@ -859,7 +986,7 @@ export async function convertDocument(
       .values({
         companyId,
         type: targetType,
-        status: 'draft',
+        status: "draft",
         number,
         contactId: source.contactId,
         projectId: source.projectId,
@@ -891,7 +1018,78 @@ export async function convertDocument(
           discount: item.discount,
           vatRate: item.vatRate,
           total: item.total,
-        }))
+        })),
+      );
+    }
+
+    return newDoc;
+  });
+}
+
+/**
+ * Duplicate a document as a new draft of the same type.
+ * Copies all line items, contact, project, notes. Resets status to draft.
+ */
+export async function duplicateDocument(
+  db: Database,
+  companyId: string,
+  userId: string,
+  sourceDocumentId: string,
+) {
+  const source = await db.query.documents.findFirst({
+    where: and(
+      eq(documents.id, sourceDocumentId),
+      eq(documents.companyId, companyId),
+    ),
+    with: { items: true },
+  });
+
+  if (!source) {
+    throw new Error("Source document not found");
+  }
+
+  return db.transaction(async (tx) => {
+    const number = await getNextNumber(tx, companyId, source.type);
+
+    const qrReference =
+      source.type === "invoice" ? generateQRReference(companyId, number) : null;
+
+    const [newDoc] = await tx
+      .insert(documents)
+      .values({
+        companyId,
+        type: source.type,
+        status: "draft",
+        number,
+        contactId: source.contactId,
+        projectId: source.projectId,
+        issueDate: new Date(),
+        dueDate: null,
+        deliveryDate: null,
+        currency: source.currency,
+        subtotal: source.subtotal,
+        vatAmount: source.vatAmount,
+        total: source.total,
+        notes: source.notes,
+        internalNotes: source.internalNotes,
+        qrReference,
+        createdBy: userId,
+      })
+      .returning();
+
+    if (source.items.length > 0) {
+      await tx.insert(documentItems).values(
+        source.items.map((item) => ({
+          documentId: newDoc.id,
+          productId: item.productId,
+          position: item.position,
+          description: item.description,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          discount: item.discount,
+          vatRate: item.vatRate,
+          total: item.total,
+        })),
       );
     }
 
@@ -905,7 +1103,7 @@ export async function convertDocument(
 export async function getFinancialSummary(
   db: Database,
   companyId: string,
-  sinceDate?: Date
+  sinceDate?: Date,
 ) {
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -921,10 +1119,10 @@ export async function getFinancialSummary(
     .where(
       and(
         eq(documents.companyId, companyId),
-        eq(documents.type, 'invoice'),
-        eq(documents.status, 'paid'),
-        gte(documents.paidDate, startOfMonth)
-      )
+        eq(documents.type, "invoice"),
+        eq(documents.status, "paid"),
+        gte(documents.paidDate, startOfMonth),
+      ),
     );
 
   // Revenue this year
@@ -936,10 +1134,10 @@ export async function getFinancialSummary(
     .where(
       and(
         eq(documents.companyId, companyId),
-        eq(documents.type, 'invoice'),
-        eq(documents.status, 'paid'),
-        gte(documents.paidDate, startOfYear)
-      )
+        eq(documents.type, "invoice"),
+        eq(documents.status, "paid"),
+        gte(documents.paidDate, startOfYear),
+      ),
     );
 
   // Outstanding invoices (sent/confirmed/delivered/partially_paid)
@@ -952,10 +1150,10 @@ export async function getFinancialSummary(
     .where(
       and(
         eq(documents.companyId, companyId),
-        eq(documents.type, 'invoice'),
+        eq(documents.type, "invoice"),
         sql`${documents.status} IN ('sent', 'confirmed', 'delivered', 'partially_paid')`,
-        sinceDate ? gte(documents.issueDate, sinceDate) : undefined
-      )
+        sinceDate ? gte(documents.issueDate, sinceDate) : undefined,
+      ),
     );
 
   // Overdue — dynamically calculated: past due date AND not paid/cancelled/draft
@@ -968,11 +1166,11 @@ export async function getFinancialSummary(
     .where(
       and(
         eq(documents.companyId, companyId),
-        eq(documents.type, 'invoice'),
+        eq(documents.type, "invoice"),
         sql`${documents.status} NOT IN ('paid', 'cancelled', 'draft')`,
         sql`${documents.dueDate} IS NOT NULL AND ${documents.dueDate} < NOW()`,
-        sinceDate ? gte(documents.issueDate, sinceDate) : undefined
-      )
+        sinceDate ? gte(documents.issueDate, sinceDate) : undefined,
+      ),
     );
 
   // Draft invoices
@@ -985,20 +1183,79 @@ export async function getFinancialSummary(
     .where(
       and(
         eq(documents.companyId, companyId),
-        eq(documents.type, 'invoice'),
-        eq(documents.status, 'draft')
-      )
+        eq(documents.type, "invoice"),
+        eq(documents.status, "draft"),
+      ),
     );
 
   return {
-    revenueThisMonth: new Decimal(monthlyRevenue.total || '0').toNumber(),
+    revenueThisMonth: new Decimal(monthlyRevenue.total || "0").toNumber(),
     revenueThisMonthCount: monthlyRevenue.count,
-    revenueThisYear: new Decimal(yearlyRevenue.total || '0').toNumber(),
-    outstandingTotal: new Decimal(outstanding.total || '0').toNumber(),
+    revenueThisYear: new Decimal(yearlyRevenue.total || "0").toNumber(),
+    outstandingTotal: new Decimal(outstanding.total || "0").toNumber(),
     outstandingCount: outstanding.count,
-    overdueTotal: new Decimal(overdue.total || '0').toNumber(),
+    overdueTotal: new Decimal(overdue.total || "0").toNumber(),
     overdueCount: overdue.count,
-    draftsTotal: new Decimal(drafts.total || '0').toNumber(),
+    draftsTotal: new Decimal(drafts.total || "0").toNumber(),
     draftsCount: drafts.count,
+  };
+}
+
+/**
+ * Get document summary stats for the document hub page.
+ * Calculates total count, open amount, and overdue count.
+ */
+export async function getDocumentSummary(
+  db: Database,
+  companyId: string,
+  type?: DocumentType,
+): Promise<{
+  totalCount: number;
+  openAmount: string;
+  overdueCount: number;
+}> {
+  const baseFilters = [eq(documents.companyId, companyId)];
+  if (type) baseFilters.push(eq(documents.type, type));
+
+  const openStatuses: DocumentStatus[] = [
+    "sent",
+    "confirmed",
+    "delivered",
+    "partially_paid",
+  ];
+  const nonTerminalStatuses: DocumentStatus[] = [
+    "sent",
+    "confirmed",
+    "delivered",
+    "partially_paid",
+    "overdue",
+    "dunning_1",
+    "dunning_2",
+    "dunning_3",
+  ];
+
+  const [row] = await db
+    .select({
+      totalCount: count(),
+      openAmount: sum(
+        sql`CASE WHEN ${documents.status} IN (${sql.join(
+          openStatuses.map((s) => sql`${s}`),
+          sql`, `,
+        )}) THEN ${documents.total} ELSE 0 END`,
+      ),
+      overdueCount: count(
+        sql`CASE WHEN ${documents.status} IN (${sql.join(
+          nonTerminalStatuses.map((s) => sql`${s}`),
+          sql`, `,
+        )}) AND ${documents.dueDate} < NOW() THEN 1 END`,
+      ),
+    })
+    .from(documents)
+    .where(and(...baseFilters));
+
+  return {
+    totalCount: row?.totalCount ?? 0,
+    openAmount: row?.openAmount ?? "0",
+    overdueCount: row?.overdueCount ?? 0,
   };
 }

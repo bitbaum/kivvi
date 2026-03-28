@@ -117,6 +117,7 @@ export const users = pgTable("users", {
   email: text("email").notNull().unique(),
   name: text("name"),
   passwordHash: text("password_hash"),
+  avatarBase64: text("avatar_base64"),
   companyId: uuid("company_id").references(() => companies.id),
   role: text("role").default("member"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -376,6 +377,12 @@ export const products = pgTable(
       table.companyId,
       table.isActive,
     ),
+    manufacturerIdIdx: index("products_manufacturer_id_idx").on(
+      table.manufacturerId,
+    ),
+    productGroupIdIdx: index("products_product_group_id_idx").on(
+      table.productGroupId,
+    ),
   }),
 );
 
@@ -443,6 +450,7 @@ export const documents = pgTable(
     convertedFromIdIdx: index("documents_converted_from_id_idx").on(
       table.convertedFromId,
     ),
+    createdByIdx: index("documents_created_by_idx").on(table.createdBy),
   }),
 );
 
@@ -646,6 +654,7 @@ export const bankAccounts = pgTable(
   },
   (table) => ({
     companyIdIdx: index("bank_accounts_company_id_idx").on(table.companyId),
+    accountIdIdx: index("bank_accounts_account_id_idx").on(table.accountId),
   }),
 );
 
@@ -778,6 +787,12 @@ export const serialNumbers = pgTable(
       "serial_numbers_product_id_serial_number_idx",
     ).on(table.productId, table.serialNumber),
     productIdIdx: index("serial_numbers_product_id_idx").on(table.productId),
+    warehouseIdIdx: index("serial_numbers_warehouse_id_idx").on(
+      table.warehouseId,
+    ),
+    soldToContactIdIdx: index("serial_numbers_sold_to_contact_id_idx").on(
+      table.soldToContactId,
+    ),
   }),
 );
 
@@ -892,18 +907,27 @@ export const recurringInvoiceConfigs = pgTable(
 // AI CONVERSATIONS
 // ============================================================================
 
-export const aiConversations = pgTable("ai_conversations", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  companyId: uuid("company_id")
-    .references(() => companies.id)
-    .notNull(),
-  userId: uuid("user_id")
-    .references(() => users.id)
-    .notNull(),
-  title: text("title"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+export const aiConversations = pgTable(
+  "ai_conversations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    companyId: uuid("company_id")
+      .references(() => companies.id)
+      .notNull(),
+    userId: uuid("user_id")
+      .references(() => users.id)
+      .notNull(),
+    title: text("title"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    companyUserIdx: index("ai_conversations_company_id_user_id_idx").on(
+      table.companyId,
+      table.userId,
+    ),
+  }),
+);
 
 export const aiMessages = pgTable(
   "ai_messages",

@@ -5,9 +5,7 @@ import { Landmark, Plus, CreditCard } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { listBankAccounts } from "@kivvi/core";
-import { bankTransactions, bankAccounts } from "@kivvi/database";
-import { eq, and, sql, max } from "drizzle-orm";
+import { listBankAccounts, getBankTransactionsSummary } from "@kivvi/core";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { AddAccountForm } from "./add-account-form";
 import { PageHeader } from "@/components/page-header";
@@ -20,19 +18,9 @@ export default async function BankingPage() {
   const t = await getTranslations("banking");
   const companyId = session.user.companyId;
 
-  const [accounts, [txSummary]] = await Promise.all([
+  const [accounts, txSummary] = await Promise.all([
     listBankAccounts(db, companyId),
-    db
-      .select({
-        unreconciledCount: sql<number>`count(*) filter (where ${bankTransactions.isReconciled} = false)::int`,
-        lastTransactionDate: max(bankTransactions.date),
-      })
-      .from(bankTransactions)
-      .innerJoin(
-        bankAccounts,
-        eq(bankTransactions.bankAccountId, bankAccounts.id),
-      )
-      .where(eq(bankAccounts.companyId, companyId)),
+    getBankTransactionsSummary(db, companyId),
   ]);
 
   const totalBalance = accounts

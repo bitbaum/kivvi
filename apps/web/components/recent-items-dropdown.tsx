@@ -1,17 +1,40 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { Clock, X, FileText, User, Package, FileCheck, ShoppingCart } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { useRecentItems, type RecentItem } from '@/hooks/use-recent-items';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import {
+  Clock,
+  X,
+  FileText,
+  User,
+  Package,
+  FileCheck,
+  ShoppingCart,
+  CreditCard,
+  Truck,
+  ClipboardList,
+  Receipt,
+  FolderKanban,
+  BookOpen,
+} from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useRecentItems, type RecentItem } from "@/hooks/use-recent-items";
 
-const ICONS = {
+const ICONS: Record<
+  RecentItem["type"],
+  React.ComponentType<{ className?: string }>
+> = {
   invoice: FileText,
   contact: User,
   product: Package,
   quote: FileCheck,
   order: ShoppingCart,
+  credit_note: CreditCard,
+  delivery_note: Truck,
+  purchase_order: ClipboardList,
+  purchase_invoice: Receipt,
+  project: FolderKanban,
+  journal: BookOpen,
 };
 
 /**
@@ -22,7 +45,7 @@ export function RecentItemsDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const [items, setItems] = useState<RecentItem[]>([]);
   const { getRecentItems, clearRecentItems } = useRecentItems();
-  const tc = useTranslations('common');
+  const tc = useTranslations("common");
 
   // Load items on mount and when updated
   useEffect(() => {
@@ -33,8 +56,8 @@ export function RecentItemsDropdown() {
     loadItems();
 
     // Listen for updates from other components
-    window.addEventListener('recentItemsUpdated', loadItems);
-    return () => window.removeEventListener('recentItemsUpdated', loadItems);
+    window.addEventListener("recentItemsUpdated", loadItems);
+    return () => window.removeEventListener("recentItemsUpdated", loadItems);
   }, [getRecentItems]);
 
   if (items.length === 0) {
@@ -49,7 +72,7 @@ export function RecentItemsDropdown() {
         type="button"
       >
         <Clock className="h-4 w-4" />
-        <span className="hidden sm:inline">{tc('recentItems')}</span>
+        <span className="hidden sm:inline">{tc("recentItems")}</span>
       </button>
 
       {isOpen && (
@@ -63,7 +86,7 @@ export function RecentItemsDropdown() {
           {/* Dropdown */}
           <div className="absolute right-0 top-full z-50 mt-2 w-80 rounded-lg border bg-popover shadow-lg">
             <div className="flex items-center justify-between border-b px-4 py-3">
-              <h3 className="font-semibold text-sm">{tc('recentItems')}</h3>
+              <h3 className="font-semibold text-sm">{tc("recentItems")}</h3>
               <button
                 onClick={() => {
                   clearRecentItems();
@@ -72,7 +95,7 @@ export function RecentItemsDropdown() {
                 className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                 type="button"
               >
-                {tc('clearAll')}
+                {tc("clearAll")}
               </button>
             </div>
 
@@ -90,8 +113,12 @@ export function RecentItemsDropdown() {
                       <Icon className="h-4 w-4 text-muted-foreground" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{item.label}</p>
-                      <p className="text-xs text-muted-foreground capitalize">{item.type}</p>
+                      <p className="text-sm font-medium truncate">
+                        {item.label}
+                      </p>
+                      <p className="text-xs text-muted-foreground capitalize">
+                        {item.type}
+                      </p>
                     </div>
                   </Link>
                 );

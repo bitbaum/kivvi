@@ -130,7 +130,9 @@ export default async function BankAccountDetailPage({
         <SummaryCard
           label={t("reconciled")}
           value={summary.reconciled.toString()}
-          icon={<CheckCircle2 className="h-4 w-4 text-green-600" />}
+          icon={
+            <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+          }
           className="border-green-200 dark:border-green-900/50"
         />
         <SummaryCard
@@ -145,7 +147,9 @@ export default async function BankAccountDetailPage({
             summary.totalUnreconciledAmount,
             account.currency || "CHF",
           )}
-          icon={<CreditCard className="h-4 w-4 text-red-600" />}
+          icon={
+            <CreditCard className="h-4 w-4 text-red-600 dark:text-red-400" />
+          }
           className="border-red-200 dark:border-red-900/50"
         />
       </div>

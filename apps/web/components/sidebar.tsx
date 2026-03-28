@@ -2,12 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { useChatWidget } from "@/hooks/use-chat-widget";
 import { useNavBadges, type NavBadges } from "@/hooks/use-nav-badges";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect } from "react";
 import {
   LayoutDashboard,
   MessageSquare,
@@ -17,30 +16,19 @@ import {
   Package,
   Settings,
   HelpCircle,
-  Building2,
   Warehouse,
   BarChart3,
   FolderKanban,
   X,
-  ChevronsUpDown,
-  Check,
-  Plus,
 } from "lucide-react";
-import {
-  getMyMembershipsAction,
-  switchCompanyAction,
-  createCompanyAction,
-} from "@/app/actions/memberships";
 import { KivviLogo } from "@/components/kivvi-logo";
-import type { MembershipInfo } from "@kivvi/core/src/domain/memberships";
+import { CompanySwitcher } from "@/components/sidebar/company-switcher";
 
 interface NavItem {
   nameKey: string;
   href: string;
   icon: React.ComponentType<{ className?: string }>;
-  /** Additional path prefixes that mark this item as active */
   activePrefixes?: string[];
-  /** Key to look up badge count in NavBadges */
   badgeKey?: keyof NavBadges;
 }
 
@@ -138,63 +126,6 @@ function NavLink({
   );
 }
 
-function CreateCompanyForm({
-  onCreated,
-  onCancel,
-  tc,
-}: {
-  onCreated: () => void;
-  onCancel: () => void;
-  tc: (key: string) => string;
-}) {
-  const { update: updateSession } = useSession();
-  const [name, setName] = useState("");
-  const [creating, setCreating] = useState(false);
-
-  const handleSubmit = async () => {
-    const trimmed = name.trim();
-    if (trimmed.length < 2) return;
-    setCreating(true);
-    const result = await createCompanyAction({ companyName: trimmed });
-    if (result.success) {
-      await updateSession();
-      onCreated();
-      window.location.href = "/onboarding";
-    }
-    setCreating(false);
-  };
-
-  return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        handleSubmit();
-      }}
-      className="flex items-center gap-1"
-    >
-      <input
-        autoFocus
-        type="text"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder={tc("organizationName")}
-        disabled={creating}
-        className="flex-1 rounded-md border bg-background px-2 py-1.5 text-sm outline-none focus:ring-2 focus:ring-ring"
-        onKeyDown={(e) => {
-          if (e.key === "Escape") onCancel();
-        }}
-      />
-      <button
-        type="submit"
-        disabled={creating || name.trim().length < 2}
-        className="rounded-md bg-primary px-2 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-      >
-        {creating ? tc("creatingOrganization") : tc("create")}
-      </button>
-    </form>
-  );
-}
-
 interface SidebarProps {
   isOpen?: boolean;
   onClose?: () => void;
@@ -202,45 +133,10 @@ interface SidebarProps {
 
 export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const pathname = usePathname();
-  const { data: session, update: updateSession } = useSession();
   const t = useTranslations("nav");
   const tc = useTranslations("common");
   const chatWidget = useChatWidget();
   const badges = useNavBadges();
-  const [memberships, setMemberships] = useState<MembershipInfo[]>([]);
-  const [companySwitcherOpen, setCompanySwitcherOpen] = useState(false);
-  const [switching, setSwitching] = useState(false);
-  const [showCreateForm, setShowCreateForm] = useState(false);
-
-  // Load memberships for company switcher
-  useEffect(() => {
-    async function loadMemberships() {
-      const result = await getMyMembershipsAction();
-      if (result.success && result.data) {
-        setMemberships(result.data);
-      }
-    }
-    if (session?.user?.id) loadMemberships();
-  }, [session?.user?.id]);
-
-  const handleSwitchCompany = useCallback(
-    async (companyId: string) => {
-      if (companyId === session?.user?.companyId) {
-        setCompanySwitcherOpen(false);
-        return;
-      }
-      setSwitching(true);
-      const result = await switchCompanyAction(companyId);
-      if (result.success) {
-        await updateSession();
-        setCompanySwitcherOpen(false);
-        // Full reload to refresh all server-rendered data
-        window.location.href = "/dashboard";
-      }
-      setSwitching(false);
-    },
-    [session?.user?.companyId, updateSession],
-  );
 
   // Close sidebar on Escape key
   useEffect(() => {
@@ -269,7 +165,6 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
           <KivviLogo size={32} />
           <span className="text-xl font-bold">Kivvi</span>
         </Link>
-        {/* Mobile close button */}
         {onClose && (
           <button
             onClick={onClose}
@@ -281,121 +176,9 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
         )}
       </div>
 
-      {/* Company selector / switcher */}
+      {/* Company selector */}
       <div className="border-b p-4">
-        {memberships.length > 1 ? (
-          <div className="relative">
-            <button
-              onClick={() => setCompanySwitcherOpen(!companySwitcherOpen)}
-              disabled={switching}
-              className="flex w-full items-center gap-3 rounded-lg bg-muted p-3 text-left hover:bg-muted/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              aria-label={tc("aria.switchCompany")}
-              aria-expanded={companySwitcherOpen}
-            >
-              <Building2
-                className="h-5 w-5 text-muted-foreground"
-                aria-hidden="true"
-              />
-              <div className="flex-1 truncate">
-                <p className="text-sm font-medium">
-                  {session?.user?.companyName || tc("myCompany")}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {tc("freePlan")}
-                </p>
-              </div>
-              <ChevronsUpDown
-                className="h-4 w-4 text-muted-foreground"
-                aria-hidden="true"
-              />
-            </button>
-            {companySwitcherOpen && (
-              <>
-                <div
-                  className="fixed inset-0 z-10"
-                  onClick={() => setCompanySwitcherOpen(false)}
-                />
-                <div className="absolute left-0 right-0 top-full z-20 mt-1 rounded-lg border bg-popover p-1 shadow-md">
-                  {memberships.map((m) => (
-                    <button
-                      key={m.companyId}
-                      onClick={() => handleSwitchCompany(m.companyId)}
-                      className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
-                    >
-                      <Building2
-                        className="h-4 w-4 text-muted-foreground"
-                        aria-hidden="true"
-                      />
-                      <span className="flex-1 truncate">{m.companyName}</span>
-                      {m.companyId === session?.user?.companyId && (
-                        <Check className="h-4 w-4 text-primary" />
-                      )}
-                    </button>
-                  ))}
-                  <div className="my-1 border-t" />
-                  {showCreateForm ? (
-                    <div className="px-1">
-                      <CreateCompanyForm
-                        tc={tc}
-                        onCreated={() => {
-                          setCompanySwitcherOpen(false);
-                          setShowCreateForm(false);
-                        }}
-                        onCancel={() => setShowCreateForm(false)}
-                      />
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => setShowCreateForm(true)}
-                      className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm text-muted-foreground hover:bg-muted transition-colors"
-                    >
-                      <Plus className="h-4 w-4" aria-hidden="true" />
-                      <span>{tc("createOrganization")}</span>
-                    </button>
-                  )}
-                </div>
-              </>
-            )}
-          </div>
-        ) : (
-          <div>
-            <Link
-              href="/settings/company"
-              className="flex w-full items-center gap-3 rounded-lg bg-muted p-3 text-left hover:bg-muted/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              aria-label={tc("aria.companySettings")}
-            >
-              <Building2
-                className="h-5 w-5 text-muted-foreground"
-                aria-hidden="true"
-              />
-              <div className="flex-1 truncate">
-                <p className="text-sm font-medium">
-                  {session?.user?.companyName || tc("myCompany")}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {tc("freePlan")}
-                </p>
-              </div>
-            </Link>
-            {showCreateForm ? (
-              <div className="mt-2">
-                <CreateCompanyForm
-                  tc={tc}
-                  onCreated={() => setShowCreateForm(false)}
-                  onCancel={() => setShowCreateForm(false)}
-                />
-              </div>
-            ) : (
-              <button
-                onClick={() => setShowCreateForm(true)}
-                className="mt-1 flex w-full items-center gap-3 rounded-md px-3 py-1.5 text-left text-xs text-muted-foreground hover:bg-muted transition-colors"
-              >
-                <Plus className="h-3.5 w-3.5" aria-hidden="true" />
-                <span>{tc("createOrganization")}</span>
-              </button>
-            )}
-          </div>
-        )}
+        <CompanySwitcher tc={tc} />
       </div>
 
       {/* Main navigation */}
@@ -403,7 +186,7 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
         className="flex-1 space-y-1 overflow-y-auto p-4"
         aria-label={tc("aria.primaryNavigation")}
       >
-        {/* AI Assistant — opens widget */}
+        {/* AI Assistant */}
         <button
           onClick={() => {
             chatWidget.open();

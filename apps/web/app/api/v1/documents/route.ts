@@ -1,9 +1,16 @@
-import { NextRequest } from 'next/server';
-import { z } from 'zod';
-import { db } from '@/lib/db';
-import { authenticateApi, apiError, apiSuccess } from '@/lib/api-handler';
-import { listDocuments, createDocument, createDocumentSchema } from '@kivvi/core';
-import { documentTypeEnum, documentStatusEnum } from '@kivvi/database/src/schema';
+import { NextRequest } from "next/server";
+import { z } from "zod";
+import { db } from "@/lib/db";
+import { authenticateApi, apiError, apiSuccess } from "@/lib/api-handler";
+import {
+  listDocuments,
+  createDocument,
+  createDocumentSchema,
+} from "@kivvi/core";
+import {
+  documentTypeEnum,
+  documentStatusEnum,
+} from "@kivvi/database/src/schema";
 
 const querySchema = z.object({
   page: z.coerce.number().int().positive().default(1),
@@ -12,8 +19,10 @@ const querySchema = z.object({
   status: z.enum(documentStatusEnum.enumValues).optional(),
   search: z.string().optional(),
   contactId: z.string().uuid().optional(),
-  sortBy: z.enum(['number', 'issueDate', 'dueDate', 'total', 'createdAt']).optional(),
-  sortOrder: z.enum(['asc', 'desc']).optional(),
+  sortBy: z
+    .enum(["number", "issueDate", "dueDate", "total", "createdAt"])
+    .optional(),
+  sortOrder: z.enum(["asc", "desc"]).optional(),
 });
 
 export async function GET(request: NextRequest) {
@@ -25,7 +34,10 @@ export async function GET(request: NextRequest) {
     const raw = Object.fromEntries(url.searchParams.entries());
     const parsed = querySchema.safeParse(raw);
     if (!parsed.success) {
-      return apiError(`Invalid query parameters: ${parsed.error.issues.map(i => `${i.path}: ${i.message}`).join(', ')}`, 400);
+      return apiError(
+        `Invalid query parameters: ${parsed.error.issues.map((i) => `${i.path}: ${i.message}`).join(", ")}`,
+        400,
+      );
     }
 
     const { page, pageSize, ...filters } = parsed.data;
@@ -42,24 +54,33 @@ export async function GET(request: NextRequest) {
       totalPages: result.totalPages,
     });
   } catch {
-    return apiError('Internal server error', 500);
+    return apiError("Internal server error", 500);
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const ctx = await authenticateApi(request);
+    const ctx = await authenticateApi(request, "member");
     if (ctx instanceof Response) return ctx;
 
     const body = await request.json();
     const parsed = createDocumentSchema.safeParse(body);
     if (!parsed.success) {
-      return apiError(`Invalid body: ${parsed.error.issues.map(i => `${i.path}: ${i.message}`).join(', ')}`, 400);
+      return apiError(
+        `Invalid body: ${parsed.error.issues.map((i) => `${i.path}: ${i.message}`).join(", ")}`,
+        400,
+      );
     }
-    const doc = await createDocument(db, ctx.companyId, ctx.userId, parsed.data);
+    const doc = await createDocument(
+      db,
+      ctx.companyId,
+      ctx.userId,
+      parsed.data,
+    );
     return apiSuccess(doc);
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Failed to create document';
+    const message =
+      error instanceof Error ? error.message : "Failed to create document";
     return apiError(message, 400);
   }
 }

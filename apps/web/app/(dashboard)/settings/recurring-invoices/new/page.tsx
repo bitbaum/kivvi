@@ -1,19 +1,19 @@
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
-import { auth } from '@/lib/auth';
-import { db } from '@/lib/db';
-import { documents } from '@kivvi/database';
-import { eq, and } from 'drizzle-orm';
-import { getTranslations } from 'next-intl/server';
-import { RecurringConfigForm } from '../recurring-config-form';
+import { redirect } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { documents } from "@kivvi/database";
+import { eq, and } from "drizzle-orm";
+import { getTranslations } from "next-intl/server";
+import { RecurringConfigForm } from "../recurring-config-form";
 
 export default async function NewRecurringInvoicePage() {
   const session = await auth();
-  if (!session?.user?.companyId) redirect('/login');
+  if (!session?.user?.companyId) redirect("/login");
 
-  const t = await getTranslations('settings');
-  const tc = await getTranslations('common');
+  const t = await getTranslations("settings");
+  const tc = await getTranslations("common");
 
   // Fetch all orders for this company
   const orders = await db
@@ -26,8 +26,8 @@ export default async function NewRecurringInvoicePage() {
     .where(
       and(
         eq(documents.companyId, session.user.companyId),
-        eq(documents.type, 'order')
-      )
+        eq(documents.type, "order"),
+      ),
     )
     .orderBy(documents.number);
 
@@ -36,19 +36,22 @@ export default async function NewRecurringInvoicePage() {
     .map((o) => o.contactId)
     .filter((id): id is string => id !== null);
 
-  const contacts = contactIds.length > 0
-    ? await db.query.contacts.findMany({
-        where: (contacts, { inArray }) => inArray(contacts.id, contactIds),
-        columns: { id: true, name: true },
-      })
-    : [];
+  const contacts =
+    contactIds.length > 0
+      ? await db.query.contacts.findMany({
+          where: (contacts, { inArray }) => inArray(contacts.id, contactIds),
+          columns: { id: true, name: true },
+        })
+      : [];
 
   const contactMap = new Map(contacts.map((c) => [c.id, c.name]));
 
   const orderOptions = orders.map((o) => ({
     id: o.id,
     number: o.number,
-    contactName: o.contactId ? contactMap.get(o.contactId) || 'Unknown' : 'No Contact',
+    contactName: o.contactId
+      ? contactMap.get(o.contactId) || tc("unknown")
+      : tc("noContact"),
   }));
 
   return (
@@ -56,18 +59,16 @@ export default async function NewRecurringInvoicePage() {
       {/* Back link */}
       <Link
         href="/settings/recurring-invoices"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        className="inline-flex min-h-[44px] items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
-        {tc('back')}
+        {tc("back")}
       </Link>
 
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">{t('recurring.createNew')}</h1>
-        <p className="text-muted-foreground">
-          {t('recurring.createDesc')}
-        </p>
+        <h1 className="text-3xl font-bold">{t("recurring.createNew")}</h1>
+        <p className="text-muted-foreground">{t("recurring.createDesc")}</p>
       </div>
 
       {/* Form */}

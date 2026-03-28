@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Pencil, X, Loader2, Check } from 'lucide-react';
-import { updateNumberSequenceAction } from '@/app/actions/settings';
-import { useTranslations } from 'next-intl';
-import { cn } from '@/lib/utils';
+import { useState } from "react";
+import { Pencil, X, Loader2, Check } from "lucide-react";
+import { updateNumberSequenceAction } from "@/app/actions/settings";
+import { useTranslations } from "next-intl";
+import { cn } from "@/lib/utils";
 
 interface SequenceRowProps {
   sequence: {
@@ -18,7 +18,7 @@ interface SequenceRowProps {
 }
 
 export function SequenceRow({ sequence, typeLabel }: SequenceRowProps) {
-  const tc = useTranslations('common');
+  const tc = useTranslations("common");
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -64,10 +64,10 @@ export function SequenceRow({ sequence, typeLabel }: SequenceRowProps) {
         setIsEditing(false);
         setShowWarning(false);
       } else {
-        setError(result.error || tc('error'));
+        setError(result.error || tc("error"));
       }
     } catch {
-      setError(tc('error'));
+      setError(tc("error"));
     } finally {
       setIsSubmitting(false);
     }
@@ -95,7 +95,7 @@ export function SequenceRow({ sequence, typeLabel }: SequenceRowProps) {
               min={1}
               className={cn(
                 "w-full rounded-lg border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary",
-                showWarning && "border-yellow-500"
+                showWarning && "border-yellow-500",
               )}
             />
           </div>
@@ -114,8 +114,8 @@ export function SequenceRow({ sequence, typeLabel }: SequenceRowProps) {
               onClick={handleSave}
               disabled={isSubmitting}
               className={cn(
-                'inline-flex items-center justify-center rounded-lg bg-primary p-2 text-primary-foreground hover:bg-primary/90 transition-colors',
-                isSubmitting && 'opacity-50 cursor-not-allowed'
+                "inline-flex items-center justify-center rounded-lg bg-primary p-2 text-primary-foreground hover:bg-primary/90 transition-colors",
+                isSubmitting && "opacity-50 cursor-not-allowed",
               )}
             >
               {isSubmitting ? (
@@ -128,7 +128,7 @@ export function SequenceRow({ sequence, typeLabel }: SequenceRowProps) {
               type="button"
               onClick={handleCancel}
               disabled={isSubmitting}
-              className="inline-flex items-center justify-center rounded-lg border p-2 hover:bg-muted transition-colors"
+              className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg border p-2 hover:bg-muted transition-colors"
             >
               <X className="h-4 w-4" />
             </button>
@@ -136,7 +136,8 @@ export function SequenceRow({ sequence, typeLabel }: SequenceRowProps) {
         </div>
         {showWarning && (
           <div className="rounded-lg border border-yellow-500/50 bg-yellow-500/10 px-3 py-2 text-xs text-yellow-700 dark:text-yellow-400">
-            ⚠️ Warning: Setting next number to a lower value may create duplicate numbers if documents already exist.
+            ⚠️ Warning: Setting next number to a lower value may create
+            duplicate numbers if documents already exist.
           </div>
         )}
         {error && (
@@ -151,14 +152,20 @@ export function SequenceRow({ sequence, typeLabel }: SequenceRowProps) {
   return (
     <div className="grid grid-cols-[1.5fr_1fr_1fr_1.5fr_auto] gap-4 px-6 py-4 items-center">
       <div className="text-sm font-medium">{typeLabel}</div>
-      <div className="text-sm font-mono text-muted-foreground">{sequence.prefix}</div>
-      <div className="text-sm font-mono text-muted-foreground">{sequence.nextNumber}</div>
-      <div className="text-sm font-mono text-muted-foreground">{sequence.format}</div>
+      <div className="text-sm font-mono text-muted-foreground">
+        {sequence.prefix}
+      </div>
+      <div className="text-sm font-mono text-muted-foreground">
+        {sequence.nextNumber}
+      </div>
+      <div className="text-sm font-mono text-muted-foreground">
+        {sequence.format}
+      </div>
       <div>
         <button
           type="button"
           onClick={() => setIsEditing(true)}
-          className="inline-flex items-center justify-center rounded-lg border p-2 hover:bg-muted transition-colors"
+          className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg border p-2 hover:bg-muted transition-colors"
         >
           <Pencil className="h-4 w-4" />
         </button>

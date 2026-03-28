@@ -9,6 +9,7 @@ import {
   updateDocumentStatus,
   recordPayment,
   convertDocument,
+  duplicateDocument,
   createDocumentSchema,
   updateDocumentSchema,
 } from "@kivvi/core";
@@ -213,6 +214,32 @@ export async function convertDocumentAction(
     return {
       success: false,
       error: safeErrorMessage(error, "Failed to convert document"),
+    };
+  }
+}
+
+export async function duplicateDocumentAction(
+  sourceDocumentId: string,
+): Promise<ActionResult<{ id: string; number: string; type: string }>> {
+  try {
+    const { companyId, userId } = await requireRole("member");
+
+    const doc = await duplicateDocument(
+      db,
+      companyId,
+      userId,
+      sourceDocumentId,
+    );
+
+    revalidateDocumentPaths(doc.type, doc.id);
+    return {
+      success: true,
+      data: { id: doc.id, number: doc.number, type: doc.type },
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to duplicate document"),
     };
   }
 }

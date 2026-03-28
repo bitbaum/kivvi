@@ -189,7 +189,7 @@ export function ImportTransactions({
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           {result ? (
             <div className="flex flex-col items-center py-8">
-              <FileSpreadsheet className="h-12 w-12 text-green-600" />
+              <FileSpreadsheet className="h-12 w-12 text-green-600 dark:text-green-400" />
               <p className="mt-4 text-lg font-medium">
                 {t("importTransactions", { count: result.imported })}
               </p>
@@ -312,7 +312,7 @@ export function ImportTransactions({
                                         {entry.creditorName || "-"}
                                       </td>
                                       <td
-                                        className={`whitespace-nowrap px-3 py-2 text-right font-medium ${amt >= 0 ? "text-green-600" : "text-red-600"}`}
+                                        className={`whitespace-nowrap px-3 py-2 text-right font-medium ${amt >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
                                       >
                                         {entry.amount}
                                       </td>
@@ -333,7 +333,7 @@ export function ImportTransactions({
                                       {txn.reference || "-"}
                                     </td>
                                     <td
-                                      className={`whitespace-nowrap px-3 py-2 text-right font-medium ${amt >= 0 ? "text-green-600" : "text-red-600"}`}
+                                      className={`whitespace-nowrap px-3 py-2 text-right font-medium ${amt >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
                                     >
                                       {txn.amount}
                                     </td>

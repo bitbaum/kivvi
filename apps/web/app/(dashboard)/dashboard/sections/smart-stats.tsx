@@ -1,35 +1,37 @@
-import { getDashboardStats } from '@kivvi/core/src/domain/dashboard';
-import { db } from '@/lib/db';
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { formatCurrency } from '@/lib/utils';
-import { getTranslations } from 'next-intl/server';
-import { logger } from '@/lib/logger';
+import { getDashboardStats } from "@kivvi/core/src/domain/dashboard";
+import { db } from "@/lib/db";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import Link from "next/link";
+import { formatCurrency } from "@/lib/utils";
+import { getTranslations } from "next-intl/server";
+import { logger } from "@/lib/logger";
 import {
   TrendingUp,
   TrendingDown,
   FileText,
   Wallet,
   AlertTriangle,
-} from 'lucide-react';
+} from "lucide-react";
 
 export async function SmartStats({ sinceDate }: { sinceDate?: Date }) {
   const session = await auth();
-  if (!session?.user?.companyId) redirect('/login');
+  if (!session?.user?.companyId) redirect("/login");
 
   const companyId = session.user.companyId;
-  const t = await getTranslations('dashboard');
+  const t = await getTranslations("dashboard");
 
   let stats;
   try {
     stats = await getDashboardStats(db, companyId, sinceDate);
   } catch (error) {
-    logger.error('Failed to load dashboard stats', error);
+    logger.error("Failed to load dashboard stats", error);
     return (
       <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-6 text-center dark:border-yellow-900 dark:bg-yellow-950">
         <AlertTriangle className="mx-auto mb-2 h-6 w-6 text-yellow-600" />
-        <p className="text-sm text-yellow-800 dark:text-yellow-200">{t('stats.loadError')}</p>
+        <p className="text-sm text-yellow-800 dark:text-yellow-200">
+          {t("stats.loadError")}
+        </p>
       </div>
     );
   }
@@ -39,20 +41,20 @@ export async function SmartStats({ sinceDate }: { sinceDate?: Date }) {
     {
       ...stats.revenueThisMonth,
       icon: <TrendingUp className="h-5 w-5" />,
-      color: 'text-green-600 dark:text-green-400',
-      bgColor: 'bg-green-100 dark:bg-green-900/30',
+      color: "text-green-600 dark:text-green-400",
+      bgColor: "bg-green-100 dark:bg-green-900/30",
     },
     {
       ...stats.outstandingInvoices,
       icon: <FileText className="h-5 w-5" />,
-      color: 'text-yellow-600 dark:text-yellow-400',
-      bgColor: 'bg-yellow-100 dark:bg-yellow-900/30',
+      color: "text-yellow-600 dark:text-yellow-400",
+      bgColor: "bg-yellow-100 dark:bg-yellow-900/30",
     },
     {
       ...stats.bankBalance,
       icon: <Wallet className="h-5 w-5" />,
-      color: 'text-purple-600 dark:text-purple-400',
-      bgColor: 'bg-purple-100 dark:bg-purple-900/30',
+      color: "text-purple-600 dark:text-purple-400",
+      bgColor: "bg-purple-100 dark:bg-purple-900/30",
     },
   ];
 
@@ -76,29 +78,30 @@ export async function SmartStats({ sinceDate }: { sinceDate?: Date }) {
           </div>
           <div className="mt-2">
             <p className="text-2xl font-bold">
-              {stat.type === 'currency'
+              {stat.type === "currency"
                 ? formatCurrency(stat.value)
                 : stat.value}
             </p>
             {stat.count !== undefined && stat.count > 0 && (
               <p className="text-sm text-muted-foreground">
-                {stat.count} {stat.count === 1 ? t('stats.document') : t('stats.documents')}
+                {stat.count}{" "}
+                {stat.count === 1 ? t("stats.document") : t("stats.documents")}
               </p>
             )}
             {stat.changePercent !== undefined && (
               <div className="mt-1 flex items-center gap-1 text-sm">
                 {stat.changePercent > 0 ? (
                   <>
-                    <TrendingUp className="h-3 w-3 text-green-600" />
-                    <span className="text-green-600">
-                      +{stat.changePercent.toFixed(1)}% {t('stats.vsLastMonth')}
+                    <TrendingUp className="h-3 w-3 text-green-600 dark:text-green-400" />
+                    <span className="text-green-600 dark:text-green-400">
+                      +{stat.changePercent.toFixed(1)}% {t("stats.vsLastMonth")}
                     </span>
                   </>
                 ) : stat.changePercent < 0 ? (
                   <>
-                    <TrendingDown className="h-3 w-3 text-red-600" />
-                    <span className="text-red-600">
-                      {stat.changePercent.toFixed(1)}% {t('stats.vsLastMonth')}
+                    <TrendingDown className="h-3 w-3 text-red-600 dark:text-red-400" />
+                    <span className="text-red-600 dark:text-red-400">
+                      {stat.changePercent.toFixed(1)}% {t("stats.vsLastMonth")}
                     </span>
                   </>
                 ) : null}

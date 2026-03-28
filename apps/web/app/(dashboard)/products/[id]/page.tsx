@@ -72,7 +72,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
         <div className="flex items-start gap-4">
           <Link
             href="/products"
-            className="mt-1 rounded-lg border p-2 hover:bg-muted transition-colors"
+            className="mt-1 min-h-[44px] min-w-[44px] rounded-lg border p-2 hover:bg-muted transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
           </Link>

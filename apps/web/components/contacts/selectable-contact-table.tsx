@@ -1,21 +1,21 @@
-'use client';
+"use client";
 
-import { useCallback, useMemo, useState, useTransition, useRef } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSelection } from '@/hooks/use-selection';
-import { Loader2 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { BulkActionToolbar } from '@/components/bulk-action-toolbar';
-import { BulkResultBanner } from '@/components/bulk-result-banner';
+import { useCallback, useMemo, useState, useTransition, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { useSelection } from "@/hooks/use-selection";
+import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { BulkActionToolbar } from "@/components/bulk-action-toolbar";
+import { BulkResultBanner } from "@/components/bulk-result-banner";
 import {
   bulkDeleteContactsAction,
   bulkDeactivateContactsAction,
-} from '@/app/actions/bulk-operations';
-import type { BulkOperationResult } from '@/app/actions/bulk-operations';
-import { cn, formatDate } from '@/lib/utils';
-import { useFocusTrap } from '@/hooks/use-focus-trap';
-import { CONTACT_TYPE_STYLES } from '@/lib/config/contact-types';
-import { SortableHeader } from '@/components/sortable-header';
+} from "@/app/actions/bulk-operations";
+import type { BulkOperationResult } from "@/app/actions/bulk-operations";
+import { cn, formatDate } from "@/lib/utils";
+import { useFocusTrap } from "@/hooks/use-focus-trap";
+import { CONTACT_TYPE_STYLES } from "@/lib/config/contact-types";
+import { SortableHeader } from "@/components/sortable-header";
 
 interface ContactItem {
   id: string;
@@ -51,7 +51,7 @@ interface Translations {
 
 interface SortProps {
   field: string;
-  order: 'asc' | 'desc';
+  order: "asc" | "desc";
   hrefs: Record<string, string>;
 }
 
@@ -61,15 +61,31 @@ interface SelectableContactTableProps {
   sort?: SortProps;
 }
 
-export function SelectableContactTable({ data, translations, sort }: SelectableContactTableProps) {
-  const tc = useTranslations('common');
+export function SelectableContactTable({
+  data,
+  translations,
+  sort,
+}: SelectableContactTableProps) {
+  const tc = useTranslations("common");
   const router = useRouter();
   const allIds = useMemo(() => data.map((c) => c.id), [data]);
-  const { selectedIds, toggle, toggleAll, clear, isSelected, isAllSelected, isSomeSelected, count } =
-    useSelection(allIds);
-  const [bulkResult, setBulkResult] = useState<BulkOperationResult | null>(null);
+  const {
+    selectedIds,
+    toggle,
+    toggleAll,
+    clear,
+    isSelected,
+    isAllSelected,
+    isSomeSelected,
+    count,
+  } = useSelection(allIds);
+  const [bulkResult, setBulkResult] = useState<BulkOperationResult | null>(
+    null,
+  );
   const [isPending, startTransition] = useTransition();
-  const [confirmAction, setConfirmAction] = useState<'delete' | 'deactivate' | null>(null);
+  const [confirmAction, setConfirmAction] = useState<
+    "delete" | "deactivate" | null
+  >(null);
   const confirmRef = useRef<HTMLDivElement>(null);
   useFocusTrap(confirmRef, !!confirmAction);
 
@@ -78,32 +94,41 @@ export function SelectableContactTable({ data, translations, sort }: SelectableC
       setBulkResult(result);
       clear();
     },
-    [clear]
+    [clear],
   );
 
   const dismissBanner = useCallback(() => setBulkResult(null), []);
 
-  function executeAction(action: 'delete' | 'deactivate') {
+  function executeAction(action: "delete" | "deactivate") {
     if (!confirmAction) {
       setConfirmAction(action);
       return;
     }
     setConfirmAction(null);
     startTransition(async () => {
-      const result = action === 'delete'
-        ? await bulkDeleteContactsAction({ contactIds: selectedIds })
-        : await bulkDeactivateContactsAction({ contactIds: selectedIds });
+      const result =
+        action === "delete"
+          ? await bulkDeleteContactsAction({ contactIds: selectedIds })
+          : await bulkDeactivateContactsAction({ contactIds: selectedIds });
       if (result.success && result.data) {
         handleComplete(result.data);
       } else {
-        handleComplete({ successCount: 0, failureCount: selectedIds.length, results: [] });
+        handleComplete({
+          successCount: 0,
+          failureCount: selectedIds.length,
+          results: [],
+        });
       }
     });
   }
 
   return (
     <>
-      <BulkResultBanner result={bulkResult} labels={translations.bulkLabels} onDismiss={dismissBanner} />
+      <BulkResultBanner
+        result={bulkResult}
+        labels={translations.bulkLabels}
+        onDismiss={dismissBanner}
+      />
 
       {/* Table header — hidden on mobile */}
       <div className="hidden border-b px-6 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground sm:grid sm:grid-cols-[auto_1fr_2fr_auto_auto] sm:gap-4 lg:grid-cols-[auto_1fr_2fr_auto_1.5fr_1fr_1fr_1fr_auto]">
@@ -111,31 +136,59 @@ export function SelectableContactTable({ data, translations, sort }: SelectableC
           <input
             type="checkbox"
             checked={isAllSelected}
-            ref={(el) => { if (el) el.indeterminate = isSomeSelected; }}
+            ref={(el) => {
+              if (el) el.indeterminate = isSomeSelected;
+            }}
             onChange={toggleAll}
-            aria-label={tc('aria.selectAll')}
-            className="h-4 w-4 rounded border-gray-300"
+            aria-label={tc("aria.selectAll")}
+            className="h-4 w-4 rounded border-input"
           />
         </div>
         <div>
           {sort ? (
-            <SortableHeader label={translations.columnLabels.number} field="contactNumber" currentSort={sort.field} currentOrder={sort.order} href={sort.hrefs.contactNumber} />
-          ) : translations.columnLabels.number}
+            <SortableHeader
+              label={translations.columnLabels.number}
+              field="contactNumber"
+              currentSort={sort.field}
+              currentOrder={sort.order}
+              href={sort.hrefs.contactNumber}
+            />
+          ) : (
+            translations.columnLabels.number
+          )}
         </div>
         <div>
           {sort ? (
-            <SortableHeader label={translations.columnLabels.name} field="name" currentSort={sort.field} currentOrder={sort.order} href={sort.hrefs.name} />
-          ) : translations.columnLabels.name}
+            <SortableHeader
+              label={translations.columnLabels.name}
+              field="name"
+              currentSort={sort.field}
+              currentOrder={sort.order}
+              href={sort.hrefs.name}
+            />
+          ) : (
+            translations.columnLabels.name
+          )}
         </div>
         <div>{translations.columnLabels.type}</div>
         <div className="hidden lg:block">{translations.columnLabels.email}</div>
         <div className="hidden lg:block">{translations.columnLabels.phone}</div>
         <div className="hidden lg:block">
           {sort ? (
-            <SortableHeader label={translations.columnLabels.city} field="city" currentSort={sort.field} currentOrder={sort.order} href={sort.hrefs.city} />
-          ) : translations.columnLabels.city}
+            <SortableHeader
+              label={translations.columnLabels.city}
+              field="city"
+              currentSort={sort.field}
+              currentOrder={sort.order}
+              href={sort.hrefs.city}
+            />
+          ) : (
+            translations.columnLabels.city
+          )}
         </div>
-        <div className="hidden lg:block">{translations.columnLabels.lastDocument}</div>
+        <div className="hidden lg:block">
+          {translations.columnLabels.lastDocument}
+        </div>
         <div>{translations.columnLabels.status}</div>
       </div>
 
@@ -147,57 +200,90 @@ export function SelectableContactTable({ data, translations, sort }: SelectableC
             role="link"
             tabIndex={0}
             onClick={() => router.push(`/contacts/${contact.id}`)}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); router.push(`/contacts/${contact.id}`); } }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                router.push(`/contacts/${contact.id}`);
+              }
+            }}
             className={cn(
-              'flex cursor-pointer flex-col gap-1 p-4 transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:grid sm:grid-cols-[auto_1fr_2fr_auto_auto] sm:items-center sm:gap-4 sm:px-6 lg:grid-cols-[auto_1fr_2fr_auto_1.5fr_1fr_1fr_1fr_auto]',
-              isSelected(contact.id) && 'bg-primary/5'
+              "flex cursor-pointer flex-col gap-1 p-4 transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:grid sm:grid-cols-[auto_1fr_2fr_auto_auto] sm:items-center sm:gap-4 sm:px-6 lg:grid-cols-[auto_1fr_2fr_auto_1.5fr_1fr_1fr_1fr_auto]",
+              isSelected(contact.id) && "bg-primary/5",
             )}
           >
-            <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
+            <div
+              className="flex items-center"
+              onClick={(e) => e.stopPropagation()}
+            >
               <input
                 type="checkbox"
                 checked={isSelected(contact.id)}
                 onChange={() => toggle(contact.id)}
                 aria-label={`Select ${contact.name}`}
-                className="h-4 w-4 rounded border-gray-300"
+                className="h-4 w-4 rounded border-input"
               />
             </div>
             <div className="text-sm font-mono text-muted-foreground">
-              {contact.contactNumber || '-'}
+              {contact.contactNumber || "-"}
             </div>
             <div>
               <p className="text-sm font-medium">{contact.name}</p>
               {(contact.firstName || contact.lastName) && (
                 <p className="text-xs text-muted-foreground">
-                  {[contact.firstName, contact.lastName].filter(Boolean).join(' ')}
+                  {[contact.firstName, contact.lastName]
+                    .filter(Boolean)
+                    .join(" ")}
                 </p>
               )}
-              {/* Show email inline on mobile */}
-              {contact.email && (
-                <p className="text-xs text-muted-foreground lg:hidden">{contact.email}</p>
-              )}
-            </div>
-            <div>
-              <span className={cn('inline-block rounded-full px-2 py-0.5 text-xs font-medium', CONTACT_TYPE_STYLES[contact.type as keyof typeof CONTACT_TYPE_STYLES] || '')}>
-                {translations.typeLabels[contact.type] || contact.type}
-              </span>
-            </div>
-            <div className="hidden truncate text-sm text-muted-foreground lg:block">{contact.email || '-'}</div>
-            <div className="hidden text-sm text-muted-foreground lg:block">{contact.phone || contact.mobile || '-'}</div>
-            <div className="hidden text-sm text-muted-foreground lg:block">{contact.city || '-'}</div>
-            <div className="hidden text-sm text-muted-foreground lg:block">
-              {contact.lastDocumentAt ? formatDate(contact.lastDocumentAt) : '-'}
+              {/* Mobile: show key info inline */}
+              <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground sm:hidden">
+                {contact.email && <span>{contact.email}</span>}
+                {contact.email && (contact.phone || contact.city) && (
+                  <span>·</span>
+                )}
+                {contact.phone && <span>{contact.phone}</span>}
+                {contact.phone && contact.city && <span>·</span>}
+                {contact.city && <span>{contact.city}</span>}
+              </div>
             </div>
             <div>
               <span
                 className={cn(
-                  'inline-block rounded-full px-2 py-0.5 text-xs font-medium',
-                  contact.isActive
-                    ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                    : 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300'
+                  "inline-block rounded-full px-2 py-0.5 text-xs font-medium",
+                  CONTACT_TYPE_STYLES[
+                    contact.type as keyof typeof CONTACT_TYPE_STYLES
+                  ] || "",
                 )}
               >
-                {contact.isActive ? translations.columnLabels.active : translations.columnLabels.inactive}
+                {translations.typeLabels[contact.type] || contact.type}
+              </span>
+            </div>
+            <div className="hidden truncate text-sm text-muted-foreground lg:block">
+              {contact.email || "-"}
+            </div>
+            <div className="hidden text-sm text-muted-foreground lg:block">
+              {contact.phone || contact.mobile || "-"}
+            </div>
+            <div className="hidden text-sm text-muted-foreground lg:block">
+              {contact.city || "-"}
+            </div>
+            <div className="hidden text-sm text-muted-foreground lg:block">
+              {contact.lastDocumentAt
+                ? formatDate(contact.lastDocumentAt)
+                : "-"}
+            </div>
+            <div>
+              <span
+                className={cn(
+                  "inline-block rounded-full px-2 py-0.5 text-xs font-medium",
+                  contact.isActive
+                    ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                    : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300",
+                )}
+              >
+                {contact.isActive
+                  ? translations.columnLabels.active
+                  : translations.columnLabels.inactive}
               </span>
             </div>
           </div>
@@ -212,7 +298,7 @@ export function SelectableContactTable({ data, translations, sort }: SelectableC
         onClear={clear}
       >
         <button
-          onClick={() => executeAction('deactivate')}
+          onClick={() => executeAction("deactivate")}
           disabled={isPending}
           className="inline-flex items-center gap-1.5 rounded-lg border bg-background px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted disabled:opacity-50"
         >
@@ -220,7 +306,7 @@ export function SelectableContactTable({ data, translations, sort }: SelectableC
           {translations.bulkLabels.deactivate}
         </button>
         <button
-          onClick={() => executeAction('delete')}
+          onClick={() => executeAction("delete")}
           disabled={isPending}
           className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
         >
@@ -234,13 +320,24 @@ export function SelectableContactTable({ data, translations, sort }: SelectableC
         <div
           ref={confirmRef}
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-          onKeyDown={(e) => { if (e.key === 'Escape') setConfirmAction(null); }}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setConfirmAction(null);
+          }}
         >
-          <div role="dialog" aria-modal="true" aria-labelledby="confirm-dialog-title" className="mx-4 w-full max-w-md rounded-xl border bg-card p-6 shadow-xl">
-            <h2 id="confirm-dialog-title" className="text-lg font-semibold">{translations.bulkLabels.confirmTitle}</h2>
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="confirm-dialog-title"
+            className="mx-4 w-full max-w-md rounded-xl border bg-card p-6 shadow-xl"
+          >
+            <h2 id="confirm-dialog-title" className="text-lg font-semibold">
+              {translations.bulkLabels.confirmTitle}
+            </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              {(confirmAction === 'delete' ? translations.bulkLabels.confirmDelete : translations.bulkLabels.confirmDeactivate)
-                .replace('{count}', String(selectedIds.length))}
+              {(confirmAction === "delete"
+                ? translations.bulkLabels.confirmDelete
+                : translations.bulkLabels.confirmDeactivate
+              ).replace("{count}", String(selectedIds.length))}
             </p>
             <div className="mt-4 flex justify-end gap-2">
               <button
@@ -254,7 +351,9 @@ export function SelectableContactTable({ data, translations, sort }: SelectableC
                 disabled={isPending}
                 className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
               >
-                {isPending ? translations.bulkLabels.processing : translations.bulkLabels.confirmAction}
+                {isPending
+                  ? translations.bulkLabels.processing
+                  : translations.bulkLabels.confirmAction}
               </button>
             </div>
           </div>

@@ -13,8 +13,10 @@ import {
   User,
   Globe,
 } from "lucide-react";
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import { getUserAvatarAction } from "@/app/actions/settings";
 import { RecentItemsDropdown } from "./recent-items-dropdown";
+import { useNavBadges } from "@/hooks/use-nav-badges";
 import type { Locale } from "@/i18n/request";
 import { LOCALE_CONFIG } from "@/lib/config/locales";
 import { cn } from "@/lib/utils";
@@ -31,6 +33,21 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
   const router = useRouter();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
+  const [avatarBase64, setAvatarBase64] = useState<string | null>(null);
+  const badges = useNavBadges();
+  const alertCount = badges.documents + badges.money;
+
+  // Fetch avatar separately (too large for JWT cookie)
+  const fetchAvatar = useCallback(async () => {
+    if (status === "authenticated") {
+      const avatar = await getUserAvatarAction();
+      setAvatarBase64(avatar);
+    }
+  }, [status]);
+
+  useEffect(() => {
+    fetchAvatar();
+  }, [fetchAvatar]);
   const menuRef = useRef<HTMLDivElement>(null);
   const langRef = useRef<HTMLDivElement>(null);
   const isMac = useMemo(
@@ -169,15 +186,24 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
           )}
         </div>
 
-        {/* Notifications — disabled until notification system is implemented */}
-        <button
-          className="relative flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg p-2 text-muted-foreground cursor-not-allowed"
+        {/* Notification bell — shows count of overdue + unreconciled items */}
+        <Link
+          href="/documents?status=overdue"
+          className="relative flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
           aria-label={t("aria.notifications")}
-          disabled
-          title={t("comingSoon")}
+          title={
+            alertCount > 0
+              ? `${badges.documents} ${t("overdue")}, ${badges.money} ${t("unreconciled")}`
+              : t("aria.notifications")
+          }
         >
           <Bell className="h-5 w-5" />
-        </button>
+          {alertCount > 0 && (
+            <span className="absolute right-1.5 top-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+              {alertCount > 99 ? "99+" : alertCount}
+            </span>
+          )}
+        </Link>
 
         {/* User menu */}
         <div className="relative" ref={menuRef}>
@@ -190,6 +216,13 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
           >
             {status === "loading" ? (
               <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
+            ) : avatarBase64 ? (
+              /* eslint-disable-next-line @next/next/no-img-element -- base64 data URI, next/image optimization not applicable */
+              <img
+                src={avatarBase64}
+                alt=""
+                className="h-8 w-8 rounded-full object-cover"
+              />
             ) : (
               <div className="flex h-8 w-8 items-center justify-center rounded-full brand-gradient text-sm font-medium text-white">
                 {session?.user?.name?.charAt(0) || "U"}

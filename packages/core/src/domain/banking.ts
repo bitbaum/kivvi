@@ -1,26 +1,26 @@
-import { z } from 'zod';
-import Decimal from 'decimal.js';
-import { eq, and, asc, desc, sql } from 'drizzle-orm';
+import { z } from "zod";
+import Decimal from "decimal.js";
+import { eq, and, asc, desc, sql } from "drizzle-orm";
 import {
   bankAccounts,
   bankTransactions,
   documents,
   contacts,
-} from '@kivvi/database';
-import type { Database, BankAccount, BankTransaction } from '@kivvi/database';
-import { recordPayment } from './documents';
-import { logger } from '../logger';
-import { parseCamtXml, normalizeIban, type CamtStatement } from './camt-parser';
+} from "@kivvi/database";
+import type { Database, BankAccount, BankTransaction } from "@kivvi/database";
+import { recordPayment } from "./documents";
+import { logger } from "../logger";
+import { parseCamtXml, normalizeIban, type CamtStatement } from "./camt-parser";
 
 // ============================================================================
 // VALIDATION SCHEMAS
 // ============================================================================
 
 export const createBankAccountSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(200),
+  name: z.string().min(1, "Name is required").max(200),
   iban: z.string().max(34).optional().nullable(),
   bankName: z.string().max(200).optional().nullable(),
-  currency: z.string().max(3).default('CHF'),
+  currency: z.string().max(3).default("CHF"),
   accountId: z.string().uuid().optional().nullable(),
 });
 
@@ -44,7 +44,7 @@ export const importTransactionSchema = z.object({
 
 export async function listBankAccounts(
   db: Database,
-  companyId: string
+  companyId: string,
 ): Promise<BankAccount[]> {
   return db
     .select()
@@ -56,19 +56,24 @@ export async function listBankAccounts(
 export async function getBankAccount(
   db: Database,
   companyId: string,
-  bankAccountId: string
+  bankAccountId: string,
 ): Promise<BankAccount | null> {
   const [account] = await db
     .select()
     .from(bankAccounts)
-    .where(and(eq(bankAccounts.id, bankAccountId), eq(bankAccounts.companyId, companyId)));
+    .where(
+      and(
+        eq(bankAccounts.id, bankAccountId),
+        eq(bankAccounts.companyId, companyId),
+      ),
+    );
   return account || null;
 }
 
 export async function createBankAccount(
   db: Database,
   companyId: string,
-  input: z.infer<typeof createBankAccountSchema>
+  input: z.infer<typeof createBankAccountSchema>,
 ): Promise<BankAccount> {
   const validated = createBankAccountSchema.parse(input);
 
@@ -91,7 +96,7 @@ export async function updateBankAccount(
   db: Database,
   companyId: string,
   bankAccountId: string,
-  input: z.infer<typeof createBankAccountSchema>
+  input: z.infer<typeof createBankAccountSchema>,
 ): Promise<BankAccount> {
   const validated = createBankAccountSchema.parse(input);
 
@@ -104,10 +109,15 @@ export async function updateBankAccount(
       currency: validated.currency,
       accountId: validated.accountId || null,
     })
-    .where(and(eq(bankAccounts.id, bankAccountId), eq(bankAccounts.companyId, companyId)))
+    .where(
+      and(
+        eq(bankAccounts.id, bankAccountId),
+        eq(bankAccounts.companyId, companyId),
+      ),
+    )
     .returning();
 
-  if (!account) throw new Error('Bank account not found');
+  if (!account) throw new Error("Bank account not found");
   return account;
 }
 
@@ -136,23 +146,35 @@ export interface TransactionFilters {
 export async function listTransactions(
   db: Database,
   companyId: string,
-  filters: TransactionFilters
-): Promise<{ data: TransactionWithMatch[]; total: number; page: number; pageSize: number; totalPages: number }> {
+  filters: TransactionFilters,
+): Promise<{
+  data: TransactionWithMatch[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}> {
   const page = filters.page || 1;
   const pageSize = filters.pageSize || 50;
 
   // Verify bank account belongs to company
-  const bankAccount = await getBankAccount(db, companyId, filters.bankAccountId);
-  if (!bankAccount) throw new Error('Bank account not found');
+  const bankAccount = await getBankAccount(
+    db,
+    companyId,
+    filters.bankAccountId,
+  );
+  if (!bankAccount) throw new Error("Bank account not found");
 
-  const conditions = [eq(bankTransactions.bankAccountId, filters.bankAccountId)];
+  const conditions = [
+    eq(bankTransactions.bankAccountId, filters.bankAccountId),
+  ];
 
   if (filters.isReconciled !== undefined) {
     conditions.push(eq(bankTransactions.isReconciled, filters.isReconciled));
   }
   if (filters.search) {
     conditions.push(
-      sql`(${bankTransactions.description} ILIKE ${`%${filters.search}%`} OR ${bankTransactions.reference} ILIKE ${`%${filters.search}%`})`
+      sql`(${bankTransactions.description} ILIKE ${`%${filters.search}%`} OR ${bankTransactions.reference} ILIKE ${`%${filters.search}%`})`,
     );
   }
 
@@ -173,7 +195,10 @@ export async function listTransactions(
       contactName: contacts.name,
     })
     .from(bankTransactions)
-    .leftJoin(documents, eq(bankTransactions.reconciledDocumentId, documents.id))
+    .leftJoin(
+      documents,
+      eq(bankTransactions.reconciledDocumentId, documents.id),
+    )
     .leftJoin(contacts, eq(documents.contactId, contacts.id))
     .where(whereClause)
     .orderBy(desc(bankTransactions.date))
@@ -193,7 +218,13 @@ export async function listTransactions(
       : null,
   }));
 
-  return { data, total: count, page, pageSize, totalPages: Math.ceil(count / pageSize) };
+  return {
+    data,
+    total: count,
+    page,
+    pageSize,
+    totalPages: Math.ceil(count / pageSize),
+  };
 }
 
 export interface ImportTransactionsOptions {
@@ -210,10 +241,10 @@ export async function importTransactions(
   companyId: string,
   bankAccountId: string,
   transactions: z.infer<typeof importTransactionSchema>[],
-  options?: ImportTransactionsOptions
+  options?: ImportTransactionsOptions,
 ): Promise<{ imported: number; skippedDuplicates: number }> {
   const bankAccount = await getBankAccount(db, companyId, bankAccountId);
-  if (!bankAccount) throw new Error('Bank account not found');
+  if (!bankAccount) throw new Error("Bank account not found");
 
   if (transactions.length === 0) return { imported: 0, skippedDuplicates: 0 };
 
@@ -230,8 +261,8 @@ export async function importTransactions(
       .where(
         and(
           eq(bankTransactions.bankAccountId, bankAccountId),
-          sql`${bankTransactions.entryReference} IS NOT NULL`
-        )
+          sql`${bankTransactions.entryReference} IS NOT NULL`,
+        ),
       );
     existingRefs = new Set(existing.map((r) => r.ref!));
   }
@@ -264,15 +295,18 @@ export async function importTransactions(
   }
 
   // Update bank account balance
-  const balanceToSet = options?.closingBalance || transactions[transactions.length - 1].balance;
+  const balanceToSet =
+    options?.closingBalance || transactions[transactions.length - 1].balance;
   if (balanceToSet) {
     await db
       .update(bankAccounts)
       .set({ balance: balanceToSet, lastSyncAt: new Date() })
-      .where(and(
-        eq(bankAccounts.id, bankAccountId),
-        eq(bankAccounts.companyId, companyId)
-      ));
+      .where(
+        and(
+          eq(bankAccounts.id, bankAccountId),
+          eq(bankAccounts.companyId, companyId),
+        ),
+      );
   }
 
   return { imported: values.length, skippedDuplicates };
@@ -286,43 +320,54 @@ export async function importCamtStatement(
   db: Database,
   companyId: string,
   bankAccountId: string,
-  xml: string
-): Promise<{ imported: number; skippedDuplicates: number; totalEntries: number }> {
+  xml: string,
+): Promise<{
+  imported: number;
+  skippedDuplicates: number;
+  totalEntries: number;
+}> {
   const statement = parseCamtXml(xml);
 
   // Validate IBAN match
   const bankAccount = await getBankAccount(db, companyId, bankAccountId);
-  if (!bankAccount) throw new Error('Bank account not found');
+  if (!bankAccount) throw new Error("Bank account not found");
 
   if (statement.accountIban && bankAccount.iban) {
     const stmtIban = normalizeIban(statement.accountIban);
     const acctIban = normalizeIban(bankAccount.iban);
     if (stmtIban !== acctIban) {
       throw new Error(
-        `IBAN mismatch: statement has ${stmtIban}, account has ${acctIban}`
+        `IBAN mismatch: statement has ${stmtIban}, account has ${acctIban}`,
       );
     }
   }
 
   // Map CAMT entries to import schema
-  const transactions: z.infer<typeof importTransactionSchema>[] = statement.entries.map((entry) => ({
-    date: entry.bookingDate,
-    description: entry.description || null,
-    reference: entry.reference || null,
-    amount: entry.amount,
-    balance: null,
-    entryReference: entry.entryReference || null,
-    valueDate: entry.valueDate || null,
-    debtorName: entry.debtorName || null,
-    creditorName: entry.creditorName || null,
-    remittanceInfo: entry.remittanceInfo || null,
-  }));
+  const transactions: z.infer<typeof importTransactionSchema>[] =
+    statement.entries.map((entry) => ({
+      date: entry.bookingDate,
+      description: entry.description || null,
+      reference: entry.reference || null,
+      amount: entry.amount,
+      balance: null,
+      entryReference: entry.entryReference || null,
+      valueDate: entry.valueDate || null,
+      debtorName: entry.debtorName || null,
+      creditorName: entry.creditorName || null,
+      remittanceInfo: entry.remittanceInfo || null,
+    }));
 
   const closingBalance = statement.closingBalance?.amount;
 
-  const result = await importTransactions(db, companyId, bankAccountId, transactions, {
-    closingBalance,
-  });
+  const result = await importTransactions(
+    db,
+    companyId,
+    bankAccountId,
+    transactions,
+    {
+      closingBalance,
+    },
+  );
 
   return {
     imported: result.imported,
@@ -338,25 +383,36 @@ export async function reconcileTransaction(
   db: Database,
   companyId: string,
   transactionId: string,
-  documentId: string
+  documentId: string,
 ): Promise<BankTransaction> {
   // Verify transaction belongs to company's bank account
   const [txn] = await db
     .select({ transaction: bankTransactions, bankAccount: bankAccounts })
     .from(bankTransactions)
-    .innerJoin(bankAccounts, eq(bankTransactions.bankAccountId, bankAccounts.id))
-    .where(and(eq(bankTransactions.id, transactionId), eq(bankAccounts.companyId, companyId)));
+    .innerJoin(
+      bankAccounts,
+      eq(bankTransactions.bankAccountId, bankAccounts.id),
+    )
+    .where(
+      and(
+        eq(bankTransactions.id, transactionId),
+        eq(bankAccounts.companyId, companyId),
+      ),
+    );
 
-  if (!txn) throw new Error('Transaction not found');
-  if (txn.transaction.isReconciled) throw new Error('Transaction is already reconciled');
+  if (!txn) throw new Error("Transaction not found");
+  if (txn.transaction.isReconciled)
+    throw new Error("Transaction is already reconciled");
 
   // Verify document belongs to company
   const [doc] = await db
     .select()
     .from(documents)
-    .where(and(eq(documents.id, documentId), eq(documents.companyId, companyId)));
+    .where(
+      and(eq(documents.id, documentId), eq(documents.companyId, companyId)),
+    );
 
-  if (!doc) throw new Error('Document not found');
+  if (!doc) throw new Error("Document not found");
 
   // Reconciliation + payment must be atomic: if payment fails, roll back reconciliation
   const updated = await db.transaction(async (tx) => {
@@ -374,8 +430,8 @@ export async function reconcileTransaction(
     const txnAmount = new Decimal(txn.transaction.amount).abs();
     await recordPayment(tx, companyId, documentId, {
       amount: txnAmount.toFixed(2),
-      date: txn.transaction.date.toISOString().split('T')[0],
-      method: 'bank_transfer',
+      date: txn.transaction.date.toISOString().split("T")[0],
+      method: "bank_transfer",
       reference: txn.transaction.reference || `Bank tx ${transactionId}`,
       bankTransactionId: transactionId,
     });
@@ -394,16 +450,16 @@ export async function reconcileTransaction(
 export async function matchTransactionToDocument(
   db: Database,
   companyId: string,
-  transactionId: string
+  transactionId: string,
 ): Promise<{ documentId: string; documentNumber: string } | null> {
   const txn = await db.query.bankTransactions.findFirst({
     where: (bankTransactions, { eq }) => eq(bankTransactions.id, transactionId),
     with: { bankAccount: true },
   });
 
-  if (!txn) throw new Error('Transaction not found');
-  if (txn.bankAccount.companyId !== companyId) throw new Error('Unauthorized');
-  if (txn.isReconciled) throw new Error('Transaction already reconciled');
+  if (!txn) throw new Error("Transaction not found");
+  if (txn.bankAccount.companyId !== companyId) throw new Error("Unauthorized");
+  if (txn.isReconciled) throw new Error("Transaction already reconciled");
 
   const PAYABLE_STATUSES = sql`${documents.status} IN ('sent', 'confirmed', 'delivered', 'partially_paid', 'overdue', 'dunning_1', 'dunning_2', 'dunning_3')`;
 
@@ -414,9 +470,9 @@ export async function matchTransactionToDocument(
       where: (documents, { eq, and, sql: sqlFn }) =>
         and(
           eq(documents.companyId, companyId),
-          eq(documents.type, 'invoice'),
+          eq(documents.type, "invoice"),
           sqlFn`${documents.qrReference} IS NOT NULL AND ${txn.reference} LIKE '%' || ${documents.qrReference} || '%'`,
-          PAYABLE_STATUSES
+          PAYABLE_STATUSES,
         ),
     });
   }
@@ -428,9 +484,9 @@ export async function matchTransactionToDocument(
       where: (documents, { eq, and, sql: sqlFn }) =>
         and(
           eq(documents.companyId, companyId),
-          eq(documents.type, 'invoice'),
+          eq(documents.type, "invoice"),
           sqlFn`ABS(CAST(${documents.total} AS DECIMAL) - CAST(${txnAmountAbs} AS DECIMAL)) < 0.01`,
-          PAYABLE_STATUSES
+          PAYABLE_STATUSES,
         ),
     });
   }
@@ -445,15 +501,23 @@ export async function matchTransactionToDocument(
 export async function unreconcileTransaction(
   db: Database,
   companyId: string,
-  transactionId: string
+  transactionId: string,
 ): Promise<BankTransaction> {
   const [txn] = await db
     .select({ transaction: bankTransactions, bankAccount: bankAccounts })
     .from(bankTransactions)
-    .innerJoin(bankAccounts, eq(bankTransactions.bankAccountId, bankAccounts.id))
-    .where(and(eq(bankTransactions.id, transactionId), eq(bankAccounts.companyId, companyId)));
+    .innerJoin(
+      bankAccounts,
+      eq(bankTransactions.bankAccountId, bankAccounts.id),
+    )
+    .where(
+      and(
+        eq(bankTransactions.id, transactionId),
+        eq(bankAccounts.companyId, companyId),
+      ),
+    );
 
-  if (!txn) throw new Error('Transaction not found');
+  if (!txn) throw new Error("Transaction not found");
 
   const [updated] = await db
     .update(bankTransactions)
@@ -474,10 +538,10 @@ export async function unreconcileTransaction(
 export async function autoMatchTransactions(
   db: Database,
   companyId: string,
-  bankAccountId: string
+  bankAccountId: string,
 ): Promise<{ matched: number }> {
   const bankAccount = await getBankAccount(db, companyId, bankAccountId);
-  if (!bankAccount) throw new Error('Bank account not found');
+  if (!bankAccount) throw new Error("Bank account not found");
 
   // Get unreconciled incoming transactions (positive amounts)
   const unreconciledTxns = await db
@@ -487,8 +551,8 @@ export async function autoMatchTransactions(
       and(
         eq(bankTransactions.bankAccountId, bankAccountId),
         eq(bankTransactions.isReconciled, false),
-        sql`CAST(${bankTransactions.amount} AS DECIMAL) > 0`
-      )
+        sql`CAST(${bankTransactions.amount} AS DECIMAL) > 0`,
+      ),
     );
 
   // Get open invoices
@@ -498,9 +562,9 @@ export async function autoMatchTransactions(
     .where(
       and(
         eq(documents.companyId, companyId),
-        eq(documents.type, 'invoice'),
-        sql`${documents.status} IN ('sent', 'confirmed', 'delivered', 'partially_paid', 'overdue', 'dunning_1', 'dunning_2', 'dunning_3')`
-      )
+        eq(documents.type, "invoice"),
+        sql`${documents.status} IN ('sent', 'confirmed', 'delivered', 'partially_paid', 'overdue', 'dunning_1', 'dunning_2', 'dunning_3')`,
+      ),
     );
 
   let matched = 0;
@@ -511,7 +575,7 @@ export async function autoMatchTransactions(
     // Try matching by QR reference
     if (txn.reference) {
       const matchByRef = openInvoices.find(
-        (inv) => inv.qrReference && txn.reference!.includes(inv.qrReference)
+        (inv) => inv.qrReference && txn.reference!.includes(inv.qrReference),
       );
       if (matchByRef) {
         await reconcileTransaction(db, companyId, txn.id, matchByRef.id);
@@ -521,8 +585,8 @@ export async function autoMatchTransactions(
     }
 
     // Try matching by exact amount
-    const matchByAmount = openInvoices.find(
-      (inv) => new Decimal(inv.total!).minus(txnAmount).abs().lt('0.01')
+    const matchByAmount = openInvoices.find((inv) =>
+      new Decimal(inv.total!).minus(txnAmount).abs().lt("0.01"),
     );
     if (matchByAmount) {
       await reconcileTransaction(db, companyId, txn.id, matchByAmount.id);
@@ -542,7 +606,7 @@ export async function autoMatchTransactions(
 export async function getReconciliationSummary(
   db: Database,
   companyId: string,
-  bankAccountId: string
+  bankAccountId: string,
 ): Promise<{
   totalTransactions: number;
   reconciled: number;
@@ -550,7 +614,7 @@ export async function getReconciliationSummary(
   totalUnreconciledAmount: number;
 }> {
   const bankAccount = await getBankAccount(db, companyId, bankAccountId);
-  if (!bankAccount) throw new Error('Bank account not found');
+  if (!bankAccount) throw new Error("Bank account not found");
 
   const [stats] = await db
     .select({
@@ -567,5 +631,34 @@ export async function getReconciliationSummary(
     reconciled: stats.reconciled,
     unreconciled: stats.unreconciled,
     totalUnreconciledAmount: Number(stats.unreconciledAmount),
+  };
+}
+
+/**
+ * Get company-wide bank transaction summary (across all accounts).
+ * Used by banking hub and money overview pages.
+ */
+export async function getBankTransactionsSummary(
+  db: Database,
+  companyId: string,
+): Promise<{
+  unreconciledCount: number;
+  lastTransactionDate: Date | null;
+}> {
+  const [row] = await db
+    .select({
+      unreconciledCount: sql<number>`count(*) filter (where ${bankTransactions.isReconciled} = false)::int`,
+      lastTransactionDate: sql<Date | null>`max(${bankTransactions.date})`,
+    })
+    .from(bankTransactions)
+    .innerJoin(
+      bankAccounts,
+      eq(bankTransactions.bankAccountId, bankAccounts.id),
+    )
+    .where(eq(bankAccounts.companyId, companyId));
+
+  return {
+    unreconciledCount: row?.unreconciledCount ?? 0,
+    lastTransactionDate: row?.lastTransactionDate ?? null,
   };
 }

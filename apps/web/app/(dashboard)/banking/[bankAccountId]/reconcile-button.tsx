@@ -133,7 +133,9 @@ export function ReconcileButton({
           <Unlink className="h-3 w-3" />
           {isPending ? "..." : t("unlink")}
         </button>
-        {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+        {error && (
+          <p className="mt-1 text-xs text-red-600 dark:text-red-400">{error}</p>
+        )}
       </div>
     );
   }
@@ -214,7 +216,7 @@ export function ReconcileButton({
 
           {error && (
             <div className="border-t p-2">
-              <p className="text-xs text-red-600">{error}</p>
+              <p className="text-xs text-red-600 dark:text-red-400">{error}</p>
             </div>
           )}
         </div>

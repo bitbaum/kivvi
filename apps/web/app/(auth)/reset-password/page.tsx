@@ -102,7 +102,7 @@ function ResetPasswordForm() {
           {tokenError ? (
             <>
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-                <XCircle className="h-6 w-6 text-red-600" />
+                <XCircle className="h-6 w-6 text-red-600 dark:text-red-400" />
               </div>
               <h1 className="mb-2 text-2xl font-semibold">
                 {t("invalidResetToken")}
@@ -119,7 +119,7 @@ function ResetPasswordForm() {
               <div className="mt-4 text-center">
                 <Link
                   href="/login"
-                  className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+                  className="inline-flex min-h-[44px] items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
                 >
                   <ArrowLeft className="h-4 w-4" />
                   {t("backToSignIn")}
@@ -129,7 +129,7 @@ function ResetPasswordForm() {
           ) : success ? (
             <>
               <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-                <CheckCircle2 className="h-6 w-6 text-green-600" />
+                <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
               </div>
               <h1 className="mb-2 text-2xl font-semibold">
                 {t("passwordResetSuccess")}
@@ -264,7 +264,7 @@ function ResetPasswordForm() {
               <div className="mt-6 text-center">
                 <Link
                   href="/login"
-                  className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+                  className="inline-flex min-h-[44px] items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
                 >
                   <ArrowLeft className="h-4 w-4" />
                   {t("backToSignIn")}

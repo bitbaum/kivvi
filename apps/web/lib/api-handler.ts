@@ -1,47 +1,79 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from './auth';
-import { extractBearerToken, validateApiToken } from './api-auth';
+import { NextRequest, NextResponse } from "next/server";
+import type { MembershipRole } from "@kivvi/database";
+import { auth } from "./auth";
+import { extractBearerToken, validateApiToken } from "./api-auth";
+import { findMembership } from "@kivvi/core/src/domain/memberships";
+import { db } from "./db";
 
 interface ApiContext {
   companyId: string;
   userId: string;
 }
 
+/** Role hierarchy levels for comparison */
+const ROLE_LEVEL: Record<MembershipRole, number> = {
+  viewer: 0,
+  member: 1,
+  admin: 2,
+  owner: 3,
+};
+
 /**
  * Authenticate an API request using either:
  * 1. Bearer token (API key) from Authorization header
  * 2. Session cookie (NextAuth)
  *
- * Returns the authenticated context or a 401 response.
+ * Optionally enforces a minimum role via `minRole`.
+ * Returns the authenticated context or an error response.
  */
 export async function authenticateApi(
-  request: NextRequest
+  request: NextRequest,
+  minRole?: MembershipRole,
 ): Promise<ApiContext | NextResponse> {
   // Try API key first
-  const authHeader = request.headers.get('authorization');
+  const authHeader = request.headers.get("authorization");
   const bearerToken = extractBearerToken(authHeader);
+
+  let ctx: ApiContext;
 
   if (bearerToken) {
     const result = await validateApiToken(bearerToken);
     if (!result) {
       return NextResponse.json(
-        { success: false, error: 'Invalid or expired API token' },
-        { status: 401 }
+        { success: false, error: "Invalid or expired API token" },
+        { status: 401 },
       );
     }
-    return { companyId: result.companyId, userId: result.userId };
+    ctx = { companyId: result.companyId, userId: result.userId };
+  } else {
+    // Fall back to session auth
+    const session = await auth();
+    if (!session?.user?.companyId) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Unauthorized. Provide a Bearer token or authenticate via session.",
+        },
+        { status: 401 },
+      );
+    }
+    ctx = { companyId: session.user.companyId, userId: session.user.id };
   }
 
-  // Fall back to session auth
-  const session = await auth();
-  if (!session?.user?.companyId) {
-    return NextResponse.json(
-      { success: false, error: 'Unauthorized. Provide a Bearer token or authenticate via session.' },
-      { status: 401 }
-    );
+  // Enforce minimum role if specified
+  if (minRole) {
+    const membership = await findMembership(db, ctx.userId, ctx.companyId);
+    const userRole = (membership?.role ?? "viewer") as MembershipRole;
+    if (ROLE_LEVEL[userRole] < ROLE_LEVEL[minRole]) {
+      return NextResponse.json(
+        { success: false, error: "Insufficient permissions" },
+        { status: 403 },
+      );
+    }
   }
 
-  return { companyId: session.user.companyId, userId: session.user.id };
+  return ctx;
 }
 
 /**
@@ -54,6 +86,9 @@ export function apiError(message: string, status: number = 400): NextResponse {
 /**
  * Standard API success response.
  */
-export function apiSuccess<T>(data: T, meta?: Record<string, unknown>): NextResponse {
-  return NextResponse.json({ success: true, data, ...meta ? { meta } : {} });
+export function apiSuccess<T>(
+  data: T,
+  meta?: Record<string, unknown>,
+): NextResponse {
+  return NextResponse.json({ success: true, data, ...(meta ? { meta } : {}) });
 }

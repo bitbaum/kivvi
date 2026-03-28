@@ -6,6 +6,7 @@ import { companies, users, numberSequences } from "@kivvi/database";
 import type { CompanySettings } from "@kivvi/database";
 import { eq, and } from "drizzle-orm";
 import { z } from "zod";
+import bcrypt from "bcryptjs";
 import {
   type ActionResult,
   getSession,
@@ -256,6 +257,146 @@ export async function updateProfileAction(
 }
 
 // ============================================================================
+// CHANGE PASSWORD
+// ============================================================================
+
+const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Current password is required"),
+    newPassword: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+export async function changePasswordAction(
+  input: unknown,
+): Promise<ActionResult> {
+  try {
+    const { userId } = await getSession();
+    const parsed = changePasswordSchema.safeParse(input);
+    if (!parsed.success) {
+      return {
+        success: false,
+        error: parsed.error.errors[0]?.message || "Invalid input",
+      };
+    }
+
+    const [user] = await db
+      .select({ passwordHash: users.passwordHash })
+      .from(users)
+      .where(eq(users.id, userId));
+
+    if (!user?.passwordHash) {
+      return { success: false, error: "Invalid account state" };
+    }
+
+    const isValid = await bcrypt.compare(
+      parsed.data.currentPassword,
+      user.passwordHash,
+    );
+    if (!isValid) {
+      return { success: false, error: "Current password is incorrect" };
+    }
+
+    const newHash = await bcrypt.hash(parsed.data.newPassword, 12);
+    await db
+      .update(users)
+      .set({ passwordHash: newHash, updatedAt: new Date() })
+      .where(eq(users.id, userId));
+
+    revalidatePath("/settings");
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to change password"),
+    };
+  }
+}
+
+// ============================================================================
+// USER AVATAR
+// ============================================================================
+
+export async function getUserAvatarAction(): Promise<string | null> {
+  try {
+    const { userId } = await getSession();
+    const [user] = await db
+      .select({ avatarBase64: users.avatarBase64 })
+      .from(users)
+      .where(eq(users.id, userId));
+    return user?.avatarBase64 ?? null;
+  } catch {
+    return null;
+  }
+}
+
+const MAX_AVATAR_SIZE = 500 * 1024; // 500KB
+const ALLOWED_AVATAR_TYPES = ["image/png", "image/jpeg", "image/svg+xml"];
+
+export async function uploadAvatarAction(
+  formData: FormData,
+): Promise<ActionResult> {
+  try {
+    const { userId } = await getSession();
+
+    const file = formData.get("avatar") as File | null;
+    if (!file || file.size === 0) {
+      return { success: false, error: "No file provided" };
+    }
+
+    if (!ALLOWED_AVATAR_TYPES.includes(file.type)) {
+      return {
+        success: false,
+        error: "Invalid file type. Use PNG, JPEG, or SVG.",
+      };
+    }
+
+    if (file.size > MAX_AVATAR_SIZE) {
+      return { success: false, error: "File too large. Maximum 500KB." };
+    }
+
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const base64 = `data:${file.type};base64,${buffer.toString("base64")}`;
+
+    await db
+      .update(users)
+      .set({ avatarBase64: base64, updatedAt: new Date() })
+      .where(eq(users.id, userId));
+
+    revalidatePath("/settings");
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to upload avatar"),
+    };
+  }
+}
+
+export async function removeAvatarAction(): Promise<ActionResult> {
+  try {
+    const { userId } = await getSession();
+
+    await db
+      .update(users)
+      .set({ avatarBase64: null, updatedAt: new Date() })
+      .where(eq(users.id, userId));
+
+    revalidatePath("/settings");
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to remove avatar"),
+    };
+  }
+}
+
+// ============================================================================
 // NUMBER SEQUENCES
 // ============================================================================
 
@@ -270,7 +411,7 @@ export async function updateNumberSequenceAction(
   input: unknown,
 ): Promise<ActionResult> {
   try {
-    const { companyId } = await getSession();
+    const { companyId } = await requireRole("admin");
     const parsed = updateSequenceSchema.safeParse(input);
     if (!parsed.success) {
       return {

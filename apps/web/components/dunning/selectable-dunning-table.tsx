@@ -136,7 +136,7 @@ export function SelectableDunningTable({
             }}
             onChange={toggleAll}
             aria-label={tc("aria.selectAll")}
-            className="h-4 w-4 rounded border-gray-300"
+            className="h-4 w-4 rounded border-input"
           />
         </div>
         <span>{translations.columnLabels.invoice}</span>
@@ -170,7 +170,7 @@ export function SelectableDunningTable({
                     checked={isSelected(inv.id)}
                     onChange={() => toggle(inv.id)}
                     aria-label={`Select ${inv.number}`}
-                    className="h-4 w-4 rounded border-gray-300"
+                    className="h-4 w-4 rounded border-input"
                   />
                 ) : (
                   <div className="h-4 w-4" />
@@ -183,14 +183,37 @@ export function SelectableDunningTable({
                 >
                   {inv.number}
                 </Link>
+                {/* Mobile: show key info inline */}
+                <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground sm:hidden">
+                  <span>
+                    {inv.contactName || translations.columnLabels.noCustomer}
+                  </span>
+                  <span>·</span>
+                  <span className="font-medium text-foreground">
+                    {formatCurrency(inv.total)}
+                  </span>
+                  <span>·</span>
+                  <span
+                    className={cn(
+                      "font-medium",
+                      inv.daysOverdue > 60
+                        ? "text-red-600 dark:text-red-400"
+                        : inv.daysOverdue > 30
+                          ? "text-orange-600 dark:text-orange-400"
+                          : "text-yellow-600 dark:text-yellow-400",
+                    )}
+                  >
+                    {inv.daysOverdue}d
+                  </span>
+                </div>
               </div>
-              <div className="text-sm text-muted-foreground">
+              <div className="hidden text-sm text-muted-foreground sm:block">
                 {inv.contactName || translations.columnLabels.noCustomer}
               </div>
-              <div className="text-right font-medium">
+              <div className="hidden text-right font-medium sm:block">
                 {formatCurrency(inv.total)}
               </div>
-              <div className="px-4 text-center">
+              <div className="hidden px-4 text-center sm:block">
                 <span
                   className={cn(
                     "text-sm font-medium",
@@ -230,7 +253,7 @@ export function SelectableDunningTable({
                           "Escalate"}
                     </button>
                     {rowErrors[inv.id] && (
-                      <p className="mt-1 text-xs text-red-600">
+                      <p className="mt-1 text-xs text-red-600 dark:text-red-400">
                         {rowErrors[inv.id]}
                       </p>
                     )}

@@ -44,7 +44,9 @@ export function DunningButton({
         <Send className="h-3 w-3" />
         {isPending ? "Sending..." : LEVEL_LABELS[currentLevel] || "Escalate"}
       </button>
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+      {error && (
+        <p className="mt-1 text-xs text-red-600 dark:text-red-400">{error}</p>
+      )}
     </div>
   );
 }

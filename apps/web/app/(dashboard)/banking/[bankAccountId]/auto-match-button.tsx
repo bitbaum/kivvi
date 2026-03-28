@@ -44,7 +44,9 @@ export function AutoMatchButton({ bankAccountId }: { bankAccountId: string }) {
           {t("matchedTransactions", { count: result.matched })}
         </span>
       )}
-      {error && <span className="text-sm text-red-600">{error}</span>}
+      {error && (
+        <span className="text-sm text-red-600 dark:text-red-400">{error}</span>
+      )}
     </div>
   );
 }
