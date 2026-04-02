@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { redirect, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import {
   ArrowLeft,
   Pencil,
@@ -8,8 +8,9 @@ import {
   Receipt,
   Calendar,
   User,
+  ShoppingCart,
 } from "lucide-react";
-import { auth } from "@/lib/auth";
+import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import {
   getProject,
@@ -27,17 +28,17 @@ import {
   PROJECT_STATUS_LABEL_KEYS,
 } from "@/lib/config/project-status";
 import { ProjectEditForm } from "./edit-form";
+import {
+  QuickActionsBar,
+  type QuickAction,
+} from "@/components/quick-actions-bar";
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
 export default async function ProjectDetailPage({ params }: PageProps) {
-  const session = await auth();
-  if (!session?.user?.companyId) {
-    redirect("/login");
-  }
-
+  const session = await getSessionOrRedirect();
   const t = await getTranslations("projects");
   const tc = await getTranslations("common");
   const td = await getTranslations("documents");
@@ -104,6 +105,9 @@ export default async function ProjectDetailPage({ params }: PageProps) {
           </div>
         </div>
       </div>
+
+      {/* Quick Actions */}
+      <QuickActionsBar actions={buildProjectQuickActions(project, t)} />
 
       {/* Summary Cards */}
       <div className="grid gap-4 sm:grid-cols-3">
@@ -368,4 +372,34 @@ export default async function ProjectDetailPage({ params }: PageProps) {
       </div>
     </div>
   );
+}
+
+function buildProjectQuickActions(
+  project: { id: string; contactId: string | null; contactName: string | null },
+  t: (key: string) => string,
+): QuickAction[] {
+  const params = new URLSearchParams();
+  params.set("projectId", project.id);
+  if (project.contactId) params.set("contactId", project.contactId);
+  if (project.contactName) params.set("contactName", project.contactName);
+  const qs = params.toString();
+
+  return [
+    {
+      label: t("createQuote"),
+      href: `/sales/quotes/new?${qs}`,
+      icon: <Receipt className="h-4 w-4" />,
+      variant: "primary",
+    },
+    {
+      label: t("createInvoice"),
+      href: `/sales/invoices/new?${qs}`,
+      icon: <FileText className="h-4 w-4" />,
+    },
+    {
+      label: t("createOrder"),
+      href: `/sales/orders/new?${qs}`,
+      icon: <ShoppingCart className="h-4 w-4" />,
+    },
+  ];
 }

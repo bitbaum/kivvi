@@ -1,124 +1,66 @@
 # Codebase Audit Report
 
-**Date**: 2026-03-23
-**Previous Audit**: 2026-03-19
+**Date**: 2026-04-02
+**Previous Audit**: 2026-03-31
 **Auditor**: Claude Code
 **Branch**: main
-**Commit**: 8ce2ca8 (with uncommitted changes across ~75 files)
+**Commit**: f1b4aab (uncommitted changes present)
 
 ## Executive Summary
 
-Kivvi ERP continues to demonstrate strong engineering fundamentals. Since the last audit (4 days ago), several previous issues have been resolved: dead packages (`packages/events/`, `packages/ui/`) are now deleted (staged for commit), AI tool VAT defaults now use config, and the overpayment bug is fixed. The codebase has grown with new features (avatar upload, password change form, extracted `calculate-item-total.ts`).
+Kivvi ERP is a mature, production-quality Swiss-native ERP. This audit found **zero critical vulnerabilities** and **zero type/lint errors**. The codebase demonstrates exceptional engineering discipline: SSOT enforcement is near-perfect, financial calculations use decimal.js throughout with Swiss Rappen rounding, tenant isolation is bulletproof across all 28+ domain functions, and the unified document model remains an architectural strength.
 
-Key improvements since last audit: (1) dead packages cleaned up, (2) AI tool SSOT improved, (3) 654 tests now passing (up from 164). Remaining concerns: (1) calculation logic duplicated between core domain and UI components, (2) 8 god components >300 lines, (3) mobile table UX needs polish, (4) 2 touch targets below 44px minimum.
+Since the last audit (2 days ago), notable improvements include: (1) dashboard workflow links fixed (were 404ing), (2) recent activity now shows financially relevant documents instead of zero-amount delivery notes, (3) product search autocomplete added to document line items, (4) contact quick actions added for direct document creation from contact list. The 29 AI tools continue to call the same domain functions as the UI.
 
-No critical security vulnerabilities found. Tenant isolation remains bulletproof with `companyId` filtering on every query. Financial math is correct with `decimal.js` throughout, Swiss Rappen rounding, and per-line VAT calculation.
+Key findings this audit: (1) 13 components >300 lines (stable — complex forms and multi-section pages), (2) 64 pages missing error.tsx files (biggest gap — easy to fix with existing pattern), (3) 1 ESLint warning (missing dependency in useCallback), (4) excellent accessibility with WCAG AAA touch target compliance. No critical security or correctness issues found.
 
 ## Health Score
 
-| Area                   | Score      | Prev    | Delta    | Notes                                                                                                 |
-| ---------------------- | ---------- | ------- | -------- | ----------------------------------------------------------------------------------------------------- |
-| First Principles       | 9/10       | 8.5     | +0.5     | Dead packages removed, SSOT improved. Minor: calculation duplication                                  |
-| Best Practices         | 9/10       | 8.5     | +0.5     | 654 tests, zero type/lint errors, strong auth. Minor: DRY in form calcs                               |
-| Mission Alignment      | 9/10       | 9       | --       | Swiss-native, AI-first (27 tools), config-driven, self-service migration                              |
-| Functional Correctness | 9/10       | 8       | +1.0     | Overpayment fixed, race-safe sequences, atomic transactions                                           |
-| UI/UX & Responsive     | 8/10       | 7.5     | +0.5     | 73 loading.tsx files, comprehensive dark mode (337 dark: classes). Minor: touch targets, table mobile |
-| **Overall**            | **8.8/10** | **8.3** | **+0.5** | Solid improvement. Production-quality with clear remaining items                                      |
+| Area                   | Score      | Prev    | Delta  | Notes                                                                  |
+| ---------------------- | ---------- | ------- | ------ | ---------------------------------------------------------------------- |
+| First Principles       | 9/10       | 9       | --     | SSOT excellent, 13 god components (justified), 3 minor SSOT violations |
+| Best Practices         | 9/10       | 9       | --     | 0 type errors, 1 lint warning, all auth/validation/tenant checks pass  |
+| Mission Alignment      | 9/10       | 9       | --     | All Swiss compliance requirements fully implemented, AI-first realized |
+| Functional Correctness | 9.5/10     | 9.5     | --     | All critical flows verified, no bugs found, financial math correct     |
+| UI/UX & Responsive     | 8/10       | 8       | --     | 74/75 loading states, 64 missing error.tsx, excellent accessibility    |
+| **Overall**            | **8.9/10** | **8.9** | **--** | Stable, production-quality. Error.tsx gap is main improvement target.  |
 
 ---
 
 ## Phase 1: First Principles
 
-### Ground Truth #1: Software Serves Humans
+### Ground Truth #2 — SSOT Violations (3 minor)
 
-**Grade: A-**
+1. **Hardcoded status array** — `apps/web/app/(dashboard)/documents/page.tsx:238` uses `["draft", "sent", "confirmed", "paid", "overdue", "cancelled"]` instead of deriving from `documentStatusEnum.enumValues`.
 
-**Dead packages: RESOLVED**
+2. **Document type groupings** — `apps/web/app/(dashboard)/documents/page.tsx:24-34` defines `OUTGOING_TYPES`, `INCOMING_TYPES` separately instead of deriving from `DOCUMENT_TYPES` config.
 
-- `packages/events/` -- Deleted (staged in git) ✓
-- `packages/ui/` -- Deleted (staged in git) ✓
+3. **Status literals in Money page** — `apps/web/app/(dashboard)/money/page.tsx:171,178` uses `status: "sent" as const` instead of referencing schema enums.
 
-**Dead infrastructure (LOW):**
+### Ground Truth #5 — God Components (13 files >300 lines)
 
-- `docker-compose.yml` -- Only postgres + optional ollama. Redis removed. ✓
+| File                           | Lines | Justification                                           |
+| ------------------------------ | ----- | ------------------------------------------------------- |
+| `money/page.tsx`               | 580   | Multi-section financial overview — split candidate      |
+| `contact-form.tsx`             | 516   | Complex multi-step form — split candidate               |
+| `StepDataImport.tsx`           | 491   | CSV import wizard with preview                          |
+| `import-transactions.tsx`      | 491   | Bank import with mapping UI                             |
+| `document-detail.tsx`          | 436   | Document view with actions, items, payments             |
+| `edit-document-form.tsx`       | 426   | Full document editor                                    |
+| `selectable-contact-table.tsx` | 460+  | Table with selection, bulk actions, quick actions (new) |
 
-**God components (>300 lines): 8 files**
+### Ground Truth #6 — TypeScript Quality
 
-| File                                                              | Lines | Notes                                    |
-| ----------------------------------------------------------------- | ----- | ---------------------------------------- |
-| `app/(onboarding)/components/StepDataImport.tsx`                  | 491   | Multi-step CSV import orchestration      |
-| `app/(dashboard)/products/[id]/page.tsx`                          | 491   | Product detail with nested forms         |
-| `app/(dashboard)/banking/[bankAccountId]/import-transactions.tsx` | 491   | Bank transaction import + matching       |
-| `components/sidebar.tsx`                                          | 489   | Navigation + company switcher + forms    |
-| `app/(dashboard)/documents/page.tsx`                              | 432   | Document list with filters, bulk actions |
-| `components/documents/document-detail.tsx`                        | 421   | Document view, status, payments          |
-| `components/products/product-form.tsx`                            | 413   | Multi-section product form               |
-| `components/contacts/contact-form.tsx`                            | 406   | Contact form with address management     |
+- **`any` usage**: 116+ instances across codebase. Most are justified (AI provider compatibility, Zod generic types, Node.js fetch). No `any` found in financial domain code.
+- **`@ts-ignore`**: 0 instances
+- **`// eslint-disable`**: 0 instances in production code
 
-Most have legitimate complexity (forms, detail pages). The >450-line files would benefit from extraction.
+### Positive Patterns
 
-**No console.log pollution** -- Zero stray console statements in production code. ✓
-**No TODO/FIXME/HACK** -- Zero suppression comments. ✓
-
-### Ground Truth #2: State Defines Behavior (SSOT)
-
-**Grade: A-**
-
-**Types derived from schema: PASS** -- All entity types use `$inferSelect`/`$inferInsert`. Zero separately-defined types. ✓
-
-**Config centralized: PASS** -- 15+ config files in `apps/web/lib/config/`. ✓
-
-**i18n coverage: PASS** -- 3 locale files with consistent key counts. All UI text via `useTranslations()`. ✓
-
-**Calculation logic duplication (MEDIUM):**
-
-- `apps/web/components/documents/calculate-item-total.ts` (NEW) -- Extracted utility for client-side preview
-- `apps/web/hooks/use-document-form.ts:59-68` -- Same VAT calculation logic
-- `apps/web/components/documents/edit-document-form.tsx:76-86` -- Same VAT calculation logic
-- `packages/core/src/domain/documents.ts:105-135` -- Authoritative `calculateTotals()` (SSOT)
-
-Client-side duplication is for UI preview speed, but risks divergence if core logic changes. Should either import from core or extract to a shared pure-math module.
-
-**AI tool labels: IMPROVED**
-
-- Previous audit found hardcoded VAT defaults (8.1) in 2 AI tool files
-- AI tools now properly import from config ✓
-
-### Ground Truth #3: Design for Change
-
-**Grade: A**
-
-- Document type extensibility: PASS -- 3 changes to add a type ✓
-- Domain function reuse: PASS -- AI tools and Server Actions share domain functions ✓
-- Clean package coupling: PASS -- No circular deps, no barrel imports in client ✓
-- Transaction boundaries: PASS -- All multi-table ops wrapped ✓
-
-### Ground Truth #4: Automate the Mechanical
-
-**Grade: B+**
-
-- Pre-commit hooks (Husky + lint-staged): PASS ✓
-- CI pipeline (GitHub Actions): PASS ✓
-- No Dockerfile for production: Still missing (MEDIUM)
-- No local type-check on commit: TypeScript errors only caught in CI (LOW)
-
-### Ground Truth #5: Simplicity Scales
-
-**Grade: A**
-
-- "2 files vs 5+" test: PASS ✓
-- No premature abstractions: PASS ✓
-- No DI frameworks: PASS ✓
-
-### Ground Truth #6: Correctness Beats Speed
-
-**Grade: A**
-
-- `any` types: Minimal (~5 justified instances, zero in domain layer) ✓
-- `@ts-ignore`: Zero. `eslint-disable`: 4 (all justified with comments) ✓
-- Financial calculations: PASS (decimal.js, Rappen rounding, line-item VAT) ✓
-- Tenant isolation: PASS (companyId on every query) ✓
-- Test suite: 654 tests passing across 21 test files ✓
+- Types derived from Drizzle schema via `$inferSelect`/`$inferInsert` throughout
+- VAT rates centralized in `packages/core/src/config/vat-rates.ts`
+- Document behaviors config-driven in `apps/web/lib/config/document-types.ts`
+- Domain functions reused across UI + AI (zero duplication)
 
 ---
 
@@ -126,242 +68,194 @@ Client-side duplication is for UI preview speed, but risks divergence if core lo
 
 ### Automated Checks
 
-| Check             | Result                                   |
-| ----------------- | ---------------------------------------- |
-| `pnpm type-check` | PASS -- Zero errors, all packages        |
-| `pnpm lint`       | PASS -- Zero warnings or errors          |
-| `pnpm test`       | PASS -- 654 tests passing, 21 test files |
+| Check             | Result        | Details                                                        |
+| ----------------- | ------------- | -------------------------------------------------------------- |
+| TypeScript strict | **PASS**      | 0 errors                                                       |
+| ESLint            | **1 WARNING** | `hooks/use-chat.ts:219` — missing `locale` in useCallback deps |
+| Console.log       | **PASS**      | 0 in production code (only in e2e tests + env validation)      |
+| SQL injection     | **PASS**      | All queries via Drizzle ORM, parameterized                     |
 
-### Critical Rules Compliance
+### Security Compliance (15/15 PASS)
 
-| Rule                               | Status | Notes                                               |
-| ---------------------------------- | ------ | --------------------------------------------------- |
-| No console.log in production       | PASS   | Only in structured logger                           |
-| Server Action auth                 | PASS   | All action files use `getSession()`/`requireRole()` |
-| ActionResult format                | PASS   | Consistent `{ success, data?, error? }`             |
-| Mutations via Server Actions       | PASS   | API routes only for streaming/webhooks/v1 REST      |
-| Parameterized SQL                  | PASS   | All queries via Drizzle (no string interpolation)   |
-| No hardcoded VAT/codes/prefixes    | PASS   | All centralized in config                           |
-| Zod validation at boundaries       | PASS   | All actions/API routes validate input               |
-| db.transaction for multi-table ops | PASS   | Verified in documents, payments, conversions        |
-| companyId on every query           | PASS   | Verified across all domain files                    |
-| decimal.js for money               | PASS   | No float arithmetic on financial values             |
+| Rule                                 | Status               |
+| ------------------------------------ | -------------------- |
+| No console.log in production         | PASS                 |
+| Logger used consistently             | PASS                 |
+| Parameterized queries (Drizzle)      | PASS                 |
+| Auth checks on all server actions    | PASS (28/28 actions) |
+| Auth checks on all API routes        | PASS                 |
+| CompanyId filtering on all queries   | PASS                 |
+| ActionResult<T> error format         | PASS                 |
+| Zod validation on all inputs         | PASS                 |
+| db.transaction() for multi-table ops | PASS (27 usages)     |
+| revalidatePath after mutations       | PASS                 |
+| Naming conventions                   | PASS                 |
+| Money uses decimal.js                | PASS                 |
+| No float arithmetic on money         | PASS                 |
+| Transactionality                     | PASS                 |
+| Client component import safety       | PASS                 |
 
-### Server Action Pattern Compliance
+### Money Handling — Verified Correct
 
-Sampled 10+ actions -- all follow the canonical pattern:
+All financial calculations in `packages/core/src/domain/documents.ts:140-173` use `decimal.js`:
 
-1. `requireRole()` or `getSession()` for auth ✓
-2. `safeParse()` with Zod validation ✓
-3. Domain function call with `companyId` ✓
-4. `revalidatePath()` for cache invalidation ✓
-5. Return `ActionResult<T>` ✓
-
-### Warnings
-
-**DRY violation: `calculateItemTotal` (MEDIUM):**
-
-- Client-side calculation logic in `calculate-item-total.ts`, `use-document-form.ts`, and `edit-document-form.tsx` duplicates core's `calculateTotals()`
-
-**Component file naming (LOW):**
-
-- CLAUDE.md specifies PascalCase.tsx but all component files use kebab-case consistently. Consistent convention, just different from spec.
-
-### Authentication & API Security
-
-| Layer                | Status    | Notes                                                    |
-| -------------------- | --------- | -------------------------------------------------------- |
-| Middleware           | EXCELLENT | Deny-by-default with PUBLIC_PATHS whitelist              |
-| Server Actions       | EXCELLENT | All 27+ files authenticated with role checks             |
-| v1 API routes        | GOOD      | `authenticateApi()` with Bearer token + session fallback |
-| Webhook verification | GOOD      | Stripe signature verification before processing          |
-| Rate limiting        | GOOD      | Token bucket implementation with cleanup                 |
-| GDPR export          | GOOD      | Admin/owner role required                                |
+- Line-item VAT rounded per line (Swiss standard)
+- Rappen rounding (CHF 0.05) via `rappenRound()`
+- Prices stored as strings, never floats
+- Zero instances of `parseFloat()` or `Number()` on monetary values in domain code
 
 ---
 
 ## Phase 3: Mission Alignment
 
-| Area                     | Status         | Notes                                             |
-| ------------------------ | -------------- | ------------------------------------------------- |
-| Swiss VAT compliance     | ✅ Implemented | 8.1%/2.6%/0% from config, per-line rounding       |
-| QR-bill generation       | ✅ Implemented | MOD-10 validated references on every invoice      |
-| Swiss chart of accounts  | ✅ Implemented | 227 KMU Kontenrahmen accounts seeded              |
-| CHF / de-CH locale       | ✅ Implemented | Rappen rounding, Swiss number/date formatting     |
-| German document prefixes | ✅ Implemented | RE, AN, AU, GU, LS, MA, BE, ER, AB                |
-| Unified document model   | ✅ Implemented | All 9 types in one table, config-driven           |
-| AI-first design          | ✅ Implemented | 27 tools calling same domain functions as UI      |
-| Self-service migration   | ✅ Implemented | Kivitendo CSV import with auto-detection          |
-| Multi-tenant isolation   | ✅ Implemented | companyId on every table, every query             |
-| Config-driven UI         | ✅ Implemented | Document types, statuses, conversions from config |
-| Atomic transactions      | ✅ Implemented | db.transaction() for all multi-table ops          |
-| Financial precision      | ✅ Implemented | decimal.js, Swiss Rappen rounding, line-item VAT  |
-
-**Mission score: 9/10** -- All core Swiss ERP requirements fully implemented. The system is genuinely Swiss-native, not a US product adapted for Switzerland.
+| Area                     | Status      | Evidence                                     |
+| ------------------------ | ----------- | -------------------------------------------- |
+| Swiss VAT compliance     | Implemented | 8.1%/2.6%/0% configurable, per-line rounding |
+| QR-bill generation       | Implemented | 27-digit MOD-10 reference, legally compliant |
+| Swiss KMU Kontenrahmen   | Implemented | 227 accounts seeded on company creation      |
+| CHF Rappen rounding      | Implemented | `rappenRound()` in swiss-currency.ts         |
+| Date format DD.MM.YYYY   | Implemented | `de-CH` locale throughout                    |
+| German document prefixes | Implemented | RE, AN, AU, GU, LS, MA, BE, ER               |
+| AI-first architecture    | Implemented | 29 tools calling domain functions            |
+| Self-service migration   | Implemented | 11 CSV mapping profiles, auto-detection      |
+| Multi-tenant isolation   | Implemented | companyId on every table, every query        |
+| Config-driven UI         | Implemented | Document behavior defined in config          |
+| Unified document model   | Implemented | 9 types in one table                         |
 
 ---
 
 ## Phase 4: Improvement Roadmap
 
-### Quick Wins (<1 hour)
+### Quick Wins (<1 hour each)
 
-1. **Fix bulk-result-banner dismiss button touch target** -- `components/bulk-result-banner.tsx:68` has `p-0.5` (~18x18px). Change to `min-h-[44px] min-w-[44px]`.
-2. **Fix edit-document-form remove-item button** -- `components/documents/edit-document-form.tsx:315` has `p-1.5` (~28px). Add `min-h-[44px] min-w-[44px]`.
-3. **Add skip-to-content link** to all layouts (currently only in dashboard).
-4. **Audit icon-only buttons for missing aria-labels** in edit-document-form and similar.
+1. **Fix ESLint warning** — Add `locale` to dependency array in `hooks/use-chat.ts:219`
+2. **Derive status array from schema** — `documents/page.tsx:238` → use `documentStatusEnum.enumValues`
+3. **Replace hardcoded error colors** — 3 files use `text-red-600` instead of `text-destructive`
+4. **Add error.tsx to route groups** — Create error.tsx at segment level (`/accounting/error.tsx`, `/banking/error.tsx`, etc.) to cover 64 pages with ~8 files
 
 ### Medium Effort (1-5 hours)
 
-5. **Extract calculation logic to shared module** -- Move `calculateItemTotal` to a shared pure-math utility importable by both core and UI components. Eliminate the 3-way duplication.
-6. **Improve mobile table UX** -- Document table (`selectable-document-table.tsx:117`) and product table (`selectable-product-table.tsx:139`) lack context labels on mobile. Add data-label attributes or proper card layout.
-7. **Split god components** -- Priority targets:
-   - `sidebar.tsx` (489 lines) → extract `CompanySwitcher`, `NavigationMenu`
-   - `StepDataImport.tsx` (491 lines) → extract `ImportOrchestrator`, `CSVUploader`, `ColumnMapper`
-   - `product-form.tsx` (413 lines) → extract section sub-components
+5. **Split money/page.tsx** (580 lines) into sub-components: AccountsList, TransactionList, FinancialSummary
+6. **Split contact-form.tsx** (516 lines) into step sections: BasicInfo, AddressSection, FinancialDetails
+7. **Reduce `any` count** — Narrow AI provider types where possible (types.ts, openai-compatible.ts)
+8. **Add Dockerfile** — Still missing for production deployment
 
 ### Strategic Improvements
 
-8. **Add Dockerfile** for production deployment (still missing).
-9. **Address stale JWT role** -- Consider sessionVersion or shorter maxAge.
-10. **Add ESLint to packages** in lint-staged (currently only Prettier runs).
-11. **Extract inline page queries** to domain functions (3 pages with direct DB queries).
+9. **Outgoing webhooks** — Event system to notify external services on mutations
+10. **Email invoice sending** — Wire existing PDF generation + email transport for direct sending
+11. **Direct bank connection** — EBICS integration to replace manual CAMT file upload
+12. **Background job scheduler** — Enable recurring invoices and auto-dunning
 
 ---
 
 ## Phase 5: Functional Correctness
 
-### Authentication & Authorization
+### Authentication & Authorization — VERIFIED
 
-| Area                   | Status    | Notes                                                |
-| ---------------------- | --------- | ---------------------------------------------------- |
-| NextAuth v5 JWT config | EXCELLENT | 7-day maxAge, bcrypt, credentials provider           |
-| Session shape          | EXCELLENT | id, companyId, companyName, role, onboardingComplete |
-| Role SSOT              | EXCELLENT | Reads from memberships table (not users.role)        |
-| Middleware auth guards | EXCELLENT | Deny-by-default, PUBLIC_PATHS whitelist              |
-| Server action auth     | EXCELLENT | All files use requireRole()/getSession()             |
-| API route auth         | GOOD      | authenticateApi() with Bearer + session fallback     |
-| Webhook verification   | GOOD      | Stripe signature check before processing             |
+- NextAuth v5 with JWT strategy, 7-day maxAge
+- Role sourced from `memberships` table (SSOT), not user.role
+- Session refresh on JWT callback re-reads role from DB
+- Middleware: deny-by-default, explicit PUBLIC_PATHS whitelist
+- Rate limiting: 5-100 req/min by endpoint type
+- All 28 server actions call `getSession()` or `requireRole()`
+- All API routes verify auth via `authenticateApi()` or CRON_SECRET
 
-### Critical Business Flows
+### Financial Calculations — VERIFIED
 
-| Flow                        | Status    | Notes                                                                          |
-| --------------------------- | --------- | ------------------------------------------------------------------------------ |
-| Document status transitions | EXCELLENT | Explicit VALID_TRANSITIONS map, terminal states enforced                       |
-| Financial calculations      | EXCELLENT | decimal.js, Swiss Rappen rounding, per-line VAT                                |
-| Document conversion         | EXCELLENT | Atomic transactions, proper linking via convertedFromId                        |
-| Payment recording           | EXCELLENT | Overpayment validation added, auto status update, journal entry in transaction |
-| Number sequences            | EXCELLENT | Atomic UPDATE...RETURNING, race-safe with retry                                |
-| Multi-table transactions    | EXCELLENT | All critical paths wrapped in db.transaction()                                 |
-| Bank transaction matching   | GOOD      | Idempotency check via bankTransactionId                                        |
+- VAT per line item with `decimal.js`, rounded to 2 decimal places
+- Rappen rounding (CHF 0.05) applied to document total
+- Journal entries created atomically with document status transitions
+- Payment recording prevents overpayment, updates status correctly
+- Number sequences use atomic UPDATE...RETURNING (race-safe)
 
-### Improvements Since Last Audit
+### Document Lifecycle — VERIFIED
 
-- **Overpayment validation: FIXED** -- `documents.ts:769-775` now rejects payments exceeding remaining balance ✓
-- **Payment status semantics** -- Error message could be more helpful (show remaining balance), but validation is correct
+- Status transitions validated via `VALID_TRANSITIONS` map
+- Conversion chain (quote → order → invoice) copies items, generates new number/QR
+- All multi-step operations wrapped in `db.transaction()`
+- Idempotent payment recording (duplicate bankTransactionId returns existing)
 
-### Remaining Low-Priority Issues
+### Tenant Isolation — VERIFIED
 
-1. `repairInvoiceStatusesAction` not transactional (`data-repair.ts`) -- acceptable for repair tool
-2. Auto journal entries skip balance validation (`accounting.ts`) -- by design for automated flows
+- Every domain function takes `companyId` as required parameter
+- Every query filters by `eq(table.companyId, companyId)`
+- API routes extract companyId from authenticated context
+- No cross-tenant queries found in any code path
 
 ---
 
 ## Phase 6: UI/UX & Responsive Design
 
-### Responsive Design
+### Responsive Design — 9/10
 
-| Area                  | Status    | Notes                                              |
-| --------------------- | --------- | -------------------------------------------------- |
-| Mobile-first Tailwind | EXCELLENT | Base classes target mobile, sm:/md:/lg: for larger |
-| Layout responsiveness | EXCELLENT | `p-4 sm:p-6` padding, responsive grids throughout  |
-| Sidebar               | EXCELLENT | Desktop: fixed. Mobile: overlay with backdrop      |
-| Header                | EXCELLENT | Mobile menu + search buttons, desktop search bar   |
-| Forms                 | EXCELLENT | `grid gap-6 sm:grid-cols-2` pattern consistently   |
-| Tables                | GOOD      | overflow-x-auto, hidden columns on mobile          |
+- Mobile-first Tailwind approach throughout (base styles are mobile)
+- Tables stack into card layout on mobile with inline key info
+- Sidebar converts to overlay on mobile with backdrop
+- No hardcoded widths that break mobile layout
+- 2 instances of `overflow-x-auto` (appropriate for data tables)
 
-### Component Quality
+### Touch Targets — 10/10
 
-| Area             | Status    | Notes                                                                |
-| ---------------- | --------- | -------------------------------------------------------------------- |
-| Loading states   | EXCELLENT | 73 loading.tsx files, Skeleton components, Loader2 spinners          |
-| Empty states     | EXCELLENT | Reusable EmptyState component used in 15+ pages                      |
-| Error boundaries | EXCELLENT | 12 error.tsx files, Sentry integration, i18n, dark mode              |
-| Dark mode        | EXCELLENT | 337 dark: class instances, comprehensive coverage                    |
-| Accessibility    | GOOD      | 47+ aria-labels, semantic HTML roles, skip link, keyboard shortcuts  |
-| Form validation  | EXCELLENT | FormField wrapper with error display, aria-describedby, role="alert" |
-| Toast feedback   | EXCELLENT | sonner integration, success/error toasts on all mutations            |
+- All interactive elements meet 44x44px minimum (WCAG AAA)
+- All icon-only buttons have aria-labels
+- Consistent pattern: `min-h-[44px] min-w-[44px]` on icon buttons
 
-### Issues Found (Post-Fix)
+### Loading States — 9.5/10
 
-All P1 and P2 issues from this audit have been resolved in this session:
+- 74/75 pages have `loading.tsx` with skeleton fallbacks
+- Forms show `isPending` state with disabled buttons + spinner
+- Suspense boundaries used with fallback skeletons
+- Missing: `settings/repair-import` (1 page)
 
-**Touch targets: FIXED ✓**
+### Empty States — 9/10
 
-- `bulk-result-banner.tsx` dismiss button now has `min-h-[44px] min-w-[44px]`
-- `edit-document-form.tsx` remove-item button now has `min-h-[44px] min-w-[44px]` + aria-label
+- Consistent `EmptyState` component with icon, heading, description, CTA
+- All list pages implement empty state pattern
+- Context-aware messaging ("adjust filters" vs "create first")
 
-**Mobile table UX: FIXED ✓**
+### Error States — 3/10
 
-- Document table: mobile rows now show inline summary (contact · amount · date) under document number
-- Contact table: mobile rows now show inline summary (email · phone · city) under name
-- Dunning table: mobile rows now show inline summary (customer · amount · days overdue) under invoice number
-- Desktop columns hidden on mobile to avoid duplication with inline summary
+- **64 pages missing error.tsx** — biggest UI gap
+- Existing error pattern is excellent (Sentry logging, reset button, translated messages)
+- Fix: Create error.tsx at route segment level (~8 files covers all 64 pages)
 
-**Skip links: FIXED ✓**
+### Accessibility — 9/10
 
-- Skip-to-content link moved from dashboard page to dashboard layout (covers all dashboard pages)
-- `id="main-content"` added to main element (anchor target was missing)
-
-**DRY calculation logic: FIXED ✓**
-
-- `calculateDocumentTotals()` extracted to `calculate-item-total.ts` as single source
-- Both `use-document-form.ts` and `edit-document-form.tsx` now use shared function
-- Eliminated 3-way duplication of VAT/subtotal/total calculation
+- Skip-to-content link present
+- Focus trap in modals via `useFocusTrap` hook
+- Keyboard shortcuts (Cmd+K, /, N, ?, Escape)
+- Semantic HTML (proper roles, aria attributes)
+- Form labels with htmlFor/id associations
+- `aria-describedby` on form fields with errors
 
 ---
 
-## Changes Since Last Audit (2026-03-19)
+## Action Items
 
-### Resolved Issues ✓
+### Critical (Do First)
 
-- [x] Dead packages deleted (`packages/events/`, `packages/ui/`)
-- [x] Overpayment validation added to payment recording
-- [x] AI tool VAT defaults now use config
-- [x] Test suite expanded (164 → 654 tests)
-- [x] Touch targets fixed (bulk-result-banner, edit-document-form)
-- [x] Skip-to-content link added to dashboard layout with proper anchor
-- [x] Mobile table UX improved (documents, contacts, dunning tables)
-- [x] DRY: `calculateDocumentTotals()` extracted, eliminating 3-way duplication
-- [x] aria-label added to edit-document-form remove-item button
+1. [ ] Create error.tsx at route segment level for 64 uncovered pages (~8 files)
 
-### New Components (Untracked)
+### High Priority
 
-- avatar-upload.tsx and change-password-form.tsx (new features)
+2. [ ] Fix ESLint warning in `hooks/use-chat.ts:219` (add `locale` to deps)
+3. [ ] Add Dockerfile for production deployment
+4. [ ] Derive hardcoded status array from schema enum in `documents/page.tsx`
 
-### Remaining Items
+### Medium Priority
 
-- [ ] God components (7 files >300 lines — sidebar extracted)
-- [ ] No Dockerfile for production
-- [ ] Stale JWT role issue
-- [ ] Add ESLint to packages in lint-staged
+5. [ ] Split `money/page.tsx` (580 lines) into sub-components
+6. [ ] Split `contact-form.tsx` (516 lines) into sections
+7. [ ] Replace 3 hardcoded `text-red-600` with `text-destructive`
+8. [ ] Re-enable CI with budget limits
+
+### Low Priority
+
+9. [ ] Narrow `any` types in AI provider layer
+10. [ ] Add missing loading.tsx for `settings/repair-import`
+11. [ ] Review SessionProvider/ThemeProvider wrapper components (may be unnecessary)
 
 ---
 
-## Action Items (Prioritized)
-
-### P1: All Done ✓
-
-All quick fixes and code quality items have been resolved.
-
-### P2: Completed ✓
-
-- [x] Sidebar split: `CompanySwitcher` extracted to `sidebar/company-switcher.tsx` (489→272 lines)
-- [x] Inline queries extracted to domain: `getDocumentSummary()`, `getBankTransactionsSummary()`
-- [x] Duplicate banking query eliminated (was in both banking/page.tsx and money/page.tsx)
-
-### P3: Strategic (Remaining)
-
-- [ ] Add Dockerfile for production deployment
-- [ ] Address stale JWT role (sessionVersion or shorter maxAge)
-- [ ] Split remaining god components (StepDataImport 491, product-form 413)
-- [ ] Add ESLint to packages in lint-staged
+_Generated by Claude Code on 2026-04-02. Previous audit: 2026-03-31 (score 8.9/10)._

@@ -9,9 +9,20 @@ import type { LineItem } from "@/components/documents/document-form";
 import { emptyItem } from "@/components/documents/document-form";
 import { calculateDocumentTotals } from "@/components/documents/calculate-item-total";
 
-export function useDocumentForm(config: DocumentTypeConfig) {
-  const [contactId, setContactId] = useState<string | null>(null);
-  const [contactName, setContactName] = useState("");
+export interface DocumentFormInitialValues {
+  contactId?: string;
+  contactName?: string;
+  projectId?: string;
+}
+
+export function useDocumentForm(
+  config: DocumentTypeConfig,
+  initial?: DocumentFormInitialValues,
+) {
+  const [contactId, setContactId] = useState<string | null>(
+    initial?.contactId || null,
+  );
+  const [contactName, setContactName] = useState(initial?.contactName || "");
   const [issueDate, setIssueDate] = useState(
     new Date().toISOString().split("T")[0],
   );
@@ -40,8 +51,12 @@ export function useDocumentForm(config: DocumentTypeConfig) {
     if (items.length <= 1) return;
     setItems(items.filter((i) => i.id !== id));
   };
-  const updateItem = (id: string, field: keyof LineItem, value: string) => {
-    if (field === "discount") {
+  const updateItem = (
+    id: string,
+    field: keyof LineItem,
+    value: string | null,
+  ) => {
+    if (field === "discount" && value !== null) {
       const num = parseFloat(value);
       if (!isNaN(num) && num > 100) value = "100";
       if (!isNaN(num) && num < 0) value = "0";

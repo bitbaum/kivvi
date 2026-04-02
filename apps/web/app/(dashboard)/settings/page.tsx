@@ -1,18 +1,27 @@
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { Building2, User, Hash, ArrowRight, RepeatIcon, CreditCard, Download, Wrench, Database, Key, Users } from 'lucide-react';
-import { auth } from '@/lib/auth';
-import { db } from '@/lib/db';
-import { companies, users } from '@kivvi/database';
-import { eq } from 'drizzle-orm';
-import { getTranslations } from 'next-intl/server';
-import { PageHeader } from '@/components/page-header';
+import Link from "next/link";
+import {
+  Building2,
+  User,
+  Hash,
+  ArrowRight,
+  RepeatIcon,
+  CreditCard,
+  Download,
+  Wrench,
+  Database,
+  Key,
+  Users,
+} from "lucide-react";
+import { getSessionOrRedirect } from "@/lib/session";
+import { db } from "@/lib/db";
+import { companies, users } from "@kivvi/database";
+import { eq } from "drizzle-orm";
+import { getTranslations } from "next-intl/server";
+import { PageHeader } from "@/components/page-header";
 
 export default async function SettingsPage() {
-  const session = await auth();
-  if (!session?.user?.companyId) redirect('/login');
-
-  const t = await getTranslations('settings');
+  const session = await getSessionOrRedirect();
+  const t = await getTranslations("settings");
 
   const [company] = await db
     .select()
@@ -26,52 +35,52 @@ export default async function SettingsPage() {
 
   const sections = [
     {
-      title: t('companySettings'),
-      subtitle: company?.name || t('companySettingsDesc'),
-      href: '/settings/company',
+      title: t("companySettings"),
+      subtitle: company?.name || t("companySettingsDesc"),
+      href: "/settings/company",
       icon: Building2,
     },
     {
-      title: t('userProfile'),
-      subtitle: user?.email || t('userProfileDesc'),
-      href: '/settings/profile',
+      title: t("userProfile"),
+      subtitle: user?.email || t("userProfileDesc"),
+      href: "/settings/profile",
       icon: User,
     },
     {
-      title: t('numberSequences'),
-      subtitle: t('numberSequencesDesc'),
-      href: '/settings/sequences',
+      title: t("numberSequences"),
+      subtitle: t("numberSequencesDesc"),
+      href: "/settings/sequences",
       icon: Hash,
     },
     {
-      title: t('recurring.title'),
-      subtitle: t('recurring.settingsDesc'),
-      href: '/settings/recurring-invoices',
+      title: t("recurring.title"),
+      subtitle: t("recurring.settingsDesc"),
+      href: "/settings/recurring-invoices",
       icon: RepeatIcon,
     },
     {
-      title: t('billing.title'),
-      subtitle: t('billing.settingsDesc'),
-      href: '/settings/billing',
+      title: t("billing.title"),
+      subtitle: t("billing.settingsDesc"),
+      href: "/settings/billing",
       icon: CreditCard,
     },
     {
-      title: t('apiTokens.title'),
-      subtitle: t('apiTokens.settingsDesc'),
-      href: '/settings/api-tokens',
+      title: t("apiTokens.title"),
+      subtitle: t("apiTokens.settingsDesc"),
+      href: "/settings/api-tokens",
       icon: Key,
     },
     {
-      title: t('team.title'),
-      subtitle: t('team.settingsDesc'),
-      href: '/settings/team',
+      title: t("team.title"),
+      subtitle: t("team.settingsDesc"),
+      href: "/settings/team",
       icon: Users,
     },
   ];
 
   return (
     <div className="space-y-8">
-      <PageHeader title={t('title')} subtitle={t('subtitle')} />
+      <PageHeader title={t("title")} subtitle={t("subtitle")} />
 
       {/* Section cards */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -99,7 +108,7 @@ export default async function SettingsPage() {
 
       {/* Data Tools */}
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold">{t('dataTools')}</h2>
+        <h2 className="text-lg font-semibold">{t("dataTools")}</h2>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <Link
             href="/settings/repair-import"
@@ -112,9 +121,9 @@ export default async function SettingsPage() {
               <ArrowRight className="h-5 w-5 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
             </div>
             <div className="mt-4">
-              <h2 className="font-semibold">{t('repairImport.title')}</h2>
+              <h2 className="font-semibold">{t("repairImport.title")}</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                {t('repairImport.description')}
+                {t("repairImport.description")}
               </p>
             </div>
           </Link>
@@ -129,9 +138,9 @@ export default async function SettingsPage() {
               <ArrowRight className="h-5 w-5 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
             </div>
             <div className="mt-4">
-              <h2 className="font-semibold">{t('dataRepair.title')}</h2>
+              <h2 className="font-semibold">{t("dataRepair.title")}</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                {t('dataRepair.description')}
+                {t("dataRepair.description")}
               </p>
             </div>
           </Link>
@@ -140,13 +149,13 @@ export default async function SettingsPage() {
 
       {/* Data & Privacy */}
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold">{t('dataPrivacy.title')}</h2>
+        <h2 className="text-lg font-semibold">{t("dataPrivacy.title")}</h2>
         <div className="rounded-xl border bg-card p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h3 className="font-medium">{t('dataPrivacy.exportTitle')}</h3>
+              <h3 className="font-medium">{t("dataPrivacy.exportTitle")}</h3>
               <p className="mt-1 text-sm text-muted-foreground">
-                {t('dataPrivacy.exportDescription')}
+                {t("dataPrivacy.exportDescription")}
               </p>
             </div>
             <a
@@ -155,7 +164,7 @@ export default async function SettingsPage() {
               className="inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium hover:bg-muted/50"
             >
               <Download className="h-4 w-4" />
-              {t('dataPrivacy.downloadButton')}
+              {t("dataPrivacy.downloadButton")}
             </a>
           </div>
         </div>

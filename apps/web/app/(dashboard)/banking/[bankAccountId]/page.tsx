@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { redirect, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import {
   ArrowLeft,
   CreditCard,
@@ -8,7 +8,7 @@ import {
   FileText,
 } from "lucide-react";
 import { Pagination } from "@/components/pagination";
-import { auth } from "@/lib/auth";
+import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import {
   getBankAccount,
@@ -36,9 +36,7 @@ export default async function BankAccountDetailPage({
   params,
   searchParams,
 }: PageProps) {
-  const session = await auth();
-  if (!session?.user?.companyId) redirect("/login");
-
+  const session = await getSessionOrRedirect();
   const t = await getTranslations("banking");
   const tc = await getTranslations("common");
 

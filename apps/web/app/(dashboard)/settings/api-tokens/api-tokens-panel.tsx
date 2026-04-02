@@ -14,6 +14,7 @@ import {
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { formatDate } from "@/lib/utils";
+import { StatusBadge } from "@/components/status-badge";
 import {
   createApiTokenAction,
   revokeApiTokenAction,
@@ -196,15 +197,10 @@ export function ApiTokensPanel({ initialTokens }: { initialTokens: Token[] }) {
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <span className="font-medium">{token.name}</span>
-                  <span
-                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                      token.isActive
-                        ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                        : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400"
-                    }`}
-                  >
-                    {token.isActive ? t("active") : t("inactive")}
-                  </span>
+                  <StatusBadge
+                    variant={token.isActive ? "active" : "inactive"}
+                    label={token.isActive ? t("active") : t("inactive")}
+                  />
                 </div>
                 <div className="flex items-center gap-4 text-xs text-muted-foreground">
                   <span className="font-mono">{token.tokenPrefix}</span>

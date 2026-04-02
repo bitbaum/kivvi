@@ -1,8 +1,7 @@
-import { redirect } from "next/navigation";
 import Link from "next/link";
 import { FileText, Plus, Search } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
-import { auth } from "@/lib/auth";
+import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { listDocuments, getDocumentSummary } from "@kivvi/core";
 import {
@@ -49,9 +48,7 @@ interface PageProps {
 }
 
 export default async function DocumentsPage({ searchParams }: PageProps) {
-  const session = await auth();
-  if (!session?.user?.companyId) redirect("/login");
-
+  const session = await getSessionOrRedirect();
   const params = await searchParams;
   const t = await getTranslations("documentsHub");
   const td = await getTranslations("documents");

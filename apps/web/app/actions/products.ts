@@ -6,6 +6,7 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
+  searchProducts,
   createProductSchema,
   updateProductSchema,
 } from "@kivvi/core";
@@ -119,6 +120,21 @@ export async function deleteProductAction(
     return {
       success: false,
       error: safeErrorMessage(error, "Failed to delete product"),
+    };
+  }
+}
+
+export async function searchProductsAction(
+  query: string,
+): Promise<ActionResult<Awaited<ReturnType<typeof searchProducts>>>> {
+  try {
+    const { companyId } = await getSession();
+    const results = await searchProducts(db, companyId, query);
+    return { success: true, data: results };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Search failed"),
     };
   }
 }

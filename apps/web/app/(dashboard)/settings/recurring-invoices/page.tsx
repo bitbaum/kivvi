@@ -1,16 +1,13 @@
-import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Plus, RepeatIcon } from "lucide-react";
-import { auth } from "@/lib/auth";
+import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { listRecurringConfigs } from "@kivvi/core";
 import { getTranslations } from "next-intl/server";
 import { RecurringConfigRow } from "./recurring-config-row";
 
 export default async function RecurringInvoicesPage() {
-  const session = await auth();
-  if (!session?.user?.companyId) redirect("/login");
-
+  const session = await getSessionOrRedirect();
   const t = await getTranslations("settings");
   const tc = await getTranslations("common");
 

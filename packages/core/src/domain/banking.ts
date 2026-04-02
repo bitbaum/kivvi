@@ -463,18 +463,22 @@ export async function matchTransactionToDocument(
 
   const PAYABLE_STATUSES = sql`${documents.status} IN ('sent', 'confirmed', 'delivered', 'partially_paid', 'overdue', 'dunning_1', 'dunning_2', 'dunning_3')`;
 
-  // 1. QR reference match
+  // 1. QR reference match (check both reference and remittanceInfo fields)
   let matchedDoc = null;
-  if (txn.reference) {
+  const refFields = [txn.reference, txn.remittanceInfo].filter(
+    Boolean,
+  ) as string[];
+  for (const ref of refFields) {
     matchedDoc = await db.query.documents.findFirst({
       where: (documents, { eq, and, sql: sqlFn }) =>
         and(
           eq(documents.companyId, companyId),
           eq(documents.type, "invoice"),
-          sqlFn`${documents.qrReference} IS NOT NULL AND ${txn.reference} LIKE '%' || ${documents.qrReference} || '%'`,
+          sqlFn`${documents.qrReference} IS NOT NULL AND ${ref} LIKE '%' || ${documents.qrReference} || '%'`,
           PAYABLE_STATUSES,
         ),
     });
+    if (matchedDoc) break;
   }
 
   // 2. Exact amount match (within 0.01 CHF tolerance)
@@ -534,16 +538,26 @@ export async function unreconcileTransaction(
 
 /**
  * Auto-match unreconciled transactions to open invoices by QR reference or amount.
+ *
+ * Matching priority:
+ * 1. QR reference — checks transaction `reference` and `remittanceInfo` against
+ *    invoice `qrReference`. This is the most reliable match (unique per invoice).
+ * 2. Exact amount — only when a single open invoice matches the transaction amount
+ *    (within CHF 0.01 tolerance) to avoid ambiguous matches.
+ *
+ * Each successful match atomically:
+ * - Marks the bank transaction as reconciled
+ * - Records a payment on the document (via `reconcileTransaction`)
  */
 export async function autoMatchTransactions(
   db: Database,
   companyId: string,
   bankAccountId: string,
-): Promise<{ matched: number }> {
+): Promise<{ matched: number; total: number }> {
   const bankAccount = await getBankAccount(db, companyId, bankAccountId);
   if (!bankAccount) throw new Error("Bank account not found");
 
-  // Get unreconciled incoming transactions (positive amounts)
+  // Get unreconciled incoming transactions (positive amounts = payments received)
   const unreconciledTxns = await db
     .select()
     .from(bankTransactions)
@@ -555,7 +569,17 @@ export async function autoMatchTransactions(
       ),
     );
 
-  // Get open invoices
+  // Get open invoices that can receive payments
+  const PAYABLE_STATUSES = [
+    "sent",
+    "confirmed",
+    "delivered",
+    "partially_paid",
+    "overdue",
+    "dunning_1",
+    "dunning_2",
+    "dunning_3",
+  ];
   const openInvoices = await db
     .select()
     .from(documents)
@@ -563,41 +587,74 @@ export async function autoMatchTransactions(
       and(
         eq(documents.companyId, companyId),
         eq(documents.type, "invoice"),
-        sql`${documents.status} IN ('sent', 'confirmed', 'delivered', 'partially_paid', 'overdue', 'dunning_1', 'dunning_2', 'dunning_3')`,
+        sql`${documents.status} IN (${sql.join(
+          PAYABLE_STATUSES.map((s) => sql`${s}`),
+          sql`, `,
+        )})`,
       ),
     );
 
+  // Track which invoices have been matched so we don't double-match
+  const matchedInvoiceIds = new Set<string>();
   let matched = 0;
 
   for (const txn of unreconciledTxns) {
-    const txnAmount = new Decimal(txn.amount);
+    // 1. Try matching by QR reference (check both reference and remittanceInfo)
+    const refFields = [txn.reference, txn.remittanceInfo].filter(
+      Boolean,
+    ) as string[];
 
-    // Try matching by QR reference
-    if (txn.reference) {
+    if (refFields.length > 0) {
       const matchByRef = openInvoices.find(
-        (inv) => inv.qrReference && txn.reference!.includes(inv.qrReference),
+        (inv) =>
+          !matchedInvoiceIds.has(inv.id) &&
+          inv.qrReference &&
+          refFields.some((ref) => ref.includes(inv.qrReference!)),
       );
       if (matchByRef) {
-        await reconcileTransaction(db, companyId, txn.id, matchByRef.id);
-        matched++;
+        try {
+          await reconcileTransaction(db, companyId, txn.id, matchByRef.id);
+          matchedInvoiceIds.add(matchByRef.id);
+          matched++;
+        } catch (error) {
+          // Log but continue — one failed reconciliation shouldn't abort the batch
+          logger.warn("Auto-match QR reconciliation failed", {
+            transactionId: txn.id,
+            documentId: matchByRef.id,
+            error: error instanceof Error ? error.message : String(error),
+          });
+        }
         continue;
       }
     }
 
-    // Try matching by exact amount
-    const matchByAmount = openInvoices.find((inv) =>
-      new Decimal(inv.total!).minus(txnAmount).abs().lt("0.01"),
+    // 2. Try matching by exact amount — only if exactly ONE invoice matches
+    //    to avoid ambiguous matches (multiple invoices with same total)
+    const txnAmount = new Decimal(txn.amount);
+    const amountCandidates = openInvoices.filter(
+      (inv) =>
+        !matchedInvoiceIds.has(inv.id) &&
+        inv.total &&
+        new Decimal(inv.total).minus(txnAmount).abs().lt("0.01"),
     );
-    if (matchByAmount) {
-      await reconcileTransaction(db, companyId, txn.id, matchByAmount.id);
-      // Remove from candidates so we don't double-match
-      const idx = openInvoices.indexOf(matchByAmount);
-      openInvoices.splice(idx, 1);
-      matched++;
+
+    if (amountCandidates.length === 1) {
+      const matchByAmount = amountCandidates[0];
+      try {
+        await reconcileTransaction(db, companyId, txn.id, matchByAmount.id);
+        matchedInvoiceIds.add(matchByAmount.id);
+        matched++;
+      } catch (error) {
+        logger.warn("Auto-match amount reconciliation failed", {
+          transactionId: txn.id,
+          documentId: matchByAmount.id,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
     }
   }
 
-  return { matched };
+  return { matched, total: unreconciledTxns.length };
 }
 
 /**

@@ -87,7 +87,11 @@ export function EditDocumentForm({
     setItems(items.filter((i) => i.id !== id));
   };
 
-  const updateItem = (id: string, field: keyof LineItem, value: string) => {
+  const updateItem = (
+    id: string,
+    field: keyof LineItem,
+    value: string | null,
+  ) => {
     setItems(items.map((i) => (i.id === id ? { ...i, [field]: value } : i)));
   };
 

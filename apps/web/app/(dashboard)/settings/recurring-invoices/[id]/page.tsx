@@ -1,7 +1,7 @@
-import { redirect, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { auth } from "@/lib/auth";
+import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { getRecurringConfig } from "@kivvi/core";
 import { documents } from "@kivvi/database";
@@ -15,9 +15,7 @@ export default async function EditRecurringInvoicePage({
 }: {
   params: { id: string };
 }) {
-  const session = await auth();
-  if (!session?.user?.companyId) redirect("/login");
-
+  const session = await getSessionOrRedirect();
   if (!isValidUUID(params.id)) notFound();
 
   const t = await getTranslations("settings");

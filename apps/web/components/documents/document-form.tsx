@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition, useState, useEffect, useCallback, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Decimal from "decimal.js";
 import { ArrowLeft, Plus } from "lucide-react";
@@ -41,6 +41,7 @@ export interface LineItem {
   unitPrice: string;
   discount: string;
   vatRate: string;
+  stockQuantity: string | null;
 }
 
 export function emptyItem(): LineItem {
@@ -52,6 +53,7 @@ export function emptyItem(): LineItem {
     unitPrice: "0.00",
     discount: "0",
     vatRate: DEFAULT_VAT_RATE,
+    stockQuantity: null,
   };
 }
 
@@ -71,12 +73,17 @@ interface DocumentFormProps {
 export function DocumentForm({ type }: DocumentFormProps) {
   const config = DOCUMENT_TYPES[type];
   const router = useRouter();
+  const searchParams = useSearchParams();
   const t = useTranslations("documents");
   const tc = useTranslations("common");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
-  const form = useDocumentForm(config);
+  const form = useDocumentForm(config, {
+    contactId: searchParams.get("contactId") || undefined,
+    contactName: searchParams.get("contactName") || undefined,
+    projectId: searchParams.get("projectId") || undefined,
+  });
 
   const sensors = useSensors(
     useSensor(PointerSensor),

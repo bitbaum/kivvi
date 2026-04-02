@@ -34,6 +34,10 @@ import {
 } from "./accounting-integration";
 import { DEFAULT_VAT_RATE } from "../config/vat-rates";
 import { VALID_CONVERSIONS } from "./document-conversions";
+import {
+  createStockMovementsForDocument,
+  updateStockReservationsForDocument,
+} from "./inventory-integration";
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -767,6 +771,15 @@ export async function updateDocumentStatus(
         await createCancellationReversalJournalEntry(tx, companyId, doc);
       }
     }
+
+    // Auto-create stock movements for inventory-affecting transitions
+    // Sale: delivery_note → delivered (stock decreases from default warehouse)
+    // Sale: invoice → sent (if no delivery note exists, stock decreases)
+    // Purchase: purchase_invoice → confirmed (stock increases to default warehouse)
+    // Credit/Return: credit_note → sent (stock returns to warehouse)
+    // Cancellation: reverse stock if original transition created movements
+    await createStockMovementsForDocument(tx, companyId, doc, newStatus);
+    await updateStockReservationsForDocument(tx, companyId, doc, newStatus);
 
     return updated;
   });

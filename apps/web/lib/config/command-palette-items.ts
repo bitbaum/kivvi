@@ -17,6 +17,7 @@ import {
   Settings,
   type LucideIcon,
 } from "lucide-react";
+import { DOCUMENT_TYPES } from "@/lib/config/document-types";
 
 export interface PaletteItemConfig {
   id: string;
@@ -28,18 +29,13 @@ export interface PaletteItemConfig {
   ns: "nav" | "commandPalette";
 }
 
-// Document type to detail page route prefix (used for server search results)
-export const DOCUMENT_ROUTE_PREFIX: Record<string, string> = {
-  invoice: "/sales/invoices",
-  quote: "/sales/quotes",
-  order: "/sales/orders",
-  order_confirmation: "/sales/orders",
-  delivery_note: "/sales/delivery-notes",
-  credit_note: "/sales/credit-notes",
-  dunning: "/sales/dunning",
-  purchase_order: "/purchasing/purchase-orders",
-  purchase_invoice: "/purchasing/purchase-invoices",
-};
+// Document type to detail page route prefix — derived from DOCUMENT_TYPES config (SSOT)
+export const DOCUMENT_ROUTE_PREFIX: Record<string, string> = Object.fromEntries(
+  Object.entries(DOCUMENT_TYPES).map(([type, config]) => [
+    type,
+    config.basePath,
+  ]),
+);
 
 // Section display order and i18n keys
 export const SECTION_ORDER = [

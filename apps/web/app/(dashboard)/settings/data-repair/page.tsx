@@ -1,16 +1,13 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { auth } from "@/lib/auth";
+import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { getDataRepairStatusAction } from "@/app/actions/data-repair";
 import { DataRepairPanel } from "./data-repair-panel";
 
 export default async function DataRepairPage() {
-  const session = await auth();
-  if (!session?.user?.companyId) redirect("/login");
-
+  const session = await getSessionOrRedirect();
   const t = await getTranslations("settings");
   const statusResult = await getDataRepairStatusAction();
 

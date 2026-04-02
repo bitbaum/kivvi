@@ -1,15 +1,14 @@
-import Link from 'next/link';
-import { redirect } from 'next/navigation';
-import { Plus, Search, BookOpen, Download } from 'lucide-react';
-import { auth } from '@/lib/auth';
-import { db } from '@/lib/db';
-import { listJournalEntries } from '@kivvi/core';
-import { formatCurrency, formatDate, cn } from '@/lib/utils';
-import { getTranslations } from 'next-intl/server';
-import { DEFAULT_PAGE_SIZE } from '@/lib/config/document-types';
-import { SOURCE_TYPE_STYLES, getSourceTypeLabels } from '@/lib/config/journal';
-import { PageHeader } from '@/components/page-header';
-import { Pagination } from '@/components/pagination';
+import Link from "next/link";
+import { Plus, Search, BookOpen, Download } from "lucide-react";
+import { getSessionOrRedirect } from "@/lib/session";
+import { db } from "@/lib/db";
+import { listJournalEntries } from "@kivvi/core";
+import { formatCurrency, formatDate, cn } from "@/lib/utils";
+import { getTranslations } from "next-intl/server";
+import { DEFAULT_PAGE_SIZE } from "@/lib/config/document-types";
+import { SOURCE_TYPE_STYLES, getSourceTypeLabels } from "@/lib/config/journal";
+import { PageHeader } from "@/components/page-header";
+import { Pagination } from "@/components/pagination";
 
 interface PageProps {
   searchParams: Promise<{
@@ -22,16 +21,14 @@ interface PageProps {
 }
 
 export default async function JournalPage({ searchParams }: PageProps) {
-  const session = await auth();
-  if (!session?.user?.companyId) redirect('/login');
-
-  const t = await getTranslations('accounting');
-  const tc = await getTranslations('common');
+  const session = await getSessionOrRedirect();
+  const t = await getTranslations("accounting");
+  const tc = await getTranslations("common");
 
   const SOURCE_TYPE_LABELS = getSourceTypeLabels(t);
 
   const params = await searchParams;
-  const page = parseInt(params.page || '1', 10);
+  const page = parseInt(params.page || "1", 10);
   const sourceType = params.sourceType;
   const search = params.search;
   const dateFrom = params.dateFrom;
@@ -49,8 +46,8 @@ export default async function JournalPage({ searchParams }: PageProps) {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={t('journal')}
-        subtitle={t('viewJournalEntries')}
+        title={t("journal")}
+        subtitle={t("viewJournalEntries")}
         actions={
           <>
             <a
@@ -58,14 +55,14 @@ export default async function JournalPage({ searchParams }: PageProps) {
               className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2.5 text-sm font-medium hover:bg-accent transition-colors"
             >
               <Download className="h-4 w-4" />
-              {tc('exportCsv')}
+              {tc("exportCsv")}
             </a>
             <Link
               href="/accounting/journal/new"
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
             >
               <Plus className="h-4 w-4" />
-              {t('newJournalEntry')}
+              {t("newJournalEntry")}
             </Link>
           </>
         }
@@ -74,35 +71,77 @@ export default async function JournalPage({ searchParams }: PageProps) {
       {/* Filters */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         {/* Search */}
-        <form className="relative flex-1 sm:max-w-sm" action="/accounting/journal" method="GET">
+        <form
+          className="relative flex-1 sm:max-w-sm"
+          action="/accounting/journal"
+          method="GET"
+        >
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
             name="search"
-            placeholder={tc('search') + '...'}
+            placeholder={tc("search") + "..."}
             defaultValue={search}
             className="w-full rounded-lg border bg-background py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           />
-          {sourceType && <input type="hidden" name="sourceType" value={sourceType} />}
+          {sourceType && (
+            <input type="hidden" name="sourceType" value={sourceType} />
+          )}
           {dateFrom && <input type="hidden" name="dateFrom" value={dateFrom} />}
           {dateTo && <input type="hidden" name="dateTo" value={dateTo} />}
         </form>
 
         {/* Source type filter */}
         <div className="flex items-center gap-1 rounded-lg border bg-card p-1">
-          <SourceTypeFilterLink label={tc('all')} value="" current={sourceType} search={search} dateFrom={dateFrom} dateTo={dateTo} />
-          <SourceTypeFilterLink label={SOURCE_TYPE_LABELS.manual} value="manual" current={sourceType} search={search} dateFrom={dateFrom} dateTo={dateTo} />
-          <SourceTypeFilterLink label={SOURCE_TYPE_LABELS.invoice} value="invoice" current={sourceType} search={search} dateFrom={dateFrom} dateTo={dateTo} />
-          <SourceTypeFilterLink label={SOURCE_TYPE_LABELS.payment} value="payment" current={sourceType} search={search} dateFrom={dateFrom} dateTo={dateTo} />
+          <SourceTypeFilterLink
+            label={tc("all")}
+            value=""
+            current={sourceType}
+            search={search}
+            dateFrom={dateFrom}
+            dateTo={dateTo}
+          />
+          <SourceTypeFilterLink
+            label={SOURCE_TYPE_LABELS.manual}
+            value="manual"
+            current={sourceType}
+            search={search}
+            dateFrom={dateFrom}
+            dateTo={dateTo}
+          />
+          <SourceTypeFilterLink
+            label={SOURCE_TYPE_LABELS.invoice}
+            value="invoice"
+            current={sourceType}
+            search={search}
+            dateFrom={dateFrom}
+            dateTo={dateTo}
+          />
+          <SourceTypeFilterLink
+            label={SOURCE_TYPE_LABELS.payment}
+            value="payment"
+            current={sourceType}
+            search={search}
+            dateFrom={dateFrom}
+            dateTo={dateTo}
+          />
         </div>
       </div>
 
       {/* Date range filter */}
-      <form className="flex flex-wrap items-end gap-3" action="/accounting/journal" method="GET">
+      <form
+        className="flex flex-wrap items-end gap-3"
+        action="/accounting/journal"
+        method="GET"
+      >
         {search && <input type="hidden" name="search" value={search} />}
-        {sourceType && <input type="hidden" name="sourceType" value={sourceType} />}
+        {sourceType && (
+          <input type="hidden" name="sourceType" value={sourceType} />
+        )}
         <div>
-          <label className="block text-xs text-muted-foreground mb-1">{tc('date')}</label>
+          <label className="block text-xs text-muted-foreground mb-1">
+            {tc("date")}
+          </label>
           <input
             type="date"
             name="dateFrom"
@@ -111,7 +150,9 @@ export default async function JournalPage({ searchParams }: PageProps) {
           />
         </div>
         <div>
-          <label className="block text-xs text-muted-foreground mb-1">{tc('date')}</label>
+          <label className="block text-xs text-muted-foreground mb-1">
+            {tc("date")}
+          </label>
           <input
             type="date"
             name="dateTo"
@@ -123,7 +164,7 @@ export default async function JournalPage({ searchParams }: PageProps) {
           type="submit"
           className="rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-muted transition-colors"
         >
-          {tc('filter')}
+          {tc("filter")}
         </button>
         {(dateFrom || dateTo) && (
           <Link
@@ -140,11 +181,13 @@ export default async function JournalPage({ searchParams }: PageProps) {
         {result.data.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
             <BookOpen className="h-12 w-12 text-muted-foreground/50" />
-            <h3 className="mt-4 text-lg font-medium">{t('noJournalEntries')}</h3>
+            <h3 className="mt-4 text-lg font-medium">
+              {t("noJournalEntries")}
+            </h3>
             <p className="mt-1 text-sm text-muted-foreground">
               {search || sourceType || dateFrom || dateTo
-                ? 'Try adjusting your search or filters.'
-                : 'Get started by creating your first journal entry.'}
+                ? "Try adjusting your search or filters."
+                : "Get started by creating your first journal entry."}
             </p>
             {!search && !sourceType && (
               <Link
@@ -152,7 +195,7 @@ export default async function JournalPage({ searchParams }: PageProps) {
                 className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
               >
                 <Plus className="h-4 w-4" />
-                {t('newJournalEntry')}
+                {t("newJournalEntry")}
               </Link>
             )}
           </div>
@@ -160,11 +203,11 @@ export default async function JournalPage({ searchParams }: PageProps) {
           <>
             {/* Table header */}
             <div className="hidden border-b px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground sm:grid sm:grid-cols-[auto_1fr_2fr_auto_auto]">
-              <span className="w-24">{tc('date')}</span>
-              <span>{t('reference')}</span>
-              <span>{tc('description')}</span>
-              <span className="px-4 text-center">{t('sourceType')}</span>
-              <span className="w-28 text-right">{tc('total')}</span>
+              <span className="w-24">{tc("date")}</span>
+              <span>{t("reference")}</span>
+              <span>{tc("description")}</span>
+              <span className="px-4 text-center">{t("sourceType")}</span>
+              <span className="w-28 text-right">{tc("total")}</span>
             </div>
 
             {/* Rows */}
@@ -179,7 +222,7 @@ export default async function JournalPage({ searchParams }: PageProps) {
                     {formatDate(entry.date)}
                   </div>
                   <div className="text-sm font-medium font-mono">
-                    {entry.reference || '-'}
+                    {entry.reference || "-"}
                   </div>
                   <div className="text-sm text-muted-foreground truncate">
                     {entry.description}
@@ -187,11 +230,13 @@ export default async function JournalPage({ searchParams }: PageProps) {
                   <div className="px-4 text-center">
                     <span
                       className={cn(
-                        'inline-block rounded-full px-2.5 py-0.5 text-xs font-medium',
-                        SOURCE_TYPE_STYLES[entry.sourceType ?? 'manual'] || SOURCE_TYPE_STYLES.manual
+                        "inline-block rounded-full px-2.5 py-0.5 text-xs font-medium",
+                        SOURCE_TYPE_STYLES[entry.sourceType ?? "manual"] ||
+                          SOURCE_TYPE_STYLES.manual,
                       )}
                     >
-                      {SOURCE_TYPE_LABELS[entry.sourceType ?? 'manual'] || entry.sourceType}
+                      {SOURCE_TYPE_LABELS[entry.sourceType ?? "manual"] ||
+                        entry.sourceType}
                     </span>
                   </div>
                   <div className="w-28 text-right text-sm font-medium">
@@ -209,16 +254,21 @@ export default async function JournalPage({ searchParams }: PageProps) {
               totalPages={result.totalPages}
               total={result.total}
               pageSize={result.pageSize}
-              buildHref={(p) => buildPageUrl(p, { search, sourceType, dateFrom, dateTo })}
+              buildHref={(p) =>
+                buildPageUrl(p, { search, sourceType, dateFrom, dateTo })
+              }
               labels={{
-                showing: tc('showing', {
+                showing: tc("showing", {
                   from: (result.page - 1) * result.pageSize + 1,
                   to: Math.min(result.page * result.pageSize, result.total),
                   total: result.total,
                 }),
-                previous: tc('previous'),
-                next: tc('next'),
-                pageOf: tc('pageOf', { page: result.page, totalPages: result.totalPages }),
+                previous: tc("previous"),
+                next: tc("next"),
+                pageOf: tc("pageOf", {
+                  page: result.page,
+                  totalPages: result.totalPages,
+                }),
               }}
             />
           </>
@@ -247,17 +297,22 @@ function SourceTypeFilterLink({
   dateFrom?: string;
   dateTo?: string;
 }) {
-  const isActive = (current || '') === value;
-  const href = buildFilterUrl({ search, sourceType: value || undefined, dateFrom, dateTo });
+  const isActive = (current || "") === value;
+  const href = buildFilterUrl({
+    search,
+    sourceType: value || undefined,
+    dateFrom,
+    dateTo,
+  });
 
   return (
     <Link
       href={href}
       className={cn(
-        'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+        "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
         isActive
-          ? 'bg-background text-foreground shadow-sm'
-          : 'text-muted-foreground hover:text-foreground'
+          ? "bg-background text-foreground shadow-sm"
+          : "text-muted-foreground hover:text-foreground",
       )}
     >
       {label}
@@ -272,22 +327,27 @@ function buildFilterUrl(filters: {
   dateTo?: string;
 }): string {
   const params = new URLSearchParams();
-  if (filters.search) params.set('search', filters.search);
-  if (filters.sourceType) params.set('sourceType', filters.sourceType);
-  if (filters.dateFrom) params.set('dateFrom', filters.dateFrom);
-  if (filters.dateTo) params.set('dateTo', filters.dateTo);
-  return `/accounting/journal${params.toString() ? `?${params.toString()}` : ''}`;
+  if (filters.search) params.set("search", filters.search);
+  if (filters.sourceType) params.set("sourceType", filters.sourceType);
+  if (filters.dateFrom) params.set("dateFrom", filters.dateFrom);
+  if (filters.dateTo) params.set("dateTo", filters.dateTo);
+  return `/accounting/journal${params.toString() ? `?${params.toString()}` : ""}`;
 }
 
 function buildPageUrl(
   page: number,
-  filters: { search?: string; sourceType?: string; dateFrom?: string; dateTo?: string }
+  filters: {
+    search?: string;
+    sourceType?: string;
+    dateFrom?: string;
+    dateTo?: string;
+  },
 ): string {
   const params = new URLSearchParams();
-  if (filters.search) params.set('search', filters.search);
-  if (filters.sourceType) params.set('sourceType', filters.sourceType);
-  if (filters.dateFrom) params.set('dateFrom', filters.dateFrom);
-  if (filters.dateTo) params.set('dateTo', filters.dateTo);
-  if (page > 1) params.set('page', page.toString());
-  return `/accounting/journal${params.toString() ? `?${params.toString()}` : ''}`;
+  if (filters.search) params.set("search", filters.search);
+  if (filters.sourceType) params.set("sourceType", filters.sourceType);
+  if (filters.dateFrom) params.set("dateFrom", filters.dateFrom);
+  if (filters.dateTo) params.set("dateTo", filters.dateTo);
+  if (page > 1) params.set("page", page.toString());
+  return `/accounting/journal${params.toString() ? `?${params.toString()}` : ""}`;
 }

@@ -1,5 +1,5 @@
-import { notFound, redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
+import { notFound } from "next/navigation";
+import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { getDocument } from "@kivvi/core";
 import { DOCUMENT_TYPES } from "@/lib/config/document-types";
@@ -11,9 +11,7 @@ interface PageProps {
 }
 
 export default async function InvoiceDetailPage({ params }: PageProps) {
-  const session = await auth();
-  if (!session?.user?.companyId) redirect("/login");
-
+  const session = await getSessionOrRedirect();
   const { id } = await params;
   if (!isValidUUID(id)) notFound();
   const doc = await getDocument(db, session.user.companyId, id);

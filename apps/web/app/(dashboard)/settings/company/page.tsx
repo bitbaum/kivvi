@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { auth } from "@/lib/auth";
+import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { companies } from "@kivvi/database";
 import type { CompanySettings } from "@kivvi/database";
@@ -11,9 +11,7 @@ import { DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
 import { CompanyForm } from "./company-form";
 
 export default async function CompanySettingsPage() {
-  const session = await auth();
-  if (!session?.user?.companyId) redirect("/login");
-
+  const session = await getSessionOrRedirect();
   const t = await getTranslations("settings");
   const tc = await getTranslations("common");
 

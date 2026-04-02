@@ -9,26 +9,29 @@ import {
   Wrench,
   Warehouse,
   Info,
+  Receipt,
+  FileText,
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { auth } from "@/lib/auth";
+import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { getProduct } from "@kivvi/core";
 import { formatCurrency, formatDate, isValidUUID } from "@/lib/utils";
 import { SWISS_VAT_RATES, DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
 import { getProductTypeLabels } from "@/lib/config/products";
 import { deleteProductAction } from "@/app/actions/products";
+import {
+  QuickActionsBar,
+  type QuickAction,
+} from "@/components/quick-actions-bar";
+import { StatusBadge } from "@/components/status-badge";
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
 export default async function ProductDetailPage({ params }: PageProps) {
-  const session = await auth();
-  if (!session?.user?.companyId) {
-    redirect("/login");
-  }
-
+  const session = await getSessionOrRedirect();
   const t = await getTranslations("products");
   const tc = await getTranslations("common");
 
@@ -79,15 +82,10 @@ export default async function ProductDetailPage({ params }: PageProps) {
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-3xl font-bold">{product.name}</h1>
-              <span
-                className={
-                  product.isActive
-                    ? "inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                    : "inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-800 dark:text-gray-400"
-                }
-              >
-                {product.isActive ? tc("active") : tc("inactive")}
-              </span>
+              <StatusBadge
+                variant={product.isActive ? "active" : "inactive"}
+                label={product.isActive ? tc("active") : tc("inactive")}
+              />
             </div>
             <div className="mt-1 flex items-center gap-3 text-sm text-muted-foreground">
               <span className="font-mono">{product.articleNumber}</span>
@@ -125,6 +123,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
           />
         </div>
       </div>
+
+      {/* Quick Actions */}
+      <QuickActionsBar actions={buildProductQuickActions(product, t)} />
 
       {/* Content Grid */}
       <div className="grid gap-6 lg:grid-cols-3">
@@ -392,29 +393,19 @@ export default async function ProductDetailPage({ params }: PageProps) {
                 <span className="text-sm text-muted-foreground">
                   {t("visibleInShop")}
                 </span>
-                <span
-                  className={
-                    product.shopVisible
-                      ? "inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                      : "inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-800 dark:text-gray-400"
-                  }
-                >
-                  {product.shopVisible ? tc("yes") : tc("no")}
-                </span>
+                <StatusBadge
+                  variant={product.shopVisible ? "active" : "inactive"}
+                  label={product.shopVisible ? tc("yes") : tc("no")}
+                />
               </div>
               <div className="flex items-center justify-between px-6 py-3">
                 <span className="text-sm text-muted-foreground">
                   {t("serialNumberTracking")}
                 </span>
-                <span
-                  className={
-                    product.serialNumberTracking
-                      ? "inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                      : "inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-800 dark:text-gray-400"
-                  }
-                >
-                  {product.serialNumberTracking ? tc("yes") : tc("no")}
-                </span>
+                <StatusBadge
+                  variant={product.serialNumberTracking ? "active" : "inactive"}
+                  label={product.serialNumberTracking ? tc("yes") : tc("no")}
+                />
               </div>
             </div>
           </div>
@@ -458,6 +449,33 @@ export default async function ProductDetailPage({ params }: PageProps) {
 // ============================================================================
 // DELETE BUTTON (Client Component via form action)
 // ============================================================================
+
+function buildProductQuickActions(
+  product: { id: string; type: string },
+  t: (key: string) => string,
+): QuickAction[] {
+  const actions: QuickAction[] = [
+    {
+      label: t("createQuote"),
+      href: `/sales/quotes/new`,
+      icon: <Receipt className="h-4 w-4" />,
+      variant: "primary",
+    },
+    {
+      label: t("createInvoice"),
+      href: `/sales/invoices/new`,
+      icon: <FileText className="h-4 w-4" />,
+    },
+  ];
+  if (product.type === "product") {
+    actions.push({
+      label: t("adjustStock"),
+      href: `/inventory`,
+      icon: <Warehouse className="h-4 w-4" />,
+    });
+  }
+  return actions;
+}
 
 function DeleteButton({
   productId,

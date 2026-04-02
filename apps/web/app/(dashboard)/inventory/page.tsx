@@ -1,25 +1,22 @@
-import Link from 'next/link';
-import { redirect } from 'next/navigation';
-import { EmptyState } from '@/components/empty-state';
+import Link from "next/link";
+import { EmptyState } from "@/components/empty-state";
 import {
   Warehouse as WarehouseIcon,
   AlertTriangle,
   ArrowUpDown,
   MapPin,
   Star,
-} from 'lucide-react';
-import { auth } from '@/lib/auth';
-import { db } from '@/lib/db';
-import { listWarehouses, getLowStockProducts } from '@kivvi/core';
-import { getTranslations } from 'next-intl/server';
-import { PageHeader } from '@/components/page-header';
-import { AddWarehouseForm } from './add-warehouse-form';
+} from "lucide-react";
+import { getSessionOrRedirect } from "@/lib/session";
+import { db } from "@/lib/db";
+import { listWarehouses, getLowStockProducts } from "@kivvi/core";
+import { getTranslations } from "next-intl/server";
+import { PageHeader } from "@/components/page-header";
+import { AddWarehouseForm } from "./add-warehouse-form";
 
 export default async function InventoryPage() {
-  const session = await auth();
-  if (!session?.user?.companyId) redirect('/login');
-
-  const t = await getTranslations('inventory');
+  const session = await getSessionOrRedirect();
+  const t = await getTranslations("inventory");
 
   const [warehouses, lowStockProducts] = await Promise.all([
     listWarehouses(db, session.user.companyId),
@@ -29,8 +26,8 @@ export default async function InventoryPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={t('title')}
-        subtitle={t('subtitle')}
+        title={t("title")}
+        subtitle={t("subtitle")}
         actions={
           <>
             <Link
@@ -38,7 +35,7 @@ export default async function InventoryPage() {
               className="inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium hover:bg-muted transition-colors"
             >
               <ArrowUpDown className="h-4 w-4" />
-              {t('stockMovements')}
+              {t("stockMovements")}
             </Link>
             <AddWarehouseForm />
           </>
@@ -51,21 +48,31 @@ export default async function InventoryPage() {
           <div className="flex items-center gap-2 border-b border-amber-200 p-4 dark:border-amber-900/50">
             <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
             <h2 className="font-semibold text-amber-800 dark:text-amber-300">
-              {t('lowStockAlerts')}
+              {t("lowStockAlerts")}
             </h2>
             <span className="ml-auto inline-flex items-center rounded-full bg-amber-200 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/50 dark:text-amber-300">
-              {t('lowStockCount', { count: lowStockProducts.length })}
+              {t("lowStockCount", { count: lowStockProducts.length })}
             </span>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-amber-200 text-left text-sm text-amber-700 dark:border-amber-900/50 dark:text-amber-400">
-                  <th className="whitespace-nowrap px-4 py-3 font-medium">{t('productColumn')}</th>
-                  <th className="whitespace-nowrap px-4 py-3 font-medium">{t('articleNumberColumn')}</th>
-                  <th className="whitespace-nowrap px-4 py-3 font-medium text-right">{t('currentStock')}</th>
-                  <th className="whitespace-nowrap px-4 py-3 font-medium text-right">{t('minStockColumn')}</th>
-                  <th className="whitespace-nowrap px-4 py-3 font-medium text-right">{t('deficitColumn')}</th>
+                  <th className="whitespace-nowrap px-4 py-3 font-medium">
+                    {t("productColumn")}
+                  </th>
+                  <th className="whitespace-nowrap px-4 py-3 font-medium">
+                    {t("articleNumberColumn")}
+                  </th>
+                  <th className="whitespace-nowrap px-4 py-3 font-medium text-right">
+                    {t("currentStock")}
+                  </th>
+                  <th className="whitespace-nowrap px-4 py-3 font-medium text-right">
+                    {t("minStockColumn")}
+                  </th>
+                  <th className="whitespace-nowrap px-4 py-3 font-medium text-right">
+                    {t("deficitColumn")}
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-amber-200 dark:divide-amber-900/50">
@@ -82,7 +89,7 @@ export default async function InventoryPage() {
                         </Link>
                       </td>
                       <td className="whitespace-nowrap px-4 py-3 font-mono text-sm text-amber-700 dark:text-amber-400">
-                        {product.articleNumber || '-'}
+                        {product.articleNumber || "-"}
                       </td>
                       <td className="whitespace-nowrap px-4 py-3 text-right font-medium text-red-600 dark:text-red-400">
                         {product.totalStock}
@@ -108,12 +115,12 @@ export default async function InventoryPage() {
       {warehouses.length === 0 ? (
         <EmptyState
           icon={WarehouseIcon}
-          title={t('noWarehouses')}
-          description={t('noWarehouses')}
+          title={t("noWarehouses")}
+          description={t("noWarehouses")}
         />
       ) : (
         <div>
-          <h2 className="mb-4 text-lg font-semibold">{t('warehouses')}</h2>
+          <h2 className="mb-4 text-lg font-semibold">{t("warehouses")}</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {warehouses.map((warehouse) => (
               <Link
@@ -141,7 +148,7 @@ export default async function InventoryPage() {
                   {warehouse.isDefault && (
                     <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
                       <Star className="h-3 w-3" />
-                      {t('defaultWarehouse')}
+                      {t("defaultWarehouse")}
                     </span>
                   )}
                 </div>

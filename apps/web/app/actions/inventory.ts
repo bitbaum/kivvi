@@ -5,11 +5,14 @@ import { db } from "@/lib/db";
 import {
   createWarehouse,
   updateWarehouse,
+  deleteWarehouse,
   createStockMovement,
+  transferStock,
   createSerialNumber,
   updateSerialNumberStatus,
   createWarehouseSchema,
   createStockMovementSchema,
+  transferStockSchema,
   createSerialNumberSchema,
 } from "@kivvi/core";
 import {
@@ -65,6 +68,22 @@ export async function updateWarehouseAction(
   }
 }
 
+export async function deleteWarehouseAction(
+  warehouseId: string,
+): Promise<ActionResult> {
+  try {
+    const { companyId } = await requireRole("admin");
+    await deleteWarehouse(db, companyId, warehouseId);
+    revalidatePath("/inventory");
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to delete warehouse"),
+    };
+  }
+}
+
 // ============================================================================
 // STOCK MOVEMENTS
 // ============================================================================
@@ -78,6 +97,18 @@ export const createStockMovementAction = createAction<unknown, unknown>({
   },
   revalidate: ["/inventory"],
   errorMessage: "Failed to create stock movement",
+  minRole: "member",
+});
+
+export const transferStockAction = createAction<unknown, unknown>({
+  handler: async (input, { companyId, db }) => {
+    const parsed = transferStockSchema.safeParse(input);
+    if (!parsed.success)
+      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    return transferStock(db, companyId, parsed.data);
+  },
+  revalidate: ["/inventory"],
+  errorMessage: "Failed to transfer stock",
   minRole: "member",
 });
 

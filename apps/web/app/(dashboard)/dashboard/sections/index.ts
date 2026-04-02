@@ -7,3 +7,4 @@ export { RecentActivity } from "./recent-activity";
 export { AIAssistantPrompt } from "./ai-assistant-prompt";
 export { HealthMetrics } from "./health-metrics";
 export { QuickActions } from "./quick-actions";
+export { WelcomeSection } from "./welcome-section";

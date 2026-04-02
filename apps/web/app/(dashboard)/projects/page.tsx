@@ -1,8 +1,7 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { Plus, Search, FolderKanban } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
-import { auth } from "@/lib/auth";
+import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { listProjects } from "@kivvi/core";
 import { cn, formatCurrency, formatDate } from "@/lib/utils";
@@ -24,11 +23,7 @@ interface PageProps {
 }
 
 export default async function ProjectsPage({ searchParams }: PageProps) {
-  const session = await auth();
-  if (!session?.user?.companyId) {
-    redirect("/login");
-  }
-
+  const session = await getSessionOrRedirect();
   const t = await getTranslations("projects");
   const tc = await getTranslations("common");
 

@@ -132,23 +132,25 @@ export async function getDashboardStats(
   ]);
 
   // Calculate month-over-month change percentages
+  // Only show change when both current and previous values are non-zero
+  // (showing -100% when current is 0 is technically correct but not useful)
+  const currentRev = new Decimal(financials.revenueThisMonth);
   const lastMonthRev = new Decimal(lastMonthRevenue?.total || "0");
-  const revenueChange = lastMonthRev.gt(0)
-    ? new Decimal(financials.revenueThisMonth)
-        .minus(lastMonthRev)
-        .div(lastMonthRev)
-        .times(100)
-        .toNumber()
-    : undefined;
+  const revenueChange =
+    lastMonthRev.gt(0) && currentRev.gt(0)
+      ? currentRev.minus(lastMonthRev).div(lastMonthRev).times(100).toNumber()
+      : undefined;
 
+  const currentOutstanding = new Decimal(financials.outstandingTotal);
   const lastOutstanding = new Decimal(lastMonthOutstanding?.total || "0");
-  const outstandingChange = lastOutstanding.gt(0)
-    ? new Decimal(financials.outstandingTotal)
-        .minus(lastOutstanding)
-        .div(lastOutstanding)
-        .times(100)
-        .toNumber()
-    : undefined;
+  const outstandingChange =
+    lastOutstanding.gt(0) && currentOutstanding.gt(0)
+      ? currentOutstanding
+          .minus(lastOutstanding)
+          .div(lastOutstanding)
+          .times(100)
+          .toNumber()
+      : undefined;
 
   return {
     revenueThisMonth: {

@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { ArrowLeft, Receipt, FileText, Calendar } from "lucide-react";
-import { auth } from "@/lib/auth";
+import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { getVatReport } from "@kivvi/core";
 import { formatCurrency } from "@/lib/utils";
@@ -31,9 +30,7 @@ function getCurrentQuarter(): { start: string; end: string } {
 }
 
 export default async function VatReportPage({ searchParams }: PageProps) {
-  const session = await auth();
-  if (!session?.user?.companyId) redirect("/login");
-
+  const session = await getSessionOrRedirect();
   const t = await getTranslations("reports");
   const tc = await getTranslations("common");
 

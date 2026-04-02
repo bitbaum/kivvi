@@ -1,5 +1,5 @@
 import Decimal from "decimal.js";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and, notInArray } from "drizzle-orm";
 import { documents } from "@kivvi/database";
 import type { Database, DocumentType } from "@kivvi/database";
 
@@ -35,7 +35,11 @@ export async function getRecentActivity(
   limit = 20,
 ): Promise<ActivityItem[]> {
   const recentDocs = await db.query.documents.findMany({
-    where: eq(documents.companyId, companyId),
+    where: and(
+      eq(documents.companyId, companyId),
+      // Exclude delivery notes — they have no financial amount and clutter the feed
+      notInArray(documents.type, ["delivery_note"]),
+    ),
     with: {
       contact: {
         columns: { id: true, name: true },
@@ -60,9 +64,9 @@ export async function getRecentActivity(
       linkTo = `/sales/credit-notes/${doc.id}`;
     else if (doc.type === "dunning") linkTo = `/sales/dunning/${doc.id}`;
     else if (doc.type === "purchase_order")
-      linkTo = `/purchases/orders/${doc.id}`;
+      linkTo = `/purchasing/purchase-orders/${doc.id}`;
     else if (doc.type === "purchase_invoice")
-      linkTo = `/purchases/invoices/${doc.id}`;
+      linkTo = `/purchasing/purchase-invoices/${doc.id}`;
 
     return {
       id: doc.id,

@@ -1,0 +1,43 @@
+# Dependencies (installed fresh in Docker)
+node_modules
+**/node_modules
+
+# Build output (rebuilt in Docker)
+.next
+**/.next
+dist
+**/dist
+
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose*.yml
+
+# IDE / OS
+.vscode
+.idea
+*.swp
+*.swo
+.DS_Store
+
+# Environment (secrets must never be baked into the image)
+.env
+.env.*
+!.env.example
+
+# Tests & tooling
+coverage
+.playwright
+playwright-report
+test-results
+**/*.test.ts
+**/*.spec.ts
+
+# Misc
+.turbo
+.claude
+CLAUDE.md
+*.md

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { auth } from "@/lib/auth";
+import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { users } from "@kivvi/database";
 import { eq } from "drizzle-orm";
@@ -11,9 +11,7 @@ import { ChangePasswordForm } from "./change-password-form";
 import { AvatarUpload } from "./avatar-upload";
 
 export default async function ProfileSettingsPage() {
-  const session = await auth();
-  if (!session?.user?.companyId) redirect("/login");
-
+  const session = await getSessionOrRedirect();
   const t = await getTranslations("settings");
   const tc = await getTranslations("common");
 

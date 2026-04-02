@@ -10,7 +10,10 @@ export function AutoMatchButton({ bankAccountId }: { bankAccountId: string }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<{ matched: number } | null>(null);
+  const [result, setResult] = useState<{
+    matched: number;
+    total: number;
+  } | null>(null);
   const t = useTranslations("banking");
   const tc = useTranslations("common");
 
@@ -41,7 +44,10 @@ export function AutoMatchButton({ bankAccountId }: { bankAccountId: string }) {
       </button>
       {result && (
         <span className="text-sm text-green-600 dark:text-green-400">
-          {t("matchedTransactions", { count: result.matched })}
+          {t("matchedTransactions", {
+            count: result.matched,
+            total: result.total,
+          })}
         </span>
       )}
       {error && (

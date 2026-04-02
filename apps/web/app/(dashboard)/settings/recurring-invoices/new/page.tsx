@@ -1,7 +1,6 @@
-import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { auth } from "@/lib/auth";
+import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { documents } from "@kivvi/database";
 import { eq, and } from "drizzle-orm";
@@ -9,9 +8,7 @@ import { getTranslations } from "next-intl/server";
 import { RecurringConfigForm } from "../recurring-config-form";
 
 export default async function NewRecurringInvoicePage() {
-  const session = await auth();
-  if (!session?.user?.companyId) redirect("/login");
-
+  const session = await getSessionOrRedirect();
   const t = await getTranslations("settings");
   const tc = await getTranslations("common");
 

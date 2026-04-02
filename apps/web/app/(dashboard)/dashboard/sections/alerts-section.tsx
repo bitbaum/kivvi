@@ -1,23 +1,20 @@
-import { getDashboardAlerts } from '@kivvi/core/src/domain/dashboard';
-import { db } from '@/lib/db';
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
-import { AlertCard } from './alert-card';
-import { getTranslations } from 'next-intl/server';
+import { getDashboardAlerts } from "@kivvi/core/src/domain/dashboard";
+import { db } from "@/lib/db";
+import { getSessionOrRedirect } from "@/lib/session";
+import { AlertCard } from "./alert-card";
+import { getTranslations } from "next-intl/server";
 
 export async function AlertsSection() {
-  const session = await auth();
-  if (!session?.user?.companyId) redirect('/login');
-
+  const session = await getSessionOrRedirect();
   const companyId = session.user.companyId;
   const alerts = await getDashboardAlerts(db, companyId);
 
-  const t = await getTranslations('dashboard');
+  const t = await getTranslations("dashboard");
 
   // Sort alerts by severity: urgent > warning > info
   const severityOrder = { urgent: 0, warning: 1, info: 2 };
   const sortedAlerts = alerts.sort(
-    (a, b) => severityOrder[a.severity] - severityOrder[b.severity]
+    (a, b) => severityOrder[a.severity] - severityOrder[b.severity],
   );
 
   if (sortedAlerts.length === 0) {
@@ -38,8 +35,8 @@ export async function AlertsSection() {
             />
           </svg>
         </div>
-        <h3 className="font-semibold">{t('alerts.allCaughtUp')}</h3>
-        <p className="text-sm text-muted-foreground">{t('alerts.noAlerts')}</p>
+        <h3 className="font-semibold">{t("alerts.allCaughtUp")}</h3>
+        <p className="text-sm text-muted-foreground">{t("alerts.noAlerts")}</p>
       </div>
     );
   }
@@ -47,8 +44,8 @@ export async function AlertsSection() {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-lg font-semibold">{t('alerts.title')}</h2>
-        <p className="text-sm text-muted-foreground">{t('alerts.subtitle')}</p>
+        <h2 className="text-lg font-semibold">{t("alerts.title")}</h2>
+        <p className="text-sm text-muted-foreground">{t("alerts.subtitle")}</p>
       </div>
       <div className="space-y-3">
         {sortedAlerts.map((alert) => (

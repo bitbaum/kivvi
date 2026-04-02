@@ -1,6 +1,5 @@
 import { AlertTriangle } from "lucide-react";
-import { auth } from "@/lib/auth";
-import { redirect } from "next/navigation";
+import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { detectOverdueInvoices, getDunningStats } from "@kivvi/core";
 import { documentStatusEnum } from "@kivvi/database";
@@ -10,9 +9,7 @@ import { getTranslations } from "next-intl/server";
 import { SelectableDunningTable } from "@/components/dunning/selectable-dunning-table";
 
 export default async function DunningPage() {
-  const session = await auth();
-  if (!session?.user?.companyId) redirect("/login");
-
+  const session = await getSessionOrRedirect();
   const td = await getTranslations("dunning");
   const t = await getTranslations("documents");
   const tc = await getTranslations("common");

@@ -84,7 +84,7 @@ export async function getWorkflowSuggestions(
       amount: new Decimal(quote.total || "0").toNumber(),
       daysSince: daysSinceSent,
       actionLabelKey: "workflow.convertQuoteAction",
-      actionUrl: `/sales/quotes/${quote.id}/convert`,
+      actionUrl: `/sales/quotes/${quote.id}`,
     });
   }
 
@@ -138,7 +138,7 @@ export async function getWorkflowSuggestions(
       amount: new Decimal(order.total || "0").toNumber(),
       daysSince: daysSinceDelivery,
       actionLabelKey: "workflow.invoiceOrderAction",
-      actionUrl: `/sales/orders/${order.id}/convert`,
+      actionUrl: `/sales/orders/${order.id}`,
     });
   }
 
@@ -222,7 +222,7 @@ export async function getWorkflowSuggestions(
       amount: new Decimal(invoice.total || "0").toNumber(),
       daysSince: daysOverdue,
       actionLabelKey: "workflow.startDunningAction",
-      actionUrl: `/sales/invoices/${invoice.id}/dunning`,
+      actionUrl: `/sales/invoices/${invoice.id}`,
     });
   }
 

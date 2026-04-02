@@ -1,10 +1,9 @@
-import { getBusinessHealthMetrics } from '@kivvi/core/src/domain/dashboard';
-import { db } from '@/lib/db';
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
-import { getTranslations } from 'next-intl/server';
-import { formatCurrency } from '@/lib/utils';
-import { logger } from '@/lib/logger';
+import { getBusinessHealthMetrics } from "@kivvi/core/src/domain/dashboard";
+import { db } from "@/lib/db";
+import { getSessionOrRedirect } from "@/lib/session";
+import { getTranslations } from "next-intl/server";
+import { formatCurrency } from "@/lib/utils";
+import { logger } from "@/lib/logger";
 import {
   TrendingUp,
   Target,
@@ -12,28 +11,26 @@ import {
   Clock,
   DollarSign,
   Users,
-} from 'lucide-react';
+} from "lucide-react";
 
 export async function HealthMetrics() {
-  const session = await auth();
-  if (!session?.user?.companyId) redirect('/login');
-
+  const session = await getSessionOrRedirect();
   const companyId = session.user.companyId;
-  const t = await getTranslations('dashboard.healthMetrics');
+  const t = await getTranslations("dashboard.healthMetrics");
 
   let metrics;
   try {
     metrics = await getBusinessHealthMetrics(db, companyId);
   } catch (error) {
-    logger.error('HealthMetrics: failed to load metrics', error);
+    logger.error("HealthMetrics: failed to load metrics", error);
     return (
       <div className="space-y-4">
         <div>
-          <h2 className="text-lg font-semibold">{t('title')}</h2>
-          <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
+          <h2 className="text-lg font-semibold">{t("title")}</h2>
+          <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
         <div className="rounded-xl border bg-card p-8 text-center text-sm text-muted-foreground">
-          {t('subtitle')}
+          {t("subtitle")}
         </div>
       </div>
     );
@@ -41,85 +38,85 @@ export async function HealthMetrics() {
 
   const metricCards = [
     {
-      label: t('profitMargin'),
+      label: t("profitMargin"),
       value: `${metrics.profitMargin}%`,
       icon: <TrendingUp className="h-5 w-5" />,
-      color: 'text-green-600 dark:text-green-400',
-      bgColor: 'bg-green-100 dark:bg-green-900/30',
+      color: "text-green-600 dark:text-green-400",
+      bgColor: "bg-green-100 dark:bg-green-900/30",
       trend:
         metrics.profitMargin >= 20
-          ? 'excellent'
+          ? "excellent"
           : metrics.profitMargin >= 10
-            ? 'good'
-            : 'poor',
+            ? "good"
+            : "poor",
     },
     {
-      label: t('conversionRate'),
+      label: t("conversionRate"),
       value: `${metrics.conversionRate}%`,
       icon: <Target className="h-5 w-5" />,
-      color: 'text-blue-600 dark:text-blue-400',
-      bgColor: 'bg-blue-100 dark:bg-blue-900/30',
+      color: "text-blue-600 dark:text-blue-400",
+      bgColor: "bg-blue-100 dark:bg-blue-900/30",
       trend:
         metrics.conversionRate >= 30
-          ? 'excellent'
+          ? "excellent"
           : metrics.conversionRate >= 15
-            ? 'good'
-            : 'poor',
+            ? "good"
+            : "poor",
     },
     {
-      label: t('avgInvoice'),
+      label: t("avgInvoice"),
       value: formatCurrency(metrics.avgInvoiceValue),
       icon: <Wallet className="h-5 w-5" />,
-      color: 'text-purple-600 dark:text-purple-400',
-      bgColor: 'bg-purple-100 dark:bg-purple-900/30',
-      trend: 'neutral',
+      color: "text-purple-600 dark:text-purple-400",
+      bgColor: "bg-purple-100 dark:bg-purple-900/30",
+      trend: "neutral",
     },
     {
-      label: t('daysToPayment'),
+      label: t("daysToPayment"),
       value: `${metrics.avgDaysToPayment}d`,
       icon: <Clock className="h-5 w-5" />,
-      color: 'text-orange-600 dark:text-orange-400',
-      bgColor: 'bg-orange-100 dark:bg-orange-900/30',
+      color: "text-orange-600 dark:text-orange-400",
+      bgColor: "bg-orange-100 dark:bg-orange-900/30",
       trend:
         metrics.avgDaysToPayment <= 15
-          ? 'excellent'
+          ? "excellent"
           : metrics.avgDaysToPayment <= 30
-            ? 'good'
-            : 'poor',
+            ? "good"
+            : "poor",
     },
     {
-      label: t('cashFlowRatio'),
+      label: t("cashFlowRatio"),
       value: `${metrics.cashFlowRatio}%`,
       icon: <DollarSign className="h-5 w-5" />,
-      color: 'text-cyan-600 dark:text-cyan-400',
-      bgColor: 'bg-cyan-100 dark:bg-cyan-900/30',
+      color: "text-cyan-600 dark:text-cyan-400",
+      bgColor: "bg-cyan-100 dark:bg-cyan-900/30",
       trend:
         metrics.cashFlowRatio >= 120
-          ? 'excellent'
+          ? "excellent"
           : metrics.cashFlowRatio >= 100
-            ? 'good'
-            : 'poor',
+            ? "good"
+            : "poor",
     },
     {
-      label: t('customerRetention'),
+      label: t("customerRetention"),
       value: `${metrics.customerRetentionRate}%`,
       icon: <Users className="h-5 w-5" />,
-      color: 'text-indigo-600 dark:text-indigo-400',
-      bgColor: 'bg-indigo-100 dark:bg-indigo-900/30',
+      color: "text-indigo-600 dark:text-indigo-400",
+      bgColor: "bg-indigo-100 dark:bg-indigo-900/30",
       trend:
         metrics.customerRetentionRate >= 80
-          ? 'excellent'
+          ? "excellent"
           : metrics.customerRetentionRate >= 60
-            ? 'good'
-            : 'poor',
+            ? "good"
+            : "poor",
     },
   ];
 
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-lg font-semibold">{t('title')}</h2>
-        <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
+        <h2 className="text-lg font-semibold">{t("title")}</h2>
+        <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {metricCards.map((metric) => (
@@ -139,21 +136,21 @@ export async function HealthMetrics() {
             </div>
             <div className="mt-2">
               <p className="text-2xl font-bold">{metric.value}</p>
-              {metric.trend !== 'neutral' && (
+              {metric.trend !== "neutral" && (
                 <p
                   className={`mt-1 text-xs ${
-                    metric.trend === 'excellent'
-                      ? 'text-green-600 dark:text-green-400'
-                      : metric.trend === 'good'
-                        ? 'text-blue-600 dark:text-blue-400'
-                        : 'text-red-600 dark:text-red-400'
+                    metric.trend === "excellent"
+                      ? "text-green-600 dark:text-green-400"
+                      : metric.trend === "good"
+                        ? "text-blue-600 dark:text-blue-400"
+                        : "text-red-600 dark:text-red-400"
                   }`}
                 >
-                  {metric.trend === 'excellent'
-                    ? t('trendExcellent')
-                    : metric.trend === 'good'
-                      ? t('trendGood')
-                      : t('trendNeedsAttention')}
+                  {metric.trend === "excellent"
+                    ? t("trendExcellent")
+                    : metric.trend === "good"
+                      ? t("trendGood")
+                      : t("trendNeedsAttention")}
                 </p>
               )}
             </div>

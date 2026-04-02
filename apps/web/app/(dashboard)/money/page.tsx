@@ -1,6 +1,5 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { EmptyState } from "@/components/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -17,7 +16,7 @@ import {
   Coins,
   AlertTriangle,
 } from "lucide-react";
-import { auth } from "@/lib/auth";
+import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import {
   getTrialBalance,
@@ -79,9 +78,7 @@ interface PageProps {
 }
 
 export default async function MoneyPage({ searchParams }: PageProps) {
-  const session = await auth();
-  if (!session?.user?.companyId) redirect("/login");
-
+  const session = await getSessionOrRedirect();
   const params = await searchParams;
   const tab = params.tab || "overview";
   const t = await getTranslations("moneyHub");

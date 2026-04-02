@@ -1,8 +1,8 @@
 import Decimal from "decimal.js";
 import Link from "next/link";
-import { redirect, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import { ArrowLeft, BookOpen } from "lucide-react";
-import { auth } from "@/lib/auth";
+import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { getJournalEntry } from "@kivvi/core";
 import { formatCurrency, formatDate, cn, isValidUUID } from "@/lib/utils";
@@ -15,9 +15,7 @@ interface PageProps {
 }
 
 export default async function JournalEntryDetailPage({ params }: PageProps) {
-  const session = await auth();
-  if (!session?.user?.companyId) redirect("/login");
-
+  const session = await getSessionOrRedirect();
   const t = await getTranslations("accounting");
   const tc = await getTranslations("common");
 

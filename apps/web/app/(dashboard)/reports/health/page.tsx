@@ -1,6 +1,5 @@
 import { Suspense } from "react";
-import { auth } from "@/lib/auth";
-import { redirect } from "next/navigation";
+import { getSessionOrRedirect } from "@/lib/session";
 import { getTranslations } from "next-intl/server";
 import { db } from "@/lib/db";
 import { getBusinessHealthMetrics } from "@kivvi/core/src/domain/dashboard";
@@ -24,9 +23,7 @@ import Link from "next/link";
 export const revalidate = 60;
 
 export default async function HealthReportPage() {
-  const session = await auth();
-  if (!session?.user?.companyId) redirect("/login");
-
+  const session = await getSessionOrRedirect();
   const t = await getTranslations("dashboard.healthMetrics");
   const td = await getTranslations("dashboard");
 
@@ -60,9 +57,7 @@ export default async function HealthReportPage() {
 }
 
 async function HealthMetricsSection() {
-  const session = await auth();
-  if (!session?.user?.companyId) redirect("/login");
-
+  const session = await getSessionOrRedirect();
   const t = await getTranslations("dashboard.healthMetrics");
 
   let metrics;
@@ -194,9 +189,7 @@ async function HealthMetricsSection() {
 }
 
 async function ChartsSection() {
-  const session = await auth();
-  if (!session?.user?.companyId) redirect("/login");
-
+  const session = await getSessionOrRedirect();
   const companyId = session.user.companyId;
   const t = await getTranslations("dashboard");
 

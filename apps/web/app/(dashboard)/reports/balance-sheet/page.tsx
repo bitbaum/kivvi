@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { ArrowLeft, Scale, FileText, BookOpen } from "lucide-react";
-import { auth } from "@/lib/auth";
+import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { getBalanceSheet } from "@kivvi/core";
 import { formatCurrency } from "@/lib/utils";
@@ -15,9 +14,7 @@ interface PageProps {
 }
 
 export default async function BalanceSheetPage({ searchParams }: PageProps) {
-  const session = await auth();
-  if (!session?.user?.companyId) redirect("/login");
-
+  const session = await getSessionOrRedirect();
   const t = await getTranslations("reports");
   const tc = await getTranslations("common");
   const ta = await getTranslations("accounting");

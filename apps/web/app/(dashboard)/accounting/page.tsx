@@ -1,6 +1,5 @@
-import { Suspense } from 'react';
-import Link from 'next/link';
-import { redirect } from 'next/navigation';
+import { Suspense } from "react";
+import Link from "next/link";
 import {
   BookOpen,
   FileSpreadsheet,
@@ -11,44 +10,42 @@ import {
   Scale,
   Receipt,
   Coins,
-} from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
-import { PageHeader } from '@/components/page-header';
-import { auth } from '@/lib/auth';
-import { db } from '@/lib/db';
-import { getTrialBalance } from '@kivvi/core';
-import { formatCurrency } from '@/lib/utils';
-import { getTranslations } from 'next-intl/server';
+} from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/page-header";
+import { getSessionOrRedirect } from "@/lib/session";
+import { db } from "@/lib/db";
+import { getTrialBalance } from "@kivvi/core";
+import { formatCurrency } from "@/lib/utils";
+import { getTranslations } from "next-intl/server";
 
 export default async function AccountingPage() {
-  const session = await auth();
-  if (!session?.user?.companyId) redirect('/login');
-
-  const t = await getTranslations('accounting');
+  const session = await getSessionOrRedirect();
+  const t = await getTranslations("accounting");
 
   return (
     <div className="space-y-8">
-      <PageHeader title={t('title')} subtitle={t('subtitle')} />
+      <PageHeader title={t("title")} subtitle={t("subtitle")} />
 
       {/* Navigation cards */}
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <NavCard
           href="/accounting/chart-of-accounts"
           icon={<BookOpen className="h-6 w-6" />}
-          title={t('chartOfAccounts')}
-          description={t('manageChartOfAccounts')}
+          title={t("chartOfAccounts")}
+          description={t("manageChartOfAccounts")}
         />
         <NavCard
           href="/accounting/journal"
           icon={<FileSpreadsheet className="h-6 w-6" />}
-          title={t('journal')}
-          description={t('viewJournalEntries')}
+          title={t("journal")}
+          description={t("viewJournalEntries")}
         />
         <NavCard
           href="/accounting/fiscal-years"
           icon={<Calendar className="h-6 w-6" />}
-          title={t('fiscalYears')}
-          description={t('manageFiscalYears')}
+          title={t("fiscalYears")}
+          description={t("manageFiscalYears")}
         />
       </div>
 
@@ -61,23 +58,33 @@ export default async function AccountingPage() {
 }
 
 async function TrialBalanceSummary({ companyId }: { companyId: string }) {
-  const t = await getTranslations('accounting');
-  const tc = await getTranslations('common');
+  const t = await getTranslations("accounting");
+  const tc = await getTranslations("common");
 
   const trialBalance = await getTrialBalance(db, companyId);
 
   const totals = trialBalance.reduce(
     (acc, row) => {
       switch (row.type) {
-        case 'asset': acc.assets += row.balance; break;
-        case 'liability': acc.liabilities += Math.abs(row.balance); break;
-        case 'equity': acc.equity += Math.abs(row.balance); break;
-        case 'revenue': acc.revenue += row.totalCredit - row.totalDebit; break;
-        case 'expense': acc.expenses += row.totalDebit - row.totalCredit; break;
+        case "asset":
+          acc.assets += row.balance;
+          break;
+        case "liability":
+          acc.liabilities += Math.abs(row.balance);
+          break;
+        case "equity":
+          acc.equity += Math.abs(row.balance);
+          break;
+        case "revenue":
+          acc.revenue += row.totalCredit - row.totalDebit;
+          break;
+        case "expense":
+          acc.expenses += row.totalDebit - row.totalCredit;
+          break;
       }
       return acc;
     },
-    { assets: 0, liabilities: 0, equity: 0, revenue: 0, expenses: 0 }
+    { assets: 0, liabilities: 0, equity: 0, revenue: 0, expenses: 0 },
   );
 
   const hasData = trialBalance.length > 0;
@@ -85,13 +92,13 @@ async function TrialBalanceSummary({ companyId }: { companyId: string }) {
   return (
     <div className="rounded-xl border bg-card">
       <div className="flex items-center justify-between border-b p-4">
-        <h2 className="font-semibold">{t('trialBalance')}</h2>
+        <h2 className="font-semibold">{t("trialBalance")}</h2>
         {hasData && (
           <Link
             href="/accounting/chart-of-accounts"
             className="flex items-center gap-1 text-sm text-primary hover:underline"
           >
-            {tc('viewDetails')} <ArrowRight className="h-4 w-4" />
+            {tc("viewDetails")} <ArrowRight className="h-4 w-4" />
           </Link>
         )}
       </div>
@@ -99,23 +106,53 @@ async function TrialBalanceSummary({ companyId }: { companyId: string }) {
       {!hasData ? (
         <div className="p-12 text-center text-muted-foreground">
           <Scale className="mx-auto mb-3 h-10 w-10" />
-          <p className="text-lg font-medium">{t('noAccounts')}</p>
-          <p className="mt-1 text-sm">{t('manageChartOfAccounts')}</p>
+          <p className="text-lg font-medium">{t("noAccounts")}</p>
+          <p className="mt-1 text-sm">{t("manageChartOfAccounts")}</p>
           <Link
             href="/accounting/chart-of-accounts"
             className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
             <BookOpen className="h-4 w-4" />
-            {t('chartOfAccounts')}
+            {t("chartOfAccounts")}
           </Link>
         </div>
       ) : (
         <div className="grid gap-4 p-6 sm:grid-cols-2 lg:grid-cols-5">
-          <SummaryCard label={t('assets')} value={totals.assets} icon={<TrendingUp className="h-5 w-5" />} color="text-blue-600 dark:text-blue-400" bgColor="bg-blue-100 dark:bg-blue-900/30" />
-          <SummaryCard label={t('liabilities')} value={totals.liabilities} icon={<TrendingDown className="h-5 w-5" />} color="text-red-600 dark:text-red-400" bgColor="bg-red-100 dark:bg-red-900/30" />
-          <SummaryCard label={t('equity')} value={totals.equity} icon={<Scale className="h-5 w-5" />} color="text-purple-600 dark:text-purple-400" bgColor="bg-purple-100 dark:bg-purple-900/30" />
-          <SummaryCard label={t('revenue')} value={totals.revenue} icon={<Coins className="h-5 w-5" />} color="text-green-600 dark:text-green-400" bgColor="bg-green-100 dark:bg-green-900/30" />
-          <SummaryCard label={t('expenses')} value={totals.expenses} icon={<Receipt className="h-5 w-5" />} color="text-amber-600 dark:text-amber-400" bgColor="bg-amber-100 dark:bg-amber-900/30" />
+          <SummaryCard
+            label={t("assets")}
+            value={totals.assets}
+            icon={<TrendingUp className="h-5 w-5" />}
+            color="text-blue-600 dark:text-blue-400"
+            bgColor="bg-blue-100 dark:bg-blue-900/30"
+          />
+          <SummaryCard
+            label={t("liabilities")}
+            value={totals.liabilities}
+            icon={<TrendingDown className="h-5 w-5" />}
+            color="text-red-600 dark:text-red-400"
+            bgColor="bg-red-100 dark:bg-red-900/30"
+          />
+          <SummaryCard
+            label={t("equity")}
+            value={totals.equity}
+            icon={<Scale className="h-5 w-5" />}
+            color="text-purple-600 dark:text-purple-400"
+            bgColor="bg-purple-100 dark:bg-purple-900/30"
+          />
+          <SummaryCard
+            label={t("revenue")}
+            value={totals.revenue}
+            icon={<Coins className="h-5 w-5" />}
+            color="text-green-600 dark:text-green-400"
+            bgColor="bg-green-100 dark:bg-green-900/30"
+          />
+          <SummaryCard
+            label={t("expenses")}
+            value={totals.expenses}
+            icon={<Receipt className="h-5 w-5" />}
+            color="text-amber-600 dark:text-amber-400"
+            bgColor="bg-amber-100 dark:bg-amber-900/30"
+          />
         </div>
       )}
     </div>
@@ -139,9 +176,7 @@ function NavCard({
       className="group rounded-xl border bg-card p-6 transition-colors hover:bg-muted/50"
     >
       <div className="flex items-start gap-4">
-        <div className="rounded-lg bg-primary/10 p-3 text-primary">
-          {icon}
-        </div>
+        <div className="rounded-lg bg-primary/10 p-3 text-primary">{icon}</div>
         <div className="flex-1">
           <h3 className="font-semibold group-hover:text-primary transition-colors">
             {title}

@@ -1,7 +1,6 @@
 import { getDashboardStats } from "@kivvi/core/src/domain/dashboard";
 import { db } from "@/lib/db";
-import { auth } from "@/lib/auth";
-import { redirect } from "next/navigation";
+import { getSessionOrRedirect } from "@/lib/session";
 import Link from "next/link";
 import { formatCurrency } from "@/lib/utils";
 import { getTranslations } from "next-intl/server";
@@ -15,9 +14,7 @@ import {
 } from "lucide-react";
 
 export async function SmartStats({ sinceDate }: { sinceDate?: Date }) {
-  const session = await auth();
-  if (!session?.user?.companyId) redirect("/login");
-
+  const session = await getSessionOrRedirect();
   const companyId = session.user.companyId;
   const t = await getTranslations("dashboard");
 

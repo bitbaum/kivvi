@@ -234,7 +234,7 @@ export const unreconcileTransactionAction = createAction<string, unknown>({
 
 export const autoMatchTransactionsAction = createAction<
   string,
-  { matched: number }
+  { matched: number; total: number }
 >({
   handler: async (bankAccountId, { companyId, db }) => {
     return autoMatchTransactions(db, companyId, bankAccountId);

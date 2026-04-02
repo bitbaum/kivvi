@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { ArrowLeft, Calendar } from "lucide-react";
-import { auth } from "@/lib/auth";
+import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { getFiscalYear } from "@kivvi/core";
 import { formatDate, isValidUUID } from "@/lib/utils";
 import { CloseYearButton, ClosePeriodButton } from "./close-buttons";
+import { StatusBadge } from "@/components/status-badge";
 import { getTranslations } from "next-intl/server";
 
 interface PageProps {
@@ -13,9 +14,7 @@ interface PageProps {
 }
 
 export default async function FiscalYearDetailPage({ params }: PageProps) {
-  const session = await auth();
-  if (!session?.user?.companyId) redirect("/login");
-
+  const session = await getSessionOrRedirect();
   const t = await getTranslations("accounting");
   const tc = await getTranslations("common");
 
@@ -43,15 +42,10 @@ export default async function FiscalYearDetailPage({ params }: PageProps) {
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-3xl font-bold">{fiscalYear.name}</h1>
-              <span
-                className={
-                  fiscalYear.isClosed
-                    ? "inline-block rounded-full px-3 py-1 text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400"
-                    : "inline-block rounded-full px-3 py-1 text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                }
-              >
-                {fiscalYear.isClosed ? "Closed" : "Open"}
-              </span>
+              <StatusBadge
+                variant={fiscalYear.isClosed ? "inactive" : "active"}
+                label={fiscalYear.isClosed ? t("closed") : t("open")}
+              />
             </div>
             <p className="mt-1 text-muted-foreground">
               {formatDate(fiscalYear.startDate)} &ndash;{" "}
@@ -119,15 +113,10 @@ export default async function FiscalYearDetailPage({ params }: PageProps) {
                       {formatDate(period.endDate)}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4">
-                      <span
-                        className={
-                          period.isClosed
-                            ? "inline-block rounded-full px-2.5 py-0.5 text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400"
-                            : "inline-block rounded-full px-2.5 py-0.5 text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                        }
-                      >
-                        {period.isClosed ? "Closed" : "Open"}
-                      </span>
+                      <StatusBadge
+                        variant={period.isClosed ? "inactive" : "active"}
+                        label={period.isClosed ? t("closed") : t("open")}
+                      />
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-right">
                       {!period.isClosed && !fiscalYear.isClosed && (

@@ -1,11 +1,10 @@
-import { getRecentActivity } from '@kivvi/core/src/domain/dashboard';
-import { db } from '@/lib/db';
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
-import Link from 'next/link';
-import { formatCurrency } from '@/lib/utils';
-import { getTranslations } from 'next-intl/server';
-import { logger } from '@/lib/logger';
+import { getRecentActivity } from "@kivvi/core/src/domain/dashboard";
+import { db } from "@/lib/db";
+import { getSessionOrRedirect } from "@/lib/session";
+import Link from "next/link";
+import { formatCurrency } from "@/lib/utils";
+import { getTranslations } from "next-intl/server";
+import { logger } from "@/lib/logger";
 import {
   FileText,
   Receipt,
@@ -17,45 +16,45 @@ import {
   Package as PackageIcon,
   FileInput,
   Clock,
-} from 'lucide-react';
+} from "lucide-react";
 
 export async function RecentActivity() {
-  const session = await auth();
-  if (!session?.user?.companyId) redirect('/login');
-
+  const session = await getSessionOrRedirect();
   const companyId = session.user.companyId;
-  const t = await getTranslations('dashboard');
+  const t = await getTranslations("dashboard");
 
   let activities;
   try {
     activities = await getRecentActivity(db, companyId, 10);
   } catch (error) {
-    logger.error('Failed to load recent activity', error);
+    logger.error("Failed to load recent activity", error);
     return (
       <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-6 text-center dark:border-yellow-900 dark:bg-yellow-950">
         <AlertTriangle className="mx-auto mb-2 h-6 w-6 text-yellow-600" />
-        <p className="text-sm text-yellow-800 dark:text-yellow-200">{t('activity.loadError')}</p>
+        <p className="text-sm text-yellow-800 dark:text-yellow-200">
+          {t("activity.loadError")}
+        </p>
       </div>
     );
   }
 
   const getIconForType = (type: string) => {
     switch (type) {
-      case 'invoice':
+      case "invoice":
         return <FileText className="h-4 w-4" />;
-      case 'quote':
+      case "quote":
         return <Receipt className="h-4 w-4" />;
-      case 'order':
+      case "order":
         return <ShoppingCart className="h-4 w-4" />;
-      case 'delivery_note':
+      case "delivery_note":
         return <Truck className="h-4 w-4" />;
-      case 'credit_note':
+      case "credit_note":
         return <CreditCard className="h-4 w-4" />;
-      case 'dunning':
+      case "dunning":
         return <AlertCircle className="h-4 w-4" />;
-      case 'purchase_order':
+      case "purchase_order":
         return <PackageIcon className="h-4 w-4" />;
-      case 'purchase_invoice':
+      case "purchase_invoice":
         return <FileInput className="h-4 w-4" />;
       default:
         return <FileText className="h-4 w-4" />;
@@ -64,13 +63,26 @@ export async function RecentActivity() {
 
   const getRelativeTime = (date: Date) => {
     const now = new Date();
-    const diffInSeconds = Math.floor((now.getTime() - new Date(date).getTime()) / 1000);
+    const diffInSeconds = Math.floor(
+      (now.getTime() - new Date(date).getTime()) / 1000,
+    );
 
-    if (diffInSeconds < 60) return t('activity.justNow');
-    if (diffInSeconds < 3600) return t('activity.minutesAgo', { count: Math.floor(diffInSeconds / 60) });
-    if (diffInSeconds < 86400) return t('activity.hoursAgo', { count: Math.floor(diffInSeconds / 3600) });
-    if (diffInSeconds < 604800) return t('activity.daysAgo', { count: Math.floor(diffInSeconds / 86400) });
-    return t('activity.weeksAgo', { count: Math.floor(diffInSeconds / 604800) });
+    if (diffInSeconds < 60) return t("activity.justNow");
+    if (diffInSeconds < 3600)
+      return t("activity.minutesAgo", {
+        count: Math.floor(diffInSeconds / 60),
+      });
+    if (diffInSeconds < 86400)
+      return t("activity.hoursAgo", {
+        count: Math.floor(diffInSeconds / 3600),
+      });
+    if (diffInSeconds < 604800)
+      return t("activity.daysAgo", {
+        count: Math.floor(diffInSeconds / 86400),
+      });
+    return t("activity.weeksAgo", {
+      count: Math.floor(diffInSeconds / 604800),
+    });
   };
 
   if (activities.length === 0) {
@@ -79,8 +91,10 @@ export async function RecentActivity() {
         <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
           <Clock className="h-6 w-6 text-muted-foreground" />
         </div>
-        <h3 className="font-semibold">{t('activity.noActivity')}</h3>
-        <p className="text-sm text-muted-foreground">{t('activity.noActivityDesc')}</p>
+        <h3 className="font-semibold">{t("activity.noActivity")}</h3>
+        <p className="text-sm text-muted-foreground">
+          {t("activity.noActivityDesc")}
+        </p>
       </div>
     );
   }
@@ -89,8 +103,10 @@ export async function RecentActivity() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold">{t('activity.title')}</h2>
-          <p className="text-sm text-muted-foreground">{t('activity.subtitle')}</p>
+          <h2 className="text-lg font-semibold">{t("activity.title")}</h2>
+          <p className="text-sm text-muted-foreground">
+            {t("activity.subtitle")}
+          </p>
         </div>
       </div>
       <div className="rounded-xl border bg-card">
@@ -114,7 +130,9 @@ export async function RecentActivity() {
                   <div className="flex items-center gap-2">
                     <p className="font-medium">{activity.number}</p>
                     <span className="text-xs text-muted-foreground">•</span>
-                    <p className="text-sm text-muted-foreground">{t(activity.actionKey)}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {t(activity.actionKey)}
+                    </p>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     {activity.contactName && (
@@ -129,7 +147,9 @@ export async function RecentActivity() {
 
                 {/* Amount */}
                 <div className="text-right">
-                  <p className="font-medium">{formatCurrency(activity.amount)}</p>
+                  <p className="font-medium">
+                    {formatCurrency(activity.amount)}
+                  </p>
                 </div>
               </div>
             </Link>

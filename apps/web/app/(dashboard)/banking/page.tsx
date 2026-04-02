@@ -1,9 +1,8 @@
 import Decimal from "decimal.js";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { Landmark, Plus, CreditCard } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
-import { auth } from "@/lib/auth";
+import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { listBankAccounts, getBankTransactionsSummary } from "@kivvi/core";
 import { formatCurrency, formatDate } from "@/lib/utils";
@@ -12,9 +11,7 @@ import { PageHeader } from "@/components/page-header";
 import { getTranslations } from "next-intl/server";
 
 export default async function BankingPage() {
-  const session = await auth();
-  if (!session?.user?.companyId) redirect("/login");
-
+  const session = await getSessionOrRedirect();
   const t = await getTranslations("banking");
   const companyId = session.user.companyId;
 

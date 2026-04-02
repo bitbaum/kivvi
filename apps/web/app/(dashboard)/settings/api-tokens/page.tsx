@@ -1,15 +1,12 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
-import { auth } from "@/lib/auth";
+import { getSessionOrRedirect } from "@/lib/session";
 import { listApiTokensAction } from "@/app/actions/api-tokens";
 import { ApiTokensPanel } from "./api-tokens-panel";
 
 export default async function ApiTokensPage() {
-  const session = await auth();
-  if (!session?.user?.companyId) redirect("/login");
-
+  const session = await getSessionOrRedirect();
   const t = await getTranslations("settings");
   const tokensResult = await listApiTokensAction();
 

@@ -1,20 +1,19 @@
-import Link from 'next/link';
-import { redirect } from 'next/navigation';
-import { Plus, Users, Download, Search } from 'lucide-react';
-import { EmptyState } from '@/components/empty-state';
-import { getTranslations } from 'next-intl/server';
-import { count, eq, and, gte } from 'drizzle-orm';
-import { auth } from '@/lib/auth';
-import { db } from '@/lib/db';
-import { contacts } from '@kivvi/database';
-import { listContacts } from '@kivvi/core';
-import { cn } from '@/lib/utils';
-import { DEFAULT_PAGE_SIZE } from '@/lib/config/document-types';
-import { getContactTypeLabels } from '@/lib/config/contact-types';
-import { PageHeader } from '@/components/page-header';
-import { SelectableContactTable } from '@/components/contacts/selectable-contact-table';
-import { SearchInput } from '@/components/search-input';
-import { Pagination } from '@/components/pagination';
+import Link from "next/link";
+import { Plus, Users, Download, Search } from "lucide-react";
+import { EmptyState } from "@/components/empty-state";
+import { getTranslations } from "next-intl/server";
+import { count, eq, and, gte } from "drizzle-orm";
+import { getSessionOrRedirect } from "@/lib/session";
+import { db } from "@/lib/db";
+import { contacts } from "@kivvi/database";
+import { listContacts } from "@kivvi/core";
+import { cn } from "@/lib/utils";
+import { DEFAULT_PAGE_SIZE } from "@/lib/config/document-types";
+import { getContactTypeLabels } from "@/lib/config/contact-types";
+import { PageHeader } from "@/components/page-header";
+import { SelectableContactTable } from "@/components/contacts/selectable-contact-table";
+import { SearchInput } from "@/components/search-input";
+import { Pagination } from "@/components/pagination";
 
 interface ContactsPageProps {
   searchParams: {
@@ -26,25 +25,35 @@ interface ContactsPageProps {
   };
 }
 
-export default async function ContactsPage({ searchParams }: ContactsPageProps) {
-  const session = await auth();
-  if (!session?.user?.companyId) {
-    redirect('/login');
-  }
-
-  const t = await getTranslations('contacts');
-  const tc = await getTranslations('common');
-  const tb = await getTranslations('bulkActions');
+export default async function ContactsPage({
+  searchParams,
+}: ContactsPageProps) {
+  const session = await getSessionOrRedirect();
+  const t = await getTranslations("contacts");
+  const tc = await getTranslations("common");
+  const tb = await getTranslations("bulkActions");
 
   const companyId = session.user.companyId;
-  const search = searchParams.search || '';
-  const typeFilter = searchParams.type as 'customer' | 'vendor' | 'both' | undefined;
-  const page = parseInt(searchParams.page || '1', 10);
-  const sort = (searchParams.sort || 'name') as 'name' | 'contactNumber' | 'createdAt' | 'city';
-  const order = (searchParams.order || 'asc') as 'asc' | 'desc';
+  const search = searchParams.search || "";
+  const typeFilter = searchParams.type as
+    | "customer"
+    | "vendor"
+    | "both"
+    | undefined;
+  const page = parseInt(searchParams.page || "1", 10);
+  const sort = (searchParams.sort || "name") as
+    | "name"
+    | "contactNumber"
+    | "createdAt"
+    | "city";
+  const order = (searchParams.order || "asc") as "asc" | "desc";
 
   // Summary counts + list query in parallel
-  const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+  const startOfMonth = new Date(
+    new Date().getFullYear(),
+    new Date().getMonth(),
+    1,
+  );
 
   const [result, typeCounts, [{ newThisMonth }]] = await Promise.all([
     listContacts(db, companyId, {
@@ -60,37 +69,58 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
     db
       .select({ type: contacts.type, count: count() })
       .from(contacts)
-      .where(and(eq(contacts.companyId, companyId), eq(contacts.isActive, true)))
+      .where(
+        and(eq(contacts.companyId, companyId), eq(contacts.isActive, true)),
+      )
       .groupBy(contacts.type),
 
     // New contacts this month
     db
       .select({ newThisMonth: count() })
       .from(contacts)
-      .where(and(eq(contacts.companyId, companyId), gte(contacts.createdAt, startOfMonth))),
+      .where(
+        and(
+          eq(contacts.companyId, companyId),
+          gte(contacts.createdAt, startOfMonth),
+        ),
+      ),
   ]);
 
   // customer + both = Kunden, vendor + both = Lieferanten
   const customerCount =
-    (typeCounts.find((c) => c.type === 'customer')?.count ?? 0) +
-    (typeCounts.find((c) => c.type === 'both')?.count ?? 0);
+    (typeCounts.find((c) => c.type === "customer")?.count ?? 0) +
+    (typeCounts.find((c) => c.type === "both")?.count ?? 0);
   const vendorCount =
-    (typeCounts.find((c) => c.type === 'vendor')?.count ?? 0) +
-    (typeCounts.find((c) => c.type === 'both')?.count ?? 0);
+    (typeCounts.find((c) => c.type === "vendor")?.count ?? 0) +
+    (typeCounts.find((c) => c.type === "both")?.count ?? 0);
 
   // Pre-resolve translations for client component
   const bulkActionKeys = [
-    'selected', 'clearSelection', 'delete', 'deactivate',
-    'confirmTitle', 'confirmDelete', 'confirmDeactivate',
-    'cancel', 'processing', 'confirmAction',
-    'successAll', 'successPartial', 'failedAll',
-    'showErrors', 'hideErrors',
+    "selected",
+    "clearSelection",
+    "delete",
+    "deactivate",
+    "confirmTitle",
+    "confirmDelete",
+    "confirmDeactivate",
+    "cancel",
+    "processing",
+    "confirmAction",
+    "successAll",
+    "successPartial",
+    "failedAll",
+    "showErrors",
+    "hideErrors",
   ];
   // Keys with ICU placeholders ({count}, {successCount}, etc.) must use
   // tb.raw() to avoid ICU parser errors — the client fills them via .replace()
   const rawKeys = new Set([
-    'successAll', 'successPartial', 'failedAll',
-    'confirmDelete', 'confirmDeactivate', 'confirmMessage',
+    "successAll",
+    "successPartial",
+    "failedAll",
+    "confirmDelete",
+    "confirmDeactivate",
+    "confirmMessage",
   ]);
   const bulkLabels: Record<string, string> = {};
   for (const key of bulkActionKeys) {
@@ -98,51 +128,62 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
   }
 
   const columnLabels = {
-    number: tc('number'),
-    name: tc('name'),
-    type: tc('type'),
-    email: tc('email'),
-    phone: tc('phone'),
-    city: t('city'),
-    lastDocument: t('lastDocument'),
-    status: tc('status'),
-    active: tc('active'),
-    inactive: tc('inactive'),
+    number: tc("number"),
+    name: tc("name"),
+    type: tc("type"),
+    email: tc("email"),
+    phone: tc("phone"),
+    city: t("city"),
+    lastDocument: t("lastDocument"),
+    status: tc("status"),
+    active: tc("active"),
+    inactive: tc("inactive"),
   };
 
   const typeLabels = getContactTypeLabels(t);
 
+  const quickActionLabels = {
+    createInvoice: t("createInvoice"),
+    createQuote: t("createQuote"),
+    createOrder: t("createOrder"),
+    createPurchaseOrder: t("createPurchaseOrder"),
+    createPurchaseInvoice: t("createPurchaseInvoice"),
+    sendEmail: t("sendEmail"),
+    view: tc("view"),
+    edit: tc("edit"),
+  };
+
   function buildPageUrl(p: number): string {
     const params = new URLSearchParams();
-    if (search) params.set('search', search);
-    if (typeFilter) params.set('type', typeFilter);
-    if (sort !== 'name') params.set('sort', sort);
-    if (order !== 'asc') params.set('order', order);
-    if (p > 1) params.set('page', p.toString());
-    return `/contacts${params.toString() ? `?${params.toString()}` : ''}`;
+    if (search) params.set("search", search);
+    if (typeFilter) params.set("type", typeFilter);
+    if (sort !== "name") params.set("sort", sort);
+    if (order !== "asc") params.set("order", order);
+    if (p > 1) params.set("page", p.toString());
+    return `/contacts${params.toString() ? `?${params.toString()}` : ""}`;
   }
 
-  function buildSortUrl(s: string, o: 'asc' | 'desc'): string {
+  function buildSortUrl(s: string, o: "asc" | "desc"): string {
     const params = new URLSearchParams();
-    if (search) params.set('search', search);
-    if (typeFilter) params.set('type', typeFilter);
-    params.set('sort', s);
-    params.set('order', o);
+    if (search) params.set("search", search);
+    if (typeFilter) params.set("type", typeFilter);
+    params.set("sort", s);
+    params.set("order", o);
     return `/contacts?${params.toString()}`;
   }
 
   // Pre-compute sort hrefs for client component (functions can't cross server→client boundary)
   const sortHrefs: Record<string, string> = {};
-  for (const field of ['contactNumber', 'name', 'city']) {
-    const nextOrder = sort === field && order === 'asc' ? 'desc' : 'asc';
+  for (const field of ["contactNumber", "name", "city"]) {
+    const nextOrder = sort === field && order === "asc" ? "desc" : "asc";
     sortHrefs[field] = buildSortUrl(field, nextOrder);
   }
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title={t('title')}
-        subtitle={t('subtitle')}
+        title={t("title")}
+        subtitle={t("subtitle")}
         actions={
           <>
             <a
@@ -150,14 +191,14 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
               className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2.5 text-sm font-medium hover:bg-accent transition-colors"
             >
               <Download className="h-4 w-4" />
-              {t('exportCsv')}
+              {t("exportCsv")}
             </a>
             <Link
               href="/contacts/new"
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
             >
               <Plus className="h-4 w-4" />
-              {t('newContact')}
+              {t("newContact")}
             </Link>
           </>
         }
@@ -167,24 +208,58 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         <SearchInput
           basePath="/contacts"
-          placeholder={t('searchContacts')}
-          preserveParams={['type', 'sort', 'order']}
+          placeholder={t("searchContacts")}
+          preserveParams={["type", "sort", "order"]}
         />
 
         <div className="flex items-center gap-1 rounded-lg border bg-card p-1">
-          <TypeFilterLink label={tc('all')} value="" current={typeFilter} search={search} sort={sort} order={order} />
-          <TypeFilterLink label={t('customer')} value="customer" current={typeFilter} search={search} sort={sort} order={order} />
-          <TypeFilterLink label={t('vendor')} value="vendor" current={typeFilter} search={search} sort={sort} order={order} />
-          <TypeFilterLink label={t('both')} value="both" current={typeFilter} search={search} sort={sort} order={order} />
+          <TypeFilterLink
+            label={tc("all")}
+            value=""
+            current={typeFilter}
+            search={search}
+            sort={sort}
+            order={order}
+          />
+          <TypeFilterLink
+            label={t("customer")}
+            value="customer"
+            current={typeFilter}
+            search={search}
+            sort={sort}
+            order={order}
+          />
+          <TypeFilterLink
+            label={t("vendor")}
+            value="vendor"
+            current={typeFilter}
+            search={search}
+            sort={sort}
+            order={order}
+          />
+          <TypeFilterLink
+            label={t("both")}
+            value="both"
+            current={typeFilter}
+            search={search}
+            sort={sort}
+            order={order}
+          />
         </div>
       </div>
 
       {/* Summary */}
       <div className="flex flex-wrap items-center gap-3 text-sm">
-        <span className="rounded-full bg-muted px-3 py-1 font-medium">{t('summaryCustomers', { count: customerCount })}</span>
-        <span className="rounded-full bg-muted px-3 py-1 font-medium">{t('summaryVendors', { count: vendorCount })}</span>
+        <span className="rounded-full bg-muted px-3 py-1 font-medium">
+          {t("summaryCustomers", { count: customerCount })}
+        </span>
+        <span className="rounded-full bg-muted px-3 py-1 font-medium">
+          {t("summaryVendors", { count: vendorCount })}
+        </span>
         {newThisMonth > 0 && (
-          <span className="rounded-full bg-green-100 dark:bg-green-900/30 px-3 py-1 font-medium text-green-700 dark:text-green-300">{t('summaryNewThisMonth', { count: newThisMonth })}</span>
+          <span className="rounded-full bg-green-100 dark:bg-green-900/30 px-3 py-1 font-medium text-green-700 dark:text-green-300">
+            {t("summaryNewThisMonth", { count: newThisMonth })}
+          </span>
         )}
       </div>
 
@@ -193,10 +268,10 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
         {result.data.length === 0 ? (
           <EmptyState
             icon={search ? Search : Users}
-            title={search ? tc('noResults') : t('noContacts')}
-            description={search ? tc('noResults') : t('createFirstContact')}
-            actionLabel={!search ? t('newContact') : undefined}
-            actionHref={!search ? '/contacts/new' : undefined}
+            title={search ? tc("noResults") : t("noContacts")}
+            description={search ? tc("noResults") : t("createFirstContact")}
+            actionLabel={!search ? t("newContact") : undefined}
+            actionHref={!search ? "/contacts/new" : undefined}
           />
         ) : (
           <>
@@ -215,7 +290,12 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
                 isActive: c.isActive,
                 lastDocumentAt: c.lastDocumentAt,
               }))}
-              translations={{ columnLabels, typeLabels, bulkLabels }}
+              translations={{
+                columnLabels,
+                typeLabels,
+                bulkLabels,
+                quickActionLabels,
+              }}
               sort={{ field: sort, order, hrefs: sortHrefs }}
             />
 
@@ -226,14 +306,17 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
               pageSize={result.pageSize}
               buildHref={buildPageUrl}
               labels={{
-                showing: tc('showing', {
+                showing: tc("showing", {
                   from: (result.page - 1) * result.pageSize + 1,
                   to: Math.min(result.page * result.pageSize, result.total),
                   total: result.total,
                 }),
-                previous: tc('previous'),
-                next: tc('next'),
-                pageOf: tc('pageOf', { page: result.page, totalPages: result.totalPages }),
+                previous: tc("previous"),
+                next: tc("next"),
+                pageOf: tc("pageOf", {
+                  page: result.page,
+                  totalPages: result.totalPages,
+                }),
               }}
             />
           </>
@@ -262,22 +345,22 @@ function TypeFilterLink({
   sort: string;
   order: string;
 }) {
-  const isActive = (current || '') === value;
+  const isActive = (current || "") === value;
   const params = new URLSearchParams();
-  if (search) params.set('search', search);
-  if (value) params.set('type', value);
-  if (sort !== 'name') params.set('sort', sort);
-  if (order !== 'asc') params.set('order', order);
-  const href = `/contacts${params.toString() ? `?${params.toString()}` : ''}`;
+  if (search) params.set("search", search);
+  if (value) params.set("type", value);
+  if (sort !== "name") params.set("sort", sort);
+  if (order !== "asc") params.set("order", order);
+  const href = `/contacts${params.toString() ? `?${params.toString()}` : ""}`;
 
   return (
     <Link
       href={href}
       className={cn(
-        'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+        "rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
         isActive
-          ? 'bg-background text-foreground shadow-sm'
-          : 'text-muted-foreground hover:text-foreground'
+          ? "bg-background text-foreground shadow-sm"
+          : "text-muted-foreground hover:text-foreground",
       )}
     >
       {label}

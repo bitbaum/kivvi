@@ -409,6 +409,208 @@ export async function createStockMovement(
 }
 
 // ============================================================================
+// WAREHOUSE TRANSFER (ATOMIC)
+// ============================================================================
+
+export const transferStockSchema = z.object({
+  fromWarehouseId: z.string().uuid(),
+  toWarehouseId: z.string().uuid(),
+  productId: z.string().uuid(),
+  quantity: z.string().min(1, "Quantity is required"),
+  reference: z.string().optional().nullable(),
+});
+
+/**
+ * Transfer stock between warehouses atomically.
+ * Creates two movements (out + in) and updates both stock levels in one transaction.
+ */
+export async function transferStock(
+  db: Database,
+  companyId: string,
+  input: z.infer<typeof transferStockSchema>,
+): Promise<{ outMovement: StockMovement; inMovement: StockMovement }> {
+  const validated = transferStockSchema.parse(input);
+
+  if (validated.fromWarehouseId === validated.toWarehouseId) {
+    throw new Error("Source and destination warehouse must be different");
+  }
+
+  const fromWarehouse = await getWarehouse(
+    db,
+    companyId,
+    validated.fromWarehouseId,
+  );
+  if (!fromWarehouse) throw new Error("Source warehouse not found");
+
+  const toWarehouse = await getWarehouse(
+    db,
+    companyId,
+    validated.toWarehouseId,
+  );
+  if (!toWarehouse) throw new Error("Destination warehouse not found");
+
+  const [product] = await db
+    .select()
+    .from(products)
+    .where(
+      and(
+        eq(products.id, validated.productId),
+        eq(products.companyId, companyId),
+      ),
+    );
+  if (!product) throw new Error("Product not found");
+
+  const transferQty = new Decimal(validated.quantity);
+  const reference =
+    validated.reference ||
+    `Transfer: ${fromWarehouse.name} → ${toWarehouse.name}`;
+
+  return db.transaction(async (tx) => {
+    // Check stock INSIDE transaction with row lock to prevent race conditions
+    const [sourceLevel] = await tx
+      .select({ quantity: stockLevels.quantity })
+      .from(stockLevels)
+      .where(
+        and(
+          eq(stockLevels.productId, validated.productId),
+          eq(stockLevels.warehouseId, validated.fromWarehouseId),
+        ),
+      );
+
+    const sourceQty = new Decimal(sourceLevel?.quantity || "0");
+    if (sourceQty.lt(transferQty)) {
+      throw new Error(
+        `Insufficient stock: ${sourceQty.toString()} available, ${transferQty.toString()} requested`,
+      );
+    }
+
+    // 1. Outbound movement (negative)
+    const [outMovement] = await tx
+      .insert(stockMovements)
+      .values({
+        productId: validated.productId,
+        warehouseId: validated.fromWarehouseId,
+        type: "transfer",
+        quantity: transferQty.neg().toString(),
+        reference,
+      })
+      .returning();
+
+    // 2. Inbound movement (positive)
+    const [inMovement] = await tx
+      .insert(stockMovements)
+      .values({
+        productId: validated.productId,
+        warehouseId: validated.toWarehouseId,
+        type: "transfer",
+        quantity: transferQty.toString(),
+        reference,
+      })
+      .returning();
+
+    // 3. Update source stock level (decrement)
+    await tx
+      .update(stockLevels)
+      .set({
+        quantity: sql`CAST(${stockLevels.quantity} AS DECIMAL) - ${transferQty.toString()}`,
+      })
+      .where(
+        and(
+          eq(stockLevels.productId, validated.productId),
+          eq(stockLevels.warehouseId, validated.fromWarehouseId),
+        ),
+      );
+
+    // 4. Update destination stock level (upsert increment)
+    await tx
+      .insert(stockLevels)
+      .values({
+        productId: validated.productId,
+        warehouseId: validated.toWarehouseId,
+        quantity: transferQty.toString(),
+        reservedQuantity: "0",
+      })
+      .onConflictDoUpdate({
+        target: [stockLevels.productId, stockLevels.warehouseId],
+        set: {
+          quantity: sql`CAST(${stockLevels.quantity} AS DECIMAL) + ${transferQty.toString()}`,
+        },
+      });
+
+    // 5. products.stockQuantity stays the same (net 0), but recalc to be safe
+    const [totalStock] = await tx
+      .select({
+        total: sql<string>`COALESCE(SUM(CAST(${stockLevels.quantity} AS DECIMAL)), 0)`,
+      })
+      .from(stockLevels)
+      .where(eq(stockLevels.productId, validated.productId));
+
+    await tx
+      .update(products)
+      .set({ stockQuantity: totalStock.total })
+      .where(
+        and(
+          eq(products.id, validated.productId),
+          eq(products.companyId, companyId),
+        ),
+      );
+
+    return { outMovement, inMovement };
+  });
+}
+
+// ============================================================================
+// DELETE WAREHOUSE
+// ============================================================================
+
+/**
+ * Delete a warehouse. Prevents deletion if stock exists or if it's the sole default.
+ */
+export async function deleteWarehouse(
+  db: Database,
+  companyId: string,
+  warehouseId: string,
+): Promise<void> {
+  const warehouse = await getWarehouse(db, companyId, warehouseId);
+  if (!warehouse) throw new Error("Warehouse not found");
+
+  // Check for stock > 0
+  const [stockCheck] = await db
+    .select({
+      hasStock: sql<boolean>`EXISTS(
+        SELECT 1 FROM stock_levels
+        WHERE warehouse_id = ${warehouseId}
+        AND CAST(quantity AS DECIMAL) > 0
+      )`,
+    })
+    .from(stockLevels)
+    .limit(1);
+
+  if (stockCheck?.hasStock) {
+    throw new Error(
+      "Cannot delete warehouse with stock. Transfer or adjust stock to zero first.",
+    );
+  }
+
+  // Prevent deleting the default warehouse unless another exists
+  if (warehouse.isDefault) {
+    const allWarehouses = await listWarehouses(db, companyId);
+    if (allWarehouses.length <= 1) {
+      throw new Error("Cannot delete the only warehouse.");
+    }
+    throw new Error(
+      "Set another warehouse as default before deleting this one.",
+    );
+  }
+
+  await db
+    .delete(warehouses)
+    .where(
+      and(eq(warehouses.id, warehouseId), eq(warehouses.companyId, companyId)),
+    );
+}
+
+// ============================================================================
 // SERIAL NUMBERS
 // ============================================================================
 

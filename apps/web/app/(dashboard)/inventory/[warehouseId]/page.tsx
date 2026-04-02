@@ -1,6 +1,6 @@
 import Decimal from "decimal.js";
 import Link from "next/link";
-import { redirect, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import {
   ArrowLeft,
   Warehouse as WarehouseIcon,
@@ -11,7 +11,7 @@ import {
   ArrowUpDown,
   Boxes,
 } from "lucide-react";
-import { auth } from "@/lib/auth";
+import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { getWarehouse, getStockLevelsByWarehouse } from "@kivvi/core";
 import { cn, isValidUUID } from "@/lib/utils";
@@ -23,9 +23,7 @@ interface PageProps {
 }
 
 export default async function WarehouseDetailPage({ params }: PageProps) {
-  const session = await auth();
-  if (!session?.user?.companyId) redirect("/login");
-
+  const session = await getSessionOrRedirect();
   const { warehouseId } = await params;
   if (!isValidUUID(warehouseId)) notFound();
 

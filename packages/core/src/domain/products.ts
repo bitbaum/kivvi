@@ -407,6 +407,7 @@ export async function searchProducts(
       currency: products.currency,
       vatRate: products.vatRate,
       unit: products.unit,
+      stockQuantity: products.stockQuantity,
     })
     .from(products)
     .where(
@@ -417,6 +418,7 @@ export async function searchProducts(
           ilike(products.name, `%${query}%`),
           ilike(products.articleNumber, `%${query}%`),
           ilike(products.sku, `%${query}%`),
+          ilike(products.ean, `%${query}%`),
         ),
       ),
     )
