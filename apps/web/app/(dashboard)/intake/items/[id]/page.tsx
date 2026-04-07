@@ -121,7 +121,7 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
                 className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
               >
                 <Receipt className="h-4 w-4" />
-                Sell
+                {ti("sell")}
               </Link>
             )}
           </div>
@@ -143,7 +143,10 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
             </div>
           )}
           {/* Details */}
-          <CardSection title="Details" icon={<Package className="h-4 w-4" />}>
+          <CardSection
+            title={ti("details")}
+            icon={<Package className="h-4 w-4" />}
+          >
             <div className="grid gap-4 sm:grid-cols-2">
               {item.productName && (
                 <InfoRow
@@ -155,7 +158,7 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
               {item.serialNumber && (
                 <InfoRow
                   icon={<FileText className="h-4 w-4" />}
-                  label="Serial Number"
+                  label={ti("serialNumber")}
                   value={item.serialNumber}
                   copyable
                 />
@@ -163,14 +166,14 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
               {item.location && (
                 <InfoRow
                   icon={<Warehouse className="h-4 w-4" />}
-                  label="Location"
+                  label={ti("locationShelf")}
                   value={item.location}
                 />
               )}
               {item.warehouseName && (
                 <InfoRow
                   icon={<Warehouse className="h-4 w-4" />}
-                  label="Warehouse"
+                  label={ti("locationShelf")}
                   value={item.warehouseName}
                 />
               )}
@@ -179,7 +182,7 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
 
           {/* Specs */}
           {Object.keys(specs).length > 0 && (
-            <CardSection title="Specifications">
+            <CardSection title={ti("specifications")}>
               <div className="grid gap-2 sm:grid-cols-2">
                 {Object.entries(specs).map(([key, value]) => (
                   <div
@@ -205,19 +208,21 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Pricing */}
-          <CardSection title="Pricing">
+          <CardSection title={ti("pricing")}>
             <div className="space-y-3">
               {item.estimatedValue && (
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">
-                    Acquisition Cost
+                    {ti("acquisitionCost")}
                   </span>
                   <span>{formatCurrency(item.estimatedValue)}</span>
                 </div>
               )}
               {item.repairCost && parseFloat(item.repairCost) > 0 && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Repair Cost</span>
+                  <span className="text-muted-foreground">
+                    {ti("repairCostLabel")}
+                  </span>
                   <span>+{formatCurrency(item.repairCost)}</span>
                 </div>
               )}
@@ -226,7 +231,7 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
                 parseFloat(item.repairCost) > 0 && (
                   <div className="flex justify-between text-sm border-t pt-2">
                     <span className="text-muted-foreground font-medium">
-                      Effective Cost
+                      {ti("effectiveCost")}
                     </span>
                     <span className="font-medium">
                       {formatCurrency(item.effectiveCost)}
@@ -235,7 +240,9 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
                 )}
               {item.askingPrice && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Asking Price</span>
+                  <span className="text-muted-foreground">
+                    {ti("askingPrice")}
+                  </span>
                   <span className="font-medium">
                     {formatCurrency(item.askingPrice)}
                   </span>
@@ -243,14 +250,18 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
               )}
               {item.minPrice && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Min Price</span>
+                  <span className="text-muted-foreground">
+                    {ti("minPrice")}
+                  </span>
                   <span>{formatCurrency(item.minPrice)}</span>
                 </div>
               )}
               {item.soldPrice && (
                 <>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Sold For</span>
+                    <span className="text-muted-foreground">
+                      {ti("soldFor")}
+                    </span>
                     <span className="font-medium text-green-600">
                       {formatCurrency(item.soldPrice)}
                     </span>
@@ -265,7 +276,7 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
                       return (
                         <div className="flex justify-between text-sm border-t pt-2">
                           <span className="text-muted-foreground font-medium">
-                            Margin
+                            {ti("margin")}
                           </span>
                           <span className={`font-medium ${marginClass}`}>
                             {margin >= 0 ? "+" : ""}
@@ -277,18 +288,22 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
                 </>
               )}
               {!item.estimatedValue && !item.askingPrice && !item.soldPrice && (
-                <p className="text-sm text-muted-foreground">No pricing set</p>
+                <p className="text-sm text-muted-foreground">
+                  {ti("noPricingSet")}
+                </p>
               )}
             </div>
           </CardSection>
 
           {/* Repair log */}
           {item.repairLog && (
-            <CardSection title="Repair Log">
+            <CardSection title={ti("repairLog")}>
               <div className="space-y-1 text-xs">
                 {item.repairHours && parseFloat(item.repairHours) > 0 && (
                   <div className="flex justify-between text-sm mb-2">
-                    <span className="text-muted-foreground">Total Hours</span>
+                    <span className="text-muted-foreground">
+                      {ti("totalHours")}
+                    </span>
                     <span className="font-medium">{item.repairHours}h</span>
                   </div>
                 )}
@@ -300,13 +315,14 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
           )}
 
           {/* Provenance */}
-          <CardSection title="Provenance">
+          <CardSection title={ti("provenance")}>
             <div className="space-y-3">
               {item.donorName && (
                 <div className="flex items-center gap-2 text-sm">
                   <User className="h-4 w-4 text-muted-foreground" />
                   <span>
-                    Donor: <span className="font-medium">{item.donorName}</span>
+                    {ti("donor")}:{" "}
+                    <span className="font-medium">{item.donorName}</span>
                   </span>
                 </div>
               )}
@@ -317,7 +333,7 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
                     href={`/intake/${item.intakeDocumentId}`}
                     className="text-primary hover:underline"
                   >
-                    View Intake Document
+                    {ti("viewIntakeDocument")}
                   </Link>
                 </div>
               )}
@@ -328,7 +344,7 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
           </CardSection>
 
           {/* Printable label */}
-          <CardSection title="Label">
+          <CardSection title={ti("label")}>
             <div className="flex flex-col items-center gap-3">
               <ItemLabel
                 itemNumber={item.itemNumber}

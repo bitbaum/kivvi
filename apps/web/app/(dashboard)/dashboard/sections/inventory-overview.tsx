@@ -4,12 +4,8 @@ import { getTranslations } from "next-intl/server";
 import { db } from "@/lib/db";
 import { getInventoryDashboard } from "@kivvi/core/src/domain/inventory-dashboard";
 import { formatCurrency } from "@/lib/utils";
-import {
-  ITEM_STATUS_CONFIG,
-  getStatusLabelKey,
-} from "@/lib/config/inventory-items";
+import { getStatusLabelKey } from "@/lib/config/inventory-items";
 
-// Active pipeline statuses (exclude terminal: sold, returned, donated, recycled)
 const PIPELINE_STATUSES = [
   "intake",
   "testing",
@@ -24,48 +20,45 @@ export async function InventoryOverview() {
   const ti = await getTranslations("inventory");
   const data = await getInventoryDashboard(db, session.user.companyId);
 
-  // Only show if there are inventory items
   if (data.unsoldCount === 0 && data.soldCount === 0) return null;
 
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-semibold">Inventory</h2>
+      <h2 className="text-lg font-semibold">{ti("inventoryLabel")}</h2>
 
-      {/* Key metrics row */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <MetricCard
           icon={<PackageOpen className="h-5 w-5" />}
-          label="Inventory Value"
+          label={ti("inventoryValue")}
           value={formatCurrency(data.inventoryValue)}
-          sub={`${data.unsoldCount} items`}
+          sub={ti("itemsTracked", { count: data.unsoldCount })}
         />
         <MetricCard
           icon={<TrendingUp className="h-5 w-5" />}
-          label="Avg Margin"
+          label={ti("avgMargin")}
           value={`${data.averageMarginPercent}%`}
           sub={`${formatCurrency(data.totalProfit)} profit`}
           positive={data.averageMarginPercent > 0}
         />
         <MetricCard
           icon={<Clock className="h-5 w-5" />}
-          label="Avg Days to Sale"
+          label={ti("avgDaysToSale")}
           value={`${data.avgDaysToSale}d`}
-          sub={`${data.soldCount} sold / ${data.intakeCount} received`}
+          sub={`${data.soldCount} / ${data.intakeCount}`}
         />
         <MetricCard
           icon={<Recycle className="h-5 w-5" />}
-          label="Sell-Through"
+          label={ti("sellThrough")}
           value={`${data.sellThroughRate}%`}
-          sub="of processed items sold"
+          sub={ti("ofProcessedItemsSold")}
           positive={data.sellThroughRate > 50}
         />
       </div>
 
-      {/* Pipeline: items by status */}
       {data.unsoldCount > 0 && (
         <div className="rounded-xl border bg-card p-4">
           <h3 className="mb-3 text-sm font-medium text-muted-foreground">
-            Pipeline
+            {ti("pipeline")}
           </h3>
           <div className="flex flex-wrap gap-3">
             {PIPELINE_STATUSES.map((status) => {
@@ -88,12 +81,11 @@ export async function InventoryOverview() {
         </div>
       )}
 
-      {/* Recent sales with margin */}
       {data.topItems.length > 0 && (
         <div className="rounded-xl border bg-card">
           <div className="border-b px-4 py-3">
             <h3 className="text-sm font-medium text-muted-foreground">
-              Recent Sales
+              {ti("recentSales")}
             </h3>
           </div>
           <div className="divide-y">

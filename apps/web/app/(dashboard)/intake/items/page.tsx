@@ -64,8 +64,8 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Inventory Items"
-        subtitle={`${totalItems} items tracked`}
+        title={ti("itemsTitle")}
+        subtitle={ti("itemsTracked", { count: totalItems })}
         actions={
           <div className="flex items-center gap-2">
             <InventoryItemsExportButton
@@ -81,7 +81,7 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
             >
               <Plus className="h-4 w-4" />
-              New Intake
+              {ti("newIntake")}
             </Link>
           </div>
         }
@@ -125,9 +125,9 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
       {result.data.length === 0 ? (
         <EmptyState
           icon={PackageOpen}
-          title="No items found"
-          description="Create an intake to start tracking items through your workflow."
-          actionLabel="New Intake"
+          title={ti("noItemsFound")}
+          description={ti("noItemsDesc")}
+          actionLabel={ti("newIntake")}
           actionHref="/intake/new"
         />
       ) : (

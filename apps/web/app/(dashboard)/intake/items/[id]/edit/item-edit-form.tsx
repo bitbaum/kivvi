@@ -118,7 +118,7 @@ export function ItemEditForm({ item: initialItem }: ItemEditFormProps) {
       )}
 
       {/* Photo */}
-      <CardSection title="Photo">
+      <CardSection title={ti("photo")}>
         <ItemPhotoUpload
           itemId={item.id}
           initialPhotoBase64={item.photoBase64}
@@ -139,9 +139,7 @@ export function ItemEditForm({ item: initialItem }: ItemEditFormProps) {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <CardSection
-          title={ti("statusIntake") ? "Item Details" : "Item Details"}
-        >
+        <CardSection title={ti("itemDetails")}>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <label
@@ -162,7 +160,7 @@ export function ItemEditForm({ item: initialItem }: ItemEditFormProps) {
                 htmlFor="condition"
                 className="mb-1.5 block text-sm font-medium"
               >
-                Condition
+                {ti("condition")}
               </label>
               <FormSelect
                 id="condition"
@@ -222,7 +220,7 @@ export function ItemEditForm({ item: initialItem }: ItemEditFormProps) {
           </div>
         </CardSection>
 
-        <CardSection title="Pricing">
+        <CardSection title={ti("pricing")}>
           <div className="grid gap-4 sm:grid-cols-3">
             <div>
               <label
@@ -312,6 +310,7 @@ function RepairSection({
     repairLog: string | null;
   }) => void;
 }) {
+  const ti = useTranslations("inventory");
   const [cost, setCost] = useState("");
   const [hours, setHours] = useState("");
   const [note, setNote] = useState("");
@@ -337,7 +336,7 @@ function RepairSection({
       const newCost = (totalCost + parseFloat(cost)).toFixed(2);
       const newHours = (totalHours + parseFloat(hours || "0")).toFixed(2);
       const date = new Date().toISOString().split("T")[0];
-      const entry = `${date} — CHF ${parseFloat(cost).toFixed(2)}${hours ? ` / ${hours}h` : ""}${note ? `: ${note}` : ""}`;
+      const entry = `${date} — ${parseFloat(cost).toFixed(2)}${hours ? ` / ${hours}h` : ""}${note ? `: ${note}` : ""}`;
       const newLog = currentLog ? `${currentLog}\n${entry}` : entry;
       onRecorded({
         repairCost: newCost,
@@ -358,10 +357,10 @@ function RepairSection({
   return (
     <div className="rounded-xl border bg-card">
       <div className="border-b px-6 py-4">
-        <h2 className="font-semibold">Repair Log</h2>
+        <h2 className="font-semibold">{ti("repairLog")}</h2>
         {totalCost > 0 && (
           <p className="mt-1 text-xs text-muted-foreground">
-            Total: CHF {totalCost.toFixed(2)}
+            Total: {totalCost.toFixed(2)}
             {totalHours > 0 && ` · ${totalHours}h`}
           </p>
         )}
@@ -376,7 +375,7 @@ function RepairSection({
           <div className="grid gap-3 sm:grid-cols-3">
             <div>
               <label className="mb-1 block text-xs font-medium text-muted-foreground">
-                Cost (CHF) *
+                {ti("costField")} *
               </label>
               <FormInput
                 type="text"
@@ -388,7 +387,7 @@ function RepairSection({
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-muted-foreground">
-                Hours
+                {ti("hours")}
               </label>
               <FormInput
                 type="text"
@@ -399,13 +398,13 @@ function RepairSection({
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-muted-foreground">
-                Note
+                {ti("note")}
               </label>
               <FormInput
                 type="text"
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                placeholder="replaced battery"
+                placeholder=""
               />
             </div>
           </div>
@@ -419,7 +418,7 @@ function RepairSection({
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
               {isRecording && <Loader2 className="h-4 w-4 animate-spin" />}
-              Record Repair
+              {ti("recordRepair")}
             </button>
           </div>
         </form>
