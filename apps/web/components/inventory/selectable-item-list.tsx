@@ -56,11 +56,11 @@ export function SelectableItemList({ items }: SelectableItemListProps) {
           className="h-4 w-4 rounded border-input"
         />
         <div />
-        <div>Item</div>
-        <div>Condition</div>
-        <div>Status</div>
-        <div>Price</div>
-        <div>Source</div>
+        <div>{t("columnItem")}</div>
+        <div>{t("columnCondition")}</div>
+        <div>{t("columnStatus")}</div>
+        <div>{t("columnPrice")}</div>
+        <div>{t("columnSource")}</div>
       </div>
 
       {/* Rows */}

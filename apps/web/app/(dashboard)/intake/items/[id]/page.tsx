@@ -151,7 +151,7 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
               {item.productName && (
                 <InfoRow
                   icon={<Package className="h-4 w-4" />}
-                  label="Product"
+                  label={ti("product")}
                   value={item.productName}
                 />
               )}
@@ -338,7 +338,7 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
                 </div>
               )}
               <div className="text-xs text-muted-foreground">
-                Created {formatDate(item.createdAt)}
+                {ti("created")} {formatDate(item.createdAt)}
               </div>
             </div>
           </CardSection>

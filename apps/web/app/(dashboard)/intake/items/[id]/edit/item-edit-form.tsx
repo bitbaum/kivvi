@@ -179,7 +179,7 @@ export function ItemEditForm({ item: initialItem }: ItemEditFormProps) {
                 htmlFor="status"
                 className="mb-1.5 block text-sm font-medium"
               >
-                Status
+                {ti("status")}
               </label>
               <FormSelect id="status" name="status" defaultValue={item.status}>
                 {ITEM_STATUS_VALUES.filter((s) =>
@@ -196,7 +196,7 @@ export function ItemEditForm({ item: initialItem }: ItemEditFormProps) {
                 htmlFor="serialNumber"
                 className="mb-1.5 block text-sm font-medium"
               >
-                Serial Number
+                {ti("serialNumber")}
               </label>
               <FormInput
                 id="serialNumber"
@@ -209,7 +209,7 @@ export function ItemEditForm({ item: initialItem }: ItemEditFormProps) {
                 htmlFor="location"
                 className="mb-1.5 block text-sm font-medium"
               >
-                Location / Shelf
+                {ti("locationShelf")}
               </label>
               <FormInput
                 id="location"
@@ -227,7 +227,7 @@ export function ItemEditForm({ item: initialItem }: ItemEditFormProps) {
                 htmlFor="estimatedValue"
                 className="mb-1.5 block text-sm font-medium"
               >
-                Estimated Value
+                {ti("estimatedValue")}
               </label>
               <FormInput
                 id="estimatedValue"
@@ -241,7 +241,7 @@ export function ItemEditForm({ item: initialItem }: ItemEditFormProps) {
                 htmlFor="askingPrice"
                 className="mb-1.5 block text-sm font-medium"
               >
-                Asking Price
+                {ti("askingPrice")}
               </label>
               <FormInput
                 id="askingPrice"
@@ -255,7 +255,7 @@ export function ItemEditForm({ item: initialItem }: ItemEditFormProps) {
                 htmlFor="minPrice"
                 className="mb-1.5 block text-sm font-medium"
               >
-                Minimum Price
+                {ti("minPrice")}
               </label>
               <FormInput
                 id="minPrice"
@@ -346,7 +346,7 @@ function RepairSection({
       setCost("");
       setHours("");
       setNote("");
-      toast.success("Repair recorded");
+      toast.success(ti("repairRecorded"));
     } else {
       setRepairError(result.error || "Failed to record repair");
     }

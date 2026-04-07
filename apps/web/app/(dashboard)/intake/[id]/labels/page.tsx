@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Printer } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { getDocument, listInventoryItems } from "@kivvi/core";
@@ -15,6 +16,7 @@ interface PageProps {
 
 export default async function IntakeLabelsPage({ params }: PageProps) {
   const session = await getSessionOrRedirect();
+  const ti = await getTranslations("inventory");
   const { id } = await params;
   if (!isValidUUID(id)) notFound();
 
@@ -37,11 +39,9 @@ export default async function IntakeLabelsPage({ params }: PageProps) {
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          <h1 className="text-2xl font-bold">No items to label</h1>
+          <h1 className="text-2xl font-bold">{ti("noItemsToLabel")}</h1>
         </div>
-        <p className="text-muted-foreground">
-          Confirm the intake first to create inventory items.
-        </p>
+        <p className="text-muted-foreground">{ti("confirmIntakeFirst")}</p>
       </div>
     );
   }
@@ -67,7 +67,7 @@ export default async function IntakeLabelsPage({ params }: PageProps) {
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <div>
-              <h1 className="text-2xl font-bold">Print Labels</h1>
+              <h1 className="text-2xl font-bold">{ti("printLabels")}</h1>
               <p className="text-sm text-muted-foreground">
                 {doc.number} — {items.data.length} items
               </p>
@@ -75,11 +75,7 @@ export default async function IntakeLabelsPage({ params }: PageProps) {
           </div>
           <PrintLabelsButton />
         </div>
-        <p className="text-sm text-muted-foreground">
-          Labels are optimized for Avery L7160 sheets (63.5 × 38.1mm, 21 per
-          A4). Use your browser&apos;s print dialog and set margins to
-          &quot;None&quot;.
-        </p>
+        <p className="text-sm text-muted-foreground">{ti("labelSheetHint")}</p>
       </div>
 
       {/* Label grid — print-optimized */}

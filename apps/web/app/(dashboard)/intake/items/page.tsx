@@ -89,7 +89,7 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
 
       {/* Filters */}
       <div className="space-y-3">
-        <SearchInput basePath="/intake/items" placeholder="Search items..." />
+        <SearchInput basePath="/intake/items" placeholder={ti("searchItems")} />
 
         {/* Status filter pills */}
         <div className="flex flex-wrap gap-2">

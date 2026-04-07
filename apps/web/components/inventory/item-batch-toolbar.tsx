@@ -43,7 +43,7 @@ export function ItemBatchToolbar({
       });
       if (result.success && result.data) {
         toast.success(
-          `${result.data.succeeded} updated${result.data.failed > 0 ? `, ${result.data.failed} failed` : ""}`,
+          `${result.data.succeeded} ${t("updated")}${result.data.failed > 0 ? `, ${result.data.failed} ${t("failed")}` : ""}`,
         );
         onClear();
         setStatusValue("");
@@ -62,7 +62,7 @@ export function ItemBatchToolbar({
       });
       if (result.success && result.data) {
         toast.success(
-          `${result.data.succeeded} updated${result.data.failed > 0 ? `, ${result.data.failed} failed` : ""}`,
+          `${result.data.succeeded} ${t("updated")}${result.data.failed > 0 ? `, ${result.data.failed} ${t("failed")}` : ""}`,
         );
         onClear();
         setConditionValue("");
