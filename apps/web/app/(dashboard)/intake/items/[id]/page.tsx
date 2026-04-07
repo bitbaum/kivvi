@@ -1,14 +1,12 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import {
-  ArrowLeft,
   Pencil,
   Package,
   User,
   Warehouse,
   FileText,
   Receipt,
-  Printer,
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { getSessionOrRedirect } from "@/lib/session";
@@ -21,66 +19,24 @@ import { ItemLabel } from "@/components/inventory/item-label";
 import { generateQrDataUrl } from "@/lib/qr";
 import { PrintLabelsButton } from "@/app/(dashboard)/intake/[id]/labels/print-button";
 import { cn } from "@/lib/utils";
+import { DetailPageHeader } from "@/components/page-header";
+import {
+  getStatusStyle,
+  getConditionStyle,
+  getStatusLabelKey,
+  getConditionLabelKey,
+} from "@/lib/config/inventory-items";
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-const STATUS_STYLES: Record<string, string> = {
-  intake: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-  testing:
-    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-  repair:
-    "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
-  ready_for_sale:
-    "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-  listed:
-    "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
-  reserved:
-    "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
-  sold: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400",
-  returned: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-  donated: "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400",
-  recycled: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-500",
-};
-
-const CONDITION_STYLES: Record<string, string> = {
-  untested: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400",
-  like_new:
-    "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-  good: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-  fair: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-  poor: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
-  parts_only: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-  scrap: "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-500",
-};
-
-const STATUS_LABELS: Record<string, string> = {
-  intake: "Intake",
-  testing: "Testing",
-  repair: "Repair",
-  ready_for_sale: "Ready for Sale",
-  listed: "Listed",
-  reserved: "Reserved",
-  sold: "Sold",
-  returned: "Returned",
-  donated: "Donated",
-  recycled: "Recycled",
-};
-
-const CONDITION_LABELS: Record<string, string> = {
-  untested: "Untested",
-  like_new: "Like New",
-  good: "Good",
-  fair: "Fair",
-  poor: "Poor",
-  parts_only: "Parts Only",
-  scrap: "Scrap",
-};
+// Status/condition styles and labels imported from @/lib/config/inventory-items (SSOT)
 
 export default async function InventoryItemDetailPage({ params }: PageProps) {
   const session = await getSessionOrRedirect();
   const tc = await getTranslations("common");
+  const ti = await getTranslations("inventory");
   const { id } = await params;
   if (!isValidUUID(id)) notFound();
 
@@ -111,7 +67,7 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
           discount: "0",
         },
       ],
-      notes: `${item.itemNumber}${item.condition !== "untested" ? ` — ${CONDITION_LABELS[item.condition]}` : ""}`,
+      notes: `${item.itemNumber}${item.condition !== "untested" ? ` — ${ti(getConditionLabelKey(item.condition))}` : ""}`,
     };
     const encoded = Buffer.from(JSON.stringify(prefillData)).toString(
       "base64url",
@@ -121,58 +77,56 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div className="flex items-center gap-4">
-          <Link
-            href="/intake/items"
-            className="min-h-[44px] min-w-[44px] rounded-lg p-2 hover:bg-muted"
-            aria-label={tc("back")}
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold">{item.itemNumber}</h1>
-              <span
-                className={cn(
-                  "rounded-full px-2.5 py-0.5 text-xs font-medium",
-                  STATUS_STYLES[item.status],
-                )}
-              >
-                {STATUS_LABELS[item.status] || item.status}
-              </span>
-              <span
-                className={cn(
-                  "rounded-full px-2.5 py-0.5 text-xs font-medium",
-                  CONDITION_STYLES[item.condition],
-                )}
-              >
-                {CONDITION_LABELS[item.condition] || item.condition}
-              </span>
-            </div>
-            <p className="mt-1 text-muted-foreground">{item.description}</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Link
-            href={`/intake/items/${id}/edit`}
-            className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted"
-          >
-            <Pencil className="h-4 w-4" />
-            {tc("edit")}
-          </Link>
-          {isSellable && (
-            <Link
-              href={sellHref}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+      <DetailPageHeader
+        breadcrumbs={[
+          { label: tc("intake"), href: "/intake" },
+          { label: tc("items"), href: "/intake/items" },
+          { label: item.itemNumber },
+        ]}
+        title={item.itemNumber}
+        subtitle={item.description}
+        backHref="/intake/items"
+        badge={
+          <>
+            <span
+              className={cn(
+                "rounded-full px-2.5 py-0.5 text-xs font-medium",
+                getStatusStyle(item.status),
+              )}
             >
-              <Receipt className="h-4 w-4" />
-              Sell
+              {ti(getStatusLabelKey(item.status))}
+            </span>
+            <span
+              className={cn(
+                "rounded-full px-2.5 py-0.5 text-xs font-medium",
+                getConditionStyle(item.condition),
+              )}
+            >
+              {ti(getConditionLabelKey(item.condition))}
+            </span>
+          </>
+        }
+        actions={
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/intake/items/${id}/edit`}
+              className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted"
+            >
+              <Pencil className="h-4 w-4" />
+              {tc("edit")}
             </Link>
-          )}
-        </div>
-      </div>
+            {isSellable && (
+              <Link
+                href={sellHref}
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+              >
+                <Receipt className="h-4 w-4" />
+                Sell
+              </Link>
+            )}
+          </div>
+        }
+      />
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Main content */}

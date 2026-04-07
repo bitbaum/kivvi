@@ -2,8 +2,15 @@
 
 import { useMemo } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useSelection } from "@/hooks/use-selection";
 import { cn, formatCurrency } from "@/lib/utils";
+import {
+  getStatusStyle,
+  getConditionStyle,
+  getStatusLabelKey,
+  getConditionLabelKey,
+} from "@/lib/config/inventory-items";
 import { ItemBatchToolbar } from "./item-batch-toolbar";
 
 interface ItemData {
@@ -22,59 +29,8 @@ interface SelectableItemListProps {
   items: ItemData[];
 }
 
-const STATUS_STYLES: Record<string, string> = {
-  intake: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-  testing:
-    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-  repair:
-    "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
-  ready_for_sale:
-    "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-  listed:
-    "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
-  reserved:
-    "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
-  sold: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400",
-  returned: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-  donated: "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400",
-  recycled: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-500",
-};
-
-const CONDITION_STYLES: Record<string, string> = {
-  untested: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400",
-  like_new:
-    "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-  good: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-  fair: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-  poor: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
-  parts_only: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-  scrap: "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-500",
-};
-
-const STATUS_LABELS: Record<string, string> = {
-  intake: "Intake",
-  testing: "Testing",
-  repair: "Repair",
-  ready_for_sale: "Ready",
-  listed: "Listed",
-  reserved: "Reserved",
-  sold: "Sold",
-  returned: "Returned",
-  donated: "Donated",
-  recycled: "Recycled",
-};
-
-const CONDITION_LABELS: Record<string, string> = {
-  untested: "Untested",
-  like_new: "Like New",
-  good: "Good",
-  fair: "Fair",
-  poor: "Poor",
-  parts_only: "Parts",
-  scrap: "Scrap",
-};
-
 export function SelectableItemList({ items }: SelectableItemListProps) {
+  const t = useTranslations("inventory");
   const allIds = useMemo(() => items.map((i) => i.id), [items]);
   const {
     selectedIds,
@@ -147,18 +103,18 @@ export function SelectableItemList({ items }: SelectableItemListProps) {
           <span
             className={cn(
               "inline-flex rounded-full px-2 py-0.5 text-xs font-medium w-fit",
-              CONDITION_STYLES[item.condition],
+              getConditionStyle(item.condition),
             )}
           >
-            {CONDITION_LABELS[item.condition] || item.condition}
+            {t(getConditionLabelKey(item.condition))}
           </span>
           <span
             className={cn(
               "inline-flex rounded-full px-2 py-0.5 text-xs font-medium w-fit",
-              STATUS_STYLES[item.status],
+              getStatusStyle(item.status),
             )}
           >
-            {STATUS_LABELS[item.status] || item.status}
+            {t(getStatusLabelKey(item.status))}
           </span>
           <div className="text-sm tabular-nums">
             {item.askingPrice ? formatCurrency(item.askingPrice) : "—"}

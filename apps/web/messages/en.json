@@ -4,6 +4,9 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "edit": "Edit",
+    "apply": "Apply",
+    "clear": "Clear",
+    "selected": "selected",
     "items": "Items",
     "view": "View",
     "create": "Create",
@@ -981,7 +984,24 @@
     "placeholders": {
       "quantity": "e.g. 10",
       "movementReference": "e.g. PO-2026-001 or manual adjustment"
-    }
+    },
+    "statusIntake": "Intake",
+    "statusTesting": "Testing",
+    "statusRepair": "Repair",
+    "statusReadyForSale": "Ready for Sale",
+    "statusListed": "Listed",
+    "statusReserved": "Reserved",
+    "statusSold": "Sold",
+    "statusReturned": "Returned",
+    "statusDonated": "Donated",
+    "statusRecycled": "Recycled",
+    "conditionUntested": "Untested",
+    "conditionLikeNew": "Like New",
+    "conditionGood": "Good",
+    "conditionFair": "Fair",
+    "conditionPoor": "Poor",
+    "conditionPartsOnly": "Parts Only",
+    "conditionScrap": "Scrap"
   },
   "reports": {
     "title": "Reports",

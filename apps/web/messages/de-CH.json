@@ -4,6 +4,9 @@
     "cancel": "Abbrechen",
     "delete": "Löschen",
     "edit": "Bearbeiten",
+    "apply": "Anwenden",
+    "clear": "Zurücksetzen",
+    "selected": "ausgewählt",
     "items": "Artikel",
     "view": "Anzeigen",
     "create": "Erstellen",
@@ -981,7 +984,24 @@
     "placeholders": {
       "quantity": "z.B. 10",
       "movementReference": "z.B. BE-2026-001 oder manuelle Korrektur"
-    }
+    },
+    "statusIntake": "Eingang",
+    "statusTesting": "Prüfung",
+    "statusRepair": "Reparatur",
+    "statusReadyForSale": "Verkaufsbereit",
+    "statusListed": "Gelistet",
+    "statusReserved": "Reserviert",
+    "statusSold": "Verkauft",
+    "statusReturned": "Zurückgegeben",
+    "statusDonated": "Gespendet",
+    "statusRecycled": "Recycelt",
+    "conditionUntested": "Ungetestet",
+    "conditionLikeNew": "Wie neu",
+    "conditionGood": "Gut",
+    "conditionFair": "Mittel",
+    "conditionPoor": "Schlecht",
+    "conditionPartsOnly": "Nur Teile",
+    "conditionScrap": "Schrott"
   },
   "reports": {
     "title": "Berichte",

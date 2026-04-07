@@ -4,6 +4,9 @@
     "cancel": "Annuler",
     "delete": "Supprimer",
     "edit": "Modifier",
+    "apply": "Appliquer",
+    "clear": "Réinitialiser",
+    "selected": "sélectionné(s)",
     "items": "Articles",
     "view": "Voir",
     "create": "Créer",
@@ -983,7 +986,24 @@
     "placeholders": {
       "quantity": "p.ex. 10",
       "movementReference": "p.ex. CF-2026-001 ou ajustement manuel"
-    }
+    },
+    "statusIntake": "Entrée",
+    "statusTesting": "Test",
+    "statusRepair": "Réparation",
+    "statusReadyForSale": "Prêt à vendre",
+    "statusListed": "En ligne",
+    "statusReserved": "Réservé",
+    "statusSold": "Vendu",
+    "statusReturned": "Retourné",
+    "statusDonated": "Donné",
+    "statusRecycled": "Recyclé",
+    "conditionUntested": "Non testé",
+    "conditionLikeNew": "Comme neuf",
+    "conditionGood": "Bon",
+    "conditionFair": "Correct",
+    "conditionPoor": "Mauvais",
+    "conditionPartsOnly": "Pièces uniquement",
+    "conditionScrap": "Rebut"
   },
   "reports": {
     "title": "Rapports",

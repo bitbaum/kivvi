@@ -12,6 +12,7 @@ import {
 } from "./sections";
 import { InventoryOverview } from "./sections/inventory-overview";
 import { ImpactOverview } from "./sections/impact-overview";
+import { CmdKHint } from "./cmd-k-hint";
 import { ErrorBoundary } from "@/components/error-boundary";
 import {
   ExecutiveSummarySkeleton,
@@ -61,6 +62,9 @@ export default async function DashboardPage() {
         contactCount={contactCount}
         documentCount={documentCount}
       />
+
+      {/* Feature hint: Cmd+K */}
+      <CmdKHint />
 
       {/* Section 1: "Good morning. Here's what matters." */}
       <ErrorBoundary>

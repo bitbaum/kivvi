@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   ResponsiveContainer,
@@ -11,7 +11,8 @@ import {
   PieChart,
   Pie,
   Cell,
-} from 'recharts';
+} from "recharts";
+import { formatCurrency } from "@/lib/utils";
 
 interface RevenueChartProps {
   data: Array<{ month: string; revenue: number }>;
@@ -21,22 +22,31 @@ interface RevenueChartProps {
 export function RevenueChart({ data, revenueLabel }: RevenueChartProps) {
   return (
     <div className="h-[300px] w-full min-w-0">
-      <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={50}>
+      <ResponsiveContainer
+        width="100%"
+        height="100%"
+        minWidth={0}
+        debounce={50}
+      >
         <BarChart data={data}>
           <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
           <XAxis dataKey="month" className="text-xs" />
           <YAxis className="text-xs" />
           <Tooltip
             formatter={(value: number | undefined) => [
-              `CHF ${(value ?? 0).toFixed(2)}`,
-              revenueLabel || 'Revenue',
+              formatCurrency(value ?? 0),
+              revenueLabel || "Revenue",
             ]}
             contentStyle={{
-              backgroundColor: 'hsl(var(--background))',
-              border: '1px solid hsl(var(--border))',
+              backgroundColor: "hsl(var(--background))",
+              border: "1px solid hsl(var(--border))",
             }}
           />
-          <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+          <Bar
+            dataKey="revenue"
+            fill="hsl(var(--primary))"
+            radius={[4, 4, 0, 0]}
+          />
         </BarChart>
       </ResponsiveContainer>
     </div>
@@ -50,7 +60,12 @@ interface AgingChartProps {
 export function AgingChart({ data }: AgingChartProps) {
   return (
     <div className="h-[300px] w-full min-w-0">
-      <ResponsiveContainer width="100%" height="100%" minWidth={0} debounce={50}>
+      <ResponsiveContainer
+        width="100%"
+        height="100%"
+        minWidth={0}
+        debounce={50}
+      >
         <PieChart>
           <Pie
             data={data}
@@ -67,11 +82,11 @@ export function AgingChart({ data }: AgingChartProps) {
           </Pie>
           <Tooltip
             formatter={(value: number | undefined) => [
-              `CHF ${(value ?? 0).toFixed(2)}`,
+              formatCurrency(value ?? 0),
             ]}
             contentStyle={{
-              backgroundColor: 'hsl(var(--background))',
-              border: '1px solid hsl(var(--border))',
+              backgroundColor: "hsl(var(--background))",
+              border: "1px solid hsl(var(--border))",
             }}
           />
         </PieChart>

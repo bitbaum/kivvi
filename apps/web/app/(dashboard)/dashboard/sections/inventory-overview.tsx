@@ -1,20 +1,27 @@
 import { PackageOpen, TrendingUp, Clock, Recycle } from "lucide-react";
 import { getSessionOrRedirect } from "@/lib/session";
+import { getTranslations } from "next-intl/server";
 import { db } from "@/lib/db";
 import { getInventoryDashboard } from "@kivvi/core/src/domain/inventory-dashboard";
 import { formatCurrency } from "@/lib/utils";
+import {
+  ITEM_STATUS_CONFIG,
+  getStatusLabelKey,
+} from "@/lib/config/inventory-items";
 
-const STATUS_LABELS: Record<string, string> = {
-  intake: "Intake",
-  testing: "Testing",
-  repair: "Repair",
-  ready_for_sale: "Ready",
-  listed: "Listed",
-  reserved: "Reserved",
-};
+// Active pipeline statuses (exclude terminal: sold, returned, donated, recycled)
+const PIPELINE_STATUSES = [
+  "intake",
+  "testing",
+  "repair",
+  "ready_for_sale",
+  "listed",
+  "reserved",
+];
 
 export async function InventoryOverview() {
   const session = await getSessionOrRedirect();
+  const ti = await getTranslations("inventory");
   const data = await getInventoryDashboard(db, session.user.companyId);
 
   // Only show if there are inventory items
@@ -61,7 +68,7 @@ export async function InventoryOverview() {
             Pipeline
           </h3>
           <div className="flex flex-wrap gap-3">
-            {Object.entries(STATUS_LABELS).map(([status, label]) => {
+            {PIPELINE_STATUSES.map((status) => {
               const count = data.byStatus[status] || 0;
               if (count === 0) return null;
               return (
@@ -71,7 +78,9 @@ export async function InventoryOverview() {
                   className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm hover:bg-muted transition-colors"
                 >
                   <span className="font-medium">{count}</span>
-                  <span className="text-muted-foreground">{label}</span>
+                  <span className="text-muted-foreground">
+                    {ti(getStatusLabelKey(status))}
+                  </span>
                 </a>
               );
             })}

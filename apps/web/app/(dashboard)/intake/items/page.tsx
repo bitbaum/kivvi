@@ -10,11 +10,9 @@ import { PageHeader } from "@/components/page-header";
 import { SearchInput } from "@/components/search-input";
 import { Pagination } from "@/components/pagination";
 import { EmptyState } from "@/components/empty-state";
-import { cn, formatCurrency } from "@/lib/utils";
-import {
-  ITEM_STATUS_VALUES,
-  ITEM_CONDITION_VALUES,
-} from "@kivvi/database/src/enums";
+import { cn } from "@/lib/utils";
+import { ITEM_STATUS_VALUES } from "@kivvi/database/src/enums";
+import { getStatusLabelKey } from "@/lib/config/inventory-items";
 
 interface PageProps {
   searchParams: Promise<{
@@ -25,61 +23,10 @@ interface PageProps {
   }>;
 }
 
-const STATUS_STYLES: Record<string, string> = {
-  intake: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-  testing:
-    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-  repair:
-    "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
-  ready_for_sale:
-    "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-  listed:
-    "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
-  reserved:
-    "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
-  sold: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400",
-  returned: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-  donated: "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400",
-  recycled: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-500",
-};
-
-const CONDITION_STYLES: Record<string, string> = {
-  untested: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400",
-  like_new:
-    "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-  good: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-  fair: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-  poor: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
-  parts_only: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-  scrap: "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-500",
-};
-
-const STATUS_LABELS: Record<string, string> = {
-  intake: "Intake",
-  testing: "Testing",
-  repair: "Repair",
-  ready_for_sale: "Ready",
-  listed: "Listed",
-  reserved: "Reserved",
-  sold: "Sold",
-  returned: "Returned",
-  donated: "Donated",
-  recycled: "Recycled",
-};
-
-const CONDITION_LABELS: Record<string, string> = {
-  untested: "Untested",
-  like_new: "Like New",
-  good: "Good",
-  fair: "Fair",
-  poor: "Poor",
-  parts_only: "Parts",
-  scrap: "Scrap",
-};
-
 export default async function InventoryItemsPage({ searchParams }: PageProps) {
   const session = await getSessionOrRedirect();
   const t = await getTranslations("common");
+  const ti = await getTranslations("inventory");
   const params = await searchParams;
   const page = parseInt(params.page || "1", 10);
   const status = params.status;
@@ -168,7 +115,7 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
                   : "bg-muted text-muted-foreground hover:bg-muted/80",
               )}
             >
-              {STATUS_LABELS[s] || s} ({counts[s]})
+              {ti(getStatusLabelKey(s))} ({counts[s]})
             </Link>
           ))}
         </div>

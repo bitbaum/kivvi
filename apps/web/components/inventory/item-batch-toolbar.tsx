@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   bulkUpdateItemStatusAction,
   bulkUpdateItemConditionAction,
@@ -10,30 +11,11 @@ import {
   ITEM_STATUS_VALUES,
   ITEM_CONDITION_VALUES,
 } from "@kivvi/database/src/enums";
+import {
+  getStatusLabelKey,
+  getConditionLabelKey,
+} from "@/lib/config/inventory-items";
 import { toast } from "sonner";
-
-const STATUS_LABELS: Record<string, string> = {
-  intake: "Intake",
-  testing: "Testing",
-  repair: "Repair",
-  ready_for_sale: "Ready for Sale",
-  listed: "Listed",
-  reserved: "Reserved",
-  sold: "Sold",
-  returned: "Returned",
-  donated: "Donated",
-  recycled: "Recycled",
-};
-
-const CONDITION_LABELS: Record<string, string> = {
-  untested: "Untested",
-  like_new: "Like New",
-  good: "Good",
-  fair: "Fair",
-  poor: "Poor",
-  parts_only: "Parts Only",
-  scrap: "Scrap",
-};
 
 interface ItemBatchToolbarProps {
   selectedIds: string[];
@@ -44,6 +26,8 @@ export function ItemBatchToolbar({
   selectedIds,
   onClear,
 }: ItemBatchToolbarProps) {
+  const t = useTranslations("inventory");
+  const tc = useTranslations("common");
   const [isPending, startTransition] = useTransition();
   const [statusValue, setStatusValue] = useState("");
   const [conditionValue, setConditionValue] = useState("");
@@ -88,11 +72,15 @@ export function ItemBatchToolbar({
     });
   }
 
+  const editableStatuses = ITEM_STATUS_VALUES.filter(
+    (s) => !["sold", "returned"].includes(s),
+  );
+
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 border-t bg-card p-3 shadow-lg sm:left-64">
       <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-3">
         <span className="text-sm font-medium">
-          {selectedIds.length} selected
+          {selectedIds.length} {tc("selected")}
         </span>
 
         <div className="flex items-center gap-1.5">
@@ -101,12 +89,10 @@ export function ItemBatchToolbar({
             onChange={(e) => setStatusValue(e.target.value)}
             className="rounded-lg border bg-background px-2 py-1.5 text-sm"
           >
-            <option value="">Set status...</option>
-            {ITEM_STATUS_VALUES.filter(
-              (s) => !["sold", "returned"].includes(s),
-            ).map((s) => (
+            <option value="">Status...</option>
+            {editableStatuses.map((s) => (
               <option key={s} value={s}>
-                {STATUS_LABELS[s] || s}
+                {t(getStatusLabelKey(s))}
               </option>
             ))}
           </select>
@@ -115,7 +101,11 @@ export function ItemBatchToolbar({
             disabled={!statusValue || isPending}
             className="rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
-            {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Apply"}
+            {isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              tc("apply")
+            )}
           </button>
         </div>
 
@@ -125,10 +115,10 @@ export function ItemBatchToolbar({
             onChange={(e) => setConditionValue(e.target.value)}
             className="rounded-lg border bg-background px-2 py-1.5 text-sm"
           >
-            <option value="">Set condition...</option>
+            <option value="">Condition...</option>
             {ITEM_CONDITION_VALUES.map((c) => (
               <option key={c} value={c}>
-                {CONDITION_LABELS[c] || c}
+                {t(getConditionLabelKey(c))}
               </option>
             ))}
           </select>
@@ -137,7 +127,11 @@ export function ItemBatchToolbar({
             disabled={!conditionValue || isPending}
             className="rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
-            {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Apply"}
+            {isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              tc("apply")
+            )}
           </button>
         </div>
 
@@ -145,7 +139,7 @@ export function ItemBatchToolbar({
           onClick={onClear}
           className="ml-auto rounded-lg border px-3 py-1.5 text-sm hover:bg-muted"
         >
-          Clear
+          {tc("clear")}
         </button>
       </div>
     </div>
