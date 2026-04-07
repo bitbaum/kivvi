@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { getSessionOrRedirect } from "@/lib/session";
 import { getTranslations } from "next-intl/server";
 import { formatCurrency } from "@/lib/utils";
+import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
 
 export async function ExecutiveSummary({ sinceDate }: { sinceDate?: Date }) {
   const session = await getSessionOrRedirect();
@@ -55,7 +56,7 @@ export async function ExecutiveSummary({ sinceDate }: { sinceDate?: Date }) {
       : t("narrative.allGood");
 
   const sinceDateLabel = sinceDate
-    ? new Date(sinceDate).toLocaleDateString("de-CH")
+    ? new Date(sinceDate).toLocaleDateString(DEFAULT_LOCALE)
     : null;
 
   return (

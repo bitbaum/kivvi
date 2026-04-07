@@ -75,3 +75,22 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Print styles — hide chrome, show only content */
+@media print {
+  .no-print,
+  nav,
+  aside,
+  header,
+  footer,
+  .print\\:hidden {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}

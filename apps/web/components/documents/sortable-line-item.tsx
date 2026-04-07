@@ -15,6 +15,10 @@ interface SortableLineItemProps {
   updateItem: (id: string, field: keyof LineItem, value: string | null) => void;
   removeItem: (id: string) => void;
   canRemove: boolean;
+  /** Hide price/discount/VAT/total columns (for donation intakes) */
+  hideFinancials?: boolean;
+  /** Override label for the price column (e.g. "Acquisition Cost" for purchase intakes) */
+  priceLabel?: string;
   t: (key: string) => string;
   tc: (key: string) => string;
 }
@@ -25,6 +29,8 @@ export function SortableLineItem({
   updateItem,
   removeItem,
   canRemove,
+  hideFinancials,
+  priceLabel,
   t,
   tc,
 }: SortableLineItemProps) {
@@ -70,7 +76,12 @@ export function SortableLineItem({
             value={item.description}
             onChange={(val) => updateItem(item.id, "description", val)}
             onProductSelect={(product) => {
-              updateItem(item.id, "productId", product.id);
+              updateItem(item.id, "productId", product.productId || product.id);
+              updateItem(
+                item.id,
+                "inventoryItemId",
+                product.inventoryItemId || null,
+              );
               updateItem(item.id, "description", product.name);
               updateItem(item.id, "stockQuantity", product.stockQuantity);
               if (product.unitPrice)
@@ -84,7 +95,9 @@ export function SortableLineItem({
             data-item-id={item.id}
             data-field="description"
           />
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+          <div
+            className={`grid grid-cols-2 gap-3 ${hideFinancials ? "sm:grid-cols-1" : "sm:grid-cols-5"}`}
+          >
             <div>
               <label className="block text-xs text-muted-foreground">
                 {t("quantity")}
@@ -120,60 +133,66 @@ export function SortableLineItem({
                   return null;
                 })()}
             </div>
-            <div>
-              <label className="block text-xs text-muted-foreground">
-                {t("unitPrice")}
-              </label>
-              <FormInput
-                type="number"
-                step="0.01"
-                value={item.unitPrice}
-                onChange={(e) =>
-                  updateItem(item.id, "unitPrice", e.target.value)
-                }
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-muted-foreground">
-                {t("discount")} %
-              </label>
-              <FormInput
-                type="number"
-                step="0.01"
-                min="0"
-                max="100"
-                value={item.discount}
-                onChange={(e) =>
-                  updateItem(item.id, "discount", e.target.value)
-                }
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-muted-foreground">
-                {t("vatRate")} %
-              </label>
-              <FormSelect
-                value={item.vatRate}
-                onChange={(e) => updateItem(item.id, "vatRate", e.target.value)}
-                className="mt-1"
-              >
-                {SWISS_VAT_RATES.map((rate) => (
-                  <option key={rate.value} value={rate.value}>
-                    {rate.value}%
-                  </option>
-                ))}
-              </FormSelect>
-            </div>
-            <div>
-              <label className="block text-xs text-muted-foreground">
-                {tc("total")}
-              </label>
-              <div className="mt-1 rounded-lg border bg-muted px-3 py-2 text-sm font-medium">
-                {calculateItemTotal(item).toFixed(2)}
-              </div>
-            </div>
+            {!hideFinancials && (
+              <>
+                <div>
+                  <label className="block text-xs text-muted-foreground">
+                    {priceLabel || t("unitPrice")}
+                  </label>
+                  <FormInput
+                    type="number"
+                    step="0.01"
+                    value={item.unitPrice}
+                    onChange={(e) =>
+                      updateItem(item.id, "unitPrice", e.target.value)
+                    }
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-muted-foreground">
+                    {t("discount")} %
+                  </label>
+                  <FormInput
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    max="100"
+                    value={item.discount}
+                    onChange={(e) =>
+                      updateItem(item.id, "discount", e.target.value)
+                    }
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-muted-foreground">
+                    {t("vatRate")} %
+                  </label>
+                  <FormSelect
+                    value={item.vatRate}
+                    onChange={(e) =>
+                      updateItem(item.id, "vatRate", e.target.value)
+                    }
+                    className="mt-1"
+                  >
+                    {SWISS_VAT_RATES.map((rate) => (
+                      <option key={rate.value} value={rate.value}>
+                        {rate.value}%
+                      </option>
+                    ))}
+                  </FormSelect>
+                </div>
+                <div>
+                  <label className="block text-xs text-muted-foreground">
+                    {tc("total")}
+                  </label>
+                  <div className="mt-1 rounded-lg border bg-muted px-3 py-2 text-sm font-medium">
+                    {calculateItemTotal(item).toFixed(2)}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
 

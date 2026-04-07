@@ -69,6 +69,22 @@ export interface BulkActionDef {
 // CONSTANTS
 // ============================================================================
 
+/** Common status filter tabs shown on the documents hub page */
+export const COMMON_FILTER_STATUSES: DocumentStatus[] = [
+  "draft",
+  "sent",
+  "confirmed",
+  "paid",
+  "overdue",
+  "cancelled",
+];
+
+/** Statuses that indicate an invoice is overdue-eligible (sent but unpaid) */
+export const OVERDUE_ELIGIBLE_STATUSES: DocumentStatus[] = [
+  "sent",
+  "partially_paid",
+];
+
 /** Default payment terms for new documents (in days) */
 export const DEFAULT_PAYMENT_TERMS_DAYS = 30;
 
@@ -577,6 +593,44 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
         action: "mark_paid",
         variant: "primary",
         applicableStatuses: ["confirmed", "partially_paid", "overdue"],
+      },
+      {
+        id: "delete",
+        label: "delete",
+        action: "delete",
+        variant: "destructive",
+        applicableStatuses: ["draft"],
+        requiresConfirmation: true,
+      },
+    ],
+  },
+  intake: {
+    type: "intake",
+    label: "intake",
+    labelPlural: "intakePlural",
+    basePath: "/intake",
+    contactFilter: "all",
+    statuses: ["draft", "confirmed", "cancelled"],
+    actions: {
+      draft: [
+        { label: "confirm", targetStatus: "confirmed", variant: "primary" },
+        { label: "cancel", targetStatus: "cancelled", variant: "destructive" },
+      ],
+    },
+    conversionTargets: [],
+    hasDueDate: false,
+    hasDeliveryDate: false,
+    hasPayments: false,
+    canCreate: true,
+    dueDateLabel: "dueDate",
+    bulkActions: [
+      {
+        id: "confirm",
+        label: "confirm",
+        action: "status_change",
+        variant: "primary",
+        targetStatus: "confirmed",
+        applicableStatuses: ["draft"],
       },
       {
         id: "delete",

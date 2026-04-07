@@ -54,6 +54,7 @@ export const createProductTool: Tool = {
         notes: params.notes || null,
         serialNumberTracking: false,
         shopVisible: false,
+        isPriceFlexible: false,
       });
 
       return {

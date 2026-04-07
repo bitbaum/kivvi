@@ -6,6 +6,8 @@ import { useTranslations } from "next-intl";
 import { CreditCard, AlertTriangle } from "lucide-react";
 import { recordPaymentAction } from "@/app/actions/documents";
 import { FormInput, FormSelect } from "@/components/ui/form-field";
+import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
+import type { PaymentMethodValue } from "@kivvi/database/src/enums";
 
 export function PaymentForm({
   documentId,
@@ -49,11 +51,7 @@ export function PaymentForm({
         amount: formData.get("amount") as string,
         date: formData.get("date") as string,
         method:
-          (formData.get("method") as
-            | "bank_transfer"
-            | "cash"
-            | "card"
-            | "other") || "bank_transfer",
+          (formData.get("method") as PaymentMethodValue) || "bank_transfer",
         reference: (formData.get("reference") as string) || undefined,
       });
 
@@ -73,7 +71,7 @@ export function PaymentForm({
         {t("outstanding")}:{" "}
         <span className="font-medium text-foreground">
           {currency}{" "}
-          {parseFloat(outstanding).toLocaleString("de-CH", {
+          {parseFloat(outstanding).toLocaleString(DEFAULT_LOCALE, {
             minimumFractionDigits: 2,
           })}
         </span>

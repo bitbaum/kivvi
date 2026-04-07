@@ -1,20 +1,22 @@
-import { eq, and, sql } from 'drizzle-orm';
-import { numberSequences } from '@kivvi/database';
-import type { Database } from '@kivvi/database';
+import { eq, and, sql } from "drizzle-orm";
+import { numberSequences } from "@kivvi/database";
+import type { Database } from "@kivvi/database";
 
 // Default sequence configs per type
 const SEQUENCE_DEFAULTS: Record<string, { prefix: string; format: string }> = {
-  invoice: { prefix: 'RE', format: '{prefix}-{year}-{number:5}' },
-  quote: { prefix: 'AN', format: '{prefix}-{year}-{number:5}' },
-  order: { prefix: 'AU', format: '{prefix}-{year}-{number:5}' },
-  order_confirmation: { prefix: 'AB', format: '{prefix}-{year}-{number:5}' },
-  delivery_note: { prefix: 'LS', format: '{prefix}-{year}-{number:5}' },
-  credit_note: { prefix: 'GU', format: '{prefix}-{year}-{number:5}' },
-  purchase_order: { prefix: 'BE', format: '{prefix}-{year}-{number:5}' },
-  purchase_invoice: { prefix: 'ER', format: '{prefix}-{year}-{number:5}' },
-  dunning: { prefix: 'MA', format: '{prefix}-{year}-{number:5}' },
-  contact: { prefix: 'K', format: '{prefix}-{number:5}' },
-  product: { prefix: 'ART', format: '{prefix}-{number:5}' },
+  invoice: { prefix: "RE", format: "{prefix}-{year}-{number:5}" },
+  quote: { prefix: "AN", format: "{prefix}-{year}-{number:5}" },
+  order: { prefix: "AU", format: "{prefix}-{year}-{number:5}" },
+  order_confirmation: { prefix: "AB", format: "{prefix}-{year}-{number:5}" },
+  delivery_note: { prefix: "LS", format: "{prefix}-{year}-{number:5}" },
+  credit_note: { prefix: "GU", format: "{prefix}-{year}-{number:5}" },
+  purchase_order: { prefix: "BE", format: "{prefix}-{year}-{number:5}" },
+  purchase_invoice: { prefix: "ER", format: "{prefix}-{year}-{number:5}" },
+  dunning: { prefix: "MA", format: "{prefix}-{year}-{number:5}" },
+  intake: { prefix: "EI", format: "{prefix}-{year}-{number:5}" },
+  contact: { prefix: "K", format: "{prefix}-{number:5}" },
+  product: { prefix: "ART", format: "{prefix}-{number:5}" },
+  inventory_item: { prefix: "IT", format: "{prefix}-{number:5}" },
 };
 
 /**
@@ -29,10 +31,10 @@ function formatNumber(format: string, prefix: string, num: number): string {
   const year = new Date().getFullYear().toString();
 
   return format
-    .replace('{prefix}', prefix)
-    .replace('{year}', year)
+    .replace("{prefix}", prefix)
+    .replace("{year}", year)
     .replace(/\{number:(\d+)\}/, (_, digits) => {
-      return num.toString().padStart(parseInt(digits), '0');
+      return num.toString().padStart(parseInt(digits), "0");
     });
 }
 
@@ -43,7 +45,7 @@ function formatNumber(format: string, prefix: string, num: number): string {
 export async function getNextNumber(
   db: Database,
   companyId: string,
-  type: string
+  type: string,
 ): Promise<string> {
   const defaults = SEQUENCE_DEFAULTS[type];
   if (!defaults) {
@@ -57,8 +59,8 @@ export async function getNextNumber(
     .where(
       and(
         eq(numberSequences.companyId, companyId),
-        eq(numberSequences.type, type)
-      )
+        eq(numberSequences.type, type),
+      ),
     )
     .returning({
       usedNumber: sql<number>`${numberSequences.nextNumber} - 1`,
@@ -86,8 +88,8 @@ export async function getNextNumber(
       .where(
         and(
           eq(numberSequences.companyId, companyId),
-          eq(numberSequences.type, type)
-        )
+          eq(numberSequences.type, type),
+        ),
       )
       .returning({
         usedNumber: sql<number>`${numberSequences.nextNumber} - 1`,
@@ -99,10 +101,18 @@ export async function getNextNumber(
       throw new Error(`Failed to allocate number for sequence type: ${type}`);
     }
 
-    return formatNumber(retried[0].format, retried[0].prefix, retried[0].usedNumber);
+    return formatNumber(
+      retried[0].format,
+      retried[0].prefix,
+      retried[0].usedNumber,
+    );
   }
 
-  return formatNumber(updated[0].format, updated[0].prefix, updated[0].usedNumber);
+  return formatNumber(
+    updated[0].format,
+    updated[0].prefix,
+    updated[0].usedNumber,
+  );
 }
 
 /**
@@ -111,7 +121,7 @@ export async function getNextNumber(
  */
 export async function initializeSequences(
   db: Database,
-  companyId: string
+  companyId: string,
 ): Promise<void> {
   const types = Object.keys(SEQUENCE_DEFAULTS);
 

@@ -8,6 +8,10 @@ import { useTranslations } from "next-intl";
 import { createProjectAction } from "@/app/actions/projects";
 import { cn } from "@/lib/utils";
 import {
+  PROJECT_STATUSES,
+  PROJECT_STATUS_LABEL_KEYS,
+} from "@/lib/config/project-status";
+import {
   FormInput,
   FormSelect,
   FormTextarea,
@@ -18,12 +22,10 @@ export default function NewProjectPage() {
   const t = useTranslations("projects");
   const tc = useTranslations("common");
 
-  const PROJECT_STATUSES = [
-    { value: "active", label: t("statusActive") },
-    { value: "completed", label: t("statusCompleted") },
-    { value: "on_hold", label: t("statusOnHold") },
-    { value: "cancelled", label: t("statusCancelled") },
-  ];
+  const statusOptions = PROJECT_STATUSES.map((s) => ({
+    value: s,
+    label: t(PROJECT_STATUS_LABEL_KEYS[s]),
+  }));
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -137,7 +139,7 @@ export default function NewProjectPage() {
                 {tc("status")}
               </label>
               <FormSelect id="status" name="status" defaultValue="active">
-                {PROJECT_STATUSES.map((s) => (
+                {statusOptions.map((s) => (
                   <option key={s.value} value={s.value}>
                     {s.label}
                   </option>

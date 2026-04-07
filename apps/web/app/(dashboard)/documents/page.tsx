@@ -9,6 +9,7 @@ import {
   DEFAULT_PAGE_SIZE,
   toCamelCase,
   STATUS_STYLES,
+  COMMON_FILTER_STATUSES,
 } from "@/lib/config/document-types";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { getTranslations } from "next-intl/server";
@@ -235,22 +236,20 @@ export default async function DocumentsPage({ searchParams }: PageProps) {
           >
             {tc("all")}
           </Link>
-          {["draft", "sent", "confirmed", "paid", "overdue", "cancelled"].map(
-            (s) => (
-              <Link
-                key={s}
-                href={buildHref({ status: s, page: undefined })}
-                className={cn(
-                  "rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
-                  status === s
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80",
-                )}
-              >
-                {ts(toCamelCase(s))}
-              </Link>
-            ),
-          )}
+          {COMMON_FILTER_STATUSES.map((s) => (
+            <Link
+              key={s}
+              href={buildHref({ status: s, page: undefined })}
+              className={cn(
+                "rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
+                status === s
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80",
+              )}
+            >
+              {ts(toCamelCase(s))}
+            </Link>
+          ))}
         </div>
       </div>
 

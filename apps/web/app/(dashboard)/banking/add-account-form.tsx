@@ -6,6 +6,7 @@ import { Plus, X } from "lucide-react";
 import { createBankAccountAction } from "@/app/actions/banking";
 import { useTranslations } from "next-intl";
 import { FormInput, FormSelect } from "@/components/ui/form-field";
+import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
 
 export function AddAccountForm() {
@@ -27,7 +28,7 @@ export function AddAccountForm() {
       name: formData.get("name") as string,
       iban: (formData.get("iban") as string) || undefined,
       bankName: (formData.get("bankName") as string) || undefined,
-      currency: (formData.get("currency") as string) || "CHF",
+      currency: (formData.get("currency") as string) || DEFAULT_CURRENCY,
     };
 
     startTransition(async () => {
@@ -107,7 +108,7 @@ export function AddAccountForm() {
             <label className="block text-sm font-medium mb-1">
               {tc("currency")}
             </label>
-            <FormSelect name="currency" defaultValue="CHF">
+            <FormSelect name="currency" defaultValue={DEFAULT_CURRENCY}>
               <option value="CHF">CHF</option>
               <option value="EUR">EUR</option>
               <option value="USD">USD</option>

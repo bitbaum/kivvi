@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, Users, Download, Search } from "lucide-react";
+import { Plus, Users, Search } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { getTranslations } from "next-intl/server";
 import { count, eq, and, gte } from "drizzle-orm";
@@ -14,6 +14,7 @@ import { PageHeader } from "@/components/page-header";
 import { SelectableContactTable } from "@/components/contacts/selectable-contact-table";
 import { SearchInput } from "@/components/search-input";
 import { Pagination } from "@/components/pagination";
+import { ContactExportButton } from "@/components/contacts/contact-export-button";
 
 interface ContactsPageProps {
   searchParams: {
@@ -186,13 +187,10 @@ export default async function ContactsPage({
         subtitle={t("subtitle")}
         actions={
           <>
-            <a
-              href="/api/export/contacts"
-              className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2.5 text-sm font-medium hover:bg-accent transition-colors"
-            >
-              <Download className="h-4 w-4" />
-              {t("exportCsv")}
-            </a>
+            <ContactExportButton
+              totalCount={result.total}
+              filters={{ search: search || undefined, type: typeFilter }}
+            />
             <Link
               href="/contacts/new"
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"

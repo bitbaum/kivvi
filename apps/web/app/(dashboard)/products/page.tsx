@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus, Package, Download, Search } from "lucide-react";
+import { Plus, Package, Search } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { getTranslations } from "next-intl/server";
 import { getSessionOrRedirect } from "@/lib/session";
@@ -13,6 +13,7 @@ import { PageHeader } from "@/components/page-header";
 import { SelectableProductTable } from "@/components/products/selectable-product-table";
 import { SearchInput } from "@/components/search-input";
 import { Pagination } from "@/components/pagination";
+import { ProductExportButton } from "@/components/products/product-export-button";
 
 interface PageProps {
   searchParams: Promise<{
@@ -171,13 +172,10 @@ export default async function ProductsPage({ searchParams }: PageProps) {
         subtitle={t("subtitle")}
         actions={
           <>
-            <a
-              href="/api/export/products"
-              className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2.5 text-sm font-medium hover:bg-accent transition-colors"
-            >
-              <Download className="h-4 w-4" />
-              {tc("exportCsv")}
-            </a>
+            <ProductExportButton
+              totalCount={result.total}
+              filters={{ search: search || undefined }}
+            />
             <Link
               href="/products/new"
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"

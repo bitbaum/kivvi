@@ -9,6 +9,7 @@ import {
 import type { Database } from "@kivvi/database";
 import type { MembershipRole } from "@kivvi/database";
 import { DEFAULT_VAT_RATE } from "../config/vat-rates";
+import { DEFAULT_CURRENCY } from "../config/locale";
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -267,7 +268,7 @@ export async function createOwnedCompany(
     .insert(companies)
     .values({
       name: companyName,
-      currency: "CHF",
+      currency: DEFAULT_CURRENCY,
       country: "CH",
       settings: {
         defaultVatRate: Number(DEFAULT_VAT_RATE),

@@ -21,7 +21,12 @@ import {
   bankAccounts,
   contacts,
 } from "@kivvi/database";
-import type { Database, DocumentType, DocumentStatus } from "@kivvi/database";
+import type {
+  Database,
+  DocumentType,
+  DocumentStatus,
+  PaymentMethodValue,
+} from "@kivvi/database";
 import type { PaginatedResult } from "./contacts";
 import { rappenRound } from "../utils/swiss-currency";
 import { getNextNumber } from "./number-sequences";
@@ -33,11 +38,14 @@ import {
   createPaymentReceivedJournalEntry,
 } from "./accounting-integration";
 import { DEFAULT_VAT_RATE } from "../config/vat-rates";
+import { DEFAULT_CURRENCY } from "../config/locale";
 import { VALID_CONVERSIONS } from "./document-conversions";
 import {
   createStockMovementsForDocument,
   updateStockReservationsForDocument,
 } from "./inventory-integration";
+import { createInventoryItemsFromIntake } from "./intake-integration";
+import { createInventoryItemsFromPurchaseInvoice } from "./purchase-invoice-integration";
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -45,6 +53,7 @@ import {
 
 const documentItemSchema = z.object({
   productId: z.string().uuid().optional().nullable(),
+  inventoryItemId: z.string().uuid().optional().nullable(),
   position: z.number().int().min(0),
   description: z.string().min(1, "Description is required"),
   quantity: z.string().regex(/^\d+(\.\d{1,4})?$/, "Invalid quantity"),
@@ -71,15 +80,30 @@ export const createDocumentSchema = z.object({
     "purchase_order",
     "purchase_invoice",
     "dunning",
+    "intake",
   ]),
   contactId: z.string().uuid().optional().nullable(),
   projectId: z.string().uuid().optional().nullable(),
   issueDate: z.string().optional(), // ISO date string
   dueDate: z.string().optional().nullable(),
   deliveryDate: z.string().optional().nullable(),
-  currency: z.string().default("CHF"),
+  currency: z.string().default(DEFAULT_CURRENCY),
   notes: z.string().max(5000).optional().nullable(),
   internalNotes: z.string().max(5000).optional().nullable(),
+  // Intake-specific fields
+  intakeSource: z
+    .enum([
+      "donation",
+      "purchase",
+      "trade_in",
+      "consignment",
+      "estate_clearance",
+      "return",
+      "other",
+    ])
+    .optional()
+    .nullable(),
+  donorId: z.string().uuid().optional().nullable(),
   items: z
     .array(documentItemSchema)
     .min(1, "At least one line item is required"),
@@ -109,7 +133,7 @@ export type DocumentItemInput = z.infer<typeof documentItemSchema>;
 // ============================================================================
 
 const VALID_TRANSITIONS: Record<string, string[]> = {
-  draft: ["sent", "cancelled"],
+  draft: ["sent", "confirmed", "cancelled"],
   sent: ["confirmed", "paid", "partially_paid", "overdue", "cancelled"],
   confirmed: ["delivered", "paid", "partially_paid", "overdue", "cancelled"],
   delivered: ["paid", "partially_paid", "overdue", "cancelled"],
@@ -255,34 +279,8 @@ export type DocumentListItem = typeof documents.$inferSelect & {
   contact?: { id: string; name: string } | null;
 };
 
-/**
- * Calculate overdue status for a document.
- * Business logic extracted from components to avoid duplication.
- */
-export function getOverdueInfo(doc: {
-  status: string;
-  dueDate: Date | string | null;
-}): {
-  isOverdue: boolean;
-  daysOverdue: number;
-} {
-  const isOverdue =
-    doc.status !== "paid" &&
-    doc.status !== "cancelled" &&
-    doc.status !== "draft" &&
-    !!doc.dueDate &&
-    new Date(doc.dueDate) < new Date();
-
-  const daysOverdue =
-    isOverdue && doc.dueDate
-      ? Math.floor(
-          (Date.now() - new Date(doc.dueDate).getTime()) /
-            (1000 * 60 * 60 * 24),
-        )
-      : 0;
-
-  return { isOverdue, daysOverdue };
-}
+// Re-export from client-safe utility (SSOT: packages/core/src/utils/overdue.ts)
+export { getOverdueInfo } from "../utils/overdue";
 
 // ============================================================================
 // FILTERS
@@ -503,6 +501,9 @@ export async function createDocument(
         total: totals.total,
         notes: validated.notes ?? null,
         internalNotes: validated.internalNotes ?? null,
+        // Intake-specific fields
+        intakeSource: validated.intakeSource ?? null,
+        donorId: validated.donorId ?? null,
         qrReference,
         createdBy: userId,
       })
@@ -514,6 +515,7 @@ export async function createDocument(
         validated.items.map((item, index) => ({
           documentId: doc.id,
           productId: item.productId ?? null,
+          inventoryItemId: item.inventoryItemId ?? null,
           position: item.position ?? index,
           description: item.description,
           quantity: item.quantity,
@@ -523,6 +525,24 @@ export async function createDocument(
           total: totals.itemTotals[index],
         })),
       );
+
+      // Auto-mark linked inventory items as sold (for invoices/sales)
+      const salesTypes = ["invoice", "quote", "order"];
+      if (salesTypes.includes(validated.type)) {
+        const { sellInventoryItem } = await import("./inventory-items");
+        for (const item of validated.items) {
+          if (item.inventoryItemId) {
+            try {
+              await sellInventoryItem(tx, companyId, item.inventoryItemId, {
+                saleDocumentId: doc.id,
+                soldPrice: item.unitPrice,
+              });
+            } catch {
+              // Item may not be in sellable state — don't block document creation
+            }
+          }
+        }
+      }
     }
 
     return doc;
@@ -781,6 +801,42 @@ export async function updateDocumentStatus(
     await createStockMovementsForDocument(tx, companyId, doc, newStatus);
     await updateStockReservationsForDocument(tx, companyId, doc, newStatus);
 
+    // Intake confirmed: auto-create inventory items from line items
+    if (doc.type === "intake" && newStatus === "confirmed") {
+      await createInventoryItemsFromIntake(tx, companyId, {
+        id: doc.id,
+        contactId: doc.contactId,
+        donorId: (doc as any).donorId ?? null,
+      });
+    }
+
+    // Purchase invoice confirmed: create inventory items for serial-tracked products
+    // Products without serialNumberTracking remain quantity-only (handled by stock movements)
+    if (doc.type === "purchase_invoice" && newStatus === "confirmed") {
+      await createInventoryItemsFromPurchaseInvoice(tx, companyId, {
+        id: doc.id,
+        contactId: doc.contactId,
+      });
+    }
+
+    // Credit note sent: reverse any linked inventory items (sold → returned)
+    if (doc.type === "credit_note" && newStatus === "sent") {
+      const { returnInventoryItem } = await import("./inventory-items");
+      const creditItems = await tx
+        .select()
+        .from(documentItems)
+        .where(eq(documentItems.documentId, doc.id));
+      for (const ci of creditItems) {
+        if (ci.inventoryItemId) {
+          try {
+            await returnInventoryItem(tx, companyId, ci.inventoryItemId);
+          } catch {
+            // Item may already be returned or in unexpected state — don't block
+          }
+        }
+      }
+    }
+
     return updated;
   });
 }
@@ -831,7 +887,7 @@ export async function recordPayment(
   input: {
     amount: string;
     date: string;
-    method?: "bank_transfer" | "cash" | "card" | "other";
+    method?: PaymentMethodValue;
     reference?: string;
     bankTransactionId?: string;
   },
@@ -1018,12 +1074,14 @@ export async function convertDocument(
       })
       .returning();
 
-    // Copy items (in same transaction)
+    // Copy items (in same transaction). Preserve inventoryItemId so credit notes
+    // can reverse inventory item sales back to "returned" status.
     if (source.items.length > 0) {
       await tx.insert(documentItems).values(
         source.items.map((item) => ({
           documentId: newDoc.id,
           productId: item.productId,
+          inventoryItemId: item.inventoryItemId,
           position: item.position,
           description: item.description,
           quantity: item.quantity,

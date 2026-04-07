@@ -10,6 +10,8 @@ import {
   QuickActions,
   WelcomeSection,
 } from "./sections";
+import { InventoryOverview } from "./sections/inventory-overview";
+import { ImpactOverview } from "./sections/impact-overview";
 import { ErrorBoundary } from "@/components/error-boundary";
 import {
   ExecutiveSummarySkeleton,
@@ -71,6 +73,20 @@ export default async function DashboardPage() {
       <ErrorBoundary>
         <Suspense fallback={<StatsSkeleton />}>
           <SmartStats sinceDate={sinceDate} />
+        </Suspense>
+      </ErrorBoundary>
+
+      {/* Inventory business metrics (only shows if items exist) */}
+      <ErrorBoundary>
+        <Suspense fallback={null}>
+          <InventoryOverview />
+        </Suspense>
+      </ErrorBoundary>
+
+      {/* Impact metrics (only shows if items exist) */}
+      <ErrorBoundary>
+        <Suspense fallback={null}>
+          <ImpactOverview />
         </Suspense>
       </ErrorBoundary>
 

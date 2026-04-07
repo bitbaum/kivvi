@@ -22,8 +22,10 @@ import {
 import {
   documentTypeEnum,
   documentStatusEnum,
+  PAYMENT_METHOD_VALUES,
   type DocumentType,
   type DocumentStatus,
+  type PaymentMethodValue,
 } from "@kivvi/database";
 import {
   type ActionResult,
@@ -320,9 +322,7 @@ export async function bulkMarkPaidAction(
     const { companyId } = await requireRole("member");
     const schema = bulkDocumentIdsSchema.extend({
       paymentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-      method: z
-        .enum(["bank_transfer", "cash", "card", "other"])
-        .default("bank_transfer"),
+      method: z.enum(PAYMENT_METHOD_VALUES).default("bank_transfer"),
     });
     const data = parseInput(schema, input);
     if ("success" in data) return data as ActionResult<never>;
@@ -345,7 +345,7 @@ export async function bulkMarkPaidAction(
         await recordPayment(db, companyId, docId, {
           amount: outstanding.toFixed(2),
           date: data.paymentDate,
-          method: data.method as "bank_transfer" | "cash" | "card" | "other",
+          method: data.method as PaymentMethodValue,
           reference: `Bulk payment ${data.paymentDate}`,
         });
         return undefined;

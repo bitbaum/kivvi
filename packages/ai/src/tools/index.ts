@@ -28,6 +28,9 @@ export { getRecurringInvoicesTool } from "./get-recurring-invoices";
 export { processDunningTool } from "./process-dunning";
 export { reconcileTransactionTool } from "./reconcile-transaction";
 export { getDashboardSummaryTool } from "./get-dashboard-summary";
+export { prepareDocumentTool } from "./prepare-document";
+export { searchInventoryTool } from "./search-inventory";
+export { getInventoryDashboardTool } from "./get-inventory-dashboard";
 
 // Import for getDefaultTools
 import { searchInvoicesTool } from "./search-invoices";
@@ -57,6 +60,9 @@ import { getRecurringInvoicesTool } from "./get-recurring-invoices";
 import { processDunningTool } from "./process-dunning";
 import { reconcileTransactionTool } from "./reconcile-transaction";
 import { getDashboardSummaryTool } from "./get-dashboard-summary";
+import { prepareDocumentTool } from "./prepare-document";
+import { searchInventoryTool } from "./search-inventory";
+import { getInventoryDashboardTool } from "./get-inventory-dashboard";
 
 /**
  * Get default tools for the ERP system
@@ -90,6 +96,9 @@ export function getDefaultTools(): Tool[] {
     processDunningTool,
     reconcileTransactionTool,
     getDashboardSummaryTool,
+    prepareDocumentTool,
+    searchInventoryTool,
+    getInventoryDashboardTool,
   ];
 }
 

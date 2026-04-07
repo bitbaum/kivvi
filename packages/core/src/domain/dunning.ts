@@ -1,5 +1,6 @@
 import Decimal from "decimal.js";
 import { eq, and, lt, sql, desc, count, inArray, ne } from "drizzle-orm";
+import { DEFAULT_LOCALE, DEFAULT_CURRENCY } from "../config/locale";
 import {
   documents,
   documentItems,
@@ -217,7 +218,7 @@ export async function createDunning(
         subtotal: outstanding,
         vatAmount: "0",
         total: outstanding,
-        notes: `Dunning notice for invoice ${invoice.number}. Payment was due on ${invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString("de-CH") : "unknown"}. Outstanding amount: CHF ${outstanding}.`,
+        notes: `Dunning notice for invoice ${invoice.number}. Payment was due on ${invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString(DEFAULT_LOCALE) : "unknown"}. Outstanding amount: ${DEFAULT_CURRENCY} ${outstanding}.`,
         convertedFromId: invoice.id,
         createdBy: userId,
       })

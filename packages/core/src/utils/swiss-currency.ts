@@ -1,4 +1,5 @@
-import Decimal from 'decimal.js';
+import Decimal from "decimal.js";
+import { DEFAULT_LOCALE, DEFAULT_CURRENCY } from "../config/locale";
 
 /**
  * Swiss currency utilities.
@@ -29,11 +30,11 @@ export function rappenRound(amount: Decimal): Decimal {
  * formatSwissFrancs('1234.567') // "CHF 1'234.55"
  */
 export function formatSwissFrancs(amount: string | Decimal): string {
-  const decimal = typeof amount === 'string' ? new Decimal(amount) : amount;
+  const decimal = typeof amount === "string" ? new Decimal(amount) : amount;
   const rounded = rappenRound(decimal);
 
-  return new Intl.NumberFormat('de-CH', {
-    style: 'currency',
-    currency: 'CHF',
+  return new Intl.NumberFormat(DEFAULT_LOCALE, {
+    style: "currency",
+    currency: DEFAULT_CURRENCY,
   }).format(rounded.toNumber());
 }

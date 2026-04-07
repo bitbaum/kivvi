@@ -9,6 +9,7 @@ import { BulkResultBanner } from "@/components/bulk-result-banner";
 import { DocumentBulkActions } from "./document-bulk-actions";
 import { cn, formatCurrency, formatDate } from "@/lib/utils";
 import { STATUS_STYLES, toCamelCase } from "@/lib/config/document-types";
+import { getOverdueInfo } from "@kivvi/core/src/utils/overdue";
 import type { DocumentTypeConfig } from "@/lib/config/document-types";
 import type { BulkOperationResult } from "@/app/actions/bulk-operations";
 import { useState } from "react";
@@ -85,8 +86,8 @@ export function SelectableDocumentTable({
 
   function isOverdue(doc: DocumentItem): boolean {
     if (!config.hasPayments) return false;
-    if (doc.status === "paid" || doc.status === "cancelled") return false;
-    return !!doc.dueDate && new Date(doc.dueDate) < new Date();
+    return getOverdueInfo({ status: doc.status, dueDate: doc.dueDate ?? null })
+      .isOverdue;
   }
 
   return (

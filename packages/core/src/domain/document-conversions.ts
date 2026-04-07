@@ -32,4 +32,5 @@ export const DOCUMENT_TYPE_LABELS_DE: Record<DocumentType, string> = {
   dunning: "Zahlungserinnerung",
   purchase_order: "Bestellung",
   purchase_invoice: "Eingangsrechnung",
+  intake: "Wareneingang",
 };

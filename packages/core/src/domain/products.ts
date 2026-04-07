@@ -2,6 +2,7 @@ import { z } from "zod";
 import { eq, and, or, ilike, desc, asc, count } from "drizzle-orm";
 import { products, manufacturers, productGroups } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
+import { DEFAULT_CURRENCY } from "../config/locale";
 import { getNextNumber } from "./number-sequences";
 import type { PaginatedResult } from "./contacts";
 
@@ -23,7 +24,7 @@ export const createProductSchema = z.object({
     .regex(/^\d+(\.\d{1,2})?$/, "Invalid price format")
     .optional()
     .nullable(),
-  currency: z.string().default("CHF"),
+  currency: z.string().default(DEFAULT_CURRENCY),
   vatRate: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid VAT rate"),
   unit: z
     .enum(["piece", "hour", "kg", "m", "m2", "m3", "liter"])
@@ -51,6 +52,18 @@ export const createProductSchema = z.object({
   minStock: z.coerce.number().int().min(0).optional().nullable(),
   serialNumberTracking: z.boolean().default(false),
   shopVisible: z.boolean().default(false),
+  // Flexible pricing (Richtpreis)
+  isPriceFlexible: z.boolean().default(false),
+  minPrice: z
+    .string()
+    .regex(/^\d+(\.\d{1,2})?$/, "Invalid price format")
+    .optional()
+    .nullable(),
+  maxPrice: z
+    .string()
+    .regex(/^\d+(\.\d{1,2})?$/, "Invalid price format")
+    .optional()
+    .nullable(),
   notes: z.string().max(5000).optional().nullable(),
 });
 

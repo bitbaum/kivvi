@@ -1,19 +1,20 @@
-import { z } from 'zod';
-import { eq, and, lte, desc } from 'drizzle-orm';
+import { z } from "zod";
+import { eq, and, lte, desc } from "drizzle-orm";
 import {
   recurringInvoiceConfigs,
   documents,
   documentItems,
   users,
-} from '@kivvi/database';
+} from "@kivvi/database";
+import { DEFAULT_LOCALE } from "../config/locale";
 import type {
   Database,
   RecurringInvoiceConfig,
   RecurringPeriodicity,
-} from '@kivvi/database';
-import { convertDocument } from './documents';
-import { buildInvoiceEmailSubject } from './email';
-import { logger } from '../logger';
+} from "@kivvi/database";
+import { convertDocument } from "./documents";
+import { buildInvoiceEmailSubject } from "./email";
+import { logger } from "../logger";
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -21,9 +22,13 @@ import { logger } from '../logger';
 
 export const createRecurringConfigSchema = z.object({
   orderId: z.string().uuid(),
-  periodicity: z.enum(['monthly', 'quarterly', 'annual']),
-  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}/, 'Invalid date'),
-  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}/, 'Invalid date').optional().nullable(),
+  periodicity: z.enum(["monthly", "quarterly", "annual"]),
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}/, "Invalid date"),
+  endDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}/, "Invalid date")
+    .optional()
+    .nullable(),
   autoExtensionMonths: z.number().int().min(1).max(60).optional().nullable(),
   emailRecipients: z.array(z.string().email()).optional().nullable(),
   notes: z.string().max(5000).optional().nullable(),
@@ -31,16 +36,27 @@ export const createRecurringConfigSchema = z.object({
 
 export const updateRecurringConfigSchema = z.object({
   isActive: z.boolean().optional(),
-  periodicity: z.enum(['monthly', 'quarterly', 'annual']).optional(),
-  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}/, 'Invalid date').optional(),
-  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}/, 'Invalid date').optional().nullable(),
+  periodicity: z.enum(["monthly", "quarterly", "annual"]).optional(),
+  startDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}/, "Invalid date")
+    .optional(),
+  endDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}/, "Invalid date")
+    .optional()
+    .nullable(),
   autoExtensionMonths: z.number().int().min(1).max(60).optional().nullable(),
   emailRecipients: z.array(z.string().email()).optional().nullable(),
   notes: z.string().max(5000).optional().nullable(),
 });
 
-export type CreateRecurringConfigInput = z.infer<typeof createRecurringConfigSchema>;
-export type UpdateRecurringConfigInput = z.infer<typeof updateRecurringConfigSchema>;
+export type CreateRecurringConfigInput = z.infer<
+  typeof createRecurringConfigSchema
+>;
+export type UpdateRecurringConfigInput = z.infer<
+  typeof updateRecurringConfigSchema
+>;
 
 // ============================================================================
 // DATE UTILITIES
@@ -49,17 +65,20 @@ export type UpdateRecurringConfigInput = z.infer<typeof updateRecurringConfigSch
 /**
  * Calculate next generation date based on periodicity.
  */
-function calculateNextDate(date: Date, periodicity: RecurringPeriodicity): Date {
+function calculateNextDate(
+  date: Date,
+  periodicity: RecurringPeriodicity,
+): Date {
   const next = new Date(date);
 
   switch (periodicity) {
-    case 'monthly':
+    case "monthly":
       next.setMonth(next.getMonth() + 1);
       break;
-    case 'quarterly':
+    case "quarterly":
       next.setMonth(next.getMonth() + 3);
       break;
-    case 'annual':
+    case "annual":
       next.setFullYear(next.getFullYear() + 1);
       break;
   }
@@ -71,14 +90,14 @@ function calculateNextDate(date: Date, periodicity: RecurringPeriodicity): Date 
  * Format date to ISO string (YYYY-MM-DD).
  */
 function toISODate(date: Date): string {
-  return date.toISOString().split('T')[0];
+  return date.toISOString().split("T")[0];
 }
 
 /**
  * Parse ISO date string to Date object.
  */
 function parseISODate(dateStr: string): Date {
-  return new Date(dateStr + 'T00:00:00Z');
+  return new Date(dateStr + "T00:00:00Z");
 }
 
 /**
@@ -87,7 +106,7 @@ function parseISODate(dateStr: string): Date {
  */
 function calculatePeriodDates(
   generationDate: Date,
-  periodicity: RecurringPeriodicity
+  periodicity: RecurringPeriodicity,
 ): { start: Date; end: Date } {
   const start = new Date(generationDate);
   const end = calculateNextDate(start, periodicity);
@@ -113,20 +132,30 @@ function calculatePeriodDates(
 function substituteVariables(
   text: string,
   generationDate: Date,
-  periodicity: RecurringPeriodicity
+  periodicity: RecurringPeriodicity,
 ): string {
   const { start, end } = calculatePeriodDates(generationDate, periodicity);
 
   const monthNames = [
-    'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
-    'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember',
+    "Januar",
+    "Februar",
+    "März",
+    "April",
+    "Mai",
+    "Juni",
+    "Juli",
+    "August",
+    "September",
+    "Oktober",
+    "November",
+    "Dezember",
   ];
 
   const quarter = `Q${Math.floor(start.getMonth() / 3) + 1}`;
 
   return text
-    .replace(/<%period_start_date%>/g, start.toLocaleDateString('de-CH'))
-    .replace(/<%period_end_date%>/g, end.toLocaleDateString('de-CH'))
+    .replace(/<%period_start_date%>/g, start.toLocaleDateString(DEFAULT_LOCALE))
+    .replace(/<%period_end_date%>/g, end.toLocaleDateString(DEFAULT_LOCALE))
     .replace(/<%current_month%>/g, monthNames[start.getMonth()])
     .replace(/<%current_year%>/g, start.getFullYear().toString())
     .replace(/<%current_quarter%>/g, quarter);
@@ -142,22 +171,22 @@ function substituteVariables(
 export async function createRecurringConfig(
   db: Database,
   companyId: string,
-  input: CreateRecurringConfigInput
+  input: CreateRecurringConfigInput,
 ): Promise<RecurringInvoiceConfig> {
   // Verify order exists and belongs to company
   const order = await db.query.documents.findFirst({
     where: and(
       eq(documents.id, input.orderId),
-      eq(documents.companyId, companyId)
+      eq(documents.companyId, companyId),
     ),
   });
 
   if (!order) {
-    throw new Error('Order not found');
+    throw new Error("Order not found");
   }
 
-  if (order.type !== 'order') {
-    throw new Error('Can only create recurring invoices from orders');
+  if (order.type !== "order") {
+    throw new Error("Can only create recurring invoices from orders");
   }
 
   const startDate = parseISODate(input.startDate);
@@ -189,18 +218,18 @@ export async function updateRecurringConfig(
   db: Database,
   companyId: string,
   configId: string,
-  input: UpdateRecurringConfigInput
+  input: UpdateRecurringConfigInput,
 ): Promise<RecurringInvoiceConfig> {
   // Verify config exists and belongs to company
   const existing = await db.query.recurringInvoiceConfigs.findFirst({
     where: and(
       eq(recurringInvoiceConfigs.id, configId),
-      eq(recurringInvoiceConfigs.companyId, companyId)
+      eq(recurringInvoiceConfigs.companyId, companyId),
     ),
   });
 
   if (!existing) {
-    throw new Error('Recurring invoice config not found');
+    throw new Error("Recurring invoice config not found");
   }
 
   // If periodicity or start date changed, recalculate next generation date
@@ -221,10 +250,12 @@ export async function updateRecurringConfig(
       nextGenerationDate,
       updatedAt: new Date(),
     })
-    .where(and(
-      eq(recurringInvoiceConfigs.id, configId),
-      eq(recurringInvoiceConfigs.companyId, companyId)
-    ))
+    .where(
+      and(
+        eq(recurringInvoiceConfigs.id, configId),
+        eq(recurringInvoiceConfigs.companyId, companyId),
+      ),
+    )
     .returning();
 
   return updated;
@@ -236,20 +267,20 @@ export async function updateRecurringConfig(
 export async function deleteRecurringConfig(
   db: Database,
   companyId: string,
-  configId: string
+  configId: string,
 ): Promise<void> {
   const result = await db
     .delete(recurringInvoiceConfigs)
     .where(
       and(
         eq(recurringInvoiceConfigs.id, configId),
-        eq(recurringInvoiceConfigs.companyId, companyId)
-      )
+        eq(recurringInvoiceConfigs.companyId, companyId),
+      ),
     )
     .returning();
 
   if (result.length === 0) {
-    throw new Error('Recurring invoice config not found');
+    throw new Error("Recurring invoice config not found");
   }
 }
 
@@ -258,8 +289,10 @@ export async function deleteRecurringConfig(
  */
 export async function listRecurringConfigs(
   db: Database,
-  companyId: string
-): Promise<Array<RecurringInvoiceConfig & { orderNumber: string; contactName: string }>> {
+  companyId: string,
+): Promise<
+  Array<RecurringInvoiceConfig & { orderNumber: string; contactName: string }>
+> {
   const configs = await db
     .select({
       config: recurringInvoiceConfigs,
@@ -276,19 +309,22 @@ export async function listRecurringConfigs(
     .map((c) => c.contactName)
     .filter((id): id is string => id !== null);
 
-  const contacts = contactIds.length > 0
-    ? await db.query.contacts.findMany({
-        where: (contacts, { inArray }) => inArray(contacts.id, contactIds),
-        columns: { id: true, name: true },
-      })
-    : [];
+  const contacts =
+    contactIds.length > 0
+      ? await db.query.contacts.findMany({
+          where: (contacts, { inArray }) => inArray(contacts.id, contactIds),
+          columns: { id: true, name: true },
+        })
+      : [];
 
   const contactMap = new Map(contacts.map((c) => [c.id, c.name]));
 
   return configs.map((c) => ({
     ...c.config,
-    orderNumber: c.orderNumber || 'Unknown',
-    contactName: c.contactName ? contactMap.get(c.contactName) || 'Unknown' : 'No Contact',
+    orderNumber: c.orderNumber || "Unknown",
+    contactName: c.contactName
+      ? contactMap.get(c.contactName) || "Unknown"
+      : "No Contact",
   }));
 }
 
@@ -298,17 +334,17 @@ export async function listRecurringConfigs(
 export async function getRecurringConfig(
   db: Database,
   companyId: string,
-  configId: string
+  configId: string,
 ): Promise<RecurringInvoiceConfig> {
   const config = await db.query.recurringInvoiceConfigs.findFirst({
     where: and(
       eq(recurringInvoiceConfigs.id, configId),
-      eq(recurringInvoiceConfigs.companyId, companyId)
+      eq(recurringInvoiceConfigs.companyId, companyId),
     ),
   });
 
   if (!config) {
-    throw new Error('Recurring invoice config not found');
+    throw new Error("Recurring invoice config not found");
   }
 
   return config;
@@ -336,21 +372,27 @@ export interface GeneratedInvoiceInfo {
 }
 
 export interface ProcessOptions {
-  onInvoiceGenerated?: (invoice: GeneratedInvoiceInfo, emailRecipients: string[]) => Promise<void>;
+  onInvoiceGenerated?: (
+    invoice: GeneratedInvoiceInfo,
+    emailRecipients: string[],
+  ) => Promise<void>;
 }
 
 /**
  * Process all active recurring invoice configurations.
  * Called by cron job daily.
  */
-export async function processRecurringInvoices(db: Database, options?: ProcessOptions): Promise<ProcessResult> {
+export async function processRecurringInvoices(
+  db: Database,
+  options?: ProcessOptions,
+): Promise<ProcessResult> {
   const today = toISODate(new Date());
 
   // Find all active configs where nextGenerationDate <= today
   const dueConfigs = await db.query.recurringInvoiceConfigs.findMany({
     where: and(
       eq(recurringInvoiceConfigs.isActive, true),
-      lte(recurringInvoiceConfigs.nextGenerationDate, today)
+      lte(recurringInvoiceConfigs.nextGenerationDate, today),
     ),
     with: {
       order: {
@@ -380,19 +422,23 @@ export async function processRecurringInvoices(db: Database, options?: ProcessOp
           await db
             .update(recurringInvoiceConfigs)
             .set({ endDate: toISODate(endDate) })
-            .where(and(
-              eq(recurringInvoiceConfigs.id, config.id),
-              eq(recurringInvoiceConfigs.companyId, config.companyId)
-            ));
+            .where(
+              and(
+                eq(recurringInvoiceConfigs.id, config.id),
+                eq(recurringInvoiceConfigs.companyId, config.companyId),
+              ),
+            );
         } else {
           // Deactivate config
           await db
             .update(recurringInvoiceConfigs)
             .set({ isActive: false })
-            .where(and(
-              eq(recurringInvoiceConfigs.id, config.id),
-              eq(recurringInvoiceConfigs.companyId, config.companyId)
-            ));
+            .where(
+              and(
+                eq(recurringInvoiceConfigs.id, config.id),
+                eq(recurringInvoiceConfigs.companyId, config.companyId),
+              ),
+            );
           continue;
         }
       }
@@ -400,7 +446,7 @@ export async function processRecurringInvoices(db: Database, options?: ProcessOp
       const generationDate = new Date();
 
       // Apply variable substitution to order notes
-      let notes = config.order.notes || '';
+      let notes = config.order.notes || "";
       if (notes) {
         notes = substituteVariables(notes, generationDate, config.periodicity);
       }
@@ -424,7 +470,7 @@ export async function processRecurringInvoices(db: Database, options?: ProcessOp
           config.companyId,
           firstUser.id,
           config.orderId,
-          'invoice'
+          "invoice",
         );
 
         // Update invoice with substituted notes if applicable
@@ -432,10 +478,12 @@ export async function processRecurringInvoices(db: Database, options?: ProcessOp
           const [updated] = await tx
             .update(documents)
             .set({ notes })
-            .where(and(
-              eq(documents.id, inv.id),
-              eq(documents.companyId, config.companyId)
-            ))
+            .where(
+              and(
+                eq(documents.id, inv.id),
+                eq(documents.companyId, config.companyId),
+              ),
+            )
             .returning();
           return updated;
         }
@@ -444,7 +492,10 @@ export async function processRecurringInvoices(db: Database, options?: ProcessOp
       });
 
       // Update recurring config
-      const nextGenDate = calculateNextDate(new Date(config.nextGenerationDate), config.periodicity);
+      const nextGenDate = calculateNextDate(
+        new Date(config.nextGenerationDate),
+        config.periodicity,
+      );
 
       await db
         .update(recurringInvoiceConfigs)
@@ -452,13 +503,19 @@ export async function processRecurringInvoices(db: Database, options?: ProcessOp
           lastGeneratedDate: today,
           nextGenerationDate: toISODate(nextGenDate),
         })
-        .where(and(
-          eq(recurringInvoiceConfigs.id, config.id),
-          eq(recurringInvoiceConfigs.companyId, config.companyId)
-        ));
+        .where(
+          and(
+            eq(recurringInvoiceConfigs.id, config.id),
+            eq(recurringInvoiceConfigs.companyId, config.companyId),
+          ),
+        );
 
       // Send email if recipients configured and callback provided
-      if (options?.onInvoiceGenerated && config.emailRecipients && config.emailRecipients.length > 0) {
+      if (
+        options?.onInvoiceGenerated &&
+        config.emailRecipients &&
+        config.emailRecipients.length > 0
+      ) {
         try {
           await options.onInvoiceGenerated(
             {
@@ -467,14 +524,24 @@ export async function processRecurringInvoices(db: Database, options?: ProcessOp
               type: invoice.type,
               total: invoice.total,
               currency: invoice.currency,
-              dueDate: invoice.dueDate ? invoice.dueDate.toISOString().split('T')[0] : null,
-              contact: config.order.contact ? { name: config.order.contact.name, email: config.order.contact.email } : null,
+              dueDate: invoice.dueDate
+                ? invoice.dueDate.toISOString().split("T")[0]
+                : null,
+              contact: config.order.contact
+                ? {
+                    name: config.order.contact.name,
+                    email: config.order.contact.email,
+                  }
+                : null,
               companyId: config.companyId,
             },
-            config.emailRecipients
+            config.emailRecipients,
           );
         } catch (emailError) {
-          logger.error(`Failed to send email for invoice ${invoice.number}`, emailError);
+          logger.error(
+            `Failed to send email for invoice ${invoice.number}`,
+            emailError,
+          );
         }
       }
 
@@ -482,7 +549,7 @@ export async function processRecurringInvoices(db: Database, options?: ProcessOp
     } catch (error) {
       result.errors.push({
         configId: config.id,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
       });
     }
   }

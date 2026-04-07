@@ -15,6 +15,8 @@ import {
 } from "@kivvi/core";
 import {
   documentStatusEnum,
+  documentTypeEnum,
+  PAYMENT_METHOD_VALUES,
   type DocumentType,
   type DocumentStatus,
 } from "@kivvi/database";
@@ -38,24 +40,12 @@ const updateStatusSchema = z.object({
 const recordPaymentSchema = z.object({
   amount: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid amount"),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}/, "Invalid date"),
-  method: z.enum(["bank_transfer", "cash", "card", "other"]).optional(),
+  method: z.enum(PAYMENT_METHOD_VALUES).optional(),
   reference: z.string().max(500).optional(),
 });
 
-const documentTypeValues = [
-  "quote",
-  "order",
-  "order_confirmation",
-  "delivery_note",
-  "invoice",
-  "credit_note",
-  "purchase_order",
-  "purchase_invoice",
-  "dunning",
-] as const;
-
 const convertSchema = z.object({
-  targetType: z.enum(documentTypeValues),
+  targetType: z.enum(documentTypeEnum.enumValues),
 });
 
 // ============================================================================

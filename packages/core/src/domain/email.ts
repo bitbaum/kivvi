@@ -16,6 +16,7 @@ export interface InvoiceEmailData {
 }
 
 import { DOCUMENT_TYPE_LABELS_DE } from "./document-conversions";
+import { DEFAULT_LOCALE } from "../config/locale";
 
 // ============================================================================
 // SUBJECT LINE
@@ -39,7 +40,7 @@ export function buildInvoiceEmailSubject(data: InvoiceEmailData): string {
 function formatDateSwiss(dateStr: string): string {
   const d = new Date(dateStr);
   if (isNaN(d.getTime())) return dateStr;
-  return d.toLocaleDateString("de-CH");
+  return d.toLocaleDateString(DEFAULT_LOCALE);
 }
 
 /**
@@ -49,7 +50,7 @@ function formatDateSwiss(dateStr: string): string {
 function formatAmountSwiss(amount: string, currency: string): string {
   const num = Number(amount);
   if (isNaN(num)) return `${currency} ${amount}`;
-  return new Intl.NumberFormat("de-CH", {
+  return new Intl.NumberFormat(DEFAULT_LOCALE, {
     style: "currency",
     currency,
   }).format(num);

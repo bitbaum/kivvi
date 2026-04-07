@@ -11,6 +11,7 @@ import {
 } from "@/app/actions/products";
 import { SWISS_VAT_RATES, DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
 import { PRODUCT_TYPES, UNIT_VALUES } from "@/lib/config/products";
+import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 import type { Product } from "@kivvi/database";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -229,7 +230,7 @@ export function ProductForm({ mode, product }: ProductFormProps) {
                   htmlFor="unitPrice"
                   className="mb-1.5 block text-sm font-medium"
                 >
-                  {t("unitPrice")} ({product?.currency || "CHF"}){" "}
+                  {t("unitPrice")} ({product?.currency || DEFAULT_CURRENCY}){" "}
                   <span className="text-destructive">*</span>
                 </label>
                 <FormInput
@@ -247,7 +248,7 @@ export function ProductForm({ mode, product }: ProductFormProps) {
                   htmlFor="purchasePrice"
                   className="mb-1.5 block text-sm font-medium"
                 >
-                  {t("purchasePrice")} ({product?.currency || "CHF"})
+                  {t("purchasePrice")} ({product?.currency || DEFAULT_CURRENCY})
                 </label>
                 <FormInput
                   type="text"
@@ -263,8 +264,59 @@ export function ProductForm({ mode, product }: ProductFormProps) {
             <input
               type="hidden"
               name="currency"
-              value={product?.currency || "CHF"}
+              value={product?.currency || DEFAULT_CURRENCY}
             />
+
+            {/* Flexible pricing (Richtpreis) */}
+            <div className="rounded-lg border p-4">
+              <label className="flex items-center gap-2 text-sm font-medium">
+                <input
+                  type="checkbox"
+                  name="isPriceFlexible"
+                  value="true"
+                  defaultChecked={product?.isPriceFlexible || false}
+                  className="h-4 w-4 rounded border-input"
+                />
+                {t("flexiblePricing")}
+              </label>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {t("flexiblePricingDesc")}
+              </p>
+              <div className="mt-3 grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label
+                    htmlFor="minPrice"
+                    className="mb-1.5 block text-xs font-medium text-muted-foreground"
+                  >
+                    {t("minPrice")}
+                  </label>
+                  <FormInput
+                    type="text"
+                    id="minPrice"
+                    name="minPrice"
+                    defaultValue={product?.minPrice || ""}
+                    placeholder="0.00"
+                    pattern="\d+(\.\d{1,2})?"
+                  />
+                </div>
+                <div>
+                  <label
+                    htmlFor="maxPrice"
+                    className="mb-1.5 block text-xs font-medium text-muted-foreground"
+                  >
+                    {t("maxPrice")}
+                  </label>
+                  <FormInput
+                    type="text"
+                    id="maxPrice"
+                    name="maxPrice"
+                    defaultValue={product?.maxPrice || ""}
+                    placeholder="0.00"
+                    pattern="\d+(\.\d{1,2})?"
+                  />
+                </div>
+              </div>
+            </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div>

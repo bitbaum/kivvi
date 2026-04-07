@@ -1,5 +1,6 @@
 import type { ExecutionContext, VerticalType } from "./types";
 import type { OrgProfile } from "@kivvi/database";
+import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
 
 const BASE_PROMPT = `You are Kivvi, an AI assistant that automates operations for Swiss organizations.
 
@@ -278,7 +279,7 @@ export function getSystemPrompt(
   businessSnapshot?: string,
   orgProfile?: OrgProfile,
 ): string {
-  const locale = context.locale || "de-CH";
+  const locale = context.locale || DEFAULT_LOCALE;
   const basePrompt = BASE_PROMPT.replaceAll(
     "{{companyName}}",
     context.companyName,
@@ -305,3 +306,29 @@ export function getSystemPrompt(
 
   return prompt;
 }
+
+// ============================================================================
+// COMMAND BAR MODE
+// ============================================================================
+
+/**
+ * Addendum appended to the system prompt when the AI is invoked from the
+ * Cmd+K command bar (mode: "command"). Instructs the model to return
+ * concise, action-oriented responses instead of conversational prose.
+ */
+export const COMMAND_BAR_PROMPT = `
+
+## Command Bar Mode
+
+You are responding to a quick command from the Cmd+K command bar, NOT a full chat conversation.
+
+Rules:
+- Be extremely concise: 1-2 sentences maximum.
+- ALWAYS prefer the \`prepare_document\` tool over \`create_document\`. The user should preview the form before anything is saved.
+- For navigation requests ("go to invoices", "open contact X"), return a navigate action immediately without tool calls.
+- For search requests ("find overdue invoices over 5000"), use the appropriate search tool and return results with navigate actions.
+- ALWAYS include an \`actions\` array in your response. Every response should have at least one clickable action.
+- Do NOT ask follow-up questions. Make reasonable assumptions and let the user adjust in the form.
+- If the user mentions a contact by name, use prepare_document with contactName (it will search automatically).
+- When preparing a document, infer the type from context: "invoice" is default, "quote/Angebot" for quotes, "order/Auftrag" for orders.
+`;

@@ -1,5 +1,9 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import {
+  DEFAULT_LOCALE,
+  DEFAULT_CURRENCY,
+} from "@kivvi/core/src/config/locale";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -7,10 +11,10 @@ export function cn(...inputs: ClassValue[]) {
 
 export function formatCurrency(
   amount: number | string,
-  currency: string = "CHF",
+  currency: string = DEFAULT_CURRENCY,
 ): string {
   const num = typeof amount === "string" ? Number(amount) : amount;
-  const formatter = new Intl.NumberFormat("de-CH", {
+  const formatter = new Intl.NumberFormat(DEFAULT_LOCALE, {
     style: "currency",
     currency,
   });
@@ -48,5 +52,5 @@ export function isValidUUID(value: string): boolean {
 
 export function formatDate(date: Date | string): string {
   const d = typeof date === "string" ? new Date(date) : date;
-  return new Intl.DateTimeFormat("de-CH").format(d);
+  return new Intl.DateTimeFormat(DEFAULT_LOCALE).format(d);
 }

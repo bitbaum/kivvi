@@ -1,8 +1,9 @@
-import { NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
-import { db } from '@/lib/db';
-import { documents, bankTransactions, bankAccounts } from '@kivvi/database';
-import { eq, and, sql, lt, inArray } from 'drizzle-orm';
+import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { documents, bankTransactions, bankAccounts } from "@kivvi/database";
+import { eq, and, sql, lt, inArray } from "drizzle-orm";
+import { OVERDUE_ELIGIBLE_STATUSES } from "@/lib/config/document-types";
 
 export async function GET() {
   try {
@@ -23,21 +24,24 @@ export async function GET() {
         .where(
           and(
             eq(documents.companyId, companyId),
-            eq(documents.type, 'invoice'),
-            inArray(documents.status, ['sent', 'partially_paid']),
-            lt(documents.dueDate, now)
-          )
+            eq(documents.type, "invoice"),
+            inArray(documents.status, OVERDUE_ELIGIBLE_STATUSES),
+            lt(documents.dueDate, now),
+          ),
         ),
       // Count unreconciled bank transactions (join through bankAccounts for companyId)
       db
         .select({ count: sql<number>`count(*)::int` })
         .from(bankTransactions)
-        .innerJoin(bankAccounts, eq(bankTransactions.bankAccountId, bankAccounts.id))
+        .innerJoin(
+          bankAccounts,
+          eq(bankTransactions.bankAccountId, bankAccounts.id),
+        )
         .where(
           and(
             eq(bankAccounts.companyId, companyId),
-            eq(bankTransactions.isReconciled, false)
-          )
+            eq(bankTransactions.isReconciled, false),
+          ),
         ),
     ]);
 

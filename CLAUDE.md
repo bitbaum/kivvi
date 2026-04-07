@@ -1,7 +1,14 @@
 # Kivvi ERP — Engineering Bible
 
 **Inherits**: `@~/.claude/CLAUDE.md` (global engineering standards)
-**Last Updated**: 2026-02-11
+**Product Identity**: See `PRODUCT.md` for mission, vision, target customers, and positioning.
+**Last Updated**: 2026-04-03
+
+---
+
+## What Is Kivvi
+
+Kivvi is an ERP for businesses that sell used, donated, and refurbished goods — Brockenhäuser, computer refurbishers, vintage shops, repair workshops. Unlike generic ERPs that assume linear buy-new/sell-new flows, Kivvi handles intake, condition grading, repair workflows, flexible pricing, and impact tracking natively. AI-first, Swiss-native, open source.
 
 ---
 
@@ -30,17 +37,20 @@ These are irreducible facts. Everything else is derived from them.
 From these truths, every architectural decision follows:
 
 **From Truth #1** (transactions are atomic):
+
 - Use `db.transaction()` for all multi-table operations
 - Document creation + journal entries + stock movements = one transaction
 - If any step fails, nothing is committed
 
 **From Truth #2** (money is not a float):
+
 - Use `decimal.js` for all financial calculations
 - Round at the LINE ITEM level (Swiss standard), not at the total
 - CHF rounds to nearest 0.05 (Rappen rounding)
 - Test financial code with exact expected values, never approximate
 
 **From Truth #3** (Swiss law governs):
+
 - VAT rates (8.1% / 2.6% / 0%) come from config, never hardcoded
 - Every invoice generates a valid Swiss QR payment slip (legally required since 2022)
 - Swiss KMU Kontenrahmen (1000-9999) seeded on company creation
@@ -48,17 +58,20 @@ From these truths, every architectural decision follows:
 - Document prefixes: German abbreviations (RE, AN, AU, GU, LS, MA, BE, ER)
 
 **From Truth #4** (data belongs to its owner):
+
 - Every table has `companyId`. Every query filters by it. No exceptions.
 - Domain functions take `companyId` as a required parameter
 - A missing `companyId` clause is a security vulnerability, not a bug
 
 **From Truth #5** (system must be authoritative):
+
 - `packages/database/src/schema.ts` defines reality. Types derived from it.
 - One unified `documents` table — not separate tables per document type
 - Zod schemas mirror DB schema. Config originates from schema definitions.
 - If data exists in two places, one of them is wrong. Eliminate it.
 
 **From Truth #6** (automate mechanical work):
+
 - AI tools call the exact same domain functions as human-triggered Server Actions
 - Number sequences auto-generate. Totals auto-calculate. Journal entries auto-create.
 - Document conversion (Quote -> Order -> Invoice) is a type change, not re-entry
@@ -197,6 +210,7 @@ documents table (type discriminator)
 **Why**: Enables document conversion (Quote -> Order -> Invoice) by copying rows and changing type. Shared status/workflow logic. One set of CRUD functions handles all types.
 
 **Document lifecycle**:
+
 ```
 draft → sent → confirmed → delivered → paid
                                      → partially_paid → paid
@@ -211,18 +225,18 @@ Each document type has: label, statuses, conversionTargets, hasDueDate, hasPayme
 
 ## SSOT File Locations
 
-| What | Where | Why It Matters |
-|------|-------|----------------|
-| All database tables & types | `packages/database/src/schema.ts` | THE truth. Types derived here. |
-| All business logic | `packages/core/src/domain/*.ts` | Pure functions. Used by actions AND AI. |
-| All mutations | `apps/web/app/actions/*.ts` | Server Actions only. No API routes. |
-| Document type config | `apps/web/lib/config/document-types.ts` | Labels, statuses, conversion targets. |
-| Number sequence formats | `packages/core/src/domain/number-sequences.ts` | Prefixes: RE, AN, AU, GU, LS, MA, BE, ER. |
-| Chart of accounts seed | `packages/database/src/seeds/swiss-kmu-kontenrahmen.ts` | 227 Swiss KMU accounts. |
-| Auth config | `apps/web/lib/auth.ts` | NextAuth v5, JWT strategy, credentials. |
-| Middleware | `apps/web/middleware.ts` | Rate limiting, auth, onboarding redirects. |
-| AI tools | `packages/ai/src/tools/index.ts` | All AI capabilities registered here. |
-| Import profiles | `packages/core/src/domain/import-mappings.ts` | Kivitendo CSV column mappings. |
+| What                        | Where                                                   | Why It Matters                             |
+| --------------------------- | ------------------------------------------------------- | ------------------------------------------ |
+| All database tables & types | `packages/database/src/schema.ts`                       | THE truth. Types derived here.             |
+| All business logic          | `packages/core/src/domain/*.ts`                         | Pure functions. Used by actions AND AI.    |
+| All mutations               | `apps/web/app/actions/*.ts`                             | Server Actions only. No API routes.        |
+| Document type config        | `apps/web/lib/config/document-types.ts`                 | Labels, statuses, conversion targets.      |
+| Number sequence formats     | `packages/core/src/domain/number-sequences.ts`          | Prefixes: RE, AN, AU, GU, LS, MA, BE, ER.  |
+| Chart of accounts seed      | `packages/database/src/seeds/swiss-kmu-kontenrahmen.ts` | 227 Swiss KMU accounts.                    |
+| Auth config                 | `apps/web/lib/auth.ts`                                  | NextAuth v5, JWT strategy, credentials.    |
+| Middleware                  | `apps/web/middleware.ts`                                | Rate limiting, auth, onboarding redirects. |
+| AI tools                    | `packages/ai/src/tools/index.ts`                        | All AI capabilities registered here.       |
+| Import profiles             | `packages/core/src/domain/import-mappings.ts`           | Kivitendo CSV column mappings.             |
 
 ---
 
@@ -233,22 +247,29 @@ Each document type has: label, statuses, conversionTargets, hasDueDate, hasPayme
 Every mutation follows this exact structure:
 
 ```typescript
-'use server';
+"use server";
 
-export async function createContactAction(input: unknown): Promise<ActionResult<{ id: string }>> {
+export async function createContactAction(
+  input: unknown,
+): Promise<ActionResult<{ id: string }>> {
   try {
-    const { companyId, userId } = await getSession();          // 1. Auth
-    const parsed = createContactSchema.safeParse(input);       // 2. Validate
-    if (!parsed.success) return { success: false, error: formatZodError(parsed.error) };
+    const { companyId, userId } = await getSession(); // 1. Auth
+    const parsed = createContactSchema.safeParse(input); // 2. Validate
+    if (!parsed.success)
+      return { success: false, error: formatZodError(parsed.error) };
 
-    const contact = await db.transaction(async (tx) => {       // 3. Transaction
-      return createContact(tx, companyId, parsed.data);        // 4. Domain function
+    const contact = await db.transaction(async (tx) => {
+      // 3. Transaction
+      return createContact(tx, companyId, parsed.data); // 4. Domain function
     });
 
-    revalidatePath('/contacts');                               // 5. Revalidate
-    return { success: true, data: { id: contact.id } };       // 6. Return
+    revalidatePath("/contacts"); // 5. Revalidate
+    return { success: true, data: { id: contact.id } }; // 6. Return
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, 'Failed to create contact') };
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to create contact"),
+    };
   }
 }
 ```
@@ -259,9 +280,9 @@ Every domain function follows this structure:
 
 ```typescript
 export async function createContact(
-  db: Database,           // Always first param: DB or transaction
-  companyId: string,      // Always second param: tenant isolation
-  input: CreateContactInput
+  db: Database, // Always first param: DB or transaction
+  companyId: string, // Always second param: tenant isolation
+  input: CreateContactInput,
 ): Promise<Contact> {
   // 1. Business validation (beyond Zod)
   // 2. Generate number sequence
@@ -276,9 +297,15 @@ Only known domain errors are exposed to users. Unknown errors are logged server-
 
 ```typescript
 const SAFE_ERROR_PATTERNS = [
-  'not found', 'already exists', 'Unauthorized',
-  'Cannot transition', 'Cannot convert', 'Invalid',
-  'required', 'must balance', 'only draft',
+  "not found",
+  "already exists",
+  "Unauthorized",
+  "Cannot transition",
+  "Cannot convert",
+  "Invalid",
+  "required",
+  "must balance",
+  "only draft",
 ];
 ```
 
@@ -287,54 +314,60 @@ const SAFE_ERROR_PATTERNS = [
 ## Database Schema (28 Tables)
 
 ### Core Tables
-| Table | Purpose | Key Fields |
-|-------|---------|------------|
-| `companies` | Multi-tenant companies | name, settings (JSONB), currency (CHF) |
-| `users` | Auth accounts | email, passwordHash, companyId, role |
-| `contacts` | Customers & vendors | type (customer/vendor/both), contactNumber (K-00001) |
-| `contactAddresses` | Multiple addresses | type (billing/shipping), isDefault |
-| `products` | Products & services | articleNumber (ART-00001), unitPrice, vatRate |
-| `productGroups` | Categories (hierarchical) | parentId for tree |
-| `manufacturers` | Product manufacturers | name, website |
+
+| Table              | Purpose                   | Key Fields                                           |
+| ------------------ | ------------------------- | ---------------------------------------------------- |
+| `companies`        | Multi-tenant companies    | name, settings (JSONB), currency (CHF)               |
+| `users`            | Auth accounts             | email, passwordHash, companyId, role                 |
+| `contacts`         | Customers & vendors       | type (customer/vendor/both), contactNumber (K-00001) |
+| `contactAddresses` | Multiple addresses        | type (billing/shipping), isDefault                   |
+| `products`         | Products & services       | articleNumber (ART-00001), unitPrice, vatRate        |
+| `productGroups`    | Categories (hierarchical) | parentId for tree                                    |
+| `manufacturers`    | Product manufacturers     | name, website                                        |
 
 ### Document Tables
-| Table | Purpose | Key Fields |
-|-------|---------|------------|
-| `documents` | ALL business documents | type (enum), status, number, totals, qrReference |
-| `documentItems` | Line items | position, quantity, unitPrice, discount, vatRate |
-| `documentPayments` | Payment records | amount, method, bankTransactionId |
+
+| Table              | Purpose                | Key Fields                                       |
+| ------------------ | ---------------------- | ------------------------------------------------ |
+| `documents`        | ALL business documents | type (enum), status, number, totals, qrReference |
+| `documentItems`    | Line items             | position, quantity, unitPrice, discount, vatRate |
+| `documentPayments` | Payment records        | amount, method, bankTransactionId                |
 
 ### Accounting Tables
-| Table | Purpose | Key Fields |
-|-------|---------|------------|
-| `accounts` | Chart of accounts | code (1000-9999), type, parentId |
-| `journalEntries` | Journal entries | date, reference, sourceType/sourceId |
-| `journalLines` | Debit/credit lines | accountId, debit OR credit |
-| `fiscalYears` | Fiscal year defs | startDate, endDate, isClosed |
-| `fiscalPeriods` | Monthly periods | fiscalYearId, isClosed |
+
+| Table            | Purpose            | Key Fields                           |
+| ---------------- | ------------------ | ------------------------------------ |
+| `accounts`       | Chart of accounts  | code (1000-9999), type, parentId     |
+| `journalEntries` | Journal entries    | date, reference, sourceType/sourceId |
+| `journalLines`   | Debit/credit lines | accountId, debit OR credit           |
+| `fiscalYears`    | Fiscal year defs   | startDate, endDate, isClosed         |
+| `fiscalPeriods`  | Monthly periods    | fiscalYearId, isClosed               |
 
 ### Banking Tables
-| Table | Purpose | Key Fields |
-|-------|---------|------------|
-| `bankAccounts` | Company bank accounts | iban, bankName, balance |
+
+| Table              | Purpose               | Key Fields                         |
+| ------------------ | --------------------- | ---------------------------------- |
+| `bankAccounts`     | Company bank accounts | iban, bankName, balance            |
 | `bankTransactions` | Imported transactions | isReconciled, reconciledDocumentId |
 
 ### Inventory Tables
-| Table | Purpose | Key Fields |
-|-------|---------|------------|
-| `warehouses` | Storage locations | isDefault |
-| `stockLevels` | Current stock | productId + warehouseId (unique) |
-| `stockMovements` | Movement history | type (purchase/sale/adjustment/transfer) |
-| `serialNumbers` | Serial tracking | status (available/sold/reserved/defective) |
+
+| Table            | Purpose           | Key Fields                                 |
+| ---------------- | ----------------- | ------------------------------------------ |
+| `warehouses`     | Storage locations | isDefault                                  |
+| `stockLevels`    | Current stock     | productId + warehouseId (unique)           |
+| `stockMovements` | Movement history  | type (purchase/sale/adjustment/transfer)   |
+| `serialNumbers`  | Serial tracking   | status (available/sold/reserved/defective) |
 
 ### Other Tables
-| Table | Purpose |
-|-------|---------|
-| `projects` | Project tracking with budget |
-| `numberSequences` | Auto-incrementing number generators |
-| `priceLists` + `priceRules` | Flexible pricing (fixed/percentage/tiered) |
-| `aiConversations` + `aiMessages` | AI chat history |
-| `aiActionAudit` | AI action audit trail |
+
+| Table                            | Purpose                                    |
+| -------------------------------- | ------------------------------------------ |
+| `projects`                       | Project tracking with budget               |
+| `numberSequences`                | Auto-incrementing number generators        |
+| `priceLists` + `priceRules`      | Flexible pricing (fixed/percentage/tiered) |
+| `aiConversations` + `aiMessages` | AI chat history                            |
+| `aiActionAudit`                  | AI action audit trail                      |
 
 ---
 
@@ -344,16 +377,20 @@ const SAFE_ERROR_PATTERNS = [
 
 ```typescript
 // Correct Swiss VAT calculation (line-item level)
-import Decimal from 'decimal.js';
+import Decimal from "decimal.js";
 
-function calculateLineTotal(quantity: number, unitPrice: string, vatRate: string): LineTotal {
+function calculateLineTotal(
+  quantity: number,
+  unitPrice: string,
+  vatRate: string,
+): LineTotal {
   const net = new Decimal(unitPrice).times(quantity);
   const vat = net.times(new Decimal(vatRate).div(100));
   const gross = net.plus(vat);
 
   return {
     netAmount: net.toDecimalPlaces(2).toString(),
-    vatAmount: vat.toDecimalPlaces(2).toString(),    // Round PER LINE
+    vatAmount: vat.toDecimalPlaces(2).toString(), // Round PER LINE
     grossAmount: gross.toDecimalPlaces(2).toString(),
   };
 }
@@ -365,32 +402,34 @@ function calculateLineTotal(quantity: number, unitPrice: string, vatRate: string
 ### Swiss Rappen Rounding
 
 CHF amounts round to nearest 0.05:
+
 ```typescript
 function rappenRound(amount: Decimal): Decimal {
-  return amount.times(20).round().div(20);  // Round to 0.05
+  return amount.times(20).round().div(20); // Round to 0.05
 }
 ```
 
 ### QR-Bill Reference
 
 Every invoice generates a QR reference stored in `documents.qrReference`. Used for:
+
 - QR payment slip generation (legally required)
 - Automated payment matching via bank transaction import
 
 ### Document Number Formats
 
-| Type | Prefix | Format | Example |
-|------|--------|--------|---------|
-| Invoice | RE | RE-{year}-{00000} | RE-2026-00001 |
-| Quote | AN | AN-{year}-{00000} | AN-2026-00001 |
-| Order | AU | AU-{year}-{00000} | AU-2026-00001 |
-| Credit Note | GU | GU-{year}-{00000} | GU-2026-00001 |
-| Delivery Note | LS | LS-{year}-{00000} | LS-2026-00001 |
-| Dunning | MA | MA-{year}-{00000} | MA-2026-00001 |
-| Purchase Order | BE | BE-{year}-{00000} | BE-2026-00001 |
-| Purchase Invoice | ER | ER-{year}-{00000} | ER-2026-00001 |
-| Contact | K | K-{00000} | K-00001 |
-| Product | ART | ART-{00000} | ART-00001 |
+| Type             | Prefix | Format            | Example       |
+| ---------------- | ------ | ----------------- | ------------- |
+| Invoice          | RE     | RE-{year}-{00000} | RE-2026-00001 |
+| Quote            | AN     | AN-{year}-{00000} | AN-2026-00001 |
+| Order            | AU     | AU-{year}-{00000} | AU-2026-00001 |
+| Credit Note      | GU     | GU-{year}-{00000} | GU-2026-00001 |
+| Delivery Note    | LS     | LS-{year}-{00000} | LS-2026-00001 |
+| Dunning          | MA     | MA-{year}-{00000} | MA-2026-00001 |
+| Purchase Order   | BE     | BE-{year}-{00000} | BE-2026-00001 |
+| Purchase Invoice | ER     | ER-{year}-{00000} | ER-2026-00001 |
+| Contact          | K      | K-{00000}         | K-00001       |
+| Product          | ART    | ART-{00000}       | ART-00001     |
 
 ---
 
@@ -409,6 +448,7 @@ Register → Step 1: Company Info → Step 2: Business Config → Step 3: Data I
 ### Kivitendo CSV Import
 
 Import profiles in `packages/core/src/domain/import-mappings.ts`. Handles:
+
 - BOM markers on CSV files
 - Swiss number format: `5'007.20` → strip apostrophes
 - Swiss date format: `22.01.2026` → `2026-01-22`
@@ -416,6 +456,7 @@ Import profiles in `packages/core/src/domain/import-mappings.ts`. Handles:
 - Subtotal rows (empty key columns) → filtered out
 
 **Import order** (FK dependencies):
+
 ```
 1. Contacts (customers + vendors)     — no deps
 2. Product groups + manufacturers     — no deps
@@ -436,10 +477,10 @@ After import: number sequences auto-updated to MAX(existing) + 1.
 
 ```typescript
 // In client components:
-import { detectMappingProfile } from '@kivvi/core/src/domain/import-mappings';  // OK
+import { detectMappingProfile } from "@kivvi/core/src/domain/import-mappings"; // OK
 
 // NEVER:
-import { detectMappingProfile } from '@kivvi/core';  // Pulls in postgres driver!
+import { detectMappingProfile } from "@kivvi/core"; // Pulls in postgres driver!
 ```
 
 ---
@@ -484,21 +525,22 @@ OLLAMA_BASE_URL="http://localhost:11434"
 
 ### Key Dependencies
 
-| Package | Purpose | Why This One |
-|---------|---------|--------------|
-| drizzle-orm | ORM + schema | Full SQL control, best TS inference, no codegen |
-| next-auth v5 | Authentication | Credentials provider, JWT strategy |
-| zod | Validation | Schema = SSOT for validation + types |
-| decimal.js | Financial math | Arbitrary precision, no float errors |
-| papaparse | CSV parsing | Client-side, streaming, handles edge cases |
-| @radix-ui/* | UI primitives | Accessible, unstyled, composable |
-| lucide-react | Icons | Consistent, tree-shakeable |
+| Package      | Purpose        | Why This One                                    |
+| ------------ | -------------- | ----------------------------------------------- |
+| drizzle-orm  | ORM + schema   | Full SQL control, best TS inference, no codegen |
+| next-auth v5 | Authentication | Credentials provider, JWT strategy              |
+| zod          | Validation     | Schema = SSOT for validation + types            |
+| decimal.js   | Financial math | Arbitrary precision, no float errors            |
+| papaparse    | CSV parsing    | Client-side, streaming, handles edge cases      |
+| @radix-ui/\* | UI primitives  | Accessible, unstyled, composable                |
+| lucide-react | Icons          | Consistent, tree-shakeable                      |
 
 ---
 
 ## Naming Conventions
 
 ### Database
+
 ```
 Tables:     camelCase plural     (documents, documentItems, bankTransactions)
 Columns:    camelCase            (companyId, issueDate, vatRate)
@@ -506,6 +548,7 @@ Enums:      camelCase + Enum     (documentTypeEnum, documentStatusEnum)
 ```
 
 ### Code
+
 ```
 Components:      PascalCase.tsx   (DocumentForm.tsx)
 Domain modules:  kebab-case.ts    (number-sequences.ts)
@@ -523,12 +566,14 @@ Constants:       UPPER_SNAKE      (SEQUENCE_DEFAULTS, VALID_TRANSITIONS)
 ## Adding New Features: Decision Tree
 
 ### Adding a new document type?
+
 1. Add to `documentTypeEnum` in schema.ts
 2. Add config to `apps/web/lib/config/document-types.ts`
 3. Add number sequence prefix to `SEQUENCE_DEFAULTS`
 4. Done. Existing CRUD, forms, and lists handle it automatically.
 
 ### Adding a new field to an entity?
+
 1. Add column to schema.ts
 2. Run `pnpm db:generate` + `pnpm db:push`
 3. Update Zod validation schema if needed
@@ -536,12 +581,14 @@ Constants:       UPPER_SNAKE      (SEQUENCE_DEFAULTS, VALID_TRANSITIONS)
 5. **Target: 2-3 files. If it's 5+, the architecture is wrong.**
 
 ### Adding business logic?
+
 1. Add function to appropriate `packages/core/src/domain/*.ts` file
 2. Create Server Action in `apps/web/app/actions/` that calls it
 3. Wire up to UI
 4. Register as AI tool in `packages/ai/src/tools/` if AI should access it
 
 ### Adding a new page?
+
 1. Create route in `apps/web/app/(dashboard)/`
 2. Use existing layout (sidebar + header come free)
 3. Fetch data with Server Actions or direct DB queries in Server Components
@@ -584,6 +631,7 @@ Stop and reconsider if you see:
 ## AI System
 
 ### Available AI Tools
+
 - `searchInvoicesTool` — Search by status, contact, date range
 - `searchCustomersTool` — Search contacts by name, email, type
 - `getInvoiceDetailsTool` — Full invoice with items and payments
@@ -594,13 +642,16 @@ Stop and reconsider if you see:
 - `getFinancialSummaryTool` — Revenue, expenses, outstanding
 
 ### AI Provider Support
+
 Configurable per company via `CompanySettings`:
+
 - **Anthropic** (Claude) — recommended default
 - **OpenAI** (GPT-4)
 - **OpenRouter** — multi-model access
 - **Ollama** — self-hosted (llama, mistral, etc.)
 
 ### Adding an AI Tool
+
 1. Create tool definition in `packages/ai/src/tools/`
 2. Tool calls a domain function from `packages/core/src/domain/`
 3. Register in `packages/ai/src/tools/index.ts`
@@ -613,32 +664,35 @@ Configurable per company via `CompanySettings`:
 
 Use Swiss German business terms consistently:
 
-| German | English | Context |
-|--------|---------|---------|
-| Rechnung (RE) | Invoice | Sales invoice |
-| Angebot (AN) | Quote | Sales quote |
-| Auftrag (AU) | Order | Sales order |
-| Gutschrift (GU) | Credit Note | Refund/correction |
-| Lieferschein (LS) | Delivery Note | Shipping document |
-| Mahnung (MA) | Dunning | Payment reminder |
-| Bestellung (BE) | Purchase Order | Buying from vendors |
-| Eingangsrechnung (ER) | Purchase Invoice | Vendor invoice |
-| Kontenrahmen | Chart of Accounts | Account structure |
-| Mehrwertsteuer (MWST) | VAT | Value Added Tax |
-| Hauptlager | Main Warehouse | Default warehouse |
-| Stück | Piece | Unit of measure |
+| German                | English           | Context             |
+| --------------------- | ----------------- | ------------------- |
+| Rechnung (RE)         | Invoice           | Sales invoice       |
+| Angebot (AN)          | Quote             | Sales quote         |
+| Auftrag (AU)          | Order             | Sales order         |
+| Gutschrift (GU)       | Credit Note       | Refund/correction   |
+| Lieferschein (LS)     | Delivery Note     | Shipping document   |
+| Mahnung (MA)          | Dunning           | Payment reminder    |
+| Bestellung (BE)       | Purchase Order    | Buying from vendors |
+| Eingangsrechnung (ER) | Purchase Invoice  | Vendor invoice      |
+| Kontenrahmen          | Chart of Accounts | Account structure   |
+| Mehrwertsteuer (MWST) | VAT               | Value Added Tax     |
+| Hauptlager            | Main Warehouse    | Default warehouse   |
+| Stück                 | Piece             | Unit of measure     |
 
 ---
 
 ## What Makes Kivvi Different
 
-1. **AI-first ERP**: Not AI bolted on — AI tools call the same domain functions as the UI.
-2. **Unified Document Model**: One table, all document types. Convert between types by changing a field.
-3. **Swiss-native**: Not a US product adapted for Switzerland. Built for Swiss SMEs from day one.
-4. **Self-service migration**: Any kivitendo customer can migrate via CSV upload. No engineering required.
-5. **Config-driven UI**: Document behavior defined in config, not scattered across components. Adding a document type = adding config, not code.
-6. **Multi-tenant SaaS**: One instance serves all companies. Strict tenant isolation.
+1. **Built for secondhand**: Intake workflows, condition grading, repair tracking, flexible pricing — the things no other ERP handles. See `PRODUCT.md` for the full rationale.
+2. **AI-first ERP**: Not AI bolted on — AI tools call the same domain functions as the UI. Cmd+K command bar understands "50 laptops donated by UBS" natively.
+3. **Unified Document Model**: One table, all document types (including intake and repair orders). Convert between types by changing a field.
+4. **Swiss-native**: QR-bills, VAT, Rappen rounding, CAMT import, KMU Kontenrahmen. Not a US product adapted for Switzerland.
+5. **Condition-aware inventory**: Items tracked individually with condition grades (good/fair/poor/parts/scrap) and lifecycle status (intake → testing → repair → sale).
+6. **Impact tracking**: Devices saved, CO2 avoided, people served. Because for secondhand businesses, impact IS the point.
+7. **Config-driven UI**: Document behavior defined in config. Adding a document type = adding config, not code.
+8. **Self-service migration**: Any kivitendo customer can migrate via CSV upload. No engineering required.
+9. **Multi-tenant SaaS**: One instance serves all companies. Strict tenant isolation.
 
 ---
 
-*Every line of code handles someone's money. Get it right.*
+_Every item that passes through your hands deserves to be tracked, valued, and given its best possible future._

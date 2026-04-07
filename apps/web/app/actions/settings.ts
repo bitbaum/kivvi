@@ -7,6 +7,7 @@ import type { CompanySettings } from "@kivvi/database";
 import { eq, and } from "drizzle-orm";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
+import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 import {
   type ActionResult,
   getSession,
@@ -26,7 +27,7 @@ const updateCompanySchema = z.object({
   city: z.string().max(100).optional().nullable(),
   postalCode: z.string().max(20).optional().nullable(),
   country: z.string().max(2).optional().default("CH"),
-  currency: z.string().max(3).optional().default("CHF"),
+  currency: z.string().max(3).optional().default(DEFAULT_CURRENCY),
   // Settings JSONB fields
   iban: z.string().max(34).optional().nullable(),
   bankName: z.string().max(200).optional().nullable(),

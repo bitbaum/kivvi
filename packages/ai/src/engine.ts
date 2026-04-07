@@ -41,10 +41,13 @@ export class ConversationEngine {
     model?: string,
     businessSnapshot?: string,
     orgProfile?: OrgProfile,
+    promptAddendum?: string,
   ) {
     this.provider = provider;
     this.tools = tools;
-    this.systemPrompt = getSystemPrompt(context, businessSnapshot, orgProfile);
+    this.systemPrompt =
+      getSystemPrompt(context, businessSnapshot, orgProfile) +
+      (promptAddendum || "");
     this.model = model;
   }
 

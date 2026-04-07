@@ -1,5 +1,6 @@
 import { z } from "zod";
 import Decimal from "decimal.js";
+import { DEFAULT_CURRENCY } from "../config/locale";
 import { eq, and, asc, desc, sql } from "drizzle-orm";
 import {
   bankAccounts,
@@ -20,7 +21,7 @@ export const createBankAccountSchema = z.object({
   name: z.string().min(1, "Name is required").max(200),
   iban: z.string().max(34).optional().nullable(),
   bankName: z.string().max(200).optional().nullable(),
-  currency: z.string().max(3).default("CHF"),
+  currency: z.string().max(3).default(DEFAULT_CURRENCY),
   accountId: z.string().uuid().optional().nullable(),
 });
 

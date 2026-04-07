@@ -15,28 +15,77 @@ export interface DocumentFormInitialValues {
   projectId?: string;
 }
 
+/** Data shape for AI-driven form pre-filling via ?prefill= query param */
+export interface DocumentPrefill {
+  contactId?: string;
+  contactName?: string;
+  issueDate?: string;
+  dueDate?: string;
+  notes?: string;
+  items?: Array<{
+    description: string;
+    quantity: string;
+    unitPrice: string;
+    vatRate: string;
+    discount?: string;
+    productId?: string;
+    inventoryItemId?: string;
+  }>;
+}
+
+/** Decode a base64url-encoded prefill param. Returns null on failure. */
+export function decodePrefill(encoded: string | null): DocumentPrefill | null {
+  if (!encoded) return null;
+  try {
+    const json = atob(encoded.replace(/-/g, "+").replace(/_/g, "/"));
+    return JSON.parse(json) as DocumentPrefill;
+  } catch {
+    return null;
+  }
+}
+
 export function useDocumentForm(
   config: DocumentTypeConfig,
   initial?: DocumentFormInitialValues,
+  prefill?: DocumentPrefill | null,
 ) {
   const [contactId, setContactId] = useState<string | null>(
-    initial?.contactId || null,
+    prefill?.contactId || initial?.contactId || null,
   );
-  const [contactName, setContactName] = useState(initial?.contactName || "");
+  const [contactName, setContactName] = useState(
+    prefill?.contactName || initial?.contactName || "",
+  );
   const [issueDate, setIssueDate] = useState(
-    new Date().toISOString().split("T")[0],
+    prefill?.issueDate || new Date().toISOString().split("T")[0],
   );
   const [dueDate, setDueDate] = useState(
-    config.hasDueDate
-      ? new Date(Date.now() + DEFAULT_PAYMENT_TERMS_DAYS * 24 * 60 * 60 * 1000)
-          .toISOString()
-          .split("T")[0]
-      : "",
+    prefill?.dueDate ||
+      (config.hasDueDate
+        ? new Date(
+            Date.now() + DEFAULT_PAYMENT_TERMS_DAYS * 24 * 60 * 60 * 1000,
+          )
+            .toISOString()
+            .split("T")[0]
+        : ""),
   );
   const [deliveryDate, setDeliveryDate] = useState("");
-  const [notes, setNotes] = useState("");
+  const [notes, setNotes] = useState(prefill?.notes || "");
   const [internalNotes, setInternalNotes] = useState("");
-  const [items, setItems] = useState<LineItem[]>([emptyItem()]);
+  const [isPrefilled] = useState(!!prefill?.items?.length);
+
+  // Initialize items from prefill or empty
+  const initialItems: LineItem[] = prefill?.items?.map((item) => ({
+    ...emptyItem(),
+    productId: item.productId || null,
+    inventoryItemId: item.inventoryItemId || null,
+    description: item.description,
+    quantity: item.quantity,
+    unitPrice: item.unitPrice,
+    vatRate: item.vatRate,
+    discount: item.discount || "0",
+  })) || [emptyItem()];
+
+  const [items, setItems] = useState<LineItem[]>(initialItems);
 
   // Track last added item for auto-focus
   const [lastAddedItemId, setLastAddedItemId] = useState<string | null>(null);
@@ -62,6 +111,26 @@ export function useDocumentForm(
       if (!isNaN(num) && num < 0) value = "0";
     }
     setItems(items.map((i) => (i.id === id ? { ...i, [field]: value } : i)));
+  };
+
+  /** Bulk-add items from AI extraction. Replaces empty initial items. */
+  const addItemsBulk = (
+    newItems: Array<{ description: string; quantity: string }>,
+  ) => {
+    const hasExisting = items.some((i) => i.description.trim());
+    const bulkItems: LineItem[] = newItems.map((item) => ({
+      ...emptyItem(),
+      description: item.description,
+      quantity: item.quantity,
+    }));
+
+    if (!hasExisting) {
+      // Replace the empty initial item(s)
+      setItems(bulkItems);
+    } else {
+      // Append to existing items
+      setItems([...items, ...bulkItems]);
+    }
   };
 
   // Handle drag end - reorder items
@@ -104,5 +173,7 @@ export function useDocumentForm(
     subtotal,
     vatAmount,
     total,
+    isPrefilled,
+    addItemsBulk,
   };
 }

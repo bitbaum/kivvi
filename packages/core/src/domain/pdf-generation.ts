@@ -3,6 +3,7 @@ import Decimal from "decimal.js";
 import { SwissQRBill } from "swissqrbill/pdf";
 import type { Data as QRBillData } from "swissqrbill/types";
 import { logger } from "../logger";
+import { DEFAULT_CURRENCY } from "../config/locale";
 
 // ============================================================================
 // TYPES
@@ -61,7 +62,10 @@ export interface InvoicePdfData {
  * Format a number string with Swiss formatting: 1'234.50
  * Note: parseFloat used for display formatting only (not calculations).
  */
-function formatSwissAmount(value: string, currency: string = "CHF"): string {
+function formatSwissAmount(
+  value: string,
+  currency: string = DEFAULT_CURRENCY,
+): string {
   // Display-only: converting already-calculated amount for formatting
   const num = parseFloat(value);
   if (isNaN(num)) return currency ? `${currency} 0.00` : "0.00";
@@ -503,4 +507,231 @@ function formatQuantity(qty: string): string {
   if (Number.isInteger(num)) return String(num);
   // Otherwise show significant decimals (up to 4)
   return num.toFixed(4).replace(/0+$/, "").replace(/\.$/, "");
+}
+
+// ============================================================================
+// DONATION RECEIPT (Spendenquittung)
+// ============================================================================
+
+export interface DonationReceiptPdfData {
+  companyName: string;
+  companyAddress: string;
+  companyCity: string;
+  companyPostalCode: string;
+  companyLogoBase64?: string;
+  // Donor info
+  donorName: string;
+  donorAddress?: string;
+  donorCity?: string;
+  donorPostalCode?: string;
+  // Document
+  number: string;
+  date: string;
+  // Items
+  items: Array<{
+    description: string;
+    quantity: string;
+  }>;
+  estimatedTotalValue?: string;
+  currency: string;
+}
+
+export async function generateDonationReceiptPdf(
+  data: DonationReceiptPdfData,
+): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    const doc = new PDFDocument({
+      size: "A4",
+      margins: {
+        top: MARGIN_TOP,
+        bottom: 57,
+        left: MARGIN_LEFT,
+        right: MARGIN_RIGHT,
+      },
+      info: {
+        Title: `Spendenquittung ${data.number}`,
+        Author: data.companyName,
+        Subject: `Donation Receipt ${data.number}`,
+      },
+    });
+
+    doc.on("data", (chunk: Buffer) => chunks.push(chunk));
+    doc.on("end", () => resolve(Buffer.concat(chunks)));
+    doc.on("error", reject);
+
+    const pageWidth = 595.28 - MARGIN_LEFT - MARGIN_RIGHT;
+    let y = MARGIN_TOP;
+
+    // Logo
+    if (data.companyLogoBase64) {
+      try {
+        const base64Data = data.companyLogoBase64.replace(
+          /^data:image\/\w+;base64,/,
+          "",
+        );
+        const logoBuffer = Buffer.from(base64Data, "base64");
+        doc.image(logoBuffer, MARGIN_LEFT, y, { fit: [170, 71] });
+        y += 79;
+      } catch {
+        // Fallback to text
+      }
+    }
+
+    // Company header
+    doc
+      .font(FONT_BOLD)
+      .fontSize(14)
+      .fillColor(COLOR_BLACK)
+      .text(data.companyName, MARGIN_LEFT, y);
+    y += 18;
+    doc.font(FONT_REGULAR).fontSize(9).fillColor(COLOR_GRAY);
+    if (data.companyAddress) {
+      doc.text(data.companyAddress, MARGIN_LEFT, y);
+      y += 12;
+    }
+    if (data.companyPostalCode || data.companyCity) {
+      doc.text(
+        `${data.companyPostalCode || ""} ${data.companyCity || ""}`.trim(),
+        MARGIN_LEFT,
+        y,
+      );
+      y += 12;
+    }
+
+    y += 20;
+
+    // Title
+    doc
+      .font(FONT_BOLD)
+      .fontSize(18)
+      .fillColor(COLOR_BLACK)
+      .text("Spendenquittung", MARGIN_LEFT, y);
+    y += 28;
+    doc
+      .font(FONT_REGULAR)
+      .fontSize(10)
+      .fillColor(COLOR_GRAY)
+      .text(`Nr. ${data.number} — ${data.date}`, MARGIN_LEFT, y);
+    y += 24;
+
+    // Donor info
+    doc
+      .font(FONT_BOLD)
+      .fontSize(10)
+      .fillColor(COLOR_BLACK)
+      .text("Spender/in:", MARGIN_LEFT, y);
+    y += 14;
+    doc.font(FONT_REGULAR).fontSize(10);
+    doc.text(data.donorName, MARGIN_LEFT, y);
+    y += 14;
+    if (data.donorAddress) {
+      doc.text(data.donorAddress, MARGIN_LEFT, y);
+      y += 14;
+    }
+    if (data.donorPostalCode || data.donorCity) {
+      doc.text(
+        `${data.donorPostalCode || ""} ${data.donorCity || ""}`.trim(),
+        MARGIN_LEFT,
+        y,
+      );
+      y += 14;
+    }
+
+    y += 20;
+
+    // Statement
+    doc.font(FONT_REGULAR).fontSize(10).fillColor(COLOR_BLACK);
+    doc.text(
+      "Wir bestätigen hiermit den Erhalt folgender Sachspende:",
+      MARGIN_LEFT,
+      y,
+      { width: pageWidth },
+    );
+    y += 24;
+
+    // Items table header
+    doc.font(FONT_BOLD).fontSize(9).fillColor(COLOR_GRAY);
+    doc.text("Beschreibung", MARGIN_LEFT, y);
+    doc.text("Menge", MARGIN_LEFT + pageWidth - 60, y, {
+      width: 60,
+      align: "right",
+    });
+    y += 4;
+    doc
+      .moveTo(MARGIN_LEFT, y + 10)
+      .lineTo(MARGIN_LEFT + pageWidth, y + 10)
+      .strokeColor(COLOR_LIGHT_GRAY)
+      .stroke();
+    y += 16;
+
+    // Items
+    doc.font(FONT_REGULAR).fontSize(9).fillColor(COLOR_BLACK);
+    for (const item of data.items) {
+      doc.text(item.description, MARGIN_LEFT, y, { width: pageWidth - 70 });
+      doc.text(item.quantity, MARGIN_LEFT + pageWidth - 60, y, {
+        width: 60,
+        align: "right",
+      });
+      y += 14;
+      if (y > 700) {
+        doc.addPage();
+        y = MARGIN_TOP;
+      }
+    }
+
+    // Separator
+    y += 4;
+    doc
+      .moveTo(MARGIN_LEFT, y)
+      .lineTo(MARGIN_LEFT + pageWidth, y)
+      .strokeColor(COLOR_LIGHT_GRAY)
+      .stroke();
+    y += 12;
+
+    // Total estimated value
+    if (data.estimatedTotalValue) {
+      doc.font(FONT_BOLD).fontSize(10);
+      doc.text("Geschätzter Gesamtwert:", MARGIN_LEFT, y);
+      doc.text(
+        `${data.currency} ${formatSwissAmount(data.estimatedTotalValue, "")}`,
+        MARGIN_LEFT + pageWidth - 150,
+        y,
+        { width: 150, align: "right" },
+      );
+      y += 20;
+    }
+
+    y += 30;
+
+    // Legal text
+    doc.font(FONT_REGULAR).fontSize(9).fillColor(COLOR_GRAY);
+    doc.text(
+      "Diese Bestätigung dient als Nachweis für die Steuererklärung gemäss Art. 33a DBG.",
+      MARGIN_LEFT,
+      y,
+      { width: pageWidth },
+    );
+    y += 20;
+    doc.text(
+      `Ausgestellt am ${data.date} durch ${data.companyName}.`,
+      MARGIN_LEFT,
+      y,
+      { width: pageWidth },
+    );
+
+    y += 50;
+
+    // Signature line
+    doc
+      .moveTo(MARGIN_LEFT, y)
+      .lineTo(MARGIN_LEFT + 200, y)
+      .strokeColor(COLOR_GRAY)
+      .stroke();
+    y += 8;
+    doc.font(FONT_REGULAR).fontSize(8).fillColor(COLOR_GRAY);
+    doc.text("Unterschrift / Stempel", MARGIN_LEFT, y);
+
+    doc.end();
+  });
 }

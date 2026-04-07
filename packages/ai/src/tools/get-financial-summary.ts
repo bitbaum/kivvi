@@ -1,20 +1,25 @@
-import { z } from 'zod';
-import type { Tool, ExecutionContext, ToolResult } from '../types';
-import { getFinancialSummary } from '@kivvi/core';
-import { getDb } from './utils';
+import { z } from "zod";
+import type { Tool, ExecutionContext, ToolResult } from "../types";
+import { getFinancialSummary } from "@kivvi/core";
+import { getDb } from "./utils";
+import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
 
 const getFinancialSummarySchema = z.object({
-  period: z.enum(['month', 'quarter', 'year']).optional().describe(
-    'Time period for the summary. Defaults to current month.'
-  ),
+  period: z
+    .enum(["month", "quarter", "year"])
+    .optional()
+    .describe("Time period for the summary. Defaults to current month."),
 });
 
 export const getFinancialSummaryTool: Tool = {
-  name: 'get_financial_summary',
+  name: "get_financial_summary",
   description: `Get a financial overview of the company including total revenue, outstanding invoices, overdue amounts, and document counts. Can be filtered by period (current month, quarter, or year).`,
   parameters: getFinancialSummarySchema,
-  requiredPermissions: ['invoice:read'],
-  execute: async (params: z.infer<typeof getFinancialSummarySchema>, context: ExecutionContext): Promise<ToolResult> => {
+  requiredPermissions: ["invoice:read"],
+  execute: async (
+    params: z.infer<typeof getFinancialSummarySchema>,
+    context: ExecutionContext,
+  ): Promise<ToolResult> => {
     try {
       const db = getDb(context);
 
@@ -22,20 +27,20 @@ export const getFinancialSummaryTool: Tool = {
 
       // Determine period label for display
       const now = new Date();
-      const period = params.period || 'month';
+      const period = params.period || "month";
       let periodLabel: string;
 
       switch (period) {
-        case 'month': {
-          periodLabel = `${now.toLocaleString('de-CH', { month: 'long' })} ${now.getFullYear()}`;
+        case "month": {
+          periodLabel = `${now.toLocaleString(DEFAULT_LOCALE, { month: "long" })} ${now.getFullYear()}`;
           break;
         }
-        case 'quarter': {
+        case "quarter": {
           const quarterNum = Math.floor(now.getMonth() / 3) + 1;
           periodLabel = `Q${quarterNum} ${now.getFullYear()}`;
           break;
         }
-        case 'year': {
+        case "year": {
           periodLabel = `${now.getFullYear()}`;
           break;
         }
@@ -45,8 +50,10 @@ export const getFinancialSummaryTool: Tool = {
 
       // The domain function returns monthly revenue, yearly revenue, outstanding, overdue, and drafts.
       // Map to the tool's output format based on the requested period.
-      const revenueAmount = period === 'year' ? summary.revenueThisYear : summary.revenueThisMonth;
-      const revenueCount = period === 'year' ? undefined : summary.revenueThisMonthCount;
+      const revenueAmount =
+        period === "year" ? summary.revenueThisYear : summary.revenueThisMonth;
+      const revenueCount =
+        period === "year" ? undefined : summary.revenueThisMonthCount;
 
       return {
         success: true,
@@ -57,29 +64,29 @@ export const getFinancialSummaryTool: Tool = {
           revenue: {
             amount: `${currency} ${revenueAmount.toFixed(2)}`,
             invoiceCount: revenueCount ?? 0,
-            label: 'Paid revenue in period',
+            label: "Paid revenue in period",
           },
           outstanding: {
             amount: `${currency} ${summary.outstandingTotal.toFixed(2)}`,
             invoiceCount: summary.outstandingCount,
-            label: 'Total outstanding (all unpaid)',
+            label: "Total outstanding (all unpaid)",
           },
           overdue: {
             amount: `${currency} ${summary.overdueTotal.toFixed(2)}`,
             invoiceCount: summary.overdueCount,
-            label: 'Overdue invoices past due date',
+            label: "Overdue invoices past due date",
           },
           drafts: {
             amount: `${currency} ${summary.draftsTotal.toFixed(2)}`,
             invoiceCount: summary.draftsCount,
-            label: 'Draft invoices not yet sent',
+            label: "Draft invoices not yet sent",
           },
         },
       };
     } catch (error) {
       return {
         success: false,
-        error: `Failed to get financial summary: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        error: `Failed to get financial summary: ${error instanceof Error ? error.message : "Unknown error"}`,
       };
     }
   },

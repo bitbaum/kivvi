@@ -1,4 +1,5 @@
-import { XMLParser } from 'fast-xml-parser';
+import { XMLParser } from "fast-xml-parser";
+import { DEFAULT_CURRENCY } from "../config/locale";
 
 // ============================================================================
 // TYPES
@@ -8,7 +9,7 @@ export interface CamtBalance {
   amount: string;
   currency: string;
   date: string;
-  creditDebit: 'CRDT' | 'DBIT';
+  creditDebit: "CRDT" | "DBIT";
 }
 
 export interface CamtEntry {
@@ -27,7 +28,7 @@ export interface CamtEntry {
 }
 
 export interface CamtStatement {
-  messageType: 'camt.053' | 'camt.054';
+  messageType: "camt.053" | "camt.054";
   accountIban: string | null;
   accountCurrency: string | null;
   openingBalance: CamtBalance | null;
@@ -42,7 +43,7 @@ export interface CamtStatement {
 const parser = new XMLParser({
   removeNSPrefix: true,
   ignoreAttributes: false,
-  isArray: (name) => name === 'Ntry' || name === 'TxDtls' || name === 'Bal',
+  isArray: (name) => name === "Ntry" || name === "TxDtls" || name === "Bal",
   numberParseOptions: { hex: false, leadingZeros: false, skipLike: /.*/ },
   parseTagValue: false,
 });
@@ -56,31 +57,36 @@ export function parseCamtXml(xml: string): CamtStatement {
   try {
     parsed = parser.parse(xml);
   } catch {
-    throw new Error('Invalid XML: failed to parse');
+    throw new Error("Invalid XML: failed to parse");
   }
 
   const doc = parsed?.Document as Record<string, unknown> | undefined;
   if (!doc) {
-    throw new Error('Invalid CAMT XML: missing Document root element');
+    throw new Error("Invalid CAMT XML: missing Document root element");
   }
 
   // Detect message type: camt.053 vs camt.054
   const stmt053 = doc.BkToCstmrStmt as Record<string, unknown> | undefined;
-  const ntfctn054 = doc.BkToCstmrDbtCdtNtfctn as Record<string, unknown> | undefined;
+  const ntfctn054 = doc.BkToCstmrDbtCdtNtfctn as
+    | Record<string, unknown>
+    | undefined;
 
   if (stmt053) {
-    return parseStatement(stmt053.Stmt as Record<string, unknown>, 'camt.053');
+    return parseStatement(stmt053.Stmt as Record<string, unknown>, "camt.053");
   }
   if (ntfctn054) {
-    return parseStatement(ntfctn054.Ntfctn as Record<string, unknown>, 'camt.054');
+    return parseStatement(
+      ntfctn054.Ntfctn as Record<string, unknown>,
+      "camt.054",
+    );
   }
 
-  throw new Error('Invalid CAMT XML: not a camt.053 or camt.054 document');
+  throw new Error("Invalid CAMT XML: not a camt.053 or camt.054 document");
 }
 
 function parseStatement(
   stmt: Record<string, unknown>,
-  messageType: 'camt.053' | 'camt.054'
+  messageType: "camt.053" | "camt.054",
 ): CamtStatement {
   if (!stmt) {
     throw new Error(`Invalid CAMT XML: missing statement body`);
@@ -89,15 +95,20 @@ function parseStatement(
   // Account IBAN
   const acct = stmt.Acct as Record<string, unknown> | undefined;
   const acctId = acct?.Id as Record<string, unknown> | undefined;
-  const accountIban = normalizeIban((acctId?.IBAN as string) || '') || null;
+  const accountIban = normalizeIban((acctId?.IBAN as string) || "") || null;
   const accountCurrency = (acct?.Ccy as string) || null;
 
   // Balances (camt.053 only)
   let openingBalance: CamtBalance | null = null;
   let closingBalance: CamtBalance | null = null;
 
-  if (messageType === 'camt.053') {
-    const balances = ensureArray(stmt.Bal as Record<string, unknown>[] | Record<string, unknown> | undefined);
+  if (messageType === "camt.053") {
+    const balances = ensureArray(
+      stmt.Bal as
+        | Record<string, unknown>[]
+        | Record<string, unknown>
+        | undefined,
+    );
     for (const bal of balances) {
       const tp = bal?.Tp as Record<string, unknown> | undefined;
       const cdOrPrtry = tp?.CdOrPrtry as Record<string, unknown> | undefined;
@@ -106,28 +117,33 @@ function parseStatement(
       const dt = bal?.Dt as Record<string, unknown> | undefined;
 
       const balanceObj: CamtBalance = {
-        amount: String(amt?.['#text'] ?? amt ?? '0'),
-        currency: String(amt?.['@_Ccy'] ?? ''),
-        date: String(dt?.Dt ?? dt?.DtTm ?? ''),
-        creditDebit: (bal?.CdtDbtInd as string) === 'DBIT' ? 'DBIT' : 'CRDT',
+        amount: String(amt?.["#text"] ?? amt ?? "0"),
+        currency: String(amt?.["@_Ccy"] ?? ""),
+        date: String(dt?.Dt ?? dt?.DtTm ?? ""),
+        creditDebit: (bal?.CdtDbtInd as string) === "DBIT" ? "DBIT" : "CRDT",
       };
 
-      if (code === 'OPBD' || code === 'PRCD') {
+      if (code === "OPBD" || code === "PRCD") {
         openingBalance = balanceObj;
-      } else if (code === 'CLBD' || code === 'CLAV') {
+      } else if (code === "CLBD" || code === "CLAV") {
         closingBalance = balanceObj;
       }
     }
   }
 
   // Entries
-  const rawEntries = ensureArray(stmt.Ntry as Record<string, unknown>[] | Record<string, unknown> | undefined);
+  const rawEntries = ensureArray(
+    stmt.Ntry as
+      | Record<string, unknown>[]
+      | Record<string, unknown>
+      | undefined,
+  );
   const entries: CamtEntry[] = [];
 
   for (const ntry of rawEntries) {
     const entry = parseEntry(ntry);
     // Only include BOOK status entries
-    if (entry.status === 'BOOK') {
+    if (entry.status === "BOOK") {
       entries.push(entry);
     }
   }
@@ -147,25 +163,26 @@ function parseEntry(ntry: Record<string, unknown>): CamtEntry {
   const entryReference = (ntry.AcctSvcrRef as string) || null;
 
   // Status
-  const status = (ntry.Sts as string) || 'BOOK';
+  const status = (ntry.Sts as string) || "BOOK";
 
   // Dates
   const bookDt = ntry.BookgDt as Record<string, unknown> | undefined;
-  const bookingDate = String(bookDt?.Dt ?? bookDt?.DtTm ?? '');
+  const bookingDate = String(bookDt?.Dt ?? bookDt?.DtTm ?? "");
 
   const valDt = ntry.ValDt as Record<string, unknown> | undefined;
-  const valueDate = (valDt?.Dt ?? valDt?.DtTm) ? String(valDt?.Dt ?? valDt?.DtTm) : null;
+  const valueDate =
+    (valDt?.Dt ?? valDt?.DtTm) ? String(valDt?.Dt ?? valDt?.DtTm) : null;
 
   // Amount + direction
   const amt = ntry.Amt as Record<string, unknown> | undefined;
-  const rawAmount = String(amt?.['#text'] ?? amt ?? '0');
-  const currency = String(amt?.['@_Ccy'] ?? 'CHF');
+  const rawAmount = String(amt?.["#text"] ?? amt ?? "0");
+  const currency = String(amt?.["@_Ccy"] ?? DEFAULT_CURRENCY);
   const creditDebit = ntry.CdtDbtInd as string;
-  const isReversal = ntry.RvslInd === true || ntry.RvslInd === 'true';
+  const isReversal = ntry.RvslInd === true || ntry.RvslInd === "true";
 
   let signedAmount = rawAmount;
   // DBIT = money leaving account → negative
-  const isDebit = creditDebit === 'DBIT';
+  const isDebit = creditDebit === "DBIT";
   if (isDebit && !isReversal) {
     signedAmount = `-${rawAmount}`;
   } else if (!isDebit && isReversal) {
@@ -175,7 +192,12 @@ function parseEntry(ntry: Record<string, unknown>): CamtEntry {
 
   // Transaction details
   const ntryDtls = ntry.NtryDtls as Record<string, unknown> | undefined;
-  const txDtlsList = ensureArray(ntryDtls?.TxDtls as Record<string, unknown>[] | Record<string, unknown> | undefined);
+  const txDtlsList = ensureArray(
+    ntryDtls?.TxDtls as
+      | Record<string, unknown>[]
+      | Record<string, unknown>
+      | undefined,
+  );
 
   let reference: string | null = null;
   let debtorName: string | null = null;
@@ -195,7 +217,7 @@ function parseEntry(ntry: Record<string, unknown>): CamtEntry {
 
     if (!reference && qrRef) {
       reference = qrRef;
-    } else if (!reference && endToEndId && endToEndId !== 'NOTPROVIDED') {
+    } else if (!reference && endToEndId && endToEndId !== "NOTPROVIDED") {
       reference = endToEndId;
     }
 
@@ -214,14 +236,14 @@ function parseEntry(ntry: Record<string, unknown>): CamtEntry {
     // Unstructured remittance info
     const ustrd = rmtInf?.Ustrd as string | string[] | undefined;
     if (!remittanceInfo && ustrd) {
-      remittanceInfo = Array.isArray(ustrd) ? ustrd.join(' ') : String(ustrd);
+      remittanceInfo = Array.isArray(ustrd) ? ustrd.join(" ") : String(ustrd);
     }
 
     // Build description parts
     if (debtorParty?.Nm) descriptionParts.push(String(debtorParty.Nm));
     if (creditorParty?.Nm) descriptionParts.push(String(creditorParty.Nm));
     if (ustrd) {
-      const text = Array.isArray(ustrd) ? ustrd.join(' ') : String(ustrd);
+      const text = Array.isArray(ustrd) ? ustrd.join(" ") : String(ustrd);
       descriptionParts.push(text);
     }
   }
@@ -234,7 +256,7 @@ function parseEntry(ntry: Record<string, unknown>): CamtEntry {
 
   // Deduplicate description parts
   const uniqueParts = [...new Set(descriptionParts)];
-  const description = uniqueParts.join(' — ') || '';
+  const description = uniqueParts.join(" — ") || "";
 
   return {
     entryReference,
@@ -258,7 +280,7 @@ function parseEntry(ntry: Record<string, unknown>): CamtEntry {
 
 /** Normalize IBAN: strip spaces, uppercase. */
 export function normalizeIban(iban: string): string {
-  return iban.replace(/\s/g, '').toUpperCase();
+  return iban.replace(/\s/g, "").toUpperCase();
 }
 
 /** Ensure a value is always an array. */

@@ -1,5 +1,14 @@
 import Link from "next/link";
-import { ArrowRight, Bot, Zap, Shield, Globe } from "lucide-react";
+import {
+  ArrowRight,
+  PackageOpen,
+  ClipboardCheck,
+  Tag,
+  BarChart3,
+  Sparkles,
+  Shield,
+  Recycle,
+} from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { KivviLogo } from "@/components/kivvi-logo";
@@ -38,8 +47,8 @@ export default async function Home() {
       <main className="container mx-auto px-4 py-20">
         <div className="mx-auto max-w-3xl text-center">
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border bg-muted/50 px-4 py-1.5 text-sm">
-            <Bot className="h-4 w-4" />
-            <span>{t("aiFirstErp")}</span>
+            <Recycle className="h-4 w-4" />
+            <span>{t("badge")}</span>
           </div>
 
           <h1 className="mb-6 text-5xl font-bold tracking-tight sm:text-6xl">
@@ -62,7 +71,7 @@ export default async function Home() {
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
-              href="/demo"
+              href="#how-it-works"
               className="inline-flex items-center gap-2 rounded-lg border px-6 py-3 font-medium hover:bg-muted"
             >
               {t("watchDemo")}
@@ -70,29 +79,44 @@ export default async function Home() {
           </div>
         </div>
 
-        {/* Features */}
+        {/* Features — 6 cards in 2 rows */}
         <div className="mx-auto mt-32 max-w-5xl">
-          <div className="grid gap-8 md:grid-cols-3">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <FeatureCard
-              icon={<Bot className="h-6 w-6" />}
+              icon={<PackageOpen className="h-6 w-6" />}
+              title={t("featureIntakeTitle")}
+              description={t("featureIntakeDesc")}
+            />
+            <FeatureCard
+              icon={<ClipboardCheck className="h-6 w-6" />}
+              title={t("featureConditionTitle")}
+              description={t("featureConditionDesc")}
+            />
+            <FeatureCard
+              icon={<Tag className="h-6 w-6" />}
+              title={t("featurePricingTitle")}
+              description={t("featurePricingDesc")}
+            />
+            <FeatureCard
+              icon={<BarChart3 className="h-6 w-6" />}
+              title={t("featureImpactTitle")}
+              description={t("featureImpactDesc")}
+            />
+            <FeatureCard
+              icon={<Sparkles className="h-6 w-6" />}
               title={t("featureAiTitle")}
               description={t("featureAiDesc")}
             />
             <FeatureCard
-              icon={<Zap className="h-6 w-6" />}
+              icon={<Shield className="h-6 w-6" />}
               title={t("featureSwissTitle")}
               description={t("featureSwissDesc")}
-            />
-            <FeatureCard
-              icon={<Shield className="h-6 w-6" />}
-              title={t("featureDataTitle")}
-              description={t("featureDataDesc")}
             />
           </div>
         </div>
 
         {/* How it works */}
-        <div className="mx-auto mt-32 max-w-3xl">
+        <div id="how-it-works" className="mx-auto mt-32 max-w-3xl">
           <h2 className="mb-12 text-center text-3xl font-bold">
             {t("howItWorks")}
           </h2>
@@ -118,8 +142,8 @@ export default async function Home() {
 
         {/* CTA */}
         <div className="mx-auto mt-32 max-w-2xl text-center">
-          <h2 className="mb-4 text-3xl font-bold">{t("readyToAutomate")}</h2>
-          <p className="mb-8 text-muted-foreground">{t("joinSwissBusiness")}</p>
+          <h2 className="mb-4 text-3xl font-bold">{t("readyToStart")}</h2>
+          <p className="mb-8 text-muted-foreground">{t("joinCommunity")}</p>
           <Link
             href="/register"
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-8 py-4 text-lg font-medium text-primary-foreground hover:bg-primary/90"

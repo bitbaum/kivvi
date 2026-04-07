@@ -44,6 +44,9 @@ function parseProductFormData(formData: FormData) {
     minStock: raw.minStock ? Number(raw.minStock) : null,
     serialNumberTracking: formData.get("serialNumberTracking") === "on",
     shopVisible: formData.get("shopVisible") === "on",
+    isPriceFlexible: formData.get("isPriceFlexible") === "true",
+    minPrice: raw.minPrice || null,
+    maxPrice: raw.maxPrice || null,
     notes: raw.notes,
   };
 }

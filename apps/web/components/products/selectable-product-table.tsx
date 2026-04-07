@@ -13,6 +13,7 @@ import {
 } from "@/app/actions/bulk-operations";
 import type { BulkOperationResult } from "@/app/actions/bulk-operations";
 import { cn, formatCurrency } from "@/lib/utils";
+import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 import { StatusBadge } from "@/components/status-badge";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
 import { SortableHeader } from "@/components/sortable-header";
@@ -288,7 +289,10 @@ export function SelectableProductTable({
                   </span>
                 </td>
                 <td className="whitespace-nowrap px-4 py-3 text-right font-medium">
-                  {formatCurrency(product.unitPrice, product.currency || "CHF")}
+                  {formatCurrency(
+                    product.unitPrice,
+                    product.currency || DEFAULT_CURRENCY,
+                  )}
                   <span className="ml-1 text-xs text-muted-foreground">
                     /
                     {UNIT_ABBREVIATIONS[product.unit || "piece"] ||

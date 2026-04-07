@@ -14,70 +14,59 @@ import {
   index,
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
+import {
+  CONTACT_TYPE_VALUES,
+  DOCUMENT_TYPE_VALUES,
+  DOCUMENT_STATUS_VALUES,
+  ACCOUNT_TYPE_VALUES,
+  STOCK_MOVEMENT_TYPE_VALUES,
+  PRICE_RULE_TYPE_VALUES,
+  RECURRING_PERIODICITY_VALUES,
+  INTAKE_SOURCE_VALUES,
+  ITEM_CONDITION_VALUES,
+  ITEM_STATUS_VALUES,
+} from "./enums";
+
+// Re-export enums for consumer convenience (client-safe, no DB deps)
+export * from "./enums";
 
 // ============================================================================
 // ENUMS
 // ============================================================================
 
-export const contactTypeEnum = pgEnum("contact_type", [
-  "customer",
-  "vendor",
-  "both",
-]);
+export const contactTypeEnum = pgEnum("contact_type", [...CONTACT_TYPE_VALUES]);
 
 export const documentTypeEnum = pgEnum("document_type", [
-  "quote",
-  "order",
-  "order_confirmation",
-  "delivery_note",
-  "invoice",
-  "credit_note",
-  "purchase_order",
-  "purchase_invoice",
-  "dunning",
+  ...DOCUMENT_TYPE_VALUES,
 ]);
 
 export const documentStatusEnum = pgEnum("document_status", [
-  "draft",
-  "sent",
-  "confirmed",
-  "delivered",
-  "paid",
-  "partially_paid",
-  "overdue",
-  "cancelled",
-  "dunning_1",
-  "dunning_2",
-  "dunning_3",
+  ...DOCUMENT_STATUS_VALUES,
 ]);
 
-export const accountTypeEnum = pgEnum("account_type", [
-  "asset",
-  "liability",
-  "equity",
-  "revenue",
-  "expense",
-]);
+export const accountTypeEnum = pgEnum("account_type", [...ACCOUNT_TYPE_VALUES]);
 
 export const stockMovementTypeEnum = pgEnum("stock_movement_type", [
-  "purchase",
-  "sale",
-  "adjustment",
-  "transfer",
-  "return",
+  ...STOCK_MOVEMENT_TYPE_VALUES,
 ]);
 
 export const priceRuleTypeEnum = pgEnum("price_rule_type", [
-  "fixed",
-  "percentage",
-  "tiered",
+  ...PRICE_RULE_TYPE_VALUES,
 ]);
 
 export const recurringPeriodicityEnum = pgEnum("recurring_periodicity", [
-  "monthly",
-  "quarterly",
-  "annual",
+  ...RECURRING_PERIODICITY_VALUES,
 ]);
+
+export const intakeSourceEnum = pgEnum("intake_source", [
+  ...INTAKE_SOURCE_VALUES,
+]);
+
+export const itemConditionEnum = pgEnum("item_condition", [
+  ...ITEM_CONDITION_VALUES,
+]);
+
+export const itemStatusEnum = pgEnum("item_status", [...ITEM_STATUS_VALUES]);
 
 export const membershipRoleEnum = pgEnum("membership_role", [
   "owner",
@@ -361,6 +350,10 @@ export const products = pgTable(
       scale: 4,
     }).default("0"), // Cached total
     serialNumberTracking: boolean("serial_number_tracking").default(false),
+    // Flexible pricing (Richtpreis model for secondhand)
+    isPriceFlexible: boolean("is_price_flexible").default(false),
+    minPrice: decimal("min_price", { precision: 12, scale: 2 }),
+    maxPrice: decimal("max_price", { precision: 12, scale: 2 }),
     // Flags
     isActive: boolean("is_active").default(true),
     shopVisible: boolean("shop_visible").default(false),
@@ -424,6 +417,9 @@ export const documents = pgTable(
     qrReference: text("qr_reference"),
     // Document conversion chain
     convertedFromId: uuid("converted_from_id"),
+    // Intake-specific fields (for type='intake')
+    intakeSource: intakeSourceEnum("intake_source"),
+    donorId: uuid("donor_id").references(() => contacts.id),
     // Tracking
     createdBy: uuid("created_by").references(() => users.id),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -462,6 +458,9 @@ export const documentItems = pgTable(
       .references(() => documents.id, { onDelete: "cascade" })
       .notNull(),
     productId: uuid("product_id").references(() => products.id),
+    inventoryItemId: uuid("inventory_item_id").references(
+      () => inventoryItems.id,
+    ),
     position: integer("position").default(0),
     description: text("description").notNull(),
     quantity: decimal("quantity", { precision: 12, scale: 4 }).notNull(),
@@ -792,6 +791,71 @@ export const serialNumbers = pgTable(
     ),
     soldToContactIdIdx: index("serial_numbers_sold_to_contact_id_idx").on(
       table.soldToContactId,
+    ),
+  }),
+);
+
+// ============================================================================
+// INVENTORY ITEMS (individually tracked secondhand items)
+// ============================================================================
+
+export const inventoryItems = pgTable(
+  "inventory_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    companyId: uuid("company_id")
+      .references(() => companies.id)
+      .notNull(),
+    // Link to product catalog (optional — unique items may not have a catalog entry)
+    productId: uuid("product_id").references(() => products.id),
+    warehouseId: uuid("warehouse_id").references(() => warehouses.id),
+    // Item identity
+    itemNumber: text("item_number").notNull(), // Auto-generated: IT-00001
+    description: text("description").notNull(),
+    // Condition & lifecycle
+    condition: itemConditionEnum("condition").default("untested").notNull(),
+    status: itemStatusEnum("status").default("intake").notNull(),
+    // Provenance
+    intakeDocumentId: uuid("intake_document_id").references(() => documents.id),
+    saleDocumentId: uuid("sale_document_id").references(() => documents.id),
+    donorContactId: uuid("donor_contact_id").references(() => contacts.id),
+    // Pricing
+    estimatedValue: decimal("estimated_value", { precision: 12, scale: 2 }),
+    askingPrice: decimal("asking_price", { precision: 12, scale: 2 }),
+    minPrice: decimal("min_price", { precision: 12, scale: 2 }),
+    soldPrice: decimal("sold_price", { precision: 12, scale: 2 }),
+    // Repair tracking (accumulates across multiple repairs)
+    repairCost: decimal("repair_cost", { precision: 12, scale: 2 }),
+    repairHours: decimal("repair_hours", { precision: 5, scale: 2 }),
+    repairLog: text("repair_log"),
+    // Photo (base64 data URI, follows company logo pattern)
+    photoBase64: text("photo_base64"),
+    photoMimeType: text("photo_mime_type"),
+    // Details
+    notes: text("notes"),
+    specs: jsonb("specs"), // Key-value technical specs (e.g., { "RAM": "8GB", "Storage": "256GB SSD" })
+    // Tracking
+    serialNumber: text("serial_number"),
+    location: text("location"), // Shelf/bin within warehouse
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    companyIdIdx: index("inventory_items_company_id_idx").on(table.companyId),
+    companyStatusIdx: index("inventory_items_company_status_idx").on(
+      table.companyId,
+      table.status,
+    ),
+    companyConditionIdx: index("inventory_items_company_condition_idx").on(
+      table.companyId,
+      table.condition,
+    ),
+    intakeDocIdx: index("inventory_items_intake_doc_idx").on(
+      table.intakeDocumentId,
+    ),
+    itemNumberIdx: index("inventory_items_item_number_idx").on(
+      table.companyId,
+      table.itemNumber,
     ),
   }),
 );
@@ -1254,6 +1318,35 @@ export const serialNumbersRelations = relations(serialNumbers, ({ one }) => ({
   }),
 }));
 
+export const inventoryItemsRelations = relations(inventoryItems, ({ one }) => ({
+  company: one(companies, {
+    fields: [inventoryItems.companyId],
+    references: [companies.id],
+  }),
+  product: one(products, {
+    fields: [inventoryItems.productId],
+    references: [products.id],
+  }),
+  warehouse: one(warehouses, {
+    fields: [inventoryItems.warehouseId],
+    references: [warehouses.id],
+  }),
+  intakeDocument: one(documents, {
+    fields: [inventoryItems.intakeDocumentId],
+    references: [documents.id],
+    relationName: "intakeItems",
+  }),
+  saleDocument: one(documents, {
+    fields: [inventoryItems.saleDocumentId],
+    references: [documents.id],
+    relationName: "saleItems",
+  }),
+  donorContact: one(contacts, {
+    fields: [inventoryItems.donorContactId],
+    references: [contacts.id],
+  }),
+}));
+
 export const fiscalYearsRelations = relations(fiscalYears, ({ one, many }) => ({
   company: one(companies, {
     fields: [fiscalYears.companyId],
@@ -1473,6 +1566,8 @@ export type FiscalYear = typeof fiscalYears.$inferSelect;
 export type FiscalPeriod = typeof fiscalPeriods.$inferSelect;
 export type PriceList = typeof priceLists.$inferSelect;
 export type PriceRule = typeof priceRules.$inferSelect;
+export type InventoryItem = typeof inventoryItems.$inferSelect;
+export type NewInventoryItem = typeof inventoryItems.$inferInsert;
 export type RecurringInvoiceConfig =
   typeof recurringInvoiceConfigs.$inferSelect;
 export type NewRecurringInvoiceConfig =

@@ -11,6 +11,7 @@ import {
   ArrowUpDown,
   Users,
   Package,
+  PackageOpen,
   Wallet,
   BarChart3,
   FolderKanban,
@@ -104,6 +105,13 @@ export const NAVIGATION_ITEMS: PaletteItemConfig[] = [
     nameKey: "dunning",
     href: "/sales/dunning",
     icon: AlertTriangle,
+    ns: "nav",
+  },
+  {
+    id: "nav-intake",
+    nameKey: "intake",
+    href: "/intake",
+    icon: PackageOpen,
     ns: "nav",
   },
   {
@@ -247,6 +255,13 @@ export const QUICK_ACTIONS: PaletteItemConfig[] = [
     nameKey: "newPurchaseOrder",
     href: "/purchasing/purchase-orders/new",
     icon: ClipboardList,
+    ns: "commandPalette",
+  },
+  {
+    id: "action-intake",
+    nameKey: "newIntake",
+    href: "/intake/new",
+    icon: PackageOpen,
     ns: "commandPalette",
   },
   {

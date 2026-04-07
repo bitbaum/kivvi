@@ -13,6 +13,7 @@ import {
   getToolsForPermissions,
   getBusinessSnapshot,
   getPermissionsForRole,
+  COMMAND_BAR_PROMPT,
   type ExecutionContext,
   type Message,
   type ProviderType,
@@ -20,6 +21,10 @@ import {
 import { eq, and, desc } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
+import {
+  DEFAULT_CURRENCY,
+  DEFAULT_LOCALE,
+} from "@kivvi/core/src/config/locale";
 import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
@@ -34,7 +39,8 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { message, conversationId, providerId, modelId, locale } = body;
+    const { message, conversationId, providerId, modelId, locale, mode } = body;
+    const isCommandMode = mode === "command";
 
     if (!message || typeof message !== "string") {
       return NextResponse.json(
@@ -43,11 +49,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get or create conversation
+    // Get or create conversation (skip persistence in command mode)
     let conversation: { id: string } | undefined;
     let previousMessages: Message[] = [];
 
-    if (conversationId) {
+    if (isCommandMode) {
+      // Command bar mode: ephemeral, no DB persistence
+      conversation = { id: crypto.randomUUID() };
+    } else if (conversationId) {
       // Verify conversation belongs to user
       const existing = await db.query.aiConversations.findFirst({
         where: and(
@@ -91,12 +100,14 @@ export async function POST(request: NextRequest) {
       conversation = newConversation;
     }
 
-    // Save user message to database
-    await db.insert(aiMessages).values({
-      conversationId: conversation.id,
-      role: "user",
-      content: message,
-    });
+    // Save user message to database (skip in command mode)
+    if (!isCommandMode) {
+      await db.insert(aiMessages).values({
+        conversationId: conversation.id,
+        role: "user",
+        content: message,
+      });
+    }
 
     // Load company settings for vertical and org profile
     const company = await db.query.companies.findFirst({
@@ -120,9 +131,9 @@ export async function POST(request: NextRequest) {
       vertical: settings.vertical || "general",
       permissions: getPermissionsForRole(session.user.role || "member"),
       conversationId: conversation.id,
-      defaultCurrency: "CHF",
+      defaultCurrency: DEFAULT_CURRENCY,
       defaultVatRate: Number(DEFAULT_VAT_RATE),
-      locale: (locale as string) || "de-CH",
+      locale: (locale as string) || DEFAULT_LOCALE,
       db,
     };
 
@@ -197,6 +208,7 @@ export async function POST(request: NextRequest) {
       activeModel,
       snapshot,
       settings.orgProfile,
+      isCommandMode ? COMMAND_BAR_PROMPT : undefined,
     );
 
     // Create streaming response
@@ -233,8 +245,8 @@ export async function POST(request: NextRequest) {
                 ),
               );
             } else if (chunk.type === "done") {
-              // Save assistant message to database
-              if (fullContent) {
+              // Save assistant message to database (skip in command mode)
+              if (fullContent && !isCommandMode) {
                 await db.insert(aiMessages).values({
                   conversationId: conversation!.id,
                   role: "assistant",
