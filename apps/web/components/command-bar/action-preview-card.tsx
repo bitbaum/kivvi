@@ -1,6 +1,7 @@
 "use client";
 
 import { FileText, User, Package, ArrowRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { CommandBarToolResult } from "@/hooks/use-command-bar-ai";
 
 interface ActionPreviewCardProps {
@@ -8,6 +9,7 @@ interface ActionPreviewCardProps {
 }
 
 export function ActionPreviewCard({ toolResult }: ActionPreviewCardProps) {
+  const ti = useTranslations("inventory");
   const { result } = toolResult;
   if (!result.success || !result.data) return null;
 
@@ -43,7 +45,7 @@ export function ActionPreviewCard({ toolResult }: ActionPreviewCardProps) {
             ))}
             {items.length > 3 && (
               <div className="text-muted-foreground/60">
-                +{items.length - 3} more...
+                {ti("more", { count: items.length - 3 })}
               </div>
             )}
           </div>
@@ -51,7 +53,7 @@ export function ActionPreviewCard({ toolResult }: ActionPreviewCardProps) {
         <div className="flex items-center justify-between border-t pt-2 text-xs">
           {data.subtotal ? (
             <span className="text-muted-foreground">
-              Net: {String(data.subtotal)}
+              {ti("net")}: {String(data.subtotal)}
             </span>
           ) : null}
           <span className="font-medium">{String(data.total)}</span>

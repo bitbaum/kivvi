@@ -1737,7 +1737,20 @@
     "newProject": "Nouveau projet",
     "aiHint": "ou décrivez ce dont vous avez besoin...",
     "aiThinking": "En cours de traitement...",
-    "aiSection": "Assistant IA"
+    "aiSection": "Assistant IA",
+    "toolSearchingContacts": "Recherche de contacts",
+    "toolSearchingInvoices": "Recherche de factures",
+    "toolSearchingProducts": "Recherche de produits",
+    "toolSearchingProjects": "Recherche de projets",
+    "toolPreparingDocument": "Préparation du document",
+    "toolCreatingDocument": "Création du document",
+    "toolLoadingInvoice": "Chargement de la facture",
+    "toolLoadingContact": "Chargement du contact",
+    "toolLoadingFinancials": "Chargement des finances",
+    "toolRecordingPayment": "Enregistrement du paiement",
+    "toolUpdatingStatus": "Mise à jour du statut",
+    "toolSearchingInventory": "Recherche d'inventaire",
+    "toolLoadingDashboard": "Chargement du tableau de bord"
   },
   "help": {
     "title": "Aide",

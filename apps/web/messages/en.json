@@ -1735,7 +1735,20 @@
     "newProject": "New Project",
     "aiHint": "or describe what you need...",
     "aiThinking": "Thinking...",
-    "aiSection": "AI Assistant"
+    "aiSection": "AI Assistant",
+    "toolSearchingContacts": "Searching contacts",
+    "toolSearchingInvoices": "Searching invoices",
+    "toolSearchingProducts": "Searching products",
+    "toolSearchingProjects": "Searching projects",
+    "toolPreparingDocument": "Preparing document",
+    "toolCreatingDocument": "Creating document",
+    "toolLoadingInvoice": "Loading invoice",
+    "toolLoadingContact": "Loading contact",
+    "toolLoadingFinancials": "Loading financials",
+    "toolRecordingPayment": "Recording payment",
+    "toolUpdatingStatus": "Updating status",
+    "toolSearchingInventory": "Searching inventory",
+    "toolLoadingDashboard": "Loading dashboard"
   },
   "help": {
     "title": "Help",

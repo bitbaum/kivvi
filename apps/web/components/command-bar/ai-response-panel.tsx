@@ -9,19 +9,21 @@ import type {
   CommandBarToolResult,
 } from "@/hooks/use-command-bar-ai";
 
-/** Friendly tool name labels */
-const TOOL_LABELS: Record<string, string> = {
-  search_customers: "Searching contacts",
-  search_invoices: "Searching invoices",
-  search_products: "Searching products",
-  search_projects: "Searching projects",
-  prepare_document: "Preparing document",
-  create_document: "Creating document",
-  get_invoice_details: "Loading invoice",
-  get_customer_details: "Loading contact",
-  get_financial_summary: "Loading financials",
-  record_payment: "Recording payment",
-  update_document_status: "Updating status",
+/** Map tool names to i18n keys in commandPalette namespace */
+const TOOL_LABEL_KEYS: Record<string, string> = {
+  search_customers: "toolSearchingContacts",
+  search_invoices: "toolSearchingInvoices",
+  search_products: "toolSearchingProducts",
+  search_projects: "toolSearchingProjects",
+  prepare_document: "toolPreparingDocument",
+  create_document: "toolCreatingDocument",
+  get_invoice_details: "toolLoadingInvoice",
+  get_customer_details: "toolLoadingContact",
+  get_financial_summary: "toolLoadingFinancials",
+  record_payment: "toolRecordingPayment",
+  update_document_status: "toolUpdatingStatus",
+  search_inventory: "toolSearchingInventory",
+  get_inventory_dashboard: "toolLoadingDashboard",
 };
 
 interface AIResponsePanelProps {
@@ -53,22 +55,23 @@ export function AIResponsePanel({
     router.push(url);
   }
 
+  const toolLabel = toolProgress
+    ? t(TOOL_LABEL_KEYS[toolProgress] || toolProgress)
+    : null;
+
   return (
     <div className="border-t p-3 space-y-2">
-      {/* Processing indicator */}
-      {isProcessing && toolProgress && (
+      {isProcessing && toolLabel && (
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <Loader2 className="h-3 w-3 animate-spin" />
-          <span>{TOOL_LABELS[toolProgress] || toolProgress}...</span>
+          <span>{toolLabel}...</span>
         </div>
       )}
 
-      {/* Tool result previews */}
       {toolResults.map((tr, i) => (
         <ActionPreviewCard key={i} toolResult={tr} />
       ))}
 
-      {/* AI message */}
       {message && (
         <div className="flex items-start gap-2 text-sm">
           <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
@@ -76,7 +79,6 @@ export function AIResponsePanel({
         </div>
       )}
 
-      {/* Error */}
       {error && (
         <div className="flex items-start gap-2 text-sm text-destructive">
           <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
@@ -84,7 +86,6 @@ export function AIResponsePanel({
         </div>
       )}
 
-      {/* Action buttons */}
       {actions.length > 0 && (
         <div className="flex flex-wrap gap-2 pt-1">
           {actions.map((action, i) => (
@@ -105,7 +106,6 @@ export function AIResponsePanel({
         </div>
       )}
 
-      {/* Processing with no content yet */}
       {isProcessing &&
         !toolProgress &&
         !message &&

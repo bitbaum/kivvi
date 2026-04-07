@@ -1735,7 +1735,20 @@
     "newProject": "Neues Projekt",
     "aiHint": "oder beschreiben Sie, was Sie brauchen...",
     "aiThinking": "Wird verarbeitet...",
-    "aiSection": "KI-Assistent"
+    "aiSection": "KI-Assistent",
+    "toolSearchingContacts": "Kontakte werden gesucht",
+    "toolSearchingInvoices": "Rechnungen werden gesucht",
+    "toolSearchingProducts": "Produkte werden gesucht",
+    "toolSearchingProjects": "Projekte werden gesucht",
+    "toolPreparingDocument": "Dokument wird vorbereitet",
+    "toolCreatingDocument": "Dokument wird erstellt",
+    "toolLoadingInvoice": "Rechnung wird geladen",
+    "toolLoadingContact": "Kontakt wird geladen",
+    "toolLoadingFinancials": "Finanzen werden geladen",
+    "toolRecordingPayment": "Zahlung wird erfasst",
+    "toolUpdatingStatus": "Status wird aktualisiert",
+    "toolSearchingInventory": "Inventar wird durchsucht",
+    "toolLoadingDashboard": "Dashboard wird geladen"
   },
   "help": {
     "title": "Hilfe",
