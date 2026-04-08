@@ -17,6 +17,7 @@ import {
 } from "@kivvi/database/src/enums";
 import { ITEM_STATUS_TRANSITIONS } from "../config/item-transitions";
 import { getNextNumber } from "./number-sequences";
+import { logger } from "../logger";
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -220,7 +221,12 @@ export async function bulkUpdateStatus(
     try {
       await updateItemStatus(db, companyId, id, newStatus);
       succeeded++;
-    } catch {
+    } catch (err) {
+      logger.warn("Bulk status update failed for item", {
+        itemId: id,
+        newStatus,
+        error: err instanceof Error ? err.message : String(err),
+      });
       failed++;
     }
   }

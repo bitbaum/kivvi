@@ -1,5 +1,5 @@
-import { eq, and, sql } from 'drizzle-orm';
-import Decimal from 'decimal.js';
+import { eq, and, sql } from "drizzle-orm";
+import Decimal from "decimal.js";
 import {
   contacts,
   contactAddresses,
@@ -14,10 +14,10 @@ import {
   accounts,
   numberSequences,
   projects,
-} from '@kivvi/database';
-import type { Database } from '@kivvi/database';
-import { DEFAULT_VAT_RATE } from '../config/vat-rates';
-import type { ParsedLineItem } from './import-mappings';
+} from "@kivvi/database";
+import type { Database } from "@kivvi/database";
+import { DEFAULT_VAT_RATE } from "../config/vat-rates";
+import type { ParsedLineItem } from "./import-mappings";
 
 // ============================================================================
 // TYPES
@@ -40,7 +40,7 @@ const BATCH_SIZE = 500;
  */
 export async function buildContactLookup(
   db: Database,
-  companyId: string
+  companyId: string,
 ): Promise<Map<string, string>> {
   const rows = await db
     .select({ id: contacts.id, contactNumber: contacts.contactNumber })
@@ -59,16 +59,24 @@ export async function buildContactLookup(
  */
 export async function buildProductLookup(
   db: Database,
-  companyId: string
+  companyId: string,
 ): Promise<Map<string, { id: string; unitPrice: string }>> {
   const rows = await db
-    .select({ id: products.id, articleNumber: products.articleNumber, unitPrice: products.unitPrice })
+    .select({
+      id: products.id,
+      articleNumber: products.articleNumber,
+      unitPrice: products.unitPrice,
+    })
     .from(products)
     .where(eq(products.companyId, companyId));
 
   const map = new Map<string, { id: string; unitPrice: string }>();
   for (const row of rows) {
-    if (row.articleNumber) map.set(row.articleNumber, { id: row.id, unitPrice: row.unitPrice || '0' });
+    if (row.articleNumber)
+      map.set(row.articleNumber, {
+        id: row.id,
+        unitPrice: row.unitPrice || "0",
+      });
   }
   return map;
 }
@@ -78,7 +86,7 @@ export async function buildProductLookup(
  */
 export async function buildAccountCodeMap(
   db: Database,
-  companyId: string
+  companyId: string,
 ): Promise<Map<string, string>> {
   const rows = await db
     .select({ id: accounts.id, code: accounts.code })
@@ -99,7 +107,7 @@ export async function buildAccountCodeMap(
 export async function ensureProductGroups(
   db: Database,
   companyId: string,
-  groupNames: string[]
+  groupNames: string[],
 ): Promise<Map<string, string>> {
   const unique = [...new Set(groupNames.filter(Boolean))];
   const map = new Map<string, string>();
@@ -135,7 +143,7 @@ export async function ensureProductGroups(
 export async function ensureManufacturers(
   db: Database,
   companyId: string,
-  manufacturerNames: string[]
+  manufacturerNames: string[],
 ): Promise<Map<string, string>> {
   const unique = [...new Set(manufacturerNames.filter(Boolean))];
   const map = new Map<string, string>();
@@ -172,7 +180,7 @@ export async function bulkInsertContacts(
   db: Database,
   companyId: string,
   rows: Array<Record<string, string | null>>,
-  contactType: 'customer' | 'vendor' | 'both' = 'customer'
+  contactType: "customer" | "vendor" | "both" = "customer",
 ): Promise<BulkInsertResult> {
   let inserted = 0;
   let skipped = 0;
@@ -200,11 +208,13 @@ export async function bulkInsertContacts(
         address: row.address || null,
         city: row.city || null,
         postalCode: row.postalCode || null,
-        country: row.country || 'CH',
+        country: row.country || "CH",
         vatNumber: row.vatNumber || null,
         creditLimit: row.creditLimit || null,
         notes: row.notes || null,
-        kivitendoId: row.kivitendoId ? parseInt(row.kivitendoId, 10) || null : null,
+        kivitendoId: row.kivitendoId
+          ? parseInt(row.kivitendoId, 10) || null
+          : null,
       });
     }
 
@@ -216,7 +226,9 @@ export async function bulkInsertContacts(
           .onConflictDoNothing();
         inserted += values.length;
       } catch (err) {
-        errors.push(`Batch ${Math.floor(i / BATCH_SIZE) + 1}: ${(err as Error).message}`);
+        errors.push(
+          `Batch ${Math.floor(i / BATCH_SIZE) + 1}: ${(err as Error).message}`,
+        );
         skipped += values.length;
       }
     }
@@ -275,12 +287,12 @@ export async function bulkInsertContactAddresses(
 
     values.push({
       contactId: row.id,
-      type: 'billing' as const,
+      type: "billing" as const,
       name: row.name,
       address: row.address,
       city: row.city,
       postalCode: row.postalCode,
-      country: row.country || 'CH',
+      country: row.country || "CH",
       isDefault: true,
     });
   }
@@ -289,13 +301,12 @@ export async function bulkInsertContactAddresses(
   for (let i = 0; i < values.length; i += BATCH_SIZE) {
     const batch = values.slice(i, i + BATCH_SIZE);
     try {
-      await db
-        .insert(contactAddresses)
-        .values(batch)
-        .onConflictDoNothing();
+      await db.insert(contactAddresses).values(batch).onConflictDoNothing();
       inserted += batch.length;
     } catch (err) {
-      errors.push(`Batch ${Math.floor(i / BATCH_SIZE) + 1}: ${(err as Error).message}`);
+      errors.push(
+        `Batch ${Math.floor(i / BATCH_SIZE) + 1}: ${(err as Error).message}`,
+      );
       skipped += batch.length;
     }
   }
@@ -312,7 +323,7 @@ export async function bulkInsertProducts(
   companyId: string,
   rows: Array<Record<string, string | null>>,
   productGroupMap: Map<string, string>,
-  manufacturerMap: Map<string, string>
+  manufacturerMap: Map<string, string>,
 ): Promise<BulkInsertResult> {
   let inserted = 0;
   let skipped = 0;
@@ -333,29 +344,34 @@ export async function bulkInsertProducts(
         articleNumber: row.articleNumber || null,
         name: row.name,
         description: row.description || null,
-        type: (row.type === 'service' ? 'service' : 'product') as 'product' | 'service',
+        type: (row.type === "service" ? "service" : "product") as
+          | "product"
+          | "service",
         ean: row.ean || null,
-        unitPrice: row.unitPrice || '0',
+        unitPrice: row.unitPrice || "0",
         purchasePrice: row.purchasePrice || null,
-        unit: row.unit || 'piece',
+        unit: row.unit || "piece",
         vatRate: DEFAULT_VAT_RATE,
         weight: row.weight || null,
         minStock: row.minStock ? parseInt(row.minStock, 10) || null : null,
-        shopVisible: row.shopVisible === 'J' || row.shopVisible === 'true',
-        productGroupId: row.productGroup ? productGroupMap.get(row.productGroup) || null : null,
-        manufacturerId: row.manufacturer ? manufacturerMap.get(row.manufacturer) || null : null,
+        shopVisible: row.shopVisible === "J" || row.shopVisible === "true",
+        productGroupId: row.productGroup
+          ? productGroupMap.get(row.productGroup) || null
+          : null,
+        manufacturerId: row.manufacturer
+          ? manufacturerMap.get(row.manufacturer) || null
+          : null,
       });
     }
 
     if (values.length > 0) {
       try {
-        await db
-          .insert(products)
-          .values(values)
-          .onConflictDoNothing();
+        await db.insert(products).values(values).onConflictDoNothing();
         inserted += values.length;
       } catch (err) {
-        errors.push(`Batch ${Math.floor(i / BATCH_SIZE) + 1}: ${(err as Error).message}`);
+        errors.push(
+          `Batch ${Math.floor(i / BATCH_SIZE) + 1}: ${(err as Error).message}`,
+        );
         skipped += values.length;
       }
     }
@@ -378,10 +394,13 @@ export async function bulkInsertProjects(
   const errors: string[] = [];
 
   // Map kivitendo status → kivvi project status
-  const statusMap: Record<string, 'active' | 'completed' | 'on_hold' | 'cancelled'> = {
-    'In Bearbeitung': 'active',
-    'Fertiggestellt': 'completed',
-    'Abgebrochen': 'cancelled',
+  const statusMap: Record<
+    string,
+    "active" | "completed" | "on_hold" | "cancelled"
+  > = {
+    "In Bearbeitung": "active",
+    Fertiggestellt: "completed",
+    Abgebrochen: "cancelled",
   };
 
   for (const row of rows) {
@@ -391,9 +410,9 @@ export async function bulkInsertProjects(
       continue;
     }
 
-    const kivitendoStatus = row.status?.trim() || '';
-    const status = statusMap[kivitendoStatus] || 'active';
-    const isActive = row.isActive?.trim() === 'Aktiv';
+    const kivitendoStatus = row.status?.trim() || "";
+    const status = statusMap[kivitendoStatus] || "active";
+    const isActive = row.isActive?.trim() === "Aktiv";
 
     // Store Projektnummer in description since kivvi has no projectNumber field
     const description = row.projectNumber
@@ -439,7 +458,12 @@ export async function bulkInsertDocuments(
   userId: string,
   rows: Array<Record<string, string | null>>,
   contactLookup: Map<string, string>,
-  documentType: 'invoice' | 'purchase_invoice' | 'quote' | 'order' | 'delivery_note',
+  documentType:
+    | "invoice"
+    | "purchase_invoice"
+    | "quote"
+    | "order"
+    | "delivery_note",
   structuredItems?: Map<string, ParsedLineItem[]>,
   productLookup?: Map<string, { id: string; unitPrice: string }>,
 ): Promise<BulkInsertResult> {
@@ -468,17 +492,19 @@ export async function bulkInsertDocuments(
 
       // Resolve contact
       const contactNumber = firstRow.contactNumber;
-      const contactId = contactNumber ? contactLookup.get(contactNumber) || null : null;
+      const contactId = contactNumber
+        ? contactLookup.get(contactNumber) || null
+        : null;
 
       // Determine status from payment info
-      let status: 'draft' | 'paid' | 'sent' = 'sent';
+      let status: "draft" | "paid" | "sent" = "sent";
       if (firstRow.paidAmount && firstRow.total) {
         try {
           const paid = new Decimal(firstRow.paidAmount);
           const total = new Decimal(firstRow.total);
-          if (paid.gte(total) && total.gt(0)) status = 'paid';
+          if (paid.gte(total) && total.gt(0)) status = "paid";
         } catch {
-          // Invalid numbers, keep as 'sent'
+          // Invalid numbers in CSV — keep as 'sent' (expected during import)
         }
       }
 
@@ -493,7 +519,9 @@ export async function bulkInsertDocuments(
         continue;
       }
       const dueDate = firstRow.dueDate ? new Date(firstRow.dueDate) : null;
-      const deliveryDate = firstRow.deliveryDate ? new Date(firstRow.deliveryDate) : null;
+      const deliveryDate = firstRow.deliveryDate
+        ? new Date(firstRow.deliveryDate)
+        : null;
       const paidDate = firstRow.paidDate ? new Date(firstRow.paidDate) : null;
 
       // Wrap document + items insert in transaction
@@ -510,10 +538,10 @@ export async function bulkInsertDocuments(
             issueDate,
             dueDate,
             deliveryDate,
-            paidDate: status === 'paid' ? paidDate : null,
-            subtotal: firstRow.subtotal || '0',
-            vatAmount: firstRow.vatAmount || '0',
-            total: firstRow.total || '0',
+            paidDate: status === "paid" ? paidDate : null,
+            subtotal: firstRow.subtotal || "0",
+            vatAmount: firstRow.vatAmount || "0",
+            total: firstRow.total || "0",
             notes: firstRow.notes || null,
             createdBy: userId,
           })
@@ -521,14 +549,16 @@ export async function bulkInsertDocuments(
           .returning();
 
         if (!doc) {
-          throw new Error('Document already exists');
+          throw new Error("Document already exists");
         }
 
         // Insert line items: prefer structured items from extra CSV columns
         const structured = structuredItems?.get(docNumber);
         if (structured && structured.length > 0) {
           const vatRate = firstRow.vatRate || DEFAULT_VAT_RATE;
-          const docTotal = firstRow.total ? new Decimal(firstRow.total) : new Decimal(0);
+          const docTotal = firstRow.total
+            ? new Decimal(firstRow.total)
+            : new Decimal(0);
 
           await tx.insert(documentItems).values(
             structured.map((item) => {
@@ -536,21 +566,27 @@ export async function bulkInsertDocuments(
                 ? productLookup?.get(item.articleNumber) || null
                 : null;
               const productId = product?.id || null;
-              const qty = item.quantity || '1';
+              const qty = item.quantity || "1";
 
               // Determine unitPrice: from product catalog, or derive from doc total for single items
-              let unitPrice = '0';
-              if (product?.unitPrice && product.unitPrice !== '0') {
+              let unitPrice = "0";
+              if (product?.unitPrice && product.unitPrice !== "0") {
                 unitPrice = product.unitPrice;
               } else if (structured.length === 1 && docTotal.gt(0)) {
                 // Single line item: derive unitPrice from document total
-                const qtyDec = new Decimal(qty || '1');
+                const qtyDec = new Decimal(qty || "1");
                 if (qtyDec.gt(0)) {
-                  unitPrice = docTotal.div(qtyDec).toDecimalPlaces(2).toString();
+                  unitPrice = docTotal
+                    .div(qtyDec)
+                    .toDecimalPlaces(2)
+                    .toString();
                 }
               }
 
-              const total = new Decimal(qty || '0').times(new Decimal(unitPrice)).toDecimalPlaces(2).toString();
+              const total = new Decimal(qty || "0")
+                .times(new Decimal(unitPrice))
+                .toDecimalPlaces(2)
+                .toString();
 
               return {
                 documentId: doc.id,
@@ -562,7 +598,7 @@ export async function bulkInsertDocuments(
                 vatRate,
                 total,
               };
-            })
+            }),
           );
         } else {
           // Fallback: parse the "Positionen" text field.
@@ -572,7 +608,10 @@ export async function bulkInsertDocuments(
           // structuredItems from parseKivitendoLineItems().
           const positions = firstRow.positions;
           if (positions) {
-            const items = parsePositions(positions, firstRow.vatRate || DEFAULT_VAT_RATE);
+            const items = parsePositions(
+              positions,
+              firstRow.vatRate || DEFAULT_VAT_RATE,
+            );
             if (items.length > 0) {
               await tx.insert(documentItems).values(
                 items.map((item, idx) => ({
@@ -583,7 +622,7 @@ export async function bulkInsertDocuments(
                   unitPrice: item.unitPrice,
                   vatRate: item.vatRate,
                   total: item.total,
-                }))
+                })),
               );
             }
           }
@@ -614,23 +653,42 @@ export async function bulkInsertDocuments(
  */
 function parsePositions(
   positions: string,
-  defaultVatRate: string
-): Array<{ description: string; quantity: string; unitPrice: string; vatRate: string; total: string }> {
-  if (!positions || positions.trim() === '') return [];
+  defaultVatRate: string,
+): Array<{
+  description: string;
+  quantity: string;
+  unitPrice: string;
+  vatRate: string;
+  total: string;
+}> {
+  if (!positions || positions.trim() === "") return [];
 
-  const items: Array<{ description: string; quantity: string; unitPrice: string; vatRate: string; total: string }> = [];
+  const items: Array<{
+    description: string;
+    quantity: string;
+    unitPrice: string;
+    vatRate: string;
+    total: string;
+  }> = [];
 
   // Split by common delimiters (newlines, pipes)
-  const lines = positions.split(/[\n|]/).map((l) => l.trim()).filter(Boolean);
+  const lines = positions
+    .split(/[\n|]/)
+    .map((l) => l.trim())
+    .filter(Boolean);
 
   for (const line of lines) {
     // Try to parse structured format: "qty x description @ price"
-    const match = line.match(/^([\d.,]+)\s*(?:Stck|Stk|Std|x)?\s+(.+?)(?:\s+@\s*([\d.,]+))?$/i);
+    const match = line.match(
+      /^([\d.,]+)\s*(?:Stck|Stk|Std|x)?\s+(.+?)(?:\s+@\s*([\d.,]+))?$/i,
+    );
     if (match) {
-      const qty = match[1].replace(/'/g, '') || '1';
+      const qty = match[1].replace(/'/g, "") || "1";
       const desc = match[2].trim();
-      const price = match[3]?.replace(/'/g, '') || '0';
-      const total = new Decimal(qty || '0').times(new Decimal(price || '0')).toFixed(2);
+      const price = match[3]?.replace(/'/g, "") || "0";
+      const total = new Decimal(qty || "0")
+        .times(new Decimal(price || "0"))
+        .toFixed(2);
       items.push({
         description: desc,
         quantity: qty,
@@ -642,10 +700,10 @@ function parsePositions(
       // Fallback: treat entire line as description with qty=1
       items.push({
         description: line,
-        quantity: '1',
-        unitPrice: '0',
+        quantity: "1",
+        unitPrice: "0",
         vatRate: defaultVatRate,
-        total: '0',
+        total: "0",
       });
     }
   }
@@ -661,7 +719,7 @@ export async function bulkInsertJournalEntries(
   db: Database,
   companyId: string,
   rows: Array<Record<string, string | null>>,
-  accountCodeMap: Map<string, string>
+  accountCodeMap: Map<string, string>,
 ): Promise<BulkInsertResult> {
   let inserted = 0;
   let skipped = 0;
@@ -701,14 +759,15 @@ export async function bulkInsertJournalEntries(
               companyId,
               date: entryDate,
               reference: row.reference || null,
-              description: row.description || row.notes || 'Imported from kivitendo',
-              sourceType: 'manual',
+              description:
+                row.description || row.notes || "Imported from kivitendo",
+              sourceType: "manual",
             })
             .returning();
 
           // Create 2 journal lines (debit + credit)
           const lines = [];
-          if (debitAmount && new Decimal(debitAmount || '0').gt(0)) {
+          if (debitAmount && new Decimal(debitAmount || "0").gt(0)) {
             lines.push({
               journalEntryId: entry.id,
               accountId: debitAccountId,
@@ -717,7 +776,7 @@ export async function bulkInsertJournalEntries(
               description: row.voucher || null,
             });
           }
-          if (creditAmount && new Decimal(creditAmount || '0').gt(0)) {
+          if (creditAmount && new Decimal(creditAmount || "0").gt(0)) {
             lines.push({
               journalEntryId: entry.id,
               accountId: creditAccountId,
@@ -752,7 +811,7 @@ export async function bulkInsertStockLevels(
   companyId: string,
   warehouseId: string,
   rows: Array<Record<string, string | null>>,
-  productLookup: Map<string, { id: string; unitPrice: string }>
+  productLookup: Map<string, { id: string; unitPrice: string }>,
 ): Promise<BulkInsertResult> {
   let inserted = 0;
   let skipped = 0;
@@ -787,7 +846,7 @@ export async function bulkInsertStockLevels(
               productId,
               warehouseId,
               quantity,
-              reservedQuantity: '0',
+              reservedQuantity: "0",
             })
             .onConflictDoUpdate({
               target: [stockLevels.productId, stockLevels.warehouseId],
@@ -798,10 +857,12 @@ export async function bulkInsertStockLevels(
           await tx
             .update(products)
             .set({ stockQuantity: quantity })
-            .where(and(
-              eq(products.id, productId),
-              eq(products.companyId, companyId)
-            ));
+            .where(
+              and(
+                eq(products.id, productId),
+                eq(products.companyId, companyId),
+              ),
+            );
         });
 
         inserted++;
@@ -836,7 +897,7 @@ function extractNextNumber(value: string): number | null {
 
 export async function updateSequencesAfterImport(
   db: Database,
-  companyId: string
+  companyId: string,
 ): Promise<void> {
   // Update contact sequence
   const [maxContact] = await db
@@ -850,32 +911,33 @@ export async function updateSequencesAfterImport(
       await db
         .update(numberSequences)
         .set({ nextNumber: nextNum })
-        .where(and(
-          eq(numberSequences.companyId, companyId),
-          eq(numberSequences.type, 'contact')
-        ));
+        .where(
+          and(
+            eq(numberSequences.companyId, companyId),
+            eq(numberSequences.type, "contact"),
+          ),
+        );
     }
   }
 
   // Update document sequences based on max document numbers
   const docTypes = [
-    { seqType: 'invoice', docType: 'invoice' as const },
-    { seqType: 'quote', docType: 'quote' as const },
-    { seqType: 'order', docType: 'order' as const },
-    { seqType: 'delivery_note', docType: 'delivery_note' as const },
-    { seqType: 'purchase_invoice', docType: 'purchase_invoice' as const },
-    { seqType: 'purchase_order', docType: 'purchase_order' as const },
-    { seqType: 'credit_note', docType: 'credit_note' as const },
+    { seqType: "invoice", docType: "invoice" as const },
+    { seqType: "quote", docType: "quote" as const },
+    { seqType: "order", docType: "order" as const },
+    { seqType: "delivery_note", docType: "delivery_note" as const },
+    { seqType: "purchase_invoice", docType: "purchase_invoice" as const },
+    { seqType: "purchase_order", docType: "purchase_order" as const },
+    { seqType: "credit_note", docType: "credit_note" as const },
   ];
 
   for (const { seqType, docType } of docTypes) {
     const [maxDoc] = await db
       .select({ max: sql<string>`MAX(${documents.number})` })
       .from(documents)
-      .where(and(
-        eq(documents.companyId, companyId),
-        eq(documents.type, docType)
-      ));
+      .where(
+        and(eq(documents.companyId, companyId), eq(documents.type, docType)),
+      );
 
     if (maxDoc?.max) {
       const nextNum = extractNextNumber(maxDoc.max);
@@ -883,10 +945,12 @@ export async function updateSequencesAfterImport(
         await db
           .update(numberSequences)
           .set({ nextNumber: nextNum })
-          .where(and(
-            eq(numberSequences.companyId, companyId),
-            eq(numberSequences.type, seqType)
-          ));
+          .where(
+            and(
+              eq(numberSequences.companyId, companyId),
+              eq(numberSequences.type, seqType),
+            ),
+          );
       }
     }
   }
@@ -903,10 +967,12 @@ export async function updateSequencesAfterImport(
       await db
         .update(numberSequences)
         .set({ nextNumber: nextNum })
-        .where(and(
-          eq(numberSequences.companyId, companyId),
-          eq(numberSequences.type, 'product')
-        ));
+        .where(
+          and(
+            eq(numberSequences.companyId, companyId),
+            eq(numberSequences.type, "product"),
+          ),
+        );
     }
   }
 }

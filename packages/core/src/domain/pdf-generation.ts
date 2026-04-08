@@ -573,8 +573,11 @@ export async function generateDonationReceiptPdf(
         const logoBuffer = Buffer.from(base64Data, "base64");
         doc.image(logoBuffer, MARGIN_LEFT, y, { fit: [170, 71] });
         y += 79;
-      } catch {
-        // Fallback to text
+      } catch (err) {
+        logger.warn(
+          "Donation receipt logo rendering failed, falling back to text",
+          err,
+        );
       }
     }
 
