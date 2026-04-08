@@ -1,10 +1,8 @@
 /**
- * Inventory item configuration — SSOT for all item status and condition behavior.
+ * Inventory item configuration — SSOT for all item status and condition UI behavior.
  *
- * Every UI component displaying item status/condition imports from here.
- * No hardcoded style maps or label maps anywhere else.
- *
- * Pattern mirrors document-types.ts for documents.
+ * Styles and labels live here. Transitions live in packages/core/src/config/item-transitions.ts.
+ * Every UI component imports from here — no hardcoded maps elsewhere.
  */
 
 import {
@@ -14,7 +12,7 @@ import {
 import { ITEM_STATUS_TRANSITIONS } from "@kivvi/core/src/config/item-transitions";
 
 // ============================================================================
-// STATUS CONFIG
+// STATUS CONFIG (UI: labels + styles only — transitions from SSOT)
 // ============================================================================
 
 export interface ItemStatusConfig {
@@ -22,65 +20,53 @@ export interface ItemStatusConfig {
   labelKey: string;
   /** Tailwind classes for badge */
   style: string;
-  /** Statuses this status can transition to (from domain VALID_TRANSITIONS) */
-  validTransitions: string[];
 }
 
 export const ITEM_STATUS_CONFIG: Record<string, ItemStatusConfig> = {
   intake: {
     labelKey: "statusIntake",
     style: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-    validTransitions: ["testing", "ready_for_sale", "recycled"],
   },
   testing: {
     labelKey: "statusTesting",
     style:
       "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-    validTransitions: ["repair", "ready_for_sale", "recycled"],
   },
   repair: {
     labelKey: "statusRepair",
     style:
       "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
-    validTransitions: ["testing", "ready_for_sale", "recycled"],
   },
   ready_for_sale: {
     labelKey: "statusReadyForSale",
     style:
       "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-    validTransitions: ["listed", "reserved", "donated"],
   },
   listed: {
     labelKey: "statusListed",
     style:
       "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
-    validTransitions: ["reserved", "sold", "ready_for_sale"],
   },
   reserved: {
     labelKey: "statusReserved",
     style:
       "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
-    validTransitions: ["sold", "listed", "ready_for_sale"],
   },
   sold: {
     labelKey: "statusSold",
     style: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400",
-    validTransitions: ["returned"],
   },
   returned: {
     labelKey: "statusReturned",
     style: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-    validTransitions: ["testing", "repair", "ready_for_sale", "recycled"],
   },
   donated: {
     labelKey: "statusDonated",
     style: "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400",
-    validTransitions: [],
   },
   recycled: {
     labelKey: "statusRecycled",
     style: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-500",
-    validTransitions: [],
   },
 };
 
@@ -162,7 +148,7 @@ export function getConditionLabelKey(condition: string): string {
   return ITEM_CONDITION_CONFIG[condition]?.labelKey || condition;
 }
 
-/** Get valid next statuses for a given status (from SSOT: packages/core/src/config/item-transitions.ts) */
+/** Get valid next statuses for a given status (SSOT: packages/core/src/config/item-transitions.ts) */
 export function getValidTransitions(status: string): string[] {
   return (
     ITEM_STATUS_TRANSITIONS[status as keyof typeof ITEM_STATUS_TRANSITIONS] ||

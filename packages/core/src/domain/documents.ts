@@ -48,6 +48,10 @@ import { createInventoryItemsFromIntake } from "./intake-integration";
 import { createInventoryItemsFromPurchaseInvoice } from "./purchase-invoice-integration";
 import { sellInventoryItem, returnInventoryItem } from "./inventory-items";
 import { SALES_DOCUMENT_TYPES } from "../config/item-transitions";
+import {
+  PAYABLE_DOCUMENT_TYPES,
+  QR_REFERENCE_TYPES,
+} from "../config/document-constants";
 import { logger } from "../logger";
 
 // ============================================================================
@@ -530,7 +534,9 @@ export async function createDocument(
       );
 
       // Auto-mark linked inventory items as sold (for invoices/sales)
-      if (SALES_DOCUMENT_TYPES.includes(validated.type as any)) {
+      if (
+        (SALES_DOCUMENT_TYPES as readonly string[]).includes(validated.type)
+      ) {
         for (const item of validated.items) {
           if (item.inventoryItemId) {
             try {
@@ -725,6 +731,109 @@ export async function updateDocument(
   return updated;
 }
 
+// ============================================================================
+// STATUS TRANSITION SIDE EFFECTS (extracted for readability)
+// ============================================================================
+
+/** Create journal entries triggered by status transitions */
+async function handleJournalEntries(
+  tx: Database,
+  companyId: string,
+  doc: {
+    id: string;
+    type: string;
+    status: string;
+    total: string;
+    subtotal: string;
+    vatAmount: string;
+    issueDate: Date;
+    number: string;
+    currency: string;
+  },
+  newStatus: DocumentStatus,
+) {
+  if (newStatus === "sent" && doc.type === "invoice") {
+    await createInvoiceSentJournalEntry(tx, companyId, doc);
+  } else if (newStatus === "sent" && doc.type === "credit_note") {
+    await createCreditNoteSentJournalEntry(tx, companyId, doc);
+  } else if (newStatus === "confirmed" && doc.type === "purchase_invoice") {
+    await createPurchaseInvoiceJournalEntry(tx, companyId, doc);
+  } else if (
+    newStatus === "cancelled" &&
+    (PAYABLE_DOCUMENT_TYPES as readonly string[]).includes(doc.type)
+  ) {
+    const journalCreatedStatuses = [
+      "sent",
+      "confirmed",
+      "delivered",
+      "overdue",
+      "partially_paid",
+    ];
+    if (
+      journalCreatedStatuses.includes(doc.status) ||
+      doc.status?.startsWith("dunning_")
+    ) {
+      await createCancellationReversalJournalEntry(tx, companyId, doc);
+    }
+  }
+}
+
+/** Create inventory items when intake or purchase invoice is confirmed */
+async function handleInventoryItemCreation(
+  tx: Database,
+  companyId: string,
+  doc: {
+    id: string;
+    type: string;
+    contactId: string | null;
+    donorId: string | null;
+  },
+  newStatus: DocumentStatus,
+) {
+  if (doc.type === "intake" && newStatus === "confirmed") {
+    await createInventoryItemsFromIntake(tx, companyId, {
+      id: doc.id,
+      contactId: doc.contactId,
+      donorId: doc.donorId ?? null,
+    });
+  }
+  if (doc.type === "purchase_invoice" && newStatus === "confirmed") {
+    await createInventoryItemsFromPurchaseInvoice(tx, companyId, {
+      id: doc.id,
+      contactId: doc.contactId,
+    });
+  }
+}
+
+/** Reverse inventory item sales when a credit note is sent */
+async function handleCreditNoteReversal(
+  tx: Database,
+  companyId: string,
+  doc: { id: string; type: string },
+  newStatus: DocumentStatus,
+) {
+  if (doc.type !== "credit_note" || newStatus !== "sent") return;
+
+  const creditItems = await tx
+    .select()
+    .from(documentItems)
+    .where(eq(documentItems.documentId, doc.id));
+
+  for (const ci of creditItems) {
+    if (ci.inventoryItemId) {
+      try {
+        await returnInventoryItem(tx, companyId, ci.inventoryItemId);
+      } catch (err) {
+        logger.warn("Failed to return inventory item for credit note", {
+          inventoryItemId: ci.inventoryItemId,
+          documentId: doc.id,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      }
+    }
+  }
+}
+
 /**
  * Update document status with transition validation.
  */
@@ -773,77 +882,12 @@ export async function updateDocumentStatus(
       )
       .returning();
 
-    // Auto-create journal entries for status transitions
-    if (newStatus === "sent" && doc.type === "invoice") {
-      await createInvoiceSentJournalEntry(tx, companyId, doc);
-    } else if (newStatus === "sent" && doc.type === "credit_note") {
-      await createCreditNoteSentJournalEntry(tx, companyId, doc);
-    } else if (newStatus === "confirmed" && doc.type === "purchase_invoice") {
-      await createPurchaseInvoiceJournalEntry(tx, companyId, doc);
-    } else if (
-      newStatus === "cancelled" &&
-      (doc.type === "invoice" || doc.type === "purchase_invoice")
-    ) {
-      // Only reverse if a journal entry was previously created (sent/confirmed status)
-      if (
-        doc.status === "sent" ||
-        doc.status === "confirmed" ||
-        doc.status === "delivered" ||
-        doc.status === "overdue" ||
-        doc.status === "partially_paid" ||
-        doc.status?.startsWith("dunning_")
-      ) {
-        await createCancellationReversalJournalEntry(tx, companyId, doc);
-      }
-    }
-
-    // Auto-create stock movements for inventory-affecting transitions
-    // Sale: delivery_note → delivered (stock decreases from default warehouse)
-    // Sale: invoice → sent (if no delivery note exists, stock decreases)
-    // Purchase: purchase_invoice → confirmed (stock increases to default warehouse)
-    // Credit/Return: credit_note → sent (stock returns to warehouse)
-    // Cancellation: reverse stock if original transition created movements
+    // Side effects: journal entries, stock movements, inventory items — all atomic
+    await handleJournalEntries(tx, companyId, doc, newStatus);
     await createStockMovementsForDocument(tx, companyId, doc, newStatus);
     await updateStockReservationsForDocument(tx, companyId, doc, newStatus);
-
-    // Intake confirmed: auto-create inventory items from line items
-    if (doc.type === "intake" && newStatus === "confirmed") {
-      await createInventoryItemsFromIntake(tx, companyId, {
-        id: doc.id,
-        contactId: doc.contactId,
-        donorId: doc.donorId ?? null,
-      });
-    }
-
-    // Purchase invoice confirmed: create inventory items for serial-tracked products
-    // Products without serialNumberTracking remain quantity-only (handled by stock movements)
-    if (doc.type === "purchase_invoice" && newStatus === "confirmed") {
-      await createInventoryItemsFromPurchaseInvoice(tx, companyId, {
-        id: doc.id,
-        contactId: doc.contactId,
-      });
-    }
-
-    // Credit note sent: reverse any linked inventory items (sold → returned)
-    if (doc.type === "credit_note" && newStatus === "sent") {
-      const creditItems = await tx
-        .select()
-        .from(documentItems)
-        .where(eq(documentItems.documentId, doc.id));
-      for (const ci of creditItems) {
-        if (ci.inventoryItemId) {
-          try {
-            await returnInventoryItem(tx, companyId, ci.inventoryItemId);
-          } catch (err) {
-            logger.warn("Failed to return inventory item for credit note", {
-              inventoryItemId: ci.inventoryItemId,
-              documentId: doc.id,
-              error: err instanceof Error ? err.message : String(err),
-            });
-          }
-        }
-      }
-    }
+    await handleInventoryItemCreation(tx, companyId, doc, newStatus);
+    await handleCreditNoteReversal(tx, companyId, doc, newStatus);
 
     return updated;
   });
@@ -914,7 +958,7 @@ export async function recordPayment(
   }
 
   // Only invoices and purchase invoices can receive payments
-  const payableTypes = ["invoice", "purchase_invoice"];
+  const payableTypes = PAYABLE_DOCUMENT_TYPES as readonly string[];
   if (!payableTypes.includes(doc.type)) {
     throw new Error(`Cannot record payment for a ${doc.type} document`);
   }
@@ -1054,8 +1098,11 @@ export async function convertDocument(
     const number = await getNextNumber(tx, companyId, targetType);
 
     // Generate QR reference if converting to invoice
-    const qrReference =
-      targetType === "invoice" ? generateQRReference(companyId, number) : null;
+    const qrReference = (QR_REFERENCE_TYPES as readonly string[]).includes(
+      targetType,
+    )
+      ? generateQRReference(companyId, number)
+      : null;
 
     // Create new document
     const [newDoc] = await tx
@@ -1130,8 +1177,11 @@ export async function duplicateDocument(
   return db.transaction(async (tx) => {
     const number = await getNextNumber(tx, companyId, source.type);
 
-    const qrReference =
-      source.type === "invoice" ? generateQRReference(companyId, number) : null;
+    const qrReference = (QR_REFERENCE_TYPES as readonly string[]).includes(
+      source.type,
+    )
+      ? generateQRReference(companyId, number)
+      : null;
 
     const [newDoc] = await tx
       .insert(documents)
