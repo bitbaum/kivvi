@@ -51,7 +51,7 @@ export async function GET(
     const settings = (company.settings as CompanySettings) || {};
 
     // Fetch donor contact
-    const donorId = (doc as any).donorId || doc.contactId;
+    const donorId = doc.donorId || doc.contactId;
     let donor: {
       name: string;
       address?: string | null;
