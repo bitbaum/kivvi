@@ -7,10 +7,15 @@ import {
   contacts,
 } from "@kivvi/database";
 import type { Database, InventoryItem } from "@kivvi/database";
+import type {
+  ItemStatusValue,
+  ItemConditionValue,
+} from "@kivvi/database/src/enums";
 import {
   ITEM_CONDITION_VALUES,
   ITEM_STATUS_VALUES,
 } from "@kivvi/database/src/enums";
+import { ITEM_STATUS_TRANSITIONS } from "../config/item-transitions";
 import { getNextNumber } from "./number-sequences";
 
 // ============================================================================
@@ -46,19 +51,8 @@ export type UpdateInventoryItemInput = z.infer<
 // STATUS TRANSITIONS
 // ============================================================================
 
-/** Valid status transitions for inventory items */
-const VALID_TRANSITIONS: Record<string, string[]> = {
-  intake: ["testing", "ready_for_sale", "recycled"],
-  testing: ["repair", "ready_for_sale", "recycled"],
-  repair: ["testing", "ready_for_sale", "recycled"],
-  ready_for_sale: ["listed", "reserved", "donated"],
-  listed: ["reserved", "sold", "ready_for_sale"],
-  reserved: ["sold", "listed", "ready_for_sale"],
-  sold: ["returned"], // returns bring items back
-  returned: ["testing", "repair", "ready_for_sale", "recycled"],
-  donated: [], // terminal
-  recycled: [], // terminal
-};
+// Status transitions imported from SSOT: packages/core/src/config/item-transitions.ts
+const VALID_TRANSITIONS = ITEM_STATUS_TRANSITIONS;
 
 // ============================================================================
 // TYPES
@@ -485,10 +479,12 @@ export async function listInventoryItems(
   const conditions = [eq(inventoryItems.companyId, companyId)];
 
   if (status) {
-    conditions.push(eq(inventoryItems.status, status as any));
+    conditions.push(eq(inventoryItems.status, status as ItemStatusValue));
   }
   if (condition) {
-    conditions.push(eq(inventoryItems.condition, condition as any));
+    conditions.push(
+      eq(inventoryItems.condition, condition as ItemConditionValue),
+    );
   }
   if (warehouseId) {
     conditions.push(eq(inventoryItems.warehouseId, warehouseId));

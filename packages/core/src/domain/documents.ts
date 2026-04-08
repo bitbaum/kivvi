@@ -46,6 +46,9 @@ import {
 } from "./inventory-integration";
 import { createInventoryItemsFromIntake } from "./intake-integration";
 import { createInventoryItemsFromPurchaseInvoice } from "./purchase-invoice-integration";
+import { sellInventoryItem, returnInventoryItem } from "./inventory-items";
+import { SALES_DOCUMENT_TYPES } from "../config/item-transitions";
+import { logger } from "../logger";
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -527,9 +530,7 @@ export async function createDocument(
       );
 
       // Auto-mark linked inventory items as sold (for invoices/sales)
-      const salesTypes = ["invoice", "quote", "order"];
-      if (salesTypes.includes(validated.type)) {
-        const { sellInventoryItem } = await import("./inventory-items");
+      if (SALES_DOCUMENT_TYPES.includes(validated.type as any)) {
         for (const item of validated.items) {
           if (item.inventoryItemId) {
             try {
@@ -537,8 +538,12 @@ export async function createDocument(
                 saleDocumentId: doc.id,
                 soldPrice: item.unitPrice,
               });
-            } catch {
-              // Item may not be in sellable state — don't block document creation
+            } catch (err) {
+              logger.warn("Failed to mark inventory item as sold", {
+                inventoryItemId: item.inventoryItemId,
+                documentId: doc.id,
+                error: err instanceof Error ? err.message : String(err),
+              });
             }
           }
         }
@@ -806,7 +811,7 @@ export async function updateDocumentStatus(
       await createInventoryItemsFromIntake(tx, companyId, {
         id: doc.id,
         contactId: doc.contactId,
-        donorId: (doc as any).donorId ?? null,
+        donorId: doc.donorId ?? null,
       });
     }
 
@@ -821,7 +826,6 @@ export async function updateDocumentStatus(
 
     // Credit note sent: reverse any linked inventory items (sold → returned)
     if (doc.type === "credit_note" && newStatus === "sent") {
-      const { returnInventoryItem } = await import("./inventory-items");
       const creditItems = await tx
         .select()
         .from(documentItems)
@@ -830,8 +834,12 @@ export async function updateDocumentStatus(
         if (ci.inventoryItemId) {
           try {
             await returnInventoryItem(tx, companyId, ci.inventoryItemId);
-          } catch {
-            // Item may already be returned or in unexpected state — don't block
+          } catch (err) {
+            logger.warn("Failed to return inventory item for credit note", {
+              inventoryItemId: ci.inventoryItemId,
+              documentId: doc.id,
+              error: err instanceof Error ? err.message : String(err),
+            });
           }
         }
       }

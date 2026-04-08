@@ -11,6 +11,7 @@ import {
   ITEM_STATUS_VALUES,
   ITEM_CONDITION_VALUES,
 } from "@kivvi/database/src/enums";
+import { ITEM_STATUS_TRANSITIONS } from "@kivvi/core/src/config/item-transitions";
 
 // ============================================================================
 // STATUS CONFIG
@@ -161,9 +162,12 @@ export function getConditionLabelKey(condition: string): string {
   return ITEM_CONDITION_CONFIG[condition]?.labelKey || condition;
 }
 
-/** Get valid next statuses for a given status */
+/** Get valid next statuses for a given status (from SSOT: packages/core/src/config/item-transitions.ts) */
 export function getValidTransitions(status: string): string[] {
-  return ITEM_STATUS_CONFIG[status]?.validTransitions || [];
+  return (
+    ITEM_STATUS_TRANSITIONS[status as keyof typeof ITEM_STATUS_TRANSITIONS] ||
+    []
+  );
 }
 
 /** Build translated status labels (for dropdowns etc.) */
