@@ -11,8 +11,8 @@ import {
   extendQuoteValidity,
   recordPayment,
   getDocument,
+  calculateOutstandingAmount,
 } from "@kivvi/core";
-import Decimal from "decimal.js";
 import { deleteContact } from "@kivvi/core/src/domain/contacts";
 import { deleteProduct } from "@kivvi/core/src/domain/products";
 import {
@@ -330,16 +330,10 @@ export async function bulkMarkPaidAction(
     return runBulkOperation(
       data.documentIds,
       async (docId) => {
-        // Get document to calculate outstanding
         const doc = await getDocument(db, companyId, docId);
         if (!doc) throw new Error("Document not found");
 
-        const total = new Decimal(doc.total);
-        const paid = (doc.payments || []).reduce(
-          (sum: Decimal, p: { amount: string }) => sum.plus(p.amount),
-          new Decimal(0),
-        );
-        const outstanding = total.minus(paid);
+        const outstanding = calculateOutstandingAmount(doc);
         if (outstanding.lte(0)) return undefined; // Already fully paid
 
         await recordPayment(db, companyId, docId, {

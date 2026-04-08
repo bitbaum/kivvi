@@ -289,6 +289,23 @@ export type DocumentListItem = typeof documents.$inferSelect & {
 // Re-export from client-safe utility (SSOT: packages/core/src/utils/overdue.ts)
 export { getOverdueInfo } from "../utils/overdue";
 
+/**
+ * Calculate outstanding amount for a document (total - sum of payments).
+ * Pure domain function — no DB access, no formatting.
+ */
+export function calculateOutstandingAmount(doc: {
+  total: string;
+  payments?: Array<{ amount: string }> | null;
+}): Decimal {
+  const total = new Decimal(doc.total || "0");
+  const paid = (doc.payments || []).reduce(
+    (sum: Decimal, p: { amount: string }) =>
+      sum.plus(new Decimal(p.amount || "0")),
+    new Decimal(0),
+  );
+  return total.minus(paid);
+}
+
 // ============================================================================
 // FILTERS
 // ============================================================================

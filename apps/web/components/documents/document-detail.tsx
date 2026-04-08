@@ -25,6 +25,7 @@ import { SendAndMarkButton } from "./send-and-mark-button";
 import type { DocumentTypeConfig } from "@/lib/config/document-types";
 import {
   getOverdueInfo,
+  calculateOutstandingAmount,
   type DocumentWithRelations,
 } from "@kivvi/core/src/domain/documents";
 
@@ -37,18 +38,13 @@ export async function DocumentDetail({ doc, config }: DocumentDetailProps) {
   const t = await getTranslations("documents");
   const tc = await getTranslations("common");
 
-  const totalPaidDecimal = config.hasPayments
-    ? doc.payments?.reduce(
-        (sum: Decimal, p: { amount: string }) =>
-          sum.plus(new Decimal(p.amount || "0")),
-        new Decimal(0),
-      ) || new Decimal(0)
+  const outstandingDecimal = config.hasPayments
+    ? calculateOutstandingAmount(doc)
     : new Decimal(0);
-  const totalPaid = totalPaidDecimal.toFixed(2);
-  const outstandingDecimal = new Decimal(doc.total || "0").minus(
-    totalPaidDecimal,
-  );
   const outstanding = outstandingDecimal.toFixed(2);
+  const totalPaid = config.hasPayments
+    ? new Decimal(doc.total || "0").minus(outstandingDecimal).toFixed(2)
+    : "0.00";
   const { isOverdue, daysOverdue } = config.hasPayments
     ? getOverdueInfo(doc)
     : { isOverdue: false, daysOverdue: 0 };
