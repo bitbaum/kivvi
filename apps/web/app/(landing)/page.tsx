@@ -226,7 +226,10 @@ export default async function Home() {
       {/* ============================================================ */}
       {/* CTA + CONTACT                                                */}
       {/* ============================================================ */}
-      <section id="contact" className="mx-auto max-w-2xl py-16 text-center">
+      <section
+        id="contact"
+        className="mx-auto max-w-2xl py-16 text-center scroll-mt-16"
+      >
         <h2 className="mb-4 text-3xl font-bold">{t("ctaTitle")}</h2>
         <p className="mb-8 text-lg text-muted-foreground">
           {t("ctaDescription")}

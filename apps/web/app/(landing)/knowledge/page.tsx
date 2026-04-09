@@ -207,7 +207,7 @@ export default function KnowledgePage() {
           alle.
         </p>
         <a
-          href="mailto:info@revamp-it.ch"
+          href={`mailto:${CONTACT_EMAIL}`}
           className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-primary-foreground hover:bg-primary/90"
         >
           <Mail className="h-4 w-4" />

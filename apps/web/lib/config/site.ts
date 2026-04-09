@@ -28,13 +28,10 @@ export const VERTICALS = [
   },
 ];
 
+// Primary nav links (flat). Verticals surface via the "Für wen" dropdown.
 export const LANDING_NAV_LINKS = [
-  { href: "/circular-economy", labelKey: "navCircularEconomy" as const },
   { href: "/how-it-works", labelKey: "navHowItWorks" as const },
-  { href: "/why-kivvi", labelKey: "navWhyKivvi" as const },
   { href: "/knowledge", labelKey: "navKnowledge" as const },
-  { href: "/faq", labelKey: "navFaq" as const },
-  { href: "/about", labelKey: "navAbout" as const },
 ];
 
 export const CONDITION_GRADES = [
@@ -69,9 +66,10 @@ export const CONDITION_GRADES = [
   },
 ];
 
+// Footer column: "Für wen" links — same data as VERTICALS but slim format
 export const VERTICAL_NAV_LINKS = [
-  { href: "/for/it-refurbishers", labelKey: "navForItRefurbishers" as const },
-  { href: "/for/brockenhaeuser", labelKey: "navForBrockenhaus" as const },
-  { href: "/for/repair-cafes", labelKey: "navForRepairCafes" as const },
-  { href: "/for/vintage", labelKey: "navForVintage" as const },
+  { href: "/for/it-refurbishers", label: "IT-Refurbisher" },
+  { href: "/for/brockenhaeuser", label: "Brockenhäuser" },
+  { href: "/for/repair-cafes", label: "Repair Cafés" },
+  { href: "/for/vintage", label: "Vintage-Shops" },
 ];

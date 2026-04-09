@@ -230,7 +230,7 @@ export default function CircularEconomyPage() {
       </section>
 
       {/* Participants */}
-      <section id="teilnehmer" className="mx-auto max-w-4xl py-16">
+      <section id="teilnehmer" className="mx-auto max-w-4xl py-16 scroll-mt-16">
         <h2 className="mb-3 text-2xl font-bold">Wer ist dabei?</h2>
         <p className="mb-8 text-muted-foreground">
           Die Kreislaufwirtschaft ist breiter, als man denkt. Hier sind die
@@ -263,7 +263,10 @@ export default function CircularEconomyPage() {
       </section>
 
       {/* Business models */}
-      <section id="geschaeftsmodelle" className="mx-auto max-w-4xl py-8">
+      <section
+        id="geschaeftsmodelle"
+        className="mx-auto max-w-4xl py-8 scroll-mt-16"
+      >
         <h2 className="mb-3 text-2xl font-bold">Die Geschäftsmodelle</h2>
         <p className="mb-8 text-muted-foreground">
           Nicht alle Kreislaufbetriebe funktionieren gleich. Die Unterschiede im
@@ -300,7 +303,10 @@ export default function CircularEconomyPage() {
       </section>
 
       {/* What makes circular different */}
-      <section id="dimensionen" className="mx-auto max-w-4xl py-16">
+      <section
+        id="dimensionen"
+        className="mx-auto max-w-4xl py-16 scroll-mt-16"
+      >
         <h2 className="mb-3 text-2xl font-bold">
           Was die Kreislaufwirtschaft fundamental anders macht
         </h2>

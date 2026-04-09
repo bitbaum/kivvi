@@ -227,7 +227,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section id={slugifySection(title)} className="mt-10 scroll-mt-8">
+    <section id={slugifySection(title)} className="mt-10 scroll-mt-20">
       <h2 className="mb-4 text-xl font-bold">{title}</h2>
       {children}
     </section>
