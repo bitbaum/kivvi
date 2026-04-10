@@ -71,7 +71,7 @@ export default function Home() {
       </section>
 
       {/* ============================================================ */}
-      {/* FOR WHOM — 4 cards with specific benefits                    */}
+      {/* FOR WHOM — 4 cards with clear value propositions             */}
       {/* ============================================================ */}
       <section className="mx-auto max-w-5xl py-8">
         <p className="mb-8 text-center text-sm font-medium uppercase tracking-wider text-muted-foreground">
@@ -82,25 +82,45 @@ export default function Home() {
             icon={<Laptop className="h-5 w-5" />}
             href="/for/it-refurbishers"
             title="IT-Refurbisher"
-            description="Seriennummern, Reparatur-Protokoll, Zustandsbewertung und Impact-Bericht für Spender — alles am selben Ort."
+            hook="Laptop #47 mit Seriennummer, Reparaturkosten und Marge — nicht «100 ThinkPad auf Lager»."
+            bullets={[
+              "Reparaturkosten akkumulieren sich pro Gerät",
+              "Zustand, Akku, Marge — auf einen Blick",
+              "Spendenquittungen und Impact-Bericht automatisch",
+            ]}
           />
           <VerticalCard
             icon={<Store className="h-5 w-5" />}
             href="/for/brockenhaeuser"
             title="Brockenhäuser"
-            description="Spenden annehmen, quittieren und weiterverkaufen. Schweizer QR-Rechnungen und MWST-Abrechnung nativ."
+            hook="Spendenquittungen auf Knopfdruck — nicht mehr in Word getippt."
+            bullets={[
+              "Strukturierter Wareneingang für Spenden und Einkäufe",
+              "Donorenverwaltung und Impact-Nachweis für Förderanträge",
+              "Schweizer QR-Rechnungen und MWST nativ",
+            ]}
           />
           <VerticalCard
             icon={<Wrench className="h-5 w-5" />}
             href="/for/repair-cafes"
             title="Repair Cafés"
-            description="Aufträge erfassen, Teilkosten tracken, Abschluss dokumentieren. Keine Buchhaltungskenntnisse nötig."
+            hook="Was repariert, von wem, welche Teile, wie viel CO₂ — ohne Excel."
+            bullets={[
+              "Auftragserfassung auch für Freiwillige ohne IT-Kenntnisse",
+              "Reparaturhistorie pro Gerät für Folgereparaturen",
+              "Impact-Bericht auf Knopfdruck für Förderanträge",
+            ]}
           />
           <VerticalCard
             icon={<Shirt className="h-5 w-5" />}
             href="/for/vintage"
             title="Vintage-Shops"
-            description="Einzelstücke mit Geschichte und Provenienz. Flexible Preisgestaltung. Einfaches Kassensystem."
+            hook="Jedes Stück einmalig — mit Zustand, Herkunft und eigenem Preis."
+            bullets={[
+              "Kein SKU-Denken: jedes Teil ist ein eigener Artikel",
+              "Kommissionsverkauf mit Auszahlungsabrechnung",
+              "Zustandssystem und Provenienz pro Stück",
+            ]}
           />
         </div>
       </section>
@@ -385,30 +405,41 @@ function VerticalCard({
   icon,
   href,
   title,
-  description,
+  hook,
+  bullets,
 }: {
   icon: React.ReactNode;
   href: string;
   title: string;
-  description: string;
+  hook: string;
+  bullets: string[];
 }) {
   return (
     <Link
       href={href}
-      className="group flex items-start gap-4 rounded-xl border bg-card p-6 transition-colors hover:border-primary/40 hover:bg-muted/50"
+      className="group flex flex-col gap-4 rounded-xl border bg-card p-6 transition-colors hover:border-primary/40 hover:bg-muted/50"
     >
-      <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/20">
-        {icon}
-      </div>
-      <div>
-        <div className="mb-1 flex items-center gap-2 font-semibold">
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/20">
+          {icon}
+        </div>
+        <div className="flex items-center gap-2 font-semibold">
           {title}
           <ArrowRight className="h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-100" />
         </div>
-        <p className="text-sm text-muted-foreground leading-relaxed">
-          {description}
-        </p>
       </div>
+      <p className="text-sm font-medium">{hook}</p>
+      <ul className="space-y-1.5">
+        {bullets.map((b) => (
+          <li
+            key={b}
+            className="flex items-start gap-2 text-sm text-muted-foreground"
+          >
+            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+            {b}
+          </li>
+        ))}
+      </ul>
     </Link>
   );
 }
