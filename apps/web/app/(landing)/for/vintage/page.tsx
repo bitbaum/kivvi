@@ -3,6 +3,7 @@ import { SeeAlsoSection } from "@/components/landing/see-also-section";
 import { PainList } from "@/components/landing/pain-list";
 import { SolutionList } from "@/components/landing/solution-list";
 import { LandingCtaSection } from "@/components/landing/landing-cta-section";
+import { CONDITION_GRADES } from "@/lib/config/site";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -18,6 +19,24 @@ const PAIN_ITEMS = [
   "Herkunft (Marke, Dekade, Besonderheit) ist nirgends sauber erfassbar",
   "Umsatz pro Einlieferer ist manuell — Excel oder Notizbuch",
   "Impact-Zahlen für Kommunikation fehlen: Wie viel Kleidung vor dem Müll gerettet?",
+];
+
+// Clothing-specific criteria — index-aligned with CONDITION_GRADES
+const CLOTHING_CRITERIA = [
+  "Wie neu, keine sichtbaren Gebrauchsspuren, keine Beschädigungen",
+  "Leichte Gebrauchsspuren, minimale Pilling, kaum sichtbar",
+  "Deutliche Gebrauchsspuren, Pilling, Verfärbungen — noch tragbar",
+  "Beschädigungen (Riss, Loch, Fleck) — für Upcycling oder Reparatur",
+  "Nicht verkäuflich, Recycling oder Entsorgung",
+];
+
+// Text colors matching CONDITION_GRADES order (green/blue/amber/orange/red)
+const CLOTHING_TEXT_COLORS = [
+  "text-green-700 dark:text-green-400",
+  "text-blue-700 dark:text-blue-400",
+  "text-amber-700 dark:text-amber-400",
+  "text-orange-700 dark:text-orange-400",
+  "text-red-700 dark:text-red-400",
 ];
 
 const SOLUTION_ITEMS = [
@@ -95,45 +114,15 @@ export default function ForVintageShopsPage() {
             auf Ihre Kriterien:
           </p>
           <div className="space-y-3">
-            {[
-              {
-                level: "Gut",
-                criteria:
-                  "Wie neu, keine sichtbaren Gebrauchsspuren, keine Beschädigungen",
-                color: "text-green-700 dark:text-green-400",
-              },
-              {
-                level: "Mittel",
-                criteria:
-                  "Leichte Gebrauchsspuren, minimale Pilling, kaum sichtbar",
-                color: "text-blue-700 dark:text-blue-400",
-              },
-              {
-                level: "Schlecht",
-                criteria:
-                  "Deutliche Gebrauchsspuren, Pilling, Verfärbungen — noch tragbar",
-                color: "text-amber-700 dark:text-amber-400",
-              },
-              {
-                level: "Für Teile",
-                criteria:
-                  "Beschädigungen (Riss, Loch, Fleck) — für Upcycling oder Reparatur",
-                color: "text-orange-700 dark:text-orange-400",
-              },
-              {
-                level: "Schrott",
-                criteria: "Nicht verkäuflich, Recycling oder Entsorgung",
-                color: "text-red-700 dark:text-red-400",
-              },
-            ].map((s) => (
-              <div key={s.level} className="flex items-start gap-3">
+            {CONDITION_GRADES.map((grade, i) => (
+              <div key={grade.label} className="flex items-start gap-3">
                 <span
-                  className={`shrink-0 w-20 text-sm font-semibold ${s.color}`}
+                  className={`shrink-0 w-20 text-sm font-semibold ${CLOTHING_TEXT_COLORS[i]}`}
                 >
-                  {s.level}
+                  {grade.label}
                 </span>
                 <span className="text-sm text-muted-foreground">
-                  {s.criteria}
+                  {CLOTHING_CRITERIA[i]}
                 </span>
               </div>
             ))}

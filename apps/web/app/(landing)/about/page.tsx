@@ -9,8 +9,9 @@ import {
   Leaf,
 } from "lucide-react";
 import { CONTACT_EMAIL } from "@/lib/config/site";
+import type { Metadata } from "next";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Über Kivvi — Das ERP für die Kreislaufwirtschaft",
   description:
     "Kivvi ist das erste Open-Source-ERP, das von Grund auf für Kreislaufbetriebe entwickelt wurde.",

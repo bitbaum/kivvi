@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { ArrowRight, Mail } from "lucide-react";
 import { CONTACT_EMAIL } from "@/lib/config/site";
+import type { Metadata } from "next";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Warum Kivvi — Das Argument für ein kreislaufspezifisches ERP",
   description:
     "8 Dimensionen, in denen Standard-ERPs für Kreislaufbetriebe strukturell scheitern — und wie Kivvi antwortet.",
