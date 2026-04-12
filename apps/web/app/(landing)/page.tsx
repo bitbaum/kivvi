@@ -7,14 +7,8 @@ import {
   BarChart3,
   Sparkles,
   Shield,
-  Mail,
   Recycle,
-  X,
   BookOpen,
-  Laptop,
-  Store,
-  Wrench,
-  Shirt,
   Server,
   Cloud,
   Code2,
@@ -22,7 +16,10 @@ import {
   MessageSquare,
 } from "lucide-react";
 import type { Metadata } from "next";
-import { CONTACT_EMAIL } from "@/lib/config/site";
+import { VERTICALS } from "@/lib/config/site";
+import { PainList } from "@/components/landing/pain-list";
+import { LandingCtaSection } from "@/components/landing/landing-cta-section";
+import { VerticalCard } from "@/components/landing/vertical-card";
 
 export const metadata: Metadata = {
   title: "Kivvi — Das ERP für die Kreislaufwirtschaft",
@@ -71,57 +68,16 @@ export default function Home() {
       </section>
 
       {/* ============================================================ */}
-      {/* FOR WHOM — 4 cards with clear value propositions             */}
+      {/* FOR WHOM — derived from VERTICALS config                     */}
       {/* ============================================================ */}
       <section className="mx-auto max-w-5xl py-8">
         <p className="mb-8 text-center text-sm font-medium uppercase tracking-wider text-muted-foreground">
           Für wen ist Kivvi?
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
-          <VerticalCard
-            icon={<Laptop className="h-5 w-5" />}
-            href="/for/it-refurbishers"
-            title="IT-Refurbisher"
-            hook="Laptop #47 mit Seriennummer, Reparaturkosten und Marge — nicht «100 ThinkPad auf Lager»."
-            bullets={[
-              "Reparaturkosten akkumulieren sich pro Gerät",
-              "Zustand, Akku, Marge — auf einen Blick",
-              "Spendenquittungen und Impact-Bericht automatisch",
-            ]}
-          />
-          <VerticalCard
-            icon={<Store className="h-5 w-5" />}
-            href="/for/brockenhaeuser"
-            title="Brockenhäuser"
-            hook="Spendenquittungen auf Knopfdruck — nicht mehr in Word getippt."
-            bullets={[
-              "Strukturierter Wareneingang für Spenden und Einkäufe",
-              "Donorenverwaltung und Impact-Nachweis für Förderanträge",
-              "Schweizer QR-Rechnungen und MWST nativ",
-            ]}
-          />
-          <VerticalCard
-            icon={<Wrench className="h-5 w-5" />}
-            href="/for/repair-cafes"
-            title="Repair Cafés"
-            hook="Was repariert, von wem, welche Teile, wie viel CO₂ — ohne Excel."
-            bullets={[
-              "Auftragserfassung auch für Freiwillige ohne IT-Kenntnisse",
-              "Reparaturhistorie pro Gerät für Folgereparaturen",
-              "Impact-Bericht auf Knopfdruck für Förderanträge",
-            ]}
-          />
-          <VerticalCard
-            icon={<Shirt className="h-5 w-5" />}
-            href="/for/vintage"
-            title="Vintage-Shops"
-            hook="Jedes Stück einmalig — mit Zustand, Herkunft und eigenem Preis."
-            bullets={[
-              "Kein SKU-Denken: jedes Teil ist ein eigener Artikel",
-              "Kommissionsverkauf mit Auszahlungsabrechnung",
-              "Zustandssystem und Provenienz pro Stück",
-            ]}
-          />
+          {VERTICALS.map((v) => (
+            <VerticalCard key={v.id} {...v} />
+          ))}
         </div>
       </section>
 
@@ -132,23 +88,15 @@ export default function Home() {
         <h2 className="mb-8 text-center text-2xl font-bold">
           Was Standard-ERPs nicht können
         </h2>
-        <div className="space-y-3">
-          {[
+        <PainList
+          items={[
             "Den Unterschied zwischen Spende, Einkauf und Reparatur kennen",
             "Einzelne Artikel mit eigenem Zustand, Geschichte und Kosten verfolgen",
             "Kosten über Intake → Reparatur → Verkauf akkumulieren",
             "Spendenquittungen und Impact-Berichte automatisch erstellen",
             "QR-Rechnung, MWST und Schweizer Compliance nativ abbilden",
-          ].map((problem) => (
-            <div
-              key={problem}
-              className="flex items-start gap-3 rounded-lg border border-destructive/20 bg-destructive/5 p-4"
-            >
-              <X className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
-              <span className="text-sm">{problem}</span>
-            </div>
-          ))}
-        </div>
+          ]}
+        />
         <div className="mt-6 text-center">
           <Link
             href="/how-it-works"
@@ -369,80 +317,16 @@ export default function Home() {
       {/* ============================================================ */}
       {/* CTA + CONTACT                                                */}
       {/* ============================================================ */}
-      <section
+      <LandingCtaSection
         id="contact"
-        className="mx-auto max-w-2xl py-16 text-center scroll-mt-16"
-      >
-        <h2 className="mb-4 text-3xl font-bold">Kivvi für Ihren Betrieb?</h2>
-        <p className="mb-8 text-lg text-muted-foreground">
-          Schreiben Sie uns — ob Brockenstube, Refurbisher, Repair Café oder
-          Vintage-Shop.
-        </p>
-        <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-          <a
-            href={`mailto:${CONTACT_EMAIL}`}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-primary-foreground hover:bg-primary/90"
-          >
-            <Mail className="h-4 w-4" />
-            {CONTACT_EMAIL}
-          </a>
-          <Link
-            href="/register"
-            className="inline-flex items-center gap-2 rounded-lg border px-6 py-3 font-medium hover:bg-muted"
-          >
-            Kivvi ausprobieren
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-      </section>
+        title="Kivvi für Ihren Betrieb?"
+        description="Schreiben Sie uns — ob Brockenstube, Refurbisher, Repair Café oder Vintage-Shop."
+      />
     </>
   );
 }
 
 // ── Sub-components ──────────────────────────────────────────────────────────
-
-function VerticalCard({
-  icon,
-  href,
-  title,
-  hook,
-  bullets,
-}: {
-  icon: React.ReactNode;
-  href: string;
-  title: string;
-  hook: string;
-  bullets: string[];
-}) {
-  return (
-    <Link
-      href={href}
-      className="group flex flex-col gap-4 rounded-xl border bg-card p-6 transition-colors hover:border-primary/40 hover:bg-muted/50"
-    >
-      <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/20">
-          {icon}
-        </div>
-        <div className="flex items-center gap-2 font-semibold">
-          {title}
-          <ArrowRight className="h-3.5 w-3.5 opacity-0 transition-opacity group-hover:opacity-100" />
-        </div>
-      </div>
-      <p className="text-sm font-medium">{hook}</p>
-      <ul className="space-y-1.5">
-        {bullets.map((b) => (
-          <li
-            key={b}
-            className="flex items-start gap-2 text-sm text-muted-foreground"
-          >
-            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
-            {b}
-          </li>
-        ))}
-      </ul>
-    </Link>
-  );
-}
 
 function AIFeature({ icon, text }: { icon: React.ReactNode; text: string }) {
   return (

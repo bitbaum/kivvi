@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { Github } from "lucide-react";
 import { KivviLogo } from "@/components/kivvi-logo";
-import { VERTICAL_NAV_LINKS } from "@/lib/config/site";
+import { VERTICALS } from "@/lib/config/site";
 
 export async function LandingFooter() {
   const t = await getTranslations("landing");
@@ -71,13 +71,13 @@ export async function LandingFooter() {
               Für wen
             </p>
             <ul className="space-y-2.5 text-sm">
-              {VERTICAL_NAV_LINKS.map((link) => (
-                <li key={link.href}>
+              {VERTICALS.map((v) => (
+                <li key={v.href}>
                   <Link
-                    href={link.href}
+                    href={v.href}
                     className="text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    {link.label}
+                    {v.title}
                   </Link>
                 </li>
               ))}

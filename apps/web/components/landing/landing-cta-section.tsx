@@ -6,15 +6,20 @@ interface LandingCtaSectionProps {
   title: string;
   description: string;
   emailLabel?: string;
+  id?: string;
 }
 
 export function LandingCtaSection({
   title,
   description,
   emailLabel = CONTACT_EMAIL,
+  id,
 }: LandingCtaSectionProps) {
   return (
-    <section className="mx-auto max-w-2xl py-16 text-center">
+    <section
+      id={id}
+      className="mx-auto max-w-2xl py-16 text-center scroll-mt-16"
+    >
       <h2 className="mb-4 text-2xl font-bold">{title}</h2>
       <p className="mb-8 text-muted-foreground">{description}</p>
       <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">

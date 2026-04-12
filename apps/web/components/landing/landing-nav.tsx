@@ -7,14 +7,11 @@ import {
   Menu,
   X,
   ChevronDown,
-  Laptop,
-  Store,
-  Wrench,
-  Shirt,
   Recycle,
   ArrowRight,
   LayoutDashboard,
 } from "lucide-react";
+import { VERTICAL_ICONS } from "./vertical-icons";
 
 interface NavLink {
   href: string;
@@ -28,16 +25,6 @@ interface Vertical {
   description: string;
 }
 
-const VERTICAL_ICONS: Record<
-  string,
-  React.ComponentType<{ className?: string }>
-> = {
-  "it-refurbishers": Laptop,
-  brockenhaeuser: Store,
-  "repair-cafes": Wrench,
-  vintage: Shirt,
-};
-
 export function LandingNav({
   links,
   verticals,
@@ -48,7 +35,7 @@ export function LandingNav({
   dashboardLabel = "Dashboard",
 }: {
   links: NavLink[];
-  verticals: Vertical[];
+  verticals: readonly Vertical[];
   solutionsLabel: string;
   signInLabel: string;
   demoLabel: string;
