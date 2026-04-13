@@ -21,6 +21,23 @@ import { PainList } from "@/components/landing/pain-list";
 import { LandingCtaSection } from "@/components/landing/landing-cta-section";
 import { VerticalCard } from "@/components/landing/vertical-card";
 
+const SOFTWARE_LD = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "Kivvi",
+  applicationCategory: "BusinessApplication",
+  operatingSystem: "Web",
+  description:
+    "Open-Source-ERP für Kreislaufwirtschaft: Brockenhäuser, IT-Refurbisher, Repair Cafés, Vintage-Shops",
+  offers: { "@type": "Offer", price: "0", priceCurrency: "CHF" },
+  creator: {
+    "@type": "Organization",
+    name: "revamp-it",
+    url: "https://revamp-it.ch",
+  },
+  license: "https://opensource.org/licenses/MIT",
+};
+
 export const metadata: Metadata = {
   title: "Kivvi — Das ERP für die Kreislaufwirtschaft",
   description:
@@ -30,6 +47,10 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(SOFTWARE_LD) }}
+      />
       {/* ============================================================ */}
       {/* HERO                                                         */}
       {/* ============================================================ */}
@@ -51,13 +72,13 @@ export default function Home() {
           alles in einem.
         </p>
         <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-          <a
-            href="#contact"
+          <Link
+            href="/contact"
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-primary-foreground hover:bg-primary/90"
           >
             Demo anfragen
             <ArrowRight className="h-4 w-4" />
-          </a>
+          </Link>
           <Link
             href="/register"
             className="inline-flex items-center gap-2 rounded-lg border px-6 py-3 font-medium hover:bg-muted"
@@ -171,9 +192,8 @@ export default function Home() {
             gebaut wurden, haben sie selbst eines entwickelt. Jetzt ist es open
             source — für alle Betriebe der Kreislaufwirtschaft.
           </p>
-          <div className="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-4">
-            <StatBlock value="23 Jahre" label="Praxiserfahrung" />
-            <StatBlock value="5'000+" label="Artikel verwaltet" />
+          <div className="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-3">
+            <StatBlock value="Seit 2003" label="Praxiserfahrung" />
             <StatBlock value="Open Source" label="MIT-Lizenz" />
             <StatBlock value="CHF 0" label="Lizenzkosten" />
           </div>
@@ -235,7 +255,7 @@ export default function Home() {
             title="Cloud"
             subtitle="Verwaltet · Demnächst"
             description="Wir betreiben, Sie nutzen. Keine Infrastruktur, keine Updates. Ideal für Betriebe ohne IT-Ressourcen."
-            href="#contact"
+            href="/contact"
             cta="Warteliste"
           />
           <DeploymentCard
@@ -243,7 +263,7 @@ export default function Home() {
             title="On-Premise"
             subtitle="Mit Support"
             description="Ihre Infrastruktur, unser Support. Installation, Konfiguration und laufende Betreuung durch uns."
-            href="#contact"
+            href="/contact"
             cta="Kontakt aufnehmen"
           />
         </div>
@@ -354,9 +374,6 @@ function DeploymentCard({
   cta: string;
   external?: boolean;
 }) {
-  const linkProps = external
-    ? { target: "_blank", rel: "noopener noreferrer" }
-    : {};
   return (
     <div className="flex flex-col rounded-xl border bg-card p-6">
       <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -367,14 +384,25 @@ function DeploymentCard({
       <p className="mb-6 flex-1 text-sm text-muted-foreground leading-relaxed">
         {description}
       </p>
-      <a
-        href={href}
-        {...linkProps}
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
-      >
-        {cta}
-        <ArrowRight className="h-3.5 w-3.5" />
-      </a>
+      {external ? (
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+        >
+          {cta}
+          <ArrowRight className="h-3.5 w-3.5" />
+        </a>
+      ) : (
+        <Link
+          href={href}
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+        >
+          {cta}
+          <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      )}
     </div>
   );
 }

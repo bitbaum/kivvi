@@ -6,6 +6,7 @@ import { SessionProvider } from "@/components/session-provider";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { Toaster } from "sonner";
+import { SentryUserContext } from "@/components/sentry-user-context";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -48,6 +49,7 @@ export default async function RootLayout({
               enableSystem
               disableTransitionOnChange
             >
+              <SentryUserContext />
               {children}
               <Toaster richColors position="bottom-right" />
             </ThemeProvider>

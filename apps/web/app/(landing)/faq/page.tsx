@@ -1,7 +1,62 @@
 import Link from "next/link";
 import { ArrowRight, HelpCircle } from "lucide-react";
-import { CONTACT_EMAIL } from "@/lib/config/site";
 import type { Metadata } from "next";
+
+const ORGANIZATION_LD = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "revamp-it",
+  url: "https://revamp-it.ch",
+  foundingDate: "2003",
+  description: "IT-Refurbisher und Entwickler von Kivvi ERP",
+};
+
+const FAQ_PAGE_LD = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: [
+    {
+      "@type": "Question",
+      name: "Was ist Kivvi?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Kivvi ist ein Open-Source-ERP (Enterprise Resource Planning) speziell für Betriebe der Kreislaufwirtschaft — Brockenhäuser, IT-Refurbisher, Repair Cafés, Vintage-Shops und ähnliche Organisationen. Es verwaltet den gesamten Lebenszyklus von Waren: von der Annahme über Bewertung und Reparatur bis zu Verkauf und Impact-Messung. Kivvi ist in der Schweiz entwickelt und nativ auf Schweizer Recht (QR-Rechnung, MWST, Spendenrecht) ausgelegt.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Ist Kivvi kostenlos?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Ja. Kivvi ist unter der MIT-Lizenz veröffentlicht — Sie können es kostenlos nutzen, hosten, anpassen und weitergeben. Es gibt keine Lizenzkosten, keine Abo-Gebühren, kein Freemium-Modell. Kosten entstehen nur durch den Betrieb der Infrastruktur (Server, Backup), wenn Sie selbst hosten — oder durch eine etwaige externe Hosting-Dienstleistung.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Kann ich Kivvi selbst hosten?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Ja, Kivvi ist für Self-Hosting konzipiert. Sie brauchen einen Server mit PostgreSQL und Node.js. Die Einrichtung dauert für technisch versierte Personen etwa eine Stunde. Ihre Daten bleiben vollständig unter Ihrer Kontrolle — kein Cloud-Anbieter hat Zugriff. Für Betriebe ohne eigene IT bieten wir gehostete Instanzen an.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Für wen ist Kivvi geeignet?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Kivvi ist für Betriebe gemacht, die Waren ein zweites Leben geben: Brockenhäuser und Sozialkaufhäuser, IT-Refurbisher und Computer-Recycler, Repair Cafés und Werkstätten, Vintage-Shops und Kleiderbörsen, Fahrrad-Refurbisher, Upcycling-Ateliers und gemeinnützige Organisationen mit Warenlogistik. Wer neue Waren verkauft, ist besser mit einem Standard-ERP bedient.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "In welchen Sprachen ist Kivvi verfügbar?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Die Benutzeroberfläche ist auf Deutsch (Schweiz), Englisch und Französisch verfügbar. Die Oberfläche lässt sich per Sprachumschalter wechseln. Für weitere Sprachen können Übersetzungen über das Open-Source-Projekt beigesteuert werden.",
+      },
+    },
+  ],
+};
 
 export const metadata: Metadata = {
   title: "FAQ — Häufige Fragen zu Kivvi",
@@ -165,6 +220,14 @@ const FAQ_GROUPS = [
 export default function FaqPage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(ORGANIZATION_LD) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_PAGE_LD) }}
+      />
       {/* Hero */}
       <section className="mx-auto max-w-3xl py-16 text-center">
         <div className="mb-4 flex justify-center">
@@ -218,12 +281,13 @@ export default function FaqPage() {
           Schreiben Sie uns — wir antworten und ergänzen die FAQ.
         </p>
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-          <a
-            href={`mailto:${CONTACT_EMAIL}`}
+          <Link
+            href="/contact"
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-primary-foreground hover:bg-primary/90"
           >
-            info@revamp-it.ch
-          </a>
+            Demo anfragen
+            <ArrowRight className="h-4 w-4" />
+          </Link>
           <Link
             href="/register"
             className="inline-flex items-center gap-2 rounded-lg border px-6 py-3 font-medium hover:bg-muted"

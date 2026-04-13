@@ -17,6 +17,7 @@ export * from "./domain/inventory-items";
 export * from "./domain/intake-integration";
 export * from "./domain/purchase-invoice-integration";
 export * from "./domain/inventory-dashboard";
+export * from "./domain/webhooks";
 export * from "./domain/impact";
 export * from "./domain/reports";
 export * from "./domain/projects";

@@ -1031,6 +1031,118 @@ export const aiActionAudit = pgTable("ai_action_audit", {
 });
 
 // ============================================================================
+// CONTACT SUBMISSIONS (public — no companyId, from landing page forms)
+// ============================================================================
+
+export const CONTACT_SUBMISSION_TYPE_VALUES = [
+  "demo_request",
+  "waitlist",
+  "general",
+] as const;
+export type ContactSubmissionType =
+  (typeof CONTACT_SUBMISSION_TYPE_VALUES)[number];
+
+export const BETRIEBSTYP_VALUES = [
+  "it_refurbisher",
+  "brockenshaus",
+  "repair_cafe",
+  "vintage_shop",
+  "other",
+] as const;
+export type BetriebstypValue = (typeof BETRIEBSTYP_VALUES)[number];
+
+export const contactSubmissions = pgTable(
+  "contact_submissions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    type: text("type")
+      .notNull()
+      .$type<ContactSubmissionType>()
+      .default("general"),
+    name: text("name").notNull(),
+    email: text("email").notNull(),
+    organisation: text("organisation"),
+    betriebstyp: text("betriebstyp").$type<BetriebstypValue>(),
+    message: text("message"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    emailIdx: index("contact_submissions_email_idx").on(table.email),
+    createdAtIdx: index("contact_submissions_created_at_idx").on(
+      table.createdAt,
+    ),
+  }),
+);
+
+// ============================================================================
+// WEBHOOKS
+// Used by Kivvi to notify external systems (RevampIT, WooCommerce, etc.)
+// when events occur. Each company configures its own endpoints.
+// ============================================================================
+
+/** Webhook events Kivvi can fire */
+export const WEBHOOK_EVENT_VALUES = [
+  "inventory_item.created",
+  "inventory_item.updated",
+  "inventory_item.status_changed",
+  "document.created",
+  "document.status_changed",
+  "payment.received",
+] as const;
+export type WebhookEvent = (typeof WEBHOOK_EVENT_VALUES)[number];
+
+/** A configured endpoint per company — where to POST events */
+export const webhookEndpoints = pgTable(
+  "webhook_endpoints",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    companyId: uuid("company_id")
+      .references(() => companies.id, { onDelete: "cascade" })
+      .notNull(),
+    name: text("name").notNull(),
+    url: text("url").notNull(),
+    /** HMAC-SHA256 secret for signing payloads */
+    secret: text("secret").notNull(),
+    /** JSON array of WebhookEvent strings to subscribe to */
+    events: jsonb("events").$type<WebhookEvent[]>().notNull().default([]),
+    isActive: boolean("is_active").default(true).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    companyIdIdx: index("webhook_endpoints_company_id_idx").on(table.companyId),
+  }),
+);
+
+/** Log of every outbound webhook attempt — supports retry and debugging */
+export const webhookDeliveries = pgTable(
+  "webhook_deliveries",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    endpointId: uuid("endpoint_id")
+      .references(() => webhookEndpoints.id, { onDelete: "cascade" })
+      .notNull(),
+    event: text("event").$type<WebhookEvent>().notNull(),
+    payload: jsonb("payload").notNull(),
+    statusCode: integer("status_code"),
+    responseBody: text("response_body"),
+    attemptCount: integer("attempt_count").default(0).notNull(),
+    /** Null = delivered or permanently failed */
+    nextRetryAt: timestamp("next_retry_at"),
+    deliveredAt: timestamp("delivered_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    endpointIdIdx: index("webhook_deliveries_endpoint_id_idx").on(
+      table.endpointId,
+    ),
+    nextRetryIdx: index("webhook_deliveries_next_retry_at_idx").on(
+      table.nextRetryAt,
+    ),
+  }),
+);
+
+// ============================================================================
 // RELATIONS
 // ============================================================================
 
@@ -1050,7 +1162,29 @@ export const companiesRelations = relations(companies, ({ many }) => ({
   priceLists: many(priceLists),
   fiscalYears: many(fiscalYears),
   recurringInvoiceConfigs: many(recurringInvoiceConfigs),
+  webhookEndpoints: many(webhookEndpoints),
 }));
+
+export const webhookEndpointsRelations = relations(
+  webhookEndpoints,
+  ({ one, many }) => ({
+    company: one(companies, {
+      fields: [webhookEndpoints.companyId],
+      references: [companies.id],
+    }),
+    deliveries: many(webhookDeliveries),
+  }),
+);
+
+export const webhookDeliveriesRelations = relations(
+  webhookDeliveries,
+  ({ one }) => ({
+    endpoint: one(webhookEndpoints, {
+      fields: [webhookDeliveries.endpointId],
+      references: [webhookEndpoints.id],
+    }),
+  }),
+);
 
 export const usersRelations = relations(users, ({ one, many }) => ({
   company: one(companies, {
@@ -1572,6 +1706,11 @@ export type RecurringInvoiceConfig =
   typeof recurringInvoiceConfigs.$inferSelect;
 export type NewRecurringInvoiceConfig =
   typeof recurringInvoiceConfigs.$inferInsert;
+
+export type WebhookEndpoint = typeof webhookEndpoints.$inferSelect;
+export type NewWebhookEndpoint = typeof webhookEndpoints.$inferInsert;
+export type WebhookDelivery = typeof webhookDeliveries.$inferSelect;
+export type NewWebhookDelivery = typeof webhookDeliveries.$inferInsert;
 
 export type Membership = typeof memberships.$inferSelect;
 export type NewMembership = typeof memberships.$inferInsert;

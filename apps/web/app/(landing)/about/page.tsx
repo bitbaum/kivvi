@@ -1,14 +1,5 @@
 import Link from "next/link";
-import {
-  ArrowRight,
-  Mail,
-  Github,
-  Recycle,
-  Heart,
-  Code2,
-  Leaf,
-} from "lucide-react";
-import { CONTACT_EMAIL } from "@/lib/config/site";
+import { ArrowRight, Github, Recycle, Heart, Code2, Leaf } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -143,13 +134,13 @@ export default function AboutPage() {
           — wir hören zu.
         </p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <a
-            href={`mailto:${CONTACT_EMAIL}`}
+          <Link
+            href="/contact"
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-primary-foreground hover:bg-primary/90"
           >
-            <Mail className="h-4 w-4" />
             Kontakt aufnehmen
-          </a>
+            <ArrowRight className="h-4 w-4" />
+          </Link>
           <Link
             href="/circular-economy"
             className="inline-flex items-center gap-2 rounded-lg border px-6 py-3 font-medium hover:bg-muted"

@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXTAUTH_URL || "https://app.kivvi.ch";
+  const baseUrl = process.env.NEXTAUTH_URL || "https://kivvi.vercel.app";
   return [
     {
       url: baseUrl,

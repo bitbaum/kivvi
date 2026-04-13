@@ -56,6 +56,7 @@ export const VERTICALS = [
 export const LANDING_NAV_LINKS = [
   { href: "/how-it-works", labelKey: "navHowItWorks" as const },
   { href: "/knowledge", labelKey: "navKnowledge" as const },
+  { href: "/contact", labelKey: "navContact" as const },
 ];
 
 export const CONDITION_GRADES = [

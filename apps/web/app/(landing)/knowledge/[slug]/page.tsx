@@ -12,6 +12,9 @@ const ARTICLE_ORDER = [
   "zustandsbewertung",
   "impact-messen",
   "spendenquittungen",
+  "kivitendo-migration",
+  "preisgestaltung-secondhand",
+  "qr-rechnung-schweiz",
 ];
 
 const ARTICLES: Record<string, Article> = {
@@ -54,6 +57,49 @@ const ARTICLES: Record<string, Article> = {
       "Kivvi automatisiert die Quittung",
     ],
     content: <SpendenquittungenArticle />,
+  },
+  "kivitendo-migration": {
+    title: "Von Kivitendo zu Kivvi migrieren",
+    tag: "Migration",
+    readTime: "8 min",
+    lead: "Noch in Kivitendo? So exportieren Sie Kundenstammdaten, Artikel und offene Posten — und importieren sie in wenigen Stunden in Kivvi. Kein Engineering, kein Datenverlust.",
+    sections: [
+      "Warum jetzt wechseln?",
+      "Was wird importiert?",
+      "Schritt für Schritt: Export aus Kivitendo",
+      "Schritt für Schritt: Import in Kivvi",
+      "Nach dem Import",
+    ],
+    content: <KivitendoMigrationArticle />,
+  },
+  "preisgestaltung-secondhand": {
+    title: "Preisgestaltung für gebrauchte Waren",
+    tag: "Betrieb",
+    readTime: "6 min",
+    lead: "Gebrauchte Waren haben keinen Listenpreis. Wie findet man Preise, die fair für Kunden, kostendeckend für den Betrieb und konsistent für das Team sind? Strategien für IT, Kleidung, Möbel und Velos.",
+    sections: [
+      "Das Dilemma der Preisgestaltung",
+      "Methoden der Preisfindung",
+      "Reparaturkosten einkalkulieren",
+      "Sozialrabatte: Wann und wie?",
+      "Mit Kivvi Preise verwalten",
+    ],
+    content: <PreisgestaltungSecondhandArticle />,
+  },
+  "qr-rechnung-schweiz": {
+    title: "QR-Rechnung: Was Kreislaufbetriebe wissen müssen",
+    tag: "Compliance",
+    readTime: "5 min",
+    lead: "Seit 2022 gesetzlich vorgeschrieben: Rechnungen brauchen einen QR-Einzahlungsschein. Was Kreislaufbetriebe über Pflichtangaben, MWST-Besonderheiten und Rappen-Rundung wissen müssen.",
+    sections: [
+      "Was ist die QR-Rechnung?",
+      "Wer braucht sie?",
+      "Pflichtangaben",
+      "MWST bei Kreislaufbetrieben",
+      "Rappen-Rundung: CHF 0.05",
+      "Kivvi automatisiert QR-Rechnungen",
+    ],
+    content: <QrRechnungSchweizArticle />,
   },
 };
 
@@ -646,6 +692,531 @@ function SpendenquittungenArticle() {
           spezifische Situation — insbesondere wenn Ihre Organisation sehr
           grosse Spendenbeträge erhält — empfehlen wir eine Rücksprache mit
           Ihrer Treuhandstelle oder dem kantonalen Steueramt.
+        </P>
+      </Section>
+    </>
+  );
+}
+
+function KivitendoMigrationArticle() {
+  return (
+    <>
+      <Section title="Warum jetzt wechseln?">
+        <P>
+          Kivitendo ist ein solides Open-Source-ERP — aber es wurde für
+          klassischen Handel gebaut, nicht für Kreislaufwirtschaft.
+          Einzelartikel- Tracking, Zustandsbewertung,
+          Reparaturkosten-Akkumulation, Impact-Kennzahlen: das alles braucht man
+          in Kivitendo als Workarounds oder Excel-Ergänzung.
+        </P>
+        <P>
+          Kivvi übernimmt Ihre Daten vollständig: Kontakte, Artikel, offene
+          Rechnungen, Buchungshistorie. Die Migration ist selbst durchführbar —
+          CSV-Export aus Kivitendo, CSV-Import in Kivvi, fertig.
+        </P>
+      </Section>
+
+      <Section title="Was wird importiert?">
+        <div className="space-y-3">
+          {[
+            {
+              what: "Kunden & Lieferanten",
+              detail:
+                "Name, Adresse, Kundennummer, E-Mail, Zahlungsbedingungen",
+              status: "Vollständig",
+              color: "text-green-700 dark:text-green-400",
+            },
+            {
+              what: "Artikel & Leistungen",
+              detail: "Artikelnummer, Bezeichnung, Preis, Warengruppe, Einheit",
+              status: "Vollständig",
+              color: "text-green-700 dark:text-green-400",
+            },
+            {
+              what: "Offene Rechnungen (AR)",
+              detail: "Rechnungsnummer, Betrag, Fälligkeit, Kunde",
+              status: "Vollständig",
+              color: "text-green-700 dark:text-green-400",
+            },
+            {
+              what: "Eingangsrechnungen (AP)",
+              detail: "Belegnummer, Betrag, Lieferant, Fälligkeit",
+              status: "Vollständig",
+              color: "text-green-700 dark:text-green-400",
+            },
+            {
+              what: "Buchungssätze",
+              detail: "Datum, Konto, Gegenkonto, Betrag, Buchungstext",
+              status: "Vollständig",
+              color: "text-green-700 dark:text-green-400",
+            },
+            {
+              what: "Lagerbestand",
+              detail: "Artikel, Menge, Lager — aber keine Einzelartikel-IDs",
+              status: "Summiert (keine Seriennummern)",
+              color: "text-amber-700 dark:text-amber-400",
+            },
+            {
+              what: "Dokumente / Anhänge",
+              detail: "PDF-Rechnungen, Belege",
+              status: "Nicht importierbar — extern archivieren",
+              color: "text-muted-foreground",
+            },
+          ].map((r) => (
+            <div
+              key={r.what}
+              className="grid sm:grid-cols-3 gap-2 rounded-xl border p-4 text-sm"
+            >
+              <div className="font-medium">{r.what}</div>
+              <div className="text-muted-foreground">{r.detail}</div>
+              <div className={`font-medium ${r.color}`}>{r.status}</div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Schritt für Schritt: Export aus Kivitendo">
+        <P>
+          Kivitendo exportiert über Berichte und den integrierten CSV-Export.
+          Gehen Sie in der folgenden Reihenfolge vor — die Reihenfolge ist
+          wichtig wegen Abhängigkeiten (Rechnungen brauchen Kunden und Artikel).
+        </P>
+        <div className="space-y-3">
+          {[
+            {
+              step: "1",
+              title: "Kunden exportieren",
+              path: "Stammdaten → Kunden → Liste → CSV-Export",
+              note: "Alle Felder aktivieren; insbesondere Kundennummer, Zahlungsziel, Steuernummer",
+            },
+            {
+              step: "2",
+              title: "Lieferanten exportieren",
+              path: "Stammdaten → Lieferanten → Liste → CSV-Export",
+              note: "Gleiche Vorgehensweise wie Kunden",
+            },
+            {
+              step: "3",
+              title: "Artikel exportieren",
+              path: "Stammdaten → Artikel → Liste → CSV-Export",
+              note: "Warengruppen werden als Text exportiert — Kivvi erstellt sie automatisch beim Import",
+            },
+            {
+              step: "4",
+              title: "Offene Rechnungen exportieren",
+              path: "Debitorenbuchhaltung → Berichte → Offene Posten → CSV",
+              note: "Nur offene Posten — bereits bezahlte Rechnungen brauchen Sie in der Regel nicht zu migrieren",
+            },
+            {
+              step: "5",
+              title: "Buchungsjournal exportieren (optional)",
+              path: "Finanzbuchhaltung → Buchungsjournal → CSV",
+              note: "Für Jahresvergleiche sinnvoll; nicht zwingend für den laufenden Betrieb",
+            },
+          ].map((s) => (
+            <div key={s.step} className="flex gap-4 rounded-xl border p-5">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                {s.step}
+              </div>
+              <div>
+                <div className="font-semibold mb-1">{s.title}</div>
+                <div className="text-sm text-muted-foreground font-mono bg-muted/50 rounded px-2 py-1 mb-1">
+                  {s.path}
+                </div>
+                <div className="text-sm text-muted-foreground">{s.note}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Schritt für Schritt: Import in Kivvi">
+        <P>
+          Nach dem Onboarding (Firmendaten, Kontenrahmen, Nummernkreise) finden
+          Sie unter Einstellungen → Datenimport den CSV-Importassistenten. Kivvi
+          erkennt Kivitendo-Exporte automatisch und schlägt die richtigen
+          Spaltenzuordnungen vor.
+        </P>
+        <div className="rounded-xl border bg-card p-6 text-sm space-y-3">
+          <div className="font-medium mb-3">
+            Importreihenfolge (zwingend einhalten)
+          </div>
+          {[
+            "Kunden und Lieferanten",
+            "Warengruppen und Hersteller (werden automatisch aus Artikeln erzeugt)",
+            "Artikel",
+            "Offene Rechnungen und Eingangsrechnungen",
+            "Buchungsjournal (optional)",
+            "Lagerbestand",
+          ].map((item, i) => (
+            <div key={item} className="flex items-start gap-3">
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                {i + 1}
+              </span>
+              <span className="text-muted-foreground">{item}</span>
+            </div>
+          ))}
+        </div>
+        <P>
+          Kivvi übernimmt nach dem Import automatisch die höchsten bestehenden
+          Nummern und setzt die Nummernkreise entsprechend fort. Ihre erste neue
+          Rechnung bekommt die nächste freie Nummer — nahtlos.
+        </P>
+      </Section>
+
+      <Section title="Nach dem Import">
+        <P>
+          Prüfen Sie nach dem Import stichprobenartig: 3 Kunden, 3 Artikel, 2
+          offene Rechnungen. Stimmen Adresse, Preis und Betrag? Wenn ja, ist die
+          Migration erfolgreich.
+        </P>
+        <P>
+          Tipp: Behalten Sie Kivitendo für 30 Tage parallel aktiv — nur im
+          Lesemodus. Führen Sie ab Migrationsstichtag alle neuen Transaktionen
+          in Kivvi. So haben Sie im Zweifelsfall eine Vergleichsquelle, ohne
+          Daten doppelt zu pflegen.
+        </P>
+      </Section>
+    </>
+  );
+}
+
+function PreisgestaltungSecondhandArticle() {
+  return (
+    <>
+      <Section title="Das Dilemma der Preisgestaltung">
+        <P>
+          Bei Neuware ist der Preis einfach: Einkaufspreis + Marge =
+          Verkaufspreis. Bei Gebrauchtware gibt es keinen Einkaufspreis — oder
+          er ist null (Spende). Dafür gibt es eine Kostenbasis: Reparatur,
+          Reinigung, Bewertungsaufwand. Und es gibt einen Marktpreis — aber
+          keinen fixen, sondern eine Bandbreite.
+        </P>
+        <P>
+          Viele Betriebe lösen das mit Bauchgefühl. Das führt zu Inkonsistenzen:
+          Der gleiche Laptop kostet CHF 180 oder CHF 240 je nachdem, wer ihn
+          bewertet hat. Kunden bemerken das — und es untergräbt das Vertrauen.
+        </P>
+      </Section>
+
+      <Section title="Methoden der Preisfindung">
+        <div className="space-y-4">
+          {[
+            {
+              method: "Marktpreis-Abschlag",
+              description:
+                "Recherchieren Sie Vergleichspreise auf Ricardo, Tutti oder eBay. Setzen Sie Ihren Preis 10–20% darunter als Wettbewerbsvorteil.",
+              good: "Marktgerecht, rechtfertigbar",
+              bad: "Aufwändig ohne Automatisierung; Markt schwankt",
+              forWhat:
+                "IT-Geräte, Velos — überall wo Ricardo-Preise existieren",
+            },
+            {
+              method: "Neupreis-Abschlag nach Zustand",
+              description:
+                "Recherchieren Sie den aktuellen Neupreis. Gut = 60–70%, Mittel = 40–55%, Schlecht = 20–35%.",
+              good: "Einfach kommunizierbar («60% des Neupreises»)",
+              bad: "Funktioniert nicht bei Waren ohne klaren Neupreis (Vintage, Antiquitäten)",
+              forWhat: "Markenware, aktuelle Elektronik",
+            },
+            {
+              method: "Kostenbasis + Marge",
+              description:
+                "Reparaturkosten + Bewertungsaufwand (pauschal CHF 5–15 pro Stück) + Zielrendite (z.B. 40%). Gilt auch bei Gratisware.",
+              good: "Kostendeckend, unabhängig vom Markt",
+              bad: "Kann über Marktpreis liegen; braucht konsequente Zeiterfassung",
+              forWhat: "Reparierte Artikel, Nischenware",
+            },
+            {
+              method: "Kategoriebasierte Richtpreise",
+              description:
+                "Definieren Sie intern Preisbänder pro Kategorie und Zustand: z.B. Laptop Gut: CHF 150–300, Mittel: CHF 80–150. Verkaufsperson entscheidet im Band.",
+              good: "Schnell, konsistent, kein Rechercheaufwand",
+              bad: "Muss regelmässig aktualisiert werden (Markt verändert sich)",
+              forWhat: "Hochvolumenbetriebe, Kleidung, Möbel",
+            },
+          ].map((m) => (
+            <div key={m.method} className="rounded-xl border bg-card p-6">
+              <h3 className="font-semibold mb-2">{m.method}</h3>
+              <P>{m.description}</P>
+              <div className="grid sm:grid-cols-2 gap-3 mt-3 text-sm">
+                <div className="rounded-lg bg-green-50 dark:bg-green-950/30 p-3">
+                  <span className="font-medium text-green-800 dark:text-green-200">
+                    Stärke:
+                  </span>{" "}
+                  <span className="text-green-700 dark:text-green-300">
+                    {m.good}
+                  </span>
+                </div>
+                <div className="rounded-lg bg-amber-50 dark:bg-amber-950/30 p-3">
+                  <span className="font-medium text-amber-800 dark:text-amber-200">
+                    Schwäche:
+                  </span>{" "}
+                  <span className="text-amber-700 dark:text-amber-300">
+                    {m.bad}
+                  </span>
+                </div>
+              </div>
+              <div className="mt-3 text-xs text-muted-foreground">
+                <span className="font-medium">Geeignet für:</span> {m.forWhat}
+              </div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Reparaturkosten einkalkulieren">
+        <P>
+          Reparaturkosten sind die unsichtbare Kostenbasis bei gespendeten
+          Waren. Ein Laptop, der kostenlos gespendet wurde, aber CHF 60
+          Reparaturkosten hatte (Akku + Reinigung), hat eine Kostenbasis von CHF
+          60 — nicht null.
+        </P>
+        <P>
+          Empfehlung: Erfassen Sie Reparaturkosten pro Artikel konsequent.
+          Setzen Sie eine Mindestmarge (z.B. 30% über Kostenbasis). Der
+          Richtpreis kann höher liegen — der Mindestpreis nicht unterschreiten.
+        </P>
+        <div className="rounded-xl border bg-card p-5 font-mono text-sm">
+          <div className="space-y-1 text-muted-foreground">
+            <div>Kostenbasis: CHF 60 (Reparatur + Materialien)</div>
+            <div>Mindestpreis: CHF 60 × 1.30 = CHF 78</div>
+            <div>
+              Richtpreis: CHF 140 (Markt: Gut-Laptop dieser Klasse ~CHF 160)
+            </div>
+            <div className="border-t pt-2 mt-2 text-foreground font-medium">
+              Ergebnis: CHF 78–160, abhängig von Zustand und Nachfrage
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      <Section title="Sozialrabatte: Wann und wie?">
+        <P>
+          Viele Kreislaufbetriebe bieten Rabatte für einkommensschwache Kunden
+          an. Das ist eine Stärke — aber es braucht klare Regeln, damit es keine
+          Willkür wird.
+        </P>
+        <div className="space-y-3">
+          {[
+            {
+              rule: "Klare Berechtigung",
+              detail:
+                "Wer bekommt den Rabatt? AHV-Ausweis, Sozialhilfe-Bestätigung, Lernendenstatus? Schreiben Sie es auf.",
+            },
+            {
+              rule: "Fixer Rabattsatz",
+              detail:
+                "Z.B. 20% auf alle Artikel. Kein Verhandeln — das kostet Zeit und schafft Ungleichheit.",
+            },
+            {
+              rule: "Mindestpreis respektieren",
+              detail:
+                "Sozialrabatt darf nicht unter die Kostenbasis führen. Der Mindestpreis gilt auch für rabattierte Verkäufe.",
+            },
+            {
+              rule: "Dokumentation",
+              detail:
+                "Halten Sie den Rabattgrund im Verkaufsbeleg fest — für interne Auswertungen und Förderberichte.",
+            },
+          ].map((r) => (
+            <div key={r.rule} className="flex gap-3 text-sm">
+              <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary" />
+              <div>
+                <span className="font-medium">{r.rule}: </span>
+                <span className="text-muted-foreground">{r.detail}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Mit Kivvi Preise verwalten">
+        <P>
+          In Kivvi hinterlegen Sie pro Artikel einen Richtpreis und optional
+          einen Mindestpreis. Die Verkaufsperson sieht beides beim Erstellen
+          eines Belegs und kann den Preis innerhalb des Rahmens anpassen.
+        </P>
+        <P>
+          Über Preislisten können Sie Sozialrabatte oder Kundengruppen-Rabatte
+          systemweit definieren. Statt jedem Artikel einen manuellen Rabatt zu
+          geben, weisen Sie dem Kunden einfach die entsprechende Preisliste zu —
+          und Kivvi rechnet automatisch korrekt.
+        </P>
+      </Section>
+    </>
+  );
+}
+
+function QrRechnungSchweizArticle() {
+  return (
+    <>
+      <Section title="Was ist die QR-Rechnung?">
+        <P>
+          Die QR-Rechnung ersetzt seit 2022 den roten und orangen
+          Einzahlungsschein vollständig. Sie besteht aus der eigentlichen
+          Rechnung (Papier oder PDF) und einem standardisierten
+          QR-Einzahlungsschein (Empfangsschein + Zahlteil).
+        </P>
+        <P>
+          Der QR-Code enthält alle Zahlungsinformationen maschinenlesbar: IBAN,
+          Empfänger, Betrag, Referenznummer. Banken und Buchhaltungssoftware
+          können eingehende Zahlungen damit automatisch zuordnen — das spart
+          erheblichen manuellen Abgleichsaufwand.
+        </P>
+      </Section>
+
+      <Section title="Wer braucht sie?">
+        <P>
+          Jedes Schweizer Unternehmen, das Rechnungen an andere Unternehmen oder
+          Privatkunden stellt, sollte QR-Rechnungen ausstellen. Es gibt keine
+          gesetzliche Pflicht für eine Mindestsumme — aber de facto ist es der
+          Standard. Ohne QR-Slip können viele Kunden die Zahlung nicht mehr
+          digital verarbeiten.
+        </P>
+        <div className="rounded-xl border bg-card p-5 text-sm space-y-2">
+          {[
+            {
+              situation: "Einzelhandel, Barzahlung",
+              needsQr: "Nein — Kassenbon reicht",
+            },
+            {
+              situation: "Rechnung an Privatperson (Zahlungsziel 30 Tage)",
+              needsQr: "Ja — QR-Slip dringend empfohlen",
+            },
+            {
+              situation: "Rechnung an Firmenkunden",
+              needsQr: "Ja — ohne QR oft Verarbeitungsprobleme beim Kunden",
+            },
+            {
+              situation: "Kleinbetragsrechnungen unter CHF 1",
+              needsQr:
+                "Technisch nicht unterstützt — aber solche Rechnungen sind sowieso unüblich",
+            },
+          ].map((r) => (
+            <div
+              key={r.situation}
+              className="flex items-start justify-between gap-4"
+            >
+              <span className="text-muted-foreground">{r.situation}</span>
+              <span
+                className={`shrink-0 font-medium ${
+                  r.needsQr.startsWith("Ja")
+                    ? "text-green-700 dark:text-green-400"
+                    : "text-muted-foreground"
+                }`}
+              >
+                {r.needsQr}
+              </span>
+            </div>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Pflichtangaben">
+        <P>
+          Der QR-Code auf der Rechnung muss folgende Felder enthalten — alle
+          anderen Felder sind optional:
+        </P>
+        <div className="rounded-xl border bg-card overflow-hidden text-sm">
+          <div className="divide-y">
+            {[
+              {
+                field: "IBAN",
+                note: "Schweizer oder Liechtensteinisches Konto (CH.. oder LI..)",
+              },
+              {
+                field: "Empfänger (Name + Adresse)",
+                note: "Exakt wie auf dem Bankkonto registriert",
+              },
+              {
+                field: "Betrag",
+                note: "Optional — kann auch leer bleiben (Betrag offen)",
+              },
+              { field: "Währung", note: "Nur CHF oder EUR" },
+              {
+                field: "QR-Referenz oder SCOR-Referenz",
+                note: "Für automatische Zahlungszuordnung — dringend empfohlen",
+              },
+              {
+                field: "Zusatzinformationen (Unstrukturiert)",
+                note: "Z.B. Rechnungsnummer, max. 140 Zeichen — optional",
+              },
+            ].map((f) => (
+              <div
+                key={f.field}
+                className="grid sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x"
+              >
+                <div className="px-5 py-3 font-medium">{f.field}</div>
+                <div className="px-5 py-3 text-muted-foreground">{f.note}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Section>
+
+      <Section title="MWST bei Kreislaufbetrieben">
+        <P>
+          Die Mehrwertsteuer spielt bei Kreislaufbetrieben eine besondere Rolle.
+          Gespendete Waren haben keine Vorsteuerbasis — Sie zahlen beim Eingang
+          keine MWST und können daher auch keine Vorsteuer abziehen. Das
+          bedeutet: Der gesamte Verkaufserlös ist MWST-pflichtig (kein Abzug).
+        </P>
+        <P>
+          Für Vereine und gemeinnützige Organisationen: Die MWST-Pflicht gilt ab
+          CHF 100&apos;000 Jahresumsatz. Unter dieser Schwelle sind Sie nicht
+          steuerpflichtig — müssen aber auch keine Vorsteuer geltend machen. Auf
+          der Rechnung erscheint dann kein MWST-Betrag und keine Steuernummer.
+        </P>
+        <div className="rounded-xl border bg-amber-50 dark:bg-amber-950/20 p-5 text-sm">
+          <div className="font-medium text-amber-800 dark:text-amber-200 mb-2">
+            Wichtig: Margenbesteuerung
+          </div>
+          <p className="text-amber-700 dark:text-amber-300">
+            Händler, die gebrauchte Waren von Privatpersonen kaufen (nicht
+            geschenkt bekommen), können unter bestimmten Bedingungen die
+            Margenbesteuerung anwenden: MWST wird nur auf die Marge
+            (Verkaufspreis minus Einkaufspreis) erhoben. Für Kreislaufbetriebe
+            mit Spenden-Intake ist dies in der Regel nicht anwendbar. Bei
+            Unsicherheit: Rücksprache mit dem kantonalen Steueramt.
+          </p>
+        </div>
+      </Section>
+
+      <Section title="Rappen-Rundung: CHF 0.05">
+        <P>
+          In der Schweiz werden CHF-Beträge auf 5 Rappen gerundet (0.00, 0.05,
+          0.10, ...). Das gilt für den Gesamtbetrag auf der Rechnung, nicht für
+          einzelne Positionen. Die Rundungsdifferenz ist als separate Position
+          oder als Fussnote auszuweisen.
+        </P>
+        <div className="rounded-xl border bg-card p-5 font-mono text-sm space-y-1">
+          <div className="text-muted-foreground">Laptop CHF 189.00</div>
+          <div className="text-muted-foreground">MWST 8.1% CHF 15.31</div>
+          <div className="text-muted-foreground">Zwischentotal CHF 204.31</div>
+          <div className="text-muted-foreground">Rundung CHF +0.04</div>
+          <div className="border-t pt-2 mt-2 font-medium text-foreground">
+            Gesamtbetrag CHF 204.35
+          </div>
+        </div>
+        <P>
+          Kivvi berechnet die Rappen-Rundung automatisch und weist sie korrekt
+          aus. Sie müssen nichts manuell adjustieren.
+        </P>
+      </Section>
+
+      <Section title="Kivvi automatisiert QR-Rechnungen">
+        <P>
+          Jede Rechnung in Kivvi generiert automatisch einen gültigen
+          QR-Einzahlungsschein. Die Referenznummer wird aus Firmennummer und
+          Rechnungsnummer gebildet — eindeutig und maschinenlesbar. Die IBAN
+          kommt aus Ihren Bankkonten- Einstellungen.
+        </P>
+        <P>
+          Der PDF-Export enthält Rechnung und QR-Slip auf einer Seite, direkt
+          druckfertig. Bei digitaler Zustellung reicht der PDF-Anhang — der
+          Kunde kann den QR-Code mit seiner Banking-App einlesen und mit einem
+          Klick zahlen.
         </P>
       </Section>
     </>

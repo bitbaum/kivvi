@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Mail } from "lucide-react";
-import { CONTACT_EMAIL } from "@/lib/config/site";
+import { ArrowRight } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -165,13 +164,13 @@ export default function WhyKivviPage() {
           10 Minuten.
         </p>
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-          <a
-            href={`mailto:${CONTACT_EMAIL}`}
+          <Link
+            href="/contact"
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-primary-foreground hover:bg-primary/90"
           >
-            <Mail className="h-4 w-4" />
             Demo anfragen
-          </a>
+            <ArrowRight className="h-4 w-4" />
+          </Link>
           <Link
             href="/register"
             className="inline-flex items-center gap-2 rounded-lg border px-6 py-3 font-medium hover:bg-muted"

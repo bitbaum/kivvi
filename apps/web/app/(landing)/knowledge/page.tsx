@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BookOpen, Mail } from "lucide-react";
-import { CONTACT_EMAIL } from "@/lib/config/site";
+import { ArrowRight, BookOpen } from "lucide-react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -45,7 +44,7 @@ const ARTICLES = [
       "Schritt-für-Schritt: Daten aus Kivitendo exportieren, in Kivvi importieren, Nummernkreise übernehmen. Ohne Datenverlust, ohne Engineering-Aufwand.",
     tag: "Migration",
     readTime: "8 min",
-    published: false,
+    published: true,
   },
   {
     slug: "preisgestaltung-secondhand",
@@ -54,7 +53,7 @@ const ARTICLES = [
       "Richtpreise, Mindestpreise, Sozialrabatte — wie setzt man Preise fair und margensicher? Strategien für IT, Kleidung, Möbel und Velos.",
     tag: "Betrieb",
     readTime: "6 min",
-    published: false,
+    published: true,
   },
   {
     slug: "qr-rechnung-schweiz",
@@ -63,7 +62,7 @@ const ARTICLES = [
       "Seit 2022 gesetzlich vorgeschrieben. Wer braucht QR-Rechnungen? Pflichtangaben, MWST-Besonderheiten, Rappen-Rundung — und wie Kivvi das automatisiert.",
     tag: "Compliance",
     readTime: "5 min",
-    published: false,
+    published: true,
   },
 ];
 
@@ -206,13 +205,13 @@ export default function KnowledgePage() {
           Schreiben Sie uns — wir antworten und dokumentieren die Antwort für
           alle.
         </p>
-        <a
-          href={`mailto:${CONTACT_EMAIL}`}
+        <Link
+          href="/contact"
           className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-primary-foreground hover:bg-primary/90"
         >
-          <Mail className="h-4 w-4" />
           Frage stellen
-        </a>
+          <ArrowRight className="h-4 w-4" />
+        </Link>
       </section>
     </>
   );
