@@ -1,0 +1,1988 @@
+openapi: 3.0.3
+info:
+  title: Kivvi ERP API
+  description: |
+    REST API for Kivvi ERP — Swiss-native ERP for businesses selling used, donated,
+    and refurbished goods.
+
+    ## Authentication
+
+    All endpoints require a Bearer token issued by the Kivvi instance.
+
+    ```
+    Authorization: Bearer kv_...
+    ```
+
+    ## Response envelope
+
+    Every response wraps the payload in a standard envelope:
+
+    ```json
+    { "success": true, "data": { ... }, "meta": { "total": 100, "page": 1, "pageSize": 50, "totalPages": 2 } }
+    { "success": false, "error": "Human-readable error message" }
+    ```
+
+    `meta` is only present on list endpoints.
+
+    ## Financial values
+
+    All monetary amounts (prices, totals, VAT, etc.) are returned and accepted as
+    **decimal strings** (e.g. `"47.50"`) to avoid floating-point rounding errors.
+
+    ## Dates
+
+    Dates are stored and returned as ISO 8601 strings (`YYYY-MM-DD`).
+  version: 1.0.0
+  contact:
+    name: Kivvi ERP
+    url: https://kivvi.ch
+
+servers:
+  - url: /api/v1
+    description: Current version
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Contacts
+    description: Customers and vendors
+  - name: Products
+    description: Products and services catalog
+  - name: Documents
+    description: All business documents (quotes, orders, invoices, etc.)
+  - name: Inventory Items
+    description: Individual physical items tracked through intake → sale lifecycle
+
+# ==============================================================================
+# PATHS
+# ==============================================================================
+
+paths:
+
+  # ----------------------------------------------------------------------------
+  # Contacts
+  # ----------------------------------------------------------------------------
+
+  /contacts:
+    get:
+      tags: [Contacts]
+      summary: List contacts
+      operationId: listContacts
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
+        - name: search
+          in: query
+          description: Filter by name, email, or contact number (case-insensitive)
+          schema:
+            type: string
+        - name: type
+          in: query
+          description: Filter by contact type
+          schema:
+            type: string
+            enum: [customer, vendor]
+      responses:
+        '200':
+          description: Paginated list of contacts
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Contact'
+                      meta:
+                        $ref: '#/components/schemas/PaginationMeta'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      tags: [Contacts]
+      summary: Create a contact
+      operationId: createContact
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateContactRequest'
+      responses:
+        '200':
+          description: Created contact
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Contact'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /contacts/{id}:
+    parameters:
+      - $ref: '#/components/parameters/id'
+
+    get:
+      tags: [Contacts]
+      summary: Get a contact
+      operationId: getContact
+      responses:
+        '200':
+          description: Contact
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Contact'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    put:
+      tags: [Contacts]
+      summary: Update a contact
+      operationId: updateContact
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateContactRequest'
+      responses:
+        '200':
+          description: Updated contact
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Contact'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Contacts]
+      summary: Delete a contact
+      operationId: deleteContact
+      responses:
+        '200':
+          description: Contact deleted
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          deleted:
+                            type: boolean
+                            example: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ----------------------------------------------------------------------------
+  # Products
+  # ----------------------------------------------------------------------------
+
+  /products:
+    get:
+      tags: [Products]
+      summary: List products
+      operationId: listProducts
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - $ref: '#/components/parameters/pageSize'
+        - name: search
+          in: query
+          description: Filter by name, description, or article number (case-insensitive)
+          schema:
+            type: string
+        - name: type
+          in: query
+          description: Filter by product type
+          schema:
+            type: string
+            enum: [product, service]
+      responses:
+        '200':
+          description: Paginated list of products
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Product'
+                      meta:
+                        $ref: '#/components/schemas/PaginationMeta'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      tags: [Products]
+      summary: Create a product
+      operationId: createProduct
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductRequest'
+      responses:
+        '200':
+          description: Created product
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Product'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /products/{id}:
+    parameters:
+      - $ref: '#/components/parameters/id'
+
+    get:
+      tags: [Products]
+      summary: Get a product
+      operationId: getProduct
+      responses:
+        '200':
+          description: Product
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Product'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    put:
+      tags: [Products]
+      summary: Update a product
+      operationId: updateProduct
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProductRequest'
+      responses:
+        '200':
+          description: Updated product
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Product'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Products]
+      summary: Delete a product
+      operationId: deleteProduct
+      responses:
+        '200':
+          description: Product deleted
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          deleted:
+                            type: boolean
+                            example: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ----------------------------------------------------------------------------
+  # Documents
+  # ----------------------------------------------------------------------------
+
+  /documents:
+    get:
+      tags: [Documents]
+      summary: List documents
+      operationId: listDocuments
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 50
+        - name: type
+          in: query
+          description: Filter by document type
+          schema:
+            $ref: '#/components/schemas/DocumentType'
+        - name: status
+          in: query
+          description: Filter by document status
+          schema:
+            $ref: '#/components/schemas/DocumentStatus'
+        - name: search
+          in: query
+          description: Filter by document number or contact name
+          schema:
+            type: string
+        - name: contactId
+          in: query
+          description: Filter by contact UUID
+          schema:
+            type: string
+            format: uuid
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            enum: [number, issueDate, dueDate, total, createdAt]
+        - name: sortOrder
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+      responses:
+        '200':
+          description: Paginated list of documents
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Document'
+                      meta:
+                        $ref: '#/components/schemas/PaginationMeta'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      tags: [Documents]
+      summary: Create a document
+      description: |
+        Creates any document type (quote, order, invoice, etc.).
+
+        **Contact resolution**: instead of providing a `contactId`, external callers
+        may supply `contactName` (required) and `contactEmail` (optional). The API
+        resolves the contact by email, then by name, and creates a new customer
+        record if no match is found.
+
+        **Item positions**: the `position` field on line items is optional. If
+        omitted, items are auto-numbered starting at 1 in the order they appear.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDocumentRequest'
+      responses:
+        '200':
+          description: Created document
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Document'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /documents/{id}:
+    parameters:
+      - $ref: '#/components/parameters/id'
+
+    get:
+      tags: [Documents]
+      summary: Get a document
+      operationId: getDocument
+      responses:
+        '200':
+          description: Document with line items and payment records
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/DocumentWithItems'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    put:
+      tags: [Documents]
+      summary: Update or transition a document
+      operationId: updateDocument
+      description: |
+        Two behaviors depending on the request body:
+
+        - **Status transition**: send `{ "status": "<new_status>" }` as the only
+          field. The status transition is validated against the allowed transition
+          graph. See the `DocumentStatus` schema for the full lifecycle.
+        - **Full update**: send any combination of updatable fields (contactId,
+          dates, notes, items). Replaces line items when `items` is provided.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              oneOf:
+                - $ref: '#/components/schemas/UpdateDocumentStatusRequest'
+                - $ref: '#/components/schemas/UpdateDocumentRequest'
+      responses:
+        '200':
+          description: Updated document
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Document'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      tags: [Documents]
+      summary: Delete a document
+      operationId: deleteDocument
+      description: Only draft documents can be deleted.
+      responses:
+        '200':
+          description: Document deleted
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          deleted:
+                            type: boolean
+                            example: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /documents/{id}/payments:
+    parameters:
+      - $ref: '#/components/parameters/id'
+
+    post:
+      tags: [Documents]
+      summary: Record a payment
+      operationId: recordPayment
+      description: |
+        Record a payment against an invoice. The document must be in a payable
+        status (`sent` or `partially_paid`). Automatically transitions the document
+        to `paid` or `partially_paid` based on the remaining balance.
+
+        Typical use: close the accounting loop after receiving a Payrexx webhook
+        or a bank transfer confirmation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecordPaymentRequest'
+      responses:
+        '200':
+          description: Payment record
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/DocumentPayment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ----------------------------------------------------------------------------
+  # Inventory Items
+  # ----------------------------------------------------------------------------
+
+  /inventory-items:
+    get:
+      tags: [Inventory Items]
+      summary: List inventory items
+      operationId: listInventoryItems
+      parameters:
+        - $ref: '#/components/parameters/page'
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 200
+            default: 25
+        - name: status
+          in: query
+          description: Filter by lifecycle status
+          schema:
+            $ref: '#/components/schemas/ItemStatus'
+        - name: condition
+          in: query
+          description: Filter by physical condition grade
+          schema:
+            $ref: '#/components/schemas/ItemCondition'
+        - name: warehouseId
+          in: query
+          description: Filter by warehouse UUID
+          schema:
+            type: string
+            format: uuid
+        - name: search
+          in: query
+          description: Filter by description (case-insensitive substring match)
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            enum: [createdAt, description, status, condition]
+        - name: sortOrder
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+      responses:
+        '200':
+          description: Paginated list of inventory items
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/InventoryItem'
+                      meta:
+                        $ref: '#/components/schemas/PaginationMeta'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      tags: [Inventory Items]
+      summary: Create an inventory item
+      operationId: createInventoryItem
+      description: |
+        Creates a new inventory item in `intake` status. Used when logging a
+        donated, purchased, or traded-in item into the system.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInventoryItemRequest'
+      responses:
+        '200':
+          description: Created inventory item
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/InventoryItem'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /inventory-items/{id}:
+    parameters:
+      - $ref: '#/components/parameters/id'
+
+    get:
+      tags: [Inventory Items]
+      summary: Get an inventory item
+      operationId: getInventoryItem
+      responses:
+        '200':
+          description: Inventory item with denormalized product, warehouse, and donor names
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/InventoryItemWithDetails'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    patch:
+      tags: [Inventory Items]
+      summary: Update an inventory item
+      operationId: patchInventoryItem
+      description: |
+        Partially updates an inventory item. All fields are optional.
+
+        **Status transitions**: include `status` to trigger a lifecycle transition.
+        Transitions are validated — invalid transitions return 400. The allowed
+        transitions are:
+
+        ```
+        intake       → testing, repair, ready_for_sale, donated, recycled
+        testing      → repair, ready_for_sale, donated, recycled
+        repair       → testing, ready_for_sale, donated, recycled
+        ready_for_sale → listed, reserved, sold, donated, recycled
+        listed       → reserved, sold, donated, recycled
+        reserved     → ready_for_sale, sold, donated, recycled
+        sold         → returned
+        returned     → ready_for_sale, donated, recycled
+        donated      → (terminal)
+        recycled     → (terminal)
+        ```
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchInventoryItemRequest'
+      responses:
+        '200':
+          description: Updated inventory item
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/InventoryItemWithDetails'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+# ==============================================================================
+# COMPONENTS
+# ==============================================================================
+
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: kv_...
+      description: API key issued by the Kivvi instance
+
+  # ----------------------------------------------------------------------------
+  # Parameters
+  # ----------------------------------------------------------------------------
+
+  parameters:
+    id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    pageSize:
+      name: pageSize
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 200
+        default: 50
+
+  # ----------------------------------------------------------------------------
+  # Responses
+  # ----------------------------------------------------------------------------
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters or body
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            success: false
+            error: "Invalid body: items.0.unitPrice: Invalid unit price"
+
+    Unauthorized:
+      description: Missing or invalid Bearer token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            success: false
+            error: "Unauthorized"
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            success: false
+            error: "Document not found"
+
+    InternalError:
+      description: Unexpected server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+          example:
+            success: false
+            error: "Internal server error"
+
+  # ----------------------------------------------------------------------------
+  # Schemas — envelopes
+  # ----------------------------------------------------------------------------
+
+  schemas:
+
+    SuccessEnvelope:
+      type: object
+      required: [success]
+      properties:
+        success:
+          type: boolean
+          enum: [true]
+
+    ErrorEnvelope:
+      type: object
+      required: [success, error]
+      properties:
+        success:
+          type: boolean
+          enum: [false]
+        error:
+          type: string
+          description: Human-readable error description
+
+    PaginationMeta:
+      type: object
+      required: [total, page, pageSize, totalPages]
+      properties:
+        total:
+          type: integer
+          description: Total number of matching records
+          example: 143
+        page:
+          type: integer
+          description: Current page number (1-based)
+          example: 1
+        pageSize:
+          type: integer
+          description: Number of records per page
+          example: 50
+        totalPages:
+          type: integer
+          description: Total number of pages
+          example: 3
+
+  # ----------------------------------------------------------------------------
+  # Schemas — enums
+  # ----------------------------------------------------------------------------
+
+    DocumentType:
+      type: string
+      enum:
+        - quote
+        - order
+        - order_confirmation
+        - delivery_note
+        - invoice
+        - credit_note
+        - purchase_order
+        - purchase_invoice
+        - dunning
+        - intake
+      description: |
+        Document type discriminator. Maps to Swiss abbreviations:
+        - `quote` → AN (Angebot)
+        - `order` → AU (Auftrag)
+        - `order_confirmation` → AB (Auftragsbestätigung)
+        - `delivery_note` → LS (Lieferschein)
+        - `invoice` → RE (Rechnung)
+        - `credit_note` → GU (Gutschrift)
+        - `purchase_order` → BE (Bestellung)
+        - `purchase_invoice` → ER (Eingangsrechnung)
+        - `dunning` → MA (Mahnung)
+        - `intake` → intake receipt for donated/traded-in goods
+
+    DocumentStatus:
+      type: string
+      enum:
+        - draft
+        - sent
+        - confirmed
+        - delivered
+        - partially_paid
+        - paid
+        - overdue
+        - dunning_1
+        - dunning_2
+        - dunning_3
+        - cancelled
+      description: |
+        Document lifecycle status. Allowed transitions:
+        - `draft` → sent, confirmed, cancelled
+        - `sent` → confirmed, paid, partially_paid, overdue, cancelled
+        - `confirmed` → delivered, paid, partially_paid, overdue, cancelled
+        - `delivered` → paid, partially_paid, overdue, cancelled
+        - `partially_paid` → paid, overdue, cancelled
+        - `overdue` → paid, partially_paid, dunning_1, cancelled
+        - `dunning_1` → paid, partially_paid, dunning_2, cancelled
+        - `dunning_2` → paid, partially_paid, dunning_3, cancelled
+        - `dunning_3` → paid, partially_paid, cancelled
+        - `paid` → (terminal)
+        - `cancelled` → (terminal)
+
+    ItemStatus:
+      type: string
+      enum:
+        - intake
+        - testing
+        - repair
+        - ready_for_sale
+        - listed
+        - reserved
+        - sold
+        - returned
+        - donated
+        - recycled
+
+    ItemCondition:
+      type: string
+      enum:
+        - untested
+        - like_new
+        - good
+        - fair
+        - poor
+        - parts_only
+        - scrap
+
+    PaymentMethod:
+      type: string
+      enum:
+        - bank_transfer
+        - cash
+        - card
+        - other
+
+    IntakeSource:
+      type: string
+      enum:
+        - donation
+        - purchase
+        - trade_in
+        - consignment
+        - estate_clearance
+        - return
+        - other
+
+  # ----------------------------------------------------------------------------
+  # Schemas — Contact
+  # ----------------------------------------------------------------------------
+
+    Contact:
+      type: object
+      required: [id, companyId, type, name, contactNumber, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        companyId:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [customer, vendor, both]
+        contactNumber:
+          type: string
+          description: Auto-generated (e.g. K-00001)
+          example: K-00042
+        name:
+          type: string
+          example: Digitec AG
+        firstName:
+          type: string
+          nullable: true
+        lastName:
+          type: string
+          nullable: true
+        email:
+          type: string
+          format: email
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+        mobile:
+          type: string
+          nullable: true
+        website:
+          type: string
+          nullable: true
+        address:
+          type: string
+          nullable: true
+        city:
+          type: string
+          nullable: true
+        postalCode:
+          type: string
+          nullable: true
+        country:
+          type: string
+          description: ISO 3166-1 alpha-2
+          example: CH
+          nullable: true
+        vatNumber:
+          type: string
+          nullable: true
+        iban:
+          type: string
+          nullable: true
+        bic:
+          type: string
+          nullable: true
+        paymentTermsDays:
+          type: integer
+          nullable: true
+          description: Net payment term in days
+          example: 30
+        creditLimit:
+          type: string
+          nullable: true
+          description: Decimal string in CHF
+          example: "5000.00"
+        language:
+          type: string
+          nullable: true
+          example: de
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateContactRequest:
+      type: object
+      required: [type, name]
+      properties:
+        type:
+          type: string
+          enum: [customer, vendor, both]
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        firstName:
+          type: string
+          maxLength: 100
+          nullable: true
+        lastName:
+          type: string
+          maxLength: 100
+          nullable: true
+        email:
+          type: string
+          format: email
+          nullable: true
+        phone:
+          type: string
+          maxLength: 30
+          nullable: true
+        mobile:
+          type: string
+          maxLength: 30
+          nullable: true
+        website:
+          type: string
+          maxLength: 200
+          nullable: true
+        address:
+          type: string
+          maxLength: 500
+          nullable: true
+        city:
+          type: string
+          maxLength: 100
+          nullable: true
+        postalCode:
+          type: string
+          maxLength: 20
+          nullable: true
+        country:
+          type: string
+          maxLength: 5
+          nullable: true
+        vatNumber:
+          type: string
+          maxLength: 30
+          nullable: true
+        iban:
+          type: string
+          maxLength: 34
+          nullable: true
+        bic:
+          type: string
+          maxLength: 11
+          nullable: true
+        paymentTermsDays:
+          type: integer
+          minimum: 0
+          maximum: 365
+          nullable: true
+        creditLimit:
+          type: string
+          nullable: true
+          description: Decimal string in CHF
+        language:
+          type: string
+          maxLength: 5
+          nullable: true
+        notes:
+          type: string
+          maxLength: 5000
+          nullable: true
+
+    UpdateContactRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreateContactRequest'
+      description: All fields are optional for partial updates
+
+  # ----------------------------------------------------------------------------
+  # Schemas — Product
+  # ----------------------------------------------------------------------------
+
+    Product:
+      type: object
+      required: [id, companyId, name, type, articleNumber, unitPrice, vatRate, unit, currency, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        companyId:
+          type: string
+          format: uuid
+        articleNumber:
+          type: string
+          description: Auto-generated (e.g. ART-00001)
+          example: ART-00001
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        type:
+          type: string
+          enum: [product, service]
+        sku:
+          type: string
+          nullable: true
+        ean:
+          type: string
+          nullable: true
+        manufacturerId:
+          type: string
+          format: uuid
+          nullable: true
+        productGroupId:
+          type: string
+          format: uuid
+          nullable: true
+        unitPrice:
+          type: string
+          description: Decimal string in CHF (e.g. "49.90")
+          example: "49.90"
+        purchasePrice:
+          type: string
+          nullable: true
+          description: Decimal string in CHF
+        currency:
+          type: string
+          default: CHF
+        vatRate:
+          type: string
+          description: VAT percentage as decimal string (e.g. "8.1")
+          example: "8.1"
+        unit:
+          type: string
+          enum: [piece, hour, kg, m, m2, m3, liter]
+          default: piece
+        weight:
+          type: string
+          nullable: true
+          description: Weight in kg as decimal string
+        width:
+          type: string
+          nullable: true
+          description: Width in cm as decimal string
+        height:
+          type: string
+          nullable: true
+        depth:
+          type: string
+          nullable: true
+        minStock:
+          type: integer
+          nullable: true
+          description: Minimum stock level for reorder alerts
+        serialNumberTracking:
+          type: boolean
+          default: false
+        shopVisible:
+          type: boolean
+          default: false
+        isPriceFlexible:
+          type: boolean
+          default: false
+          description: Whether price can be negotiated (Richtpreis)
+        minPrice:
+          type: string
+          nullable: true
+          description: Minimum acceptable price for flexible pricing
+        maxPrice:
+          type: string
+          nullable: true
+          description: Maximum price for flexible pricing
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateProductRequest:
+      type: object
+      required: [name, type, unitPrice, vatRate]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        description:
+          type: string
+          maxLength: 5000
+          nullable: true
+        type:
+          type: string
+          enum: [product, service]
+        sku:
+          type: string
+          maxLength: 100
+          nullable: true
+        ean:
+          type: string
+          maxLength: 50
+          nullable: true
+        manufacturerId:
+          type: string
+          format: uuid
+          nullable: true
+        productGroupId:
+          type: string
+          format: uuid
+          nullable: true
+        unitPrice:
+          type: string
+          pattern: '^\d+(\.\d{1,2})?$'
+          example: "49.90"
+        purchasePrice:
+          type: string
+          pattern: '^\d+(\.\d{1,2})?$'
+          nullable: true
+        currency:
+          type: string
+          default: CHF
+        vatRate:
+          type: string
+          pattern: '^\d+(\.\d{1,2})?$'
+          description: VAT percentage (e.g. "8.1" for 8.1%)
+          example: "8.1"
+        unit:
+          type: string
+          enum: [piece, hour, kg, m, m2, m3, liter]
+          default: piece
+        weight:
+          type: string
+          pattern: '^\d+(\.\d{1,3})?$'
+          nullable: true
+        width:
+          type: string
+          pattern: '^\d+(\.\d{1,2})?$'
+          nullable: true
+        height:
+          type: string
+          pattern: '^\d+(\.\d{1,2})?$'
+          nullable: true
+        depth:
+          type: string
+          pattern: '^\d+(\.\d{1,2})?$'
+          nullable: true
+        minStock:
+          type: integer
+          minimum: 0
+          nullable: true
+        serialNumberTracking:
+          type: boolean
+          default: false
+        shopVisible:
+          type: boolean
+          default: false
+        isPriceFlexible:
+          type: boolean
+          default: false
+        minPrice:
+          type: string
+          pattern: '^\d+(\.\d{1,2})?$'
+          nullable: true
+        maxPrice:
+          type: string
+          pattern: '^\d+(\.\d{1,2})?$'
+          nullable: true
+        notes:
+          type: string
+          maxLength: 5000
+          nullable: true
+
+    UpdateProductRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreateProductRequest'
+      description: All fields are optional for partial updates
+
+  # ----------------------------------------------------------------------------
+  # Schemas — Document
+  # ----------------------------------------------------------------------------
+
+    DocumentItem:
+      type: object
+      required: [id, documentId, position, description, quantity, unitPrice, discount, vatRate, netAmount, vatAmount, grossAmount]
+      properties:
+        id:
+          type: string
+          format: uuid
+        documentId:
+          type: string
+          format: uuid
+        productId:
+          type: string
+          format: uuid
+          nullable: true
+        inventoryItemId:
+          type: string
+          format: uuid
+          nullable: true
+        position:
+          type: integer
+          description: Line item order (1-based)
+        description:
+          type: string
+        quantity:
+          type: string
+          description: Decimal string (e.g. "2.0000")
+        unitPrice:
+          type: string
+          description: Decimal string in document currency
+        discount:
+          type: string
+          description: Discount percentage as decimal string (0–100)
+          example: "0"
+        vatRate:
+          type: string
+          description: VAT percentage as decimal string
+          example: "8.1"
+        netAmount:
+          type: string
+          description: Net line total (quantity × unitPrice × (1 - discount/100))
+        vatAmount:
+          type: string
+          description: VAT amount for this line, rounded per Swiss standard
+        grossAmount:
+          type: string
+          description: Gross line total (net + vat)
+
+    DocumentItemInput:
+      type: object
+      required: [description, quantity, unitPrice]
+      properties:
+        productId:
+          type: string
+          format: uuid
+          nullable: true
+        inventoryItemId:
+          type: string
+          format: uuid
+          nullable: true
+        position:
+          type: integer
+          minimum: 0
+          description: Line order. Auto-assigned if omitted.
+        description:
+          type: string
+          minLength: 1
+        quantity:
+          type: string
+          pattern: '^\d+(\.\d{1,4})?$'
+          example: "1"
+        unitPrice:
+          type: string
+          pattern: '^\d+(\.\d{1,2})?$'
+          example: "49.90"
+        discount:
+          type: string
+          pattern: '^\d+(\.\d{1,2})?$'
+          description: Discount percentage (0–100). Defaults to "0".
+          default: "0"
+        vatRate:
+          type: string
+          pattern: '^\d+(\.\d{1,2})?$'
+          description: VAT rate percentage. Defaults to company default (usually "8.1").
+          example: "8.1"
+
+    Document:
+      type: object
+      required: [id, companyId, type, status, number, issueDate, currency, netTotal, vatTotal, grossTotal, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        companyId:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/DocumentType'
+        status:
+          $ref: '#/components/schemas/DocumentStatus'
+        number:
+          type: string
+          description: Auto-generated document number
+          example: RE-2026-00001
+        contactId:
+          type: string
+          format: uuid
+          nullable: true
+        projectId:
+          type: string
+          format: uuid
+          nullable: true
+        issueDate:
+          type: string
+          format: date
+          example: "2026-04-13"
+        dueDate:
+          type: string
+          format: date
+          nullable: true
+        deliveryDate:
+          type: string
+          format: date
+          nullable: true
+        currency:
+          type: string
+          default: CHF
+        netTotal:
+          type: string
+          description: Sum of all line net amounts
+        vatTotal:
+          type: string
+          description: Sum of all line VAT amounts
+        grossTotal:
+          type: string
+          description: Sum of all line gross amounts (= total due)
+        paidAmount:
+          type: string
+          description: Total amount paid against this document
+          nullable: true
+        qrReference:
+          type: string
+          description: Swiss QR payment slip reference number (invoices only)
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        internalNotes:
+          type: string
+          nullable: true
+        intakeSource:
+          $ref: '#/components/schemas/IntakeSource'
+          nullable: true
+        donorId:
+          type: string
+          format: uuid
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    DocumentWithItems:
+      allOf:
+        - $ref: '#/components/schemas/Document'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/DocumentItem'
+            payments:
+              type: array
+              items:
+                $ref: '#/components/schemas/DocumentPayment'
+
+    CreateDocumentRequest:
+      type: object
+      required: [type, items]
+      properties:
+        type:
+          $ref: '#/components/schemas/DocumentType'
+        contactId:
+          type: string
+          format: uuid
+          nullable: true
+          description: UUID of an existing contact. Mutually exclusive with contactName.
+        contactName:
+          type: string
+          description: |
+            Human-readable contact name. Used instead of contactId by external
+            integrations. The API resolves or creates the contact automatically.
+        contactEmail:
+          type: string
+          format: email
+          description: Used with contactName for more precise contact resolution.
+        projectId:
+          type: string
+          format: uuid
+          nullable: true
+        issueDate:
+          type: string
+          format: date
+          description: Defaults to today if omitted
+        dueDate:
+          type: string
+          format: date
+          nullable: true
+        deliveryDate:
+          type: string
+          format: date
+          nullable: true
+        currency:
+          type: string
+          default: CHF
+        notes:
+          type: string
+          maxLength: 5000
+          nullable: true
+        internalNotes:
+          type: string
+          maxLength: 5000
+          nullable: true
+        intakeSource:
+          $ref: '#/components/schemas/IntakeSource'
+          nullable: true
+        donorId:
+          type: string
+          format: uuid
+          nullable: true
+        items:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/DocumentItemInput'
+
+    UpdateDocumentRequest:
+      type: object
+      description: Update document fields and/or replace line items
+      properties:
+        contactId:
+          type: string
+          format: uuid
+          nullable: true
+        projectId:
+          type: string
+          format: uuid
+          nullable: true
+        issueDate:
+          type: string
+          format: date
+        dueDate:
+          type: string
+          format: date
+          nullable: true
+        deliveryDate:
+          type: string
+          format: date
+          nullable: true
+        currency:
+          type: string
+        notes:
+          type: string
+          maxLength: 5000
+          nullable: true
+        internalNotes:
+          type: string
+          maxLength: 5000
+          nullable: true
+        items:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/DocumentItemInput'
+          description: When provided, replaces all existing line items
+
+    UpdateDocumentStatusRequest:
+      type: object
+      required: [status]
+      description: Send only this field to trigger a status transition
+      properties:
+        status:
+          $ref: '#/components/schemas/DocumentStatus'
+
+    DocumentPayment:
+      type: object
+      required: [id, documentId, amount, date, method, createdAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        documentId:
+          type: string
+          format: uuid
+        amount:
+          type: string
+          description: Decimal string in CHF
+          example: "199.00"
+        date:
+          type: string
+          format: date
+          example: "2026-04-13"
+        method:
+          $ref: '#/components/schemas/PaymentMethod'
+        reference:
+          type: string
+          nullable: true
+          description: Bank reference, transaction ID, or other identifier
+        bankTransactionId:
+          type: string
+          format: uuid
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    RecordPaymentRequest:
+      type: object
+      required: [amount, date]
+      properties:
+        amount:
+          type: string
+          pattern: '^\d+(\.\d{1,2})?$'
+          description: Payment amount as decimal string
+          example: "199.00"
+        date:
+          type: string
+          pattern: '^\d{4}-\d{2}-\d{2}$'
+          description: Payment date (YYYY-MM-DD)
+          example: "2026-04-13"
+        method:
+          $ref: '#/components/schemas/PaymentMethod'
+          description: Defaults to bank_transfer if omitted
+        reference:
+          type: string
+          maxLength: 200
+          nullable: true
+          description: Bank reference or transaction identifier
+
+  # ----------------------------------------------------------------------------
+  # Schemas — Inventory Item
+  # ----------------------------------------------------------------------------
+
+    InventoryItem:
+      type: object
+      required: [id, companyId, itemNumber, description, condition, status, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        companyId:
+          type: string
+          format: uuid
+        itemNumber:
+          type: string
+          description: Auto-generated item number
+          example: IV-2026-00001
+        description:
+          type: string
+        productId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Link to catalog product (if this is a known SKU)
+        warehouseId:
+          type: string
+          format: uuid
+          nullable: true
+        condition:
+          $ref: '#/components/schemas/ItemCondition'
+        status:
+          $ref: '#/components/schemas/ItemStatus'
+        intakeDocumentId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Intake document that created this item
+        donorContactId:
+          type: string
+          format: uuid
+          nullable: true
+        saleDocumentId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Invoice that sold this item
+        estimatedValue:
+          type: string
+          nullable: true
+          description: Acquisition cost estimate (decimal string in CHF)
+        askingPrice:
+          type: string
+          nullable: true
+          description: Asking / sticker price (decimal string in CHF)
+        minPrice:
+          type: string
+          nullable: true
+          description: Minimum acceptable price (decimal string in CHF)
+        soldPrice:
+          type: string
+          nullable: true
+          description: Actual sale price (set when status transitions to sold)
+        repairCost:
+          type: string
+          nullable: true
+          description: Accumulated repair cost (decimal string in CHF)
+        repairHours:
+          type: string
+          nullable: true
+          description: Accumulated repair hours (decimal string)
+        repairLog:
+          type: string
+          nullable: true
+          description: Chronological repair notes (newline-delimited entries)
+        serialNumber:
+          type: string
+          nullable: true
+        location:
+          type: string
+          nullable: true
+          description: Physical shelf/bin location within the warehouse
+        specs:
+          type: object
+          nullable: true
+          description: Flexible key-value technical specifications
+          additionalProperties:
+            type: string
+          example:
+            RAM: "8GB"
+            Storage: "256GB SSD"
+            CPU: "Intel i5"
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    InventoryItemWithDetails:
+      allOf:
+        - $ref: '#/components/schemas/InventoryItem'
+        - type: object
+          properties:
+            productName:
+              type: string
+              nullable: true
+              description: Denormalized name from linked product
+            warehouseName:
+              type: string
+              nullable: true
+              description: Denormalized name from linked warehouse
+            donorName:
+              type: string
+              nullable: true
+              description: Denormalized name from linked donor contact
+            effectiveCost:
+              type: string
+              nullable: true
+              description: |
+                Derived cost basis: estimatedValue + repairCost. Useful for
+                margin calculation at point of sale.
+
+    CreateInventoryItemRequest:
+      type: object
+      required: [description]
+      properties:
+        description:
+          type: string
+          minLength: 1
+          maxLength: 500
+        productId:
+          type: string
+          format: uuid
+          nullable: true
+        warehouseId:
+          type: string
+          format: uuid
+          nullable: true
+        condition:
+          $ref: '#/components/schemas/ItemCondition'
+          description: Defaults to untested
+        intakeDocumentId:
+          type: string
+          format: uuid
+          nullable: true
+        donorContactId:
+          type: string
+          format: uuid
+          nullable: true
+        estimatedValue:
+          type: string
+          nullable: true
+          description: Decimal string in CHF
+        askingPrice:
+          type: string
+          nullable: true
+          description: Decimal string in CHF
+        minPrice:
+          type: string
+          nullable: true
+          description: Decimal string in CHF
+        notes:
+          type: string
+          maxLength: 5000
+          nullable: true
+        specs:
+          type: object
+          nullable: true
+          additionalProperties:
+            type: string
+        serialNumber:
+          type: string
+          maxLength: 200
+          nullable: true
+        location:
+          type: string
+          maxLength: 200
+          nullable: true
+
+    PatchInventoryItemRequest:
+      type: object
+      description: All fields optional. Include `status` to trigger a lifecycle transition.
+      properties:
+        description:
+          type: string
+          minLength: 1
+          maxLength: 500
+        productId:
+          type: string
+          format: uuid
+          nullable: true
+        warehouseId:
+          type: string
+          format: uuid
+          nullable: true
+        condition:
+          $ref: '#/components/schemas/ItemCondition'
+        status:
+          $ref: '#/components/schemas/ItemStatus'
+          description: Triggers a validated status transition
+        intakeDocumentId:
+          type: string
+          format: uuid
+          nullable: true
+        donorContactId:
+          type: string
+          format: uuid
+          nullable: true
+        estimatedValue:
+          type: string
+          nullable: true
+        askingPrice:
+          type: string
+          nullable: true
+        minPrice:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          maxLength: 5000
+          nullable: true
+        specs:
+          type: object
+          nullable: true
+          additionalProperties:
+            type: string
+        serialNumber:
+          type: string
+          maxLength: 200
+          nullable: true
+        location:
+          type: string
+          maxLength: 200
+          nullable: true
