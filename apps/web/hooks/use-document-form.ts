@@ -115,13 +115,18 @@ export function useDocumentForm(
 
   /** Bulk-add items from AI extraction. Replaces empty initial items. */
   const addItemsBulk = (
-    newItems: Array<{ description: string; quantity: string }>,
+    newItems: Array<{
+      description: string;
+      quantity: string;
+      unitPrice?: string;
+    }>,
   ) => {
     const hasExisting = items.some((i) => i.description.trim());
     const bulkItems: LineItem[] = newItems.map((item) => ({
       ...emptyItem(),
       description: item.description,
       quantity: item.quantity,
+      ...(item.unitPrice ? { unitPrice: item.unitPrice } : {}),
     }));
 
     if (!hasExisting) {

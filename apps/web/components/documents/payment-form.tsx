@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { CreditCard, AlertTriangle } from "lucide-react";
+import { CreditCard, AlertTriangle, Loader2 } from "lucide-react";
 import { recordPaymentAction } from "@/app/actions/documents";
 import { FormInput, FormSelect } from "@/components/ui/form-field";
 import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
@@ -156,8 +156,9 @@ export function PaymentForm({
         <button
           type="submit"
           disabled={isPending}
-          className="flex-1 rounded-lg bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
+          className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
         >
+          {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
           {isPending ? tc("saving") : t("savePayment")}
         </button>
         <button

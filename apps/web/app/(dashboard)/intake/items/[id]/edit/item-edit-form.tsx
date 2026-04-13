@@ -27,6 +27,7 @@ import {
 } from "@/lib/config/inventory-items";
 import { useTranslations } from "next-intl";
 import { ItemPhotoUpload } from "@/components/inventory/item-photo-upload";
+import { ItemSpecsEditor } from "@/components/inventory/item-specs-editor";
 import { toast } from "sonner";
 
 interface ItemEditFormProps {
@@ -46,6 +47,7 @@ interface ItemEditFormProps {
     repairHours: string | null;
     repairLog: string | null;
     photoBase64: string | null;
+    specs?: Record<string, string> | null;
   };
 }
 
@@ -89,6 +91,15 @@ export function ItemEditForm({ item: initialItem }: ItemEditFormProps) {
         }
       }
 
+      const specsRaw = formData.get("specs") as string;
+      let specs: Record<string, string> | null = null;
+      try {
+        const parsed = JSON.parse(specsRaw);
+        specs = Object.keys(parsed).length > 0 ? parsed : null;
+      } catch {
+        /* ignore malformed */
+      }
+
       const result = await updateInventoryItemAction(item.id, {
         description: formData.get("description") as string,
         askingPrice: (formData.get("askingPrice") as string) || null,
@@ -97,6 +108,7 @@ export function ItemEditForm({ item: initialItem }: ItemEditFormProps) {
         serialNumber: (formData.get("serialNumber") as string) || null,
         location: (formData.get("location") as string) || null,
         notes: (formData.get("notes") as string) || null,
+        specs,
       });
 
       if (result.success) {
@@ -218,6 +230,10 @@ export function ItemEditForm({ item: initialItem }: ItemEditFormProps) {
               />
             </div>
           </div>
+        </CardSection>
+
+        <CardSection title={ti("specifications")}>
+          <ItemSpecsEditor initialSpecs={item.specs} />
         </CardSection>
 
         <CardSection title={ti("pricing")}>

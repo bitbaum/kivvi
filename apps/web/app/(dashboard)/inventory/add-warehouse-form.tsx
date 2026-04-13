@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { createWarehouseAction } from "@/app/actions/inventory";
 import { FormInput } from "@/components/ui/form-field";
@@ -112,8 +112,9 @@ export function AddWarehouseForm() {
             <button
               type="submit"
               disabled={isPending}
-              className="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
+              {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
               {isPending ? tc("creating") : tc("create")}
             </button>
             <button

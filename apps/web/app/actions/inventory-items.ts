@@ -26,6 +26,7 @@ import {
   formatZodError,
 } from "./utils";
 import { revalidatePath } from "next/cache";
+import { dispatchWebhookEvent } from "@kivvi/core/src/domain/webhooks";
 
 export async function createInventoryItemAction(
   input: unknown,
@@ -39,6 +40,17 @@ export async function createInventoryItemAction(
     const item = await db.transaction(async (tx) => {
       return createInventoryItem(tx, companyId, parsed.data);
     });
+
+    // Non-blocking: fire webhook event so connected systems (RevampIT, etc.) know
+    dispatchWebhookEvent(db, companyId, "inventory_item.created", {
+      id: item.id,
+      itemNumber: item.itemNumber,
+      description: item.description,
+      condition: item.condition,
+      status: item.status,
+      warehouseId: item.warehouseId,
+      askingPrice: item.askingPrice,
+    }).catch(() => {});
 
     revalidatePath("/intake");
     return {
@@ -94,6 +106,12 @@ export async function updateItemStatusAction(
     const item = await db.transaction(async (tx) => {
       return updateItemStatus(tx, companyId, itemId, parsed.data.newStatus);
     });
+
+    dispatchWebhookEvent(db, companyId, "inventory_item.status_changed", {
+      id: item.id,
+      itemNumber: item.itemNumber,
+      status: item.status,
+    }).catch(() => {});
 
     revalidatePath("/intake");
     return { success: true, data: { id: item.id, status: item.status } };

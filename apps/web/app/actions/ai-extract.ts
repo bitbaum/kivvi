@@ -2,9 +2,14 @@
 
 import { type ActionResult, requireRole, safeErrorMessage } from "./utils";
 
-interface ExtractedItem {
+export interface ExtractedItem {
+  brand: string; // e.g. "Lenovo", "Dell", "HP" — empty if unknown
+  model: string; // product name without brand, e.g. "ThinkPad T480"
+  quantity: string; // default "1"
+  category: string; // laptop|desktop|monitor|tablet|phone|keyboard|mouse|printer|other
+  estimatedPrice: string; // CHF, empty if unknown
+  // description = brand + model, for backward compat with the document form
   description: string;
-  quantity: string;
 }
 
 interface ExtractionResult {
@@ -13,15 +18,15 @@ interface ExtractionResult {
 }
 
 /**
- * Extract structured line items from natural language text.
- * Uses a simple prompt to the AI provider — no conversation state needed.
+ * Extract structured line items from natural language text for a secondhand goods intake.
+ * Returns brand, model, quantity, category, and estimated price per item.
  *
  * Examples:
- * "50 Lenovo ThinkCentre M82, 30 Dell OptiPlex 390, 20 HP EliteDesk 800"
- * → [{description: "Lenovo ThinkCentre M82", quantity: "50"}, ...]
+ * "50 Lenovo ThinkPad T480, 30 Dell OptiPlex 390"
+ * → [{brand:"Lenovo", model:"ThinkPad T480", quantity:"50", category:"laptop", estimatedPrice:""}]
  *
- * "Diverse Tastaturen und Mäuse, ca. 200 Stück. 15 Monitore Dell 24 Zoll."
- * → [{description: "Tastaturen und Mäuse (diverse)", quantity: "200"}, {description: 'Monitor Dell 24"', quantity: "15"}]
+ * "Ein MacBook Pro 2019, 150.-"
+ * → [{brand:"Apple", model:"MacBook Pro 2019", quantity:"1", category:"laptop", estimatedPrice:"150"}]
  */
 export async function extractItemsFromTextAction(
   text: string,
@@ -41,14 +46,12 @@ export async function extractItemsFromTextAction(
       process.env.OPENROUTER_API_KEY;
 
     if (!apiKey) {
-      // Fallback: simple regex-based parsing (no AI available)
       return {
         success: true,
         data: { items: parseItemsSimple(text), rawResponse: "regex" },
       };
     }
 
-    // Use Groq for speed (or fallback to others)
     const provider = process.env.GROQ_API_KEY
       ? "groq"
       : process.env.XAI_API_KEY
@@ -60,7 +63,6 @@ export async function extractItemsFromTextAction(
     const items = await extractWithAI(text, provider, apiKey);
     return { success: true, data: { items, rawResponse: "ai" } };
   } catch (error) {
-    // Fallback to simple parsing on any AI error
     try {
       return {
         success: true,
@@ -81,17 +83,25 @@ async function extractWithAI(
   provider: string,
   apiKey: string,
 ): Promise<ExtractedItem[]> {
-  const systemPrompt = `You extract inventory items from natural language text. Return ONLY a JSON array of objects with "description" (string) and "quantity" (string, default "1"). No markdown, no explanation, just the JSON array.
+  const systemPrompt = `You extract inventory items from natural language text for a secondhand goods store.
+Return ONLY a JSON array. No markdown, no explanation.
+
+Each item: {"brand","model","quantity","category","estimatedPrice"}
+- brand: manufacturer (e.g. "Lenovo", "Dell", "HP", "Apple") or "" if unknown
+- model: product name without brand (e.g. "ThinkPad T480", "OptiPlex 390")
+- quantity: number as string, default "1"
+- category: one of laptop|desktop|monitor|tablet|phone|keyboard|mouse|printer|other
+- estimatedPrice: resale price in CHF as string (digits only), "" if unknown
 
 Examples:
-Input: "50 Lenovo ThinkCentre M82, 30 Dell OptiPlex"
-Output: [{"description":"Lenovo ThinkCentre M82","quantity":"50"},{"description":"Dell OptiPlex","quantity":"30"}]
+Input: "50 Lenovo ThinkPad T480, 30 Dell OptiPlex 390"
+Output: [{"brand":"Lenovo","model":"ThinkPad T480","quantity":"50","category":"laptop","estimatedPrice":""},{"brand":"Dell","model":"OptiPlex 390","quantity":"30","category":"desktop","estimatedPrice":""}]
+
+Input: "Ein MacBook Pro 2019, 150.-"
+Output: [{"brand":"Apple","model":"MacBook Pro 2019","quantity":"1","category":"laptop","estimatedPrice":"150"}]
 
 Input: "Diverse Tastaturen ca 200 Stk, 15 Monitore Dell 24 Zoll"
-Output: [{"description":"Tastaturen (diverse)","quantity":"200"},{"description":"Monitor Dell 24 Zoll","quantity":"15"}]
-
-Input: "Ein MacBook Pro 2019, guter Zustand"
-Output: [{"description":"MacBook Pro 2019","quantity":"1"}]`;
+Output: [{"brand":"","model":"Tastaturen (diverse)","quantity":"200","category":"keyboard","estimatedPrice":""},{"brand":"Dell","model":"Monitor 24 Zoll","quantity":"15","category":"monitor","estimatedPrice":""}]`;
 
   let url: string;
   let headers: Record<string, string>;
@@ -183,29 +193,49 @@ Output: [{"description":"MacBook Pro 2019","quantity":"1"}]`;
   if (!jsonMatch) return parseItemsSimple(text);
 
   const parsed = JSON.parse(jsonMatch[0]) as Array<{
-    description?: string;
+    brand?: string;
+    model?: string;
     quantity?: string;
+    category?: string;
+    estimatedPrice?: string;
   }>;
   return parsed
-    .filter((item) => item.description)
-    .map((item) => ({
-      description: item.description!.trim(),
-      quantity: String(item.quantity || "1"),
-    }));
+    .filter((item) => item.brand || item.model)
+    .map((item) => {
+      const brand = (item.brand || "").trim();
+      const model = (item.model || "").trim();
+      return {
+        brand,
+        model,
+        description: [brand, model].filter(Boolean).join(" "),
+        quantity: String(item.quantity || "1"),
+        category: item.category || "other",
+        estimatedPrice: item.estimatedPrice || "",
+      };
+    });
+}
+
+function makeItem(description: string, quantity: string): ExtractedItem {
+  return {
+    brand: "",
+    model: description,
+    description,
+    quantity,
+    category: "other",
+    estimatedPrice: "",
+  };
 }
 
 /** Simple regex/split-based fallback when no AI is available */
 function parseItemsSimple(text: string): ExtractedItem[] {
   const items: ExtractedItem[] = [];
 
-  // Split by newlines, commas, or semicolons
   const lines = text
     .split(/[,;\n]+/)
     .map((l) => l.trim())
     .filter((l) => l.length > 0);
 
   for (const line of lines) {
-    // Try to extract quantity: "50 Lenovo ThinkCentre" or "Lenovo ThinkCentre x50" or "Lenovo ThinkCentre (50)"
     const qtyPrefixMatch = line.match(/^(\d+)\s*[xX×]?\s+(.+)/);
     const qtySuffixMatch = line.match(/(.+?)\s*[xX×]\s*(\d+)\s*$/);
     const qtyParenMatch = line.match(
@@ -216,27 +246,15 @@ function parseItemsSimple(text: string): ExtractedItem[] {
     );
 
     if (qtyPrefixMatch) {
-      items.push({
-        description: qtyPrefixMatch[2].trim(),
-        quantity: qtyPrefixMatch[1],
-      });
+      items.push(makeItem(qtyPrefixMatch[2].trim(), qtyPrefixMatch[1]));
     } else if (qtySuffixMatch) {
-      items.push({
-        description: qtySuffixMatch[1].trim(),
-        quantity: qtySuffixMatch[2],
-      });
+      items.push(makeItem(qtySuffixMatch[1].trim(), qtySuffixMatch[2]));
     } else if (qtyParenMatch) {
-      items.push({
-        description: qtyParenMatch[1].trim(),
-        quantity: qtyParenMatch[2],
-      });
+      items.push(makeItem(qtyParenMatch[1].trim(), qtyParenMatch[2]));
     } else if (qtyStkMatch) {
-      items.push({
-        description: qtyStkMatch[1].trim(),
-        quantity: qtyStkMatch[2],
-      });
+      items.push(makeItem(qtyStkMatch[1].trim(), qtyStkMatch[2]));
     } else {
-      items.push({ description: line, quantity: "1" });
+      items.push(makeItem(line, "1"));
     }
   }
 

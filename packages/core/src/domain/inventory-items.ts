@@ -1,4 +1,5 @@
 import { z } from "zod";
+import Decimal from "decimal.js";
 import { eq, and, ilike, desc, asc, sql, count, inArray } from "drizzle-orm";
 import {
   inventoryItems,
@@ -73,9 +74,9 @@ export function calculateEffectiveCost(item: {
   repairCost: string | null;
 }): string | null {
   if (!item.estimatedValue && !item.repairCost) return null;
-  const base = item.estimatedValue ? parseFloat(item.estimatedValue) : 0;
-  const repairs = item.repairCost ? parseFloat(item.repairCost) : 0;
-  return (base + repairs).toFixed(2);
+  const base = new Decimal(item.estimatedValue ?? "0");
+  const repairs = new Decimal(item.repairCost ?? "0");
+  return base.plus(repairs).toDecimalPlaces(2).toString();
 }
 
 export interface PaginatedInventoryItems {
@@ -316,21 +317,19 @@ export async function recordRepair(
   if (!current) throw new Error("Inventory item not found");
 
   // Accumulate cost
-  const currentCost = current.repairCost ? parseFloat(current.repairCost) : 0;
-  const addedCost = parseFloat(input.cost);
-  const newCost = (currentCost + addedCost).toFixed(2);
+  const currentCost = new Decimal(current.repairCost ?? "0");
+  const addedCost = new Decimal(input.cost);
+  const newCost = currentCost.plus(addedCost).toDecimalPlaces(2).toString();
 
   // Accumulate hours
-  const currentHours = current.repairHours
-    ? parseFloat(current.repairHours)
-    : 0;
-  const addedHours = input.hours ? parseFloat(input.hours) : 0;
-  const newHours = (currentHours + addedHours).toFixed(2);
+  const currentHours = new Decimal(current.repairHours ?? "0");
+  const addedHours = new Decimal(input.hours ?? "0");
+  const newHours = currentHours.plus(addedHours).toDecimalPlaces(2).toString();
 
   // Append to log with timestamp
   const date = new Date().toISOString().split("T")[0];
-  const entry = `${date} — CHF ${addedCost.toFixed(2)}${
-    addedHours > 0 ? ` / ${addedHours}h` : ""
+  const entry = `${date} — CHF ${addedCost.toDecimalPlaces(2).toString()}${
+    addedHours.greaterThan(0) ? ` / ${addedHours}h` : ""
   }${input.note ? `: ${input.note}` : ""}`;
   const newLog = current.repairLog ? `${current.repairLog}\n${entry}` : entry;
 

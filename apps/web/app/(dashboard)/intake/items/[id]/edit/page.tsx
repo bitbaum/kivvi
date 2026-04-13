@@ -51,6 +51,7 @@ export default async function EditInventoryItemPage({ params }: PageProps) {
           repairHours: item.repairHours,
           repairLog: item.repairLog,
           photoBase64: item.photoBase64,
+          specs: (item.specs as Record<string, string>) || null,
         }}
       />
     </div>

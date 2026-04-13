@@ -3,7 +3,7 @@
 import { useState, useTransition, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { ArrowLeft, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { updateDocumentAction } from "@/app/actions/documents";
 import type { DocumentTypeConfig } from "@/lib/config/document-types";
@@ -412,7 +412,10 @@ export function EditDocumentForm({
               className="mt-6 w-full rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
               {isPending ? (
-                tc("saving")
+                <span className="flex items-center justify-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  {tc("saving")}
+                </span>
               ) : (
                 <span className="flex items-center justify-center gap-2">
                   {tc("saveChanges")}

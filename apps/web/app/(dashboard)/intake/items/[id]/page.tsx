@@ -26,6 +26,7 @@ import {
   getStatusLabelKey,
   getConditionLabelKey,
 } from "@/lib/config/inventory-items";
+import { ItemTimeline } from "@/components/inventory/item-timeline";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -46,7 +47,7 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
   const specs = (item.specs as Record<string, string>) || {};
 
   // Generate QR code for label
-  const baseUrl = process.env.NEXTAUTH_URL || "https://app.kivvi.ch";
+  const baseUrl = process.env.NEXTAUTH_URL || "https://kivvi.vercel.app";
   const qrDataUrl = await generateQrDataUrl(`${baseUrl}/intake/items/${id}`);
 
   // Build prefill URL for the "Sell" button: creates an invoice pre-filled with this item
@@ -295,24 +296,19 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
             </div>
           </CardSection>
 
-          {/* Repair log */}
-          {item.repairLog && (
-            <CardSection title={ti("repairLog")}>
-              <div className="space-y-1 text-xs">
-                {item.repairHours && parseFloat(item.repairHours) > 0 && (
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="text-muted-foreground">
-                      {ti("totalHours")}
-                    </span>
-                    <span className="font-medium">{item.repairHours}h</span>
-                  </div>
-                )}
-                <pre className="whitespace-pre-wrap rounded bg-muted/30 p-2 font-mono text-[11px]">
-                  {item.repairLog}
-                </pre>
-              </div>
-            </CardSection>
-          )}
+          {/* Item lifecycle timeline */}
+          <CardSection title={ti("lifecycle")}>
+            <ItemTimeline
+              createdAt={item.createdAt}
+              donorName={item.donorName}
+              repairLog={item.repairLog}
+              repairCost={item.repairCost}
+              status={item.status}
+              soldPrice={item.soldPrice}
+              condition={item.condition}
+              conditionLabel={ti(getConditionLabelKey(item.condition))}
+            />
+          </CardSection>
 
           {/* Provenance */}
           <CardSection title={ti("provenance")}>

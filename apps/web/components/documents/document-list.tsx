@@ -8,6 +8,7 @@ import type { DocumentListItem } from "@kivvi/core/src/domain/documents";
 import { documentStatusEnum } from "@kivvi/database";
 import { SelectableDocumentTable } from "./selectable-document-table";
 import { cn } from "@/lib/utils";
+import { EmptyState } from "@/components/empty-state";
 
 interface DocumentListProps {
   config: DocumentTypeConfig;
@@ -152,26 +153,25 @@ export async function DocumentList({
       {/* Table */}
       <div className="rounded-xl border bg-card">
         {result.data.length === 0 ? (
-          <div className="p-12 text-center text-muted-foreground">
-            <FileText className="mx-auto mb-3 h-10 w-10" />
-            <p className="text-lg font-medium">
-              {t("noDocumentsFound", { type: t(config.labelPlural) })}
-            </p>
-            <p className="mt-1 text-sm">
-              {search || status
+          <EmptyState
+            icon={search || status ? Search : FileText}
+            title={t("noDocumentsFound", { type: t(config.labelPlural) })}
+            description={
+              search || status
                 ? t("adjustFilters")
-                : t("createFirst", { type: t(config.label) })}
-            </p>
-            {!search && !status && config.canCreate && (
-              <Link
-                href={`${config.basePath}/new`}
-                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-              >
-                <Plus className="h-4 w-4" />
-                {t("newDocument", { type: t(config.label) })}
-              </Link>
-            )}
-          </div>
+                : t("createFirst", { type: t(config.label) })
+            }
+            actionLabel={
+              !search && !status && config.canCreate
+                ? t("newDocument", { type: t(config.label) })
+                : undefined
+            }
+            actionHref={
+              !search && !status && config.canCreate
+                ? `${config.basePath}/new`
+                : undefined
+            }
+          />
         ) : (
           <SelectableDocumentTable
             config={config}

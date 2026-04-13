@@ -4,7 +4,7 @@ import { useTransition, useState, useEffect, useCallback, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import Decimal from "decimal.js";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, Plus, Loader2 } from "lucide-react";
 import Link from "next/link";
 import {
   DndContext,
@@ -475,7 +475,10 @@ export function DocumentForm({ type }: DocumentFormProps) {
               className="mt-6 w-full rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
               {isPending ? (
-                tc("creating")
+                <span className="flex items-center justify-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  {tc("creating")}
+                </span>
               ) : (
                 <span className="flex items-center justify-center gap-2">
                   {t("newDocument", { type: t(config.label) })}
