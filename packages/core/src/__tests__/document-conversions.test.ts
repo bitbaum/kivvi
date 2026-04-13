@@ -104,6 +104,7 @@ describe("DOCUMENT_TYPE_LABELS_DE", () => {
       "dunning",
       "purchase_order",
       "purchase_invoice",
+      "intake",
     ];
     expect(Object.keys(DOCUMENT_TYPE_LABELS_DE).sort()).toEqual(
       expectedTypes.sort(),
