@@ -26,6 +26,7 @@ export function CopyButton({
       onClick={handleCopy}
       type="button"
       title={label || "Copy"}
+      aria-label={label || "Copy to clipboard"}
       className="inline-flex h-6 w-6 items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
     >
       {copied ? (
