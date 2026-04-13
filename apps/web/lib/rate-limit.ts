@@ -45,7 +45,7 @@ export const RATE_LIMITS = {
  */
 export function checkRateLimit(
   key: string,
-  config: RateLimitConfig
+  config: RateLimitConfig,
 ): { allowed: true } | { allowed: false; retryAfterMs: number } {
   cleanup();
 
@@ -59,7 +59,10 @@ export function checkRateLimit(
 
   // Refill tokens based on elapsed time
   const elapsed = (now - entry.lastRefill) / 1000;
-  entry.tokens = Math.min(config.maxTokens, entry.tokens + elapsed * config.refillRate);
+  entry.tokens = Math.min(
+    config.maxTokens,
+    entry.tokens + elapsed * config.refillRate,
+  );
   entry.lastRefill = now;
 
   if (entry.tokens >= 1) {
@@ -76,13 +79,14 @@ export function checkRateLimit(
  * Get the rate limit config for a given pathname.
  */
 export function getRateLimitConfig(pathname: string): RateLimitConfig {
-  if (pathname === '/register') {
+  // Strict auth limits: registration and password-reset trigger side-effects (email)
+  if (pathname === "/register" || pathname === "/forgot-password") {
     return RATE_LIMITS.auth;
   }
-  if (pathname === '/login' || pathname.startsWith('/api/auth/callback')) {
+  if (pathname === "/login" || pathname.startsWith("/api/auth/callback")) {
     return RATE_LIMITS.login;
   }
-  if (pathname.startsWith('/api/chat')) {
+  if (pathname.startsWith("/api/chat")) {
     return RATE_LIMITS.chat;
   }
   return RATE_LIMITS.default;

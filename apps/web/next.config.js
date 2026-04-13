@@ -15,6 +15,17 @@ const nextConfig = {
   },
   async headers() {
     return [
+      // CORS for the public REST API — allows server-to-server calls from
+      // RevampIT backend, future WooCommerce plugins, and other integrations.
+      {
+        source: '/api/v1/:path*',
+        headers: [
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+          { key: 'Access-Control-Allow-Methods', value: 'GET, POST, PUT, PATCH, DELETE, OPTIONS' },
+          { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' },
+          { key: 'Access-Control-Max-Age', value: '86400' },
+        ],
+      },
       {
         source: '/((?!_next/static|_next/image|favicon.ico).*)',
         headers: [

@@ -13,6 +13,7 @@ const PUBLIC_PATHS = [
 // Landing pages are public — all start with these prefixes
 const PUBLIC_PREFIXES = [
   "/api/auth",
+  "/api/health",
   "/api/v1",
   "/onboarding",
   "/invite",
@@ -38,6 +39,20 @@ function getClientIp(req: { headers: Headers }): string {
 export default auth((req) => {
   const { pathname } = req.nextUrl;
   const isAuthenticated = !!req.auth;
+
+  // Handle CORS preflight for the public REST API
+  if (req.method === "OPTIONS" && pathname.startsWith("/api/v1")) {
+    return new NextResponse(null, {
+      status: 204,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods":
+          "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Access-Control-Max-Age": "86400",
+      },
+    });
+  }
 
   // Rate limiting
   const ip = getClientIp(req);
