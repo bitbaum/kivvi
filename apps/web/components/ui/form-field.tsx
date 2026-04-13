@@ -1,5 +1,5 @@
-import { Children, cloneElement, isValidElement } from 'react';
-import { cn } from '@/lib/utils';
+import React, { Children, cloneElement, isValidElement } from "react";
+import { cn } from "@/lib/utils";
 
 interface FormFieldProps {
   label: string;
@@ -27,17 +27,20 @@ export function FormField({
   const errorMessage = hasError ? error[0] : undefined;
   const errorId = `${name}-error`;
   const descriptionId = `${name}-description`;
-  const describedBy = [
-    description ? descriptionId : null,
-    hasError ? errorId : null,
-  ].filter(Boolean).join(' ') || undefined;
+  const describedBy =
+    [description ? descriptionId : null, hasError ? errorId : null]
+      .filter(Boolean)
+      .join(" ") || undefined;
 
   // Inject aria-describedby into the first child element
   const enhancedChildren = describedBy
     ? Children.map(children, (child, index) =>
         index === 0 && isValidElement<Record<string, unknown>>(child)
-          ? cloneElement(child, { 'aria-describedby': describedBy } as Record<string, unknown>)
-          : child
+          ? cloneElement(child, { "aria-describedby": describedBy } as Record<
+              string,
+              unknown
+            >)
+          : child,
       )
     : children;
 
@@ -49,10 +52,17 @@ export function FormField({
       </label>
 
       {description && (
-        <p id={descriptionId} className="text-xs text-muted-foreground">{description}</p>
+        <p id={descriptionId} className="text-xs text-muted-foreground">
+          {description}
+        </p>
       )}
 
-      <div className={cn(hasError && "[&_input]:border-destructive [&_select]:border-destructive [&_textarea]:border-destructive")}>
+      <div
+        className={cn(
+          hasError &&
+            "[&_input]:border-destructive [&_select]:border-destructive [&_textarea]:border-destructive",
+        )}
+      >
         {enhancedChildren}
       </div>
 
@@ -72,18 +82,22 @@ interface FormFieldInputProps extends React.InputHTMLAttributes<HTMLInputElement
 /**
  * Input component with error styling.
  */
-export function FormInput({ error, className, ...props }: FormFieldInputProps) {
+export const FormInput = React.forwardRef<
+  HTMLInputElement,
+  FormFieldInputProps
+>(function FormInput({ error, className, ...props }, ref) {
   return (
     <input
+      ref={ref}
       className={cn(
         "w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary disabled:opacity-50",
         error && "border-destructive focus:ring-destructive",
-        className
+        className,
       )}
       {...props}
     />
   );
-}
+});
 
 interface FormFieldTextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   error?: boolean;
@@ -92,13 +106,17 @@ interface FormFieldTextareaProps extends React.TextareaHTMLAttributes<HTMLTextAr
 /**
  * Textarea component with error styling.
  */
-export function FormTextarea({ error, className, ...props }: FormFieldTextareaProps) {
+export function FormTextarea({
+  error,
+  className,
+  ...props
+}: FormFieldTextareaProps) {
   return (
     <textarea
       className={cn(
         "w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary disabled:opacity-50",
         error && "border-destructive focus:ring-destructive",
-        className
+        className,
       )}
       {...props}
     />
@@ -112,13 +130,18 @@ interface FormFieldSelectProps extends React.SelectHTMLAttributes<HTMLSelectElem
 /**
  * Select component with error styling.
  */
-export function FormSelect({ error, className, children, ...props }: FormFieldSelectProps) {
+export function FormSelect({
+  error,
+  className,
+  children,
+  ...props
+}: FormFieldSelectProps) {
   return (
     <select
       className={cn(
         "w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary disabled:opacity-50",
         error && "border-destructive focus:ring-destructive",
-        className
+        className,
       )}
       {...props}
     >

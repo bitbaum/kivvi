@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Send, CheckCircle2 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -23,14 +23,23 @@ export function SendEmailButton({
   const [email, setEmail] = useState(defaultEmail || "");
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
+  const emailInputRef = useRef<HTMLInputElement>(null);
 
   const t = useTranslations("documents");
   const tc = useTranslations("common");
+
+  // Move focus to email input when form opens
+  useEffect(() => {
+    if (isOpen && !sent) {
+      emailInputRef.current?.focus();
+    }
+  }, [isOpen, sent]);
 
   if (!isOpen) {
     return (
       <button
         onClick={() => setIsOpen(true)}
+        aria-expanded={false}
         className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm hover:bg-muted"
       >
         <Send className="h-4 w-4" />
@@ -70,7 +79,12 @@ export function SendEmailButton({
 
   return (
     <div className="flex items-center gap-2">
-      <form onSubmit={handleSubmit} className="flex items-center gap-2">
+      <form
+        onSubmit={handleSubmit}
+        className="flex items-center gap-2"
+        role="region"
+        aria-label={t("emailSend")}
+      >
         <FormInput
           type="email"
           value={email}
@@ -78,6 +92,7 @@ export function SendEmailButton({
           placeholder={t("emailPlaceholder")}
           required
           className="w-full sm:w-56"
+          ref={emailInputRef}
         />
         <button
           type="submit"

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { CreditCard, AlertTriangle, Loader2 } from "lucide-react";
@@ -25,6 +25,14 @@ export function PaymentForm({
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [amount, setAmount] = useState(outstanding);
+  const amountInputRef = useRef<HTMLInputElement>(null);
+
+  // Move focus to first input when form opens
+  useEffect(() => {
+    if (isOpen) {
+      amountInputRef.current?.focus();
+    }
+  }, [isOpen]);
 
   const isOverpayment = parseFloat(amount || "0") > parseFloat(outstanding);
 
@@ -32,6 +40,7 @@ export function PaymentForm({
     return (
       <button
         onClick={() => setIsOpen(true)}
+        aria-expanded={false}
         className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700"
       >
         <CreditCard className="h-4 w-4" />
@@ -65,7 +74,12 @@ export function PaymentForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-3"
+      role="region"
+      aria-label={t("recordPayment")}
+    >
       {/* Outstanding context */}
       <p className="text-xs text-muted-foreground">
         {t("outstanding")}:{" "}
@@ -94,6 +108,7 @@ export function PaymentForm({
           }
           required
           className="mt-1"
+          ref={amountInputRef}
         />
         {isOverpayment && (
           <p className="mt-1 flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
