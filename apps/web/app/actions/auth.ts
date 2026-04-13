@@ -9,7 +9,12 @@ import {
   createOwnedCompany,
   createCompanySchema,
 } from "@kivvi/core/src/domain/memberships";
+import {
+  getInvitationByToken,
+  acceptInvitation,
+} from "@kivvi/core/src/domain/invitations";
 import type { ActionResult } from "./utils";
+import { safeErrorMessage } from "./utils";
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -106,6 +111,84 @@ export async function registerAction(
     return {
       success: false,
       error: "Failed to create account",
+    };
+  }
+}
+
+const joinSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
+/**
+ * Register a new user by accepting an invitation — no company created.
+ * The invited company becomes the user's active company.
+ * Used by /invite/[token] for unauthenticated visitors.
+ */
+export async function registerAndAcceptInviteAction(
+  inviteToken: string,
+  input: unknown,
+): Promise<ActionResult<RegisterResult>> {
+  try {
+    const parsed = joinSchema.safeParse(input);
+    if (!parsed.success) {
+      return {
+        success: false,
+        error: parsed.error.errors[0]?.message || "Validation failed",
+      };
+    }
+
+    const { name, email, password } = parsed.data;
+
+    // Pre-validate invite before creating the user
+    const invitation = await getInvitationByToken(db, inviteToken);
+    if (!invitation || invitation.status !== "pending") {
+      return { success: false, error: "Invitation not found or already used" };
+    }
+    if (new Date(invitation.expiresAt) < new Date()) {
+      return { success: false, error: "This invitation has expired" };
+    }
+    if (email.toLowerCase() !== invitation.email.toLowerCase()) {
+      return {
+        success: false,
+        error: "Please use the email address this invitation was sent to",
+      };
+    }
+
+    // Check email not already taken
+    const existingUser = await db.query.users.findFirst({
+      where: eq(users.email, email.toLowerCase()),
+    });
+    if (existingUser) {
+      return {
+        success: false,
+        error: "An account with this email already exists",
+      };
+    }
+
+    // Create user (no companyId yet)
+    const passwordHash = await bcrypt.hash(password, 12);
+    const [user] = await db
+      .insert(users)
+      .values({ name, email: email.toLowerCase(), passwordHash })
+      .returning();
+
+    // Accept invite — sets companyId on the user atomically
+    const { companyId, companyName } = await acceptInvitation(
+      db,
+      inviteToken,
+      user.id,
+    );
+
+    return {
+      success: true,
+      data: { userId: user.id, companyId, email: user.email, companyName },
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to create account"),
     };
   }
 }

@@ -6,6 +6,10 @@ import { db } from "@/lib/db";
 import { companies } from "@kivvi/database";
 import type { CompanySettings } from "@kivvi/database";
 import { getDocument } from "@kivvi/core";
+import {
+  updateDocumentStatus,
+  isValidTransition,
+} from "@kivvi/core/src/domain/documents";
 import { generateInvoicePdf } from "@kivvi/core/src/domain/pdf-generation";
 import { buildInvoicePdfData } from "@/lib/pdf/build-pdf-data";
 import {
@@ -111,8 +115,15 @@ export async function sendDocumentEmailAction(
       ],
     });
 
-    // Revalidate the document detail page to reflect any future "last emailed" state
+    // Auto-transition to "sent" if the document is still in draft/confirmed
+    // (emailing IS the act of sending — no need for a separate status change)
+    if (isValidTransition(doc.status, "sent")) {
+      await updateDocumentStatus(db, companyId, parsed.data.documentId, "sent");
+    }
+
     revalidatePath(`/sales/invoices/${documentId}`);
+    revalidatePath(`/sales/quotes/${documentId}`);
+    revalidatePath(`/documents/${documentId}`);
 
     return { success: true, data: { messageId: info.messageId || "" } };
   } catch (error) {

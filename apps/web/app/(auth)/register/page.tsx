@@ -150,6 +150,9 @@ export default function RegisterPage() {
                   autoComplete="organization"
                   className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
+                <p className="mt-1.5 text-xs text-muted-foreground">
+                  {t("companyNameHint")}
+                </p>
               </div>
             </div>
 

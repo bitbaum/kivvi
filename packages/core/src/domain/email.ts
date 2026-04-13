@@ -298,6 +298,94 @@ export function buildInvitationEmailHtml(data: InvitationEmailData): string {
 }
 
 // ============================================================================
+// PAYMENT CONFIRMATION EMAIL
+// ============================================================================
+
+export interface PaymentConfirmationEmailData {
+  recipientEmail: string;
+  recipientName: string;
+  companyName: string;
+  documentNumber: string;
+  amount: string;
+  currency: string;
+  paymentDate: string;
+  plan?: "free" | "premium";
+}
+
+export function buildPaymentConfirmationEmailSubject(
+  data: PaymentConfirmationEmailData,
+): string {
+  return `Zahlung erhalten – ${data.documentNumber}`;
+}
+
+export function buildPaymentConfirmationEmailHtml(
+  data: PaymentConfirmationEmailData,
+): string {
+  const formattedAmount = formatAmountSwiss(data.amount, data.currency);
+  const formattedDate = formatDateSwiss(data.paymentDate);
+
+  return `<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${buildPaymentConfirmationEmailSubject(data)}</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f5;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
+          <!-- Header -->
+          <tr>
+            <td style="padding: 32px 40px 24px; border-bottom: 1px solid #e4e4e7;">
+              <h1 style="margin: 0; font-size: 20px; font-weight: 600; color: #18181b;">
+                ${data.companyName}
+              </h1>
+            </td>
+          </tr>
+          <!-- Body -->
+          <tr>
+            <td style="padding: 32px 40px;">
+              <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.6; color: #3f3f46;">
+                Guten Tag ${data.recipientName}
+              </p>
+              <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.6; color: #3f3f46;">
+                Wir bestätigen den Eingang Ihrer Zahlung über <strong>${formattedAmount}</strong> für Rechnung <strong>${data.documentNumber}</strong> vom <strong>${formattedDate}</strong>.
+              </p>
+              <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.6; color: #3f3f46;">
+                Vielen Dank für Ihre Zahlung.
+              </p>
+              <p style="margin: 0 0 8px; font-size: 15px; line-height: 1.6; color: #3f3f46;">
+                Freundliche Grüsse<br>
+                ${data.companyName}
+              </p>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 24px 40px; background-color: #fafafa; border-top: 1px solid #e4e4e7;">
+              <p style="margin: 0; font-size: 12px; color: #a1a1aa; line-height: 1.5;">
+                Diese E-Mail wurde automatisch von ${data.companyName} versendet.
+              </p>${
+                data.plan !== "premium"
+                  ? `
+              <p style="margin: 8px 0 0; font-size: 11px; color: #a1a1aa; line-height: 1.5;">
+                Versendet mit <a href="https://kivvi.ch" style="color: #2563eb; text-decoration: none;">Kivvi</a> — KI-gestützte ERP-Software für Schweizer Unternehmen
+              </p>`
+                  : ""
+              }
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+// ============================================================================
 // DOCUMENT EMAIL
 // ============================================================================
 

@@ -1,6 +1,7 @@
 "use server";
 
 import { z } from "zod";
+import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   createDocument,
@@ -12,14 +13,21 @@ import {
   duplicateDocument,
   createDocumentSchema,
   updateDocumentSchema,
+  getDocument,
 } from "@kivvi/core";
 import {
   documentStatusEnum,
   documentTypeEnum,
   PAYMENT_METHOD_VALUES,
+  companies,
   type DocumentType,
   type DocumentStatus,
+  type CompanySettings,
 } from "@kivvi/database";
+import {
+  buildPaymentConfirmationEmailHtml,
+  buildPaymentConfirmationEmailSubject,
+} from "@kivvi/core/src/domain/email";
 import {
   type ActionResult,
   getSession,
@@ -28,6 +36,8 @@ import {
   formatZodError,
 } from "./utils";
 import { revalidateDocumentPaths } from "./utils/revalidate-documents";
+import { getTransporter, getFromEmail } from "@/lib/email/transporter";
+import { isEmailConfigured } from "@/lib/config/email";
 
 // ============================================================================
 // VALIDATION SCHEMAS FOR UNVALIDATED PARAMS
@@ -166,6 +176,48 @@ export async function recordPaymentAction(
     }
 
     const payment = await recordPayment(db, companyId, documentId, parsed.data);
+
+    // Send payment confirmation email — optional, never fails the action
+    if (isEmailConfigured()) {
+      try {
+        const doc = await getDocument(db, companyId, documentId);
+        const contactEmail = doc?.contact?.email;
+        if (doc && contactEmail) {
+          const [company] = await db
+            .select()
+            .from(companies)
+            .where(eq(companies.id, companyId));
+          const companyName = company?.name || "Kivvi";
+          const settings = (company?.settings as CompanySettings) ?? {};
+          const plan = settings.plan || "free";
+
+          const emailData = {
+            recipientEmail: contactEmail,
+            recipientName: doc.contact?.name || "Kunde",
+            companyName,
+            documentNumber: doc.number,
+            amount: parsed.data.amount,
+            currency: doc.currency,
+            paymentDate: parsed.data.date,
+            plan,
+          };
+
+          const transporter = getTransporter();
+          await transporter.sendMail({
+            from: `${companyName} <${getFromEmail()}>`,
+            to: contactEmail,
+            subject: buildPaymentConfirmationEmailSubject(emailData),
+            html: buildPaymentConfirmationEmailHtml(emailData),
+          });
+        }
+      } catch (emailError) {
+        // Email failure must not roll back a successful payment
+        console.error(
+          "[recordPaymentAction] Payment confirmation email failed:",
+          emailError,
+        );
+      }
+    }
 
     revalidateDocumentPaths("invoice", documentId);
     return { success: true, data: { id: payment.id } };

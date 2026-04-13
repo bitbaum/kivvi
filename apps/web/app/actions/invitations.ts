@@ -80,7 +80,7 @@ export async function inviteMemberAction(
           .from(users)
           .where(eq(users.id, userId));
 
-        const baseUrl = process.env.NEXTAUTH_URL || "https://app.kivvi.ch";
+        const baseUrl = process.env.NEXTAUTH_URL || "https://kivvi.vercel.app";
         const acceptUrl = `${baseUrl}/invite/${invitation.token}`;
 
         const emailData = {
