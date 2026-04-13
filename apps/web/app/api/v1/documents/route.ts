@@ -7,10 +7,13 @@ import {
   createDocument,
   createDocumentSchema,
 } from "@kivvi/core";
+import { createContact } from "@kivvi/core/src/domain/contacts";
 import {
   documentTypeEnum,
   documentStatusEnum,
+  contacts,
 } from "@kivvi/database/src/schema";
+import { and, eq, ilike } from "drizzle-orm";
 
 const querySchema = z.object({
   page: z.coerce.number().int().positive().default(1),
@@ -58,13 +61,84 @@ export async function GET(request: NextRequest) {
   }
 }
 
+/**
+ * Resolve or create a contact from name + optional email.
+ * Used when external callers (e.g. RevampIT) don't have the Kivvi contactId.
+ *
+ * Priority: email match → name match (ilike) → create new customer record.
+ */
+async function resolveOrCreateContact(
+  companyId: string,
+  name: string,
+  email?: string,
+): Promise<string> {
+  // 1. Exact email match
+  if (email) {
+    const [byEmail] = await db
+      .select({ id: contacts.id })
+      .from(contacts)
+      .where(
+        and(
+          eq(contacts.companyId, companyId),
+          ilike(contacts.email, email.trim()),
+        ),
+      )
+      .limit(1);
+    if (byEmail) return byEmail.id;
+  }
+
+  // 2. Exact name match
+  const [byName] = await db
+    .select({ id: contacts.id })
+    .from(contacts)
+    .where(
+      and(eq(contacts.companyId, companyId), ilike(contacts.name, name.trim())),
+    )
+    .limit(1);
+  if (byName) return byName.id;
+
+  // 3. Create a minimal customer record — shows up in Kivvi contact list
+  const created = await createContact(db, companyId, {
+    type: "customer",
+    name: name.trim(),
+    email: email?.trim() || null,
+  });
+  return created.id;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const ctx = await authenticateApi(request, "member");
     if (ctx instanceof Response) return ctx;
 
     const body = await request.json();
-    const parsed = createDocumentSchema.safeParse(body);
+
+    // Allow external callers (e.g. RevampIT) to pass contactName + contactEmail
+    // instead of a contactId. Resolve or auto-create the contact transparently.
+    let resolvedBody = { ...body };
+    if (!body.contactId && body.contactName) {
+      const contactId = await resolveOrCreateContact(
+        ctx.companyId,
+        body.contactName,
+        body.contactEmail,
+      );
+      resolvedBody = { ...body, contactId };
+      delete resolvedBody.contactName;
+      delete resolvedBody.contactEmail;
+    }
+
+    // Auto-populate `position` on items — external callers don't need to track it
+    if (Array.isArray(resolvedBody.items)) {
+      resolvedBody = {
+        ...resolvedBody,
+        items: resolvedBody.items.map(
+          (item: Record<string, unknown>, idx: number) =>
+            item.position !== undefined ? item : { ...item, position: idx + 1 },
+        ),
+      };
+    }
+
+    const parsed = createDocumentSchema.safeParse(resolvedBody);
     if (!parsed.success) {
       return apiError(
         `Invalid body: ${parsed.error.issues.map((i) => `${i.path}: ${i.message}`).join(", ")}`,
