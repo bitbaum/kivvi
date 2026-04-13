@@ -1,18 +1,15 @@
 import Link from "next/link";
-import { ArrowRight, Mail } from "lucide-react";
-import { CONTACT_EMAIL } from "@/lib/config/site";
+import { ArrowRight } from "lucide-react";
 
 interface LandingCtaSectionProps {
   title: string;
   description: string;
-  emailLabel?: string;
   id?: string;
 }
 
 export function LandingCtaSection({
   title,
   description,
-  emailLabel = CONTACT_EMAIL,
   id,
 }: LandingCtaSectionProps) {
   return (
@@ -23,13 +20,13 @@ export function LandingCtaSection({
       <h2 className="mb-4 text-2xl font-bold">{title}</h2>
       <p className="mb-8 text-muted-foreground">{description}</p>
       <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-        <a
-          href={`mailto:${CONTACT_EMAIL}`}
+        <Link
+          href="/contact"
           className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-primary-foreground hover:bg-primary/90"
         >
-          <Mail className="h-4 w-4" />
-          {emailLabel}
-        </a>
+          Demo anfragen
+          <ArrowRight className="h-4 w-4" />
+        </Link>
         <Link
           href="/register"
           className="inline-flex items-center gap-2 rounded-lg border px-6 py-3 font-medium hover:bg-muted"

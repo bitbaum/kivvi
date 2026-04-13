@@ -1488,11 +1488,12 @@
     "signIn": "Se connecter",
     "signInSubtitle": "Connectez-vous à votre compte.",
     "register": "S'inscrire",
-    "registerSubtitle": "Créez votre compte Kivvi.",
+    "registerSubtitle": "Chaque organisation obtient son propre espace.",
     "emailAddress": "Adresse e-mail",
     "password": "Mot de passe",
     "fullName": "Nom complet",
-    "companyName": "Nom de l'entreprise",
+    "companyName": "Organisation / Structure",
+    "companyNameHint": "Association, SARL, indépendant — tout ce qui décrit votre structure.",
     "forgotPassword": "Mot de passe oublié ?",
     "noAccount": "Pas encore de compte ?",
     "hasAccount": "Déjà un compte ?",
@@ -1519,34 +1520,38 @@
     "invalidResetTokenMessage": "Ce lien de réinitialisation est invalide ou a expiré. Veuillez en demander un nouveau.",
     "passwordMismatch": "Les mots de passe ne correspondent pas",
     "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
-    "businessOnAutopilot": "Opérations en pilote automatique",
+    "businessOnAutopilot": "L'ERP pour l'économie circulaire",
     "features": {
-      "aiInvoices": "L'IA crée et envoie les factures automatiquement",
-      "bankMatching": "Transactions bancaires rapprochées automatiquement",
-      "paymentReminders": "Rappels de paiement envoyés sans effort",
-      "qrBills": "QR-factures suisses générées instantanément",
-      "selfHostAI": "Vos données restent les vôtres — auto-hébergement possible"
+      "aiInvoices": "Saisie IA : «50 laptops don UBS» — c'est fait",
+      "bankMatching": "Articles individuels avec état, coûts de réparation et historique",
+      "paymentReminders": "Reçus de dons et rapport d'impact en un clic",
+      "qrBills": "QR-factures suisses et TVA nativement intégrés",
+      "selfHostAI": "Open Source, licence MIT — pas de dépendance fournisseur"
     },
     "errorGeneric": "Une erreur est survenue. Veuillez réessayer.",
     "termsAndPrivacy": "En continuant, vous acceptez nos <terms>Conditions d'utilisation</terms> et notre <privacy>Politique de confidentialité</privacy>.",
     "passwordMinLength": "Au moins 8 caractères",
     "showPassword": "Afficher le mot de passe",
     "hidePassword": "Masquer le mot de passe",
-    "heroSubtitle": "Kivvi automatise votre facturation, comptabilité et vos paiements pour que vous puissiez vous concentrer sur l'essentiel.",
-    "securityNote": "Vos données sont chiffrées et restent en Suisse. Hébergez votre IA vous-même pour une confidentialité totale.",
+    "heroSubtitle": "Pour les brocantes, les reconditionneurs IT, les repair cafés et les friperies. Suivi d'articles individuels, cotation d'état, QR-factures — tout en un.",
+    "securityNote": "Vos données sont chiffrées et restent en Suisse. Auto-hébergement pour un contrôle total.",
     "placeholders": {
       "fullName": "Jean Dupont",
-      "companyName": "Exemple SA"
+      "companyName": "p.ex. «Repair Café Berne» ou «Jean Dupont»"
     }
   },
   "onboarding": {
     "welcome": "Bienvenue sur Kivvi",
-    "step1Title": "Informations de l'entreprise",
+    "step1Title": "Votre organisation",
+    "step1Description": "Ce nom apparaîtra sur vos factures et documents.",
     "step2Title": "Configuration métier",
     "step3Title": "Import de données",
-    "companyName": "Nom de l'entreprise",
-    "companyAddress": "Adresse professionnelle",
-    "vatNumber": "Numéro TVA (optionnel)",
+    "companyName": "Nom de l'organisation / structure",
+    "companyAddress": "Adresse",
+    "postalCode": "Code postal",
+    "city": "Localité",
+    "country": "Pays",
+    "vatNumber": "Numéro TVA (si applicable)",
     "defaultVatRate": "Taux de TVA par défaut",
     "paymentTermsDays": "Délai de paiement par défaut (jours)",
     "bankIban": "IBAN bancaire",
@@ -1595,7 +1600,7 @@
       "fiscalYear": "Exercice fiscal {year} avec 12 périodes mensuelles"
     },
     "placeholders": {
-      "companyName": "p.ex. Exemple SA",
+      "companyName": "p.ex. «Repair Café Berne» ou «Jean Dupont»",
       "vatNumber": "CHE-123.456.789 TVA"
     },
     "categories": {
@@ -1714,6 +1719,7 @@
     "navForRepairCafes": "Repair Cafés",
     "navForVintage": "Boutiques vintage",
     "navKnowledge": "Savoir",
+    "navContact": "Contact",
     "navAbout": "À propos",
     "problemTitle": "Ce que les ERP standard ne peuvent pas faire",
     "problem1": "Distinguer un don, un achat et une réparation",
@@ -1841,7 +1847,12 @@
     "invitationExpiredDesc": "Cette invitation a expiré. Veuillez demander à l'expéditeur d'en envoyer une nouvelle.",
     "goToLogin": "Aller à la connexion",
     "loginToAccept": "Se connecter pour accepter",
-    "registerToAccept": "Créer un compte"
+    "registerToAccept": "Créer un compte & rejoindre",
+    "createAccount": "Créer un compte",
+    "joiningCompanyNoOwn": "Vous rejoignez {company} — aucune entreprise propre nécessaire.",
+    "fullName": "Nom complet",
+    "password": "Mot de passe",
+    "backToOptions": "Retour"
   },
   "errors": {
     "unexpected": "Une erreur est survenue",

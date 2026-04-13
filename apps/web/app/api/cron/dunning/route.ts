@@ -1,15 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { eq } from 'drizzle-orm';
-import { db } from '@/lib/db';
-import { companies } from '@kivvi/database';
-import { processOverdueInvoices, type DunningInfo } from '@kivvi/core';
+export const dynamic = "force-dynamic";
+
+import { NextRequest, NextResponse } from "next/server";
+import { eq } from "drizzle-orm";
+import { db } from "@/lib/db";
+import { companies } from "@kivvi/database";
+import { processOverdueInvoices, type DunningInfo } from "@kivvi/core";
 import {
   buildInvoiceEmailHtml,
   buildInvoiceEmailSubject,
-} from '@kivvi/core/src/domain/email';
-import { getTransporter, getFromEmail } from '@/lib/email/transporter';
-import { isEmailConfigured } from '@/lib/config/email';
-import { logger } from '@/lib/logger';
+} from "@kivvi/core/src/domain/email";
+import { getTransporter, getFromEmail } from "@/lib/email/transporter";
+import { isEmailConfigured } from "@/lib/config/email";
+import { logger } from "@/lib/logger";
 
 /**
  * Cron endpoint for automated dunning processing.
@@ -20,23 +22,20 @@ import { logger } from '@/lib/logger';
  */
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('authorization');
+    const authHeader = request.headers.get("authorization");
     const cronSecret = process.env.CRON_SECRET;
 
     if (!cronSecret) {
-      logger.error('CRON_SECRET not configured');
+      logger.error("CRON_SECRET not configured");
       return NextResponse.json(
-        { error: 'Cron secret not configured' },
-        { status: 500 }
+        { error: "Cron secret not configured" },
+        { status: 500 },
       );
     }
 
     if (authHeader !== `Bearer ${cronSecret}`) {
-      logger.error('Unauthorized cron request');
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      logger.error("Unauthorized cron request");
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const result = await processOverdueInvoices(db, {
@@ -49,21 +48,21 @@ export async function GET(request: NextRequest) {
               .from(companies)
               .where(eq(companies.id, info.companyId));
 
-            const companyName = company?.name || 'Kivvi';
-            const plan = company?.settings?.plan || 'free';
+            const companyName = company?.name || "Kivvi";
+            const plan = company?.settings?.plan || "free";
 
             for (const recipient of emailRecipients) {
               try {
                 const emailData = {
                   recipientEmail: recipient,
-                  recipientName: info.contactName || 'Kunde',
+                  recipientName: info.contactName || "Kunde",
                   companyName,
                   documentNumber: info.dunningNumber,
-                  documentType: 'dunning',
+                  documentType: "dunning",
                   total: info.total,
                   currency: info.currency,
                   dueDate: info.dueDate || undefined,
-                  plan: plan as 'free' | 'premium',
+                  plan: plan as "free" | "premium",
                 };
 
                 await transporter.sendMail({
@@ -73,7 +72,10 @@ export async function GET(request: NextRequest) {
                   html: buildInvoiceEmailHtml(emailData),
                 });
               } catch (emailError) {
-                logger.error(`Failed to send dunning email to ${recipient}`, emailError);
+                logger.error(
+                  `Failed to send dunning email to ${recipient}`,
+                  emailError,
+                );
               }
             }
           }
@@ -87,12 +89,12 @@ export async function GET(request: NextRequest) {
       errors: result.errors,
     });
   } catch (error) {
-    logger.error('Error processing automated dunning', error);
+    logger.error("Error processing automated dunning", error);
     return NextResponse.json(
       {
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

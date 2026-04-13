@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Plus, Search, BookOpen, ArrowLeft } from "lucide-react";
+import { EmptyState } from "@/components/empty-state";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { listAccounts } from "@kivvi/core";
@@ -179,13 +180,11 @@ export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
           {/* Table */}
           <div className="rounded-xl border bg-card">
             {accounts.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16">
-                <BookOpen className="h-12 w-12 text-muted-foreground/50" />
-                <h3 className="mt-4 text-lg font-medium">{tc("noResults")}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {t("searchAccounts")}
-                </p>
-              </div>
+              <EmptyState
+                icon={Search}
+                title={tc("noResults")}
+                description={t("searchAccounts")}
+              />
             ) : (
               <>
                 {/* Table header */}

@@ -7,6 +7,7 @@ import { formatDate } from "@/lib/utils";
 import { StatusBadge } from "@/components/status-badge";
 import { NewYearForm } from "./new-year-form";
 import { getTranslations } from "next-intl/server";
+import { EmptyState } from "@/components/empty-state";
 
 export default async function FiscalYearsPage() {
   const session = await getSessionOrRedirect();
@@ -31,13 +32,11 @@ export default async function FiscalYearsPage() {
       {/* List */}
       <div className="rounded-xl border bg-card">
         {fiscalYears.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16">
-            <Calendar className="h-12 w-12 text-muted-foreground/50" />
-            <h3 className="mt-4 text-lg font-medium">{t("noFiscalYears")}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {t("manageFiscalYears")}
-            </p>
-          </div>
+          <EmptyState
+            icon={Calendar}
+            title={t("noFiscalYears")}
+            description={t("manageFiscalYears")}
+          />
         ) : (
           <>
             {/* Table header */}

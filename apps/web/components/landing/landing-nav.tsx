@@ -256,13 +256,13 @@ export function LandingNav({
                   >
                     {signInLabel}
                   </Link>
-                  <a
-                    href="/#contact"
+                  <Link
+                    href="/contact"
                     onClick={() => setMobileOpen(false)}
                     className="rounded-lg bg-primary px-4 py-2.5 text-center text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
                   >
                     {demoLabel}
-                  </a>
+                  </Link>
                 </>
               )}
             </div>

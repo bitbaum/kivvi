@@ -48,7 +48,7 @@ export function ColumnMapper({
         {t("autoDetected", { name: profile.name })}
       </div>
 
-      <div className="max-h-80 overflow-auto rounded-lg border">
+      <div className="max-h-80 overflow-x-auto overflow-y-auto rounded-lg border">
         <table className="w-full text-sm">
           <thead className="sticky top-0 bg-muted">
             <tr>

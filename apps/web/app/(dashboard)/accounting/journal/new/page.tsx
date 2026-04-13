@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, Plus, Trash2, AlertCircle } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, AlertCircle, Loader2 } from "lucide-react";
 import { FormInput } from "@/components/ui/form-field";
 import { AccountPicker } from "./account-picker";
 import { useJournalEntryForm } from "./use-journal-entry-form";
@@ -253,8 +253,9 @@ export default function NewJournalEntryPage() {
               type="button"
               onClick={handleSubmit}
               disabled={isPending || !isBalanced || !hasAmounts}
-              className="mt-6 w-full rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="mt-6 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
             >
+              {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
               {isPending ? tc("creating") : t("createEntry")}
             </button>
 

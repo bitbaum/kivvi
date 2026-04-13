@@ -1,15 +1,20 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { eq } from 'drizzle-orm';
-import { db } from '@/lib/db';
-import { companies } from '@kivvi/database';
-import { processRecurringInvoices, type GeneratedInvoiceInfo } from '@kivvi/core';
+export const dynamic = "force-dynamic";
+
+import { NextRequest, NextResponse } from "next/server";
+import { eq } from "drizzle-orm";
+import { db } from "@/lib/db";
+import { companies } from "@kivvi/database";
+import {
+  processRecurringInvoices,
+  type GeneratedInvoiceInfo,
+} from "@kivvi/core";
 import {
   buildInvoiceEmailHtml,
   buildInvoiceEmailSubject,
-} from '@kivvi/core/src/domain/email';
-import { getTransporter, getFromEmail } from '@/lib/email/transporter';
-import { isEmailConfigured } from '@/lib/config/email';
-import { logger } from '@/lib/logger';
+} from "@kivvi/core/src/domain/email";
+import { getTransporter, getFromEmail } from "@/lib/email/transporter";
+import { isEmailConfigured } from "@/lib/config/email";
+import { logger } from "@/lib/logger";
 
 /**
  * Cron endpoint for processing recurring invoices.
@@ -20,23 +25,20 @@ import { logger } from '@/lib/logger';
 export async function GET(request: NextRequest) {
   try {
     // Verify cron secret (Vercel automatically adds this header)
-    const authHeader = request.headers.get('authorization');
+    const authHeader = request.headers.get("authorization");
     const cronSecret = process.env.CRON_SECRET;
 
     if (!cronSecret) {
-      logger.error('CRON_SECRET not configured');
+      logger.error("CRON_SECRET not configured");
       return NextResponse.json(
-        { error: 'Cron secret not configured' },
-        { status: 500 }
+        { error: "Cron secret not configured" },
+        { status: 500 },
       );
     }
 
     if (authHeader !== `Bearer ${cronSecret}`) {
-      logger.error('Unauthorized cron request');
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      logger.error("Unauthorized cron request");
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Process recurring invoices with email callback
@@ -51,21 +53,21 @@ export async function GET(request: NextRequest) {
               .from(companies)
               .where(eq(companies.id, invoice.companyId));
 
-            const companyName = company?.name || 'Kivvi';
-            const plan = company?.settings?.plan || 'free';
+            const companyName = company?.name || "Kivvi";
+            const plan = company?.settings?.plan || "free";
 
             for (const recipient of emailRecipients) {
               try {
                 const emailData = {
                   recipientEmail: recipient,
-                  recipientName: invoice.contact?.name || 'Kunde',
+                  recipientName: invoice.contact?.name || "Kunde",
                   companyName,
                   documentNumber: invoice.number,
                   documentType: invoice.type,
                   total: invoice.total,
                   currency: invoice.currency,
                   dueDate: invoice.dueDate || undefined,
-                  plan: plan as 'free' | 'premium',
+                  plan: plan as "free" | "premium",
                 };
 
                 await transporter.sendMail({
@@ -75,7 +77,10 @@ export async function GET(request: NextRequest) {
                   html: buildInvoiceEmailHtml(emailData),
                 });
               } catch (emailError) {
-                logger.error(`Failed to send recurring invoice email to ${recipient}`, emailError);
+                logger.error(
+                  `Failed to send recurring invoice email to ${recipient}`,
+                  emailError,
+                );
               }
             }
           }
@@ -89,12 +94,12 @@ export async function GET(request: NextRequest) {
       errors: result.errors,
     });
   } catch (error) {
-    logger.error('Error processing recurring invoices', error);
+    logger.error("Error processing recurring invoices", error);
     return NextResponse.json(
       {
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: error instanceof Error ? error.message : "Unknown error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

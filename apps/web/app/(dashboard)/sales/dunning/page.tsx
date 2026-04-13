@@ -1,4 +1,5 @@
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, CheckCircle } from "lucide-react";
+import { EmptyState } from "@/components/empty-state";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { detectOverdueInvoices, getDunningStats } from "@kivvi/core";
@@ -104,11 +105,11 @@ export default async function DunningPage() {
         </div>
 
         {overdueInvoices.length === 0 ? (
-          <div className="p-12 text-center text-muted-foreground">
-            <AlertTriangle className="mx-auto mb-3 h-10 w-10" />
-            <p className="text-lg font-medium">{td("noOverdueInvoices")}</p>
-            <p className="mt-1 text-sm">{td("allPaidOnTime")}</p>
-          </div>
+          <EmptyState
+            icon={CheckCircle}
+            title={td("noOverdueInvoices")}
+            description={td("allPaidOnTime")}
+          />
         ) : (
           <SelectableDunningTable
             data={overdueInvoices.map((inv) => ({
@@ -148,7 +149,7 @@ function StatCard({
     <div className="rounded-xl border bg-card p-6">
       <p className="text-sm text-muted-foreground">{label}</p>
       <p
-        className={`mt-2 text-2xl font-bold ${alert ? "text-red-600 dark:text-red-400" : ""}`}
+        className={`mt-2 text-2xl font-bold ${alert ? "text-destructive" : ""}`}
       >
         {value}
       </p>

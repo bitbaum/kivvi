@@ -48,6 +48,14 @@ export async function LandingFooter() {
               </li>
               <li>
                 <Link
+                  href="/pricing"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Preise
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/why-kivvi"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
@@ -90,6 +98,14 @@ export async function LandingFooter() {
               Unternehmen
             </p>
             <ul className="space-y-2.5 text-sm">
+              <li>
+                <Link
+                  href="/contact"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {t("navContact")}
+                </Link>
+              </li>
               <li>
                 <Link
                   href="/about"

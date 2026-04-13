@@ -66,10 +66,7 @@ export function StepCompanyInfo({
           <Building2 className="h-5 w-5 text-primary" />
           <h2 className="text-xl font-semibold">{t("step1Title")}</h2>
         </div>
-        <p className="text-sm text-muted-foreground">
-          Tell us about your company. This information will appear on invoices
-          and documents.
-        </p>
+        <p className="text-sm text-muted-foreground">{t("step1Description")}</p>
       </div>
 
       {error && (
@@ -90,6 +87,7 @@ export function StepCompanyInfo({
               type="text"
               value={formData.name}
               onChange={handleChange}
+              placeholder={t("placeholders.companyName")}
               required
               className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
             />
@@ -136,7 +134,7 @@ export function StepCompanyInfo({
               htmlFor="postalCode"
               className="mb-1.5 block text-sm font-medium"
             >
-              Postal code
+              {t("postalCode")}
             </label>
             <input
               id="postalCode"
@@ -151,7 +149,7 @@ export function StepCompanyInfo({
 
           <div>
             <label htmlFor="city" className="mb-1.5 block text-sm font-medium">
-              City
+              {t("city")}
             </label>
             <input
               id="city"
@@ -169,7 +167,7 @@ export function StepCompanyInfo({
               htmlFor="country"
               className="mb-1.5 block text-sm font-medium"
             >
-              Country
+              {t("country")}
             </label>
             <select
               id="country"

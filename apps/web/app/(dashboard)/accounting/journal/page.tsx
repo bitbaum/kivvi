@@ -9,6 +9,7 @@ import { DEFAULT_PAGE_SIZE } from "@/lib/config/document-types";
 import { SOURCE_TYPE_STYLES, getSourceTypeLabels } from "@/lib/config/journal";
 import { PageHeader } from "@/components/page-header";
 import { Pagination } from "@/components/pagination";
+import { EmptyState } from "@/components/empty-state";
 
 interface PageProps {
   searchParams: Promise<{
@@ -179,26 +180,27 @@ export default async function JournalPage({ searchParams }: PageProps) {
       {/* Table */}
       <div className="rounded-xl border bg-card">
         {result.data.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16">
-            <BookOpen className="h-12 w-12 text-muted-foreground/50" />
-            <h3 className="mt-4 text-lg font-medium">
-              {t("noJournalEntries")}
-            </h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {search || sourceType || dateFrom || dateTo
-                ? "Try adjusting your search or filters."
-                : "Get started by creating your first journal entry."}
-            </p>
-            {!search && !sourceType && (
-              <Link
-                href="/accounting/journal/new"
-                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-              >
-                <Plus className="h-4 w-4" />
-                {t("newJournalEntry")}
-              </Link>
-            )}
-          </div>
+          <EmptyState
+            icon={
+              search || sourceType || dateFrom || dateTo ? Search : BookOpen
+            }
+            title={t("noJournalEntries")}
+            description={
+              search || sourceType || dateFrom || dateTo
+                ? tc("noResults")
+                : t("viewJournalEntries")
+            }
+            actionLabel={
+              !search && !sourceType && !dateFrom && !dateTo
+                ? t("newJournalEntry")
+                : undefined
+            }
+            actionHref={
+              !search && !sourceType && !dateFrom && !dateTo
+                ? "/accounting/journal/new"
+                : undefined
+            }
+          />
         ) : (
           <>
             {/* Table header */}

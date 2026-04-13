@@ -550,7 +550,7 @@ Enums:      camelCase + Enum     (documentTypeEnum, documentStatusEnum)
 ### Code
 
 ```
-Components:      PascalCase.tsx   (DocumentForm.tsx)
+Components:      kebab-case.tsx   (document-form.tsx) — exported function is PascalCase
 Domain modules:  kebab-case.ts    (number-sequences.ts)
 Server Actions:  camelCase.ts     (documents.ts)
 Hooks:           useCamelCase.ts  (useDocuments.ts)

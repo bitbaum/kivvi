@@ -266,7 +266,7 @@ export function ImportTransactions({
                     <p className="text-sm font-medium mb-2">
                       {t("preview", { count: previewCount })}
                     </p>
-                    <div className="max-h-64 overflow-auto rounded-lg border">
+                    <div className="max-h-64 overflow-x-auto overflow-y-auto rounded-lg border">
                       <table className="w-full text-sm">
                         <thead className="sticky top-0 bg-muted">
                           <tr className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">

@@ -1486,11 +1486,12 @@
     "signIn": "Sign in",
     "signInSubtitle": "Sign in to your account.",
     "register": "Register",
-    "registerSubtitle": "Create your Kivvi account.",
+    "registerSubtitle": "Every organisation gets its own workspace.",
     "emailAddress": "Email Address",
     "password": "Password",
     "fullName": "Full Name",
-    "companyName": "Company Name",
+    "companyName": "Organisation / Business",
+    "companyNameHint": "Association, LLC, sole trader — whatever describes your operation.",
     "forgotPassword": "Forgot password?",
     "noAccount": "Don't have an account?",
     "hasAccount": "Already have an account?",
@@ -1517,34 +1518,38 @@
     "invalidResetTokenMessage": "This password reset link is invalid or has expired. Please request a new one.",
     "passwordMismatch": "Passwords do not match",
     "passwordTooShort": "Password must be at least 8 characters long",
-    "businessOnAutopilot": "Operations on Autopilot",
+    "businessOnAutopilot": "ERP for the Circular Economy",
     "features": {
-      "aiInvoices": "AI creates and sends invoices automatically",
-      "bankMatching": "Bank transactions matched and reconciled",
-      "paymentReminders": "Payment reminders sent without lifting a finger",
-      "qrBills": "Swiss QR-bills generated instantly",
-      "selfHostAI": "Your data stays yours - self-host your AI"
+      "aiInvoices": "AI intake: «50 laptops from UBS donation» — done",
+      "bankMatching": "Individual items with condition, repair costs and history",
+      "paymentReminders": "Donation receipts and impact report at the click of a button",
+      "qrBills": "Swiss QR-bills and VAT natively supported",
+      "selfHostAI": "Open Source, MIT licence — no vendor lock-in"
     },
     "errorGeneric": "Something went wrong. Please try again.",
     "termsAndPrivacy": "By continuing, you agree to our <terms>Terms of Service</terms> and <privacy>Privacy Policy</privacy>.",
     "passwordMinLength": "Must be at least 8 characters",
     "showPassword": "Show password",
     "hidePassword": "Hide password",
-    "heroSubtitle": "Kivvi automates your invoicing, bookkeeping, and payments so you can focus on what matters.",
-    "securityNote": "Your data is encrypted and stays in Switzerland. Self-host your AI for complete privacy.",
+    "heroSubtitle": "For thrift stores, IT refurbishers, repair cafés and vintage shops. Individual item tracking, condition grading, QR invoices — all in one.",
+    "securityNote": "Your data is encrypted and stays in Switzerland. Self-host for complete control.",
     "placeholders": {
       "fullName": "Max Muster",
-      "companyName": "Muster GmbH"
+      "companyName": "e.g. «Repair Café Bern», «revamp-it» or «Max Muster»"
     }
   },
   "onboarding": {
     "welcome": "Welcome to Kivvi",
-    "step1Title": "Company Information",
+    "step1Title": "Your Organisation",
+    "step1Description": "This name will appear on your invoices and documents.",
     "step2Title": "Business Configuration",
     "step3Title": "Data Import",
-    "companyName": "Company Name",
-    "companyAddress": "Business Address",
-    "vatNumber": "VAT Number (optional)",
+    "companyName": "Organisation / Business Name",
+    "companyAddress": "Address",
+    "postalCode": "Postal Code",
+    "city": "City",
+    "country": "Country",
+    "vatNumber": "VAT Number (if applicable)",
     "defaultVatRate": "Default VAT Rate",
     "paymentTermsDays": "Default Payment Terms (Days)",
     "bankIban": "Bank IBAN",
@@ -1593,7 +1598,7 @@
       "fiscalYear": "Fiscal year {year} with 12 monthly periods"
     },
     "placeholders": {
-      "companyName": "e.g. Muster GmbH",
+      "companyName": "e.g. «Repair Café Bern» or «Max Muster»",
       "vatNumber": "CHE-123.456.789 MWST"
     },
     "categories": {
@@ -1712,6 +1717,7 @@
     "navForRepairCafes": "Repair Cafés",
     "navForVintage": "Vintage Shops",
     "navKnowledge": "Knowledge",
+    "navContact": "Contact",
     "navAbout": "About",
     "problemTitle": "What standard ERPs can't do",
     "problem1": "Know the difference between a donation, a purchase, and a repair",
@@ -1839,7 +1845,12 @@
     "invitationExpiredDesc": "This invitation has expired. Please ask the sender to send a new one.",
     "goToLogin": "Go to Login",
     "loginToAccept": "Log in to accept",
-    "registerToAccept": "Create an account"
+    "registerToAccept": "Create account & join",
+    "createAccount": "Create account",
+    "joiningCompanyNoOwn": "You are joining {company} — no company of your own needed.",
+    "fullName": "Full name",
+    "password": "Password",
+    "backToOptions": "Back"
   },
   "errors": {
     "unexpected": "Something went wrong",

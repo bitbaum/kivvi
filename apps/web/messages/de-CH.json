@@ -1486,11 +1486,12 @@
     "signIn": "Anmelden",
     "signInSubtitle": "Melden Sie sich bei Ihrem Konto an.",
     "register": "Registrieren",
-    "registerSubtitle": "Erstellen Sie Ihr Kivvi-Konto.",
+    "registerSubtitle": "Jeder Betrieb bekommt seinen eigenen Bereich.",
     "emailAddress": "E-Mail-Adresse",
     "password": "Passwort",
     "fullName": "Vollständiger Name",
-    "companyName": "Firmenname",
+    "companyName": "Betrieb / Organisation",
+    "companyNameHint": "Verein, GmbH, Einzelperson — alles, was Ihren Betrieb beschreibt.",
     "forgotPassword": "Passwort vergessen?",
     "noAccount": "Noch kein Konto?",
     "hasAccount": "Bereits ein Konto?",
@@ -1517,34 +1518,38 @@
     "invalidResetTokenMessage": "Dieser Link zum Zurücksetzen des Passworts ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen an.",
     "passwordMismatch": "Passwörter stimmen nicht überein",
     "passwordTooShort": "Passwort muss mindestens 8 Zeichen lang sein",
-    "businessOnAutopilot": "Abläufe auf Autopilot",
+    "businessOnAutopilot": "Das ERP für die Kreislaufwirtschaft",
     "features": {
-      "aiInvoices": "KI erstellt und versendet Rechnungen automatisch",
-      "bankMatching": "Banktransaktionen automatisch abgeglichen",
-      "paymentReminders": "Zahlungserinnerungen ohne Aufwand",
-      "qrBills": "Schweizer QR-Rechnungen sofort generiert",
-      "selfHostAI": "Ihre Daten bleiben Ihnen — Self-Hosting möglich"
+      "aiInvoices": "KI-Schnelleingabe: «50 Laptops aus UBS-Spende» — fertig",
+      "bankMatching": "Einzelartikel mit Zustand, Reparaturkosten und Geschichte",
+      "paymentReminders": "Spendenquittungen und Impact-Bericht auf Knopfdruck",
+      "qrBills": "Schweizer QR-Rechnungen und MWST nativ",
+      "selfHostAI": "Open Source, MIT-Lizenz — kein Vendor Lock-in"
     },
     "errorGeneric": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
     "termsAndPrivacy": "Durch Fortfahren stimmen Sie unseren <terms>Nutzungsbedingungen</terms> und der <privacy>Datenschutzrichtlinie</privacy> zu.",
     "passwordMinLength": "Mindestens 8 Zeichen",
     "showPassword": "Passwort anzeigen",
     "hidePassword": "Passwort verbergen",
-    "heroSubtitle": "Kivvi automatisiert Ihre Rechnungsstellung, Buchhaltung und Zahlungen, damit Sie sich auf das Wesentliche konzentrieren.",
+    "heroSubtitle": "Für Brockenhäuser, IT-Refurbisher, Repair Cafés und Vintage-Shops. Einzelartikel-Tracking, Zustandsbewertung, QR-Rechnungen — alles in einem.",
     "securityNote": "Ihre Daten sind verschlüsselt und bleiben in der Schweiz. Self-Hosting für volle Kontrolle.",
     "placeholders": {
       "fullName": "Max Muster",
-      "companyName": "Muster GmbH"
+      "companyName": "z.B. «Repair Café Bern», «revamp-it» oder «Max Muster»"
     }
   },
   "onboarding": {
     "welcome": "Willkommen bei Kivvi",
-    "step1Title": "Unternehmensinformationen",
+    "step1Title": "Ihr Betrieb",
+    "step1Description": "Dieser Name erscheint auf Ihren Rechnungen und Dokumenten.",
     "step2Title": "Geschäftskonfiguration",
     "step3Title": "Datenimport",
-    "companyName": "Firmenname",
-    "companyAddress": "Geschäftsadresse",
-    "vatNumber": "UID-Nummer (optional)",
+    "companyName": "Name des Betriebs / der Organisation",
+    "companyAddress": "Adresse",
+    "postalCode": "Postleitzahl",
+    "city": "Ort",
+    "country": "Land",
+    "vatNumber": "UID-Nummer (falls vorhanden)",
     "defaultVatRate": "Standard-MWST-Satz",
     "paymentTermsDays": "Standard-Zahlungsfrist (Tage)",
     "bankIban": "Bank-IBAN",
@@ -1593,7 +1598,7 @@
       "fiscalYear": "Geschäftsjahr {year} mit 12 Monatsperioden"
     },
     "placeholders": {
-      "companyName": "z.B. Muster GmbH",
+      "companyName": "z.B. «Repair Café Bern» oder «Max Muster»",
       "vatNumber": "CHE-123.456.789 MWST"
     },
     "categories": {
@@ -1712,6 +1717,7 @@
     "navForRepairCafes": "Repair Cafés",
     "navForVintage": "Vintage-Shops",
     "navKnowledge": "Wissen",
+    "navContact": "Kontakt",
     "navAbout": "Über uns",
     "problemTitle": "Was Standard-ERPs nicht können",
     "problem1": "Den Unterschied zwischen Spende, Einkauf und Reparatur kennen",
@@ -1839,7 +1845,12 @@
     "invitationExpiredDesc": "Diese Einladung ist abgelaufen. Bitten Sie den Absender, eine neue zu senden.",
     "goToLogin": "Zum Login",
     "loginToAccept": "Einloggen um anzunehmen",
-    "registerToAccept": "Konto erstellen"
+    "registerToAccept": "Konto erstellen & beitreten",
+    "createAccount": "Konto erstellen",
+    "joiningCompanyNoOwn": "Sie treten {company} bei — kein eigener Betrieb nötig.",
+    "fullName": "Vollständiger Name",
+    "password": "Passwort",
+    "backToOptions": "Zurück"
   },
   "errors": {
     "unexpected": "Etwas ist schiefgelaufen",
