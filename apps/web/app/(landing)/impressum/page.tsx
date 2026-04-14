@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
-import { CONTACT_EMAIL } from "@/lib/config/site";
+import { CONTACT_EMAIL, buildPageMeta } from "@/lib/config/site";
 
 export const metadata: Metadata = {
   title: "Impressum — Kivvi",
   description: "Angaben zum Anbieter von Kivvi gemäss Impressumspflicht.",
+  ...buildPageMeta(
+    "Impressum — Kivvi",
+    "Angaben zum Anbieter von Kivvi gemäss Impressumspflicht.",
+  ),
 };
 
 export default function ImpressumPage() {

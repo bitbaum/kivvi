@@ -4,12 +4,17 @@ import { SeeAlsoSection } from "@/components/landing/see-also-section";
 import { PainList } from "@/components/landing/pain-list";
 import { SolutionList } from "@/components/landing/solution-list";
 import { LandingCtaSection } from "@/components/landing/landing-cta-section";
+import { buildPageMeta } from "@/lib/config/site";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Kivvi für IT-Refurbisher & Computer-Recycler",
   description:
     "Einzelartikel-Tracking, Reparaturkosten pro Gerät, echte Marge — und CSV-Migration aus Kivitendo. Das ERP für IT-Refurbisher.",
+  ...buildPageMeta(
+    "Kivvi für IT-Refurbisher & Computer-Recycler",
+    "Einzelartikel-Tracking, Reparaturkosten pro Gerät, echte Marge — und CSV-Migration aus Kivitendo. Das ERP für IT-Refurbisher.",
+  ),
 };
 
 const PAIN_ITEMS = [

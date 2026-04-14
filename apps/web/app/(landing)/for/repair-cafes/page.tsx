@@ -3,12 +3,17 @@ import { SeeAlsoSection } from "@/components/landing/see-also-section";
 import { PainList } from "@/components/landing/pain-list";
 import { SolutionList } from "@/components/landing/solution-list";
 import { LandingCtaSection } from "@/components/landing/landing-cta-section";
+import { buildPageMeta } from "@/lib/config/site";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Kivvi für Repair Cafés & Werkstätten",
   description:
     "Reparaturprotokoll pro Gerät, Stunden-Tracking, Impact-Nachweis für Förderanträge — für Repair Cafés und Werkstätten.",
+  ...buildPageMeta(
+    "Kivvi für Repair Cafés & Werkstätten",
+    "Reparaturprotokoll pro Gerät, Stunden-Tracking, Impact-Nachweis für Förderanträge — für Repair Cafés und Werkstätten.",
+  ),
 };
 
 const PAIN_ITEMS = [

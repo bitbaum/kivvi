@@ -3,13 +3,17 @@ import { SeeAlsoSection } from "@/components/landing/see-also-section";
 import { PainList } from "@/components/landing/pain-list";
 import { SolutionList } from "@/components/landing/solution-list";
 import { LandingCtaSection } from "@/components/landing/landing-cta-section";
-import { CONDITION_GRADES } from "@/lib/config/site";
+import { CONDITION_GRADES, buildPageMeta } from "@/lib/config/site";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Kivvi für Vintage-Shops & Kleiderbörsen",
   description:
     "Einzelartikel-Tracking, Kommissions-Abrechnung, Zustandsbewertung für Kleidung — ohne Excel.",
+  ...buildPageMeta(
+    "Kivvi für Vintage-Shops & Kleiderbörsen",
+    "Einzelartikel-Tracking, Kommissions-Abrechnung, Zustandsbewertung für Kleidung — ohne Excel.",
+  ),
 };
 
 const PAIN_ITEMS = [

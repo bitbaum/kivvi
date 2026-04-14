@@ -7,26 +7,53 @@ import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { Toaster } from "sonner";
 import { SentryUserContext } from "@/components/sentry-user-context";
+import { SITE_URL } from "@/lib/config/site";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  title: "Kivvi — Software für Secondhand & Wiederverwertung",
+const ORGANIZATION_LD = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Kivvi",
+  url: SITE_URL,
+  logo: `${SITE_URL}/logo.png`,
   description:
-    "Warenwirtschaft für Brockenhäuser, Refurbisher und Vintage-Läden. Wareneingang, Zustandsbewertung, flexible Preise, Impact-Messung. Gebaut in der Schweiz von revamp-it.",
+    "Das Open-Source-ERP für Kreislaufbetriebe — Brockenhäuser, IT-Refurbisher, Repair Cafés und Vintage-Shops.",
+  sameAs: ["https://github.com/g-but/kivvi"],
+  contactPoint: {
+    "@type": "ContactPoint",
+    email: "info@revamp-it.ch",
+    contactType: "customer support",
+  },
+};
+
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  title: "Kivvi — Das Betriebssystem der Kreislaufwirtschaft",
+  description:
+    "Das Open-Source-ERP für Brockenhäuser, IT-Refurbisher, Repair Cafés und Vintage-Shops. Einzelartikel-Tracking, KI-Schnelleingabe, Schweizer QR-Rechnungen.",
   openGraph: {
-    title: "Kivvi — Software für Secondhand & Wiederverwertung",
+    title: "Kivvi — Das Betriebssystem der Kreislaufwirtschaft",
     description:
-      "Jeden Artikel vom Eingang bis zum Verkauf verfolgen. Mit Zustandsbewertung, Reparatur-Protokoll und Impact-Dashboard.",
+      "Das Open-Source-ERP für Betriebe, die Waren ein zweites Leben geben. Einzelartikel-Tracking, KI, Swiss QR-Rechnungen.",
     type: "website",
     locale: "de_CH",
     siteName: "Kivvi",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Kivvi — Das Betriebssystem der Kreislaufwirtschaft",
+      },
+    ],
   },
   twitter: {
-    card: "summary",
-    title: "Kivvi — Software für Secondhand & Wiederverwertung",
+    card: "summary_large_image",
+    title: "Kivvi — Das Betriebssystem der Kreislaufwirtschaft",
     description:
-      "Warenwirtschaft für Brockenhäuser, Refurbisher und Vintage-Läden.",
+      "Das Open-Source-ERP für Brockenhäuser, IT-Refurbisher, Repair Cafés.",
+    images: ["/og-image.png"],
   },
 };
 
@@ -41,6 +68,10 @@ export default async function RootLayout({
   return (
     <html lang={locale} suppressHydrationWarning>
       <body className={inter.className}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(ORGANIZATION_LD) }}
+        />
         <NextIntlClientProvider messages={messages}>
           <SessionProvider>
             <ThemeProvider

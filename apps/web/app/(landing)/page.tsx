@@ -16,7 +16,7 @@ import {
   MessageSquare,
 } from "lucide-react";
 import type { Metadata } from "next";
-import { VERTICALS } from "@/lib/config/site";
+import { VERTICALS, buildPageMeta } from "@/lib/config/site";
 import { PainList } from "@/components/landing/pain-list";
 import { LandingCtaSection } from "@/components/landing/landing-cta-section";
 import { VerticalCard } from "@/components/landing/vertical-card";
@@ -43,6 +43,10 @@ export const metadata: Metadata = {
   title: "Kivvi — Das Betriebssystem der Kreislaufwirtschaft",
   description:
     "Kivvi ist das Open-Source-ERP für Brockenhäuser, IT-Refurbisher, Repair Cafés und Vintage-Shops. Einzelartikel-Tracking, KI-Schnelleingabe, Schweizer QR-Rechnungen — das Betriebssystem für Kreislaufbetriebe.",
+  ...buildPageMeta(
+    "Kivvi — Das Betriebssystem der Kreislaufwirtschaft",
+    "Kivvi ist das Open-Source-ERP für Brockenhäuser, IT-Refurbisher, Repair Cafés und Vintage-Shops. Einzelartikel-Tracking, KI-Schnelleingabe, Schweizer QR-Rechnungen — das Betriebssystem für Kreislaufbetriebe.",
+  ),
 };
 
 export default function Home() {

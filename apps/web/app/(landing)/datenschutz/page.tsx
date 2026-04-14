@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
-import { CONTACT_EMAIL } from "@/lib/config/site";
+import { CONTACT_EMAIL, buildPageMeta } from "@/lib/config/site";
 
 export const metadata: Metadata = {
   title: "Datenschutzerklärung — Kivvi",
   description:
     "Datenschutzerklärung von Kivvi gemäss Schweizer Datenschutzgesetz (nDSG).",
+  ...buildPageMeta(
+    "Datenschutzerklärung — Kivvi",
+    "Datenschutzerklärung von Kivvi gemäss Schweizer Datenschutzgesetz (nDSG).",
+  ),
 };
 
 export default function DatenschutzPage() {

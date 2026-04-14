@@ -1,11 +1,16 @@
 import { CheckCircle } from "lucide-react";
 import type { Metadata } from "next";
+import { buildPageMeta } from "@/lib/config/site";
 import { ContactForm, WaitlistForm } from "./_contact-form";
 
 export const metadata: Metadata = {
   title: "Demo anfragen — Kivvi ERP",
   description:
     "Demo anfragen oder auf die Cloud-Warteliste setzen lassen. Kivvi ist das Open-Source-ERP für Brockenhäuser, IT-Refurbisher, Repair Cafés und Vintage-Shops — Swiss-native, MIT-Lizenz.",
+  ...buildPageMeta(
+    "Demo anfragen — Kivvi ERP",
+    "Demo anfragen oder auf die Cloud-Warteliste setzen lassen. Kivvi ist das Open-Source-ERP für Brockenhäuser, IT-Refurbisher, Repair Cafés und Vintage-Shops — Swiss-native, MIT-Lizenz.",
+  ),
 };
 
 const BENEFITS = [

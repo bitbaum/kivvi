@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, BookOpen } from "lucide-react";
 import type { Metadata } from "next";
 import { getArticle, getAllArticles } from "@/lib/content/knowledge";
 import { Button } from "@/components/ui/button";
+import { buildPageMeta } from "@/lib/config/site";
 
 // ============================================================
 // Page
@@ -26,9 +27,12 @@ export async function generateMetadata({
   const { slug } = await params;
   const article = await getArticle(slug);
   if (!article) return {};
+  const title = `${article.meta.title} — Kivvi Wissensdatenbank`;
+  const description = article.meta.lead;
   return {
-    title: `${article.meta.title} — Kivvi Wissensdatenbank`,
-    description: article.meta.lead,
+    title,
+    description,
+    ...buildPageMeta(title, description),
   };
 }
 

@@ -3,12 +3,17 @@ import { SeeAlsoSection } from "@/components/landing/see-also-section";
 import { PainList } from "@/components/landing/pain-list";
 import { SolutionList } from "@/components/landing/solution-list";
 import { LandingCtaSection } from "@/components/landing/landing-cta-section";
+import { buildPageMeta } from "@/lib/config/site";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Kivvi für Brockenhäuser & Sozialkaufhäuser",
   description:
     "Spendenquittungen auf Knopfdruck, Donormanagement, Impact-Nachweis für Förderanträge — CHF 0 Lizenzkosten.",
+  ...buildPageMeta(
+    "Kivvi für Brockenhäuser & Sozialkaufhäuser",
+    "Spendenquittungen auf Knopfdruck, Donormanagement, Impact-Nachweis für Förderanträge — CHF 0 Lizenzkosten.",
+  ),
 };
 
 const PAIN_ITEMS = [

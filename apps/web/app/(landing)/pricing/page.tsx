@@ -1,12 +1,17 @@
 import { Check, Minus, Server, Cloud, Building2 } from "lucide-react";
 import Link from "next/link";
 import { LandingCtaSection } from "@/components/landing/landing-cta-section";
+import { buildPageMeta } from "@/lib/config/site";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Preise — Kivvi ERP",
   description:
     "Kivvi ist vollständig Open Source und kostenlos selbst hostbar. Oder nutzen Sie unsere Managed Cloud für CHF 49/Monat — gehostet in der Schweiz, betrieben von revamp-it.",
+  ...buildPageMeta(
+    "Preise — Kivvi ERP",
+    "Kivvi ist vollständig Open Source und kostenlos selbst hostbar. Oder nutzen Sie unsere Managed Cloud für CHF 49/Monat — gehostet in der Schweiz, betrieben von revamp-it.",
+  ),
 };
 
 const TIERS = [

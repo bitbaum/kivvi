@@ -1,12 +1,16 @@
 import { PackageOpen, Wrench, ShoppingCart } from "lucide-react";
 import { LandingCtaSection } from "@/components/landing/landing-cta-section";
-import { CONDITION_GRADES } from "@/lib/config/site";
+import { CONDITION_GRADES, buildPageMeta } from "@/lib/config/site";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Wie Kivvi funktioniert — Drei Phasen, ein System",
   description:
     "Wareneingang, Bewertung & Reparatur, Verkauf & Impact — Kivvi begleitet jeden Artikel von der Spende bis zum Verkauf. Einzelartikel-Tracking für Kreislaufbetriebe.",
+  ...buildPageMeta(
+    "Wie Kivvi funktioniert — Drei Phasen, ein System",
+    "Wareneingang, Bewertung & Reparatur, Verkauf & Impact — Kivvi begleitet jeden Artikel von der Spende bis zum Verkauf. Einzelartikel-Tracking für Kreislaufbetriebe.",
+  ),
 };
 
 export default function HowItWorksPage() {

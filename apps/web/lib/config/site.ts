@@ -1,3 +1,4 @@
+export const SITE_URL = "https://kivvi.ch";
 export const CONTACT_EMAIL = "info@revamp-it.ch";
 
 export const VERTICALS = [
@@ -104,3 +105,44 @@ export const CONDITION_GRADES = [
     colorClass: "bg-destructive/10 text-destructive",
   },
 ];
+
+// ============================================================================
+// METADATA HELPERS
+// ============================================================================
+
+/**
+ * Generates consistent openGraph + twitter metadata for landing pages.
+ * Spread this into your page's `metadata` export alongside title/description.
+ *
+ * Usage:
+ *   export const metadata: Metadata = {
+ *     title: "...",
+ *     description: "...",
+ *     ...buildPageMeta("...", "..."),
+ *   };
+ */
+export function buildPageMeta(title: string, description: string) {
+  return {
+    openGraph: {
+      title,
+      description,
+      type: "website" as const,
+      locale: "de_CH",
+      siteName: "Kivvi",
+      images: [
+        {
+          url: `${SITE_URL}/og-image.png`,
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image" as const,
+      title,
+      description,
+      images: [`${SITE_URL}/og-image.png`],
+    },
+  };
+}

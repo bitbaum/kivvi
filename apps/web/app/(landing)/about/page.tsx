@@ -2,11 +2,16 @@ import Link from "next/link";
 import { ArrowRight, Github, Recycle, Heart, Code2, Leaf } from "lucide-react";
 import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
+import { buildPageMeta } from "@/lib/config/site";
 
 export const metadata: Metadata = {
   title: "Über Kivvi — Das Betriebssystem der globalen Kreislaufwirtschaft",
   description:
     "Kivvi ist das Open-Source-ERP für Kreislaufbetriebe weltweit — entwickelt aus echtem Betrieb, gebaut für Brockenhäuser, IT-Refurbisher, Repair Cafés und Vintage-Shops.",
+  ...buildPageMeta(
+    "Über Kivvi — Das Betriebssystem der globalen Kreislaufwirtschaft",
+    "Kivvi ist das Open-Source-ERP für Kreislaufbetriebe weltweit — entwickelt aus echtem Betrieb, gebaut für Brockenhäuser, IT-Refurbisher, Repair Cafés und Vintage-Shops.",
+  ),
 };
 
 export default function AboutPage() {

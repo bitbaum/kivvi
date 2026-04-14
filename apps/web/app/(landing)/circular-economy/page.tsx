@@ -1,11 +1,16 @@
 import Link from "next/link";
 import { ArrowRight, Recycle } from "lucide-react";
+import { buildPageMeta } from "@/lib/config/site";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Kreislaufwirtschaft verstehen — Kivvi",
   description:
     "Wer sind die Teilnehmer der Kreislaufwirtschaft? Welche Geschäftsmodelle gibt es? Was macht sie fundamentell anders als die Linearwirtschaft?",
+  ...buildPageMeta(
+    "Kreislaufwirtschaft verstehen — Kivvi",
+    "Wer sind die Teilnehmer der Kreislaufwirtschaft? Welche Geschäftsmodelle gibt es? Was macht sie fundamentell anders als die Linearwirtschaft?",
+  ),
 };
 
 const PARTICIPANTS = [

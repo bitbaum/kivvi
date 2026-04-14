@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, HelpCircle } from "lucide-react";
 import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
+import { buildPageMeta } from "@/lib/config/site";
 
 const ORGANIZATION_LD = {
   "@context": "https://schema.org",
@@ -63,6 +64,10 @@ export const metadata: Metadata = {
   title: "FAQ — Häufige Fragen zu Kivvi",
   description:
     "Antworten auf die häufigsten Fragen zu Kivvi: Kosten, Self-Hosting, Unterschied zu Bexio und Kivitendo, Kreislaufwirtschaft, QR-Rechnungen, Datenschutz und mehr.",
+  ...buildPageMeta(
+    "FAQ — Häufige Fragen zu Kivvi",
+    "Antworten auf die häufigsten Fragen zu Kivvi: Kosten, Self-Hosting, Unterschied zu Bexio und Kivitendo, Kreislaufwirtschaft, QR-Rechnungen, Datenschutz und mehr.",
+  ),
 };
 
 const FAQ_GROUPS = [
