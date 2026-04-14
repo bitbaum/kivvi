@@ -1679,6 +1679,7 @@
     "step1Description": "Dieser Name erscheint auf Ihren Rechnungen und Dokumenten.",
     "step2Title": "Geschäftskonfiguration",
     "step3Title": "Datenimport",
+    "stepProgress": "Schritt {current} von {total}",
     "companyName": "Name des Betriebs / der Organisation",
     "companyAddress": "Adresse",
     "postalCode": "Postleitzahl",

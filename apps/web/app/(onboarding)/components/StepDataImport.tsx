@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { Database, Rocket, Upload, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useTranslations } from "next-intl";
 import {
   detectMappingProfile,
@@ -405,15 +406,15 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
                         )}
 
                         {pending && !pending.confirmed && !pending.profile && (
-                          <div className="rounded-lg bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
+                          <div className="rounded-lg bg-warning/5 p-3 text-sm text-warning">
                             {t("noAutoDetect")}
                           </div>
                         )}
 
                         {pending?.confirmed && pending.mappedRows && (
                           <div>
-                            <div className="mb-2 flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
-                              <span className="inline-block h-2 w-2 rounded-full bg-green-500" />
+                            <div className="mb-2 flex items-center gap-2 text-sm text-success">
+                              <span className="inline-block h-2 w-2 rounded-full bg-success/50" />
                               {t("readyToImport", {
                                 count: pending.mappedRows.length,
                               })}
@@ -435,53 +436,46 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
 
         {/* Action buttons */}
         <div className="mt-6 flex items-center justify-between">
-          <button
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={() => {
               setMode("choice");
               setPendingImports(new Map());
               setImportStatuses([]);
             }}
             disabled={isImporting}
-            className="rounded-lg border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted/50 disabled:opacity-50"
           >
             {t("back")}
-          </button>
+          </Button>
 
           <div className="flex gap-3">
             {!allImportsDone &&
               importStatuses.length === 0 &&
               confirmedCount > 0 && (
-                <button
-                  onClick={handleRunImport}
-                  disabled={isImporting}
-                  className="flex items-center gap-2 rounded-lg bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-                >
+                <Button onClick={handleRunImport} disabled={isImporting}>
                   {isImporting && <Loader2 className="h-4 w-4 animate-spin" />}
                   {t("importFiles", { count: confirmedCount })}
-                </button>
+                </Button>
               )}
 
             {allImportsDone && (
-              <button
-                onClick={handleCompleteSetup}
-                disabled={isCompleting}
-                className="flex items-center gap-2 rounded-lg bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-              >
+              <Button onClick={handleCompleteSetup} disabled={isCompleting}>
                 {isCompleting && <Loader2 className="h-4 w-4 animate-spin" />}
                 {t("completeSetup")}
-              </button>
+              </Button>
             )}
 
             {!allImportsDone &&
               importStatuses.length === 0 &&
               confirmedCount === 0 && (
-                <button
+                <Button
+                  variant="secondary"
                   onClick={handleCompleteSetup}
                   disabled={isCompleting}
-                  className="rounded-lg border px-5 py-2 text-sm font-medium hover:bg-muted/50 disabled:opacity-50"
                 >
                   {isCompleting ? t("completing") : t("skipAndFinish")}
-                </button>
+                </Button>
               )}
           </div>
         </div>

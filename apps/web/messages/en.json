@@ -1679,6 +1679,7 @@
     "step1Description": "This name will appear on your invoices and documents.",
     "step2Title": "Business Configuration",
     "step3Title": "Data Import",
+    "stepProgress": "Step {current} of {total}",
     "companyName": "Organisation / Business Name",
     "companyAddress": "Address",
     "postalCode": "Postal Code",

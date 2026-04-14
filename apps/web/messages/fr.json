@@ -1681,6 +1681,7 @@
     "step1Description": "Ce nom apparaîtra sur vos factures et documents.",
     "step2Title": "Configuration métier",
     "step3Title": "Import de données",
+    "stepProgress": "Étape {current} sur {total}",
     "companyName": "Nom de l'organisation / structure",
     "companyAddress": "Adresse",
     "postalCode": "Code postal",

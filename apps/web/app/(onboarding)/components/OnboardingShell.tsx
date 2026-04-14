@@ -24,7 +24,10 @@ export function OnboardingShell({
       <div className="mb-8">
         <div className="mb-3 flex items-center justify-between text-sm">
           <span className="font-medium text-foreground">
-            Step {Math.min(currentStep, totalSteps)} of {totalSteps}
+            {t("stepProgress", {
+              current: Math.min(currentStep, totalSteps),
+              total: totalSteps,
+            })}
           </span>
           <span className="text-muted-foreground">
             {stepLabels[Math.min(currentStep, totalSteps) - 1]}
