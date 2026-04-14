@@ -4,9 +4,9 @@ import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-  title: "Über Kivvi — Das ERP für die Kreislaufwirtschaft",
+  title: "Über Kivvi — Das Betriebssystem der globalen Kreislaufwirtschaft",
   description:
-    "Kivvi ist das erste Open-Source-ERP, das von Grund auf für Kreislaufbetriebe entwickelt wurde.",
+    "Kivvi ist das Open-Source-ERP für Kreislaufbetriebe weltweit — entwickelt aus echtem Betrieb, gebaut für Brockenhäuser, IT-Refurbisher, Repair Cafés und Vintage-Shops.",
 };
 
 export default function AboutPage() {
@@ -20,11 +20,12 @@ export default function AboutPage() {
           </div>
         </div>
         <h1 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl">
-          Software, die die Kreislaufwirtschaft versteht.
+          Das Betriebssystem der globalen Kreislaufwirtschaft.
         </h1>
         <p className="text-xl text-muted-foreground">
-          Kivvi ist das erste ERP, das von Grund auf für Betriebe entwickelt
-          wurde, die Waren ein zweites, drittes oder viertes Leben geben.
+          Kivvi ist das Open-Source-ERP für Betriebe, die Waren ein zweites,
+          drittes oder viertes Leben geben — und unser Beitrag zu einer Welt,
+          in der linear wirtschaften die Ausnahme ist, nicht die Regel.
         </p>
       </section>
 
@@ -48,6 +49,8 @@ export default function AboutPage() {
             <p className="font-medium text-foreground">
               Kivvi schließt diese Lücke — mit einem ERP, das die Realität der
               Kreislaufwirtschaft nativ abbildet, statt dagegen anzuarbeiten.
+              Unsere Ambition: das Betriebssystem für Kreislaufbetriebe
+              weltweit zu werden.
             </p>
           </div>
         </div>

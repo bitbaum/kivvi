@@ -29,7 +29,7 @@ const SOFTWARE_LD = {
   applicationCategory: "BusinessApplication",
   operatingSystem: "Web",
   description:
-    "Open-Source-ERP für Kreislaufwirtschaft: Brockenhäuser, IT-Refurbisher, Repair Cafés, Vintage-Shops",
+    "Das Betriebssystem der Kreislaufwirtschaft — Open-Source-ERP für Brockenhäuser, IT-Refurbisher, Repair Cafés und Vintage-Shops",
   offers: { "@type": "Offer", price: "0", priceCurrency: "CHF" },
   creator: {
     "@type": "Organization",
@@ -40,9 +40,9 @@ const SOFTWARE_LD = {
 };
 
 export const metadata: Metadata = {
-  title: "Kivvi — Das ERP für die Kreislaufwirtschaft",
+  title: "Kivvi — Das Betriebssystem der Kreislaufwirtschaft",
   description:
-    "Kivvi ist das ERP für Brockenhäuser, IT-Refurbisher, Repair Cafés und Vintage-Shops. Einzelartikel-Tracking, KI-Schnelleingabe, QR-Rechnungen — Open Source, Swiss-native.",
+    "Kivvi ist das Open-Source-ERP für Brockenhäuser, IT-Refurbisher, Repair Cafés und Vintage-Shops. Einzelartikel-Tracking, KI-Schnelleingabe, Schweizer QR-Rechnungen — das Betriebssystem für Kreislaufbetriebe.",
 };
 
 export default function Home() {
@@ -58,19 +58,19 @@ export default function Home() {
       <section className="mx-auto max-w-3xl py-20 text-center">
         <div className="mb-6 inline-flex items-center gap-2 rounded-full border bg-muted/50 px-4 py-1.5 text-sm text-muted-foreground">
           <Recycle className="h-3.5 w-3.5 text-primary" />
-          Open Source · Swiss-native · MIT-Lizenz
+          Open Source · Swiss-native · Kreislaufwirtschaft-ERP
         </div>
         <h1 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-          Das ERP, das Secondhand wirklich versteht.
+          Das Betriebssystem der Kreislaufwirtschaft.
         </h1>
         <p className="mb-6 text-xl font-medium text-primary sm:text-2xl">
           50 gespendete Laptops? In 30 Sekunden erfasst.
         </p>
         <p className="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground">
-          Kivvi wurde für Betriebe gebaut, die gebrauchte Waren verkaufen:
+          Kivvi ist das ERP für Betriebe, die Waren ein zweites Leben geben:
           Brockenhäuser, IT-Refurbisher, Repair Cafés, Vintage-Shops.
           Einzelartikel-Tracking, KI-Schnelleingabe, Schweizer QR-Rechnungen —
-          alles in einem.
+          alles in einem System.
         </p>
         <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
           <Button asChild size="lg">

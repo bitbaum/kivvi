@@ -4,9 +4,9 @@ import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-  title: "Warum Kivvi — Das Argument für ein kreislaufspezifisches ERP",
+  title: "Warum Kivvi — ERP für Kreislaufbetriebe",
   description:
-    "8 Dimensionen, in denen Standard-ERPs für Kreislaufbetriebe strukturell scheitern — und wie Kivvi antwortet.",
+    "8 Dimensionen, in denen Standard-ERPs für Kreislaufbetriebe strukturell scheitern — und wie Kivvi als Betriebssystem für die Kreislaufwirtschaft antwortet.",
 };
 
 const DIMENSIONS = [
@@ -95,9 +95,9 @@ export default function WhyKivviPage() {
           Warum ein eigenes ERP?
         </h1>
         <p className="text-xl text-muted-foreground">
-          Standard-ERPs scheitern an Kreislaufbetrieben nicht wegen fehlender
-          Features — sondern wegen falscher Grundannahmen. Acht Dimensionen, die
-          den Unterschied erklären.
+          Kivvi ist kein universelles ERP. Es ist das Betriebssystem für
+          Kreislaufbetriebe — gebaut auf anderen Grundannahmen. Acht
+          Dimensionen, die erklären warum Standard-ERPs strukturell scheitern.
         </p>
       </section>
 
