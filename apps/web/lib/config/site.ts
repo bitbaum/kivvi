@@ -96,12 +96,11 @@ export const CONDITION_GRADES = [
   {
     label: "Für Teile",
     desc: "Teilweise defekt, als Ersatzteillager",
-    colorClass:
-      "bg-orange-100 dark:bg-orange-900/40 text-orange-800 dark:text-orange-200",
+    colorClass: "bg-warning/10 text-warning",
   },
   {
     label: "Schrott",
     desc: "Nicht reparierbar, Recycling",
-    colorClass: "bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-200",
+    colorClass: "bg-destructive/10 text-destructive",
   },
 ];
