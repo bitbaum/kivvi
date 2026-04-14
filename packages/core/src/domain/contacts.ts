@@ -561,3 +561,53 @@ export async function deleteContactAddress(
 
   if (result.length === 0) throw new Error("Address not found");
 }
+
+// ============================================================================
+// CONTACT RESOLUTION
+// ============================================================================
+
+/**
+ * Resolve or create a contact from name + optional email.
+ * Used when external callers (e.g. API integrations) don't have a Kivvi contactId.
+ *
+ * Priority: email match → name match (ilike) → create new customer record.
+ */
+export async function resolveOrCreateContact(
+  db: Database,
+  companyId: string,
+  name: string,
+  email?: string,
+): Promise<string> {
+  // 1. Exact email match
+  if (email) {
+    const [byEmail] = await db
+      .select({ id: contacts.id })
+      .from(contacts)
+      .where(
+        and(
+          eq(contacts.companyId, companyId),
+          ilike(contacts.email, email.trim()),
+        ),
+      )
+      .limit(1);
+    if (byEmail) return byEmail.id;
+  }
+
+  // 2. Name match (case-insensitive)
+  const [byName] = await db
+    .select({ id: contacts.id })
+    .from(contacts)
+    .where(
+      and(eq(contacts.companyId, companyId), ilike(contacts.name, name.trim())),
+    )
+    .limit(1);
+  if (byName) return byName.id;
+
+  // 3. Create a minimal customer record
+  const created = await createContact(db, companyId, {
+    type: "customer",
+    name: name.trim(),
+    email: email?.trim() || null,
+  });
+  return created.id;
+}

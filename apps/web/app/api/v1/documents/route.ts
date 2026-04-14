@@ -6,14 +6,12 @@ import {
   listDocuments,
   createDocument,
   createDocumentSchema,
+  resolveOrCreateContact,
 } from "@kivvi/core";
-import { createContact } from "@kivvi/core/src/domain/contacts";
 import {
   documentTypeEnum,
   documentStatusEnum,
-  contacts,
 } from "@kivvi/database/src/schema";
-import { and, eq, ilike } from "drizzle-orm";
 
 const querySchema = z.object({
   page: z.coerce.number().int().positive().default(1),
@@ -61,50 +59,6 @@ export async function GET(request: NextRequest) {
   }
 }
 
-/**
- * Resolve or create a contact from name + optional email.
- * Used when external callers (e.g. RevampIT) don't have the Kivvi contactId.
- *
- * Priority: email match → name match (ilike) → create new customer record.
- */
-async function resolveOrCreateContact(
-  companyId: string,
-  name: string,
-  email?: string,
-): Promise<string> {
-  // 1. Exact email match
-  if (email) {
-    const [byEmail] = await db
-      .select({ id: contacts.id })
-      .from(contacts)
-      .where(
-        and(
-          eq(contacts.companyId, companyId),
-          ilike(contacts.email, email.trim()),
-        ),
-      )
-      .limit(1);
-    if (byEmail) return byEmail.id;
-  }
-
-  // 2. Exact name match
-  const [byName] = await db
-    .select({ id: contacts.id })
-    .from(contacts)
-    .where(
-      and(eq(contacts.companyId, companyId), ilike(contacts.name, name.trim())),
-    )
-    .limit(1);
-  if (byName) return byName.id;
-
-  // 3. Create a minimal customer record — shows up in Kivvi contact list
-  const created = await createContact(db, companyId, {
-    type: "customer",
-    name: name.trim(),
-    email: email?.trim() || null,
-  });
-  return created.id;
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -118,6 +72,7 @@ export async function POST(request: NextRequest) {
     let resolvedBody = { ...body };
     if (!body.contactId && body.contactName) {
       const contactId = await resolveOrCreateContact(
+        db,
         ctx.companyId,
         body.contactName,
         body.contactEmail,
