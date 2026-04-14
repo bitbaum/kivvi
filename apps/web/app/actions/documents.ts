@@ -38,6 +38,7 @@ import {
 import { revalidateDocumentPaths } from "./utils/revalidate-documents";
 import { getTransporter, getFromEmail } from "@/lib/email/transporter";
 import { isEmailConfigured } from "@/lib/config/email";
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // VALIDATION SCHEMAS FOR UNVALIDATED PARAMS
@@ -212,8 +213,8 @@ export async function recordPaymentAction(
         }
       } catch (emailError) {
         // Email failure must not roll back a successful payment
-        console.error(
-          "[recordPaymentAction] Payment confirmation email failed:",
+        logger.warn(
+          "[recordPaymentAction] Payment confirmation email failed",
           emailError,
         );
       }

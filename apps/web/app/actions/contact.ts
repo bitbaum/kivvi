@@ -4,6 +4,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { contactSubmissions } from "@kivvi/database";
 import { type ActionResult, safeErrorMessage } from "./utils";
+import { logger } from "@/lib/logger";
 import { isEmailConfigured } from "@/lib/config/email";
 import { getTransporter, getFromEmail } from "@/lib/email/transporter";
 import { CONTACT_EMAIL } from "@/lib/config/site";
@@ -99,8 +100,8 @@ export async function submitContactFormAction(
           `,
         });
       } catch (emailError) {
-        console.error(
-          "Failed to send contact form notification email:",
+        logger.warn(
+          "[contactFormAction] Failed to send notification email",
           emailError,
         );
       }

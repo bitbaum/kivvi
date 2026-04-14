@@ -24,16 +24,17 @@ export const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
-  companyName: createCompanySchema.shape.companyName,
+  // Optional: omit when registering to join an existing organisation
+  companyName: createCompanySchema.shape.companyName.optional(),
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;
 
 export interface RegisterResult {
   userId: string;
-  companyId: string;
+  companyId: string | null;
   email: string;
-  companyName: string;
+  companyName: string | null;
 }
 
 // ============================================================================
@@ -74,9 +75,8 @@ export async function registerAction(
     // Hash password
     const passwordHash = await bcrypt.hash(password, 12);
 
-    // Create company, user, and owner membership atomically
+    // Create user; optionally create company when registering as an owner
     const result = await db.transaction(async (tx) => {
-      // Create user first (needed for membership FK)
       const [user] = await tx
         .insert(users)
         .values({
@@ -86,20 +86,27 @@ export async function registerAction(
         })
         .returning();
 
-      // Create company + owner membership (single source of truth)
-      const company = await createOwnedCompany(tx, user.id, companyName);
+      if (companyName) {
+        // Owner path: create company + owner membership atomically
+        const company = await createOwnedCompany(tx, user.id, companyName);
+        await tx
+          .update(users)
+          .set({ companyId: company.companyId })
+          .where(eq(users.id, user.id));
+        return {
+          userId: user.id,
+          companyId: company.companyId,
+          email: user.email,
+          companyName: company.companyName,
+        };
+      }
 
-      // Set user's active company
-      await tx
-        .update(users)
-        .set({ companyId: company.companyId })
-        .where(eq(users.id, user.id));
-
+      // Member path: no company yet — user will join via invite link
       return {
         userId: user.id,
-        companyId: company.companyId,
+        companyId: null,
         email: user.email,
-        companyName: company.companyName,
+        companyName: null,
       };
     });
 

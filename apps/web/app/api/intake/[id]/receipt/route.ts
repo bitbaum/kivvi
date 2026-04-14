@@ -5,7 +5,9 @@ import { getDocument } from "@kivvi/core";
 import { generateDonationReceiptPdf } from "@kivvi/core/src/domain/pdf-generation";
 import { companies, contacts, documentItems } from "@kivvi/database";
 import type { CompanySettings } from "@kivvi/database";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
+import Decimal from "decimal.js";
+import { logger } from "@/lib/logger";
 
 export async function GET(
   _request: NextRequest,
@@ -62,26 +64,27 @@ export async function GET(
       const [c] = await db
         .select()
         .from(contacts)
-        .where(eq(contacts.id, donorId))
+        .where(and(eq(contacts.id, donorId), eq(contacts.companyId, companyId)))
         .limit(1);
       if (c) donor = c;
     }
 
-    // Fetch items
+    // Fetch items — documentId is already validated to belong to companyId above
     const items = await db
       .select()
       .from(documentItems)
       .where(eq(documentItems.documentId, id));
 
-    // Calculate estimated total
+    // Calculate estimated total using Decimal (never float arithmetic on money)
     let estimatedTotal: string | undefined;
     const total = items.reduce(
       (sum, item) =>
-        sum +
-        parseFloat(item.unitPrice || "0") * parseFloat(item.quantity || "1"),
-      0,
+        sum.plus(
+          new Decimal(item.unitPrice || "0").times(item.quantity || "1"),
+        ),
+      new Decimal(0),
     );
-    if (total > 0) estimatedTotal = total.toFixed(2);
+    if (total.gt(0)) estimatedTotal = total.toFixed(2);
 
     // Format date
     const date = doc.issueDate
@@ -116,7 +119,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error("Receipt generation error:", error);
+    logger.error("Receipt generation error:", error);
     return NextResponse.json(
       { error: "Failed to generate receipt" },
       { status: 500 },

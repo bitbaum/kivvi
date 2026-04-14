@@ -54,8 +54,8 @@ export function StepBusinessConfig({
     return (
       <div className="rounded-xl border bg-background p-6 shadow-sm md:p-8">
         <div className="flex flex-col items-center py-8 text-center">
-          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
-            <Check className="h-8 w-8 text-green-600 dark:text-green-400" />
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-success/10">
+            <Check className="h-8 w-8 text-success" />
           </div>
           <h2 className="mb-2 text-xl font-semibold">{t("setupComplete")}</h2>
           <div className="space-y-1 text-sm text-muted-foreground">

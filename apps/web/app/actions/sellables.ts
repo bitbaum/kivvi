@@ -3,6 +3,8 @@
 import { db } from "@/lib/db";
 import { listInventoryItems, searchProducts } from "@kivvi/core";
 import { type ActionResult, requireRole, safeErrorMessage } from "./utils";
+import { DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
+import { SELLABLE_ITEM_STATUSES } from "@/lib/config/inventory-items";
 
 /**
  * A "sellable" is either a catalog product or a specific tracked inventory item.
@@ -40,11 +42,12 @@ export async function searchSellablesAction(
       return { success: true, data: [] };
     }
 
+    const [readyForSale, listed, reserved] = SELLABLE_ITEM_STATUSES;
     const [products, items] = await Promise.all([
       searchProducts(db, companyId, query),
       listInventoryItems(db, companyId, {
         search: query,
-        status: "ready_for_sale",
+        status: readyForSale,
         pageSize: 8,
       }),
     ]);
@@ -59,7 +62,7 @@ export async function searchSellablesAction(
         number: item.itemNumber,
         name: item.description,
         price: item.askingPrice || item.estimatedValue || null,
-        vatRate: "8.1",
+        vatRate: DEFAULT_VAT_RATE,
         unit: "piece",
         stockQuantity: "1",
         condition: item.condition,
@@ -67,27 +70,27 @@ export async function searchSellablesAction(
       });
     }
 
-    // Also include items with status "listed" or "reserved"
-    const [listed, reserved] = await Promise.all([
+    // Also include listed and reserved items
+    const [listedItems, reservedItems] = await Promise.all([
       listInventoryItems(db, companyId, {
         search: query,
-        status: "listed",
+        status: listed,
         pageSize: 4,
       }),
       listInventoryItems(db, companyId, {
         search: query,
-        status: "reserved",
+        status: reserved,
         pageSize: 4,
       }),
     ]);
-    for (const item of [...listed.data, ...reserved.data]) {
+    for (const item of [...listedItems.data, ...reservedItems.data]) {
       results.push({
         kind: "inventory_item",
         id: item.id,
         number: item.itemNumber,
         name: item.description,
         price: item.askingPrice || item.estimatedValue || null,
-        vatRate: "8.1",
+        vatRate: DEFAULT_VAT_RATE,
         unit: "piece",
         stockQuantity: "1",
         condition: item.condition,

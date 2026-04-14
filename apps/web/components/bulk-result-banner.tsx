@@ -44,10 +44,10 @@ export function BulkResultBanner({
   const isFullFailure = result.successCount === 0;
 
   const bgClass = isFullSuccess
-    ? "border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-950/50 dark:text-green-300"
+    ? "border-success/20 bg-success/5 text-success"
     : isFullFailure
-      ? "border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/50 dark:text-red-300"
-      : "border-yellow-200 bg-yellow-50 text-yellow-800 dark:border-yellow-800 dark:bg-yellow-950/50 dark:text-yellow-300";
+      ? "border-destructive/20 bg-destructive/5 text-destructive"
+      : "border-warning/20 bg-warning/5 text-warning";
 
   const Icon = isFullSuccess
     ? CheckCircle

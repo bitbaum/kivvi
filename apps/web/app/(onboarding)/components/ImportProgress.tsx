@@ -33,8 +33,8 @@ export function ImportProgress({ statuses }: ImportProgressProps) {
             <Loader2 className="h-5 w-5 animate-spin text-primary" />
           )}
           {status.state === 'done' && (
-            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
-              <Check className="h-3 w-3 text-green-600 dark:text-green-400" />
+            <div className="flex h-5 w-5 items-center justify-center rounded-full bg-success/10">
+              <Check className="h-3 w-3 text-success" />
             </div>
           )}
           {status.state === 'error' && (

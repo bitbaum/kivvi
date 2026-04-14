@@ -19,9 +19,9 @@ function ErrorFallback() {
   const t = useTranslations('common');
 
   return (
-    <div className="flex min-h-[200px] items-center justify-center rounded-xl border border-red-200 bg-red-50 p-8 dark:border-red-900 dark:bg-red-900/10">
+    <div className="flex min-h-[200px] items-center justify-center rounded-xl border border-destructive/20 bg-destructive/5 p-8">
       <div className="text-center">
-        <AlertCircle className="mx-auto h-12 w-12 text-red-600 dark:text-red-400" />
+        <AlertCircle className="mx-auto h-12 w-12 text-destructive" />
         <h3 className="mt-4 font-semibold">{t('errorBoundaryTitle')}</h3>
         <p className="mt-2 text-sm text-muted-foreground">
           {t('errorBoundaryMessage')}

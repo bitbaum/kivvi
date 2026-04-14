@@ -11,7 +11,6 @@ import {
 } from "@kivvi/core";
 import {
   type ActionResult,
-  getSession,
   requireRole,
   safeErrorMessage,
 } from "./utils";
@@ -85,24 +84,14 @@ export const deleteRecurringConfigAction = createAction<string, void>({
   minRole: "member",
 });
 
-export async function toggleRecurringConfigAction(
-  configId: string,
-  isActive: boolean,
-): Promise<ActionResult<void>> {
-  try {
-    const { companyId } = await requireRole("member");
-
+export const toggleRecurringConfigAction = createAction<
+  { configId: string; isActive: boolean },
+  void
+>({
+  handler: async ({ configId, isActive }, { companyId, db }) => {
     await updateRecurringConfig(db, companyId, configId, { isActive });
-
-    revalidatePath("/settings/recurring-invoices");
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(
-        error,
-        "Failed to toggle recurring invoice config",
-      ),
-    };
-  }
-}
+  },
+  revalidate: ["/settings/recurring-invoices"],
+  errorMessage: "Failed to toggle recurring invoice config",
+  minRole: "member",
+});

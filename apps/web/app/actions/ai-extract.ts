@@ -1,89 +1,42 @@
 "use server";
 
 import { type ActionResult, requireRole, safeErrorMessage } from "./utils";
+import {
+  callAIProvider,
+  isAIConfigured,
+  extractJSON,
+} from "@/lib/ai/call-provider";
+import type { CreateContactInput } from "@kivvi/core/src/domain/contacts";
 
-export interface ExtractedItem {
-  brand: string; // e.g. "Lenovo", "Dell", "HP" — empty if unknown
-  model: string; // product name without brand, e.g. "ThinkPad T480"
-  quantity: string; // default "1"
-  category: string; // laptop|desktop|monitor|tablet|phone|keyboard|mouse|printer|other
-  estimatedPrice: string; // CHF, empty if unknown
-  // description = brand + model, for backward compat with the document form
-  description: string;
-}
-
-interface ExtractionResult {
-  items: ExtractedItem[];
-  rawResponse: string;
-}
+// ============================================================================
+// TYPES — derived from domain schemas (SSOT)
+// ============================================================================
 
 /**
- * Extract structured line items from natural language text for a secondhand goods intake.
- * Returns brand, model, quantity, category, and estimated price per item.
- *
- * Examples:
- * "50 Lenovo ThinkPad T480, 30 Dell OptiPlex 390"
- * → [{brand:"Lenovo", model:"ThinkPad T480", quantity:"50", category:"laptop", estimatedPrice:""}]
- *
- * "Ein MacBook Pro 2019, 150.-"
- * → [{brand:"Apple", model:"MacBook Pro 2019", quantity:"1", category:"laptop", estimatedPrice:"150"}]
+ * AI-extracted contact fields. Type is Partial<CreateContactInput> so it can
+ * never drift from the canonical schema in packages/core/src/domain/contacts.ts.
  */
-export async function extractItemsFromTextAction(
-  text: string,
-): Promise<ActionResult<ExtractionResult>> {
-  try {
-    await requireRole("member");
+export type ExtractedContact = Partial<CreateContactInput>;
 
-    if (!text.trim()) {
-      return { success: false, error: "Text is required" };
-    }
-
-    // Try to use the AI provider
-    const apiKey =
-      process.env.GROQ_API_KEY ||
-      process.env.XAI_API_KEY ||
-      process.env.ANTHROPIC_API_KEY ||
-      process.env.OPENROUTER_API_KEY;
-
-    if (!apiKey) {
-      return {
-        success: true,
-        data: { items: parseItemsSimple(text), rawResponse: "regex" },
-      };
-    }
-
-    const provider = process.env.GROQ_API_KEY
-      ? "groq"
-      : process.env.XAI_API_KEY
-        ? "xai"
-        : process.env.ANTHROPIC_API_KEY
-          ? "anthropic"
-          : "openrouter";
-
-    const items = await extractWithAI(text, provider, apiKey);
-    return { success: true, data: { items, rawResponse: "ai" } };
-  } catch (error) {
-    try {
-      return {
-        success: true,
-        data: { items: parseItemsSimple(text), rawResponse: "fallback" },
-      };
-    } catch {
-      return {
-        success: false,
-        error: safeErrorMessage(error, "Failed to extract items"),
-      };
-    }
-  }
+/**
+ * AI-extracted inventory line item. Matches the shape expected by the intake
+ * quick-entry form and the document form's product line.
+ */
+export interface ExtractedItem {
+  brand: string;
+  model: string;
+  /** description = brand + model (display value for the line-item description field) */
+  description: string;
+  quantity: string;
+  category: string;
+  estimatedPrice: string;
 }
 
-/** AI-powered extraction using a direct API call (lightweight, no ConversationEngine overhead) */
-async function extractWithAI(
-  text: string,
-  provider: string,
-  apiKey: string,
-): Promise<ExtractedItem[]> {
-  const systemPrompt = `You extract inventory items from natural language text for a secondhand goods store.
+// ============================================================================
+// SYSTEM PROMPTS — SSOT for what the AI is asked to do
+// ============================================================================
+
+const EXTRACT_ITEMS_PROMPT = `You extract inventory items from natural language text for a secondhand goods store.
 Return ONLY a JSON array. No markdown, no explanation.
 
 Each item: {"brand","model","quantity","category","estimatedPrice"}
@@ -103,117 +56,143 @@ Output: [{"brand":"Apple","model":"MacBook Pro 2019","quantity":"1","category":"
 Input: "Diverse Tastaturen ca 200 Stk, 15 Monitore Dell 24 Zoll"
 Output: [{"brand":"","model":"Tastaturen (diverse)","quantity":"200","category":"keyboard","estimatedPrice":""},{"brand":"Dell","model":"Monitor 24 Zoll","quantity":"15","category":"monitor","estimatedPrice":""}]`;
 
-  let url: string;
-  let headers: Record<string, string>;
-  let body: Record<string, unknown>;
+const EXTRACT_CONTACT_PROMPT = `You extract structured contact/person data from natural language text.
+Return ONLY a JSON object with these optional fields (omit unknown ones):
+{"name","firstName","lastName","email","phone","mobile","website","address","postalCode","city","country","vatNumber","notes"}
 
-  if (provider === "groq") {
-    url = "https://api.groq.com/openai/v1/chat/completions";
-    headers = {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    };
-    body = {
-      model: "llama-3.1-8b-instant",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: text },
-      ],
-      temperature: 0,
-      max_tokens: 2000,
-    };
-  } else if (provider === "xai") {
-    url = "https://api.x.ai/v1/chat/completions";
-    headers = {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    };
-    body = {
-      model: "grok-3-mini",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: text },
-      ],
-      temperature: 0,
-      max_tokens: 2000,
-    };
-  } else if (provider === "anthropic") {
-    url = "https://api.anthropic.com/v1/messages";
-    headers = {
-      "x-api-key": apiKey,
-      "Content-Type": "application/json",
-      "anthropic-version": "2023-06-01",
-    };
-    body = {
-      model: "claude-haiku-4-5-20251001",
-      system: systemPrompt,
-      messages: [{ role: "user", content: text }],
-      temperature: 0,
-      max_tokens: 2000,
-    };
-  } else {
-    url = "https://openrouter.ai/api/v1/chat/completions";
-    headers = {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    };
-    body = {
-      model: "meta-llama/llama-3.1-8b-instruct:free",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: text },
-      ],
-      temperature: 0,
-      max_tokens: 2000,
-    };
-  }
+Rules:
+- name: company/organization name (e.g. "Swisscom AG") — only if it's a company name
+- firstName/lastName: individual's first and last name
+- country: ISO 2-letter code (CH, DE, AT, FR...), default CH if Swiss context
+- postalCode: 4 digits for Switzerland
+- vatNumber: Swiss UID format like "CHE-123.456.789" if mentioned
 
-  const response = await fetch(url, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(body),
-  });
+Examples:
+Input: "Hans Müller, UBS AG, hans.mueller@ubs.com, Bahnhofstrasse 1, 8001 Zürich, +41 44 234 11 11"
+Output: {"firstName":"Hans","lastName":"Müller","name":"UBS AG","email":"hans.mueller@ubs.com","address":"Bahnhofstrasse 1","postalCode":"8001","city":"Zürich","country":"CH","phone":"+41 44 234 11 11"}
 
-  if (!response.ok) {
-    throw new Error(`AI provider returned ${response.status}`);
-  }
+Input: "Maria Rossi, maria@example.it, +39 02 1234567, Milano"
+Output: {"firstName":"Maria","lastName":"Rossi","email":"maria@example.it","phone":"+39 02 1234567","city":"Milano","country":"IT"}`;
 
-  const data = await response.json();
+// ============================================================================
+// SERVER ACTIONS
+// ============================================================================
 
-  // Extract content from response
-  let content: string;
-  if (provider === "anthropic") {
-    content = data.content?.[0]?.text || "[]";
-  } else {
-    content = data.choices?.[0]?.message?.content || "[]";
-  }
-
-  // Parse JSON from response (handle markdown code blocks)
-  const jsonMatch = content.match(/\[[\s\S]*\]/);
-  if (!jsonMatch) return parseItemsSimple(text);
-
-  const parsed = JSON.parse(jsonMatch[0]) as Array<{
-    brand?: string;
-    model?: string;
-    quantity?: string;
-    category?: string;
-    estimatedPrice?: string;
-  }>;
-  return parsed
-    .filter((item) => item.brand || item.model)
-    .map((item) => {
-      const brand = (item.brand || "").trim();
-      const model = (item.model || "").trim();
-      return {
-        brand,
-        model,
-        description: [brand, model].filter(Boolean).join(" "),
-        quantity: String(item.quantity || "1"),
-        category: item.category || "other",
-        estimatedPrice: item.estimatedPrice || "",
-      };
-    });
+interface ExtractionResult {
+  items: ExtractedItem[];
+  rawResponse: string;
 }
+
+/**
+ * Extract structured line items from natural language text for a secondhand
+ * goods intake. Returns brand, model, quantity, category, estimated price.
+ *
+ * Examples:
+ *   "50 Lenovo ThinkPad T480, 30 Dell OptiPlex 390"
+ *   "Ein MacBook Pro 2019, 150.-"
+ */
+export async function extractItemsFromTextAction(
+  text: string,
+): Promise<ActionResult<ExtractionResult>> {
+  try {
+    await requireRole("member");
+
+    if (!text.trim()) {
+      return { success: false, error: "Text is required" };
+    }
+
+    if (!isAIConfigured()) {
+      return {
+        success: true,
+        data: { items: parseItemsSimple(text), rawResponse: "regex" },
+      };
+    }
+
+    const raw = await callAIProvider(EXTRACT_ITEMS_PROMPT, text, 2000);
+    if (!raw) {
+      return {
+        success: true,
+        data: { items: parseItemsSimple(text), rawResponse: "regex" },
+      };
+    }
+
+    const parsed = extractJSON<{
+      brand?: string;
+      model?: string;
+      quantity?: string;
+      category?: string;
+      estimatedPrice?: string;
+    }>(raw, true);
+
+    const items: ExtractedItem[] = parsed
+      .filter((item) => item.brand || item.model)
+      .map((item) => {
+        const brand = (item.brand || "").trim();
+        const model = (item.model || "").trim();
+        return {
+          brand,
+          model,
+          description: [brand, model].filter(Boolean).join(" "),
+          quantity: String(item.quantity || "1"),
+          category: item.category || "other",
+          estimatedPrice: item.estimatedPrice || "",
+        };
+      });
+
+    return { success: true, data: { items, rawResponse: "ai" } };
+  } catch (error) {
+    try {
+      return {
+        success: true,
+        data: { items: parseItemsSimple(text), rawResponse: "fallback" },
+      };
+    } catch {
+      return {
+        success: false,
+        error: safeErrorMessage(error, "Failed to extract items"),
+      };
+    }
+  }
+}
+
+/**
+ * Extract structured contact data from natural language text.
+ * Returns a Partial<CreateContactInput> ready to prefill the contact form.
+ *
+ * Examples:
+ *   "Hans Müller, hans@example.com, Zürich, +41 79 123 45 67"
+ *   "UBS AG, Bahnhofstrasse 1, 8001 Zürich, CHE-101.329.561 MWST"
+ */
+export async function extractContactFromTextAction(
+  text: string,
+): Promise<ActionResult<ExtractedContact>> {
+  try {
+    await requireRole("member");
+
+    if (!text.trim()) {
+      return { success: false, error: "Text is required" };
+    }
+
+    if (!isAIConfigured()) {
+      return { success: true, data: {} };
+    }
+
+    const raw = await callAIProvider(EXTRACT_CONTACT_PROMPT, text, 500);
+    if (!raw) return { success: true, data: {} };
+
+    const contact = extractJSON<ExtractedContact>(raw);
+    return { success: true, data: contact ?? {} };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to extract contact data"),
+    };
+  }
+}
+
+// ============================================================================
+// REGEX FALLBACK (no AI key required)
+// ============================================================================
 
 function makeItem(description: string, quantity: string): ExtractedItem {
   return {
