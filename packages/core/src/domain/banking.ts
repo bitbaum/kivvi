@@ -688,7 +688,7 @@ export async function getReconciliationSummary(
     totalTransactions: stats.total,
     reconciled: stats.reconciled,
     unreconciled: stats.unreconciled,
-    totalUnreconciledAmount: Number(stats.unreconciledAmount),
+    totalUnreconciledAmount: new Decimal(stats.unreconciledAmount || "0").toNumber(),
   };
 }
 

@@ -28,7 +28,7 @@ export default function HowItWorksPage() {
 
       {/* Why individual tracking */}
       <section className="mx-auto max-w-3xl py-8">
-        <div className="rounded-2xl border bg-amber-50/50 dark:bg-amber-950/20 p-8">
+        <div className="rounded-2xl border bg-warning/5 p-8">
           <h2 className="mb-3 text-xl font-bold">
             Der Kern: Einzelartikel statt Lagerbestand
           </h2>
@@ -46,11 +46,11 @@ export default function HowItWorksPage() {
       {/* Phase 1 */}
       <section className="mx-auto max-w-4xl py-16">
         <div className="flex items-center gap-4 mb-8">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
-            <PackageOpen className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-info/10">
+            <PackageOpen className="h-6 w-6 text-info" />
           </div>
           <div>
-            <p className="text-sm font-medium uppercase tracking-wider text-blue-600 dark:text-blue-400">
+            <p className="text-sm font-medium uppercase tracking-wider text-info">
               Phase 1
             </p>
             <h2 className="text-2xl font-bold">Wareneingang</h2>
@@ -80,11 +80,11 @@ export default function HowItWorksPage() {
       {/* Phase 2 */}
       <section className="mx-auto max-w-4xl py-8">
         <div className="flex items-center gap-4 mb-8">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900">
-            <Wrench className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-warning/10">
+            <Wrench className="h-6 w-6 text-warning" />
           </div>
           <div>
-            <p className="text-sm font-medium uppercase tracking-wider text-amber-600 dark:text-amber-400">
+            <p className="text-sm font-medium uppercase tracking-wider text-warning">
               Phase 2
             </p>
             <h2 className="text-2xl font-bold">Bewertung & Reparatur</h2>
@@ -121,11 +121,11 @@ export default function HowItWorksPage() {
       {/* Phase 3 */}
       <section className="mx-auto max-w-4xl py-16">
         <div className="flex items-center gap-4 mb-8">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
-            <ShoppingCart className="h-6 w-6 text-green-600 dark:text-green-400" />
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-success/10">
+            <ShoppingCart className="h-6 w-6 text-success" />
           </div>
           <div>
-            <p className="text-sm font-medium uppercase tracking-wider text-green-600 dark:text-green-400">
+            <p className="text-sm font-medium uppercase tracking-wider text-success">
               Phase 3
             </p>
             <h2 className="text-2xl font-bold">Verkauf & Impact</h2>

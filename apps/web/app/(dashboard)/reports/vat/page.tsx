@@ -92,7 +92,7 @@ export default async function VatReportPage({ searchParams }: PageProps) {
           {/* Sales VAT */}
           <div className="rounded-xl border bg-card">
             <div className="flex items-center gap-2 border-b p-4">
-              <Receipt className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <Receipt className="h-5 w-5 text-info" />
               <h2 className="font-semibold">{t("salesVat")}</h2>
             </div>
             {report.salesVat.length > 0 ? (
@@ -129,7 +129,7 @@ export default async function VatReportPage({ searchParams }: PageProps) {
                       <td className="px-6 py-3" colSpan={2}>
                         {t("salesVat")} {tc("total")}
                       </td>
-                      <td className="px-6 py-3 text-right text-blue-600 dark:text-blue-400">
+                      <td className="px-6 py-3 text-right text-info">
                         {formatCurrency(report.totalSalesVat)}
                       </td>
                       <td />
@@ -147,7 +147,7 @@ export default async function VatReportPage({ searchParams }: PageProps) {
           {/* Purchase VAT */}
           <div className="rounded-xl border bg-card">
             <div className="flex items-center gap-2 border-b p-4">
-              <Receipt className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+              <Receipt className="h-5 w-5 text-warning" />
               <h2 className="font-semibold">{t("purchaseVat")}</h2>
             </div>
             {report.purchaseVat.length > 0 ? (
@@ -184,7 +184,7 @@ export default async function VatReportPage({ searchParams }: PageProps) {
                       <td className="px-6 py-3" colSpan={2}>
                         {t("purchaseVat")} {tc("total")}
                       </td>
-                      <td className="px-6 py-3 text-right text-amber-600 dark:text-amber-400">
+                      <td className="px-6 py-3 text-right text-warning">
                         {formatCurrency(report.totalPurchaseVat)}
                       </td>
                       <td />
@@ -203,8 +203,8 @@ export default async function VatReportPage({ searchParams }: PageProps) {
           <div
             className={`rounded-xl border-2 p-6 ${
               Number(report.vatPayable) >= 0
-                ? "border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/30"
-                : "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/30"
+                ? "border-info/20 bg-info/5"
+                : "border-success/20 bg-success/5"
             }`}
           >
             <div className="grid gap-4 sm:grid-cols-3">
@@ -212,7 +212,7 @@ export default async function VatReportPage({ searchParams }: PageProps) {
                 <p className="text-sm text-muted-foreground">
                   {t("salesVat")} {tc("total")}
                 </p>
-                <p className="mt-1 text-xl font-bold text-blue-600 dark:text-blue-400">
+                <p className="mt-1 text-xl font-bold text-info">
                   {formatCurrency(report.totalSalesVat)}
                 </p>
               </div>
@@ -220,7 +220,7 @@ export default async function VatReportPage({ searchParams }: PageProps) {
                 <p className="text-sm text-muted-foreground">
                   {t("purchaseVat")} {tc("total")}
                 </p>
-                <p className="mt-1 text-xl font-bold text-amber-600 dark:text-amber-400">
+                <p className="mt-1 text-xl font-bold text-warning">
                   - {formatCurrency(report.totalPurchaseVat)}
                 </p>
               </div>
@@ -233,8 +233,8 @@ export default async function VatReportPage({ searchParams }: PageProps) {
                 <p
                   className={`mt-1 text-2xl font-bold ${
                     Number(report.vatPayable) >= 0
-                      ? "text-blue-600 dark:text-blue-400"
-                      : "text-green-600 dark:text-green-400"
+                      ? "text-info"
+                      : "text-success"
                   }`}
                 >
                   {formatCurrency(Math.abs(Number(report.vatPayable)))}

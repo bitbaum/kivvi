@@ -117,7 +117,7 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
             {(item.status === "intake" || item.status === "testing") && (
               <Link
                 href={`/intake/items/${id}/test`}
-                className="inline-flex items-center gap-2 rounded-lg border border-yellow-300 bg-yellow-50 px-4 py-2 text-sm font-medium text-yellow-800 hover:bg-yellow-100 transition-colors dark:border-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-300"
+                className="inline-flex items-center gap-2 rounded-lg border border-warning/30 bg-warning/5 px-4 py-2 text-sm font-medium text-warning hover:bg-warning/10 transition-colors"
               >
                 <ClipboardList className="h-4 w-4" />
                 {item.checklistData
@@ -279,7 +279,7 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
                     <span className="text-muted-foreground">
                       {ti("soldFor")}
                     </span>
-                    <span className="font-medium text-green-600">
+                    <span className="font-medium text-success">
                       {formatCurrency(item.soldPrice)}
                     </span>
                   </div>
@@ -289,8 +289,8 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
                         item.effectiveCost,
                       );
                       const marginClass = margin.gte(0)
-                        ? "text-green-600"
-                        : "text-red-600";
+                        ? "text-success"
+                        : "text-destructive";
                       return (
                         <div className="flex justify-between text-sm border-t pt-2">
                           <span className="text-muted-foreground font-medium">

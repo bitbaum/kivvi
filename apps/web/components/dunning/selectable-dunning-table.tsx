@@ -197,10 +197,10 @@ export function SelectableDunningTable({
                     className={cn(
                       "font-medium",
                       inv.daysOverdue > 60
-                        ? "text-red-600 dark:text-red-400"
+                        ? "text-destructive"
                         : inv.daysOverdue > 30
-                          ? "text-orange-600 dark:text-orange-400"
-                          : "text-yellow-600 dark:text-yellow-400",
+                          ? "text-warning"
+                          : "text-warning",
                     )}
                   >
                     {inv.daysOverdue}d
@@ -218,10 +218,10 @@ export function SelectableDunningTable({
                   className={cn(
                     "text-sm font-medium",
                     inv.daysOverdue > 60
-                      ? "text-red-600 dark:text-red-400"
+                      ? "text-destructive"
                       : inv.daysOverdue > 30
-                        ? "text-orange-600 dark:text-orange-400"
-                        : "text-yellow-600 dark:text-yellow-400",
+                        ? "text-warning"
+                        : "text-warning",
                   )}
                 >
                   {inv.daysOverdue}d
@@ -244,7 +244,7 @@ export function SelectableDunningTable({
                     <button
                       onClick={() => handleRowDunning(inv.id)}
                       disabled={rowPending[inv.id] || isPending}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50 min-h-[44px]"
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-destructive px-3 py-1.5 text-xs font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50 min-h-[44px]"
                     >
                       <Send className="h-3 w-3" />
                       {rowPending[inv.id]
@@ -253,7 +253,7 @@ export function SelectableDunningTable({
                           "Escalate"}
                     </button>
                     {rowErrors[inv.id] && (
-                      <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                      <p className="mt-1 text-xs text-destructive">
                         {rowErrors[inv.id]}
                       </p>
                     )}
@@ -279,7 +279,7 @@ export function SelectableDunningTable({
         <button
           onClick={executeBulkDunning}
           disabled={isPending}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 min-h-[44px]"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-destructive px-3 py-1.5 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50 min-h-[44px]"
         >
           {isPending ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />

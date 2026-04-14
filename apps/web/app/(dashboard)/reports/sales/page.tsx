@@ -75,7 +75,7 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
       ) : (
         <div className="rounded-xl border bg-card">
           <div className="flex items-center gap-2 border-b p-4">
-            <BarChart3 className="h-5 w-5 text-red-600 dark:text-red-400" />
+            <BarChart3 className="h-5 w-5 text-destructive" />
             <h2 className="font-semibold">{t("monthlySales")}</h2>
           </div>
           <div className="overflow-x-auto">
@@ -123,7 +123,7 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
                     <td className="hidden px-4 py-3 text-right text-muted-foreground md:table-cell md:px-6">
                       {row.creditNoteCount > 0 ? row.creditNoteCount : "-"}
                     </td>
-                    <td className="hidden px-4 py-3 text-right text-red-600 md:table-cell dark:text-red-400 md:px-6">
+                    <td className="hidden px-4 py-3 text-right text-destructive md:table-cell md:px-6">
                       {Number(row.creditNoteAmount) > 0
                         ? `- ${formatCurrency(row.creditNoteAmount)}`
                         : "-"}
@@ -131,8 +131,8 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
                     <td
                       className={`px-4 py-3 text-right font-medium md:px-6 ${
                         Number(row.netRevenue) >= 0
-                          ? "text-green-600 dark:text-green-400"
-                          : "text-red-600 dark:text-red-400"
+                          ? "text-success"
+                          : "text-destructive"
                       }`}
                     >
                       {formatCurrency(row.netRevenue)}
@@ -159,7 +159,7 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
                       ? report.totals.creditNoteCount
                       : "-"}
                   </td>
-                  <td className="hidden px-4 py-3 text-right text-red-600 md:table-cell dark:text-red-400 md:px-6">
+                  <td className="hidden px-4 py-3 text-right text-destructive md:table-cell md:px-6">
                     {Number(report.totals.creditNoteAmount) > 0
                       ? `- ${formatCurrency(report.totals.creditNoteAmount)}`
                       : "-"}
@@ -167,8 +167,8 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
                   <td
                     className={`px-4 py-3 text-right text-lg md:px-6 ${
                       Number(report.totals.netRevenue) >= 0
-                        ? "text-green-600 dark:text-green-400"
-                        : "text-red-600 dark:text-red-400"
+                        ? "text-success"
+                        : "text-destructive"
                     }`}
                   >
                     {formatCurrency(report.totals.netRevenue)}
@@ -196,7 +196,7 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
                 <p className="text-sm text-muted-foreground">
                   {t("creditNoteCount")}
                 </p>
-                <p className="mt-1 text-xl font-bold text-red-600 dark:text-red-400">
+                <p className="mt-1 text-xl font-bold text-destructive">
                   {Number(report.totals.creditNoteAmount) > 0
                     ? `- ${formatCurrency(report.totals.creditNoteAmount)}`
                     : formatCurrency(0)}
@@ -214,8 +214,8 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
                 <p
                   className={`mt-1 text-2xl font-bold ${
                     Number(report.totals.netRevenue) >= 0
-                      ? "text-green-600 dark:text-green-400"
-                      : "text-red-600 dark:text-red-400"
+                      ? "text-success"
+                      : "text-destructive"
                   }`}
                 >
                   {formatCurrency(report.totals.netRevenue)}

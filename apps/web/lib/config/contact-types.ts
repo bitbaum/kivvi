@@ -9,10 +9,9 @@ export const CONTACT_TYPES = CONTACT_TYPE_VALUES;
  * Imported by contact detail page and selectable contact table.
  */
 export const CONTACT_TYPE_STYLES: Record<ContactType, string> = {
-  customer: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-  vendor:
-    "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400",
-  both: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
+  customer: "bg-info/10 text-info",
+  vendor: "bg-warning/10 text-warning",
+  both: "bg-tag-purple/10 text-tag-purple",
 };
 
 /** Build translated contact type labels from CONTACT_TYPES (SSOT). */

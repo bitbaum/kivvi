@@ -41,34 +41,20 @@ export const createBankAccountAction = createAction<unknown, unknown>({
   minRole: "member",
 });
 
-export async function updateBankAccountAction(
-  bankAccountId: string,
-  input: unknown,
-): Promise<ActionResult> {
-  try {
-    const { companyId } = await requireRole("member");
+export const updateBankAccountAction = createAction<
+  { bankAccountId: string; input: unknown },
+  unknown
+>({
+  handler: async ({ bankAccountId, input }, { companyId, db }) => {
     const parsed = createBankAccountSchema.safeParse(input);
-    if (!parsed.success) {
-      return {
-        success: false,
-        error: parsed.error.errors[0]?.message || "Invalid input",
-      };
-    }
-    const account = await updateBankAccount(
-      db,
-      companyId,
-      bankAccountId,
-      parsed.data,
-    );
-    revalidatePath("/banking");
-    return { success: true, data: account };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, "Failed to update bank account"),
-    };
-  }
-}
+    if (!parsed.success)
+      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    return updateBankAccount(db, companyId, bankAccountId, parsed.data);
+  },
+  revalidate: ["/banking"],
+  errorMessage: "Failed to update bank account",
+  minRole: "member",
+});
 
 // ============================================================================
 // TRANSACTIONS
@@ -201,27 +187,17 @@ export async function importCamtAction(
   }
 }
 
-export async function reconcileTransactionAction(
-  transactionId: string,
-  documentId: string,
-): Promise<ActionResult> {
-  try {
-    const { companyId } = await requireRole("member");
-    const txn = await reconcileTransaction(
-      db,
-      companyId,
-      transactionId,
-      documentId,
-    );
-    revalidatePath("/banking");
-    return { success: true, data: txn };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, "Failed to reconcile transaction"),
-    };
-  }
-}
+export const reconcileTransactionAction = createAction<
+  { transactionId: string; documentId: string },
+  unknown
+>({
+  handler: async ({ transactionId, documentId }, { companyId, db }) => {
+    return reconcileTransaction(db, companyId, transactionId, documentId);
+  },
+  revalidate: ["/banking"],
+  errorMessage: "Failed to reconcile transaction",
+  minRole: "member",
+});
 
 export const unreconcileTransactionAction = createAction<string, unknown>({
   handler: async (transactionId, { companyId, db }) => {

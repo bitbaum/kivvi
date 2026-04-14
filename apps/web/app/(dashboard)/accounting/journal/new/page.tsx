@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ArrowLeft, Plus, Trash2, AlertCircle, Loader2 } from "lucide-react";
 import { FormInput } from "@/components/ui/form-field";
+import { Button } from "@/components/ui/button";
 import { AccountPicker } from "./account-picker";
 import { useJournalEntryForm } from "./use-journal-entry-form";
 
@@ -95,14 +96,15 @@ export default function NewJournalEntryPage() {
           <div className="rounded-xl border bg-card">
             <div className="flex items-center justify-between border-b p-4">
               <h2 className="font-semibold">{t("journalEntry")}</h2>
-              <button
+              <Button
                 type="button"
+                variant="link"
+                size="sm"
                 onClick={addLine}
-                className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
               >
                 <Plus className="h-4 w-4" />
                 {t("addLine")}
-              </button>
+              </Button>
             </div>
 
             <div className="divide-y">
@@ -186,13 +188,15 @@ export default function NewJournalEntryPage() {
                       </div>
                     </div>
                     {lines.length > 2 && (
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
+                        size="icon"
                         onClick={() => removeLine(line.id)}
-                        className="mt-2 rounded-lg p-1.5 text-muted-foreground hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20"
+                        className="mt-2 text-muted-foreground hover:bg-destructive/5 hover:text-destructive dark:hover:bg-destructive/10"
                       >
                         <Trash2 className="h-4 w-4" />
-                      </button>
+                      </Button>
                     )}
                   </div>
                 </div>
@@ -223,9 +227,9 @@ export default function NewJournalEntryPage() {
                 <span
                   className={`font-bold ${
                     hasAmounts && !isBalanced
-                      ? "text-red-600 dark:text-red-400"
+                      ? "text-destructive"
                       : hasAmounts && isBalanced
-                        ? "text-green-600 dark:text-green-400"
+                        ? "text-success"
                         : ""
                   }`}
                 >
@@ -235,29 +239,30 @@ export default function NewJournalEntryPage() {
             </div>
 
             {hasAmounts && !isBalanced && (
-              <div className="mt-4 flex items-start gap-2 rounded-lg bg-red-50 p-3 dark:bg-red-900/20">
-                <AlertCircle className="h-4 w-4 mt-0.5 text-red-600 dark:text-red-400" />
-                <p className="text-sm text-red-600 dark:text-red-400">
+              <div className="mt-4 flex items-start gap-2 rounded-lg bg-destructive/5">
+                <AlertCircle className="h-4 w-4 mt-0.5 text-destructive" />
+                <p className="text-sm text-destructive">
                   {t("entryMustBalance")}
                 </p>
               </div>
             )}
 
             {error && (
-              <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+              <p className="mt-4 rounded-lg bg-destructive/5 p-3 text-sm text-destructive ">
                 {error}
               </p>
             )}
 
-            <button
+            <Button
               type="button"
               onClick={handleSubmit}
               disabled={isPending || !isBalanced || !hasAmounts}
-              className="mt-6 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="mt-6 w-full"
+              size="lg"
             >
               {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
               {isPending ? tc("creating") : t("createEntry")}
-            </button>
+            </Button>
 
             <p className="mt-2 text-center text-xs text-muted-foreground">
               {t("manualEntryNote")}

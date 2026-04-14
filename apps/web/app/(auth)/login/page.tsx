@@ -8,6 +8,7 @@ import { Loader2, Eye, EyeOff, Check, Shield } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { KivviLogo } from "@/components/kivvi-logo";
+import { Button } from "@/components/ui/button";
 
 function LoginForm() {
   const searchParams = useSearchParams();
@@ -147,14 +148,14 @@ function LoginForm() {
               </div>
             </div>
 
-            <button
+            <Button
               type="submit"
               disabled={isLoading}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-all hover:bg-primary/90 disabled:opacity-50"
+              className="w-full shadow-sm"
             >
               {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
               {isLoading ? t("signingIn") : t("signIn")}
-            </button>
+            </Button>
           </form>
 
           <div className="mt-6 text-center text-sm text-muted-foreground">

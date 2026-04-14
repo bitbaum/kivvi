@@ -9,6 +9,7 @@ import { useTranslations } from "next-intl";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { KivviLogo } from "@/components/kivvi-logo";
 import { registerAction } from "@/app/actions/auth";
+import { Button } from "@/components/ui/button";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -17,6 +18,7 @@ export default function RegisterPage() {
   const callbackUrl = searchParams.get("callbackUrl");
   const prefillEmail = searchParams.get("email");
 
+  const [mode, setMode] = useState<"new" | "join">("new");
   const [formData, setFormData] = useState({
     name: "",
     email: prefillEmail || "",
@@ -40,8 +42,12 @@ export default function RegisterPage() {
     setIsLoading(true);
 
     try {
-      // Register using Server Action
-      const result = await registerAction(formData);
+      // Register using Server Action — omit companyName when joining
+      const result = await registerAction(
+        mode === "join"
+          ? { name: formData.name, email: formData.email, password: formData.password }
+          : formData,
+      );
 
       if (!result.success) {
         setError(result.error || t("errorGeneric"));
@@ -62,7 +68,9 @@ export default function RegisterPage() {
         return;
       }
 
-      // If there's a callbackUrl (e.g., from invitation), go there instead of onboarding
+      // callbackUrl takes precedence (invite links). Otherwise:
+      // - owner path → onboarding (middleware lets through)
+      // - join path → /join (middleware redirects /onboarding to /join for no-company users)
       router.push(callbackUrl || "/onboarding");
       router.refresh();
     } catch (err) {
@@ -92,7 +100,38 @@ export default function RegisterPage() {
           <h1 className="mb-2 text-2xl font-semibold tracking-tight">
             {t("register")}
           </h1>
-          <p className="mb-8 text-muted-foreground">{t("registerSubtitle")}</p>
+
+          {/* Mode toggle */}
+          <div className="mb-6 flex rounded-lg border p-1 text-sm">
+            <button
+              type="button"
+              onClick={() => setMode("new")}
+              className={`flex-1 rounded-md px-3 py-1.5 font-medium transition-colors ${
+                mode === "new"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {t("modeNew")}
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("join")}
+              className={`flex-1 rounded-md px-3 py-1.5 font-medium transition-colors ${
+                mode === "join"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {t("modeJoin")}
+            </button>
+          </div>
+
+          {mode === "join" && (
+            <div className="mb-6 rounded-lg border border-dashed bg-muted/30 px-4 py-3 text-sm text-muted-foreground">
+              {t("joinHint")}
+            </div>
+          )}
 
           {error && (
             <div className="mb-4 flex items-center gap-2 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
@@ -111,7 +150,7 @@ export default function RegisterPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="grid gap-5 sm:grid-cols-2">
+            <div className={`grid gap-5 ${mode === "new" ? "sm:grid-cols-2" : ""}`}>
               <div>
                 <label
                   htmlFor="name"
@@ -132,28 +171,30 @@ export default function RegisterPage() {
                 />
               </div>
 
-              <div>
-                <label
-                  htmlFor="companyName"
-                  className="mb-1.5 block text-sm font-medium"
-                >
-                  {t("companyName")}
-                </label>
-                <input
-                  id="companyName"
-                  name="companyName"
-                  type="text"
-                  value={formData.companyName}
-                  onChange={handleChange}
-                  placeholder={t("placeholders.companyName")}
-                  required
-                  autoComplete="organization"
-                  className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                />
-                <p className="mt-1.5 text-xs text-muted-foreground">
-                  {t("companyNameHint")}
-                </p>
-              </div>
+              {mode === "new" && (
+                <div>
+                  <label
+                    htmlFor="companyName"
+                    className="mb-1.5 block text-sm font-medium"
+                  >
+                    {t("companyName")}
+                  </label>
+                  <input
+                    id="companyName"
+                    name="companyName"
+                    type="text"
+                    value={formData.companyName}
+                    onChange={handleChange}
+                    placeholder={t("placeholders.companyName")}
+                    required
+                    autoComplete="organization"
+                    className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                  <p className="mt-1.5 text-xs text-muted-foreground">
+                    {t("companyNameHint")}
+                  </p>
+                </div>
+              )}
             </div>
 
             <div>
@@ -217,14 +258,14 @@ export default function RegisterPage() {
               </p>
             </div>
 
-            <button
+            <Button
               type="submit"
               disabled={isLoading}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-all hover:bg-primary/90 disabled:opacity-50"
+              className="w-full shadow-sm"
             >
               {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
               {isLoading ? t("creatingAccount") : t("createAccount")}
-            </button>
+            </Button>
           </form>
 
           <div className="mt-6 text-center text-sm text-muted-foreground">

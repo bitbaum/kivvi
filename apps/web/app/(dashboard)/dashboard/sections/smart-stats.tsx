@@ -24,9 +24,9 @@ export async function SmartStats({ sinceDate }: { sinceDate?: Date }) {
   } catch (error) {
     logger.error("Failed to load dashboard stats", error);
     return (
-      <div className="rounded-xl border border-yellow-200 bg-yellow-50 p-6 text-center dark:border-yellow-900 dark:bg-yellow-950">
-        <AlertTriangle className="mx-auto mb-2 h-6 w-6 text-yellow-600" />
-        <p className="text-sm text-yellow-800 dark:text-yellow-200">
+      <div className="rounded-xl border border-warning/20 bg-warning/5 p-6 text-center">
+        <AlertTriangle className="mx-auto mb-2 h-6 w-6 text-warning" />
+        <p className="text-sm text-warning">
           {t("stats.loadError")}
         </p>
       </div>
@@ -38,20 +38,20 @@ export async function SmartStats({ sinceDate }: { sinceDate?: Date }) {
     {
       ...stats.revenueThisMonth,
       icon: <TrendingUp className="h-5 w-5" />,
-      color: "text-green-600 dark:text-green-400",
-      bgColor: "bg-green-100 dark:bg-green-900/30",
+      color: "text-success",
+      bgColor: "bg-success/10",
     },
     {
       ...stats.outstandingInvoices,
       icon: <FileText className="h-5 w-5" />,
-      color: "text-yellow-600 dark:text-yellow-400",
-      bgColor: "bg-yellow-100 dark:bg-yellow-900/30",
+      color: "text-warning",
+      bgColor: "bg-warning/10",
     },
     {
       ...stats.bankBalance,
       icon: <Wallet className="h-5 w-5" />,
-      color: "text-purple-600 dark:text-purple-400",
-      bgColor: "bg-purple-100 dark:bg-purple-900/30",
+      color: "text-tag-purple",
+      bgColor: "bg-tag-purple/10",
     },
   ];
 
@@ -89,15 +89,15 @@ export async function SmartStats({ sinceDate }: { sinceDate?: Date }) {
               <div className="mt-1 flex items-center gap-1 text-sm">
                 {stat.changePercent > 0 ? (
                   <>
-                    <TrendingUp className="h-3 w-3 text-green-600 dark:text-green-400" />
-                    <span className="text-green-600 dark:text-green-400">
+                    <TrendingUp className="h-3 w-3 text-success" />
+                    <span className="text-success">
                       +{stat.changePercent.toFixed(1)}% {t("stats.vsLastMonth")}
                     </span>
                   </>
                 ) : stat.changePercent < 0 ? (
                   <>
-                    <TrendingDown className="h-3 w-3 text-red-600 dark:text-red-400" />
-                    <span className="text-red-600 dark:text-red-400">
+                    <TrendingDown className="h-3 w-3 text-destructive" />
+                    <span className="text-destructive">
                       {stat.changePercent.toFixed(1)}% {t("stats.vsLastMonth")}
                     </span>
                   </>

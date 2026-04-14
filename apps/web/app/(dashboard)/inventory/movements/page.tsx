@@ -11,14 +11,11 @@ import { getMovementTypeLabels } from "@/lib/config/inventory";
 import { RecordMovementForm } from "./record-movement-form";
 
 const TYPE_STYLES: Record<string, string> = {
-  purchase:
-    "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-  sale: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-  adjustment: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400",
-  transfer:
-    "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
-  return:
-    "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400",
+  purchase: "bg-success/10 text-success",
+  sale: "bg-info/10 text-info",
+  adjustment: "bg-neutral/10 text-neutral",
+  transfer: "bg-tag-purple/10 text-tag-purple",
+  return: "bg-warning/10 text-warning",
 };
 
 interface PageProps {
@@ -197,9 +194,7 @@ export default async function MovementsPage({ searchParams }: PageProps) {
                         <td
                           className={cn(
                             "whitespace-nowrap px-4 py-3 text-right font-medium",
-                            isPositive
-                              ? "text-green-600 dark:text-green-400"
-                              : "text-red-600 dark:text-red-400",
+                            isPositive ? "text-success" : "text-destructive",
                           )}
                         >
                           {isPositive ? "+" : "-"}

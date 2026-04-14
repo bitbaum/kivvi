@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { useChatWidget } from "@/hooks/use-chat-widget";
 import { useNavBadges, type NavBadges } from "@/hooks/use-nav-badges";
@@ -24,6 +25,21 @@ import {
 } from "lucide-react";
 import { KivviLogo } from "@/components/kivvi-logo";
 import { CompanySwitcher } from "@/components/sidebar/company-switcher";
+import { Button } from "@/components/ui/button";
+
+type UserRole = "owner" | "admin" | "member" | "viewer";
+
+const ROLE_RANK: Record<UserRole, number> = {
+  viewer: 0,
+  member: 1,
+  admin: 2,
+  owner: 3,
+};
+
+function hasMinRole(userRole: string | undefined, minRole: UserRole): boolean {
+  const rank = ROLE_RANK[userRole as UserRole] ?? 0;
+  return rank >= ROLE_RANK[minRole];
+}
 
 interface NavItem {
   nameKey: string;
@@ -31,11 +47,14 @@ interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
   activePrefixes?: string[];
   badgeKey?: keyof NavBadges;
+  /** Minimum role required to see this item. Defaults to "member". */
+  minRole?: UserRole;
 }
 
-// Core navigation — flat, 8 items
+// Core navigation — flat, 9 items
+// minRole defaults to "member"; viewers only see dashboard + intake + inventory
 const primaryNavigation: NavItem[] = [
-  { nameKey: "home", href: "/dashboard", icon: LayoutDashboard },
+  { nameKey: "home", href: "/dashboard", icon: LayoutDashboard, minRole: "viewer" },
   { nameKey: "people", href: "/contacts", icon: Users },
   { nameKey: "catalog", href: "/products", icon: Package },
   {
@@ -52,15 +71,15 @@ const primaryNavigation: NavItem[] = [
     activePrefixes: ["/banking", "/accounting"],
     badgeKey: "money",
   },
-  { nameKey: "intake", href: "/intake", icon: PackageOpen },
-  { nameKey: "inventory", href: "/inventory", icon: Warehouse },
+  { nameKey: "intake", href: "/intake", icon: PackageOpen, minRole: "viewer" },
+  { nameKey: "inventory", href: "/inventory", icon: Warehouse, minRole: "viewer" },
   { nameKey: "projects", href: "/projects", icon: FolderKanban },
   { nameKey: "reports", href: "/reports", icon: BarChart3 },
 ];
 
 const secondaryNavigation: NavItem[] = [
-  { nameKey: "settings", href: "/settings", icon: Settings },
-  { nameKey: "help", href: "/help", icon: HelpCircle },
+  { nameKey: "settings", href: "/settings", icon: Settings, minRole: "admin" },
+  { nameKey: "help", href: "/help", icon: HelpCircle, minRole: "viewer" },
 ];
 
 function isNavActive(item: NavItem, pathname: string): boolean {
@@ -106,7 +125,7 @@ function NavLink({
         <item.icon className="h-4 w-4" aria-hidden="true" />
         {badgeCount > 0 && (
           <span
-            className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-red-500"
+            className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-destructive/50"
             aria-label={`${badgeCount}`}
           />
         )}
@@ -118,7 +137,7 @@ function NavLink({
             "ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-xs font-medium",
             isActive
               ? "bg-primary-foreground/20 text-primary-foreground"
-              : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+              : "bg-destructive/10 text-destructive",
           )}
         >
           {badgeCount > 99 ? "99+" : badgeCount}
@@ -139,6 +158,15 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const tc = useTranslations("common");
   const chatWidget = useChatWidget();
   const badges = useNavBadges();
+  const { data: session } = useSession();
+  const userRole = session?.user?.role;
+
+  const visiblePrimary = primaryNavigation.filter((item) =>
+    hasMinRole(userRole, item.minRole ?? "member"),
+  );
+  const visibleSecondary = secondaryNavigation.filter((item) =>
+    hasMinRole(userRole, item.minRole ?? "member"),
+  );
 
   // Close sidebar on Escape key
   useEffect(() => {
@@ -168,13 +196,15 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
           <span className="text-xl font-bold">Kivvi</span>
         </Link>
         {onClose && (
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={onClose}
-            className="ml-auto flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg p-2 hover:bg-muted lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="ml-auto lg:hidden"
             aria-label={tc("aria.closeMenu")}
           >
             <X className="h-5 w-5" />
-          </button>
+          </Button>
         )}
       </div>
 
@@ -208,7 +238,7 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
 
         <div className="my-3 border-t" role="separator" />
 
-        {primaryNavigation.map((item) => (
+        {visiblePrimary.map((item) => (
           <NavLink
             key={item.href}
             item={item}
@@ -222,7 +252,7 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
 
       {/* Secondary navigation */}
       <nav className="border-t p-4" aria-label={tc("aria.secondaryNavigation")}>
-        {secondaryNavigation.map((item) => {
+        {visibleSecondary.map((item) => {
           const isActive = isNavActive(item, pathname);
           return (
             <Link

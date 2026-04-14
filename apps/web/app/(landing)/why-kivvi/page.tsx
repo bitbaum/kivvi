@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import type { Metadata } from "next";
+import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "Warum Kivvi — Das Argument für ein kreislaufspezifisches ERP",
@@ -102,7 +103,7 @@ export default function WhyKivviPage() {
 
       {/* The core argument */}
       <section className="mx-auto max-w-3xl py-8">
-        <div className="rounded-2xl border bg-amber-50/50 dark:bg-amber-950/20 p-8">
+        <div className="rounded-2xl border bg-warning/5 p-8">
           <h2 className="mb-3 text-xl font-bold">
             Das ist kein Feature-Problem — es ist ein Modell-Problem.
           </h2>
@@ -164,19 +165,17 @@ export default function WhyKivviPage() {
           10 Minuten.
         </p>
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-          <Link
-            href="/contact"
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-primary-foreground hover:bg-primary/90"
-          >
-            Demo anfragen
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-          <Link
-            href="/register"
-            className="inline-flex items-center gap-2 rounded-lg border px-6 py-3 font-medium hover:bg-muted"
-          >
-            Kivvi ausprobieren <ArrowRight className="h-4 w-4" />
-          </Link>
+          <Button asChild size="lg">
+            <Link href="/contact">
+              Demo anfragen
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
+          <Button asChild variant="secondary" size="lg">
+            <Link href="/register">
+              Kivvi ausprobieren <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
         </div>
         <div className="mt-8 flex justify-center gap-6 text-sm">
           <Link
@@ -228,7 +227,7 @@ function DimensionCard({
           </p>
         </div>
         <div className="p-5">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-warning">
             Kreislaufbetrieb braucht
           </p>
           <p className="text-sm text-muted-foreground leading-relaxed">

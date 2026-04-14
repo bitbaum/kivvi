@@ -3,8 +3,9 @@
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
-import { getSession, requireRole, safeErrorMessage } from "./utils";
+import { requireRole, safeErrorMessage } from "./utils";
 import type { ActionResult } from "./utils";
+import { createAction } from "./action-factory";
 import {
   createInvitation,
   revokeInvitation,
@@ -118,67 +119,40 @@ export async function inviteMemberAction(
 /**
  * Revoke a pending invitation.
  */
-export async function revokeInvitationAction(
-  invitationId: unknown,
-): Promise<ActionResult> {
-  try {
-    const { companyId } = await requireRole("admin");
+export const revokeInvitationAction = createAction<unknown, void>({
+  minRole: "admin",
+  revalidate: ["/settings/team"],
+  errorMessage: "Failed to revoke invitation",
+  handler: async (invitationId, { companyId, db }) => {
     const parsed = z.string().uuid().safeParse(invitationId);
-    if (!parsed.success) {
-      return { success: false, error: "Invalid invitation ID" };
-    }
-
+    if (!parsed.success) throw new Error("Invalid invitation ID");
     await revokeInvitation(db, companyId, parsed.data);
-    revalidatePath("/settings/team");
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, "Failed to revoke invitation"),
-    };
-  }
-}
+  },
+});
 
 /**
  * List pending invitations for the current company.
  */
-export async function getInvitationsAction(): Promise<
-  ActionResult<PendingInvitation[]>
-> {
-  try {
-    const { companyId } = await getSession();
-    const data = await getCompanyInvitations(db, companyId);
-    return { success: true, data };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, "Failed to load invitations"),
-    };
-  }
-}
+export const getInvitationsAction = createAction<void, PendingInvitation[]>({
+  errorMessage: "Failed to load invitations",
+  handler: async (_input, { companyId, db }) =>
+    getCompanyInvitations(db, companyId),
+});
 
 /**
  * Accept an invitation (logged-in user).
  */
-export async function acceptInvitationAction(
-  token: unknown,
-): Promise<ActionResult<{ companyId: string; companyName: string }>> {
-  try {
-    const { userId } = await getSession();
+export const acceptInvitationAction = createAction<
+  unknown,
+  { companyId: string; companyName: string }
+>({
+  errorMessage: "Failed to accept invitation",
+  handler: async (token, { userId, db }) => {
     const parsed = z.string().min(1).safeParse(token);
-    if (!parsed.success) {
-      return { success: false, error: "Invalid token" };
-    }
-
-    const result = await acceptInvitation(db, parsed.data, userId);
-    return { success: true, data: result };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, "Failed to accept invitation"),
-    };
-  }
-}
+    if (!parsed.success) throw new Error("Invalid token");
+    return acceptInvitation(db, parsed.data, userId);
+  },
+});
 
 /**
  * Get invitation details by token (for the accept page, no auth required).

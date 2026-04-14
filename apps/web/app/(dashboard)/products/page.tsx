@@ -220,7 +220,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
           {t("summaryActive", { count: activeCount })}
         </span>
         {lowStockCount > 0 && (
-          <span className="rounded-full bg-yellow-100 dark:bg-yellow-900/30 px-3 py-1 font-medium text-yellow-700 dark:text-yellow-300">
+          <span className="rounded-full bg-warning/10 px-3 py-1 font-medium text-warning">
             {t("summaryLowStock", { count: lowStockCount })}
           </span>
         )}

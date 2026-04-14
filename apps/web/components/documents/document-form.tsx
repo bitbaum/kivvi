@@ -20,6 +20,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { createDocumentAction } from "@/app/actions/documents";
+import { Button } from "@/components/ui/button";
 import { DOCUMENT_TYPES } from "@/lib/config/document-types";
 import { DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
 import { ContactPicker } from "@/components/contacts/contact-picker";
@@ -316,7 +317,7 @@ export function DocumentForm({ type }: DocumentFormProps) {
                   {form.dueDate &&
                     form.issueDate &&
                     form.dueDate < form.issueDate && (
-                      <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
+                      <p className="mt-1 text-xs text-warning">
                         {t("dueDateBeforeIssueDate")}
                       </p>
                     )}
@@ -338,23 +339,22 @@ export function DocumentForm({ type }: DocumentFormProps) {
             </div>
           </div>
 
-          {/* AI Quick Entry (intake only) */}
-          {isIntake && (
-            <IntakeQuickEntry onItemsExtracted={form.addItemsBulk} />
-          )}
+          {/* AI Quick Entry — available on all document types */}
+          <IntakeQuickEntry onItemsExtracted={form.addItemsBulk} />
 
           {/* Line items */}
           <div className="rounded-xl border bg-card">
             <div className="flex items-center justify-between border-b p-4">
               <h2 className="font-semibold">{t("lineItems")}</h2>
-              <button
+              <Button
                 type="button"
+                variant="link"
+                size="sm"
                 onClick={form.addItem}
-                className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
               >
                 <Plus className="h-4 w-4" />
                 {t("addItem")}
-              </button>
+              </Button>
             </div>
 
             <DndContext
@@ -463,31 +463,32 @@ export function DocumentForm({ type }: DocumentFormProps) {
             )}
 
             {error && (
-              <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+              <p className="mt-4 rounded-lg bg-destructive/5 p-3 text-sm text-destructive ">
                 {error}
               </p>
             )}
 
-            <button
+            <Button
               type="button"
               onClick={handleSubmit}
               disabled={isPending}
-              className="mt-6 w-full rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              className="mt-6 w-full"
+              size="lg"
             >
               {isPending ? (
-                <span className="flex items-center justify-center gap-2">
+                <>
                   <Loader2 className="h-4 w-4 animate-spin" />
                   {tc("creating")}
-                </span>
+                </>
               ) : (
-                <span className="flex items-center justify-center gap-2">
+                <>
                   {t("newDocument", { type: t(config.label) })}
                   <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded border border-primary-foreground/20 bg-primary-foreground/10 px-1.5 py-0.5 text-[10px] font-mono">
                     ⌘↵
                   </kbd>
-                </span>
+                </>
               )}
-            </button>
+            </Button>
 
             <p className="mt-2 text-center text-xs text-muted-foreground">
               {t("createdAsDraft", { type: t(config.label) })}

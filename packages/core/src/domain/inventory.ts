@@ -245,7 +245,7 @@ export async function getLowStockProducts(
 
   return rows.map((r) => ({
     ...r,
-    totalStock: Number(r.totalStock),
+    totalStock: new Decimal(r.totalStock || "0").toNumber(),
     minStock: r.minStock!,
   }));
 }

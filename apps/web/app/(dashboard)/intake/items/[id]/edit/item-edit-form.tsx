@@ -28,6 +28,7 @@ import {
 import { useTranslations } from "next-intl";
 import { ItemPhotoUpload } from "@/components/inventory/item-photo-upload";
 import { ItemSpecsEditor } from "@/components/inventory/item-specs-editor";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
   ITEM_CATEGORIES,
@@ -341,20 +342,15 @@ export function ItemEditForm({
         </CardSection>
 
         <div className="flex justify-end gap-3">
-          <Link
-            href={`/intake/items/${item.id}`}
-            className="rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted"
-          >
-            {tc("cancel")}
-          </Link>
-          <button
-            type="submit"
-            disabled={isPending}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-          >
+          <Button asChild variant="secondary">
+            <Link href={`/intake/items/${item.id}`}>
+              {tc("cancel")}
+            </Link>
+          </Button>
+          <Button type="submit" disabled={isPending}>
             {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
             {tc("save")}
-          </button>
+          </Button>
         </div>
       </form>
     </div>
@@ -481,14 +477,10 @@ function RepairSection({
             <p className="text-xs text-destructive">{repairError}</p>
           )}
           <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={isRecording || !cost}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-            >
+            <Button type="submit" disabled={isRecording || !cost}>
               {isRecording && <Loader2 className="h-4 w-4 animate-spin" />}
               {ti("recordRepair")}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

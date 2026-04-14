@@ -89,16 +89,16 @@ export function ItemTimeline({
           {/* Icon */}
           <div className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-background">
             {event.type === "intake" && (
-              <PackageOpen className="h-3.5 w-3.5 text-blue-500" />
+              <PackageOpen className="h-3.5 w-3.5 text-info" />
             )}
             {event.type === "repair" && (
-              <Wrench className="h-3.5 w-3.5 text-amber-500" />
+              <Wrench className="h-3.5 w-3.5 text-warning" />
             )}
             {event.type === "ready" && (
-              <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+              <CheckCircle2 className="h-3.5 w-3.5 text-success" />
             )}
             {event.type === "sold" && (
-              <ShoppingCart className="h-3.5 w-3.5 text-green-600" />
+              <ShoppingCart className="h-3.5 w-3.5 text-success" />
             )}
           </div>
 
@@ -134,7 +134,7 @@ export function ItemTimeline({
             )}
             {event.type === "ready" && (
               <>
-                <p className="text-sm font-medium text-green-700 dark:text-green-400">
+                <p className="text-sm font-medium text-success">
                   Verkaufsbereit
                 </p>
                 <p className="text-xs text-muted-foreground">
@@ -145,7 +145,7 @@ export function ItemTimeline({
             )}
             {event.type === "sold" && (
               <>
-                <p className="text-sm font-medium text-green-700 dark:text-green-400">
+                <p className="text-sm font-medium text-success">
                   Verkauft
                 </p>
                 {event.price && (

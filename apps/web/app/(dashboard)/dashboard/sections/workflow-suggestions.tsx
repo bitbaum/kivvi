@@ -51,11 +51,9 @@ export async function WorkflowSuggestions() {
   };
 
   const getPriorityColor = (priority: number) => {
-    if (priority === 1)
-      return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400";
-    if (priority === 2)
-      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400";
-    return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400";
+    if (priority === 1) return "bg-destructive/10 text-destructive";
+    if (priority === 2) return "bg-warning/10 text-warning";
+    return "bg-info/10 text-info";
   };
 
   const getPriorityLabel = (priority: number) => {
@@ -85,7 +83,7 @@ export async function WorkflowSuggestions() {
             className={cn(
               "group rounded-xl border bg-card p-4 transition-colors hover:bg-accent",
               suggestion.priority === 1 &&
-                "border-yellow-200 bg-yellow-50/50 dark:border-yellow-900 dark:bg-yellow-900/10",
+                "border-warning/20 bg-warning/5",
             )}
           >
             <div className="flex items-start gap-3">

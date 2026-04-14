@@ -9,7 +9,7 @@ import {
   getInventoryItemCounts,
   listInventoryItems,
 } from "@kivvi/core";
-import { DOCUMENT_TYPES } from "@/lib/config/document-types";
+import { DOCUMENT_TYPES, STATUS } from "@/lib/config/document-types";
 import { DocumentDetail } from "@/components/documents/document-detail";
 import { isValidUUID } from "@/lib/utils";
 
@@ -32,7 +32,7 @@ export default async function IntakeDetailPage({ params }: PageProps) {
   });
 
   const ti = await getTranslations("inventory");
-  const isConfirmed = doc.status !== "draft" && doc.status !== "cancelled";
+  const isConfirmed = doc.status !== STATUS.DRAFT && doc.status !== STATUS.CANCELLED;
   const hasItems = linkedItems.total > 0;
 
   return (

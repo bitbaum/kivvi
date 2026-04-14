@@ -198,9 +198,9 @@ export function ProductSearchInput({
                         const stock = parseFloat(sellable.stockQuantity);
                         const color =
                           stock <= 0
-                            ? "text-red-500"
+                            ? "text-destructive"
                             : stock < 5
-                              ? "text-amber-500"
+                              ? "text-warning"
                               : "text-muted-foreground";
                         return (
                           <span className={color}>

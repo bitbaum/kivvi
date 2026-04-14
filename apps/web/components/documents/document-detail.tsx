@@ -23,6 +23,7 @@ import { DocumentDuplicateButton } from "./document-duplicate";
 import { PrintButton } from "./print-button";
 import { SendAndMarkButton } from "./send-and-mark-button";
 import type { DocumentTypeConfig } from "@/lib/config/document-types";
+import { TERMINAL_STATUSES, STATUS } from "@/lib/config/document-types";
 import {
   getOverdueInfo,
   calculateOutstandingAmount,
@@ -96,13 +97,13 @@ export async function DocumentDetail({ doc, config }: DocumentDetailProps) {
             documentId={doc.id}
             documentType={doc.type}
           />
-          {doc.status !== "draft" && doc.status !== "cancelled" && (
+          {!TERMINAL_STATUSES.includes(doc.status) && doc.status !== STATUS.DRAFT && (
             <SendEmailButton
               documentId={doc.id}
               defaultEmail={doc.contact?.email || undefined}
             />
           )}
-          {doc.status === "draft" && (
+          {doc.status === STATUS.DRAFT && (
             <>
               <Link
                 href={`${config.basePath}/${doc.id}/edit`}
@@ -122,10 +123,10 @@ export async function DocumentDetail({ doc, config }: DocumentDetailProps) {
             currentStatus={doc.status}
             config={config}
           />
-          {doc.status !== "draft" && doc.status !== "cancelled" && (
+          {!TERMINAL_STATUSES.includes(doc.status) && doc.status !== STATUS.DRAFT && (
             <DocumentConvertActions documentId={doc.id} config={config} />
           )}
-          {doc.status === "draft" && (
+          {doc.status === STATUS.DRAFT && (
             <DocumentDeleteButton
               documentId={doc.id}
               redirectTo={config.basePath}
@@ -136,13 +137,13 @@ export async function DocumentDetail({ doc, config }: DocumentDetailProps) {
 
       {/* Overdue alert */}
       {isOverdue && (
-        <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900/50 dark:bg-red-900/20">
-          <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
+        <div className="flex items-center gap-3 rounded-lg border border-destructive/20 bg-destructive/5 p-4">
+          <AlertTriangle className="h-5 w-5 text-destructive" />
           <div>
-            <p className="font-medium text-red-800 dark:text-red-300">
+            <p className="font-medium text-destructive">
               {t("overdueAlert", { type: t(config.label), days: daysOverdue })}
             </p>
-            <p className="text-sm text-red-600 dark:text-red-400">
+            <p className="text-sm text-destructive/80">
               {t("overdueDetail", {
                 date: formatDate(doc.dueDate!),
                 amount: formatCurrency(outstanding),
@@ -330,7 +331,7 @@ export async function DocumentDetail({ doc, config }: DocumentDetailProps) {
               </div>
               {config.hasPayments && doc.payments?.length > 0 && (
                 <>
-                  <div className="flex justify-between text-green-600 dark:text-green-400">
+                  <div className="flex justify-between text-success">
                     <span>{t("paidLabel")}</span>
                     <span>-{formatCurrency(totalPaid)}</span>
                   </div>
@@ -338,9 +339,7 @@ export async function DocumentDetail({ doc, config }: DocumentDetailProps) {
                     <span>{t("outstanding")}</span>
                     <span
                       className={
-                        outstandingDecimal.gt(0)
-                          ? "text-red-600 dark:text-red-400"
-                          : ""
+                        outstandingDecimal.gt(0) ? "text-destructive" : ""
                       }
                     >
                       {formatCurrency(outstanding)}
@@ -376,14 +375,13 @@ export async function DocumentDetail({ doc, config }: DocumentDetailProps) {
                             ` · ${payment.method.replace("_", " ")}`}
                         </p>
                       </div>
-                      <CheckCircle2 className="h-4 w-4 text-green-500" />
+                      <CheckCircle2 className="h-4 w-4 text-success" />
                     </div>
                   ))}
                 </div>
               )}
-              {doc.status !== "draft" &&
-                doc.status !== "paid" &&
-                doc.status !== "cancelled" && (
+              {!TERMINAL_STATUSES.includes(doc.status) &&
+                doc.status !== STATUS.DRAFT && (
                   <div className="mt-4 border-t pt-4">
                     <PaymentForm
                       documentId={doc.id}

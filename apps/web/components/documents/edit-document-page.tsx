@@ -2,7 +2,7 @@ import { redirect, notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getDocument } from "@kivvi/core";
-import { DOCUMENT_TYPES } from "@/lib/config/document-types";
+import { DOCUMENT_TYPES, STATUS } from "@/lib/config/document-types";
 import { DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { EditDocumentForm } from "@/components/documents/edit-document-form";
@@ -40,7 +40,7 @@ export async function EditDocumentPage({
   const config = DOCUMENT_TYPES[doc.type];
 
   // Only drafts can be edited
-  if (doc.status !== "draft") {
+  if (doc.status !== STATUS.DRAFT) {
     redirect(`${config.basePath}/${documentId}`);
   }
 

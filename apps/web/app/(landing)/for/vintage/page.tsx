@@ -32,11 +32,11 @@ const CLOTHING_CRITERIA = [
 
 // Text colors matching CONDITION_GRADES order (green/blue/amber/orange/red)
 const CLOTHING_TEXT_COLORS = [
-  "text-green-700 dark:text-green-400",
-  "text-blue-700 dark:text-blue-400",
-  "text-amber-700 dark:text-amber-400",
-  "text-orange-700 dark:text-orange-400",
-  "text-red-700 dark:text-red-400",
+  "text-success",
+  "text-info",
+  "text-warning",
+  "text-warning",
+  "text-destructive",
 ];
 
 const SOLUTION_ITEMS = [

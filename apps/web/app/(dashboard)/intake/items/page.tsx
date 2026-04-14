@@ -85,7 +85,7 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
             {(counts["repair"] ?? 0) > 0 && (
               <Link
                 href="/intake/repair-queue"
-                className="inline-flex items-center gap-2 rounded-lg border border-orange-300 bg-orange-50 px-4 py-2 text-sm font-medium text-orange-800 hover:bg-orange-100 dark:border-orange-700 dark:bg-orange-900/20 dark:text-orange-300"
+                className="inline-flex items-center gap-2 rounded-lg border border-warning/30 bg-warning/5 px-4 py-2 text-sm font-medium text-warning hover:bg-warning/10 transition-colors"
               >
                 <Wrench className="h-4 w-4" />
                 {ti("repairQueue")} ({counts["repair"]})
@@ -142,7 +142,7 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
             className={cn(
               "rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
               assignedTo === "me"
-                ? "bg-amber-600 text-white"
+                ? "bg-warning text-warning-foreground"
                 : "bg-muted text-muted-foreground hover:bg-muted/80",
             )}
           >

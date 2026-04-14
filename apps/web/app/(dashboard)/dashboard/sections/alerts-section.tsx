@@ -20,9 +20,9 @@ export async function AlertsSection() {
   if (sortedAlerts.length === 0) {
     return (
       <div className="rounded-xl border bg-card p-8 text-center">
-        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-success/10">
           <svg
-            className="h-6 w-6 text-green-600 dark:text-green-400"
+            className="h-6 w-6 text-success"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"

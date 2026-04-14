@@ -94,7 +94,7 @@ export function IntakeQuickEntry({ onItemsExtracted }: IntakeQuickEntryProps) {
           <Sparkles className="h-4 w-4 text-primary" />
           <span className="text-sm font-medium">{t("aiQuickEntry")}</span>
           {isCollapsed && state === "success" && (
-            <span className="text-xs text-green-600 dark:text-green-400">
+            <span className="text-xs text-success">
               ({lastCount} {t("itemsAdded")})
             </span>
           )}
@@ -116,7 +116,7 @@ export function IntakeQuickEntry({ onItemsExtracted }: IntakeQuickEntryProps) {
               onBack={handleBack}
             />
           ) : state === "success" ? (
-            <div className="flex items-center gap-2 py-2 text-sm text-green-600 dark:text-green-400">
+            <div className="flex items-center gap-2 py-2 text-sm text-success">
               <CheckCircle2 className="h-4 w-4" />
               {lastCount} {t("itemsAdded")}
             </div>

@@ -51,7 +51,7 @@ export default async function BillingPage() {
               label={t("pastDue")}
               styleMap={{
                 past_due:
-                  "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
+                  "bg-destructive/10 text-destructive",
               }}
             />
           )}
@@ -67,7 +67,7 @@ export default async function BillingPage() {
         )}
 
         {status === "past_due" && (
-          <p className="text-sm text-red-600 dark:text-red-400">
+          <p className="text-sm text-destructive">
             {t("pastDueMessage")}
           </p>
         )}

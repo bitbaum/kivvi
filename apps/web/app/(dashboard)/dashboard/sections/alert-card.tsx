@@ -17,25 +17,25 @@ export function AlertCard({ alert }: AlertCardProps) {
 
   const severityStyles = {
     urgent: {
-      bg: 'bg-red-50 dark:bg-red-950/50',
-      border: 'border-red-200 dark:border-red-900',
-      icon: 'text-red-600 dark:text-red-400',
-      iconBg: 'bg-red-100 dark:bg-red-900/50',
-      badge: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+      bg: "bg-destructive/5",
+      border: "border-destructive/20",
+      icon: "text-destructive",
+      iconBg: "bg-destructive/10",
+      badge: "bg-destructive/10 text-destructive",
     },
     warning: {
-      bg: 'bg-yellow-50 dark:bg-yellow-950/50',
-      border: 'border-yellow-200 dark:border-yellow-900',
-      icon: 'text-yellow-600 dark:text-yellow-400',
-      iconBg: 'bg-yellow-100 dark:bg-yellow-900/50',
-      badge: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+      bg: "bg-warning/5",
+      border: "border-warning/20",
+      icon: "text-warning",
+      iconBg: "bg-warning/10",
+      badge: "bg-warning/10 text-warning",
     },
     info: {
-      bg: 'bg-blue-50 dark:bg-blue-950/50',
-      border: 'border-blue-200 dark:border-blue-900',
-      icon: 'text-blue-600 dark:text-blue-400',
-      iconBg: 'bg-blue-100 dark:bg-blue-900/50',
-      badge: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+      bg: "bg-info/5",
+      border: "border-info/20",
+      icon: "text-info",
+      iconBg: "bg-info/10",
+      badge: "bg-info/10 text-info",
     },
   };
 

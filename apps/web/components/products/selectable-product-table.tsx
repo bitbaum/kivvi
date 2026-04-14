@@ -138,14 +138,14 @@ export function SelectableProductTable({
 
     if (isOut) {
       return (
-        <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/30 dark:text-red-400">
+        <span className="inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-xs font-medium text-destructive">
           {translations.columnLabels.outOfStock}
         </span>
       );
     }
     if (isLow) {
       return (
-        <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
+        <span className="inline-flex items-center rounded-full bg-warning/10 px-2 py-0.5 text-xs font-medium text-warning">
           {quantity} ({translations.columnLabels.lowStock})
         </span>
       );
@@ -339,7 +339,7 @@ export function SelectableProductTable({
         <button
           onClick={() => executeAction("delete")}
           disabled={isPending}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-destructive px-3 py-1.5 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
         >
           {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
           {translations.bulkLabels.delete}
@@ -380,7 +380,7 @@ export function SelectableProductTable({
               <button
                 onClick={() => executeAction(confirmAction)}
                 disabled={isPending}
-                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+                className="rounded-lg bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
               >
                 {isPending
                   ? translations.bulkLabels.processing

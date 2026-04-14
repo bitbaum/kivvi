@@ -225,7 +225,7 @@ export function DataRepairPanel({
         <div className="rounded-xl border bg-card p-6">
           <div className="flex items-center gap-3 mb-4">
             <div className="rounded-lg border bg-background p-2">
-              <FileText className="h-4 w-4 text-amber-600" />
+              <FileText className="h-4 w-4 text-warning" />
             </div>
             <div>
               <h3 className="font-semibold">{t("invoiceStatuses")}</h3>
@@ -282,7 +282,7 @@ export function DataRepairPanel({
         <div className="mb-4 space-y-2 text-sm">
           <p>{t("totalEntries", { count: status.totalJournalEntries })}</p>
           {status.documentsWithoutJournalEntries > 0 && (
-            <p className="text-amber-600">
+            <p className="text-warning">
               {t("missingEntries", {
                 count: status.documentsWithoutJournalEntries,
               })}
@@ -300,7 +300,7 @@ export function DataRepairPanel({
             {generatingEntries ? t("generatingEntries") : t("generateEntries")}
           </button>
         ) : (
-          <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
+          <div className="flex items-center gap-2 text-sm text-success">
             <CheckCircle2 className="h-4 w-4" />
             {t("allGood")}
           </div>
@@ -312,7 +312,7 @@ export function DataRepairPanel({
         <div className="rounded-xl border bg-card p-6">
           <div className="flex items-center gap-3 mb-4">
             <div className="rounded-lg border bg-background p-2">
-              <CalendarX className="h-4 w-4 text-amber-600" />
+              <CalendarX className="h-4 w-4 text-warning" />
             </div>
             <div>
               <h3 className="font-semibold">{t("paidDates")}</h3>
@@ -323,7 +323,7 @@ export function DataRepairPanel({
           </div>
 
           <div className="mb-4 space-y-2 text-sm">
-            <p className="text-amber-600">
+            <p className="text-warning">
               {t("paidDatesCount", {
                 count: status.paidInvoicesWithoutPaidDate,
               })}
@@ -345,14 +345,14 @@ export function DataRepairPanel({
 
       {/* All good message */}
       {!hasIssues && (
-        <div className="rounded-xl border border-green-200 bg-green-50 p-6 dark:border-green-900/50 dark:bg-green-900/10">
+        <div className="rounded-xl border border-success/20 bg-success/5 p-6">
           <div className="flex items-center gap-3">
-            <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
+            <CheckCircle2 className="h-5 w-5 text-success" />
             <div>
-              <h3 className="font-semibold text-green-800 dark:text-green-400">
+              <h3 className="font-semibold text-success">
                 {t("noIssuesFound")}
               </h3>
-              <p className="text-sm text-green-700 dark:text-green-500">
+              <p className="text-sm text-success/80">
                 {t("allGood")}
               </p>
             </div>

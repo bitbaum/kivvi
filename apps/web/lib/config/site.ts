@@ -81,19 +81,17 @@ export const CONDITION_GRADES = [
     label: "Gut",
     desc: "Kaum Gebrauchsspuren, voll funktionsfähig",
     colorClass:
-      "bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200",
+      "bg-success/10 text-success",
   },
   {
     label: "Mittel",
     desc: "Sichtbare Gebrauchsspuren, funktionsfähig",
-    colorClass:
-      "bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200",
+    colorClass: "bg-info/10 text-info",
   },
   {
     label: "Schlecht",
     desc: "Starke Abnutzung, funktioniert noch",
-    colorClass:
-      "bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200",
+    colorClass: "bg-warning/10 text-warning",
   },
   {
     label: "Für Teile",

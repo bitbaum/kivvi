@@ -16,8 +16,8 @@ export default function Loading() {
       </div>
 
       {/* Low stock alerts placeholder */}
-      <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-950/20">
-        <div className="flex items-center gap-2 border-b border-amber-200 p-4 dark:border-amber-900/50">
+      <div className="rounded-xl border border-warning/20 bg-warning/5">
+        <div className="flex items-center gap-2 border-b border-warning/20 p-4">
           <Skeleton className="h-5 w-5 rounded" />
           <Skeleton className="h-5 w-32" />
           <Skeleton className="ml-auto h-5 w-16 rounded-full" />

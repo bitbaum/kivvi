@@ -160,9 +160,9 @@ export default async function ProjectDetailPage({ params }: PageProps) {
                   className={cn(
                     "h-full rounded-full transition-all",
                     budgetUsedPercent !== null && budgetUsedPercent >= 100
-                      ? "bg-red-500"
+                      ? "bg-destructive/50"
                       : budgetUsedPercent !== null && budgetUsedPercent >= 80
-                        ? "bg-yellow-500"
+                        ? "bg-warning/50"
                         : "bg-primary",
                   )}
                   style={{ width: `${budgetUsedPercent || 0}%` }}

@@ -13,6 +13,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import { VERTICAL_ICONS } from "./vertical-icons";
+import { Button } from "@/components/ui/button";
 
 interface NavLink {
   href: string;
@@ -113,21 +114,22 @@ export function LandingNav({
       <div ref={navRef} className="hidden md:flex items-center gap-1">
         {/* Solutions dropdown */}
         <div className="relative">
-          <button
+          <Button
+            variant="ghost"
             onClick={() => toggle("solutions")}
             aria-expanded={openDropdown === "solutions"}
             aria-haspopup="true"
-            className={`flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+            className={`gap-1 text-sm font-medium ${
               openDropdown === "solutions" || isVerticalActive
                 ? "text-foreground bg-muted"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                : "text-muted-foreground"
             }`}
           >
             {solutionsLabel}
             <ChevronDown
               className={`h-3.5 w-3.5 transition-transform duration-200 ${openDropdown === "solutions" ? "rotate-180" : ""}`}
             />
-          </button>
+          </Button>
 
           {openDropdown === "solutions" && (
             <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50 w-[520px] rounded-xl border bg-background shadow-lg ring-1 ring-black/5 dark:ring-white/10">
@@ -184,21 +186,22 @@ export function LandingNav({
 
         {/* Wissen dropdown */}
         <div className="relative">
-          <button
+          <Button
+            variant="ghost"
             onClick={() => toggle("wissen")}
             aria-expanded={openDropdown === "wissen"}
             aria-haspopup="true"
-            className={`flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+            className={`gap-1 text-sm font-medium ${
               openDropdown === "wissen" || isWissenActive
                 ? "text-foreground bg-muted"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                : "text-muted-foreground"
             }`}
           >
             {wissenLabel}
             <ChevronDown
               className={`h-3.5 w-3.5 transition-transform duration-200 ${openDropdown === "wissen" ? "rotate-180" : ""}`}
             />
-          </button>
+          </Button>
 
           {openDropdown === "wissen" && wissenItems.length > 0 && (
             <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50 w-[400px] rounded-xl border bg-background shadow-lg ring-1 ring-black/5 dark:ring-white/10">
@@ -255,13 +258,15 @@ export function LandingNav({
       </div>
 
       {/* ── Mobile hamburger ───────────────────────────── */}
-      <button
-        className="md:hidden rounded-lg p-2 hover:bg-muted transition-colors"
+      <Button
+        variant="ghost"
+        size="icon"
+        className="md:hidden"
         onClick={() => setMobileOpen((p) => !p)}
         aria-label={mobileOpen ? "Menü schliessen" : "Menü öffnen"}
       >
         {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-      </button>
+      </Button>
 
       {/* ── Mobile panel ───────────────────────────────── */}
       {mobileOpen && (
@@ -348,14 +353,12 @@ export function LandingNav({
 
             <div className="mt-2 border-t pt-3 flex flex-col gap-2">
               {isLoggedIn ? (
-                <Link
-                  href="/dashboard"
-                  onClick={() => setMobileOpen(false)}
-                  className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-                >
-                  <LayoutDashboard className="h-4 w-4" />
-                  {dashboardLabel}
-                </Link>
+                <Button asChild className="w-full">
+                  <Link href="/dashboard" onClick={() => setMobileOpen(false)}>
+                    <LayoutDashboard className="h-4 w-4" />
+                    {dashboardLabel}
+                  </Link>
+                </Button>
               ) : (
                 <>
                   <Link
@@ -365,13 +368,11 @@ export function LandingNav({
                   >
                     {signInLabel}
                   </Link>
-                  <Link
-                    href="/contact"
-                    onClick={() => setMobileOpen(false)}
-                    className="rounded-lg bg-primary px-4 py-2.5 text-center text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-                  >
-                    {demoLabel}
-                  </Link>
+                  <Button asChild className="w-full">
+                    <Link href="/contact" onClick={() => setMobileOpen(false)}>
+                      {demoLabel}
+                    </Link>
+                  </Button>
                 </>
               )}
             </div>

@@ -258,11 +258,11 @@ export default async function DocumentsPage({ searchParams }: PageProps) {
         <span className="rounded-full bg-muted px-3 py-1 font-medium">
           {totalCount} {t("documentsCount")}
         </span>
-        <span className="rounded-full bg-yellow-100 dark:bg-yellow-900/30 px-3 py-1 font-medium text-yellow-700 dark:text-yellow-300">
+        <span className="rounded-full bg-warning/10 px-3 py-1 font-medium text-warning">
           {formatCurrency(openAmount)} {t("open")}
         </span>
         {overdueCount > 0 && (
-          <span className="rounded-full bg-red-100 dark:bg-red-900/30 px-3 py-1 font-medium text-red-700 dark:text-red-300">
+          <span className="rounded-full bg-destructive/10 px-3 py-1 font-medium text-destructive">
             {overdueCount} {t("overdue")}
           </span>
         )}
@@ -384,7 +384,7 @@ export default async function DocumentsPage({ searchParams }: PageProps) {
                           className={cn(
                             "inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium",
                             STATUS_STYLES[doc.status] ||
-                              "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300",
+                              "bg-neutral/10 text-neutral",
                           )}
                         >
                           {ts(toCamelCase(doc.status))}

@@ -59,7 +59,7 @@ export function NewYearForm() {
       {isOpen && (
         <form onSubmit={handleSubmit} className="border-t px-6 py-4 space-y-4">
           {error && (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-400">
+            <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive ">
               {error}
             </div>
           )}

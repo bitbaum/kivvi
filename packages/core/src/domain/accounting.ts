@@ -618,9 +618,9 @@ export async function getTrialBalance(
   return result
     .map((r) => ({
       ...r,
-      totalDebit: Number(r.totalDebit),
-      totalCredit: Number(r.totalCredit),
-      balance: new Decimal(r.totalDebit).minus(r.totalCredit).toNumber(),
+      totalDebit: new Decimal(r.totalDebit || "0").toNumber(),
+      totalCredit: new Decimal(r.totalCredit || "0").toNumber(),
+      balance: new Decimal(r.totalDebit || "0").minus(r.totalCredit || "0").toNumber(),
     }))
     .filter((r) => r.totalDebit !== 0 || r.totalCredit !== 0);
 }
@@ -898,4 +898,48 @@ export async function closeFiscalYear(
 
     return updated;
   });
+}
+
+// ============================================================================
+// TRIAL BALANCE AGGREGATION
+// ============================================================================
+
+export interface TrialBalanceTotals {
+  assets: number;
+  liabilities: number;
+  equity: number;
+  revenue: number;
+  expenses: number;
+}
+
+/**
+ * Aggregate a trial balance result set into summary totals by account type.
+ * Pure function — no DB access.
+ */
+export function calculateTrialBalanceTotals(
+  trialBalance: AccountBalance[],
+): TrialBalanceTotals {
+  return trialBalance.reduce(
+    (acc, row) => {
+      switch (row.type) {
+        case "asset":
+          acc.assets += row.balance;
+          break;
+        case "liability":
+          acc.liabilities += Math.abs(row.balance);
+          break;
+        case "equity":
+          acc.equity += Math.abs(row.balance);
+          break;
+        case "revenue":
+          acc.revenue += row.totalCredit - row.totalDebit;
+          break;
+        case "expense":
+          acc.expenses += row.totalDebit - row.totalCredit;
+          break;
+      }
+      return acc;
+    },
+    { assets: 0, liabilities: 0, equity: 0, revenue: 0, expenses: 0 },
+  );
 }

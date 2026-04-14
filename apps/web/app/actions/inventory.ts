@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import {
   createWarehouse,
@@ -15,12 +14,6 @@ import {
   transferStockSchema,
   createSerialNumberSchema,
 } from "@kivvi/core";
-import {
-  type ActionResult,
-  getSession,
-  requireRole,
-  safeErrorMessage,
-} from "./utils";
 import { createAction } from "./action-factory";
 
 // ============================================================================
@@ -39,50 +32,29 @@ export const createWarehouseAction = createAction<unknown, unknown>({
   minRole: "member",
 });
 
-export async function updateWarehouseAction(
-  warehouseId: string,
-  input: unknown,
-): Promise<ActionResult> {
-  try {
-    const { companyId } = await requireRole("member");
+export const updateWarehouseAction = createAction<
+  { warehouseId: string; input: unknown },
+  unknown
+>({
+  handler: async ({ warehouseId, input }, { companyId, db }) => {
     const parsed = createWarehouseSchema.safeParse(input);
-    if (!parsed.success) {
-      return {
-        success: false,
-        error: parsed.error.errors[0]?.message || "Invalid input",
-      };
-    }
-    const warehouse = await updateWarehouse(
-      db,
-      companyId,
-      warehouseId,
-      parsed.data,
-    );
-    revalidatePath("/inventory");
-    return { success: true, data: warehouse };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, "Failed to update warehouse"),
-    };
-  }
-}
+    if (!parsed.success)
+      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    return updateWarehouse(db, companyId, warehouseId, parsed.data);
+  },
+  revalidate: ["/inventory"],
+  errorMessage: "Failed to update warehouse",
+  minRole: "member",
+});
 
-export async function deleteWarehouseAction(
-  warehouseId: string,
-): Promise<ActionResult> {
-  try {
-    const { companyId } = await requireRole("admin");
+export const deleteWarehouseAction = createAction<string, void>({
+  handler: async (warehouseId, { companyId, db }) => {
     await deleteWarehouse(db, companyId, warehouseId);
-    revalidatePath("/inventory");
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, "Failed to delete warehouse"),
-    };
-  }
-}
+  },
+  revalidate: ["/inventory"],
+  errorMessage: "Failed to delete warehouse",
+  minRole: "admin",
+});
 
 // ============================================================================
 // STOCK MOVEMENTS
@@ -128,26 +100,18 @@ export const createSerialNumberAction = createAction<unknown, unknown>({
   minRole: "member",
 });
 
-export async function updateSerialNumberStatusAction(
-  serialNumberId: string,
-  status: "available" | "sold" | "reserved" | "defective",
-  soldToContactId?: string,
-): Promise<ActionResult> {
-  try {
-    const { companyId } = await requireRole("member");
-    const serial = await updateSerialNumberStatus(
-      db,
-      companyId,
-      serialNumberId,
-      status,
-      soldToContactId,
-    );
-    revalidatePath("/inventory");
-    return { success: true, data: serial };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, "Failed to update serial number"),
-    };
-  }
-}
+export const updateSerialNumberStatusAction = createAction<
+  {
+    serialNumberId: string;
+    status: "available" | "sold" | "reserved" | "defective";
+    soldToContactId?: string;
+  },
+  unknown
+>({
+  handler: async ({ serialNumberId, status, soldToContactId }, { companyId, db }) => {
+    return updateSerialNumberStatus(db, companyId, serialNumberId, status, soldToContactId);
+  },
+  revalidate: ["/inventory"],
+  errorMessage: "Failed to update serial number",
+  minRole: "member",
+});

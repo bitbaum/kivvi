@@ -42,7 +42,7 @@ export function AccountForm({ account, parentAccounts }: AccountFormProps) {
 
     startTransition(async () => {
       const result = isEditing
-        ? await updateAccountAction(account.id, data)
+        ? await updateAccountAction({ accountId: account.id, input: data })
         : await createAccountAction(data);
 
       if (result.success) {
@@ -151,7 +151,7 @@ export function AccountForm({ account, parentAccounts }: AccountFormProps) {
 
         {/* Error message */}
         {error && (
-          <div className="mt-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-400">
+          <div className="mt-4 rounded-lg bg-destructive/5 px-4 py-3 text-sm text-destructive ">
             {error}
           </div>
         )}

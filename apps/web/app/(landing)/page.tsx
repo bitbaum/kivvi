@@ -20,6 +20,7 @@ import { VERTICALS } from "@/lib/config/site";
 import { PainList } from "@/components/landing/pain-list";
 import { LandingCtaSection } from "@/components/landing/landing-cta-section";
 import { VerticalCard } from "@/components/landing/vertical-card";
+import { Button } from "@/components/ui/button";
 
 const SOFTWARE_LD = {
   "@context": "https://schema.org",
@@ -72,19 +73,17 @@ export default function Home() {
           alles in einem.
         </p>
         <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-          <Link
-            href="/contact"
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-primary-foreground hover:bg-primary/90"
-          >
-            Demo anfragen
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-          <Link
-            href="/register"
-            className="inline-flex items-center gap-2 rounded-lg border px-6 py-3 font-medium hover:bg-muted"
-          >
-            Selbst ausprobieren
-          </Link>
+          <Button asChild size="lg">
+            <Link href="/contact">
+              Demo anfragen
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
+          <Button asChild variant="secondary" size="lg">
+            <Link href="/register">
+              Selbst ausprobieren
+            </Link>
+          </Button>
         </div>
       </section>
 
@@ -119,12 +118,11 @@ export default function Home() {
           ]}
         />
         <div className="mt-6 text-center">
-          <Link
-            href="/how-it-works"
-            className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
-          >
-            Wie es funktioniert <ArrowRight className="h-3 w-3" />
-          </Link>
+          <Button asChild variant="link" size="sm">
+            <Link href="/how-it-works">
+              Wie es funktioniert <ArrowRight className="h-3 w-3" />
+            </Link>
+          </Button>
         </div>
       </section>
 
@@ -323,13 +321,12 @@ export default function Home() {
                 </p>
               </div>
             </div>
-            <Link
-              href="/knowledge"
-              className="inline-flex shrink-0 items-center gap-2 rounded-lg border px-5 py-2.5 text-sm font-medium transition-colors hover:bg-muted"
-            >
-              Wissensdatenbank öffnen
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+            <Button asChild variant="secondary" className="shrink-0">
+              <Link href="/knowledge">
+                Wissensdatenbank öffnen
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
@@ -385,23 +382,23 @@ function DeploymentCard({
         {description}
       </p>
       {external ? (
-        <a
-          href={href}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
-        >
-          {cta}
-          <ArrowRight className="h-3.5 w-3.5" />
-        </a>
+        <Button asChild variant="link" className="px-0 text-sm gap-1.5">
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {cta}
+            <ArrowRight className="h-3.5 w-3.5" />
+          </a>
+        </Button>
       ) : (
-        <Link
-          href={href}
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
-        >
-          {cta}
-          <ArrowRight className="h-3.5 w-3.5" />
-        </Link>
+        <Button asChild variant="link" className="px-0 text-sm gap-1.5">
+          <Link href={href}>
+            {cta}
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </Button>
       )}
     </div>
   );
@@ -417,9 +414,9 @@ function StatBlock({ value, label }: { value: string; label: string }) {
 }
 
 const SCENARIO_COLORS = {
-  blue: "border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/20",
-  amber: "border-l-amber-500 bg-amber-50/50 dark:bg-amber-950/20",
-  green: "border-l-green-500 bg-green-50/50 dark:bg-green-950/20",
+  blue: "border-l-info bg-info/5",
+  amber: "border-l-warning bg-warning/5",
+  green: "border-l-success bg-success/5",
 };
 
 function ScenarioCard({

@@ -50,7 +50,7 @@ export function SendEmailButton({
 
   if (sent) {
     return (
-      <div className="inline-flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700 dark:border-green-800 dark:bg-green-900/20 dark:text-green-400">
+      <div className="inline-flex items-center gap-2 rounded-lg border border-success/20 bg-success/5 px-3 py-2 text-sm text-success">
         <CheckCircle2 className="h-4 w-4" />
         {t("emailSent")}
       </div>
@@ -114,7 +114,7 @@ export function SendEmailButton({
         </button>
       </form>
       {error && (
-        <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+        <p className="text-sm text-destructive">{error}</p>
       )}
     </div>
   );

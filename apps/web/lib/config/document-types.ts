@@ -85,6 +85,30 @@ export const OVERDUE_ELIGIBLE_STATUSES: DocumentStatus[] = [
   "partially_paid",
 ];
 
+/**
+ * Statuses from which no further action is possible.
+ * Used in UI to hide action buttons and editing controls.
+ */
+export const TERMINAL_STATUSES: DocumentStatus[] = ["paid", "cancelled"];
+
+/**
+ * Typed status constants — use these instead of hardcoded strings in JSX.
+ * Derived from DocumentStatus so TypeScript catches typos.
+ */
+export const STATUS = {
+  DRAFT: "draft" as DocumentStatus,
+  SENT: "sent" as DocumentStatus,
+  CONFIRMED: "confirmed" as DocumentStatus,
+  DELIVERED: "delivered" as DocumentStatus,
+  PAID: "paid" as DocumentStatus,
+  PARTIALLY_PAID: "partially_paid" as DocumentStatus,
+  CANCELLED: "cancelled" as DocumentStatus,
+  OVERDUE: "overdue" as DocumentStatus,
+  DUNNING_1: "dunning_1" as DocumentStatus,
+  DUNNING_2: "dunning_2" as DocumentStatus,
+  DUNNING_3: "dunning_3" as DocumentStatus,
+} as const;
+
 /** Default payment terms for new documents (in days) */
 export const DEFAULT_PAYMENT_TERMS_DAYS = 30;
 
@@ -108,19 +132,17 @@ export function toCamelCase(snakeCase: string): string {
 // ============================================================================
 
 export const STATUS_STYLES: Record<string, string> = {
-  draft: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400",
-  sent: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-  confirmed: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-  delivered:
-    "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
-  paid: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-  partially_paid:
-    "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-  overdue: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-  cancelled: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400",
-  dunning_1: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-  dunning_2: "bg-red-200 text-red-900 dark:bg-red-900/40 dark:text-red-300",
-  dunning_3: "bg-red-300 text-red-900 dark:bg-red-900/50 dark:text-red-200",
+  draft: "bg-neutral/10 text-neutral",
+  sent: "bg-info/10 text-info",
+  confirmed: "bg-info/10 text-info",
+  delivered: "bg-tag-purple/10 text-tag-purple",
+  paid: "bg-success/10 text-success",
+  partially_paid: "bg-warning/10 text-warning",
+  overdue: "bg-destructive/10 text-destructive",
+  cancelled: "bg-neutral/10 text-neutral",
+  dunning_1: "bg-destructive/10 text-destructive",
+  dunning_2: "bg-destructive/20 text-destructive",
+  dunning_3: "bg-destructive/30 text-destructive",
 };
 
 // Status labels are in translation files under the 'status' namespace.

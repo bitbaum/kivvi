@@ -57,7 +57,7 @@ export function SeedButton() {
         >
           {tc('cancel')}
         </button>
-        {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+        {error && <p className="text-sm text-destructive">{error}</p>}
       </div>
     );
   }
@@ -72,7 +72,7 @@ export function SeedButton() {
         {t('seedAccounts')}
       </button>
       {success && (
-        <p className="mt-1 text-sm text-green-600 dark:text-green-400">{success}</p>
+        <p className="mt-1 text-sm text-success">{success}</p>
       )}
     </div>
   );

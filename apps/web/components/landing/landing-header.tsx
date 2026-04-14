@@ -11,6 +11,7 @@ import {
 } from "@/lib/config/site";
 import { getAllArticles } from "@/lib/content/knowledge";
 import { auth } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
 
 export async function LandingHeader() {
   const t = await getTranslations("landing");
@@ -58,13 +59,12 @@ export async function LandingHeader() {
           {/* Right CTAs (desktop only) */}
           <div className="hidden md:flex items-center gap-3 shrink-0">
             {isLoggedIn ? (
-              <Link
-                href="/dashboard"
-                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-              >
-                {t("goToDashboard")}
-                <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
+              <Button asChild>
+                <Link href="/dashboard">
+                  {t("goToDashboard")}
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </Button>
             ) : (
               <>
                 <Link
@@ -73,12 +73,11 @@ export async function LandingHeader() {
                 >
                   {t("signIn")}
                 </Link>
-                <Link
-                  href="/contact"
-                  className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-                >
-                  {t("requestDemo")}
-                </Link>
+                <Button asChild>
+                  <Link href="/contact">
+                    {t("requestDemo")}
+                  </Link>
+                </Button>
               </>
             )}
           </div>

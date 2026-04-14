@@ -33,7 +33,7 @@ export const CharCountTextarea = forwardRef<HTMLTextAreaElement, CharCountTextar
           <span
             className={cn(
               'absolute bottom-2 right-3 text-xs tabular-nums',
-              isNearLimit ? 'text-amber-600 dark:text-amber-400 font-medium' : 'text-muted-foreground'
+              isNearLimit ? 'text-warning font-medium' : 'text-muted-foreground'
             )}
           >
             {value.length} / {maxLength}

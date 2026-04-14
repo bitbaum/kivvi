@@ -9,6 +9,7 @@ import {
   switchCompanyAction,
   createCompanyAction,
 } from "@/app/actions/memberships";
+import { Button } from "@/components/ui/button";
 import type { MembershipInfo } from "@kivvi/core/src/domain/memberships";
 
 function CreateCompanyForm({
@@ -58,20 +59,22 @@ function CreateCompanyForm({
         }}
       />
       <div className="flex gap-2">
-        <button
+        <Button
           type="submit"
+          size="sm"
           disabled={creating || name.trim().length < 2}
-          className="flex-1 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+          className="flex-1"
         >
           {creating ? tc("creatingOrganization") : tc("create")}
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="secondary"
+          size="sm"
           onClick={onCancel}
-          className="rounded-md border px-3 py-2 text-sm text-muted-foreground hover:bg-muted"
         >
           ✕
-        </button>
+        </Button>
       </div>
     </form>
   );
@@ -226,13 +229,14 @@ export function CompanySwitcher({ tc }: CompanySwitcherProps) {
           />
         </div>
       ) : (
-        <button
+        <Button
+          variant="ghost"
           onClick={() => setShowCreateForm(true)}
-          className="mt-1 flex w-full items-center gap-3 rounded-md px-3 py-1.5 text-left text-xs text-muted-foreground hover:bg-muted transition-colors"
+          className="mt-1 w-full justify-start px-3 py-1.5 text-xs text-muted-foreground"
         >
           <Plus className="h-3.5 w-3.5" aria-hidden="true" />
           <span>{tc("createOrganization")}</span>
-        </button>
+        </Button>
       )}
     </div>
   );

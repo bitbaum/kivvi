@@ -38,11 +38,11 @@ export default async function BankingPage() {
           <span className="rounded-full bg-muted px-3 py-1 font-medium">
             {t("summaryAccounts", { count: accounts.length })}
           </span>
-          <span className="rounded-full bg-blue-100 dark:bg-blue-900/30 px-3 py-1 font-medium text-blue-700 dark:text-blue-300">
+          <span className="rounded-full bg-info/10 px-3 py-1 font-medium text-info">
             {t("summaryBalance", { amount: formatCurrency(totalBalance) })}
           </span>
           {txSummary.unreconciledCount > 0 && (
-            <span className="rounded-full bg-amber-100 dark:bg-amber-900/30 px-3 py-1 font-medium text-amber-700 dark:text-amber-300">
+            <span className="rounded-full bg-warning/10 px-3 py-1 font-medium text-warning">
               {t("summaryUnreconciled", { count: txSummary.unreconciledCount })}
             </span>
           )}

@@ -101,8 +101,8 @@ function ResetPasswordForm() {
         <div className="rounded-xl border bg-card p-8 shadow-sm">
           {tokenError ? (
             <>
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
-                <XCircle className="h-6 w-6 text-red-600 dark:text-red-400" />
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
+                <XCircle className="h-6 w-6 text-destructive" />
               </div>
               <h1 className="mb-2 text-2xl font-semibold">
                 {t("invalidResetToken")}
@@ -128,8 +128,8 @@ function ResetPasswordForm() {
             </>
           ) : success ? (
             <>
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
-                <CheckCircle2 className="h-6 w-6 text-green-600 dark:text-green-400" />
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-success/10">
+                <CheckCircle2 className="h-6 w-6 text-success" />
               </div>
               <h1 className="mb-2 text-2xl font-semibold">
                 {t("passwordResetSuccess")}

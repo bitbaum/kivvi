@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import {
   createAccount,
@@ -17,12 +16,6 @@ import {
   createJournalEntrySchema,
   createFiscalYearSchema,
 } from "@kivvi/core";
-import {
-  type ActionResult,
-  getSession,
-  requireRole,
-  safeErrorMessage,
-} from "./utils";
 import { createAction } from "./action-factory";
 
 // ============================================================================
@@ -41,29 +34,20 @@ export const createAccountAction = createAction<unknown, unknown>({
   minRole: "member",
 });
 
-export async function updateAccountAction(
-  accountId: string,
-  input: unknown,
-): Promise<ActionResult> {
-  try {
-    const { companyId } = await requireRole("member");
+export const updateAccountAction = createAction<
+  { accountId: string; input: unknown },
+  unknown
+>({
+  handler: async ({ accountId, input }, { companyId, db }) => {
     const parsed = updateAccountSchema.safeParse(input);
-    if (!parsed.success) {
-      return {
-        success: false,
-        error: parsed.error.errors[0]?.message || "Invalid input",
-      };
-    }
-    const account = await updateAccount(db, companyId, accountId, parsed.data);
-    revalidatePath("/accounting");
-    return { success: true, data: account };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, "Failed to update account"),
-    };
-  }
-}
+    if (!parsed.success)
+      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    return updateAccount(db, companyId, accountId, parsed.data);
+  },
+  revalidate: ["/accounting"],
+  errorMessage: "Failed to update account",
+  minRole: "member",
+});
 
 export const toggleAccountAction = createAction<string, unknown>({
   handler: async (accountId, { companyId, db }) => {

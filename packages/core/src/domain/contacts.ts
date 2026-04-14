@@ -11,7 +11,8 @@ import { getNextNumber } from "./number-sequences";
 
 export const createContactSchema = z.object({
   type: z.enum(["customer", "vendor", "both"]),
-  name: z.string().min(1, "Name is required").max(200),
+  /** Display name. If omitted, auto-derived from firstName + lastName. */
+  name: z.string().max(200).optional().nullable(),
   firstName: z.string().max(100).optional().nullable(),
   lastName: z.string().max(100).optional().nullable(),
   email: z
@@ -260,6 +261,14 @@ export async function createContact(
 ): Promise<Contact> {
   const validated = createContactSchema.parse(input);
 
+  // Auto-derive display name from firstName + lastName if not provided
+  const effectiveName =
+    validated.name?.trim() ||
+    [validated.firstName, validated.lastName].filter(Boolean).join(" ");
+  if (!effectiveName) {
+    throw new Error("Name oder Vor-/Nachname erforderlich");
+  }
+
   // Generate contact number
   const contactNumber = await getNextNumber(db, companyId, "contact");
 
@@ -275,7 +284,7 @@ export async function createContact(
       companyId,
       contactNumber,
       type: cleanedInput.type as "customer" | "vendor" | "both",
-      name: cleanedInput.name as string,
+      name: effectiveName,
       firstName: cleanedInput.firstName as string | null,
       lastName: cleanedInput.lastName as string | null,
       email: cleanedInput.email as string | null,

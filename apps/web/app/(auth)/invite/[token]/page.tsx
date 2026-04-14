@@ -160,7 +160,7 @@ export default function InvitePage({ params }: InvitePageProps) {
     return (
       <div className="flex min-h-screen items-center justify-center p-4">
         <div className="w-full max-w-md space-y-6 text-center">
-          <CheckCircle2 className="mx-auto h-12 w-12 text-green-500 dark:text-green-400" />
+          <CheckCircle2 className="mx-auto h-12 w-12 text-success" />
           <h1 className="text-2xl font-bold">{t("invitationAccepted")}</h1>
           <p className="text-muted-foreground">{t("redirecting")}</p>
         </div>

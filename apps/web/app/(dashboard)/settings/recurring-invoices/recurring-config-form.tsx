@@ -121,7 +121,7 @@ export function RecurringConfigForm({ orderOptions, initialData }: RecurringConf
 
       {/* Success banner */}
       {success && (
-        <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-400">
+        <div className="flex items-center gap-2 rounded-lg border border-success/20 bg-success/5 p-4 text-sm text-success">
           <CheckCircle2 className="h-4 w-4" />
           {isEditing ? t('recurring.updated') : t('recurring.created')}
         </div>

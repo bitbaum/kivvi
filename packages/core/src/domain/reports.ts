@@ -533,7 +533,7 @@ export async function getAgingReport(
       over90: a.over90.toFixed(2),
       total: a.total.toFixed(2),
     }))
-    .sort((a, b) => Number(b.total) - Number(a.total));
+    .sort((a, b) => new Decimal(b.total).comparedTo(new Decimal(a.total)));
 
   const totals = {
     current: totalAcc.current.toFixed(2),

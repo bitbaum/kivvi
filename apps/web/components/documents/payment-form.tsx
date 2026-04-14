@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { CreditCard, AlertTriangle, Loader2 } from "lucide-react";
 import { recordPaymentAction } from "@/app/actions/documents";
 import { FormInput, FormSelect } from "@/components/ui/form-field";
+import { Button } from "@/components/ui/button";
 import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
 import type { PaymentMethodValue } from "@kivvi/database/src/enums";
 
@@ -38,14 +39,14 @@ export function PaymentForm({
 
   if (!isOpen) {
     return (
-      <button
+      <Button
         onClick={() => setIsOpen(true)}
         aria-expanded={false}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700"
+        className="w-full bg-success text-success-foreground hover:bg-success/90"
       >
         <CreditCard className="h-4 w-4" />
         {t("recordPayment")}
-      </button>
+      </Button>
     );
   }
 
@@ -111,7 +112,7 @@ export function PaymentForm({
           ref={amountInputRef}
         />
         {isOverpayment && (
-          <p className="mt-1 flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
+          <p className="mt-1 flex items-center gap-1 text-xs text-warning">
             <AlertTriangle className="h-3 w-3" />
             {t("overpaymentWarning")}
           </p>
@@ -165,24 +166,24 @@ export function PaymentForm({
         />
       </div>
       {error && (
-        <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+        <p className="text-sm text-destructive">{error}</p>
       )}
       <div className="flex gap-2">
-        <button
+        <Button
           type="submit"
           disabled={isPending}
-          className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
+          className="flex-1 bg-success text-success-foreground hover:bg-success/90"
         >
           {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
           {isPending ? tc("saving") : t("savePayment")}
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="secondary"
           onClick={() => setIsOpen(false)}
-          className="rounded-lg border px-3 py-2 text-sm hover:bg-muted"
         >
           {tc("cancel")}
-        </button>
+        </Button>
       </div>
     </form>
   );

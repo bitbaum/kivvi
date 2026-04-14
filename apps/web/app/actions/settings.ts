@@ -14,6 +14,7 @@ import {
   requireRole,
   safeErrorMessage,
 } from "./utils";
+import { createAction } from "./action-factory";
 
 // ============================================================================
 // COMPANY SETTINGS
@@ -47,18 +48,11 @@ const updateCompanySchema = z.object({
   aiApiKey: z.string().max(200).optional().nullable(),
 });
 
-export async function updateCompanyAction(
-  input: unknown,
-): Promise<ActionResult> {
-  try {
-    const { companyId } = await requireRole("admin");
+export const updateCompanyAction = createAction<unknown, unknown>({
+  handler: async (input, { companyId, db }) => {
     const parsed = updateCompanySchema.safeParse(input);
-    if (!parsed.success) {
-      return {
-        success: false,
-        error: parsed.error.errors[0]?.message || "Invalid input",
-      };
-    }
+    if (!parsed.success)
+      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
 
     // Read existing settings to merge (preserve AI config, plan, etc.)
     const [existing] = await db
@@ -112,15 +106,12 @@ export async function updateCompanyAction(
       .where(eq(companies.id, companyId))
       .returning();
 
-    revalidatePath("/settings");
-    return { success: true, data: company };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, "Failed to update company settings"),
-    };
-  }
-}
+    return company;
+  },
+  revalidate: ["/settings"],
+  errorMessage: "Failed to update company settings",
+  minRole: "admin",
+});
 
 // ============================================================================
 // COMPANY LOGO
@@ -183,10 +174,8 @@ export async function uploadLogoAction(
   }
 }
 
-export async function removeLogoAction(): Promise<ActionResult> {
-  try {
-    const { companyId } = await requireRole("admin");
-
+export const removeLogoAction = createAction<void, void>({
+  handler: async (_input, { companyId, db }) => {
     const [existing] = await db
       .select({ settings: companies.settings })
       .from(companies)
@@ -197,21 +186,13 @@ export async function removeLogoAction(): Promise<ActionResult> {
 
     await db
       .update(companies)
-      .set({
-        settings: rest,
-        updatedAt: new Date(),
-      })
+      .set({ settings: rest, updatedAt: new Date() })
       .where(eq(companies.id, companyId));
-
-    revalidatePath("/settings");
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, "Failed to remove logo"),
-    };
-  }
-}
+  },
+  revalidate: ["/settings"],
+  errorMessage: "Failed to remove logo",
+  minRole: "admin",
+});
 
 // ============================================================================
 // USER PROFILE
@@ -222,40 +203,24 @@ const updateProfileSchema = z.object({
   email: z.string().email(),
 });
 
-export async function updateProfileAction(
-  input: unknown,
-): Promise<ActionResult> {
-  try {
-    const { userId } = await getSession();
+export const updateProfileAction = createAction<
+  unknown,
+  { id: string; name: string | null; email: string }
+>({
+  handler: async (input, { userId, db }) => {
     const parsed = updateProfileSchema.safeParse(input);
-    if (!parsed.success) {
-      return {
-        success: false,
-        error: parsed.error.errors[0]?.message || "Invalid input",
-      };
-    }
+    if (!parsed.success)
+      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
     const [user] = await db
       .update(users)
-      .set({
-        name: parsed.data.name,
-        email: parsed.data.email,
-        updatedAt: new Date(),
-      })
+      .set({ name: parsed.data.name, email: parsed.data.email, updatedAt: new Date() })
       .where(eq(users.id, userId))
       .returning();
-
-    revalidatePath("/settings");
-    return {
-      success: true,
-      data: { id: user.id, name: user.name, email: user.email },
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, "Failed to update profile"),
-    };
-  }
-}
+    return { id: user.id, name: user.name, email: user.email };
+  },
+  revalidate: ["/settings"],
+  errorMessage: "Failed to update profile",
+});
 
 // ============================================================================
 // CHANGE PASSWORD
@@ -272,51 +237,34 @@ const changePasswordSchema = z
     path: ["confirmPassword"],
   });
 
-export async function changePasswordAction(
-  input: unknown,
-): Promise<ActionResult> {
-  try {
-    const { userId } = await getSession();
+export const changePasswordAction = createAction<unknown, void>({
+  handler: async (input, { userId, db }) => {
     const parsed = changePasswordSchema.safeParse(input);
-    if (!parsed.success) {
-      return {
-        success: false,
-        error: parsed.error.errors[0]?.message || "Invalid input",
-      };
-    }
+    if (!parsed.success)
+      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
 
     const [user] = await db
       .select({ passwordHash: users.passwordHash })
       .from(users)
       .where(eq(users.id, userId));
 
-    if (!user?.passwordHash) {
-      return { success: false, error: "Invalid account state" };
-    }
+    if (!user?.passwordHash) throw new Error("Invalid account state");
 
     const isValid = await bcrypt.compare(
       parsed.data.currentPassword,
       user.passwordHash,
     );
-    if (!isValid) {
-      return { success: false, error: "Current password is incorrect" };
-    }
+    if (!isValid) throw new Error("Current password is incorrect");
 
     const newHash = await bcrypt.hash(parsed.data.newPassword, 12);
     await db
       .update(users)
       .set({ passwordHash: newHash, updatedAt: new Date() })
       .where(eq(users.id, userId));
-
-    revalidatePath("/settings");
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, "Failed to change password"),
-    };
-  }
-}
+  },
+  revalidate: ["/settings"],
+  errorMessage: "Failed to change password",
+});
 
 // ============================================================================
 // USER AVATAR
@@ -378,24 +326,16 @@ export async function uploadAvatarAction(
   }
 }
 
-export async function removeAvatarAction(): Promise<ActionResult> {
-  try {
-    const { userId } = await getSession();
-
+export const removeAvatarAction = createAction<void, void>({
+  handler: async (_input, { userId, db }) => {
     await db
       .update(users)
       .set({ avatarBase64: null, updatedAt: new Date() })
       .where(eq(users.id, userId));
-
-    revalidatePath("/settings");
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, "Failed to remove avatar"),
-    };
-  }
-}
+  },
+  revalidate: ["/settings"],
+  errorMessage: "Failed to remove avatar",
+});
 
 // ============================================================================
 // NUMBER SEQUENCES
@@ -407,19 +347,14 @@ const updateSequenceSchema = z.object({
   format: z.string().min(1).max(100),
 });
 
-export async function updateNumberSequenceAction(
-  sequenceId: string,
-  input: unknown,
-): Promise<ActionResult> {
-  try {
-    const { companyId } = await requireRole("admin");
+export const updateNumberSequenceAction = createAction<
+  { sequenceId: string; input: unknown },
+  unknown
+>({
+  handler: async ({ sequenceId, input }, { companyId, db }) => {
     const parsed = updateSequenceSchema.safeParse(input);
-    if (!parsed.success) {
-      return {
-        success: false,
-        error: parsed.error.errors[0]?.message || "Invalid input",
-      };
-    }
+    if (!parsed.success)
+      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
     const [seq] = await db
       .update(numberSequences)
       .set({
@@ -434,14 +369,10 @@ export async function updateNumberSequenceAction(
         ),
       )
       .returning();
-
-    if (!seq) return { success: false, error: "Sequence not found" };
-    revalidatePath("/settings");
-    return { success: true, data: seq };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, "Failed to update number sequence"),
-    };
-  }
-}
+    if (!seq) throw new Error("Sequence not found");
+    return seq;
+  },
+  revalidate: ["/settings"],
+  errorMessage: "Failed to update number sequence",
+  minRole: "admin",
+});

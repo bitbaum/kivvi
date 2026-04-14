@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Package } from "lucide-react";
+import { Package, Wrench } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { getSessionOrRedirect } from "@/lib/session";
 import { listDocuments, getInventoryItemCounts } from "@kivvi/core";
@@ -34,8 +34,10 @@ export default async function IntakePage({ searchParams }: PageProps) {
   });
 
   const tc = await getTranslations("common");
+  const ti = await getTranslations("inventory");
   const counts = await getInventoryItemCounts(db, session.user.companyId);
   const totalItems = Object.values(counts).reduce((a, b) => a + b, 0);
+  const repairCount = counts.repair ?? 0;
 
   return (
     <DocumentList
@@ -44,13 +46,24 @@ export default async function IntakePage({ searchParams }: PageProps) {
       search={search}
       status={status}
       headerActions={
-        <Link
-          href="/intake/items"
-          className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2 text-sm font-medium hover:bg-accent transition-colors"
-        >
-          <Package className="h-4 w-4" />
-          {totalItems} {tc("items")}
-        </Link>
+        <div className="flex items-center gap-2">
+          {repairCount > 0 && (
+            <Link
+              href="/intake/items?status=repair"
+              className="inline-flex items-center gap-2 rounded-lg border border-warning/30 bg-warning/5 px-3 py-2 text-sm font-medium text-warning hover:bg-warning/10 transition-colors dark:hover:bg-warning/20"
+            >
+              <Wrench className="h-4 w-4" />
+              {repairCount} {ti("inRepair")}
+            </Link>
+          )}
+          <Link
+            href="/intake/items"
+            className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2 text-sm font-medium hover:bg-accent transition-colors"
+          >
+            <Package className="h-4 w-4" />
+            {totalItems} {tc("items")}
+          </Link>
+        </div>
       }
     />
   );

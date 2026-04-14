@@ -43,7 +43,7 @@ export function AutoMatchButton({ bankAccountId }: { bankAccountId: string }) {
         {isPending ? t("matching") : t("autoMatch")}
       </button>
       {result && (
-        <span className="text-sm text-green-600 dark:text-green-400">
+        <span className="text-sm text-success">
           {t("matchedTransactions", {
             count: result.matched,
             total: result.total,
@@ -51,7 +51,7 @@ export function AutoMatchButton({ bankAccountId }: { bankAccountId: string }) {
         </span>
       )}
       {error && (
-        <span className="text-sm text-red-600 dark:text-red-400">{error}</span>
+        <span className="text-sm text-destructive">{error}</span>
       )}
     </div>
   );

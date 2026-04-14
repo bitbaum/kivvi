@@ -26,7 +26,7 @@ export async function ImpactOverview() {
 
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="rounded-xl border bg-card p-4">
-          <div className="mb-2 flex items-center gap-2 text-green-600">
+          <div className="mb-2 flex items-center gap-2 text-success">
             <Recycle className="h-5 w-5" />
             <span className="text-xs font-medium">{ti("itemsReused")}</span>
           </div>
@@ -50,7 +50,7 @@ export async function ImpactOverview() {
         </div>
 
         <div className="rounded-xl border bg-card p-4">
-          <div className="mb-2 flex items-center gap-2 text-blue-600">
+          <div className="mb-2 flex items-center gap-2 text-info">
             <Users className="h-5 w-5" />
             <span className="text-xs font-medium">{ti("itemsProcessed")}</span>
           </div>

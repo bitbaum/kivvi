@@ -255,7 +255,7 @@ export default async function ContactsPage({
           {t("summaryVendors", { count: vendorCount })}
         </span>
         {newThisMonth > 0 && (
-          <span className="rounded-full bg-green-100 dark:bg-green-900/30 px-3 py-1 font-medium text-green-700 dark:text-green-300">
+          <span className="rounded-full bg-success/10 px-3 py-1 font-medium text-success">
             {t("summaryNewThisMonth", { count: newThisMonth })}
           </span>
         )}

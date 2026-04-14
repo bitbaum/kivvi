@@ -105,7 +105,7 @@ export async function InventoryOverview() {
                     {formatCurrency(item.soldPrice)}
                   </span>
                   <span
-                    className={`ml-2 text-xs ${parseFloat(item.margin) > 0 ? "text-green-600" : "text-red-600"}`}
+                    className={`ml-2 text-xs ${parseFloat(item.margin) > 0 ? "text-success" : "text-destructive"}`}
                   >
                     {parseFloat(item.margin) > 0 ? "+" : ""}
                     {formatCurrency(item.margin)}
@@ -140,7 +140,7 @@ function MetricCard({
         <span className="text-xs font-medium">{label}</span>
       </div>
       <div
-        className={`text-2xl font-bold ${positive === true ? "text-green-600" : positive === false ? "text-red-600" : ""}`}
+        className={`text-2xl font-bold ${positive === true ? "text-success" : positive === false ? "text-destructive" : ""}`}
       >
         {value}
       </div>

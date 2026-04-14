@@ -104,9 +104,9 @@ export function PriorityActionsClient({ alerts, suggestions }: PriorityActionsCl
   if (actions.length === 0) {
     return (
       <div className="rounded-xl border bg-card p-8 text-center">
-        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-success/10">
           <svg
-            className="h-6 w-6 text-green-600 dark:text-green-400"
+            className="h-6 w-6 text-success"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -127,19 +127,19 @@ export function PriorityActionsClient({ alerts, suggestions }: PriorityActionsCl
 
   const severityStyles = {
     urgent: {
-      border: 'border-red-200 dark:border-red-900',
-      iconBg: 'bg-red-100 dark:bg-red-900/50',
-      iconColor: 'text-red-600 dark:text-red-400',
+      border: "border-destructive/20",
+      iconBg: "bg-destructive/10",
+      iconColor: "text-destructive",
     },
     warning: {
-      border: 'border-yellow-200 dark:border-yellow-900',
-      iconBg: 'bg-yellow-100 dark:bg-yellow-900/50',
-      iconColor: 'text-yellow-600 dark:text-yellow-400',
+      border: "border-warning/20",
+      iconBg: "bg-warning/10",
+      iconColor: "text-warning",
     },
     info: {
-      border: '',
-      iconBg: 'bg-blue-100 dark:bg-blue-900/50',
-      iconColor: 'text-blue-600 dark:text-blue-400',
+      border: "",
+      iconBg: "bg-info/10",
+      iconColor: "text-info",
     },
   };
 

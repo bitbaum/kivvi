@@ -27,6 +27,23 @@
 
     --brand-from: #10b981;
     --brand-to: #059669;
+
+    /* Semantic status colours — SSOT for all status/context indicators.
+       Use these instead of hardcoded Tailwind colour classes.
+       Light badge pattern:  bg-success/10 text-success
+       Solid badge pattern:  bg-success text-success-foreground          */
+    --success: 142 70% 32%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 85% 38%;
+    --warning-foreground: 0 0% 100%;
+    --info: 217 75% 45%;
+    --info-foreground: 0 0% 100%;
+    --neutral: 220 15% 42%;
+    --neutral-foreground: 0 0% 100%;
+    --tag-purple: 271 70% 45%;
+    --tag-purple-foreground: 0 0% 100%;
+    --tag-rose: 347 75% 45%;
+    --tag-rose-foreground: 0 0% 100%;
   }
 
   .dark {
@@ -52,6 +69,19 @@
 
     --brand-from: #34d399;
     --brand-to: #10b981;
+
+    --success: 142 55% 50%;
+    --success-foreground: 142 70% 8%;
+    --warning: 38 80% 55%;
+    --warning-foreground: 38 85% 8%;
+    --info: 217 70% 60%;
+    --info-foreground: 217 75% 8%;
+    --neutral: 220 15% 60%;
+    --neutral-foreground: 220 15% 8%;
+    --tag-purple: 271 65% 62%;
+    --tag-purple-foreground: 271 70% 8%;
+    --tag-rose: 347 70% 60%;
+    --tag-rose-foreground: 347 75% 8%;
   }
 }
 
@@ -72,8 +102,11 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground text-sm;
   }
+  h1 { @apply text-3xl font-bold tracking-tight; }
+  h2 { @apply text-xl font-semibold; }
+  h3 { @apply text-base font-semibold; }
 }
 
 /* Print styles — hide chrome, show only content */

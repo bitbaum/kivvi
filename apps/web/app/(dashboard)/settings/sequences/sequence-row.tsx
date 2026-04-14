@@ -54,10 +54,9 @@ export function SequenceRow({ sequence, typeLabel }: SequenceRowProps) {
     setError(null);
 
     try {
-      const result = await updateNumberSequenceAction(sequence.id, {
-        prefix,
-        nextNumber,
-        format,
+      const result = await updateNumberSequenceAction({
+        sequenceId: sequence.id,
+        input: { prefix, nextNumber, format },
       });
 
       if (result.success) {
@@ -135,7 +134,7 @@ export function SequenceRow({ sequence, typeLabel }: SequenceRowProps) {
           </div>
         </div>
         {showWarning && (
-          <div className="rounded-lg border border-yellow-500/50 bg-yellow-500/10 px-3 py-2 text-xs text-yellow-700 dark:text-yellow-400">
+          <div className="rounded-lg border border-warning/50 bg-warning/50/10 px-3 py-2 text-xs text-warning">
             ⚠️ Warning: Setting next number to a lower value may create
             duplicate numbers if documents already exist.
           </div>

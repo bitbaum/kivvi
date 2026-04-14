@@ -340,7 +340,7 @@ export function EditDocumentForm({
                         type="button"
                         onClick={() => removeItem(item.id)}
                         aria-label={tc("remove")}
-                        className="mt-2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-muted-foreground hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20"
+                        className="mt-2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-muted-foreground hover:bg-destructive/5 hover:text-destructive dark:hover:bg-destructive/10"
                       >
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -400,7 +400,7 @@ export function EditDocumentForm({
             </div>
 
             {error && (
-              <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
+              <p className="mt-4 rounded-lg bg-destructive/5 p-3 text-sm text-destructive ">
                 {error}
               </p>
             )}

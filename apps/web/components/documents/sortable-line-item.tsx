@@ -117,13 +117,13 @@ export function SortableLineItem({
                   const stock = parseFloat(item.stockQuantity || "0");
                   if (stock <= 0)
                     return (
-                      <p className="mt-1 text-xs text-red-500">
+                      <p className="mt-1 text-xs text-destructive">
                         {t("outOfStock")}
                       </p>
                     );
                   if (qty > stock)
                     return (
-                      <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
+                      <p className="mt-1 text-xs text-warning">
                         {t("inStock").replace(
                           "{count}",
                           String(Math.floor(stock)),
@@ -201,7 +201,7 @@ export function SortableLineItem({
             type="button"
             onClick={() => removeItem(item.id)}
             aria-label={tc("aria.removeLineItem")}
-            className="mt-2 flex items-center justify-center rounded-lg min-h-[44px] min-w-[44px] text-muted-foreground hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20"
+            className="mt-2 flex items-center justify-center rounded-lg min-h-[44px] min-w-[44px] text-muted-foreground hover:bg-destructive/5 hover:text-destructive dark:hover:bg-destructive/10"
           >
             <Trash2 className="h-4 w-4" />
           </button>

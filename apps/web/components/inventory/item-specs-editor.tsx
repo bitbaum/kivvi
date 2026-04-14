@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Plus, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 // Common specs by category hint — shown as placeholders when the field is empty
 const COMMON_SPECS = [
@@ -34,6 +35,7 @@ export function ItemSpecsEditor({
   initialSpecs,
   inputName = "specs",
 }: ItemSpecsEditorProps) {
+  const t = useTranslations("inventory");
   const [rows, setRows] = useState<SpecRow[]>(() => {
     if (!initialSpecs || Object.keys(initialSpecs).length === 0) return [];
     return Object.entries(initialSpecs).map(([key, value]) => ({ key, value }));
@@ -76,7 +78,7 @@ export function ItemSpecsEditor({
                 type="text"
                 value={row.value}
                 onChange={(e) => updateRow(idx, "value", e.target.value)}
-                placeholder="Wert"
+                placeholder={t("specValue")}
                 className="flex-1 rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
               <button
@@ -97,7 +99,7 @@ export function ItemSpecsEditor({
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
         <Plus className="h-3.5 w-3.5" />
-        Eigenschaft hinzufügen
+        {t("addSpec")}
       </button>
     </div>
   );

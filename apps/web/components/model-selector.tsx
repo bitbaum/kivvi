@@ -101,7 +101,7 @@ export function ModelSelector({
             (models.length === 0 ? "AI Model" : "Select model")}
         </span>
         {selected?.isFree && (
-          <span className="rounded bg-green-500/20 px-1.5 py-0.5 text-xs font-medium text-green-600 dark:text-green-400">
+          <span className="rounded bg-success/50/20 px-1.5 py-0.5 text-xs font-medium text-success">
             Free
           </span>
         )}
@@ -137,7 +137,7 @@ export function ModelSelector({
                         <div className="flex items-center gap-2">
                           <span className="truncate">{model.name}</span>
                           {model.isFree && (
-                            <span className="rounded bg-green-500/20 px-1.5 py-0.5 text-xs font-medium text-green-600 dark:text-green-400">
+                            <span className="rounded bg-success/50/20 px-1.5 py-0.5 text-xs font-medium text-success">
                               Free
                             </span>
                           )}

@@ -33,7 +33,7 @@ export const CharCountInput = forwardRef<HTMLInputElement, CharCountInputProps>(
           <span
             className={cn(
               'absolute right-3 top-1/2 -translate-y-1/2 text-xs tabular-nums',
-              isNearLimit ? 'text-amber-600 dark:text-amber-400 font-medium' : 'text-muted-foreground'
+              isNearLimit ? 'text-warning font-medium' : 'text-muted-foreground'
             )}
           >
             {value.length} / {maxLength}

@@ -8,6 +8,7 @@ import { Loader2, Building2, Users } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { KivviLogo } from "@/components/kivvi-logo";
 import { createCompanyAction } from "@/app/actions/memberships";
+import { Button } from "@/components/ui/button";
 
 export default function JoinPage() {
   const router = useRouter();
@@ -74,14 +75,14 @@ export default function JoinPage() {
               autoFocus
               className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
-            <button
+            <Button
               type="submit"
               disabled={creating || companyName.trim().length < 2}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+              className="w-full"
             >
               {creating && <Loader2 className="h-4 w-4 animate-spin" />}
               {creating ? t("creating") : t("create")}
-            </button>
+            </Button>
           </form>
         </div>
 
@@ -95,13 +96,14 @@ export default function JoinPage() {
         </div>
 
         <p className="text-center text-sm text-muted-foreground">
-          <button
+          <Button
             type="button"
+            variant="link"
+            className="h-auto p-0 text-sm text-muted-foreground hover:text-foreground"
             onClick={() => signOut({ callbackUrl: "/login" })}
-            className="hover:text-foreground hover:underline"
           >
             {t("signOut")}
-          </button>
+          </Button>
         </p>
       </div>
     </div>

@@ -24,6 +24,7 @@ import {
   getFinancialSummary,
   getBankTransactionsSummary,
   listDocuments,
+  calculateTrialBalanceTotals,
 } from "@kivvi/core";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { getTranslations } from "next-intl/server";
@@ -31,47 +32,6 @@ import { cn } from "@/lib/utils";
 import { PageHeader } from "@/components/page-header";
 import { AddAccountForm } from "../banking/add-account-form";
 import { StatCard, MiniStat, NavCard } from "@/components/money/stat-cards";
-
-interface TrialBalanceTotals {
-  assets: number;
-  liabilities: number;
-  equity: number;
-  revenue: number;
-  expenses: number;
-}
-
-function calculateTrialBalanceTotals(
-  trialBalance: Array<{
-    type: string;
-    balance: number;
-    totalDebit: number;
-    totalCredit: number;
-  }>,
-): TrialBalanceTotals {
-  return trialBalance.reduce(
-    (acc, row) => {
-      switch (row.type) {
-        case "asset":
-          acc.assets += row.balance;
-          break;
-        case "liability":
-          acc.liabilities += Math.abs(row.balance);
-          break;
-        case "equity":
-          acc.equity += Math.abs(row.balance);
-          break;
-        case "revenue":
-          acc.revenue += row.totalCredit - row.totalDebit;
-          break;
-        case "expense":
-          acc.expenses += row.totalDebit - row.totalCredit;
-          break;
-      }
-      return acc;
-    },
-    { assets: 0, liabilities: 0, equity: 0, revenue: 0, expenses: 0 },
-  );
-}
 
 interface PageProps {
   searchParams: Promise<{ tab?: string }>;
@@ -198,24 +158,24 @@ async function OverviewTab({ companyId }: { companyId: string }) {
           label={t("cashPosition")}
           value={formatCurrency(totalBankBalance)}
           icon={<Landmark className="h-5 w-5" />}
-          color="text-blue-600 dark:text-blue-400"
-          bgColor="bg-blue-100 dark:bg-blue-900/30"
+          color="text-info"
+          bgColor="bg-info/10"
           href="/money?tab=banking"
         />
         <StatCard
           label={t("receivables")}
           value={formatCurrency(financialSummary.outstandingTotal)}
           icon={<TrendingUp className="h-5 w-5" />}
-          color="text-green-600 dark:text-green-400"
-          bgColor="bg-green-100 dark:bg-green-900/30"
+          color="text-success"
+          bgColor="bg-success/10"
           href="/documents?type=invoice&status=sent"
         />
         <StatCard
           label={t("payables")}
           value={formatCurrency(financialSummary.draftsTotal)}
           icon={<TrendingDown className="h-5 w-5" />}
-          color="text-amber-600 dark:text-amber-400"
-          bgColor="bg-amber-100 dark:bg-amber-900/30"
+          color="text-warning"
+          bgColor="bg-warning/10"
           href="/documents?type=purchase_invoice"
         />
         {financialSummary.overdueTotal > 0 && (
@@ -223,8 +183,8 @@ async function OverviewTab({ companyId }: { companyId: string }) {
             label={t("overdue")}
             value={formatCurrency(financialSummary.overdueTotal)}
             icon={<AlertTriangle className="h-5 w-5" />}
-            color="text-red-600 dark:text-red-400"
-            bgColor="bg-red-100 dark:bg-red-900/30"
+            color="text-destructive"
+            bgColor="bg-destructive/10"
             href="/documents?type=invoice&status=overdue"
             count={financialSummary.overdueCount}
           />
@@ -239,22 +199,22 @@ async function OverviewTab({ companyId }: { companyId: string }) {
             <h2 className="font-semibold">{t("cashFlowForecast")}</h2>
           </div>
           <div className="grid gap-4 p-4 sm:grid-cols-3">
-            <div className="rounded-lg bg-green-50 p-4 dark:bg-green-950/30">
-              <p className="text-xs font-medium text-green-600 dark:text-green-400">
+            <div className="rounded-lg bg-success/5 p-4">
+              <p className="text-xs font-medium text-success">
                 {t("expectedInflows")}
               </p>
-              <p className="mt-1 text-lg font-bold text-green-700 dark:text-green-300">
+              <p className="mt-1 text-lg font-bold text-success">
                 {formatCurrency(financialSummary.outstandingTotal)}
               </p>
               <p className="mt-0.5 text-xs text-muted-foreground">
                 {dueThisWeek.total} {t("dueThisWeek")}
               </p>
             </div>
-            <div className="rounded-lg bg-amber-50 p-4 dark:bg-amber-950/30">
-              <p className="text-xs font-medium text-amber-600 dark:text-amber-400">
+            <div className="rounded-lg bg-warning/5 p-4">
+              <p className="text-xs font-medium text-warning">
                 {t("expectedOutflows")}
               </p>
-              <p className="mt-1 text-lg font-bold text-amber-700 dark:text-amber-300">
+              <p className="mt-1 text-lg font-bold text-warning">
                 {formatCurrency(
                   dueNext30.data.reduce(
                     (sum: number, d: { total: string }) =>
@@ -267,11 +227,11 @@ async function OverviewTab({ companyId }: { companyId: string }) {
                 {dueNext30.total} {t("vendorInvoices30d")}
               </p>
             </div>
-            <div className="rounded-lg bg-blue-50 p-4 dark:bg-blue-950/30">
-              <p className="text-xs font-medium text-blue-600 dark:text-blue-400">
+            <div className="rounded-lg bg-info/5 p-4">
+              <p className="text-xs font-medium text-info">
                 {t("netPosition")}
               </p>
-              <p className="mt-1 text-lg font-bold text-blue-700 dark:text-blue-300">
+              <p className="mt-1 text-lg font-bold text-info">
                 {formatCurrency(
                   totalBankBalance +
                     financialSummary.outstandingTotal -
@@ -349,36 +309,36 @@ async function OverviewTab({ companyId }: { companyId: string }) {
             <MiniStat
               label={ta("assets")}
               value={totals.assets}
-              color="text-blue-600 dark:text-blue-400"
-              bgColor="bg-blue-100 dark:bg-blue-900/30"
+              color="text-info"
+              bgColor="bg-info/10"
               icon={<TrendingUp className="h-5 w-5" />}
             />
             <MiniStat
               label={ta("liabilities")}
               value={totals.liabilities}
-              color="text-red-600 dark:text-red-400"
-              bgColor="bg-red-100 dark:bg-red-900/30"
+              color="text-destructive"
+              bgColor="bg-destructive/10"
               icon={<TrendingDown className="h-5 w-5" />}
             />
             <MiniStat
               label={ta("equity")}
               value={totals.equity}
-              color="text-purple-600 dark:text-purple-400"
-              bgColor="bg-purple-100 dark:bg-purple-900/30"
+              color="text-tag-purple"
+              bgColor="bg-tag-purple/10"
               icon={<Scale className="h-5 w-5" />}
             />
             <MiniStat
               label={ta("revenue")}
               value={totals.revenue}
-              color="text-green-600 dark:text-green-400"
-              bgColor="bg-green-100 dark:bg-green-900/30"
+              color="text-success"
+              bgColor="bg-success/10"
               icon={<Coins className="h-5 w-5" />}
             />
             <MiniStat
               label={ta("expenses")}
               value={totals.expenses}
-              color="text-amber-600 dark:text-amber-400"
-              bgColor="bg-amber-100 dark:bg-amber-900/30"
+              color="text-warning"
+              bgColor="bg-warning/10"
               icon={<Receipt className="h-5 w-5" />}
             />
           </div>
@@ -410,11 +370,11 @@ async function BankingTab({ companyId }: { companyId: string }) {
       <div className="flex items-center justify-between">
         {accounts.length > 0 ? (
           <div className="flex flex-wrap items-center gap-3 text-sm">
-            <span className="rounded-full bg-blue-100 dark:bg-blue-900/30 px-3 py-1 font-medium text-blue-700 dark:text-blue-300">
+            <span className="rounded-full bg-info/10 px-3 py-1 font-medium text-info">
               {t("summaryBalance", { amount: formatCurrency(totalBalance) })}
             </span>
             {txSummary.unreconciledCount > 0 && (
-              <span className="rounded-full bg-amber-100 dark:bg-amber-900/30 px-3 py-1 font-medium text-amber-700 dark:text-amber-300">
+              <span className="rounded-full bg-warning/10 px-3 py-1 font-medium text-warning">
                 {t("summaryUnreconciled", {
                   count: txSummary.unreconciledCount,
                 })}
@@ -540,36 +500,36 @@ async function AccountingTab({ companyId }: { companyId: string }) {
             <MiniStat
               label={t("assets")}
               value={totals.assets}
-              color="text-blue-600 dark:text-blue-400"
-              bgColor="bg-blue-100 dark:bg-blue-900/30"
+              color="text-info"
+              bgColor="bg-info/10"
               icon={<TrendingUp className="h-5 w-5" />}
             />
             <MiniStat
               label={t("liabilities")}
               value={totals.liabilities}
-              color="text-red-600 dark:text-red-400"
-              bgColor="bg-red-100 dark:bg-red-900/30"
+              color="text-destructive"
+              bgColor="bg-destructive/10"
               icon={<TrendingDown className="h-5 w-5" />}
             />
             <MiniStat
               label={t("equity")}
               value={totals.equity}
-              color="text-purple-600 dark:text-purple-400"
-              bgColor="bg-purple-100 dark:bg-purple-900/30"
+              color="text-tag-purple"
+              bgColor="bg-tag-purple/10"
               icon={<Scale className="h-5 w-5" />}
             />
             <MiniStat
               label={t("revenue")}
               value={totals.revenue}
-              color="text-green-600 dark:text-green-400"
-              bgColor="bg-green-100 dark:bg-green-900/30"
+              color="text-success"
+              bgColor="bg-success/10"
               icon={<Coins className="h-5 w-5" />}
             />
             <MiniStat
               label={t("expenses")}
               value={totals.expenses}
-              color="text-amber-600 dark:text-amber-400"
-              bgColor="bg-amber-100 dark:bg-amber-900/30"
+              color="text-warning"
+              bgColor="bg-warning/10"
               icon={<Receipt className="h-5 w-5" />}
             />
           </div>

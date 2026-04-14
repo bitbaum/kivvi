@@ -129,15 +129,15 @@ export default async function BankAccountDetailPage({
           label={t("reconciled")}
           value={summary.reconciled.toString()}
           icon={
-            <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
+            <CheckCircle2 className="h-4 w-4 text-success" />
           }
-          className="border-green-200 dark:border-green-900/50"
+          className="border-success/20"
         />
         <SummaryCard
           label={t("unreconciled")}
           value={summary.unreconciled.toString()}
-          icon={<AlertCircle className="h-4 w-4 text-amber-600" />}
-          className="border-amber-200 dark:border-amber-900/50"
+          icon={<AlertCircle className="h-4 w-4 text-warning" />}
+          className="border-warning/20"
         />
         <SummaryCard
           label={t("unreconciledAmount")}
@@ -146,9 +146,9 @@ export default async function BankAccountDetailPage({
             account.currency || "CHF",
           )}
           icon={
-            <CreditCard className="h-4 w-4 text-red-600 dark:text-red-400" />
+            <CreditCard className="h-4 w-4 text-destructive" />
           }
-          className="border-red-200 dark:border-red-900/50"
+          className="border-destructive/20"
         />
       </div>
 
@@ -244,9 +244,7 @@ export default async function BankAccountDetailPage({
                     <div
                       className={cn(
                         "text-right text-sm font-medium",
-                        isPositive
-                          ? "text-green-600 dark:text-green-400"
-                          : "text-red-600 dark:text-red-400",
+                        isPositive ? "text-success" : "text-destructive",
                       )}
                     >
                       {isPositive ? "+" : ""}
@@ -260,7 +258,7 @@ export default async function BankAccountDetailPage({
                     <div className="flex items-center justify-center">
                       {txn.isReconciled && txn.matchedDocument ? (
                         <div className="flex items-center gap-2">
-                          <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-0.5 text-xs font-medium text-success">
                             <CheckCircle2 className="h-3 w-3" />
                             {t("reconciled")}
                           </span>
@@ -278,7 +276,7 @@ export default async function BankAccountDetailPage({
                         </div>
                       ) : (
                         <div className="flex items-center gap-2">
-                          <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-warning/10 px-2.5 py-0.5 text-xs font-medium text-warning">
                             <AlertCircle className="h-3 w-3" />
                             {t("unreconciled")}
                           </span>

@@ -66,10 +66,10 @@ export function RecurringConfigRow({
   async function handleToggle() {
     setIsToggling(true);
     try {
-      const result = await toggleRecurringConfigAction(
-        config.id,
-        !config.isActive,
-      );
+      const result = await toggleRecurringConfigAction({
+        configId: config.id,
+        isActive: !config.isActive,
+      });
       if (result.success) {
         toast.success(
           config.isActive
@@ -107,15 +107,15 @@ export function RecurringConfigRow({
       </div>
       <div>
         {isExpired ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+          <span className="inline-flex items-center gap-1 rounded-full bg-neutral/10 px-2 py-1 text-xs font-medium text-neutral">
             {t("recurring.expired")}
           </span>
         ) : config.isActive ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700 dark:bg-green-900/20 dark:text-green-400">
+          <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-1 text-xs font-medium text-success">
             {t("recurring.active")}
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+          <span className="inline-flex items-center gap-1 rounded-full bg-neutral/10 px-2 py-1 text-xs font-medium text-neutral">
             {t("recurring.inactive")}
           </span>
         )}
@@ -185,7 +185,7 @@ export function RecurringConfigRow({
               <button
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+                className="rounded-lg bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
               >
                 {isDeleting ? tc("deleting") : tc("delete")}
               </button>

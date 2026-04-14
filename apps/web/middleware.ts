@@ -78,20 +78,32 @@ export default auth((req) => {
   // Redirect authenticated users away from auth pages
   if (isAuthenticated && (pathname === "/login" || pathname === "/register")) {
     // Justified: next-auth middleware types don't include custom session fields
+    const companyId = (req.auth as any)?.user?.companyId;
     const onboardingComplete = (req.auth as any)?.user?.onboardingComplete;
-    return NextResponse.redirect(
-      new URL(onboardingComplete ? "/dashboard" : "/onboarding", req.url),
-    );
+    let dest = "/onboarding";
+    if (!companyId) dest = "/join";
+    else if (onboardingComplete) dest = "/dashboard";
+    return NextResponse.redirect(new URL(dest, req.url));
   }
 
-  // Onboarding redirects for authenticated users
+  // Routing for authenticated users based on company + onboarding state
   if (isAuthenticated) {
     // Justified: next-auth middleware types don't include custom session fields
+    const companyId = (req.auth as any)?.user?.companyId;
     const onboardingComplete = (req.auth as any)?.user?.onboardingComplete;
     const isOnboardingPath = pathname.startsWith("/onboarding");
+    // /join and /invite are the valid holding areas for no-company users
+    const isJoinPath =
+      pathname.startsWith("/join") || pathname.startsWith("/invite");
 
-    // Not done onboarding + not on onboarding page → redirect to onboarding
+    // No active company → must join or create one before using the app
+    if (!companyId && !isJoinPath && !pathname.startsWith("/api/")) {
+      return NextResponse.redirect(new URL("/join", req.url));
+    }
+
+    // Has company but hasn't finished onboarding
     if (
+      companyId &&
       !onboardingComplete &&
       !isOnboardingPath &&
       !pathname.startsWith("/api/")
@@ -99,8 +111,8 @@ export default auth((req) => {
       return NextResponse.redirect(new URL("/onboarding", req.url));
     }
 
-    // Done onboarding + on onboarding page → redirect to dashboard
-    if (onboardingComplete && isOnboardingPath) {
+    // Finished onboarding + still on onboarding page → go to dashboard
+    if (companyId && onboardingComplete && isOnboardingPath) {
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }
   }

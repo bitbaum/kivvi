@@ -10,6 +10,7 @@ import {
   deleteContactAddressAction,
 } from "@/app/actions/contacts";
 import { FormInput, FormSelect } from "@/components/ui/form-field";
+import { Button } from "@/components/ui/button";
 import type { ContactAddress } from "@kivvi/database";
 
 interface AddressManagerProps {
@@ -80,16 +81,16 @@ export function AddressManager({ contactId, addresses }: AddressManagerProps) {
       <div className="border-b px-6 py-4 flex items-center justify-between">
         <h2 className="font-semibold">{t("addresses")}</h2>
         {!showForm && (
-          <button
+          <Button
+            size="sm"
             onClick={() => {
               setEditingId(null);
               setShowForm(true);
             }}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
           >
             <Plus className="h-3.5 w-3.5" />
             {t("addAddress")}
-          </button>
+          </Button>
         )}
       </div>
 
@@ -126,23 +127,26 @@ export function AddressManager({ contactId, addresses }: AddressManagerProps) {
                 </div>
               </div>
               <div className="flex items-center gap-1">
-                <button
+                <Button
+                  variant="ghost"
+                  size="icon"
                   onClick={() => startEdit(addr)}
-                  className="min-h-[44px] min-w-[44px] rounded-lg p-2 hover:bg-muted transition-colors"
                 >
                   <Pencil className="h-3.5 w-3.5" />
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
                   onClick={() => handleDelete(addr.id)}
                   disabled={deletingId === addr.id}
-                  className="rounded-lg p-2 hover:bg-destructive/10 text-destructive transition-colors"
+                  className="text-destructive hover:bg-destructive/10 hover:text-destructive"
                 >
                   {deletingId === addr.id ? (
                     <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   ) : (
                     <Trash2 className="h-3.5 w-3.5" />
                   )}
-                </button>
+                </Button>
               </div>
             </div>
           ))}
@@ -265,24 +269,25 @@ export function AddressManager({ contactId, addresses }: AddressManagerProps) {
             </label>
           </div>
           <div className="flex items-center justify-end gap-3 pt-2">
-            <button
+            <Button
               type="button"
+              variant="secondary"
+              size="sm"
               onClick={() => {
                 setShowForm(false);
                 setEditingId(null);
               }}
-              className="rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-muted transition-colors"
             >
               {tc("cancel")}
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
+              size="sm"
               disabled={isSubmitting}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
             >
               {isSubmitting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
               {editingId ? tc("save") : t("addAddress")}
-            </button>
+            </Button>
           </div>
         </form>
       )}

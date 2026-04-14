@@ -154,7 +154,7 @@ export function RepairImportForm() {
       {result && (
         <div className="rounded-xl border bg-card p-6">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="h-5 w-5 text-green-500" />
+            <CheckCircle2 className="h-5 w-5 text-success" />
             <span className="font-medium">{t('repairComplete')}</span>
           </div>
           <p className="mt-2 text-sm text-muted-foreground">

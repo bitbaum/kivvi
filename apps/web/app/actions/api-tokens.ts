@@ -11,6 +11,7 @@ import {
   requireRole,
   safeErrorMessage,
 } from "./utils";
+import { createAction } from "./action-factory";
 import { generateApiToken } from "@/lib/api-auth";
 
 const createTokenSchema = z.object({
@@ -59,26 +60,23 @@ export async function createApiTokenAction(
   }
 }
 
+type ApiTokenListItem = {
+  id: string;
+  name: string;
+  tokenPrefix: string;
+  lastUsedAt: Date | null;
+  expiresAt: Date | null;
+  isActive: boolean;
+  createdAt: Date;
+};
+
 /**
  * List all API tokens for the current company. Does NOT return the token itself.
  */
-export async function listApiTokensAction(): Promise<
-  ActionResult<
-    Array<{
-      id: string;
-      name: string;
-      tokenPrefix: string;
-      lastUsedAt: Date | null;
-      expiresAt: Date | null;
-      isActive: boolean;
-      createdAt: Date;
-    }>
-  >
-> {
-  try {
-    const { companyId } = await getSession();
-
-    const tokens = await db
+export const listApiTokensAction = createAction<void, ApiTokenListItem[]>({
+  errorMessage: "Failed to list API tokens",
+  handler: async (_input, { companyId, db }) =>
+    db
       .select({
         id: apiTokens.id,
         name: apiTokens.name,
@@ -89,70 +87,38 @@ export async function listApiTokensAction(): Promise<
         createdAt: apiTokens.createdAt,
       })
       .from(apiTokens)
-      .where(eq(apiTokens.companyId, companyId));
-
-    return { success: true, data: tokens };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, "Failed to list API tokens"),
-    };
-  }
-}
+      .where(eq(apiTokens.companyId, companyId)),
+});
 
 /**
  * Revoke (deactivate) an API token.
  */
-export async function revokeApiTokenAction(
-  tokenId: string,
-): Promise<ActionResult> {
-  try {
-    const { companyId } = await requireRole("admin");
-
+export const revokeApiTokenAction = createAction<string, void>({
+  minRole: "admin",
+  revalidate: ["/settings"],
+  errorMessage: "Failed to revoke API token",
+  handler: async (tokenId, { companyId, db }) => {
     const [updated] = await db
       .update(apiTokens)
       .set({ isActive: false })
       .where(and(eq(apiTokens.id, tokenId), eq(apiTokens.companyId, companyId)))
       .returning({ id: apiTokens.id });
-
-    if (!updated) {
-      return { success: false, error: "Token not found" };
-    }
-
-    revalidatePath("/settings");
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, "Failed to revoke API token"),
-    };
-  }
-}
+    if (!updated) throw new Error("Token not found");
+  },
+});
 
 /**
  * Delete an API token permanently.
  */
-export async function deleteApiTokenAction(
-  tokenId: string,
-): Promise<ActionResult> {
-  try {
-    const { companyId } = await requireRole("admin");
-
+export const deleteApiTokenAction = createAction<string, void>({
+  minRole: "admin",
+  revalidate: ["/settings"],
+  errorMessage: "Failed to delete API token",
+  handler: async (tokenId, { companyId, db }) => {
     const [deleted] = await db
       .delete(apiTokens)
       .where(and(eq(apiTokens.id, tokenId), eq(apiTokens.companyId, companyId)))
       .returning({ id: apiTokens.id });
-
-    if (!deleted) {
-      return { success: false, error: "Token not found" };
-    }
-
-    revalidatePath("/settings");
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, "Failed to delete API token"),
-    };
-  }
-}
+    if (!deleted) throw new Error("Token not found");
+  },
+});

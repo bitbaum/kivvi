@@ -76,7 +76,7 @@ export default async function BalanceSheetPage({ searchParams }: PageProps) {
             title={ta("assets")}
             rows={report.assets}
             total={report.totalAssets}
-            color="text-blue-600 dark:text-blue-400"
+            color="text-info"
             labels={{
               account: ta("account"),
               name: tc("name"),
@@ -91,7 +91,7 @@ export default async function BalanceSheetPage({ searchParams }: PageProps) {
             title={ta("liabilities")}
             rows={report.liabilities}
             total={report.totalLiabilities}
-            color="text-red-600 dark:text-red-400"
+            color="text-destructive"
             labels={{
               account: ta("account"),
               name: tc("name"),
@@ -106,7 +106,7 @@ export default async function BalanceSheetPage({ searchParams }: PageProps) {
             title={ta("equity")}
             rows={report.equity}
             total={report.totalEquity}
-            color="text-purple-600 dark:text-purple-400"
+            color="text-tag-purple"
             labels={{
               account: ta("account"),
               name: tc("name"),
@@ -124,7 +124,7 @@ export default async function BalanceSheetPage({ searchParams }: PageProps) {
                 <p className="text-sm text-muted-foreground">
                   {t("totalAssets")}
                 </p>
-                <p className="mt-1 text-xl font-bold text-blue-600 dark:text-blue-400">
+                <p className="mt-1 text-xl font-bold text-info">
                   {formatCurrency(report.totalAssets)}
                 </p>
               </div>
@@ -132,7 +132,7 @@ export default async function BalanceSheetPage({ searchParams }: PageProps) {
                 <p className="text-sm text-muted-foreground">
                   {t("totalLiabilitiesAndEquity")}
                 </p>
-                <p className="mt-1 text-xl font-bold text-red-600 dark:text-red-400">
+                <p className="mt-1 text-xl font-bold text-destructive">
                   {formatCurrency(report.totalLiabilities)}
                 </p>
               </div>
@@ -140,7 +140,7 @@ export default async function BalanceSheetPage({ searchParams }: PageProps) {
                 <p className="text-sm text-muted-foreground">
                   {ta("equity")} {tc("total")}
                 </p>
-                <p className="mt-1 text-xl font-bold text-purple-600 dark:text-purple-400">
+                <p className="mt-1 text-xl font-bold text-tag-purple">
                   {formatCurrency(report.totalEquity)}
                 </p>
               </div>
@@ -151,8 +151,8 @@ export default async function BalanceSheetPage({ searchParams }: PageProps) {
                 <p
                   className={`mt-1 text-xl font-bold ${
                     Number(report.retainedEarnings) >= 0
-                      ? "text-green-600 dark:text-green-400"
-                      : "text-red-600 dark:text-red-400"
+                      ? "text-success"
+                      : "text-destructive"
                   }`}
                 >
                   {formatCurrency(report.retainedEarnings)}

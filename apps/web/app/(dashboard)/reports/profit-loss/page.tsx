@@ -80,7 +80,7 @@ export default async function ProfitLossPage({ searchParams }: PageProps) {
           {/* Revenue Section */}
           <div className="rounded-xl border bg-card">
             <div className="flex items-center gap-2 border-b p-4">
-              <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
+              <TrendingUp className="h-5 w-5 text-success" />
               <h2 className="font-semibold">{ta("revenue")}</h2>
             </div>
             {report.revenue.length > 0 ? (
@@ -111,7 +111,7 @@ export default async function ProfitLossPage({ searchParams }: PageProps) {
                       <td className="px-6 py-3" colSpan={2}>
                         {ta("revenue")} {tc("total")}
                       </td>
-                      <td className="px-6 py-3 text-right text-green-600 dark:text-green-400">
+                      <td className="px-6 py-3 text-right text-success">
                         {formatCurrency(report.totalRevenue)}
                       </td>
                     </tr>
@@ -128,7 +128,7 @@ export default async function ProfitLossPage({ searchParams }: PageProps) {
           {/* Expenses Section */}
           <div className="rounded-xl border bg-card">
             <div className="flex items-center gap-2 border-b p-4">
-              <TrendingUp className="h-5 w-5 rotate-180 text-red-600 dark:text-red-400" />
+              <TrendingUp className="h-5 w-5 rotate-180 text-destructive" />
               <h2 className="font-semibold">{ta("expenses")}</h2>
             </div>
             {report.expenses.length > 0 ? (
@@ -159,7 +159,7 @@ export default async function ProfitLossPage({ searchParams }: PageProps) {
                       <td className="px-6 py-3" colSpan={2}>
                         {ta("expenses")} {tc("total")}
                       </td>
-                      <td className="px-6 py-3 text-right text-red-600 dark:text-red-400">
+                      <td className="px-6 py-3 text-right text-destructive">
                         {formatCurrency(report.totalExpenses)}
                       </td>
                     </tr>
@@ -180,7 +180,7 @@ export default async function ProfitLossPage({ searchParams }: PageProps) {
                 <p className="text-sm text-muted-foreground">
                   {ta("revenue")} {tc("total")}
                 </p>
-                <p className="mt-1 text-xl font-bold text-green-600 dark:text-green-400">
+                <p className="mt-1 text-xl font-bold text-success">
                   {formatCurrency(report.totalRevenue)}
                 </p>
               </div>
@@ -188,7 +188,7 @@ export default async function ProfitLossPage({ searchParams }: PageProps) {
                 <p className="text-sm text-muted-foreground">
                   {ta("expenses")} {tc("total")}
                 </p>
-                <p className="mt-1 text-xl font-bold text-red-600 dark:text-red-400">
+                <p className="mt-1 text-xl font-bold text-destructive">
                   {formatCurrency(report.totalExpenses)}
                 </p>
               </div>
@@ -199,8 +199,8 @@ export default async function ProfitLossPage({ searchParams }: PageProps) {
                 <p
                   className={`mt-1 text-2xl font-bold ${
                     Number(report.netIncome) >= 0
-                      ? "text-green-600 dark:text-green-400"
-                      : "text-red-600 dark:text-red-400"
+                      ? "text-success"
+                      : "text-destructive"
                   }`}
                 >
                   {formatCurrency(report.netIncome)}

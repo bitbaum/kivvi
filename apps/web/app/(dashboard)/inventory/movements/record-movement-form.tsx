@@ -8,6 +8,7 @@ import { createStockMovementAction } from "@/app/actions/inventory";
 import { MOVEMENT_TYPES } from "@/lib/config/inventory";
 import { FormInput, FormSelect } from "@/components/ui/form-field";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
+import { Button } from "@/components/ui/button";
 
 interface Warehouse {
   id: string;
@@ -112,13 +113,10 @@ export function RecordMovementForm({
 
   if (!isOpen) {
     return (
-      <button
-        onClick={() => setIsOpen(true)}
-        className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-      >
+      <Button onClick={() => setIsOpen(true)}>
         <Plus className="h-4 w-4" />
         {t("recordMovement")}
-      </button>
+      </Button>
     );
   }
 
@@ -130,19 +128,16 @@ export function RecordMovementForm({
       <div className="w-full max-w-md rounded-xl border bg-card p-6 shadow-lg">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold">{t("recordMovement")}</h2>
-          <button
-            onClick={handleClose}
-            className="rounded-lg p-1 hover:bg-muted transition-colors"
-          >
+          <Button variant="ghost" size="icon" onClick={handleClose}>
             <X className="h-4 w-4" />
-          </button>
+          </Button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Product Picker */}
           <div className="relative">
             <label className="mb-1 block text-sm font-medium">
-              Product <span className="text-red-500">*</span>
+              Product <span className="text-destructive">*</span>
             </label>
             {selectedProduct ? (
               <div className="flex items-center justify-between rounded-lg border bg-background px-3 py-2">
@@ -218,7 +213,7 @@ export function RecordMovementForm({
           {/* Warehouse */}
           <div>
             <label className="mb-1 block text-sm font-medium">
-              {t("warehouses")} <span className="text-red-500">*</span>
+              {t("warehouses")} <span className="text-destructive">*</span>
             </label>
             <FormSelect name="warehouseId" required>
               <option value="">Select warehouse...</option>
@@ -233,7 +228,7 @@ export function RecordMovementForm({
           {/* Movement Type */}
           <div>
             <label className="mb-1 block text-sm font-medium">
-              {t("movementType")} <span className="text-red-500">*</span>
+              {t("movementType")} <span className="text-destructive">*</span>
             </label>
             <FormSelect name="type" required>
               <option value="">Select type...</option>
@@ -248,7 +243,7 @@ export function RecordMovementForm({
           {/* Quantity */}
           <div>
             <label className="mb-1 block text-sm font-medium">
-              Quantity <span className="text-red-500">*</span>
+              Quantity <span className="text-destructive">*</span>
             </label>
             <FormInput
               name="quantity"
@@ -276,25 +271,17 @@ export function RecordMovementForm({
           </div>
 
           {error && (
-            <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+            <p className="text-sm text-destructive">{error}</p>
           )}
 
           <div className="flex gap-2 pt-2">
-            <button
-              type="submit"
-              disabled={isPending}
-              className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-            >
+            <Button type="submit" disabled={isPending} className="flex-1">
               {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
               {isPending ? tc("saving") : t("recordMovement")}
-            </button>
-            <button
-              type="button"
-              onClick={handleClose}
-              className="rounded-lg border px-4 py-2 text-sm hover:bg-muted transition-colors"
-            >
+            </Button>
+            <Button type="button" variant="secondary" onClick={handleClose}>
               {tc("cancel")}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

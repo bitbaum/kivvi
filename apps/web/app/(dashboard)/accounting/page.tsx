@@ -122,36 +122,36 @@ async function TrialBalanceSummary({ companyId }: { companyId: string }) {
             label={t("assets")}
             value={totals.assets}
             icon={<TrendingUp className="h-5 w-5" />}
-            color="text-blue-600 dark:text-blue-400"
-            bgColor="bg-blue-100 dark:bg-blue-900/30"
+            color="text-info"
+            bgColor="bg-info/10"
           />
           <SummaryCard
             label={t("liabilities")}
             value={totals.liabilities}
             icon={<TrendingDown className="h-5 w-5" />}
-            color="text-red-600 dark:text-red-400"
-            bgColor="bg-red-100 dark:bg-red-900/30"
+            color="text-destructive"
+            bgColor="bg-destructive/10"
           />
           <SummaryCard
             label={t("equity")}
             value={totals.equity}
             icon={<Scale className="h-5 w-5" />}
-            color="text-purple-600 dark:text-purple-400"
-            bgColor="bg-purple-100 dark:bg-purple-900/30"
+            color="text-tag-purple"
+            bgColor="bg-tag-purple/10"
           />
           <SummaryCard
             label={t("revenue")}
             value={totals.revenue}
             icon={<Coins className="h-5 w-5" />}
-            color="text-green-600 dark:text-green-400"
-            bgColor="bg-green-100 dark:bg-green-900/30"
+            color="text-success"
+            bgColor="bg-success/10"
           />
           <SummaryCard
             label={t("expenses")}
             value={totals.expenses}
             icon={<Receipt className="h-5 w-5" />}
-            color="text-amber-600 dark:text-amber-400"
-            bgColor="bg-amber-100 dark:bg-amber-900/30"
+            color="text-warning"
+            bgColor="bg-warning/10"
           />
         </div>
       )}

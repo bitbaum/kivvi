@@ -40,9 +40,9 @@ export function ContactForm() {
   if (success) {
     return (
       <div className="flex min-h-[320px] flex-col items-center justify-center rounded-2xl border bg-card p-10 text-center">
-        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
+        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-success/10">
           <svg
-            className="h-6 w-6 text-green-600 dark:text-green-400"
+            className="h-6 w-6 text-success"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -213,7 +213,7 @@ export function WaitlistForm() {
 
   if (success) {
     return (
-      <p className="text-sm font-medium text-green-600 dark:text-green-400">
+      <p className="text-sm font-medium text-success">
         Sie sind auf der Warteliste. Wir melden uns!
       </p>
     );

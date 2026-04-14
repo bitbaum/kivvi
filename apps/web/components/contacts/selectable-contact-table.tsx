@@ -343,7 +343,7 @@ export function SelectableContactTable({
         <button
           onClick={() => executeAction("delete")}
           disabled={isPending}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 rounded-lg bg-destructive px-3 py-1.5 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
         >
           {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
           {translations.bulkLabels.delete}
@@ -384,7 +384,7 @@ export function SelectableContactTable({
               <button
                 onClick={() => executeAction(confirmAction)}
                 disabled={isPending}
-                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+                className="rounded-lg bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
               >
                 {isPending
                   ? translations.bulkLabels.processing

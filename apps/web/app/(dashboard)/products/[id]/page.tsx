@@ -374,7 +374,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
                 <div className="mt-4 flex items-center gap-2">
                   {product.serialNumberTracking && (
-                    <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                    <span className="inline-flex items-center rounded-full bg-info/10 px-2 py-0.5 text-xs font-medium text-info">
                       {t("serialNumberTracking")}
                     </span>
                   )}

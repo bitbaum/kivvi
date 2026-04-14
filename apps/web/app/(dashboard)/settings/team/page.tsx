@@ -37,10 +37,10 @@ const ROLE_LABELS: Record<MembershipRole, string> = {
 };
 
 const ROLE_COLORS: Record<MembershipRole, string> = {
-  owner: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400",
-  admin: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-  member: "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400",
-  viewer: "bg-gray-100 text-gray-600 dark:bg-gray-900/30 dark:text-gray-500",
+  owner: "bg-warning/10 text-warning",
+  admin: "bg-info/10 text-info",
+  member: "bg-neutral/10 text-neutral",
+  viewer: "bg-neutral/10 text-neutral",
 };
 
 function RoleBadge({ role }: { role: MembershipRole }) {
@@ -114,7 +114,7 @@ export default function TeamPage() {
   };
 
   const handleRoleChange = async (userId: string, newRole: MembershipRole) => {
-    const result = await updateMemberRoleAction(userId, newRole);
+    const result = await updateMemberRoleAction({ userId, role: newRole });
     if (result.success) {
       await loadData();
     } else {
@@ -166,7 +166,7 @@ export default function TeamPage() {
         </div>
       )}
       {successMessage && (
-        <div className="flex items-center justify-between rounded-lg bg-green-50 p-3 text-sm text-green-800 dark:bg-green-900/20 dark:text-green-400">
+        <div className="flex items-center justify-between rounded-lg bg-success/5 p-3 text-sm text-success">
           {successMessage}
           <button onClick={() => setSuccessMessage("")}>
             <X className="h-4 w-4" />

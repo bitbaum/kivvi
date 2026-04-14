@@ -2,19 +2,8 @@
 
 import { useState } from "react";
 import { Trash2, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { ExtractedItem } from "@/app/actions/ai-extract";
-
-const CATEGORY_LABELS: Record<string, string> = {
-  laptop: "Laptop",
-  desktop: "Desktop",
-  monitor: "Monitor",
-  tablet: "Tablet",
-  phone: "Smartphone",
-  keyboard: "Tastatur",
-  mouse: "Maus",
-  printer: "Drucker",
-  other: "Sonstiges",
-};
 
 interface ReviewItem extends ExtractedItem {
   _id: string;
@@ -26,6 +15,12 @@ interface IntakeBulkReviewProps {
   onBack: () => void;
 }
 
+/** Category values — must match the AI extraction prompt in ai-extract.ts */
+const ITEM_CATEGORIES = [
+  "laptop", "desktop", "monitor", "tablet", "phone",
+  "keyboard", "mouse", "printer", "other",
+] as const;
+
 type EditingCell = { id: string; field: keyof ExtractedItem } | null;
 
 export function IntakeBulkReview({
@@ -33,6 +28,8 @@ export function IntakeBulkReview({
   onConfirm,
   onBack,
 }: IntakeBulkReviewProps) {
+  const t = useTranslations("documents");
+  const tb = useTranslations("documents.bulkReview");
   const [rows, setRows] = useState<ReviewItem[]>(() =>
     initial.map((item) => ({ ...item, _id: crypto.randomUUID() })),
   );
@@ -99,13 +96,11 @@ export function IntakeBulkReview({
           <thead>
             <tr className="border-b bg-muted/50 text-xs text-muted-foreground">
               <th className="px-3 py-2 text-left font-medium w-8">#</th>
-              <th className="px-3 py-2 text-left font-medium">Hersteller</th>
-              <th className="px-3 py-2 text-left font-medium">
-                Modell / Beschreibung
-              </th>
-              <th className="px-3 py-2 text-left font-medium w-16">Anz.</th>
-              <th className="px-3 py-2 text-left font-medium">Kategorie</th>
-              <th className="px-3 py-2 text-left font-medium w-24">CHF</th>
+              <th className="px-3 py-2 text-left font-medium">{tb("colManufacturer")}</th>
+              <th className="px-3 py-2 text-left font-medium">{tb("colModelDesc")}</th>
+              <th className="px-3 py-2 text-left font-medium w-16">{tb("colQty")}</th>
+              <th className="px-3 py-2 text-left font-medium">{tb("colCategory")}</th>
+              <th className="px-3 py-2 text-left font-medium w-24">{tb("colPrice")}</th>
               <th className="px-3 py-2 w-8" />
             </tr>
           </thead>
@@ -122,7 +117,7 @@ export function IntakeBulkReview({
                   onStart={startEdit}
                   onCommit={commitEdit}
                   onEditValue={setEditValue}
-                  placeholder="z.B. Lenovo"
+                  placeholder={tb("placeholderBrand")}
                 />
                 <EditCell
                   id={row._id}
@@ -133,7 +128,7 @@ export function IntakeBulkReview({
                   onStart={startEdit}
                   onCommit={commitEdit}
                   onEditValue={setEditValue}
-                  placeholder="z.B. ThinkPad T480"
+                  placeholder={tb("placeholderModel")}
                 />
                 <EditCell
                   id={row._id}
@@ -160,9 +155,9 @@ export function IntakeBulkReview({
                     }
                     className="w-full rounded border-0 bg-transparent text-sm focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
                   >
-                    {Object.entries(CATEGORY_LABELS).map(([v, label]) => (
+                    {ITEM_CATEGORIES.map((v) => (
                       <option key={v} value={v}>
-                        {label}
+                        {t(`category.${v}`)}
                       </option>
                     ))}
                   </select>
@@ -202,7 +197,7 @@ export function IntakeBulkReview({
           className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
         >
           <Plus className="h-3.5 w-3.5" />
-          Zeile hinzufügen
+          {tb("addRow")}
         </button>
 
         <div className="flex items-center gap-3">
@@ -211,7 +206,7 @@ export function IntakeBulkReview({
             onClick={onBack}
             className="text-sm text-muted-foreground hover:text-foreground"
           >
-            Zurück
+            {tb("back")}
           </button>
           <button
             type="button"
@@ -219,7 +214,7 @@ export function IntakeBulkReview({
             disabled={rows.length === 0}
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
-            {rows.length} {rows.length === 1 ? "Artikel" : "Artikel"} übernehmen
+            {tb("confirmItems", { count: rows.length })}
           </button>
         </div>
       </div>

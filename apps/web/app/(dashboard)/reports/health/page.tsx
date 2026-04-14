@@ -77,8 +77,8 @@ async function HealthMetricsSection() {
       label: t("profitMargin"),
       value: `${metrics.profitMargin}%`,
       icon: <TrendingUp className="h-5 w-5" />,
-      color: "text-green-600 dark:text-green-400",
-      bgColor: "bg-green-100 dark:bg-green-900/30",
+      color: "text-success",
+      bgColor: "bg-success/10",
       trend:
         metrics.profitMargin >= 20
           ? "excellent"
@@ -90,8 +90,8 @@ async function HealthMetricsSection() {
       label: t("conversionRate"),
       value: `${metrics.conversionRate}%`,
       icon: <Target className="h-5 w-5" />,
-      color: "text-blue-600 dark:text-blue-400",
-      bgColor: "bg-blue-100 dark:bg-blue-900/30",
+      color: "text-info",
+      bgColor: "bg-info/10",
       trend:
         metrics.conversionRate >= 30
           ? "excellent"
@@ -103,16 +103,16 @@ async function HealthMetricsSection() {
       label: t("avgInvoice"),
       value: formatCurrency(metrics.avgInvoiceValue),
       icon: <Wallet className="h-5 w-5" />,
-      color: "text-purple-600 dark:text-purple-400",
-      bgColor: "bg-purple-100 dark:bg-purple-900/30",
+      color: "text-tag-purple",
+      bgColor: "bg-tag-purple/10",
       trend: "neutral" as const,
     },
     {
       label: t("daysToPayment"),
       value: `${metrics.avgDaysToPayment}d`,
       icon: <Clock className="h-5 w-5" />,
-      color: "text-orange-600 dark:text-orange-400",
-      bgColor: "bg-orange-100 dark:bg-orange-900/30",
+      color: "text-warning",
+      bgColor: "bg-warning/10",
       trend:
         metrics.avgDaysToPayment <= 15
           ? "excellent"
@@ -124,8 +124,8 @@ async function HealthMetricsSection() {
       label: t("cashFlowRatio"),
       value: `${metrics.cashFlowRatio}%`,
       icon: <DollarSign className="h-5 w-5" />,
-      color: "text-cyan-600 dark:text-cyan-400",
-      bgColor: "bg-cyan-100 dark:bg-cyan-900/30",
+      color: "text-info",
+      bgColor: "bg-info/10",
       trend:
         metrics.cashFlowRatio >= 120
           ? "excellent"
@@ -137,8 +137,8 @@ async function HealthMetricsSection() {
       label: t("customerRetention"),
       value: `${metrics.customerRetentionRate}%`,
       icon: <Users className="h-5 w-5" />,
-      color: "text-indigo-600 dark:text-indigo-400",
-      bgColor: "bg-indigo-100 dark:bg-indigo-900/30",
+      color: "text-tag-purple",
+      bgColor: "bg-tag-purple/10",
       trend:
         metrics.customerRetentionRate >= 80
           ? "excellent"
@@ -168,10 +168,10 @@ async function HealthMetricsSection() {
               <p
                 className={`mt-1 text-xs ${
                   metric.trend === "excellent"
-                    ? "text-green-600 dark:text-green-400"
+                    ? "text-success"
                     : metric.trend === "good"
-                      ? "text-blue-600 dark:text-blue-400"
-                      : "text-red-600 dark:text-red-400"
+                      ? "text-info"
+                      : "text-destructive"
                 }`}
               >
                 {metric.trend === "excellent"

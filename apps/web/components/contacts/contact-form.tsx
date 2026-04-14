@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Loader2, ChevronDown, ChevronUp } from "lucide-react";
@@ -10,7 +10,6 @@ import {
   updateContactAction,
 } from "@/app/actions/contacts";
 import type { Contact } from "@kivvi/database";
-import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { LANGUAGE_OPTIONS, COUNTRY_OPTIONS } from "@/lib/config/locales";
 import { CONTACT_TYPES } from "@/lib/config/contact-types";
@@ -19,6 +18,9 @@ import {
   FormSelect,
   FormTextarea,
 } from "@/components/ui/form-field";
+import { ContactAiFillButton } from "./ai-fill-button";
+import { Button } from "@/components/ui/button";
+import type { ExtractedContact } from "@/app/actions/ai-extract";
 
 interface ContactFormProps {
   mode: "create" | "edit";
@@ -30,9 +32,37 @@ export function ContactForm({ mode, contact }: ContactFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const t = useTranslations("contacts");
   const tc = useTranslations("common");
+
+  function handleAiFill(data: ExtractedContact) {
+    if (!formRef.current) return;
+    const form = formRef.current;
+    const set = (name: string, value: string | null | undefined) => {
+      if (!value) return;
+      const el = form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
+      if (el) {
+        el.value = value;
+        el.dispatchEvent(new Event("input", { bubbles: true }));
+        el.dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    };
+    set("name", data.name);
+    set("firstName", data.firstName);
+    set("lastName", data.lastName);
+    set("email", data.email);
+    set("phone", data.phone);
+    set("mobile", data.mobile);
+    set("website", data.website);
+    set("address", data.address);
+    set("postalCode", data.postalCode);
+    set("city", data.city);
+    set("country", data.country);
+    set("vatNumber", data.vatNumber);
+    set("notes", data.notes);
+  }
 
   const isEdit = mode === "edit";
   const contactTypeOptions = CONTACT_TYPES.map((ct) => ({
@@ -105,7 +135,12 @@ export function ContactForm({ mode, contact }: ContactFormProps) {
       )}
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <form ref={formRef} onSubmit={handleSubmit} className="space-y-8">
+        {/* AI fill — only in create mode */}
+        {!isEdit && (
+          <ContactAiFillButton onFill={handleAiFill} />
+        )}
+
         {/* Basic Information */}
         <section className="rounded-xl border bg-card">
           <div className="border-b px-6 py-4">
@@ -133,26 +168,7 @@ export function ContactForm({ mode, contact }: ContactFormProps) {
               </FormSelect>
             </div>
 
-            <div className="sm:col-span-2">
-              <label
-                htmlFor="name"
-                className="mb-1.5 block text-sm font-medium"
-              >
-                {t("companyName")} <span className="text-destructive">*</span>
-              </label>
-              <FormInput
-                type="text"
-                id="name"
-                name="name"
-                required
-                maxLength={200}
-                defaultValue={contact?.name || ""}
-                placeholder={
-                  !isEdit ? t("placeholders.companyName") : undefined
-                }
-              />
-            </div>
-
+            {/* Person fields first — most contacts in a secondhand shop are individuals */}
             <div>
               <label
                 htmlFor="firstName"
@@ -183,8 +199,32 @@ export function ContactForm({ mode, contact }: ContactFormProps) {
                 name="lastName"
                 maxLength={100}
                 defaultValue={contact?.lastName || ""}
-                placeholder={!isEdit ? "Muller" : undefined}
+                placeholder={!isEdit ? "Müller" : undefined}
               />
+            </div>
+
+            {/* Company name is secondary — optional for individuals */}
+            <div className="sm:col-span-2">
+              <label
+                htmlFor="name"
+                className="mb-1.5 block text-sm font-medium"
+              >
+                {t("companyName")}
+                <span className="ml-1.5 text-xs font-normal text-muted-foreground">
+                  ({tc("optional")})
+                </span>
+              </label>
+              <FormInput
+                type="text"
+                id="name"
+                name="name"
+                maxLength={200}
+                defaultValue={contact?.name || ""}
+                placeholder={!isEdit ? t("placeholders.companyOrName") : undefined}
+              />
+              <p className="mt-1 text-xs text-muted-foreground">
+                {t("nameOrFirstLastHint")}
+              </p>
             </div>
           </div>
         </section>
@@ -339,10 +379,11 @@ export function ContactForm({ mode, contact }: ContactFormProps) {
 
         {/* Advanced Options Toggle (create mode only) */}
         {!isEdit && (
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            className="w-full"
             onClick={() => setShowAdvanced(!showAdvanced)}
-            className="flex w-full items-center justify-center gap-2 rounded-lg border bg-card px-4 py-3 text-sm font-medium hover:bg-muted transition-colors"
           >
             {showAdvanced ? (
               <>
@@ -355,7 +396,7 @@ export function ContactForm({ mode, contact }: ContactFormProps) {
                 {tc("showAdvanced")}
               </>
             )}
-          </button>
+          </Button>
         )}
 
         {/* Financial & Settings — always visible in edit mode, toggleable in create */}
@@ -486,19 +527,15 @@ export function ContactForm({ mode, contact }: ContactFormProps) {
 
         {/* Submit */}
         <div className="flex items-center justify-end gap-4">
-          <Link
-            href={backHref}
-            className="rounded-lg border px-4 py-2.5 text-sm font-medium hover:bg-muted transition-colors"
-          >
-            {tc("cancel")}
-          </Link>
-          <button
+          <Button asChild variant="secondary">
+            <Link href={backHref}>
+              {tc("cancel")}
+            </Link>
+          </Button>
+          <Button
             type="submit"
             disabled={isSubmitting}
-            className={cn(
-              "inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors",
-              isSubmitting && "opacity-50 cursor-not-allowed",
-            )}
+            size="lg"
           >
             {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
             {isSubmitting
@@ -508,7 +545,7 @@ export function ContactForm({ mode, contact }: ContactFormProps) {
               : isEdit
                 ? tc("saveChanges")
                 : t("newContact")}
-          </button>
+          </Button>
         </div>
       </form>
     </div>

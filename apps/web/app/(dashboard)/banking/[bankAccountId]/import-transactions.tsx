@@ -18,6 +18,7 @@ import {
 } from "@/app/actions/banking";
 import { useTranslations } from "next-intl";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
+import { Button } from "@/components/ui/button";
 
 interface ParsedTransaction {
   date: string;
@@ -160,13 +161,10 @@ export function ImportTransactions({
 
   if (!isOpen) {
     return (
-      <button
-        onClick={() => setIsOpen(true)}
-        className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted transition-colors min-h-[44px]"
-      >
+      <Button variant="secondary" onClick={() => setIsOpen(true)}>
         <Upload className="h-4 w-4" />
         {t("importStatement")}
-      </button>
+      </Button>
     );
   }
 
@@ -178,18 +176,15 @@ export function ImportTransactions({
       <div className="w-full max-w-3xl max-h-[80vh] overflow-hidden rounded-xl border bg-card shadow-lg flex flex-col">
         <div className="flex items-center justify-between border-b px-6 py-4">
           <h2 className="text-lg font-semibold">{t("importStatement")}</h2>
-          <button
-            onClick={handleClose}
-            className="rounded-lg p-1 hover:bg-muted transition-colors min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
-          >
+          <Button variant="ghost" size="icon" onClick={handleClose}>
             <X className="h-4 w-4" />
-          </button>
+          </Button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
           {result ? (
             <div className="flex flex-col items-center py-8">
-              <FileSpreadsheet className="h-12 w-12 text-green-600 dark:text-green-400" />
+              <FileSpreadsheet className="h-12 w-12 text-success" />
               <p className="mt-4 text-lg font-medium">
                 {t("importTransactions", { count: result.imported })}
               </p>
@@ -198,12 +193,9 @@ export function ImportTransactions({
                   {t("skippedDuplicates", { count: result.skippedDuplicates })}
                 </p>
               )}
-              <button
-                onClick={handleClose}
-                className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 min-h-[44px]"
-              >
+              <Button onClick={handleClose} className="mt-4">
                 {t("done")}
-              </button>
+              </Button>
             </div>
           ) : (
             <>
@@ -228,7 +220,7 @@ export function ImportTransactions({
               )}
 
               {error && (
-                <div className="flex items-start gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-400">
+                <div className="flex items-start gap-2 rounded-lg bg-destructive/5 p-3 text-sm text-destructive">
                   <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                   {error}
                 </div>
@@ -250,7 +242,7 @@ export function ImportTransactions({
 
               {/* IBAN mismatch warning */}
               {camtPreview && !camtPreview.ibanMatch && (
-                <div className="flex items-start gap-2 rounded-lg bg-amber-50 p-3 text-sm text-amber-700 dark:bg-amber-900/20 dark:text-amber-400">
+                <div className="flex items-start gap-2 rounded-lg bg-warning/5 p-3 text-sm text-warning">
                   <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
                   {t("ibanMismatch", {
                     statementIban: camtPreview.accountIban || "—",
@@ -312,7 +304,7 @@ export function ImportTransactions({
                                         {entry.creditorName || "-"}
                                       </td>
                                       <td
-                                        className={`whitespace-nowrap px-3 py-2 text-right font-medium ${amt >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
+                                        className={`whitespace-nowrap px-3 py-2 text-right font-medium ${amt >= 0 ? "text-success" : "text-destructive"}`}
                                       >
                                         {entry.amount}
                                       </td>
@@ -333,7 +325,7 @@ export function ImportTransactions({
                                       {txn.reference || "-"}
                                     </td>
                                     <td
-                                      className={`whitespace-nowrap px-3 py-2 text-right font-medium ${amt >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
+                                      className={`whitespace-nowrap px-3 py-2 text-right font-medium ${amt >= 0 ? "text-success" : "text-destructive"}`}
                                     >
                                       {txn.amount}
                                     </td>
@@ -379,21 +371,18 @@ export function ImportTransactions({
                     )}
 
                   <div className="flex gap-2">
-                    <button
+                    <Button
                       onClick={handleImport}
                       disabled={isPending}
-                      className="flex-1 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 min-h-[44px]"
+                      className="flex-1"
                     >
                       {isPending
                         ? t("importing")
                         : t("importTransactions", { count: previewCount })}
-                    </button>
-                    <button
-                      onClick={handleClose}
-                      className="rounded-lg border px-4 py-2 text-sm hover:bg-muted transition-colors min-h-[44px]"
-                    >
+                    </Button>
+                    <Button variant="secondary" onClick={handleClose}>
                       {tc("cancel")}
-                    </button>
+                    </Button>
                   </div>
                 </>
               )}

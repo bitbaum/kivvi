@@ -44,20 +44,20 @@ export default async function InventoryPage() {
 
       {/* Low Stock Alerts */}
       {lowStockProducts.length > 0 && (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-950/20">
-          <div className="flex items-center gap-2 border-b border-amber-200 p-4 dark:border-amber-900/50">
-            <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-            <h2 className="font-semibold text-amber-800 dark:text-amber-300">
+        <div className="rounded-xl border border-warning/20 bg-warning/5">
+          <div className="flex items-center gap-2 border-b border-warning/20 p-4">
+            <AlertTriangle className="h-5 w-5 text-warning" />
+            <h2 className="font-semibold text-warning">
               {t("lowStockAlerts")}
             </h2>
-            <span className="ml-auto inline-flex items-center rounded-full bg-amber-200 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/50 dark:text-amber-300">
+            <span className="ml-auto inline-flex items-center rounded-full bg-warning/20 px-2 py-0.5 text-xs font-medium text-warning">
               {t("lowStockCount", { count: lowStockProducts.length })}
             </span>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-amber-200 text-left text-sm text-amber-700 dark:border-amber-900/50 dark:text-amber-400">
+                <tr className="border-b border-warning/20 text-left text-sm text-warning">
                   <th className="whitespace-nowrap px-4 py-3 font-medium">
                     {t("productColumn")}
                   </th>
@@ -75,7 +75,7 @@ export default async function InventoryPage() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-amber-200 dark:divide-amber-900/50">
+              <tbody className="divide-y divide-warning/20">
                 {lowStockProducts.map((product) => {
                   const deficit = product.minStock - product.totalStock;
                   return (
@@ -83,22 +83,22 @@ export default async function InventoryPage() {
                       <td className="whitespace-nowrap px-4 py-3">
                         <Link
                           href={`/products/${product.productId}`}
-                          className="font-medium text-amber-900 hover:underline dark:text-amber-200"
+                          className="font-medium text-warning hover:underline"
                         >
                           {product.productName}
                         </Link>
                       </td>
-                      <td className="whitespace-nowrap px-4 py-3 font-mono text-sm text-amber-700 dark:text-amber-400">
+                      <td className="whitespace-nowrap px-4 py-3 font-mono text-sm text-warning">
                         {product.articleNumber || "-"}
                       </td>
-                      <td className="whitespace-nowrap px-4 py-3 text-right font-medium text-red-600 dark:text-red-400">
+                      <td className="whitespace-nowrap px-4 py-3 text-right font-medium text-destructive">
                         {product.totalStock}
                       </td>
-                      <td className="whitespace-nowrap px-4 py-3 text-right text-sm text-amber-700 dark:text-amber-400">
+                      <td className="whitespace-nowrap px-4 py-3 text-right text-sm text-warning">
                         {product.minStock}
                       </td>
                       <td className="whitespace-nowrap px-4 py-3 text-right">
-                        <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/30 dark:text-red-400">
+                        <span className="inline-flex items-center rounded-full bg-destructive/10 px-2 py-0.5 text-xs font-medium text-destructive">
                           -{deficit}
                         </span>
                       </td>

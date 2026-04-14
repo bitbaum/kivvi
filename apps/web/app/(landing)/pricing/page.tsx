@@ -228,7 +228,7 @@ export default function PricingPage() {
                 <ul className="mb-8 flex-1 space-y-3">
                   {tier.bullets.map((bullet) => (
                     <li key={bullet} className="flex items-start gap-2 text-sm">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-green-600 dark:text-green-400" />
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-success" />
                       <span>{bullet}</span>
                     </li>
                   ))}
@@ -342,7 +342,7 @@ function FeatureCell({ value }: { value: FeatureValue }) {
   if (value === "yes") {
     return (
       <span className="inline-flex justify-center">
-        <Check className="h-4 w-4 text-green-600 dark:text-green-400" />
+        <Check className="h-4 w-4 text-success" />
       </span>
     );
   }

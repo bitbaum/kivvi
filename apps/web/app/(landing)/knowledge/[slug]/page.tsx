@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowLeft, ArrowRight, BookOpen } from "lucide-react";
 import type { Metadata } from "next";
 import { getArticle, getAllArticles } from "@/lib/content/knowledge";
+import { Button } from "@/components/ui/button";
 
 // ============================================================
 // Page
@@ -161,12 +162,11 @@ export default async function KnowledgeArticlePage({
             Weitere Artikel zu Betrieb, Compliance und Impact in der
             Kreislaufwirtschaft.
           </p>
-          <Link
-            href="/knowledge"
-            className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
-          >
-            Alle Artikel ansehen →
-          </Link>
+          <Button asChild variant="link" className="px-0">
+            <Link href="/knowledge">
+              Alle Artikel ansehen →
+            </Link>
+          </Button>
         </div>
       </div>
     </>

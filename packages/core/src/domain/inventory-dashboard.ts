@@ -250,7 +250,7 @@ export async function getInventoryDashboard(
         marginPercent,
       };
     })
-    .sort((a, b) => parseFloat(b.margin) - parseFloat(a.margin));
+    .sort((a, b) => new Decimal(b.margin).comparedTo(new Decimal(a.margin)));
 
   return {
     inventoryValue: unsoldValue[0]?.total || "0",

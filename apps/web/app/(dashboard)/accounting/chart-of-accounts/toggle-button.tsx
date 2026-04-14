@@ -37,8 +37,8 @@ export function ToggleButton({ accountId, isActive }: ToggleButtonProps) {
         title={isActive ? 'Deactivate account' : 'Activate account'}
         className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium transition-colors disabled:opacity-50 ${
           isActive
-            ? 'text-amber-700 hover:bg-amber-100 dark:text-amber-400 dark:hover:bg-amber-900/30'
-            : 'text-green-700 hover:bg-green-100 dark:text-green-400 dark:hover:bg-green-900/30'
+            ? 'text-warning hover:bg-warning/10'
+            : 'text-success hover:bg-success/10 dark:hover:bg-success/20'
         }`}
       >
         {isPending ? (
@@ -49,7 +49,7 @@ export function ToggleButton({ accountId, isActive }: ToggleButtonProps) {
         {isActive ? tc('inactive') : tc('active')}
       </button>
       {error && (
-        <p className="absolute right-0 top-full mt-1 whitespace-nowrap rounded bg-red-50 px-2 py-1 text-xs text-red-600 shadow-sm dark:bg-red-900/30 dark:text-red-400">
+        <p className="absolute right-0 top-full mt-1 whitespace-nowrap rounded bg-destructive/5 px-2 py-1 text-xs text-destructive shadow-sm">
           {error}
         </p>
       )}

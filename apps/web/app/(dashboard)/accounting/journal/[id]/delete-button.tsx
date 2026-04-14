@@ -22,7 +22,7 @@ export function DeleteJournalEntryButton({ entryId }: DeleteJournalEntryButtonPr
     return (
       <button
         onClick={() => setConfirming(true)}
-        className="inline-flex items-center gap-2 rounded-lg border border-red-200 px-3 py-2 text-sm text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
+        className="inline-flex items-center gap-2 rounded-lg border border-destructive/20 px-3 py-2 text-sm text-destructive hover:bg-destructive/5"
       >
         <Trash2 className="h-4 w-4" />
         {tc('delete')}
@@ -32,7 +32,7 @@ export function DeleteJournalEntryButton({ entryId }: DeleteJournalEntryButtonPr
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm text-red-600 dark:text-red-400">{t('deleteEntryConfirm')}</span>
+      <span className="text-sm text-destructive">{t('deleteEntryConfirm')}</span>
       <button
         onClick={() => {
           startTransition(async () => {
@@ -47,7 +47,7 @@ export function DeleteJournalEntryButton({ entryId }: DeleteJournalEntryButtonPr
           });
         }}
         disabled={isPending}
-        className="rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+        className="rounded-lg bg-destructive px-3 py-1.5 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
       >
         {isPending ? tc('deleting') : tc('confirm')}
       </button>

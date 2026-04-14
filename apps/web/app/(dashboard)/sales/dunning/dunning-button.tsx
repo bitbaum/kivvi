@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Send } from "lucide-react";
 import { createDunningAction } from "@/app/actions/dunning";
+import { Button } from "@/components/ui/button";
 
 const LEVEL_LABELS: Record<number, string> = {
   0: "Send Reminder",
@@ -36,14 +37,15 @@ export function DunningButton({
 
   return (
     <div>
-      <button
+      <Button
+        variant="destructive"
+        size="sm"
         onClick={handleClick}
         disabled={isPending}
-        className="inline-flex items-center gap-1.5 rounded-lg bg-destructive px-3 py-1.5 text-xs font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50 min-h-[44px]"
       >
         <Send className="h-3 w-3" />
         {isPending ? "Sending..." : LEVEL_LABELS[currentLevel] || "Escalate"}
-      </button>
+      </Button>
       {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
     </div>
   );

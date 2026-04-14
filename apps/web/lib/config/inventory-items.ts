@@ -25,52 +25,47 @@ export interface ItemStatusConfig {
 export const ITEM_STATUS_CONFIG: Record<string, ItemStatusConfig> = {
   intake: {
     labelKey: "statusIntake",
-    style: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+    style: "bg-info/10 text-info",
   },
   testing: {
     labelKey: "statusTesting",
-    style:
-      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+    style: "bg-warning/10 text-warning",
   },
   repair: {
     labelKey: "statusRepair",
-    style:
-      "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
+    style: "bg-warning/20 text-warning",
   },
   parts_only: {
     labelKey: "statusPartsOnly",
-    style: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
+    style: "bg-destructive/10 text-destructive",
   },
   ready_for_sale: {
     labelKey: "statusReadyForSale",
-    style:
-      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+    style: "bg-success/10 text-success",
   },
   listed: {
     labelKey: "statusListed",
-    style:
-      "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400",
+    style: "bg-success/20 text-success",
   },
   reserved: {
     labelKey: "statusReserved",
-    style:
-      "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
+    style: "bg-tag-purple/10 text-tag-purple",
   },
   sold: {
     labelKey: "statusSold",
-    style: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-400",
+    style: "bg-neutral/10 text-neutral",
   },
   returned: {
     labelKey: "statusReturned",
-    style: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
+    style: "bg-destructive/10 text-destructive",
   },
   donated: {
     labelKey: "statusDonated",
-    style: "bg-pink-100 text-pink-800 dark:bg-pink-900/30 dark:text-pink-400",
+    style: "bg-tag-rose/10 text-tag-rose",
   },
   recycled: {
     labelKey: "statusRecycled",
-    style: "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-500",
+    style: "bg-neutral/10 text-neutral",
   },
 };
 
@@ -91,40 +86,37 @@ export const ITEM_CONDITION_CONFIG: Record<string, ItemConditionConfig> = {
   untested: {
     labelKey: "conditionUntested",
     shortLabel: "?",
-    style: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400",
+    style: "bg-neutral/10 text-neutral",
   },
   like_new: {
     labelKey: "conditionLikeNew",
     shortLabel: "A+",
-    style:
-      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+    style: "bg-success/10 text-success",
   },
   good: {
     labelKey: "conditionGood",
     shortLabel: "A",
-    style: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+    style: "bg-info/10 text-info",
   },
   fair: {
     labelKey: "conditionFair",
     shortLabel: "B",
-    style:
-      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+    style: "bg-warning/10 text-warning",
   },
   poor: {
     labelKey: "conditionPoor",
     shortLabel: "C",
-    style:
-      "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
+    style: "bg-warning/20 text-warning",
   },
   parts_only: {
     labelKey: "conditionPartsOnly",
     shortLabel: "P",
-    style: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
+    style: "bg-destructive/10 text-destructive",
   },
   scrap: {
     labelKey: "conditionScrap",
     shortLabel: "X",
-    style: "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-500",
+    style: "bg-neutral/20 text-neutral",
   },
 };
 
@@ -148,12 +140,12 @@ export const SELLABLE_ITEM_STATUSES = [
 
 /** Get status style or fallback */
 export function getStatusStyle(status: string): string {
-  return ITEM_STATUS_CONFIG[status]?.style || "bg-gray-100 text-gray-700";
+  return ITEM_STATUS_CONFIG[status]?.style || "bg-neutral/10 text-neutral";
 }
 
 /** Get condition style or fallback */
 export function getConditionStyle(condition: string): string {
-  return ITEM_CONDITION_CONFIG[condition]?.style || "bg-gray-100 text-gray-700";
+  return ITEM_CONDITION_CONFIG[condition]?.style || "bg-neutral/10 text-neutral";
 }
 
 /** Get label key for a status. Use with t(getStatusLabelKey(status)) */

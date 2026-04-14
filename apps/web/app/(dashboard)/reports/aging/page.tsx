@@ -68,7 +68,7 @@ export default async function AgingReportPage({ searchParams }: PageProps) {
       ) : (
         <div className="rounded-xl border bg-card">
           <div className="flex items-center gap-2 border-b p-4">
-            <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+            <Clock className="h-5 w-5 text-warning" />
             <h2 className="font-semibold">
               {t("receivablesAsOf", { date: asOfDate })}
             </h2>
@@ -81,27 +81,27 @@ export default async function AgingReportPage({ searchParams }: PageProps) {
                     {t("contact")}
                   </th>
                   <th className="hidden px-4 py-3 text-right sm:table-cell md:px-6">
-                    <span className="text-green-600 dark:text-green-400">
+                    <span className="text-success">
                       {t("current")}
                     </span>
                   </th>
                   <th className="hidden px-4 py-3 text-right md:table-cell md:px-6">
-                    <span className="text-yellow-600 dark:text-yellow-400">
+                    <span className="text-warning">
                       {t("days1to30")}
                     </span>
                   </th>
                   <th className="hidden px-4 py-3 text-right md:table-cell md:px-6">
-                    <span className="text-orange-600 dark:text-orange-400">
+                    <span className="text-warning">
                       {t("days31to60")}
                     </span>
                   </th>
                   <th className="hidden px-4 py-3 text-right md:table-cell md:px-6">
-                    <span className="text-red-500 dark:text-red-400">
+                    <span className="text-destructive">
                       {t("days61to90")}
                     </span>
                   </th>
                   <th className="hidden px-4 py-3 text-right md:table-cell md:px-6">
-                    <span className="text-red-700 dark:text-red-300">
+                    <span className="text-destructive">
                       {t("days90plus")}
                     </span>
                   </th>
@@ -121,27 +121,27 @@ export default async function AgingReportPage({ searchParams }: PageProps) {
                         {row.contactName}
                       </Link>
                     </td>
-                    <td className="hidden px-4 py-3 text-right text-green-600 sm:table-cell dark:text-green-400 md:px-6">
+                    <td className="hidden px-4 py-3 text-right text-success sm:table-cell md:px-6">
                       {Number(row.current) > 0
                         ? formatCurrency(row.current)
                         : "-"}
                     </td>
-                    <td className="hidden px-4 py-3 text-right text-yellow-600 md:table-cell dark:text-yellow-400 md:px-6">
+                    <td className="hidden px-4 py-3 text-right text-warning md:table-cell md:px-6">
                       {Number(row.days30) > 0
                         ? formatCurrency(row.days30)
                         : "-"}
                     </td>
-                    <td className="hidden px-4 py-3 text-right text-orange-600 md:table-cell dark:text-orange-400 md:px-6">
+                    <td className="hidden px-4 py-3 text-right text-warning md:table-cell md:px-6">
                       {Number(row.days60) > 0
                         ? formatCurrency(row.days60)
                         : "-"}
                     </td>
-                    <td className="hidden px-4 py-3 text-right text-red-500 md:table-cell dark:text-red-400 md:px-6">
+                    <td className="hidden px-4 py-3 text-right text-destructive md:table-cell md:px-6">
                       {Number(row.days90) > 0
                         ? formatCurrency(row.days90)
                         : "-"}
                     </td>
-                    <td className="hidden px-4 py-3 text-right text-red-700 md:table-cell dark:text-red-300 md:px-6">
+                    <td className="hidden px-4 py-3 text-right text-destructive md:table-cell md:px-6">
                       {Number(row.over90) > 0
                         ? formatCurrency(row.over90)
                         : "-"}
@@ -157,27 +157,27 @@ export default async function AgingReportPage({ searchParams }: PageProps) {
                   <td className="sticky left-0 bg-card px-4 py-3 md:px-6">
                     {tc("totals")}
                   </td>
-                  <td className="hidden px-4 py-3 text-right text-green-600 sm:table-cell dark:text-green-400 md:px-6">
+                  <td className="hidden px-4 py-3 text-right text-success sm:table-cell md:px-6">
                     {Number(report.totals.current) > 0
                       ? formatCurrency(report.totals.current)
                       : "-"}
                   </td>
-                  <td className="hidden px-4 py-3 text-right text-yellow-600 md:table-cell dark:text-yellow-400 md:px-6">
+                  <td className="hidden px-4 py-3 text-right text-warning md:table-cell md:px-6">
                     {Number(report.totals.days30) > 0
                       ? formatCurrency(report.totals.days30)
                       : "-"}
                   </td>
-                  <td className="hidden px-4 py-3 text-right text-orange-600 md:table-cell dark:text-orange-400 md:px-6">
+                  <td className="hidden px-4 py-3 text-right text-warning md:table-cell md:px-6">
                     {Number(report.totals.days60) > 0
                       ? formatCurrency(report.totals.days60)
                       : "-"}
                   </td>
-                  <td className="hidden px-4 py-3 text-right text-red-500 md:table-cell dark:text-red-400 md:px-6">
+                  <td className="hidden px-4 py-3 text-right text-destructive md:table-cell md:px-6">
                     {Number(report.totals.days90) > 0
                       ? formatCurrency(report.totals.days90)
                       : "-"}
                   </td>
-                  <td className="hidden px-4 py-3 text-right text-red-700 md:table-cell dark:text-red-300 md:px-6">
+                  <td className="hidden px-4 py-3 text-right text-destructive md:table-cell md:px-6">
                     {Number(report.totals.over90) > 0
                       ? formatCurrency(report.totals.over90)
                       : "-"}

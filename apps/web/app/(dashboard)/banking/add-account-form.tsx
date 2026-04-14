@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import { FormInput, FormSelect } from "@/components/ui/form-field";
 import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
+import { Button } from "@/components/ui/button";
 
 export function AddAccountForm() {
   const router = useRouter();
@@ -44,13 +45,10 @@ export function AddAccountForm() {
 
   if (!isOpen) {
     return (
-      <button
-        onClick={() => setIsOpen(true)}
-        className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors min-h-[44px]"
-      >
+      <Button onClick={() => setIsOpen(true)}>
         <Plus className="h-4 w-4" />
         {t("addAccount")}
-      </button>
+      </Button>
     );
   }
 
@@ -62,18 +60,15 @@ export function AddAccountForm() {
       <div className="w-full max-w-md rounded-xl border bg-card p-6 shadow-lg">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">{t("addAccount")}</h2>
-          <button
-            onClick={() => setIsOpen(false)}
-            className="rounded-lg p-1 hover:bg-muted transition-colors min-h-[44px] min-w-[44px] inline-flex items-center justify-center"
-          >
+          <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
             <X className="h-4 w-4" />
-          </button>
+          </Button>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium mb-1">
-              {t("accountName")} <span className="text-red-500">*</span>
+              {t("accountName")} <span className="text-destructive">*</span>
             </label>
             <FormInput
               name="name"
@@ -117,25 +112,21 @@ export function AddAccountForm() {
           </div>
 
           {error && (
-            <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+            <p className="text-sm text-destructive">{error}</p>
           )}
 
           <div className="flex gap-2 pt-2">
-            <button
-              type="submit"
-              disabled={isPending}
-              className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 min-h-[44px]"
-            >
+            <Button type="submit" disabled={isPending} className="flex-1">
               {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
               {isPending ? tc("creating") : tc("create")}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="secondary"
               onClick={() => setIsOpen(false)}
-              className="rounded-lg border px-4 py-2 text-sm hover:bg-muted transition-colors min-h-[44px]"
             >
               {tc("cancel")}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

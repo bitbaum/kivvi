@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight, BookOpen } from "lucide-react";
 import type { Metadata } from "next";
 import { getAllArticles } from "@/lib/content/knowledge";
+import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "Wissen für Kreislaufbetriebe — Kivvi Knowledge Base",
@@ -11,17 +12,12 @@ export const metadata: Metadata = {
 
 // Tag → colour mapping. Add new tags here when needed.
 const TAG_COLORS: Record<string, string> = {
-  Einblicke:
-    "bg-slate-100 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200",
-  Betrieb: "bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200",
-  Compliance:
-    "bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200",
-  Impact:
-    "bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200",
-  Migration:
-    "bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-200",
-  Kundentypen:
-    "bg-rose-100 dark:bg-rose-900/40 text-rose-800 dark:text-rose-200",
+  Einblicke: "bg-neutral/10 text-neutral",
+  Betrieb: "bg-info/10 text-info",
+  Compliance: "bg-warning/10 text-warning",
+  Impact: "bg-success/10 text-success",
+  Migration: "bg-tag-purple/10 text-tag-purple",
+  Kundentypen: "bg-tag-rose/10 text-tag-rose",
 };
 
 export default function KnowledgePage() {
@@ -155,13 +151,12 @@ export default function KnowledgePage() {
           Schreiben Sie uns — wir antworten und dokumentieren die Antwort für
           alle.
         </p>
-        <Link
-          href="/contact"
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-primary-foreground hover:bg-primary/90"
-        >
-          Frage stellen
-          <ArrowRight className="h-4 w-4" />
-        </Link>
+        <Button asChild size="lg">
+          <Link href="/contact">
+            Frage stellen
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </Button>
       </section>
     </>
   );

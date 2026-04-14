@@ -105,7 +105,7 @@ export function DocumentBulkActions({
   const variantClasses: Record<string, string> = {
     default: "border bg-background text-foreground hover:bg-muted",
     primary: "bg-primary text-primary-foreground hover:bg-primary/90",
-    destructive: "bg-red-600 text-white hover:bg-red-700",
+    destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
   };
 
   return (
@@ -189,7 +189,7 @@ export function DocumentBulkActions({
               <button
                 onClick={() => executeAction(confirmAction)}
                 disabled={isPending}
-                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+                className="rounded-lg bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
               >
                 {isPending
                   ? labels.processing || "Processing..."

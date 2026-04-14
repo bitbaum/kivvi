@@ -116,14 +116,14 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
             <AlertTriangle
               className={cn(
                 "h-5 w-5",
-                lowStockCount > 0 ? "text-amber-500" : "text-muted-foreground",
+                lowStockCount > 0 ? "text-warning" : "text-muted-foreground",
               )}
             />
           </div>
           <p
             className={cn(
               "mt-2 text-2xl font-bold",
-              lowStockCount > 0 && "text-amber-600",
+              lowStockCount > 0 && "text-warning",
             )}
           >
             {lowStockCount}
@@ -196,8 +196,8 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                       key={item.id}
                       className={cn(
                         "transition-colors hover:bg-muted/50",
-                        isLow && "bg-amber-50/50 dark:bg-amber-950/10",
-                        isOut && "bg-red-50/50 dark:bg-red-950/10",
+                        isLow && "bg-warning/5",
+                        isOut && "bg-destructive/5",
                       )}
                     >
                       <td className="whitespace-nowrap px-4 py-3">
@@ -225,17 +225,17 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                       </td>
                       <td className="whitespace-nowrap px-4 py-3">
                         {isOut ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800 dark:bg-red-900/30 dark:text-red-400">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-destructive/10 px-2 py-0.5 text-xs font-medium text-destructive">
                             <AlertTriangle className="h-3 w-3" />
                             {t("outOfStock")}
                           </span>
                         ) : isLow ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/30 dark:text-amber-400">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-warning/10 px-2 py-0.5 text-xs font-medium text-warning">
                             <AlertTriangle className="h-3 w-3" />
                             {t("lowStock")}
                           </span>
                         ) : (
-                          <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800 dark:bg-green-900/30 dark:text-green-400">
+                          <span className="inline-flex items-center rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
                             {t("inStock")}
                           </span>
                         )}

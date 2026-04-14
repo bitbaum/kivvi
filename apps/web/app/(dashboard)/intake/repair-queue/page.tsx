@@ -17,8 +17,8 @@ function daysAgo(date: Date | string): number {
 }
 
 function ageClass(days: number): string {
-  if (days >= 14) return "text-red-600 font-semibold";
-  if (days >= 7) return "text-orange-500 font-medium";
+  if (days >= 14) return "text-destructive font-semibold";
+  if (days >= 7) return "text-warning font-medium";
   return "text-muted-foreground";
 }
 
@@ -74,7 +74,7 @@ export default async function RepairQueuePage() {
           {unassignedItems.length > 0 && (
             <section>
               <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-orange-100 text-orange-700 text-xs font-bold">
+                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-warning/10 text-warning text-xs font-bold">
                   {unassignedItems.length}
                 </span>
                 {ti("unassignedItems")}
@@ -130,7 +130,7 @@ export default async function RepairQueuePage() {
           {assignedItems.length > 0 && (
             <section>
               <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-blue-100 text-blue-700 text-xs font-bold">
+                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-info/10 text-info text-xs font-bold">
                   {assignedItems.length}
                 </span>
                 {ti("assignedTo")}

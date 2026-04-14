@@ -1,9 +1,8 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { getSession, requireRole, safeErrorMessage } from "./utils";
+import { getSession, safeErrorMessage } from "./utils";
 import type { ActionResult } from "./utils";
 import {
   getUserMemberships,
@@ -21,6 +20,7 @@ import type {
 } from "@kivvi/core/src/domain/memberships";
 import { MEMBERSHIP_ROLES } from "@kivvi/database";
 import type { MembershipRole } from "@kivvi/database";
+import { createAction } from "./action-factory";
 
 // ============================================================================
 // ACTIONS
@@ -91,87 +91,55 @@ export async function getTeamMembersAction(): Promise<
 /**
  * Remove a member from the current company.
  */
-export async function removeMemberAction(
-  userId: unknown,
-): Promise<ActionResult> {
-  try {
-    const session = await requireRole("admin");
+export const removeMemberAction = createAction<unknown, void>({
+  handler: async (userId, { companyId, userId: currentUserId, db }) => {
     const parsed = z.string().uuid().safeParse(userId);
-    if (!parsed.success) {
-      return { success: false, error: "Invalid user ID" };
-    }
-
-    await removeMember(db, session.companyId, parsed.data, session.userId);
-    revalidatePath("/settings/team");
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, "Failed to remove member"),
-    };
-  }
-}
+    if (!parsed.success) throw new Error("Invalid user ID");
+    await removeMember(db, companyId, parsed.data, currentUserId);
+  },
+  revalidate: ["/settings/team"],
+  errorMessage: "Failed to remove member",
+  minRole: "admin",
+});
 
 /**
  * Update a member's role in the current company.
  */
-export async function updateMemberRoleAction(
-  userId: unknown,
-  role: unknown,
-): Promise<ActionResult> {
-  try {
-    const session = await requireRole("admin");
+export const updateMemberRoleAction = createAction<
+  { userId: unknown; role: unknown },
+  void
+>({
+  handler: async ({ userId, role }, { companyId, userId: currentUserId, db }) => {
     const parsedUserId = z.string().uuid().safeParse(userId);
     const parsedRole = z.enum(MEMBERSHIP_ROLES).safeParse(role);
-
-    if (!parsedUserId.success)
-      return { success: false, error: "Invalid user ID" };
-    if (!parsedRole.success) return { success: false, error: "Invalid role" };
-
+    if (!parsedUserId.success) throw new Error("Invalid user ID");
+    if (!parsedRole.success) throw new Error("Invalid role");
     await updateMemberRole(
       db,
-      session.companyId,
+      companyId,
       parsedUserId.data,
       parsedRole.data as MembershipRole,
-      session.userId,
+      currentUserId,
     );
-    revalidatePath("/settings/team");
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, "Failed to update role"),
-    };
-  }
-}
+  },
+  revalidate: ["/settings/team"],
+  errorMessage: "Failed to update role",
+  minRole: "admin",
+});
 
 /**
  * Create a new company for the current user. User becomes owner.
  * New company starts un-onboarded → middleware redirects to /onboarding.
  */
-export async function createCompanyAction(
-  input: unknown,
-): Promise<ActionResult<{ companyId: string; companyName: string }>> {
-  try {
-    const { userId } = await getSession();
+export const createCompanyAction = createAction<
+  unknown,
+  { companyId: string; companyName: string }
+>({
+  handler: async (input, { userId, db }) => {
     const parsed = createCompanySchema.safeParse(input);
-    if (!parsed.success) {
-      return {
-        success: false,
-        error: parsed.error.errors[0]?.message || "Validation failed",
-      };
-    }
-
-    const result = await createCompanyForUser(
-      db,
-      userId,
-      parsed.data.companyName,
-    );
-    return { success: true, data: result };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, "Failed to create company"),
-    };
-  }
-}
+    if (!parsed.success)
+      throw new Error(parsed.error.errors[0]?.message || "Validation failed");
+    return createCompanyForUser(db, userId, parsed.data.companyName);
+  },
+  errorMessage: "Failed to create company",
+});

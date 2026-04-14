@@ -9,6 +9,7 @@ import { documentStatusEnum } from "@kivvi/database";
 import { SelectableDocumentTable } from "./selectable-document-table";
 import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/empty-state";
+import { Button } from "@/components/ui/button";
 
 interface DocumentListProps {
   config: DocumentTypeConfig;
@@ -100,13 +101,12 @@ export async function DocumentList({
         <div className="flex items-center gap-2">
           {headerActions}
           {config.canCreate && (
-            <Link
-              href={`${config.basePath}/new`}
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-            >
-              <Plus className="h-4 w-4" />
-              {t("newDocument", { type: t(config.label) })}
-            </Link>
+            <Button asChild>
+              <Link href={`${config.basePath}/new`}>
+                <Plus className="h-4 w-4" />
+                {t("newDocument", { type: t(config.label) })}
+              </Link>
+            </Button>
           )}
         </div>
       </div>
@@ -201,20 +201,18 @@ export async function DocumentList({
           </p>
           <div className="flex gap-2">
             {result.page > 1 && (
-              <Link
-                href={`${config.basePath}?page=${result.page - 1}${status ? `&status=${status}` : ""}${search ? `&search=${search}` : ""}`}
-                className="inline-flex min-h-[44px] items-center rounded-lg border px-3 py-2 text-sm hover:bg-muted"
-              >
-                {tc("previous")}
-              </Link>
+              <Button asChild variant="secondary">
+                <Link href={`${config.basePath}?page=${result.page - 1}${status ? `&status=${status}` : ""}${search ? `&search=${search}` : ""}`}>
+                  {tc("previous")}
+                </Link>
+              </Button>
             )}
             {result.page < result.totalPages && (
-              <Link
-                href={`${config.basePath}?page=${result.page + 1}${status ? `&status=${status}` : ""}${search ? `&search=${search}` : ""}`}
-                className="inline-flex min-h-[44px] items-center rounded-lg border px-3 py-2 text-sm hover:bg-muted"
-              >
-                {tc("next")}
-              </Link>
+              <Button asChild variant="secondary">
+                <Link href={`${config.basePath}?page=${result.page + 1}${status ? `&status=${status}` : ""}${search ? `&search=${search}` : ""}`}>
+                  {tc("next")}
+                </Link>
+              </Button>
             )}
           </div>
         </div>

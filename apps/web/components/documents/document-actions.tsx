@@ -50,7 +50,7 @@ export function DocumentStatusActions({
           disabled={isPending}
           className={cn('inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50',
             action.variant === 'destructive'
-              ? 'border border-red-200 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20'
+              ? 'border border-destructive/20 text-destructive hover:bg-destructive/5 dark:hover:bg-destructive/10'
               : action.variant === 'primary'
               ? 'bg-primary text-primary-foreground hover:bg-primary/90'
               : 'border hover:bg-muted')}
@@ -58,7 +58,7 @@ export function DocumentStatusActions({
           {t(action.label)}
         </button>
       ))}
-      {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+      {error && <p className="text-sm text-destructive">{error}</p>}
     </div>
   );
 }
@@ -107,7 +107,7 @@ export function DocumentConvertActions({
           </button>
         );
       })}
-      {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+      {error && <p className="text-sm text-destructive">{error}</p>}
     </div>
   );
 }

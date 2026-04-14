@@ -84,11 +84,11 @@ function CheckRow({
       className={cn(
         "rounded-xl border p-4 transition-colors",
         state.result === "pass" &&
-          "border-green-300 bg-green-50 dark:border-green-800 dark:bg-green-950/20",
+          "border-success/30 bg-success/5",
         state.result === "fail" &&
-          "border-red-300 bg-red-50 dark:border-red-800 dark:bg-red-950/20",
+          "border-destructive/30 bg-destructive/5",
         state.result === "skip" &&
-          "border-yellow-300 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950/20",
+          "border-warning/30 bg-warning/5",
         !state.result && "border-border bg-card",
       )}
     >
@@ -166,8 +166,8 @@ function CheckRow({
               className={cn(
                 "rounded-lg p-2 transition-colors",
                 state.result === "pass"
-                  ? "bg-green-500 text-white"
-                  : "bg-muted text-muted-foreground hover:bg-green-100 hover:text-green-700",
+                  ? "bg-success/50 text-white"
+                  : "bg-muted text-muted-foreground hover:bg-success/10 hover:text-success",
               )}
               title={tc("passLabel")}
             >
@@ -179,8 +179,8 @@ function CheckRow({
               className={cn(
                 "rounded-lg p-2 transition-colors",
                 state.result === "fail"
-                  ? "bg-red-500 text-white"
-                  : "bg-muted text-muted-foreground hover:bg-red-100 hover:text-red-700",
+                  ? "bg-destructive/50 text-white"
+                  : "bg-muted text-muted-foreground hover:bg-destructive/10 hover:text-destructive",
               )}
               title={tc("failLabel")}
             >
@@ -192,8 +192,8 @@ function CheckRow({
               className={cn(
                 "rounded-lg p-2 transition-colors",
                 state.result === "skip"
-                  ? "bg-yellow-500 text-white"
-                  : "bg-muted text-muted-foreground hover:bg-yellow-100 hover:text-yellow-700",
+                  ? "bg-warning/50 text-white"
+                  : "bg-muted text-muted-foreground hover:bg-warning/10 hover:text-warning",
               )}
               title={tc("skipLabel")}
             >
@@ -205,7 +205,7 @@ function CheckRow({
 
       {/* Fail suggestion */}
       {state.result === "fail" && check.failSuggestsStatus && (
-        <div className="mt-2 flex items-center gap-1.5 text-xs text-red-700 dark:text-red-400">
+        <div className="mt-2 flex items-center gap-1.5 text-xs text-destructive">
           <AlertTriangle className="h-3 w-3" />
           {tl("failSuggestion").replace("{status}", check.failSuggestsStatus)}
         </div>
@@ -481,7 +481,7 @@ export function ChecklistForm({
               type="button"
               onClick={() => handleRoute("repair")}
               disabled={isPending}
-              className="inline-flex items-center gap-2 rounded-lg border border-orange-300 bg-orange-50 px-4 py-2 text-sm font-medium text-orange-800 hover:bg-orange-100 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg border border-warning/30 bg-warning/5 px-4 py-2 text-sm font-medium text-warning hover:bg-warning/10 disabled:opacity-50"
             >
               <AlertTriangle className="h-4 w-4" />→ {tc("statusRepair")}
             </button>
@@ -491,7 +491,7 @@ export function ChecklistForm({
             type="button"
             onClick={() => handleRoute("parts_only")}
             disabled={isPending}
-            className="inline-flex items-center gap-2 rounded-lg border border-red-300 bg-red-50 px-4 py-2 text-sm font-medium text-red-800 hover:bg-red-100 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-2 text-sm font-medium text-destructive hover:bg-destructive/10 disabled:opacity-50"
           >
             → {tc("statusPartsOnly")}
           </button>
@@ -501,7 +501,7 @@ export function ChecklistForm({
             type="button"
             onClick={() => handleRoute("recycled")}
             disabled={isPending}
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-100 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg border border-neutral/30 bg-neutral/5 px-4 py-2 text-sm font-medium text-neutral hover:bg-neutral/10 disabled:opacity-50"
           >
             → {tc("statusRecycled")}
           </button>
@@ -515,7 +515,7 @@ export function ChecklistForm({
           className={cn(
             "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50",
             canApprove
-              ? "bg-green-600 text-white hover:bg-green-700"
+              ? "bg-success text-success-foreground hover:bg-success/90"
               : "bg-muted text-muted-foreground cursor-not-allowed",
           )}
         >

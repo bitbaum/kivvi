@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import Decimal from 'decimal.js';
 import { eq, and, asc, desc, sql, ilike } from 'drizzle-orm';
 import {
   projects,
@@ -200,7 +201,7 @@ export async function getProjectSummary(
 
   return {
     totalDocuments: stats.totalDocuments,
-    totalRevenue: Number(stats.totalRevenue),
-    totalInvoiced: Number(stats.totalInvoiced),
+    totalRevenue: new Decimal(stats.totalRevenue || "0").toNumber(),
+    totalInvoiced: new Decimal(stats.totalInvoiced || "0").toNumber(),
   };
 }
