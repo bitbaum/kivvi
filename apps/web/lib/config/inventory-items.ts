@@ -37,6 +37,10 @@ export const ITEM_STATUS_CONFIG: Record<string, ItemStatusConfig> = {
     style:
       "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
   },
+  parts_only: {
+    labelKey: "statusPartsOnly",
+    style: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
+  },
   ready_for_sale: {
     labelKey: "statusReadyForSale",
     style:
@@ -123,6 +127,20 @@ export const ITEM_CONDITION_CONFIG: Record<string, ItemConditionConfig> = {
     style: "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-500",
   },
 };
+
+// ============================================================================
+// SELLABLE STATUSES — items that can appear on an invoice
+// ============================================================================
+
+/**
+ * Item statuses that allow an item to be added to an invoice.
+ * SSOT: update here if the business allows selling items in other states.
+ */
+export const SELLABLE_ITEM_STATUSES = [
+  "ready_for_sale",
+  "listed",
+  "reserved",
+] as const;
 
 // ============================================================================
 // HELPERS

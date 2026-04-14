@@ -29,6 +29,10 @@ import { useTranslations } from "next-intl";
 import { ItemPhotoUpload } from "@/components/inventory/item-photo-upload";
 import { ItemSpecsEditor } from "@/components/inventory/item-specs-editor";
 import { toast } from "sonner";
+import {
+  ITEM_CATEGORIES,
+  getChecklistTemplate,
+} from "@kivvi/core/src/config/checklist-templates";
 
 interface ItemEditFormProps {
   item: {
@@ -37,6 +41,7 @@ interface ItemEditFormProps {
     description: string;
     condition: string;
     status: string;
+    category: string | null;
     serialNumber: string | null;
     location: string | null;
     estimatedValue: string | null;
@@ -48,13 +53,19 @@ interface ItemEditFormProps {
     repairLog: string | null;
     photoBase64: string | null;
     specs?: Record<string, string> | null;
+    assignedToUserId: string | null;
   };
+  companyUsers: { id: string; label: string }[];
 }
 
-export function ItemEditForm({ item: initialItem }: ItemEditFormProps) {
+export function ItemEditForm({
+  item: initialItem,
+  companyUsers,
+}: ItemEditFormProps) {
   const router = useRouter();
   const ti = useTranslations("inventory");
   const tc = useTranslations("common");
+  const tl = useTranslations("checklist");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [item, setItem] = useState(initialItem);
@@ -102,12 +113,14 @@ export function ItemEditForm({ item: initialItem }: ItemEditFormProps) {
 
       const result = await updateInventoryItemAction(item.id, {
         description: formData.get("description") as string,
+        category: (formData.get("category") as string) || null,
         askingPrice: (formData.get("askingPrice") as string) || null,
         minPrice: (formData.get("minPrice") as string) || null,
         estimatedValue: (formData.get("estimatedValue") as string) || null,
         serialNumber: (formData.get("serialNumber") as string) || null,
         location: (formData.get("location") as string) || null,
         notes: (formData.get("notes") as string) || null,
+        assignedToUserId: (formData.get("assignedToUserId") as string) || null,
         specs,
       });
 
@@ -218,6 +231,26 @@ export function ItemEditForm({ item: initialItem }: ItemEditFormProps) {
             </div>
             <div>
               <label
+                htmlFor="category"
+                className="mb-1.5 block text-sm font-medium"
+              >
+                {ti("category")}
+              </label>
+              <FormSelect
+                id="category"
+                name="category"
+                defaultValue={item.category || ""}
+              >
+                <option value="">{ti("selectCategory")}</option>
+                {ITEM_CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {tl(getChecklistTemplate(cat).labelKey)}
+                  </option>
+                ))}
+              </FormSelect>
+            </div>
+            <div>
+              <label
                 htmlFor="location"
                 className="mb-1.5 block text-sm font-medium"
               >
@@ -228,6 +261,26 @@ export function ItemEditForm({ item: initialItem }: ItemEditFormProps) {
                 name="location"
                 defaultValue={item.location || ""}
               />
+            </div>
+            <div>
+              <label
+                htmlFor="assignedToUserId"
+                className="mb-1.5 block text-sm font-medium"
+              >
+                {ti("assignedTo")}
+              </label>
+              <FormSelect
+                id="assignedToUserId"
+                name="assignedToUserId"
+                defaultValue={item.assignedToUserId || ""}
+              >
+                <option value="">{ti("unassigned")}</option>
+                {companyUsers.map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.label}
+                  </option>
+                ))}
+              </FormSelect>
             </div>
           </div>
         </CardSection>

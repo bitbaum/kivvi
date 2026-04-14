@@ -1,4 +1,4 @@
-import { PackageOpen, Plus } from "lucide-react";
+import { PackageOpen, Plus, Wrench } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { getSessionOrRedirect } from "@/lib/session";
@@ -19,6 +19,7 @@ interface PageProps {
     search?: string;
     status?: string;
     condition?: string;
+    assignedTo?: string;
     page?: string;
   }>;
 }
@@ -32,12 +33,16 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
   const status = params.status;
   const condition = params.condition;
   const search = params.search;
+  const assignedTo = params.assignedTo; // "me" | undefined
+
+  const assignedToUserId = assignedTo === "me" ? session.user.id : undefined;
 
   const [result, counts] = await Promise.all([
     listInventoryItems(db, session.user.companyId, {
       status,
       condition,
       search,
+      assignedToUserId,
       page,
       pageSize: 25,
     }),
@@ -52,6 +57,7 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
       search,
       status,
       condition,
+      assignedTo,
       page: String(page),
       ...overrides,
     };
@@ -76,6 +82,15 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
                 search: search || undefined,
               }}
             />
+            {(counts["repair"] ?? 0) > 0 && (
+              <Link
+                href="/intake/repair-queue"
+                className="inline-flex items-center gap-2 rounded-lg border border-orange-300 bg-orange-50 px-4 py-2 text-sm font-medium text-orange-800 hover:bg-orange-100 dark:border-orange-700 dark:bg-orange-900/20 dark:text-orange-300"
+              >
+                <Wrench className="h-4 w-4" />
+                {ti("repairQueue")} ({counts["repair"]})
+              </Link>
+            )}
             <Link
               href="/intake/new"
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
@@ -118,6 +133,21 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
               {ti(getStatusLabelKey(s))} ({counts[s]})
             </Link>
           ))}
+          <div className="h-6 w-px bg-border self-center" />
+          <Link
+            href={buildHref({
+              assignedTo: assignedTo === "me" ? undefined : "me",
+              page: undefined,
+            })}
+            className={cn(
+              "rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
+              assignedTo === "me"
+                ? "bg-amber-600 text-white"
+                : "bg-muted text-muted-foreground hover:bg-muted/80",
+            )}
+          >
+            {ti("assignedToMe")}
+          </Link>
         </div>
       </div>
 

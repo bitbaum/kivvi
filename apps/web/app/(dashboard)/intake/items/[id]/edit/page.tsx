@@ -6,6 +6,8 @@ import { isValidUUID } from "@/lib/utils";
 import { DetailPageHeader } from "@/components/page-header";
 import { getTranslations } from "next-intl/server";
 import { ItemEditForm } from "./item-edit-form";
+import { eq } from "drizzle-orm";
+import { users } from "@kivvi/database";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -17,7 +19,13 @@ export default async function EditInventoryItemPage({ params }: PageProps) {
   const { id } = await params;
   if (!isValidUUID(id)) notFound();
 
-  const item = await getInventoryItem(db, session.user.companyId, id);
+  const [item, companyUsers] = await Promise.all([
+    getInventoryItem(db, session.user.companyId, id),
+    db
+      .select({ id: users.id, name: users.name, email: users.email })
+      .from(users)
+      .where(eq(users.companyId, session.user.companyId)),
+  ]);
   if (!item) notFound();
 
   return (
@@ -51,8 +59,14 @@ export default async function EditInventoryItemPage({ params }: PageProps) {
           repairHours: item.repairHours,
           repairLog: item.repairLog,
           photoBase64: item.photoBase64,
+          category: item.category ?? null,
           specs: (item.specs as Record<string, string>) || null,
+          assignedToUserId: item.assignedToUserId ?? null,
         }}
+        companyUsers={companyUsers.map((u) => ({
+          id: u.id,
+          label: u.name || u.email,
+        }))}
       />
     </div>
   );

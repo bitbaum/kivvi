@@ -824,10 +824,22 @@ export const inventoryItems = pgTable(
     askingPrice: decimal("asking_price", { precision: 12, scale: 2 }),
     minPrice: decimal("min_price", { precision: 12, scale: 2 }),
     soldPrice: decimal("sold_price", { precision: 12, scale: 2 }),
+    // Category — drives checklist template (e.g. "laptop", "bike", "clothing")
+    category: text("category"),
+    // Assignment (for repair queue)
+    assignedToUserId: uuid("assigned_to_user_id").references(() => users.id),
     // Repair tracking (accumulates across multiple repairs)
     repairCost: decimal("repair_cost", { precision: 12, scale: 2 }),
     repairHours: decimal("repair_hours", { precision: 5, scale: 2 }),
     repairLog: text("repair_log"),
+    // Checklist completions (JSONB — ChecklistData type, see checklist-templates.ts)
+    checklistData: jsonb("checklist_data"),
+    // Data erasure record (separate fields for certificate generation)
+    dataErasureMethod: text("data_erasure_method"), // "secure_erase" | "dban" | "manual" | "certified" | null
+    dataErasuredAt: timestamp("data_erased_at"),
+    dataErasuredByUserId: uuid("data_erased_by_user_id").references(
+      () => users.id,
+    ),
     // Photo (base64 data URI, follows company logo pattern)
     photoBase64: text("photo_base64"),
     photoMimeType: text("photo_mime_type"),

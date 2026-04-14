@@ -110,6 +110,7 @@ export const ITEM_STATUS_VALUES = [
   "intake",
   "testing",
   "repair",
+  "parts_only",
   "ready_for_sale",
   "listed",
   "reserved",

@@ -7,12 +7,16 @@ import {
   Warehouse,
   FileText,
   Receipt,
+  ClipboardList,
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { getInventoryItem } from "@kivvi/core";
 import { isValidUUID, formatCurrency, formatDate } from "@/lib/utils";
+import Decimal from "decimal.js";
+import { DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
+import { SELLABLE_ITEM_STATUSES } from "@/lib/config/inventory-items";
 import { CardSection } from "@/components/card-section";
 import { InfoRow } from "@/components/info-display";
 import { ItemLabel } from "@/components/inventory/item-label";
@@ -51,7 +55,7 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
   const qrDataUrl = await generateQrDataUrl(`${baseUrl}/intake/items/${id}`);
 
   // Build prefill URL for the "Sell" button: creates an invoice pre-filled with this item
-  const isSellable = ["ready_for_sale", "listed", "reserved"].includes(
+  const isSellable = (SELLABLE_ITEM_STATUSES as readonly string[]).includes(
     item.status,
   );
   let sellHref = "";
@@ -64,7 +68,7 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
           description: item.description,
           quantity: "1",
           unitPrice: item.askingPrice || item.estimatedValue || "0",
-          vatRate: "8.1",
+          vatRate: DEFAULT_VAT_RATE,
           discount: "0",
         },
       ],
@@ -109,6 +113,18 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
         }
         actions={
           <div className="flex items-center gap-2">
+            {/* Test button: shown when item is in intake or testing status */}
+            {(item.status === "intake" || item.status === "testing") && (
+              <Link
+                href={`/intake/items/${id}/test`}
+                className="inline-flex items-center gap-2 rounded-lg border border-yellow-300 bg-yellow-50 px-4 py-2 text-sm font-medium text-yellow-800 hover:bg-yellow-100 transition-colors dark:border-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-300"
+              >
+                <ClipboardList className="h-4 w-4" />
+                {item.checklistData
+                  ? ti("continueTesting")
+                  : ti("startTesting")}
+              </Link>
+            )}
             <Link
               href={`/intake/items/${id}/edit`}
               className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted"
@@ -269,18 +285,19 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
                   </div>
                   {item.effectiveCost &&
                     (() => {
-                      const margin =
-                        parseFloat(item.soldPrice) -
-                        parseFloat(item.effectiveCost);
-                      const marginClass =
-                        margin >= 0 ? "text-green-600" : "text-red-600";
+                      const margin = new Decimal(item.soldPrice).minus(
+                        item.effectiveCost,
+                      );
+                      const marginClass = margin.gte(0)
+                        ? "text-green-600"
+                        : "text-red-600";
                       return (
                         <div className="flex justify-between text-sm border-t pt-2">
                           <span className="text-muted-foreground font-medium">
                             {ti("margin")}
                           </span>
                           <span className={`font-medium ${marginClass}`}>
-                            {margin >= 0 ? "+" : ""}
+                            {margin.gte(0) ? "+" : ""}
                             {formatCurrency(margin.toFixed(2))}
                           </span>
                         </div>

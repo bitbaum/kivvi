@@ -6,6 +6,7 @@ import {
   products,
   warehouses,
   contacts,
+  users,
 } from "@kivvi/database";
 import type { Database, InventoryItem } from "@kivvi/database";
 import type {
@@ -17,6 +18,13 @@ import {
   ITEM_STATUS_VALUES,
 } from "@kivvi/database/src/enums";
 import { ITEM_STATUS_TRANSITIONS } from "../config/item-transitions";
+import {
+  getChecklistTemplate,
+  areBlockingChecksPassed,
+  type ChecklistData,
+  type ChecklistItemCompletion,
+  DATA_ERASURE_METHODS,
+} from "../config/checklist-templates";
 import { getNextNumber } from "./number-sequences";
 import { logger } from "../logger";
 
@@ -28,9 +36,11 @@ export const createInventoryItemSchema = z.object({
   description: z.string().min(1, "Description is required").max(500),
   productId: z.string().uuid().optional().nullable(),
   warehouseId: z.string().uuid().optional().nullable(),
+  category: z.string().max(50).optional().nullable(),
   condition: z.enum(ITEM_CONDITION_VALUES).default("untested"),
   intakeDocumentId: z.string().uuid().optional().nullable(),
   donorContactId: z.string().uuid().optional().nullable(),
+  assignedToUserId: z.string().uuid().optional().nullable(),
   estimatedValue: z.string().optional().nullable(),
   askingPrice: z.string().optional().nullable(),
   minPrice: z.string().optional().nullable(),
@@ -64,6 +74,7 @@ export interface InventoryItemWithDetails extends InventoryItem {
   productName?: string | null;
   warehouseName?: string | null;
   donorName?: string | null;
+  assignedToName?: string | null;
   /** Derived: acquisition cost + total repair cost. The true cost basis for margin. */
   effectiveCost?: string | null;
 }
@@ -173,6 +184,38 @@ export async function updateItemStatus(
       `Cannot transition from "${current.status}" to "${newStatus}"`,
     );
   }
+
+  // ── Quality gates for ready_for_sale ────────────────────────────────────
+  // These prevent selling items that haven't been properly assessed.
+  if (newStatus === "ready_for_sale") {
+    // Gate 1: condition must be assessed
+    if (current.condition === "untested") {
+      throw new Error(
+        "Cannot approve for sale: condition not assessed. Set condition grade first.",
+      );
+    }
+
+    // Gate 2: price must be set
+    if (!current.askingPrice) {
+      throw new Error("Cannot approve for sale: asking price not set.");
+    }
+
+    // Gate 3: blocking checklist items must all pass (if checklist was done)
+    const checklistData = current.checklistData as ChecklistData | null;
+    if (current.category && checklistData?.completions?.length) {
+      const template = getChecklistTemplate(current.category);
+      const { passed, missing } = areBlockingChecksPassed(
+        template,
+        checklistData.completions,
+      );
+      if (!passed) {
+        throw new Error(
+          `Cannot approve for sale: blocking checks incomplete or failed (${missing.join(", ")})`,
+        );
+      }
+    }
+  }
+  // ────────────────────────────────────────────────────────────────────────
 
   const [updated] = await db
     .update(inventoryItems)
@@ -398,6 +441,117 @@ export async function returnInventoryItem(
   return updated;
 }
 
+/**
+ * Record checklist completions for an item.
+ * Merges new completions with any existing ones (later completion for same id wins).
+ * When a "data_erasure" check is passed, also stamps the erasure timestamp fields.
+ */
+export async function recordChecklist(
+  db: Database,
+  companyId: string,
+  itemId: string,
+  input: {
+    category: string;
+    completions: ChecklistItemCompletion[];
+    userId: string;
+  },
+): Promise<InventoryItem> {
+  const [current] = await db
+    .select()
+    .from(inventoryItems)
+    .where(
+      and(
+        eq(inventoryItems.id, itemId),
+        eq(inventoryItems.companyId, companyId),
+      ),
+    )
+    .limit(1);
+
+  if (!current) throw new Error("Inventory item not found");
+
+  // Merge: existing completions + new ones (new wins on same id)
+  const existing =
+    (current.checklistData as ChecklistData | null)?.completions ?? [];
+  const existingMap = new Map(existing.map((c) => [c.id, c]));
+  for (const c of input.completions) {
+    existingMap.set(c.id, c);
+  }
+  const merged = Array.from(existingMap.values());
+
+  const checklistData: ChecklistData = {
+    category: input.category,
+    completions: merged,
+  };
+
+  // If data_erasure check was just passed, stamp the erasure fields
+  const erasureCompletion = input.completions.find(
+    (c) => c.id === "data_erasure" && c.result === "pass",
+  );
+  const erasureUpdate = erasureCompletion
+    ? {
+        dataErasuredAt: new Date(),
+        dataErasuredByUserId: input.userId,
+      }
+    : {};
+
+  const [updated] = await db
+    .update(inventoryItems)
+    .set({
+      category: input.category,
+      checklistData,
+      ...erasureUpdate,
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(inventoryItems.id, itemId),
+        eq(inventoryItems.companyId, companyId),
+      ),
+    )
+    .returning();
+
+  return updated;
+}
+
+/**
+ * Record a manual data erasure event (outside of the checklist flow).
+ * Used when erasure is done by an external certified service.
+ */
+export async function recordDataErasure(
+  db: Database,
+  companyId: string,
+  itemId: string,
+  input: {
+    method: string;
+    userId: string;
+    notes?: string;
+  },
+): Promise<InventoryItem> {
+  if (!DATA_ERASURE_METHODS[input.method]) {
+    throw new Error(`Unknown erasure method: ${input.method}`);
+  }
+
+  const [updated] = await db
+    .update(inventoryItems)
+    .set({
+      dataErasureMethod: input.method,
+      dataErasuredAt: new Date(),
+      dataErasuredByUserId: input.userId,
+      notes: input.notes,
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(inventoryItems.id, itemId),
+        eq(inventoryItems.companyId, companyId),
+      ),
+    )
+    .returning();
+
+  if (!updated) throw new Error("Inventory item not found");
+  return updated;
+}
+
 export async function deleteInventoryItem(
   db: Database,
   companyId: string,
@@ -424,17 +578,23 @@ export async function getInventoryItem(
   companyId: string,
   itemId: string,
 ): Promise<InventoryItemWithDetails | null> {
+  const assignedUsers = users;
   const result = await db
     .select({
       item: inventoryItems,
       productName: products.name,
       warehouseName: warehouses.name,
       donorName: contacts.name,
+      assignedToName: assignedUsers.name,
     })
     .from(inventoryItems)
     .leftJoin(products, eq(inventoryItems.productId, products.id))
     .leftJoin(warehouses, eq(inventoryItems.warehouseId, warehouses.id))
     .leftJoin(contacts, eq(inventoryItems.donorContactId, contacts.id))
+    .leftJoin(
+      assignedUsers,
+      eq(inventoryItems.assignedToUserId, assignedUsers.id),
+    )
     .where(
       and(
         eq(inventoryItems.id, itemId),
@@ -450,6 +610,7 @@ export async function getInventoryItem(
     productName: result[0].productName,
     warehouseName: result[0].warehouseName,
     donorName: result[0].donorName,
+    assignedToName: result[0].assignedToName,
     effectiveCost: calculateEffectiveCost(result[0].item),
   };
 }
@@ -463,6 +624,7 @@ export async function listInventoryItems(
     search?: string;
     warehouseId?: string;
     intakeDocumentId?: string;
+    assignedToUserId?: string | null;
     page?: number;
     pageSize?: number;
     sortBy?: string;
@@ -475,6 +637,7 @@ export async function listInventoryItems(
     search,
     warehouseId,
     intakeDocumentId,
+    assignedToUserId,
     page = 1,
     pageSize = 25,
     sortBy = "createdAt",
@@ -496,6 +659,11 @@ export async function listInventoryItems(
   }
   if (intakeDocumentId) {
     conditions.push(eq(inventoryItems.intakeDocumentId, intakeDocumentId));
+  }
+  if (assignedToUserId === null) {
+    conditions.push(sql`${inventoryItems.assignedToUserId} is null`);
+  } else if (assignedToUserId) {
+    conditions.push(eq(inventoryItems.assignedToUserId, assignedToUserId));
   }
   if (search) {
     conditions.push(ilike(inventoryItems.description, `%${search}%`));
@@ -521,17 +689,23 @@ export async function listInventoryItems(
 
   const orderFn = sortOrder === "asc" ? asc : desc;
 
+  const assignedUsers = users;
   const data = await db
     .select({
       item: inventoryItems,
       productName: products.name,
       warehouseName: warehouses.name,
       donorName: contacts.name,
+      assignedToName: assignedUsers.name,
     })
     .from(inventoryItems)
     .leftJoin(products, eq(inventoryItems.productId, products.id))
     .leftJoin(warehouses, eq(inventoryItems.warehouseId, warehouses.id))
     .leftJoin(contacts, eq(inventoryItems.donorContactId, contacts.id))
+    .leftJoin(
+      assignedUsers,
+      eq(inventoryItems.assignedToUserId, assignedUsers.id),
+    )
     .where(where)
     .orderBy(orderFn(sortColumn))
     .limit(pageSize)
@@ -543,6 +717,7 @@ export async function listInventoryItems(
       productName: row.productName,
       warehouseName: row.warehouseName,
       donorName: row.donorName,
+      assignedToName: row.assignedToName,
       effectiveCost: calculateEffectiveCost(row.item),
     })),
     total,

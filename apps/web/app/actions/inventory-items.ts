@@ -12,9 +12,13 @@ import {
   listInventoryItems,
   getInventoryItem,
   recordRepair,
+  recordChecklist,
+  recordDataErasure,
   createInventoryItemSchema,
   updateInventoryItemSchema,
 } from "@kivvi/core";
+import { DATA_ERASURE_METHODS } from "@kivvi/core/src/config/checklist-templates";
+import type { ChecklistItemCompletion } from "@kivvi/core/src/config/checklist-templates";
 import {
   ITEM_STATUS_VALUES,
   ITEM_CONDITION_VALUES,
@@ -405,6 +409,90 @@ export async function getInventoryItemAction(
     return {
       success: false,
       error: safeErrorMessage(error, "Failed to get item"),
+    };
+  }
+}
+
+// ============================================================================
+// CHECKLIST
+// ============================================================================
+
+const checklistSchema = z.object({
+  category: z.string().min(1).max(50),
+  completions: z.array(
+    z.object({
+      id: z.string().min(1).max(100),
+      result: z.enum(["pass", "fail", "skip"]),
+      value: z.string().optional(),
+      skipReason: z.string().max(500).optional(),
+      completedAt: z.string(),
+      completedBy: z.string().uuid(),
+    }),
+  ),
+});
+
+export async function recordChecklistAction(
+  itemId: string,
+  input: unknown,
+): Promise<ActionResult<{ id: string }>> {
+  try {
+    const { companyId, userId } = await requireRole("member");
+    const parsed = checklistSchema.safeParse(input);
+    if (!parsed.success)
+      return { success: false, ...formatZodError(parsed.error) };
+
+    const item = await db.transaction(async (tx) => {
+      return recordChecklist(tx, companyId, itemId, {
+        ...parsed.data,
+        completions: parsed.data.completions as ChecklistItemCompletion[],
+        userId,
+      });
+    });
+
+    revalidatePath(`/intake/items/${itemId}`);
+    return { success: true, data: { id: item.id } };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to record checklist"),
+    };
+  }
+}
+
+// ============================================================================
+// DATA ERASURE
+// ============================================================================
+
+const dataErasureSchema = z.object({
+  method: z.string().refine((m) => m in DATA_ERASURE_METHODS, {
+    message: "Invalid erasure method",
+  }),
+  notes: z.string().max(500).optional(),
+});
+
+export async function recordDataErasureAction(
+  itemId: string,
+  input: unknown,
+): Promise<ActionResult<{ id: string }>> {
+  try {
+    const { companyId, userId } = await requireRole("member");
+    const parsed = dataErasureSchema.safeParse(input);
+    if (!parsed.success)
+      return { success: false, ...formatZodError(parsed.error) };
+
+    const item = await db.transaction(async (tx) => {
+      return recordDataErasure(tx, companyId, itemId, {
+        ...parsed.data,
+        userId,
+      });
+    });
+
+    revalidatePath(`/intake/items/${itemId}`);
+    return { success: true, data: { id: item.id } };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to record erasure"),
     };
   }
 }

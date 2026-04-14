@@ -54,6 +54,7 @@ const SAFE_ERROR_PATTERNS = [
   "already exists",
   "Unauthorized",
   "Cannot transition",
+  "Cannot approve for sale",
   "Cannot convert",
   "Cannot record payment",
   "Cannot create dunning",
