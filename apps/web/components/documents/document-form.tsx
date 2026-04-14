@@ -1,35 +1,28 @@
 "use client";
 
-import { useTransition, useState, useEffect, useCallback, useRef } from "react";
+import { useTransition, useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import Decimal from "decimal.js";
-import { ArrowLeft, Plus, Loader2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
   useSensor,
   useSensors,
+  KeyboardSensor,
+  PointerSensor,
 } from "@dnd-kit/core";
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
+import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { createDocumentAction } from "@/app/actions/documents";
-import { Button } from "@/components/ui/button";
 import { DOCUMENT_TYPES } from "@/lib/config/document-types";
 import { DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
 import { ContactPicker } from "@/components/contacts/contact-picker";
 import { CharCountTextarea } from "@/components/ui/char-count-textarea";
 import { FormInput, FormSelect } from "@/components/ui/form-field";
 import type { DocumentType } from "@kivvi/database";
-import { SortableLineItem } from "./sortable-line-item";
 import { IntakeQuickEntry } from "./intake-quick-entry";
 import { useDocumentForm, decodePrefill } from "@/hooks/use-document-form";
+import { LineItemsEditor } from "./line-items-editor";
+import { DocumentSummaryPanel } from "./document-summary-panel";
 
 // ============================================================================
 // LINE ITEM TYPES (exported for use by SortableLineItem + useDocumentForm)
@@ -126,7 +119,6 @@ export function DocumentForm({ type }: DocumentFormProps) {
             : null,
         notes: form.notes || null,
         internalNotes: form.internalNotes || null,
-        // Intake-specific fields: source + donor (same contact, different role)
         ...(isIntake && {
           intakeSource,
           donorId: form.contactId || null,
@@ -343,52 +335,22 @@ export function DocumentForm({ type }: DocumentFormProps) {
           <IntakeQuickEntry onItemsExtracted={form.addItemsBulk} />
 
           {/* Line items */}
-          <div className="rounded-xl border bg-card">
-            <div className="flex items-center justify-between border-b p-4">
-              <h2 className="font-semibold">{t("lineItems")}</h2>
-              <Button
-                type="button"
-                variant="link"
-                size="sm"
-                onClick={form.addItem}
-              >
-                <Plus className="h-4 w-4" />
-                {t("addItem")}
-              </Button>
-            </div>
-
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={form.handleDragEnd}
-            >
-              <SortableContext
-                items={form.items.map((item) => item.id)}
-                strategy={verticalListSortingStrategy}
-              >
-                <div>
-                  {form.items.map((item, index) => (
-                    <SortableLineItem
-                      key={item.id}
-                      item={item}
-                      index={index}
-                      updateItem={form.updateItem}
-                      removeItem={form.removeItem}
-                      canRemove={form.items.length > 1}
-                      hideFinancials={hideLineItemPricing}
-                      priceLabel={
-                        isIntake && !hideLineItemPricing
-                          ? t("acquisitionCost")
-                          : undefined
-                      }
-                      t={t}
-                      tc={tc}
-                    />
-                  ))}
-                </div>
-              </SortableContext>
-            </DndContext>
-          </div>
+          <LineItemsEditor
+            items={form.items}
+            sensors={sensors}
+            onDragEnd={form.handleDragEnd}
+            onAddItem={form.addItem}
+            onUpdateItem={(id, field, value) => form.updateItem(id, field, value)}
+            onRemoveItem={form.removeItem}
+            hideFinancials={hideLineItemPricing}
+            priceLabel={
+              isIntake && !hideLineItemPricing
+                ? t("acquisitionCost")
+                : undefined
+            }
+            t={t}
+            tc={tc}
+          />
 
           {/* Notes */}
           <div className="rounded-xl border bg-card p-6 space-y-4">
@@ -421,79 +383,23 @@ export function DocumentForm({ type }: DocumentFormProps) {
 
         {/* Right: summary */}
         <div className="space-y-6">
-          <div className="sticky top-6 rounded-xl border bg-card p-6">
-            <h2 className="mb-4 font-semibold">{t("summary")}</h2>
-            {hideLineItemPricing ? (
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">
-                    {t("lineItems")}
-                  </span>
-                  <span className="font-medium">
-                    {form.items.filter((i) => i.description.trim()).length}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">{t("quantity")}</span>
-                  <span className="font-medium">
-                    {form.items.reduce(
-                      (sum, i) => sum + (parseFloat(i.quantity) || 0),
-                      0,
-                    )}
-                  </span>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">
-                    {tc("subtotal")}
-                  </span>
-                  <span>CHF {form.subtotal.toFixed(2).toString()}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">{t("vat")}</span>
-                  <span>CHF {form.vatAmount.toFixed(2).toString()}</span>
-                </div>
-                <div className="flex justify-between border-t pt-2 text-lg font-bold">
-                  <span>{tc("total")}</span>
-                  <span>CHF {form.total.toFixed(2).toString()}</span>
-                </div>
-              </div>
+          <DocumentSummaryPanel
+            config={config}
+            subtotal={form.subtotal}
+            vatAmount={form.vatAmount}
+            total={form.total}
+            hideFinancials={hideLineItemPricing}
+            itemCount={form.items.filter((i) => i.description.trim()).length}
+            totalQuantity={form.items.reduce(
+              (sum, i) => sum + (parseFloat(i.quantity) || 0),
+              0,
             )}
-
-            {error && (
-              <p className="mt-4 rounded-lg bg-destructive/5 p-3 text-sm text-destructive ">
-                {error}
-              </p>
-            )}
-
-            <Button
-              type="button"
-              onClick={handleSubmit}
-              disabled={isPending}
-              className="mt-6 w-full"
-              size="lg"
-            >
-              {isPending ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  {tc("creating")}
-                </>
-              ) : (
-                <>
-                  {t("newDocument", { type: t(config.label) })}
-                  <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded border border-primary-foreground/20 bg-primary-foreground/10 px-1.5 py-0.5 text-[10px] font-mono">
-                    ⌘↵
-                  </kbd>
-                </>
-              )}
-            </Button>
-
-            <p className="mt-2 text-center text-xs text-muted-foreground">
-              {t("createdAsDraft", { type: t(config.label) })}
-            </p>
-          </div>
+            error={error}
+            isPending={isPending}
+            onSubmit={handleSubmit}
+            t={t}
+            tc={tc}
+          />
         </div>
       </div>
     </div>
