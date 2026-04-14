@@ -3,7 +3,13 @@ import { getTranslations } from "next-intl/server";
 import { ArrowRight } from "lucide-react";
 import { KivviLogo } from "@/components/kivvi-logo";
 import { LandingNav } from "./landing-nav";
-import { LANDING_NAV_LINKS, VERTICALS } from "@/lib/config/site";
+import {
+  LANDING_NAV_LINKS,
+  VERTICALS,
+  SOLUTIONS_CONTEXT_LINKS,
+  WISSEN_FEATURED_SLUGS,
+} from "@/lib/config/site";
+import { KNOWLEDGE_ARTICLES } from "@/lib/content/knowledge-articles";
 import { auth } from "@/lib/auth";
 
 export async function LandingHeader() {
@@ -15,6 +21,14 @@ export async function LandingHeader() {
     href: link.href,
     label: t(link.labelKey),
   }));
+
+  // Resolve featured Wissen article slugs → metadata (title, tag)
+  const wissenItems = WISSEN_FEATURED_SLUGS.flatMap((slug) => {
+    const article = KNOWLEDGE_ARTICLES.find((a) => a.slug === slug);
+    return article
+      ? [{ slug: article.slug, title: article.title, tag: article.tag }]
+      : [];
+  });
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -31,6 +45,9 @@ export async function LandingHeader() {
             links={navLinks}
             verticals={VERTICALS}
             solutionsLabel={t("navForWhom")}
+            solutionsContextLinks={SOLUTIONS_CONTEXT_LINKS}
+            wissenLabel={t("navKnowledge")}
+            wissenItems={wissenItems}
             signInLabel={t("signIn")}
             demoLabel={t("requestDemo")}
             isLoggedIn={isLoggedIn}

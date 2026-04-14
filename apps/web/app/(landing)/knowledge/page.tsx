@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, BookOpen } from "lucide-react";
 import type { Metadata } from "next";
+import { KNOWLEDGE_ARTICLES } from "@/lib/content/knowledge-articles";
 
 export const metadata: Metadata = {
   title: "Wissen für Kreislaufbetriebe — Kivvi Knowledge Base",
@@ -8,65 +9,12 @@ export const metadata: Metadata = {
     "Praxiswissen zu Zustandsbewertung, Impact-Messung, Spendenquittungen und QR-Rechnungen — entwickelt aus dem Betrieb eines der grössten IT-Refurbisher der Schweiz.",
 };
 
-// Slugs with published content get href; others show "coming soon"
-const ARTICLES = [
-  {
-    slug: "zustandsbewertung",
-    title: "Zustandsbewertung: Die 5 Stufen",
-    excerpt:
-      "Konsistente Bewertungen sind das Fundament für faire Preise und glaubwürdige Impact-Zahlen. Die 5 Stufen mit Kriterien für IT, Kleidung, Möbel und Velos.",
-    tag: "Betrieb",
-    readTime: "5 min",
-    published: true,
-  },
-  {
-    slug: "impact-messen",
-    title: "Impact messen in der Kreislaufwirtschaft",
-    excerpt:
-      "CO₂-Einsparung, Geräte gerettet, Personen bedient — wie berechnet man Impact seriös? Methodik, Faktoren und Dokumentation für Förderanträge.",
-    tag: "Impact",
-    readTime: "7 min",
-    published: true,
-  },
-  {
-    slug: "spendenquittungen",
-    title: "Spendenquittungen korrekt ausstellen",
-    excerpt:
-      "Was muss eine Spendenquittung in der Schweiz enthalten? Was ist steuerlich abzugsfähig? Pflichtangaben, Sachspendenbewertung und Automatisierung mit Kivvi.",
-    tag: "Compliance",
-    readTime: "6 min",
-    published: true,
-  },
-  {
-    slug: "kivitendo-migration",
-    title: "Von Kivitendo zu Kivvi migrieren",
-    excerpt:
-      "Schritt-für-Schritt: Daten aus Kivitendo exportieren, in Kivvi importieren, Nummernkreise übernehmen. Ohne Datenverlust, ohne Engineering-Aufwand.",
-    tag: "Migration",
-    readTime: "8 min",
-    published: true,
-  },
-  {
-    slug: "preisgestaltung-secondhand",
-    title: "Preisgestaltung für gebrauchte Waren",
-    excerpt:
-      "Richtpreise, Mindestpreise, Sozialrabatte — wie setzt man Preise fair und margensicher? Strategien für IT, Kleidung, Möbel und Velos.",
-    tag: "Betrieb",
-    readTime: "6 min",
-    published: true,
-  },
-  {
-    slug: "qr-rechnung-schweiz",
-    title: "QR-Rechnung: Was Kreislaufbetriebe wissen müssen",
-    excerpt:
-      "Seit 2022 gesetzlich vorgeschrieben. Wer braucht QR-Rechnungen? Pflichtangaben, MWST-Besonderheiten, Rappen-Rundung — und wie Kivvi das automatisiert.",
-    tag: "Compliance",
-    readTime: "5 min",
-    published: true,
-  },
-];
+// All article metadata is defined in lib/content/knowledge-articles.ts (SSOT).
+// To add an article: add an entry there, then add the JSX content in knowledge/[slug]/page.tsx.
 
 const TAG_COLORS: Record<string, string> = {
+  Einblicke:
+    "bg-slate-100 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200",
   Betrieb: "bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200",
   Compliance:
     "bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200",
@@ -74,6 +22,8 @@ const TAG_COLORS: Record<string, string> = {
     "bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-200",
   Migration:
     "bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-200",
+  Kundentypen:
+    "bg-rose-100 dark:bg-rose-900/40 text-rose-800 dark:text-rose-200",
 };
 
 export default function KnowledgePage() {
@@ -99,7 +49,7 @@ export default function KnowledgePage() {
       {/* Articles */}
       <section className="mx-auto max-w-4xl py-8">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {ARTICLES.map((article) =>
+          {KNOWLEDGE_ARTICLES.map((article) =>
             article.published ? (
               <Link
                 key={article.slug}

@@ -53,11 +53,28 @@ export const VERTICALS = [
 ] as const;
 
 // Primary nav links (flat). Verticals surface via the "Für wen" dropdown.
+// Wissen surfaces via its own dropdown — not listed here.
 export const LANDING_NAV_LINKS = [
   { href: "/how-it-works", labelKey: "navHowItWorks" as const },
-  { href: "/knowledge", labelKey: "navKnowledge" as const },
   { href: "/contact", labelKey: "navContact" as const },
 ];
+
+// SSOT for the context links at the bottom of the Solutions dropdown.
+// Previously hardcoded in landing-nav.tsx.
+export const SOLUTIONS_CONTEXT_LINKS = [
+  { href: "/circular-economy", label: "Kreislaufwirtschaft verstehen" },
+  { href: "/why-kivvi", label: "Warum Kivvi" },
+] as const;
+
+// Featured article slugs shown in the Wissen dropdown.
+// Order matters — shown top to bottom.
+// Resolved against KNOWLEDGE_ARTICLES in landing-header.tsx.
+export const WISSEN_FEATURED_SLUGS = [
+  "kreislaufwirtschaft-software-problem",
+  "zustandsbewertung",
+  "qr-rechnung-schweiz",
+  "impact-messen",
+] as const;
 
 export const CONDITION_GRADES = [
   {
