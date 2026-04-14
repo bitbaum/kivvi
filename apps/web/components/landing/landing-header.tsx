@@ -9,7 +9,7 @@ import {
   SOLUTIONS_CONTEXT_LINKS,
   WISSEN_FEATURED_SLUGS,
 } from "@/lib/config/site";
-import { KNOWLEDGE_ARTICLES } from "@/lib/content/knowledge-articles";
+import { getAllArticles } from "@/lib/content/knowledge";
 import { auth } from "@/lib/auth";
 
 export async function LandingHeader() {
@@ -22,9 +22,10 @@ export async function LandingHeader() {
     label: t(link.labelKey),
   }));
 
-  // Resolve featured Wissen article slugs → metadata (title, tag)
+  // Resolve featured Wissen article slugs → metadata (title, tag) from .md frontmatter
+  const allArticles = getAllArticles();
   const wissenItems = WISSEN_FEATURED_SLUGS.flatMap((slug) => {
-    const article = KNOWLEDGE_ARTICLES.find((a) => a.slug === slug);
+    const article = allArticles.find((a) => a.slug === slug);
     return article
       ? [{ slug: article.slug, title: article.title, tag: article.tag }]
       : [];

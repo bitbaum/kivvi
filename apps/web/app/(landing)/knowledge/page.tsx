@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, BookOpen } from "lucide-react";
 import type { Metadata } from "next";
-import { KNOWLEDGE_ARTICLES } from "@/lib/content/knowledge-articles";
+import { getAllArticles } from "@/lib/content/knowledge";
 
 export const metadata: Metadata = {
   title: "Wissen für Kreislaufbetriebe — Kivvi Knowledge Base",
@@ -9,9 +9,7 @@ export const metadata: Metadata = {
     "Praxiswissen zu Zustandsbewertung, Impact-Messung, Spendenquittungen und QR-Rechnungen — entwickelt aus dem Betrieb eines der grössten IT-Refurbisher der Schweiz.",
 };
 
-// All article metadata is defined in lib/content/knowledge-articles.ts (SSOT).
-// To add an article: add an entry there, then add the JSX content in knowledge/[slug]/page.tsx.
-
+// Tag → colour mapping. Add new tags here when needed.
 const TAG_COLORS: Record<string, string> = {
   Einblicke:
     "bg-slate-100 dark:bg-slate-800/60 text-slate-800 dark:text-slate-200",
@@ -27,6 +25,8 @@ const TAG_COLORS: Record<string, string> = {
 };
 
 export default function KnowledgePage() {
+  const articles = getAllArticles();
+
   return (
     <>
       {/* Hero */}
@@ -49,7 +49,7 @@ export default function KnowledgePage() {
       {/* Articles */}
       <section className="mx-auto max-w-4xl py-8">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {KNOWLEDGE_ARTICLES.map((article) =>
+          {articles.map((article) =>
             article.published ? (
               <Link
                 key={article.slug}

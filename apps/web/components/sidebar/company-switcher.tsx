@@ -43,7 +43,7 @@ function CreateCompanyForm({
         e.preventDefault();
         handleSubmit();
       }}
-      className="flex items-center gap-1"
+      className="flex flex-col gap-2"
     >
       <input
         autoFocus
@@ -52,18 +52,27 @@ function CreateCompanyForm({
         onChange={(e) => setName(e.target.value)}
         placeholder={tc("organizationName")}
         disabled={creating}
-        className="flex-1 rounded-md border bg-background px-2 py-1.5 text-sm outline-none focus:ring-2 focus:ring-ring"
+        className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
         onKeyDown={(e) => {
           if (e.key === "Escape") onCancel();
         }}
       />
-      <button
-        type="submit"
-        disabled={creating || name.trim().length < 2}
-        className="rounded-md bg-primary px-2 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-      >
-        {creating ? tc("creatingOrganization") : tc("create")}
-      </button>
+      <div className="flex gap-2">
+        <button
+          type="submit"
+          disabled={creating || name.trim().length < 2}
+          className="flex-1 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+        >
+          {creating ? tc("creatingOrganization") : tc("create")}
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="rounded-md border px-3 py-2 text-sm text-muted-foreground hover:bg-muted"
+        >
+          ✕
+        </button>
+      </div>
     </form>
   );
 }
@@ -125,7 +134,9 @@ export function CompanySwitcher({ tc }: CompanySwitcherProps) {
             <p className="text-sm font-medium">
               {session?.user?.companyName || tc("myCompany")}
             </p>
-            <p className="text-xs text-muted-foreground">{tc("freePlan")}</p>
+            <p className="text-xs text-muted-foreground">
+              {tc(`roleLabel.${session?.user?.role || "member"}`)}
+            </p>
           </div>
           <ChevronsUpDown
             className="h-4 w-4 text-muted-foreground"
@@ -150,6 +161,9 @@ export function CompanySwitcher({ tc }: CompanySwitcherProps) {
                     aria-hidden="true"
                   />
                   <span className="flex-1 truncate">{m.companyName}</span>
+                  <span className="text-xs text-muted-foreground">
+                    {tc(`roleLabel.${m.role}`)}
+                  </span>
                   {m.companyId === session?.user?.companyId && (
                     <Check className="h-4 w-4 text-primary" />
                   )}
@@ -198,7 +212,9 @@ export function CompanySwitcher({ tc }: CompanySwitcherProps) {
           <p className="text-sm font-medium">
             {session?.user?.companyName || tc("myCompany")}
           </p>
-          <p className="text-xs text-muted-foreground">{tc("freePlan")}</p>
+          <p className="text-xs text-muted-foreground">
+            {tc(`roleLabel.${session?.user?.role || "member"}`)}
+          </p>
         </div>
       </Link>
       {showCreateForm ? (
