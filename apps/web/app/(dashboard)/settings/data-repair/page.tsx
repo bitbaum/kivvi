@@ -2,17 +2,22 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { getSessionOrRedirect } from "@/lib/session";
-import { db } from "@/lib/db";
 import { getDataRepairStatusAction } from "@/app/actions/data-repair";
+import { getDataQualityReportAction } from "@/app/actions/data-quality";
 import { DataRepairPanel } from "./data-repair-panel";
+import { DataQualityPanel } from "./data-quality-panel";
 
 export default async function DataRepairPage() {
-  const session = await getSessionOrRedirect();
+  await getSessionOrRedirect();
   const t = await getTranslations("settings");
-  const statusResult = await getDataRepairStatusAction();
+
+  const [statusResult, qualityResult] = await Promise.all([
+    getDataRepairStatusAction(),
+    getDataQualityReportAction(),
+  ]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
       <div className="flex items-center gap-4">
         <Link
           href="/settings"
@@ -28,9 +33,31 @@ export default async function DataRepairPage() {
         </div>
       </div>
 
-      <DataRepairPanel
-        initialStatus={statusResult.success ? statusResult.data! : null}
-      />
+      {/* Data quality — duplicates, missing fields, bad values */}
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-lg font-semibold">Datenqualität</h2>
+          <p className="text-sm text-muted-foreground">
+            Duplikate, fehlende Felder und inkonsistente Werte — nach Migrationen und laufend.
+          </p>
+        </div>
+        <DataQualityPanel
+          initialReport={qualityResult.success ? qualityResult.data! : null}
+        />
+      </section>
+
+      {/* Migration repair — sequences, statuses, journal entries */}
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-lg font-semibold">Migrations-Korrekturen</h2>
+          <p className="text-sm text-muted-foreground">
+            Nummernkreise, historische Rechnungsstatus und fehlende Buchungssätze.
+          </p>
+        </div>
+        <DataRepairPanel
+          initialStatus={statusResult.success ? statusResult.data! : null}
+        />
+      </section>
     </div>
   );
 }
