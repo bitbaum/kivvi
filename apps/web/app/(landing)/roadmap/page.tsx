@@ -1,20 +1,189 @@
 import Link from "next/link";
-import { Check, Hammer, Calendar, Lightbulb, Heart, ArrowRight, ExternalLink } from "lucide-react";
+import {
+  Check,
+  Hammer,
+  Calendar,
+  Lightbulb,
+  Heart,
+  ArrowRight,
+  ExternalLink,
+  X,
+  Minus,
+} from "lucide-react";
 import type { Metadata } from "next";
 import { buildPageMeta } from "@/lib/config/site";
 
 export const metadata: Metadata = {
-  title: "Roadmap — Kivvi",
+  title: "Roadmap & Vergleich — Kivvi",
   description:
-    "Was wir gebaut haben, was wir gerade entwickeln, und wohin die Reise geht. Transparenz ist uns wichtig.",
+    "Warum bestehende ERPs für die Kreislaufwirtschaft scheitern, was Kivvi heute kann, und was als Nächstes kommt.",
   ...buildPageMeta(
-    "Roadmap — Kivvi",
-    "Was wir gebaut haben, was wir gerade entwickeln, und wohin die Reise geht.",
+    "Roadmap & Vergleich — Kivvi",
+    "Warum bestehende ERPs für die Kreislaufwirtschaft scheitern, was Kivvi heute kann, und was als Nächstes kommt.",
   ),
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Pipeline data — single source of truth for this page
+// Competitor comparison data
+// ─────────────────────────────────────────────────────────────────────────────
+
+type Support = "yes" | "partial" | "no";
+
+interface CompetitorFeature {
+  feature: string;
+  desc: string;
+  bexio: Support;
+  odoo: Support;
+  abacus: Support;
+  kivitendo: Support;
+  repairshopr: Support;
+  kivvi: Support;
+}
+
+const COMPARISON: CompetitorFeature[] = [
+  {
+    feature: "Einzelartikel-Tracking",
+    desc: "Jedes Gerät mit eigener ID, Geschichte und Kosten",
+    bexio: "no",
+    odoo: "partial",
+    abacus: "no",
+    kivitendo: "no",
+    repairshopr: "yes",
+    kivvi: "yes",
+  },
+  {
+    feature: "Zustandsbewertung",
+    desc: "5-stufige Klassifikation (Gut / Mittel / Schlecht / Teile / Schrott)",
+    bexio: "no",
+    odoo: "no",
+    abacus: "no",
+    kivitendo: "no",
+    repairshopr: "partial",
+    kivvi: "yes",
+  },
+  {
+    feature: "Intake-Workflow",
+    desc: "Wareneingang ohne Bestellung — Spenden, Rücknahmen, Tausch",
+    bexio: "no",
+    odoo: "no",
+    abacus: "no",
+    kivitendo: "no",
+    repairshopr: "yes",
+    kivvi: "yes",
+  },
+  {
+    feature: "Reparatur-Workflow",
+    desc: "Techniker, Teile, Arbeitszeit, Qualitätsgates per Artikel",
+    bexio: "no",
+    odoo: "partial",
+    abacus: "no",
+    kivitendo: "no",
+    repairshopr: "yes",
+    kivvi: "partial",
+  },
+  {
+    feature: "Schweizer QR-Rechnung",
+    desc: "Gesetzeskonforme QR-Zahlscheine — Pflicht seit 2022",
+    bexio: "yes",
+    odoo: "partial",
+    abacus: "yes",
+    kivitendo: "yes",
+    repairshopr: "no",
+    kivvi: "yes",
+  },
+  {
+    feature: "Doppelte Buchführung",
+    desc: "Vollständige Finanzbuchhaltung, Bilanz, GuV, MWST",
+    bexio: "yes",
+    odoo: "yes",
+    abacus: "yes",
+    kivitendo: "yes",
+    repairshopr: "no",
+    kivvi: "yes",
+  },
+  {
+    feature: "Impact-Tracking / CO₂",
+    desc: "CO₂ vermieden, Wiederverwendungsrate, Berichterstattung",
+    bexio: "no",
+    odoo: "no",
+    abacus: "no",
+    kivitendo: "no",
+    repairshopr: "no",
+    kivvi: "yes",
+  },
+  {
+    feature: "KI-Eingabe",
+    desc: "Natürlichsprachige Erfassung — «50 Laptops von UBS»",
+    bexio: "no",
+    odoo: "partial",
+    abacus: "no",
+    kivitendo: "no",
+    repairshopr: "no",
+    kivvi: "yes",
+  },
+  {
+    feature: "Open Source",
+    desc: "Quellcode öffentlich, MIT-lizenziert",
+    bexio: "no",
+    odoo: "yes",
+    abacus: "no",
+    kivitendo: "yes",
+    repairshopr: "no",
+    kivvi: "yes",
+  },
+  {
+    feature: "Selbst-hostbar",
+    desc: "Auf eigener Infrastruktur betreiben — keine Abhängigkeit",
+    bexio: "no",
+    odoo: "yes",
+    abacus: "no",
+    kivitendo: "yes",
+    repairshopr: "no",
+    kivvi: "yes",
+  },
+];
+
+const COMPETITORS = [
+  {
+    key: "bexio",
+    name: "Bexio",
+    note: "Schweizer KMU-Standard",
+    verdict: "Solide Buchhaltung, aber kein Artikelgedächtnis. Fungible Mengen statt Einzelobjekte.",
+  },
+  {
+    key: "odoo",
+    name: "Odoo",
+    note: "All-in-one ERP",
+    verdict: "Reparaturmodul vorhanden, aber CHF 50–150k Customizing nötig. Kein Kreislauf-Workflow out of the box.",
+  },
+  {
+    key: "abacus",
+    name: "Abacus",
+    note: "Schweizer Enterprise",
+    verdict: "Buchhalterisch exzellent, teuer, keine kreislaufspezifischen Funktionen.",
+  },
+  {
+    key: "kivitendo",
+    name: "Kivitendo ★",
+    note: "Open-Source-Inspiration",
+    verdict: "Hat Kivvi inspiriert. Ausgereifte Buchführung, Schweizer QR-Rechnung — aber kein Einzelartikel-Tracking, keine Zustandsbewertung, kein Impact.",
+  },
+  {
+    key: "repairshopr",
+    name: "RepairShopr",
+    note: "Reparatur-Tool",
+    verdict: "Gut für Reparaturtickets. Kein vollständiges ERP — keine doppelte Buchführung, keine QR-Rechnungen, keine Bilanz.",
+  },
+  {
+    key: "kivvi",
+    name: "Kivvi",
+    note: "Das fehlende Stück",
+    verdict: "Verbindet alle Teile: Intake, Zustand, Reparatur, Buchhaltung, QR-Rechnungen, Impact — nativ für die Kreislaufwirtschaft.",
+  },
+] as const;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Pipeline data
 // ─────────────────────────────────────────────────────────────────────────────
 
 const PIPELINE: {
@@ -82,13 +251,13 @@ const PIPELINE: {
     status: "live",
     category: "Migration",
     title: "Kivitendo-Migration per CSV",
-    desc: "Kontakte, Produkte, Belege und Buchungen aus Kivitendo importieren — kein Engineering nötig, selbstständig in Minuten.",
+    desc: "Kontakte, Produkte, Belege und Buchungen aus Kivitendo importieren — kein Engineering nötig.",
   },
   {
     status: "live",
     category: "Plattform",
     title: "Multi-Mandant & Self-Hosting",
-    desc: "Strikte Datentrennung zwischen Mandanten. Auf eigener Infrastruktur betreibbar — keine Abhängigkeit von Kivvi-Servern.",
+    desc: "Strikte Datentrennung zwischen Mandanten. Auf eigener Infrastruktur betreibbar.",
   },
   {
     status: "live",
@@ -102,19 +271,19 @@ const PIPELINE: {
     status: "building",
     category: "Onboarding",
     title: "Vereinfachter Registrierungsflow",
-    desc: "Konto erstellen in unter 60 Sekunden. Kein /join-Umweg, kein Formular-Overkill.",
+    desc: "Konto erstellen in unter 60 Sekunden. Kein Formular-Overkill.",
   },
   {
     status: "building",
     category: "Impact",
     title: "Impact-Bericht als PDF",
-    desc: "Einseitiger, teilbarer Jahresbericht: Artikel gerettet, CO₂ vermieden, Wert geschaffen — für Vereinsberichte und Förderanträge.",
+    desc: "Einseitiger, teilbarer Jahresbericht für Vereinsberichte und Förderanträge.",
   },
   {
     status: "building",
     category: "Banking",
     title: "CAMT-Import (Schweizer Bankformat)",
-    desc: "Kontoauszüge direkt im CAMT.053-Format importieren — der Standard aller Schweizer Banken.",
+    desc: "Kontoauszüge direkt im CAMT.053-Format — der Standard aller Schweizer Banken.",
   },
 
   // ── Geplant ───────────────────────────────────────────────────────────────
@@ -122,7 +291,7 @@ const PIPELINE: {
     status: "planned",
     category: "Community",
     title: "Kreislaufwirtschaft-Talentmarkt",
-    desc: "Personen ohne eigene Organisation können nach Kreislaufbetrieben suchen und sich bewerben — Kivvi als Verbindungsschicht zwischen Menschen und Organisationen.",
+    desc: "Personen ohne eigene Organisation können nach Kreislaufbetrieben suchen und sich bewerben.",
   },
   {
     status: "planned",
@@ -134,25 +303,25 @@ const PIPELINE: {
     status: "planned",
     category: "Webshop",
     title: "Webshop-Integration",
-    desc: "Artikel automatisch auf WooCommerce, Shopify oder eigenem Shop publizieren. Bestand bidirektional synchronisieren.",
+    desc: "Artikel automatisch auf WooCommerce, Shopify oder eigenem Shop publizieren.",
   },
   {
     status: "planned",
     category: "Compliance",
     title: "Datenlöschzertifikate (nDSG)",
-    desc: "Nachweisbare Datenlöschung nach NIST SP 800-88 / DIN 66399 für gespendete Geräte. Zertifikat pro Seriennummer.",
+    desc: "Nachweisbare Datenlöschung nach NIST SP 800-88 / DIN 66399. Zertifikat pro Seriennummer.",
   },
   {
     status: "planned",
     category: "Mobile",
     title: "Mobile App / PWA",
-    desc: "Intake, Barcode-Scanning und Lagerführung auf dem Tablet — offline-fähig für den Lagerbetrieb.",
+    desc: "Intake, Barcode-Scanning und Lagerführung auf dem Tablet — offline-fähig.",
   },
   {
     status: "planned",
     category: "Impact",
     title: "Impact pro Kundin / Spender",
-    desc: "Wie viel CO₂ hat dieser Spender durch seine Donation vermieden? Personalisierte Impact-Quittung.",
+    desc: "Personalisierte Impact-Quittung: «Ihre Spende hat 316 kg CO₂ vermieden.»",
   },
 
   // ── Vision ────────────────────────────────────────────────────────────────
@@ -160,19 +329,19 @@ const PIPELINE: {
     status: "vision",
     category: "Regulierung",
     title: "Digitaler Produktpass (EU ESPR ab 2028)",
-    desc: "Reparatur- und Aufbereitungsereignisse maschinenlesbar protokollieren — Grundlage für den DPP, der ab 2028 für Elektronik Pflicht wird.",
+    desc: "Reparatur- und Aufbereitungsereignisse maschinenlesbar protokollieren für den DPP.",
   },
   {
     status: "vision",
     category: "Plattform",
     title: "Öffentliches Organisationsverzeichnis",
-    desc: "Alle Kivvi-Betriebe optional sichtbar: Was nehmen sie an? Was verkaufen sie? Wo kann man mithelfen?",
+    desc: "Alle Kivvi-Betriebe optional sichtbar: Was nehmen sie an? Wo kann man mithelfen?",
   },
   {
     status: "vision",
     category: "Daten",
     title: "Branchenweite Impact-Aggregation",
-    desc: "Anonymisierte Gesamtstatistiken: Wie viel CO₂ hat die gesamte Kivvi-Community in diesem Jahr vermieden?",
+    desc: "Wie viel CO₂ hat die gesamte Kivvi-Community in diesem Jahr vermieden?",
   },
 ];
 
@@ -230,35 +399,130 @@ const STAGE_HEADINGS: Record<(typeof STAGES)[number], { title: string; desc: str
 
 // ─────────────────────────────────────────────────────────────────────────────
 
+function SupportIcon({ value }: { value: Support }) {
+  if (value === "yes")
+    return <Check className="mx-auto h-4 w-4 text-success" />;
+  if (value === "partial")
+    return <Minus className="mx-auto h-4 w-4 text-warning" />;
+  return <X className="mx-auto h-4 w-4 text-muted-foreground/40" />;
+}
+
 export default function RoadmapPage() {
   return (
-    <div className="container mx-auto max-w-4xl px-4 py-16 space-y-16">
+    <div className="container mx-auto max-w-5xl px-4 py-16 space-y-20">
 
       {/* Header */}
       <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Roadmap</h1>
+        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Roadmap & Vergleich</h1>
         <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-          Was wir gebaut haben, was wir gerade entwickeln, und wohin die Reise geht.
-          Wir bauen Kivvi öffentlich — keine Überraschungen.
+          Warum bestehende ERPs für die Kreislaufwirtschaft scheitern, was Kivvi heute kann,
+          und was als Nächstes kommt.
         </p>
-        <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-          {STAGES.map((s) => {
-            const cfg = STATUS_CONFIG[s];
-            const Icon = cfg.icon;
-            return (
-              <span
-                key={s}
-                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${cfg.bg} ${cfg.color}`}
-              >
-                <Icon className="h-3 w-3" />
-                {cfg.label}
-              </span>
-            );
-          })}
-        </div>
       </div>
 
-      {/* Donate CTA */}
+      {/* ── Competitor comparison ────────────────────────────────────────────── */}
+      <section id="vergleich" className="space-y-8">
+        <div>
+          <h2 className="text-2xl font-semibold">Das Software-Problem der Kreislaufwirtschaft</h2>
+          <p className="mt-2 text-muted-foreground">
+            Kein bestehendes ERP verbindet alle Teile — jedes scheitert aus strukturellen Gründen.
+            Kivvi wurde gebaut, weil die Lücke zu gross und zu teuer war, um sie mit Workarounds zu schliessen.
+          </p>
+        </div>
+
+        {/* Competitor verdicts */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {COMPETITORS.map((c) => (
+            <div
+              key={c.key}
+              className={`rounded-xl border p-5 space-y-2 ${
+                c.key === "kivvi"
+                  ? "border-success/30 bg-success/5"
+                  : c.key === "kivitendo"
+                  ? "border-info/30 bg-info/5"
+                  : "bg-card"
+              }`}
+            >
+              <div className="flex items-baseline justify-between gap-2">
+                <span className="font-semibold">{c.name}</span>
+                <span className="text-xs text-muted-foreground shrink-0">{c.note}</span>
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed">{c.verdict}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Feature matrix — horizontal scroll on mobile */}
+        <div className="overflow-x-auto rounded-xl border">
+          <table className="w-full min-w-[640px] text-sm">
+            <thead>
+              <tr className="border-b bg-muted/40">
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground w-[220px]">
+                  Funktion
+                </th>
+                {COMPETITORS.map((c) => (
+                  <th
+                    key={c.key}
+                    className={`px-3 py-3 text-center font-medium w-20 ${
+                      c.key === "kivvi" ? "text-success" : "text-muted-foreground"
+                    }`}
+                  >
+                    {c.name.replace(" ★", "")}
+                    {c.key === "kivitendo" && (
+                      <span className="ml-1 text-info">★</span>
+                    )}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {COMPARISON.map((row, i) => (
+                <tr
+                  key={row.feature}
+                  className={`border-b last:border-0 ${i % 2 === 0 ? "" : "bg-muted/20"}`}
+                >
+                  <td className="px-4 py-3">
+                    <div className="font-medium leading-snug">{row.feature}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">{row.desc}</div>
+                  </td>
+                  {COMPETITORS.map((c) => (
+                    <td key={c.key} className="px-3 py-3 text-center">
+                      <SupportIcon value={row[c.key as keyof typeof row] as Support} />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
+          <span className="flex items-center gap-2">
+            <Check className="h-4 w-4 text-success" /> Nativ unterstützt
+          </span>
+          <span className="flex items-center gap-2">
+            <Minus className="h-4 w-4 text-warning" /> Möglich mit Aufwand / partiell
+          </span>
+          <span className="flex items-center gap-2">
+            <X className="h-4 w-4 text-muted-foreground/40" /> Nicht vorhanden
+          </span>
+          <span className="ml-auto text-xs">
+            ★ Kivitendo hat Kivvi inspiriert
+          </span>
+        </div>
+
+        <div className="text-sm">
+          <Link
+            href="/knowledge/kreislaufwirtschaft-software-problem"
+            className="inline-flex items-center gap-1.5 font-medium text-primary hover:underline"
+          >
+            Vollständige Analyse lesen
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+      </section>
+
+      {/* ── Donate CTA ──────────────────────────────────────────────────────── */}
       <div className="rounded-2xl border bg-card p-8 text-center space-y-4">
         <div className="flex justify-center">
           <div className="rounded-full bg-destructive/10 p-3">
@@ -285,6 +549,33 @@ export default function RoadmapPage() {
         </p>
       </div>
 
+      {/* ── Pipeline ────────────────────────────────────────────────────────── */}
+      <section id="pipeline" className="space-y-4">
+        <div>
+          <h2 className="text-2xl font-semibold">Was wir bauen</h2>
+          <p className="mt-2 text-muted-foreground">
+            Wir bauen Kivvi öffentlich — keine Überraschungen.
+          </p>
+        </div>
+
+        {/* Status legend */}
+        <div className="flex flex-wrap gap-3">
+          {STAGES.map((s) => {
+            const cfg = STATUS_CONFIG[s];
+            const Icon = cfg.icon;
+            return (
+              <span
+                key={s}
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${cfg.bg} ${cfg.color}`}
+              >
+                <Icon className="h-3 w-3" />
+                {cfg.label}
+              </span>
+            );
+          })}
+        </div>
+      </section>
+
       {/* Pipeline stages */}
       {STAGES.map((stage) => {
         const items = PIPELINE.filter((p) => p.status === stage);
@@ -300,7 +591,7 @@ export default function RoadmapPage() {
                 <Icon className={`h-5 w-5 ${cfg.color}`} />
               </div>
               <div>
-                <h2 className="text-xl font-semibold">{heading.title}</h2>
+                <h3 className="text-xl font-semibold">{heading.title}</h3>
                 <p className="text-sm text-muted-foreground">{heading.desc}</p>
               </div>
             </div>
@@ -327,25 +618,8 @@ export default function RoadmapPage() {
         );
       })}
 
-      {/* Competitor context */}
-      <div className="rounded-xl border bg-muted/30 p-8 space-y-4">
-        <h2 className="text-lg font-semibold">Warum ein neues ERP?</h2>
-        <p className="text-sm text-muted-foreground leading-relaxed">
-          Bexio, Odoo, SAP, Abacus und Kivitendo lösen das Problem nicht — jedes aus strukturellen
-          Gründen. Bexio kennt kein Einzelartikel-Tracking. Odoo braucht CHF 50–150k Customizing.
-          Reparatur-Tools wie RepairShopr sind keine ERPs. Niemand hat die Teile verbunden.
-        </p>
-        <Link
-          href="/knowledge/kreislaufwirtschaft-software-problem"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
-        >
-          Vollständige Analyse: Die Kreislaufwirtschaft hat ein Software-Problem
-          <ArrowRight className="h-3.5 w-3.5" />
-        </Link>
-      </div>
-
-      {/* Open source note */}
-      <div className="text-center space-y-3 text-sm text-muted-foreground">
+      {/* Footer links */}
+      <div className="text-center space-y-3 text-sm text-muted-foreground border-t pt-10">
         <p>
           Kivvi ist MIT-lizenziert und auf GitHub öffentlich.{" "}
           <a

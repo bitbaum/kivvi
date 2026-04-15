@@ -102,7 +102,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground text-sm;
+    @apply bg-background text-foreground text-base;
   }
   h1 { @apply text-3xl font-bold tracking-tight; }
   h2 { @apply text-xl font-semibold; }
