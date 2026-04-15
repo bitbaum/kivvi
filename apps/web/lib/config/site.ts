@@ -57,6 +57,7 @@ export const VERTICALS = [
 // Wissen surfaces via its own dropdown — not listed here.
 export const LANDING_NAV_LINKS = [
   { href: "/how-it-works", labelKey: "navHowItWorks" as const },
+  { href: "/roadmap", labelKey: "navRoadmap" as const },
   { href: "/contact", labelKey: "navContact" as const },
 ];
 

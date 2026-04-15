@@ -56,6 +56,14 @@ export async function LandingFooter() {
               </li>
               <li>
                 <Link
+                  href="/roadmap"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Roadmap
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/why-kivvi"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >

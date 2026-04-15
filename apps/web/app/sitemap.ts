@@ -17,6 +17,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: url("/pricing"), lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: url("/how-it-works"), lastModified: now, changeFrequency: "monthly", priority: 0.8 },
     { url: url("/why-kivvi"), lastModified: now, changeFrequency: "monthly", priority: 0.8 },
+    { url: url("/roadmap"), lastModified: now, changeFrequency: "weekly", priority: 0.9 },
     { url: url("/circular-economy"), lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: url("/about"), lastModified: now, changeFrequency: "monthly", priority: 0.7 },
     { url: url("/contact"), lastModified: now, changeFrequency: "monthly", priority: 0.7 },
