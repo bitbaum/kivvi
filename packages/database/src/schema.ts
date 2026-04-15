@@ -1678,6 +1678,8 @@ export interface CompanySettings {
     | "manufacturing";
   orgProfile?: OrgProfile;
   defaultDocumentFooter?: string;
+  /** CO2 savings factors (kg) per item category — overrides the app defaults */
+  co2FactorsKg?: Record<string, number>;
 }
 
 // Inferred types from schema — use these throughout the app

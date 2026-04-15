@@ -6,6 +6,7 @@ import {
   Clock,
   BarChart3,
   Heart,
+  Recycle,
   ArrowRight,
 } from "lucide-react";
 import { getSessionOrRedirect } from "@/lib/session";
@@ -64,6 +65,14 @@ export default async function ReportsPage() {
       description: t("healthMetricsDesc"),
       color: "text-tag-purple",
       bgColor: "bg-tag-purple/10",
+    },
+    {
+      href: "/reports/impact",
+      icon: Recycle,
+      title: t("impactReport"),
+      description: t("impactReportDesc"),
+      color: "text-success",
+      bgColor: "bg-success/10",
     },
   ] as const;
 
