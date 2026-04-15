@@ -19,7 +19,6 @@ import type { LineItem } from "./document-form";
 
 interface LineItemsEditorProps {
   items: LineItem[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sensors: SensorDescriptor<SensorOptions>[];
   onDragEnd: (event: DragEndEvent) => void;
   onAddItem: () => void;
