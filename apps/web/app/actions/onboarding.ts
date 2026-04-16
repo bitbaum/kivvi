@@ -410,6 +410,57 @@ export async function getCompanyDetailsAction(): Promise<
 }
 
 // ============================================================================
+// IMPORT: Products from kivitendo CSV
+// ============================================================================
+
+export async function importProductsFromCsvAction(
+  rows: Array<Record<string, string | null>>,
+): Promise<
+  ActionResult<{ inserted: number; skipped: number; errors: string[] }>
+> {
+  try {
+    const { companyId } = await getSession();
+
+    const groupNames = rows
+      .map((r) => r.productGroup)
+      .filter(Boolean) as string[];
+    const manufacturerNames = rows
+      .map((r) => r.manufacturer)
+      .filter(Boolean) as string[];
+
+    const productGroupMap = await ensureProductGroups(
+      db,
+      companyId,
+      groupNames,
+    );
+    const manufacturerMap = await ensureManufacturers(
+      db,
+      companyId,
+      manufacturerNames,
+    );
+
+    const result = await bulkInsertProducts(
+      db,
+      companyId,
+      rows,
+      productGroupMap,
+      manufacturerMap,
+    );
+
+    // Keep sequences ahead of imported article numbers
+    await updateSequencesAfterImport(db, companyId);
+
+    revalidatePath("/products");
+    return { success: true, data: result };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Product import failed"),
+    };
+  }
+}
+
+// ============================================================================
 // REPAIR: Backfill document line items from CSV
 // ============================================================================
 

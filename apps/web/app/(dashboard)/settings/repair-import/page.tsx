@@ -2,12 +2,13 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { RepairImportForm } from "./repair-import-form";
+import { ProductImportPanel } from "./product-import-panel";
 
 export default async function RepairImportPage() {
   const t = await getTranslations("settings");
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-10">
       <div className="flex items-center gap-4">
         <Link
           href="/settings"
@@ -23,7 +24,28 @@ export default async function RepairImportPage() {
         </div>
       </div>
 
-      <RepairImportForm />
+      {/* Product import from kivitendo CSV */}
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-lg font-semibold">Artikelstamm importieren</h2>
+          <p className="text-sm text-muted-foreground">
+            Kompletten Artikelstamm aus einem Kivitendo-Export laden — einmalig
+            nach Migration oder wenn neue Produkte extern erfasst wurden.
+          </p>
+        </div>
+        <ProductImportPanel />
+      </section>
+
+      {/* Document line-item repair */}
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-lg font-semibold">{t("repairImport.title")}</h2>
+          <p className="text-sm text-muted-foreground">
+            {t("repairImport.description")}
+          </p>
+        </div>
+        <RepairImportForm />
+      </section>
     </div>
   );
 }
