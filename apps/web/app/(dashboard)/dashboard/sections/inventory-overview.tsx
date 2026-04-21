@@ -67,7 +67,11 @@ export async function InventoryOverview() {
               return (
                 <a
                   key={status}
-                  href={`/intake/items?status=${status}`}
+                  href={
+                    status === "repair"
+                      ? "/intake/repair-queue"
+                      : `/intake/items?status=${status}`
+                  }
                   className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm hover:bg-muted transition-colors"
                 >
                   <span className="font-medium">{count}</span>
