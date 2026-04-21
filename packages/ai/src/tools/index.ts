@@ -37,6 +37,7 @@ export {
   updateItemConditionTool,
 } from "./update-item-status";
 export { recordDataErasureTool } from "./record-data-erasure";
+export { getItemDetailsTool } from "./get-item-details";
 
 // Import for getDefaultTools
 import { searchInvoicesTool } from "./search-invoices";
@@ -75,6 +76,7 @@ import {
   updateItemConditionTool,
 } from "./update-item-status";
 import { recordDataErasureTool } from "./record-data-erasure";
+import { getItemDetailsTool } from "./get-item-details";
 
 /**
  * Get default tools for the ERP system
@@ -115,6 +117,7 @@ export function getDefaultTools(): Tool[] {
     updateItemStatusTool,
     updateItemConditionTool,
     recordDataErasureTool,
+    getItemDetailsTool,
   ];
 }
 
