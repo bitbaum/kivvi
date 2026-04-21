@@ -303,7 +303,7 @@ const PIPELINE: {
     status: "building",
     category: "Inventar",
     title: "Reparatur-Workflow",
-    desc: "Reparaturaufträge mit Techniker-Zuweisung, Arbeitszeit und Statusverfolgung. Reparatur-Queue, Kostenerfassung und Protokoll bereits live — Teile-Tracking folgt.",
+    desc: "Reparaturaufträge mit Techniker-Zuweisung, Arbeitszeit und Statusverfolgung. Reparatur-Queue, Kostenerfassung, Protokoll und KI-Befehle (Kosten/Stunden, Zustand, Status, Datenlöschung) bereits live — Teile-Tracking folgt.",
   },
   {
     status: "planned",

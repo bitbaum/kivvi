@@ -38,6 +38,7 @@ export {
 } from "./update-item-status";
 export { recordDataErasureTool } from "./record-data-erasure";
 export { getItemDetailsTool } from "./get-item-details";
+export { recordChecklistTool } from "./record-checklist";
 
 // Import for getDefaultTools
 import { searchInvoicesTool } from "./search-invoices";
@@ -77,6 +78,7 @@ import {
 } from "./update-item-status";
 import { recordDataErasureTool } from "./record-data-erasure";
 import { getItemDetailsTool } from "./get-item-details";
+import { recordChecklistTool } from "./record-checklist";
 
 /**
  * Get default tools for the ERP system
@@ -118,6 +120,7 @@ export function getDefaultTools(): Tool[] {
     updateItemConditionTool,
     recordDataErasureTool,
     getItemDetailsTool,
+    recordChecklistTool,
   ];
 }
 
