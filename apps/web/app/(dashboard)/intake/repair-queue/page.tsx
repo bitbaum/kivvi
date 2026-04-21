@@ -27,26 +27,19 @@ export default async function RepairQueuePage() {
   const ti = await getTranslations("inventory");
   const tc = await getTranslations("common");
 
-  const [unassignedResult, allRepairResult] = await Promise.all([
-    listInventoryItems(db, session.user.companyId, {
-      status: "repair",
-      assignedToUserId: null,
-      pageSize: 100,
-      sortBy: "createdAt",
-      sortOrder: "asc",
-    }),
-    listInventoryItems(db, session.user.companyId, {
-      status: "repair",
-      pageSize: 100,
-      sortBy: "createdAt",
-      sortOrder: "asc",
-    }),
-  ]);
+  const allRepairResult = await listInventoryItems(db, session.user.companyId, {
+    status: "repair",
+    pageSize: 500,
+    sortBy: "createdAt",
+    sortOrder: "asc",
+  });
 
+  const unassignedItems = allRepairResult.data.filter(
+    (item) => item.assignedToUserId === null,
+  );
   const assignedItems = allRepairResult.data.filter(
     (item) => item.assignedToUserId !== null,
   );
-  const unassignedItems = unassignedResult.data;
 
   return (
     <div className="space-y-6">
