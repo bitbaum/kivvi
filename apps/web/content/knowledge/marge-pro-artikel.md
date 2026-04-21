@@ -5,7 +5,7 @@ readTime: "10 min"
 excerpt: "Ein ThinkPad kommt für CHF 0 herein. Nach Reinigung, Datenträger-Löschung und Austausch des Akkus kostet er CHF 47. Welches ERP kennt diesen Betrag?"
 lead: "Marge ist Erlös minus Kosten. Im linearen Handel ist das trivial — Einkaufspreis ist bekannt, Verkaufspreis steht im System. Im Kreislaufbetrieb ist die Kostenbasis veränderlich: Sie wächst mit jeder Reparatur, jedem Ersatzteil, jedem Arbeitsstundeneinsatz. Standard-ERPs bilden das nicht ab — und die Folge sind Schätzmargen statt echter Margen."
 published: true
-order: 3
+order: 3.5
 ---
 
 ## Das Problem mit CHF 0
@@ -15,6 +15,7 @@ Nehmen wir einen konkreten Fall. Ein IT-Refurbisher erhält eine Spendenpalette 
 Im Standard-ERP entsteht sofort ein Problem: Was ist die Kostenbasis? Null. Jeder Erlös ist dann technisch 100% Marge — was offensichtlich falsch ist.
 
 Denn bevor das Gerät verkauft werden kann, passiert folgendes:
+
 - Gesamtaufnahme und Zustandsbewertung: 15 Minuten
 - Festplatte sichern und Daten unwiderruflich löschen (Blancco oder gleichwertig): 20 Minuten + Lizenzkosten
 - Akku-Test: falls unter 70% Kapazität, Austausch nötig, Kosten CHF 25–40 pro Stück

@@ -5,7 +5,7 @@ readTime: "6 min"
 excerpt: "Richtpreise, Mindestpreise, Sozialrabatte — wie setzt man Preise fair und margensicher? Strategien für IT, Kleidung, Möbel und Velos."
 lead: "Gebrauchte Waren haben keinen Listenpreis. Wie findet man Preise, die fair für Kunden, kostendeckend für den Betrieb und konsistent für das Team sind? Strategien für IT, Kleidung, Möbel und Fahrräder."
 published: true
-order: 4
+order: 4.5
 ---
 
 ## Das Dilemma der Preisgestaltung

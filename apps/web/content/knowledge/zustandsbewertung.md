@@ -5,7 +5,7 @@ readTime: "5 min"
 excerpt: "Konsistente Bewertungen sind das Fundament für faire Preise und glaubwürdige Impact-Zahlen. Die 5 Stufen mit Kriterien für IT, Kleidung, Möbel und Velos."
 lead: "Konsistente Zustandsbewertungen sind die Grundlage für faire Preise, Kundenvertrauen und aussagekräftige Impact-Zahlen. Dieses System funktioniert für IT, Kleidung, Möbel und Fahrräder."
 published: true
-order: 2
+order: 2.5
 ---
 
 ## Warum konsistente Bewertungen wichtig sind
