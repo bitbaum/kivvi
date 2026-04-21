@@ -32,6 +32,10 @@ export { prepareDocumentTool } from "./prepare-document";
 export { searchInventoryTool } from "./search-inventory";
 export { getInventoryDashboardTool } from "./get-inventory-dashboard";
 export { recordRepairTool } from "./record-repair";
+export {
+  updateItemStatusTool,
+  updateItemConditionTool,
+} from "./update-item-status";
 
 // Import for getDefaultTools
 import { searchInvoicesTool } from "./search-invoices";
@@ -65,6 +69,10 @@ import { prepareDocumentTool } from "./prepare-document";
 import { searchInventoryTool } from "./search-inventory";
 import { getInventoryDashboardTool } from "./get-inventory-dashboard";
 import { recordRepairTool } from "./record-repair";
+import {
+  updateItemStatusTool,
+  updateItemConditionTool,
+} from "./update-item-status";
 
 /**
  * Get default tools for the ERP system
@@ -102,6 +110,8 @@ export function getDefaultTools(): Tool[] {
     searchInventoryTool,
     getInventoryDashboardTool,
     recordRepairTool,
+    updateItemStatusTool,
+    updateItemConditionTool,
   ];
 }
 
