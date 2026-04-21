@@ -143,7 +143,7 @@ export function DocumentForm({ type }: DocumentFormProps) {
         );
       }
     });
-  }, [form, type, config, router, t, startTransition]);
+  }, [form, type, config, router, t, startTransition, isIntake, intakeSource]);
 
   // Cmd+Enter (Mac) / Ctrl+Enter (Win/Linux) to submit
   useEffect(() => {
@@ -340,7 +340,9 @@ export function DocumentForm({ type }: DocumentFormProps) {
             sensors={sensors}
             onDragEnd={form.handleDragEnd}
             onAddItem={form.addItem}
-            onUpdateItem={(id, field, value) => form.updateItem(id, field, value)}
+            onUpdateItem={(id, field, value) =>
+              form.updateItem(id, field, value)
+            }
             onRemoveItem={form.removeItem}
             hideFinancials={hideLineItemPricing}
             priceLabel={
