@@ -148,37 +148,43 @@ const COMPETITORS = [
     key: "bexio",
     name: "Bexio",
     note: "Schweizer KMU-Standard",
-    verdict: "Solide Buchhaltung, aber kein Artikelgedächtnis. Fungible Mengen statt Einzelobjekte.",
+    verdict:
+      "100 000+ Schweizer KMU, QR-Rechnungen, CAMT — buchhalterisch solide. Scheitert an der Grundannahme: Lager ist Menge, nicht Individuum. Keine Spenden, kein Zustand, kein Impact. Preiserhöhung März 2026 treibt Kunden zur Evaluation.",
   },
   {
     key: "odoo",
     name: "Odoo",
-    note: "All-in-one ERP",
-    verdict: "Reparaturmodul vorhanden, aber CHF 50–150k Customizing nötig. Kein Kreislauf-Workflow out of the box.",
+    note: "All-in-one Open-Source ERP",
+    verdict:
+      "Open Source, erweiterbar, Odoo 19 mit ernsthafter KI. Aber: CHF 5 000–30 000 für Schweizer Basissetup, dann Kreislauf-Workflows von null. Ein motivierter Partner könnte es bauen — dauert Jahre.",
   },
   {
     key: "abacus",
     name: "Abacus",
     note: "Schweizer Enterprise",
-    verdict: "Buchhalterisch exzellent, teuer, keine kreislaufspezifischen Funktionen.",
+    verdict:
+      "Buchhalterisch der Schweizer Standard für mittlere Unternehmen. Implementierungen ab CHF 20 000. Keine kreislaufspezifischen Funktionen — und kein Anreiz, sie für 20-Personen-Nonprofits zu bauen.",
   },
   {
     key: "kivitendo",
     name: "Kivitendo ★",
-    note: "Open-Source-Inspiration",
-    verdict: "Hat Kivvi inspiriert. Ausgereifte Buchführung, Schweizer QR-Rechnung — aber kein Einzelartikel-Tracking, keine Zustandsbewertung, kein Impact.",
+    note: "Open-Source-Vorgänger",
+    verdict:
+      "Hat Kivvi inspiriert. Ausgereifte Perl-Codebasis, QR-Rechnungen, KMU-Kontenrahmen. Kein Einzelartikel-Tracking, keine Zustandsbewertung, kein Impact-Dashboard, kein modernes UI. Kivvi importiert Kivitendo-Daten direkt per CSV.",
   },
   {
     key: "repairshopr",
-    name: "RepairShopr",
-    note: "Reparatur-Tool",
-    verdict: "Gut für Reparaturtickets. Kein vollständiges ERP — keine doppelte Buchführung, keine QR-Rechnungen, keine Bilanz.",
+    name: "RepairShopr / RepairDesk",
+    note: "Reparatur-Ticketsysteme",
+    verdict:
+      "Ausgereifte Reparaturtickets, Kundennachrichten, Teileverfolgung. Kein vollständiges ERP: keine doppelte Buchführung, keine QR-Rechnungen, keine Bilanz. Buchhaltung muss separat gelöst werden.",
   },
   {
     key: "kivvi",
     name: "Kivvi",
     note: "Das fehlende Stück",
-    verdict: "Verbindet alle Teile: Intake, Zustand, Reparatur, Buchhaltung, QR-Rechnungen, Impact — nativ für die Kreislaufwirtschaft.",
+    verdict:
+      "Verbindet alle Teile: Schweizer Compliance, Intake, Zustandsbewertung, Reparatur-Workflow, Buchhaltung, QR-Rechnungen, Spendenquittungen und Impact-Reporting — nativ für die Kreislaufwirtschaft.",
   },
 ] as const;
 
@@ -274,13 +280,13 @@ const PIPELINE: {
     desc: "Konto erstellen in unter 60 Sekunden. Kein Formular-Overkill.",
   },
   {
-    status: "building",
+    status: "live",
     category: "Impact",
     title: "Impact-Bericht als PDF",
     desc: "Einseitiger, teilbarer Jahresbericht für Vereinsberichte und Förderanträge.",
   },
   {
-    status: "building",
+    status: "live",
     category: "Banking",
     title: "CAMT-Import (Schweizer Bankformat)",
     desc: "Kontoauszüge direkt im CAMT.053-Format — der Standard aller Schweizer Banken.",
@@ -378,7 +384,10 @@ const STATUS_CONFIG = {
 
 const STAGES = ["live", "building", "planned", "vision"] as const;
 
-const STAGE_HEADINGS: Record<(typeof STAGES)[number], { title: string; desc: string }> = {
+const STAGE_HEADINGS: Record<
+  (typeof STAGES)[number],
+  { title: string; desc: string }
+> = {
   live: {
     title: "Heute live",
     desc: "Funktionen, die du jetzt verwenden kannst.",
@@ -410,23 +419,27 @@ function SupportIcon({ value }: { value: Support }) {
 export default function RoadmapPage() {
   return (
     <div className="container mx-auto max-w-5xl px-4 py-16 space-y-20">
-
       {/* Header */}
       <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Roadmap & Vergleich</h1>
+        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+          Roadmap & Vergleich
+        </h1>
         <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-          Warum bestehende ERPs für die Kreislaufwirtschaft scheitern, was Kivvi heute kann,
-          und was als Nächstes kommt.
+          Warum bestehende ERPs für die Kreislaufwirtschaft scheitern, was Kivvi
+          heute kann, und was als Nächstes kommt.
         </p>
       </div>
 
       {/* ── Competitor comparison ────────────────────────────────────────────── */}
       <section id="vergleich" className="space-y-8">
         <div>
-          <h2 className="text-2xl font-semibold">Das Software-Problem der Kreislaufwirtschaft</h2>
+          <h2 className="text-2xl font-semibold">
+            Das Software-Problem der Kreislaufwirtschaft
+          </h2>
           <p className="mt-2 text-muted-foreground">
-            Kein bestehendes ERP verbindet alle Teile — jedes scheitert aus strukturellen Gründen.
-            Kivvi wurde gebaut, weil die Lücke zu gross und zu teuer war, um sie mit Workarounds zu schliessen.
+            Kein bestehendes ERP verbindet alle Teile — jedes scheitert aus
+            strukturellen Gründen. Kivvi wurde gebaut, weil die Lücke zu gross
+            und zu teuer war, um sie mit Workarounds zu schliessen.
           </p>
         </div>
 
@@ -439,15 +452,19 @@ export default function RoadmapPage() {
                 c.key === "kivvi"
                   ? "border-success/30 bg-success/5"
                   : c.key === "kivitendo"
-                  ? "border-info/30 bg-info/5"
-                  : "bg-card"
+                    ? "border-info/30 bg-info/5"
+                    : "bg-card"
               }`}
             >
               <div className="flex items-baseline justify-between gap-2">
                 <span className="font-semibold">{c.name}</span>
-                <span className="text-xs text-muted-foreground shrink-0">{c.note}</span>
+                <span className="text-xs text-muted-foreground shrink-0">
+                  {c.note}
+                </span>
               </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">{c.verdict}</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {c.verdict}
+              </p>
             </div>
           ))}
         </div>
@@ -464,7 +481,9 @@ export default function RoadmapPage() {
                   <th
                     key={c.key}
                     className={`px-3 py-3 text-center font-medium w-20 ${
-                      c.key === "kivvi" ? "text-success" : "text-muted-foreground"
+                      c.key === "kivvi"
+                        ? "text-success"
+                        : "text-muted-foreground"
                     }`}
                   >
                     {c.name.replace(" ★", "")}
@@ -482,12 +501,18 @@ export default function RoadmapPage() {
                   className={`border-b last:border-0 ${i % 2 === 0 ? "" : "bg-muted/20"}`}
                 >
                   <td className="px-4 py-3">
-                    <div className="font-medium leading-snug">{row.feature}</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">{row.desc}</div>
+                    <div className="font-medium leading-snug">
+                      {row.feature}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-0.5">
+                      {row.desc}
+                    </div>
                   </td>
                   {COMPETITORS.map((c) => (
                     <td key={c.key} className="px-3 py-3 text-center">
-                      <SupportIcon value={row[c.key as keyof typeof row] as Support} />
+                      <SupportIcon
+                        value={row[c.key as keyof typeof row] as Support}
+                      />
                     </td>
                   ))}
                 </tr>
@@ -501,7 +526,8 @@ export default function RoadmapPage() {
             <Check className="h-4 w-4 text-success" /> Nativ unterstützt
           </span>
           <span className="flex items-center gap-2">
-            <Minus className="h-4 w-4 text-warning" /> Möglich mit Aufwand / partiell
+            <Minus className="h-4 w-4 text-warning" /> Möglich mit Aufwand /
+            partiell
           </span>
           <span className="flex items-center gap-2">
             <X className="h-4 w-4 text-muted-foreground/40" /> Nicht vorhanden
@@ -531,8 +557,9 @@ export default function RoadmapPage() {
         </div>
         <h2 className="text-xl font-semibold">Entwicklung unterstützen</h2>
         <p className="mx-auto max-w-lg text-muted-foreground">
-          Kivvi ist Open Source und wird von revamp-it, einem gemeinnützigen IT-Refurbisher aus Zürich,
-          entwickelt. Jede Spende fliesst direkt in neue Funktionen und den Betrieb der Plattform.
+          Kivvi ist Open Source und wird von revamp-it, einem gemeinnützigen
+          IT-Refurbisher aus Zürich, entwickelt. Jede Spende fliesst direkt in
+          neue Funktionen und den Betrieb der Plattform.
         </p>
         <a
           href="https://revamp-it.ch"
@@ -545,7 +572,8 @@ export default function RoadmapPage() {
           <ExternalLink className="h-3.5 w-3.5 opacity-70" />
         </a>
         <p className="text-xs text-muted-foreground">
-          Weiterleitung zu revamp-it Zürich · gemeinnützig nach Art. 56 lit. g DBG
+          Weiterleitung zu revamp-it Zürich · gemeinnützig nach Art. 56 lit. g
+          DBG
         </p>
       </div>
 
@@ -603,14 +631,18 @@ export default function RoadmapPage() {
                   className={`rounded-xl border ${cfg.border} bg-card p-5 space-y-2`}
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <span className="font-medium text-sm leading-snug">{item.title}</span>
+                    <span className="font-medium text-sm leading-snug">
+                      {item.title}
+                    </span>
                     <span
                       className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${cfg.bg} ${cfg.color}`}
                     >
                       {item.category}
                     </span>
                   </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {item.desc}
+                  </p>
                 </div>
               ))}
             </div>
@@ -633,7 +665,10 @@ export default function RoadmapPage() {
         </p>
         <p>
           Fehlt dir etwas auf dieser Liste?{" "}
-          <Link href="/contact" className="font-medium text-foreground hover:underline">
+          <Link
+            href="/contact"
+            className="font-medium text-foreground hover:underline"
+          >
             Schreib uns.
           </Link>
         </p>

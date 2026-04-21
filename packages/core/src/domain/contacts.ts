@@ -9,10 +9,11 @@ import { getNextNumber } from "./number-sequences";
 // VALIDATION SCHEMAS
 // ============================================================================
 
-export const createContactSchema = z.object({
+// Base fields shared between create and update schemas
+const contactBaseSchema = z.object({
   type: z.enum(["customer", "vendor", "both"]),
-  /** Display name. If omitted, auto-derived from firstName + lastName. */
-  name: z.string().max(200).optional().nullable(),
+  /** Display name. If omitted on create, auto-derived from firstName + lastName. */
+  name: z.string().min(1).max(200).optional().nullable(),
   firstName: z.string().max(100).optional().nullable(),
   lastName: z.string().max(100).optional().nullable(),
   email: z
@@ -43,7 +44,23 @@ export const createContactSchema = z.object({
   notes: z.string().max(5000).optional().nullable(),
 });
 
-export const updateContactSchema = createContactSchema.partial();
+// Create requires at least one of: name, firstName, lastName
+export const createContactSchema = contactBaseSchema.superRefine(
+  (data, ctx) => {
+    const hasName = data.name?.trim();
+    const hasFirstOrLast = data.firstName?.trim() || data.lastName?.trim();
+    if (!hasName && !hasFirstOrLast) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Name oder Vor-/Nachname erforderlich",
+        path: ["name"],
+      });
+    }
+  },
+);
+
+// Update allows partial fields — no name requirement (patch semantics)
+export const updateContactSchema = contactBaseSchema.partial();
 
 export type CreateContactInput = z.infer<typeof createContactSchema>;
 export type UpdateContactInput = z.infer<typeof updateContactSchema>;
@@ -261,13 +278,11 @@ export async function createContact(
 ): Promise<Contact> {
   const validated = createContactSchema.parse(input);
 
-  // Auto-derive display name from firstName + lastName if not provided
+  // Auto-derive display name from firstName + lastName if name not provided
+  // Schema guarantees at least one of name/firstName/lastName is present
   const effectiveName =
     validated.name?.trim() ||
     [validated.firstName, validated.lastName].filter(Boolean).join(" ");
-  if (!effectiveName) {
-    throw new Error("Name oder Vor-/Nachname erforderlich");
-  }
 
   // Generate contact number
   const contactNumber = await getNextNumber(db, companyId, "contact");

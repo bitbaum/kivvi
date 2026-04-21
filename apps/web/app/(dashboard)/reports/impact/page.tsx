@@ -10,6 +10,7 @@ import { getTranslations } from "next-intl/server";
 import { getImpactMetrics } from "@kivvi/core/src/domain/impact";
 import { PageHeader } from "@/components/page-header";
 import { CO2_FACTORS_KG } from "@/lib/config/co2-factors";
+import { ImpactPdfDownload } from "./impact-pdf-download";
 
 export const metadata: Metadata = {
   title: "Impact-Bericht — Kivvi",
@@ -52,8 +53,13 @@ export default async function ImpactReportPage() {
         </Link>
         <PageHeader
           title={t("impact")}
-          subtitle={company?.name ? `${company.name} — ${tc("allTime")}` : tc("allTime")}
+          subtitle={
+            company?.name ? `${company.name} — ${tc("allTime")}` : tc("allTime")
+          }
         />
+        <div className="ml-auto">
+          <ImpactPdfDownload />
+        </div>
       </div>
 
       {metrics.itemsProcessed === 0 ? (
@@ -104,7 +110,8 @@ export default async function ImpactReportPage() {
                   {treesEquivalent.toLocaleString()}
                 </div>
                 <p className="text-muted-foreground">
-                  Bäume, die ein Jahr lang CO₂ binden müssten, um dasselbe zu leisten
+                  Bäume, die ein Jahr lang CO₂ binden müssten, um dasselbe zu
+                  leisten
                 </p>
               </div>
               <div className="rounded-lg bg-success/5 p-4">
@@ -120,7 +127,8 @@ export default async function ImpactReportPage() {
                   {co2Tonnes} t
                 </div>
                 <p className="text-muted-foreground">
-                  CO₂-Äquivalente durch Wiederverwendung statt Neuproduktion vermieden
+                  CO₂-Äquivalente durch Wiederverwendung statt Neuproduktion
+                  vermieden
                 </p>
               </div>
             </div>
@@ -132,17 +140,22 @@ export default async function ImpactReportPage() {
               <h2 className="mb-4 font-semibold">CO₂ nach Kategorie</h2>
               <div className="space-y-3">
                 {metrics.co2ByCategory.map((cat) => {
-                  const pct = co2Kg > 0
-                    ? Math.round((Number(cat.co2TotalKg) / co2Kg) * 100)
-                    : 0;
+                  const pct =
+                    co2Kg > 0
+                      ? Math.round((Number(cat.co2TotalKg) / co2Kg) * 100)
+                      : 0;
                   const catCo2Kg = Number(cat.co2TotalKg);
                   return (
                     <div key={cat.category}>
                       <div className="mb-1 flex items-center justify-between text-sm">
                         <div className="flex items-center gap-2">
-                          <span className="capitalize font-medium">{cat.category}</span>
+                          <span className="capitalize font-medium">
+                            {cat.category}
+                          </span>
                           <span className="text-xs text-muted-foreground">
-                            {cat.itemCount} {cat.itemCount === 1 ? "Artikel" : "Artikel"} × {cat.co2KgFactor} kg
+                            {cat.itemCount}{" "}
+                            {cat.itemCount === 1 ? "Artikel" : "Artikel"} ×{" "}
+                            {cat.co2KgFactor} kg
                           </span>
                         </div>
                         <div className="flex items-center gap-3 text-xs">
@@ -171,7 +184,8 @@ export default async function ImpactReportPage() {
           <div className="rounded-xl border bg-card p-6">
             <h2 className="mb-1 font-semibold">CO₂-Faktoren</h2>
             <p className="mb-4 text-sm text-muted-foreground">
-              Verwendete Schätzwerte für die CO₂-Berechnung (kg CO₂ pro Artikel, vermieden durch Wiederverwendung statt Neuproduktion).
+              Verwendete Schätzwerte für die CO₂-Berechnung (kg CO₂ pro Artikel,
+              vermieden durch Wiederverwendung statt Neuproduktion).
               {co2FactorsKg && Object.keys(co2FactorsKg).length > 0
                 ? " Enthält firmeneigene Anpassungen."
                 : " Standardwerte basierend auf Lifecycle-Assessment-Studien."}
@@ -183,7 +197,9 @@ export default async function ImpactReportPage() {
                     key={cat}
                     className="flex items-center justify-between rounded-lg border px-3 py-2"
                   >
-                    <span className="capitalize text-muted-foreground">{cat}</span>
+                    <span className="capitalize text-muted-foreground">
+                      {cat}
+                    </span>
                     <span className="font-medium tabular-nums">{kg} kg</span>
                   </div>
                 ),
@@ -211,7 +227,9 @@ function SummaryCard({
 }) {
   return (
     <div className="rounded-xl border bg-card p-5">
-      <div className={`mb-2 flex items-center gap-2 text-xs font-medium ${color}`}>
+      <div
+        className={`mb-2 flex items-center gap-2 text-xs font-medium ${color}`}
+      >
         {icon}
         {label}
       </div>
