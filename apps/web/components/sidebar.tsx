@@ -47,6 +47,8 @@ interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
   activePrefixes?: string[];
   badgeKey?: keyof NavBadges;
+  /** Badge color variant. Defaults to "destructive". */
+  badgeVariant?: "destructive" | "warning";
   /** Minimum role required to see this item. Defaults to "member". */
   minRole?: UserRole;
 }
@@ -54,7 +56,12 @@ interface NavItem {
 // Core navigation — flat, 9 items
 // minRole defaults to "member"; viewers only see dashboard + intake + inventory
 const primaryNavigation: NavItem[] = [
-  { nameKey: "home", href: "/dashboard", icon: LayoutDashboard, minRole: "viewer" },
+  {
+    nameKey: "home",
+    href: "/dashboard",
+    icon: LayoutDashboard,
+    minRole: "viewer",
+  },
   { nameKey: "people", href: "/contacts", icon: Users },
   { nameKey: "catalog", href: "/products", icon: Package },
   {
@@ -71,8 +78,20 @@ const primaryNavigation: NavItem[] = [
     activePrefixes: ["/banking", "/accounting"],
     badgeKey: "money",
   },
-  { nameKey: "intake", href: "/intake", icon: PackageOpen, minRole: "viewer" },
-  { nameKey: "inventory", href: "/inventory", icon: Warehouse, minRole: "viewer" },
+  {
+    nameKey: "intake",
+    href: "/intake",
+    icon: PackageOpen,
+    minRole: "viewer",
+    badgeKey: "repair",
+    badgeVariant: "warning",
+  },
+  {
+    nameKey: "inventory",
+    href: "/inventory",
+    icon: Warehouse,
+    minRole: "viewer",
+  },
   { nameKey: "projects", href: "/projects", icon: FolderKanban },
   { nameKey: "reports", href: "/reports", icon: BarChart3 },
 ];
@@ -108,6 +127,7 @@ function NavLink({
 }) {
   const isActive = isNavActive(item, pathname);
   const badgeCount = item.badgeKey ? badges[item.badgeKey] : 0;
+  const isWarning = item.badgeVariant === "warning";
   return (
     <Link
       href={item.href}
@@ -125,7 +145,10 @@ function NavLink({
         <item.icon className="h-4 w-4" aria-hidden="true" />
         {badgeCount > 0 && (
           <span
-            className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-destructive/50"
+            className={cn(
+              "absolute -right-1 -top-1 h-2 w-2 rounded-full",
+              isWarning ? "bg-warning/70" : "bg-destructive/50",
+            )}
             aria-label={`${badgeCount}`}
           />
         )}
@@ -137,7 +160,9 @@ function NavLink({
             "ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-xs font-medium",
             isActive
               ? "bg-primary-foreground/20 text-primary-foreground"
-              : "bg-destructive/10 text-destructive",
+              : isWarning
+                ? "bg-warning/10 text-warning"
+                : "bg-destructive/10 text-destructive",
           )}
         >
           {badgeCount > 99 ? "99+" : badgeCount}

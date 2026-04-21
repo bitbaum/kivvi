@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { documents, bankTransactions, bankAccounts } from "@kivvi/database";
+import {
+  documents,
+  bankTransactions,
+  bankAccounts,
+  inventoryItems,
+} from "@kivvi/database";
 import { eq, and, sql, lt, inArray } from "drizzle-orm";
 import { OVERDUE_ELIGIBLE_STATUSES } from "@/lib/config/document-types";
 
@@ -9,47 +14,60 @@ export async function GET() {
   try {
     const session = await auth();
     if (!session?.user?.companyId) {
-      return NextResponse.json({ documents: 0, money: 0 });
+      return NextResponse.json({ documents: 0, money: 0, repair: 0 });
     }
 
     const companyId = session.user.companyId;
     const now = new Date();
 
-    // Two lightweight count queries in parallel
-    const [overdueResult, unreconciledResult] = await Promise.all([
-      // Count overdue invoices (sent/partially_paid + past due date)
-      db
-        .select({ count: sql<number>`count(*)::int` })
-        .from(documents)
-        .where(
-          and(
-            eq(documents.companyId, companyId),
-            eq(documents.type, "invoice"),
-            inArray(documents.status, OVERDUE_ELIGIBLE_STATUSES),
-            lt(documents.dueDate, now),
+    // Three lightweight count queries in parallel
+    const [overdueResult, unreconciledResult, repairResult] = await Promise.all(
+      [
+        // Count overdue invoices (sent/partially_paid + past due date)
+        db
+          .select({ count: sql<number>`count(*)::int` })
+          .from(documents)
+          .where(
+            and(
+              eq(documents.companyId, companyId),
+              eq(documents.type, "invoice"),
+              inArray(documents.status, OVERDUE_ELIGIBLE_STATUSES),
+              lt(documents.dueDate, now),
+            ),
           ),
-        ),
-      // Count unreconciled bank transactions (join through bankAccounts for companyId)
-      db
-        .select({ count: sql<number>`count(*)::int` })
-        .from(bankTransactions)
-        .innerJoin(
-          bankAccounts,
-          eq(bankTransactions.bankAccountId, bankAccounts.id),
-        )
-        .where(
-          and(
-            eq(bankAccounts.companyId, companyId),
-            eq(bankTransactions.isReconciled, false),
+        // Count unreconciled bank transactions (join through bankAccounts for companyId)
+        db
+          .select({ count: sql<number>`count(*)::int` })
+          .from(bankTransactions)
+          .innerJoin(
+            bankAccounts,
+            eq(bankTransactions.bankAccountId, bankAccounts.id),
+          )
+          .where(
+            and(
+              eq(bankAccounts.companyId, companyId),
+              eq(bankTransactions.isReconciled, false),
+            ),
           ),
-        ),
-    ]);
+        // Count items currently in repair
+        db
+          .select({ count: sql<number>`count(*)::int` })
+          .from(inventoryItems)
+          .where(
+            and(
+              eq(inventoryItems.companyId, companyId),
+              eq(inventoryItems.status, "repair"),
+            ),
+          ),
+      ],
+    );
 
     return NextResponse.json({
       documents: overdueResult[0]?.count ?? 0,
       money: unreconciledResult[0]?.count ?? 0,
+      repair: repairResult[0]?.count ?? 0,
     });
   } catch {
-    return NextResponse.json({ documents: 0, money: 0 });
+    return NextResponse.json({ documents: 0, money: 0, repair: 0 });
   }
 }

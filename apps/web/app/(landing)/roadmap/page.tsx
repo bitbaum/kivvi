@@ -274,7 +274,7 @@ const PIPELINE: {
 
   // ── In Entwicklung ────────────────────────────────────────────────────────
   {
-    status: "building",
+    status: "live",
     category: "Onboarding",
     title: "Vereinfachter Registrierungsflow",
     desc: "Konto erstellen in unter 60 Sekunden. Kein Formular-Overkill.",
@@ -300,10 +300,10 @@ const PIPELINE: {
     desc: "Personen ohne eigene Organisation können nach Kreislaufbetrieben suchen und sich bewerben.",
   },
   {
-    status: "planned",
+    status: "building",
     category: "Inventar",
     title: "Reparatur-Workflow",
-    desc: "Reparaturaufträge mit Techniker-Zuweisung, Teile-Tracking, Arbeitszeit und Statusverfolgung.",
+    desc: "Reparaturaufträge mit Techniker-Zuweisung, Arbeitszeit und Statusverfolgung. Reparatur-Queue, Kostenerfassung und Protokoll bereits live — Teile-Tracking folgt.",
   },
   {
     status: "planned",

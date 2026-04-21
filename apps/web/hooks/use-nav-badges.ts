@@ -1,14 +1,15 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 
 export interface NavBadges {
   documents: number; // overdue invoices
   money: number; // unreconciled transactions
+  repair: number; // items in repair
 }
 
-const EMPTY_BADGES: NavBadges = { documents: 0, money: 0 };
+const EMPTY_BADGES: NavBadges = { documents: 0, money: 0, repair: 0 };
 
 /**
  * Fetches sidebar badge counts from the API.
@@ -25,7 +26,7 @@ export function useNavBadges(): NavBadges {
 
     async function fetchBadges() {
       try {
-        const res = await fetch('/api/nav-badges');
+        const res = await fetch("/api/nav-badges");
         if (!res.ok) return;
         const data = await res.json();
         if (!cancelled) setBadges(data);

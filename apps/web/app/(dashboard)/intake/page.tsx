@@ -49,7 +49,7 @@ export default async function IntakePage({ searchParams }: PageProps) {
         <div className="flex items-center gap-2">
           {repairCount > 0 && (
             <Link
-              href="/intake/items?status=repair"
+              href="/intake/repair-queue"
               className="inline-flex items-center gap-2 rounded-lg border border-warning/30 bg-warning/5 px-3 py-2 text-sm font-medium text-warning hover:bg-warning/10 transition-colors dark:hover:bg-warning/20"
             >
               <Wrench className="h-4 w-4" />
