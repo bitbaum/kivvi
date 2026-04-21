@@ -17,7 +17,14 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
-import type { DataQualityReport, DuplicateContactGroup, DocumentIssue, ContactIssue, ProductIssue } from "@kivvi/core/src/domain/data-quality";
+import type {
+  DataQualityReport,
+  DuplicateContactGroup,
+  DocumentIssue,
+  ContactIssue,
+  ProductIssue,
+} from "@kivvi/core/src/domain/data-quality";
+import { DOCUMENT_TYPES } from "@/lib/config/document-types";
 import {
   mergeContactsAction,
   cancelZeroTotalDocumentsAction,
@@ -130,9 +137,8 @@ function DuplicateGroup({
   onMerged: () => void;
 }) {
   const [primaryId, setPrimaryId] = useState(
-    group.contacts.reduce((a, b) =>
-      b.documentCount > a.documentCount ? b : a,
-    ).id,
+    group.contacts.reduce((a, b) => (b.documentCount > a.documentCount ? b : a))
+      .id,
   );
   const [merging, setMerging] = useState(false);
 
@@ -205,7 +211,8 @@ function DuplicateGroup({
         })}
       </div>
       <p className="text-xs text-muted-foreground">
-        Dokumente des zusammenzuführenden Kontakts werden auf den primären Kontakt übertragen. Der Duplikat wird deaktiviert.
+        Dokumente des zusammenzuführenden Kontakts werden auf den primären
+        Kontakt übertragen. Der Duplikat wird deaktiviert.
       </p>
     </div>
   );
@@ -256,7 +263,9 @@ function DocumentIssuesTable({
         : cancelStaleDraftsAction;
     const result = await fn(toCancel);
     if (result.success) {
-      toast.success(`${result.data!.cancelled} Dokument${result.data!.cancelled !== 1 ? "e" : ""} storniert`);
+      toast.success(
+        `${result.data!.cancelled} Dokument${result.data!.cancelled !== 1 ? "e" : ""} storniert`,
+      );
       setSelected(new Set());
       onFixed();
     } else {
@@ -297,7 +306,7 @@ function DocumentIssuesTable({
             <tbody className="divide-y">
               {items.map((doc) => (
                 <tr key={doc.id} className="hover:bg-muted/30">
-                  {(actionLabel) && (
+                  {actionLabel && (
                     <td className="pl-3 py-2 w-8">
                       <input
                         type="checkbox"
@@ -322,14 +331,18 @@ function DocumentIssuesTable({
                     <span className="font-medium">{doc.number}</span>
                   </td>
                   <td className="px-3 py-2 text-muted-foreground">
-                    {doc.contactName ?? <span className="italic text-destructive">kein Kontakt</span>}
+                    {doc.contactName ?? (
+                      <span className="italic text-destructive">
+                        kein Kontakt
+                      </span>
+                    )}
                   </td>
                   <td className="px-3 py-2 text-right font-mono text-xs">
                     CHF {parseFloat(doc.total).toFixed(2)}
                   </td>
                   <td className="px-3 py-2">
                     <Link
-                      href={`/sales/invoices/${doc.id}`}
+                      href={`${(DOCUMENT_TYPES as Record<string, { basePath: string } | undefined>)[doc.type]?.basePath ?? "/documents"}/${doc.id}`}
                       className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
                     >
                       <ExternalLink className="h-3 w-3" />
@@ -366,14 +379,8 @@ function DocumentIssuesTable({
         actionLabel="Stornieren"
         onAction={() => cancelSelected("zero_total")}
       />
-      <IssueGroup
-        title="Kein Kontakt zugewiesen"
-        items={noContact}
-      />
-      <IssueGroup
-        title="Keine Positionen"
-        items={noItems}
-      />
+      <IssueGroup title="Kein Kontakt zugewiesen" items={noContact} />
+      <IssueGroup title="Keine Positionen" items={noItems} />
       <IssueGroup
         title="Alte Entwürfe (>90 Tage)"
         items={staleDrafts}
@@ -502,9 +509,7 @@ export function DataQualityPanel({
 }: {
   initialReport: DataQualityReport | null;
 }) {
-  const [report, setReport] = useState<DataQualityReport | null>(
-    initialReport,
-  );
+  const [report, setReport] = useState<DataQualityReport | null>(initialReport);
   const [refreshing, setRefreshing] = useState(false);
 
   async function refresh() {
@@ -562,7 +567,9 @@ export function DataQualityPanel({
         count={summary.duplicateContactGroups}
       >
         {report.duplicateContactGroups.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Keine Duplikate gefunden.</p>
+          <p className="text-sm text-muted-foreground">
+            Keine Duplikate gefunden.
+          </p>
         ) : (
           <div className="space-y-4">
             {report.duplicateContactGroups.map((group) => (
@@ -583,12 +590,11 @@ export function DataQualityPanel({
         count={summary.contactIssues}
       >
         {report.contactIssues.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Alle Kontakte vollständig.</p>
+          <p className="text-sm text-muted-foreground">
+            Alle Kontakte vollständig.
+          </p>
         ) : (
-          <ContactIssuesTable
-            issues={report.contactIssues}
-            onFixed={refresh}
-          />
+          <ContactIssuesTable issues={report.contactIssues} onFixed={refresh} />
         )}
       </Section>
 
@@ -599,7 +605,9 @@ export function DataQualityPanel({
         count={summary.documentIssues}
       >
         {report.documentIssues.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Alle Dokumente in Ordnung.</p>
+          <p className="text-sm text-muted-foreground">
+            Alle Dokumente in Ordnung.
+          </p>
         ) : (
           <DocumentIssuesTable
             issues={report.documentIssues}
@@ -615,7 +623,9 @@ export function DataQualityPanel({
         count={summary.productIssues}
       >
         {report.productIssues.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Alle Artikel in Ordnung.</p>
+          <p className="text-sm text-muted-foreground">
+            Alle Artikel in Ordnung.
+          </p>
         ) : (
           <ProductIssuesTable issues={report.productIssues} />
         )}
