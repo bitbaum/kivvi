@@ -441,6 +441,15 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
                   </span>
                 </div>
               )}
+              {item.assignedToName && (
+                <div className="flex items-center gap-2 text-sm">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                  <span>
+                    {ti("assignedTo")}:{" "}
+                    <span className="font-medium">{item.assignedToName}</span>
+                  </span>
+                </div>
+              )}
               {item.intakeDocumentId && (
                 <div className="flex items-center gap-2 text-sm">
                   <FileText className="h-4 w-4 text-muted-foreground" />
