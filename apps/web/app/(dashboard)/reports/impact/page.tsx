@@ -13,7 +13,7 @@ import { CO2_FACTORS_KG } from "@/lib/config/co2-factors";
 import { ImpactPdfDownload } from "./impact-pdf-download";
 
 export const metadata: Metadata = {
-  title: "Impact-Bericht — Kivvi",
+  title: "Impact Report — Kivvi",
 };
 
 export const revalidate = 60;
@@ -21,6 +21,7 @@ export const revalidate = 60;
 export default async function ImpactReportPage() {
   const session = await getSessionOrRedirect();
   const t = await getTranslations("inventory");
+  const tr = await getTranslations("reports");
   const tc = await getTranslations("common");
   const companyId = session.user.companyId;
 
@@ -65,7 +66,7 @@ export default async function ImpactReportPage() {
       {metrics.itemsProcessed === 0 ? (
         <div className="rounded-xl border bg-card p-12 text-center text-muted-foreground">
           <Recycle className="mx-auto mb-3 h-8 w-8 opacity-40" />
-          <p>Noch keine Artikel erfasst.</p>
+          <p>{tr("impactNoItems")}</p>
         </div>
       ) : (
         <>
@@ -87,31 +88,32 @@ export default async function ImpactReportPage() {
             />
             <SummaryCard
               icon={<Package className="h-5 w-5" />}
-              label="Verarbeitet"
+              label={tr("impactItemsProcessed")}
               value={metrics.itemsProcessed.toLocaleString()}
               sub={`${metrics.wasteDiverted} ${t("divertedFromLandfill")}`}
               color="text-info"
             />
             <SummaryCard
               icon={<Recycle className="h-5 w-5" />}
-              label="Recycelt"
+              label={tr("impactItemsRecycled")}
               value={metrics.itemsRecycled.toLocaleString()}
-              sub="Materialkreislauf"
+              sub={tr("impactMaterialCycle")}
               color="text-warning"
             />
           </div>
 
           {/* CO2 equivalents */}
           <div className="rounded-xl border bg-card p-6">
-            <h2 className="mb-4 font-semibold">CO₂-Einsparung in Kontext</h2>
+            <h2 className="mb-4 font-semibold">{tr("impactCo2Context")}</h2>
             <div className="grid gap-4 sm:grid-cols-3 text-sm">
               <div className="rounded-lg bg-success/5 p-4">
                 <div className="text-2xl font-bold text-success mb-1">
                   {treesEquivalent.toLocaleString()}
                 </div>
                 <p className="text-muted-foreground">
-                  Bäume, die ein Jahr lang CO₂ binden müssten, um dasselbe zu
-                  leisten
+                  {tr("impactTreesEquivalent", {
+                    count: treesEquivalent.toLocaleString(),
+                  })}
                 </p>
               </div>
               <div className="rounded-lg bg-success/5 p-4">
@@ -119,7 +121,9 @@ export default async function ImpactReportPage() {
                   {carKmEquivalent.toLocaleString()}
                 </div>
                 <p className="text-muted-foreground">
-                  Autokilometer vermieden (Ø 210g CO₂/km)
+                  {tr("impactCarKmEquivalent", {
+                    count: carKmEquivalent.toLocaleString(),
+                  })}
                 </p>
               </div>
               <div className="rounded-lg bg-success/5 p-4">
@@ -127,8 +131,7 @@ export default async function ImpactReportPage() {
                   {co2Tonnes} t
                 </div>
                 <p className="text-muted-foreground">
-                  CO₂-Äquivalente durch Wiederverwendung statt Neuproduktion
-                  vermieden
+                  {tr("impactCo2TonnesAvoided", { tonnes: co2Tonnes })}
                 </p>
               </div>
             </div>
@@ -137,7 +140,9 @@ export default async function ImpactReportPage() {
           {/* Category breakdown */}
           {metrics.co2ByCategory.length > 0 && (
             <div className="rounded-xl border bg-card p-6">
-              <h2 className="mb-4 font-semibold">CO₂ nach Kategorie</h2>
+              <h2 className="mb-4 font-semibold">
+                {tr("impactCo2ByCategory")}
+              </h2>
               <div className="space-y-3">
                 {metrics.co2ByCategory.map((cat) => {
                   const pct =
@@ -153,8 +158,7 @@ export default async function ImpactReportPage() {
                             {cat.category}
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            {cat.itemCount}{" "}
-                            {cat.itemCount === 1 ? "Artikel" : "Artikel"} ×{" "}
+                            {tr("impactItemCount", { count: cat.itemCount })} ×{" "}
                             {cat.co2KgFactor} kg
                           </span>
                         </div>
@@ -182,13 +186,12 @@ export default async function ImpactReportPage() {
 
           {/* CO2 factors reference */}
           <div className="rounded-xl border bg-card p-6">
-            <h2 className="mb-1 font-semibold">CO₂-Faktoren</h2>
+            <h2 className="mb-1 font-semibold">{tr("impactCo2Factors")}</h2>
             <p className="mb-4 text-sm text-muted-foreground">
-              Verwendete Schätzwerte für die CO₂-Berechnung (kg CO₂ pro Artikel,
-              vermieden durch Wiederverwendung statt Neuproduktion).
+              {tr("impactCo2FactorsDesc")}{" "}
               {co2FactorsKg && Object.keys(co2FactorsKg).length > 0
-                ? " Enthält firmeneigene Anpassungen."
-                : " Standardwerte basierend auf Lifecycle-Assessment-Studien."}
+                ? tr("impactCo2FactorsCustom")
+                : tr("impactCo2FactorsDefault")}
             </p>
             <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-4 text-xs">
               {Object.entries({ ...CO2_FACTORS_KG, ...co2FactorsKg }).map(

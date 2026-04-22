@@ -87,10 +87,13 @@ export function ContactAiFillButton({ onFill }: AiFillButtonProps) {
         </button>
         <button
           type="button"
-          onClick={() => { setIsOpen(false); setText(""); }}
+          onClick={() => {
+            setIsOpen(false);
+            setText("");
+          }}
           className="rounded-md px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground"
         >
-          {t("cancel") || "Abbrechen"}
+          {t("cancel")}
         </button>
         <span className="ml-auto text-xs text-muted-foreground">⌘+Enter</span>
       </div>
