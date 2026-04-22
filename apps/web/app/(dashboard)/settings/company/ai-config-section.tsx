@@ -2,6 +2,10 @@
 
 import { useTranslations } from "next-intl";
 import { FormInput, FormSelect } from "@/components/ui/form-field";
+import {
+  AI_PROVIDER_VALUES,
+  AI_PROVIDER_LABELS,
+} from "@kivvi/database/src/enums";
 
 interface AIConfigSectionProps {
   initialData: {
@@ -36,11 +40,11 @@ export function AIConfigSection({ initialData }: AIConfigSectionProps) {
             defaultValue={initialData.aiProvider}
           >
             <option value="">{t("company.aiProviderDefault")}</option>
-            <option value="anthropic">Anthropic (Claude)</option>
-            <option value="openrouter">OpenRouter</option>
-            <option value="groq">Groq</option>
-            <option value="xai">xAI (Grok)</option>
-            <option value="ollama">Ollama</option>
+            {AI_PROVIDER_VALUES.map((p) => (
+              <option key={p} value={p}>
+                {AI_PROVIDER_LABELS[p]}
+              </option>
+            ))}
           </FormSelect>
           <p className="mt-1 text-xs text-muted-foreground">
             {t("company.aiProviderHint")}

@@ -25,6 +25,7 @@ import {
   INTAKE_SOURCE_VALUES,
   ITEM_CONDITION_VALUES,
   ITEM_STATUS_VALUES,
+  type AiProviderValue,
 } from "./enums";
 
 // Re-export enums for consumer convenience (client-safe, no DB deps)
@@ -1644,13 +1645,7 @@ export interface CompanySettings {
   };
   logoBase64?: string; // data:image/<type>;base64,...
   logoMimeType?: string; // image/png, image/jpeg, image/svg+xml
-  aiProvider?:
-    | "anthropic"
-    | "openai"
-    | "openrouter"
-    | "ollama"
-    | "groq"
-    | "xai";
+  aiProvider?: AiProviderValue;
   aiModel?: string;
   aiApiKey?: string; // encrypted
   onboardingCompletedAt?: string; // ISO date, null = not done

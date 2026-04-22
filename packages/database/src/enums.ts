@@ -123,3 +123,21 @@ export type ItemStatusValue = (typeof ITEM_STATUS_VALUES)[number];
 
 export const ADDRESS_TYPE_VALUES = ["billing", "shipping", "other"] as const;
 export type AddressTypeValue = (typeof ADDRESS_TYPE_VALUES)[number];
+
+export const AI_PROVIDER_VALUES = [
+  "anthropic",
+  "groq",
+  "openrouter",
+  "ollama",
+  "xai",
+] as const;
+export type AiProviderValue = (typeof AI_PROVIDER_VALUES)[number];
+
+/** Display names for AI providers — brand names, no translation needed */
+export const AI_PROVIDER_LABELS: Record<AiProviderValue, string> = {
+  anthropic: "Anthropic (Claude)",
+  groq: "Groq",
+  openrouter: "OpenRouter",
+  ollama: "Ollama (Local)",
+  xai: "xAI (Grok)",
+};

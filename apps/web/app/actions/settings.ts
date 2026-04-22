@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { companies, users, numberSequences } from "@kivvi/database";
 import type { CompanySettings } from "@kivvi/database";
+import { AI_PROVIDER_VALUES } from "@kivvi/database/src/enums";
 import { eq, and } from "drizzle-orm";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
@@ -43,7 +44,7 @@ const updateCompanySchema = z.object({
     .optional()
     .nullable(),
   defaultDocumentFooter: z.string().max(1000).optional().nullable(),
-  aiProvider: z.string().max(20).optional().nullable(),
+  aiProvider: z.enum(AI_PROVIDER_VALUES).optional().nullable(),
   aiModel: z.string().max(100).optional().nullable(),
   aiApiKey: z.string().max(200).optional().nullable(),
 });
@@ -80,8 +81,7 @@ export const updateCompanyAction = createAction<unknown, unknown>({
       defaultDocumentFooter:
         parsed.data.defaultDocumentFooter ??
         existingSettings.defaultDocumentFooter,
-      aiProvider: (parsed.data.aiProvider ||
-        existingSettings.aiProvider) as CompanySettings["aiProvider"],
+      aiProvider: parsed.data.aiProvider || existingSettings.aiProvider,
       aiModel: parsed.data.aiModel || existingSettings.aiModel,
       // Only update API key if not the mask placeholder
       ...(parsed.data.aiApiKey && parsed.data.aiApiKey !== "********"
@@ -213,7 +213,11 @@ export const updateProfileAction = createAction<
       throw new Error(parsed.error.errors[0]?.message || "Invalid input");
     const [user] = await db
       .update(users)
-      .set({ name: parsed.data.name, email: parsed.data.email, updatedAt: new Date() })
+      .set({
+        name: parsed.data.name,
+        email: parsed.data.email,
+        updatedAt: new Date(),
+      })
       .where(eq(users.id, userId))
       .returning();
     return { id: user.id, name: user.name, email: user.email };

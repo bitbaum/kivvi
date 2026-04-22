@@ -11,13 +11,9 @@ import { GroqProvider } from "./groq";
 import { OllamaProvider } from "./ollama";
 import { OpenRouterProvider } from "./openrouter";
 import { XaiProvider } from "./xai";
+import { AI_PROVIDER_VALUES } from "@kivvi/database/src/enums";
 
-export type ProviderType =
-  | "anthropic"
-  | "groq"
-  | "openrouter"
-  | "ollama"
-  | "xai";
+export type ProviderType = (typeof AI_PROVIDER_VALUES)[number];
 
 export interface ProviderConfig {
   type: ProviderType;
