@@ -29,13 +29,6 @@ import type { PendingInvitation } from "@kivvi/core/src/domain/invitations";
 import type { MembershipRole } from "@kivvi/database";
 import { useSession } from "next-auth/react";
 
-const ROLE_LABELS: Record<MembershipRole, string> = {
-  owner: "Owner",
-  admin: "Admin",
-  member: "Member",
-  viewer: "Viewer",
-};
-
 const ROLE_COLORS: Record<MembershipRole, string> = {
   owner: "bg-warning/10 text-warning",
   admin: "bg-info/10 text-info",
@@ -43,18 +36,19 @@ const ROLE_COLORS: Record<MembershipRole, string> = {
   viewer: "bg-neutral/10 text-neutral",
 };
 
-function RoleBadge({ role }: { role: MembershipRole }) {
+function RoleBadge({ role, label }: { role: MembershipRole; label: string }) {
   return (
     <span
       className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${ROLE_COLORS[role]}`}
     >
-      {ROLE_LABELS[role]}
+      {label}
     </span>
   );
 }
 
 export default function TeamPage() {
   const t = useTranslations("team");
+  const tc = useTranslations("common");
   const { data: session } = useSession();
   const [members, setMembers] = useState<CompanyMember[]>([]);
   const [invites, setInvites] = useState<PendingInvitation[]>([]);
@@ -214,9 +208,9 @@ export default function TeamPage() {
                 }
                 className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               >
-                <option value="member">{ROLE_LABELS.member}</option>
-                <option value="admin">{ROLE_LABELS.admin}</option>
-                <option value="viewer">{ROLE_LABELS.viewer}</option>
+                <option value="member">{tc("roleLabel.member")}</option>
+                <option value="admin">{tc("roleLabel.admin")}</option>
+                <option value="viewer">{tc("roleLabel.viewer")}</option>
               </select>
             </div>
             <div className="flex gap-2">
@@ -262,7 +256,10 @@ export default function TeamPage() {
                   {member.email}
                 </p>
               </div>
-              <RoleBadge role={member.role} />
+              <RoleBadge
+                role={member.role}
+                label={tc(`roleLabel.${member.role}`)}
+              />
               {/* Role change + remove for owners/admins */}
               {session?.user?.id !== member.userId && (
                 <div className="flex items-center gap-2">
@@ -276,10 +273,10 @@ export default function TeamPage() {
                     }
                     className="rounded-lg border bg-background px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-ring"
                   >
-                    <option value="owner">{ROLE_LABELS.owner}</option>
-                    <option value="admin">{ROLE_LABELS.admin}</option>
-                    <option value="member">{ROLE_LABELS.member}</option>
-                    <option value="viewer">{ROLE_LABELS.viewer}</option>
+                    <option value="owner">{tc("roleLabel.owner")}</option>
+                    <option value="admin">{tc("roleLabel.admin")}</option>
+                    <option value="member">{tc("roleLabel.member")}</option>
+                    <option value="viewer">{tc("roleLabel.viewer")}</option>
                   </select>
                   <button
                     onClick={() =>
@@ -322,7 +319,10 @@ export default function TeamPage() {
                     })}
                   </p>
                 </div>
-                <RoleBadge role={invite.role} />
+                <RoleBadge
+                  role={invite.role}
+                  label={tc(`roleLabel.${invite.role}`)}
+                />
                 <button
                   onClick={() => handleRevokeInvite(invite.id)}
                   className="rounded-lg p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
