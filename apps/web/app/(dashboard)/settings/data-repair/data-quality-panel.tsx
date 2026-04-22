@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import type {
   DataQualityReport,
   DuplicateContactGroup,
@@ -34,28 +35,10 @@ import {
 } from "@/app/actions/data-quality";
 
 // ============================================================================
-// ISSUE LABELS
+// DOC TYPE LABELS (locale-neutral abbreviations; intake translated via i18n)
 // ============================================================================
 
-const CONTACT_ISSUE_LABELS: Record<ContactIssue["issue"], string> = {
-  no_email_with_invoices: "Hat Rechnungen, aber keine E-Mail",
-  no_address: "Keine Adresse hinterlegt",
-  inactive_with_open_docs: "Inaktiv, aber offene Dokumente",
-};
-
-const DOCUMENT_ISSUE_LABELS: Record<DocumentIssue["issue"], string> = {
-  zero_total: "Betrag ist CHF 0.00 (Migrationsfehler?)",
-  no_contact: "Kein Kontakt zugewiesen",
-  no_items: "Keine Positionen",
-  stale_draft: "Entwurf seit über 90 Tagen",
-};
-
-const PRODUCT_ISSUE_LABELS: Record<ProductIssue["issue"], string> = {
-  zero_price: "Preis ist CHF 0.00",
-  no_category: "Keine Produktgruppe",
-};
-
-const DOC_TYPE_LABELS: Record<string, string> = {
+const DOC_TYPE_ABBREVS: Record<string, string> = {
   invoice: "RE",
   purchase_invoice: "ER",
   quote: "AN",
@@ -65,7 +48,6 @@ const DOC_TYPE_LABELS: Record<string, string> = {
   credit_note: "GU",
   dunning: "MA",
   purchase_order: "BE",
-  intake: "Wareneingang",
 };
 
 // ============================================================================
@@ -85,6 +67,7 @@ function Section({
   children: React.ReactNode;
   defaultOpen?: boolean;
 }) {
+  const tDQ = useTranslations("dataQuality");
   const [open, setOpen] = useState(defaultOpen || count > 0);
   const hasIssues = count > 0;
 
@@ -111,7 +94,9 @@ function Section({
               : "bg-success/15 text-success"
           }`}
         >
-          {hasIssues ? `${count} Problem${count !== 1 ? "e" : ""}` : "OK"}
+          {hasIssues
+            ? tDQ("sectionBadgeIssues", { count })
+            : tDQ("sectionBadgeOk")}
         </span>
         {open ? (
           <ChevronDown className="h-4 w-4 text-muted-foreground" />
@@ -136,6 +121,7 @@ function DuplicateGroup({
   group: DuplicateContactGroup;
   onMerged: () => void;
 }) {
+  const tDQ = useTranslations("dataQuality");
   const [primaryId, setPrimaryId] = useState(
     group.contacts.reduce((a, b) => (b.documentCount > a.documentCount ? b : a))
       .id,
@@ -149,7 +135,7 @@ function DuplicateGroup({
     const result = await mergeContactsAction(primaryId, duplicateId);
     if (result.success) {
       toast.success(
-        `Kontakt zusammengeführt — ${result.data!.documentsReassigned} Dokument${result.data!.documentsReassigned !== 1 ? "e" : ""} übertragen`,
+        tDQ("mergeSuccess", { count: result.data!.documentsReassigned }),
       );
       onMerged();
     } else {
@@ -161,7 +147,7 @@ function DuplicateGroup({
   return (
     <div className="rounded-lg border bg-background p-4 space-y-3">
       <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-        Doppelter Name: &ldquo;{group.normalizedName}&rdquo;
+        {tDQ("duplicateName")} &ldquo;{group.normalizedName}&rdquo;
       </p>
       <div className="space-y-2">
         {group.contacts.map((c) => {
@@ -179,18 +165,19 @@ function DuplicateGroup({
                 checked={isPrimary}
                 onChange={() => setPrimaryId(c.id)}
                 className="h-4 w-4 accent-primary"
-                title="Als primären Kontakt behalten"
+                title={tDQ("keepPrimary")}
               />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{c.name}</p>
                 <p className="text-xs text-muted-foreground">
                   {c.contactNumber ?? "–"} · {c.type} ·{" "}
-                  {c.email ?? "keine E-Mail"} · {c.documentCount} Dok.
+                  {c.email ?? tDQ("noEmail")} ·{" "}
+                  {tDQ("docCount", { count: c.documentCount })}
                 </p>
               </div>
               {isPrimary ? (
                 <span className="shrink-0 rounded-full bg-primary/15 px-2 py-0.5 text-xs font-semibold text-primary">
-                  Behalten
+                  {tDQ("keep")}
                 </span>
               ) : (
                 <button
@@ -203,17 +190,14 @@ function DuplicateGroup({
                   ) : (
                     <Merge className="h-3 w-3" />
                   )}
-                  Zusammenführen
+                  {tDQ("merge")}
                 </button>
               )}
             </div>
           );
         })}
       </div>
-      <p className="text-xs text-muted-foreground">
-        Dokumente des zusammenzuführenden Kontakts werden auf den primären
-        Kontakt übertragen. Der Duplikat wird deaktiviert.
-      </p>
+      <p className="text-xs text-muted-foreground">{tDQ("mergeDescription")}</p>
     </div>
   );
 }
@@ -229,6 +213,7 @@ function DocumentIssuesTable({
   issues: DocumentIssue[];
   onFixed: () => void;
 }) {
+  const tDQ = useTranslations("dataQuality");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [processing, setProcessing] = useState(false);
 
@@ -252,7 +237,7 @@ function DocumentIssuesTable({
       .map((i) => i.id);
 
     if (toCancel.length === 0) {
-      toast.error("Keine Dokumente ausgewählt");
+      toast.error(tDQ("noneSelected"));
       return;
     }
 
@@ -263,9 +248,7 @@ function DocumentIssuesTable({
         : cancelStaleDraftsAction;
     const result = await fn(toCancel);
     if (result.success) {
-      toast.success(
-        `${result.data!.cancelled} Dokument${result.data!.cancelled !== 1 ? "e" : ""} storniert`,
-      );
+      toast.success(tDQ("cancelSuccess", { count: result.data!.cancelled }));
       setSelected(new Set());
       onFixed();
     } else {
@@ -297,7 +280,7 @@ function DocumentIssuesTable({
               onClick={() => toggleAll(items.map((i) => i.id))}
               className="text-xs text-primary hover:underline"
             >
-              Alle auswählen
+              {tDQ("selectAll")}
             </button>
           )}
         </div>
@@ -326,14 +309,16 @@ function DocumentIssuesTable({
                   )}
                   <td className="px-3 py-2">
                     <span className="font-mono text-xs text-muted-foreground">
-                      {DOC_TYPE_LABELS[doc.type] ?? doc.type}
+                      {doc.type === "intake"
+                        ? tDQ("docType_intake")
+                        : (DOC_TYPE_ABBREVS[doc.type] ?? doc.type)}
                     </span>{" "}
                     <span className="font-medium">{doc.number}</span>
                   </td>
                   <td className="px-3 py-2 text-muted-foreground">
                     {doc.contactName ?? (
                       <span className="italic text-destructive">
-                        kein Kontakt
+                        {tDQ("noContactLabel")}
                       </span>
                     )}
                   </td>
@@ -364,7 +349,7 @@ function DocumentIssuesTable({
             ) : (
               <Ban className="h-4 w-4" />
             )}
-            {selected.size} ausgewählte stornieren
+            {tDQ("cancelSelected", { count: selected.size })}
           </button>
         )}
       </div>
@@ -374,17 +359,17 @@ function DocumentIssuesTable({
   return (
     <div className="space-y-6">
       <IssueGroup
-        title="Betrag CHF 0.00"
+        title={tDQ("groupZeroTotal")}
         items={zeroTotal}
-        actionLabel="Stornieren"
+        actionLabel={tDQ("cancelLabel")}
         onAction={() => cancelSelected("zero_total")}
       />
-      <IssueGroup title="Kein Kontakt zugewiesen" items={noContact} />
-      <IssueGroup title="Keine Positionen" items={noItems} />
+      <IssueGroup title={tDQ("groupNoContact")} items={noContact} />
+      <IssueGroup title={tDQ("groupNoItems")} items={noItems} />
       <IssueGroup
-        title="Alte Entwürfe (>90 Tage)"
+        title={tDQ("groupStaleDrafts")}
         items={staleDrafts}
-        actionLabel="Stornieren"
+        actionLabel={tDQ("cancelLabel")}
         onAction={() => cancelSelected("stale_draft")}
       />
     </div>
@@ -402,13 +387,14 @@ function ContactIssuesTable({
   issues: ContactIssue[];
   onFixed: () => void;
 }) {
+  const tDQ = useTranslations("dataQuality");
   const [reactivating, setReactivating] = useState<string | null>(null);
 
   async function handleReactivate(id: string) {
     setReactivating(id);
     const result = await reactivateContactAction(id);
     if (result.success) {
-      toast.success("Kontakt reaktiviert");
+      toast.success(tDQ("contactReactivated"));
       onFixed();
     } else {
       toast.error(result.error);
@@ -429,7 +415,7 @@ function ContactIssuesTable({
                 </p>
               </td>
               <td className="px-4 py-3 text-sm text-warning">
-                {CONTACT_ISSUE_LABELS[c.issue]}
+                {tDQ(`contactIssue_${c.issue}` as Parameters<typeof tDQ>[0])}
               </td>
               <td className="px-4 py-3 text-right">
                 {c.issue === "inactive_with_open_docs" ? (
@@ -443,7 +429,7 @@ function ContactIssuesTable({
                     ) : (
                       <RefreshCw className="h-3 w-3" />
                     )}
-                    Reaktivieren
+                    {tDQ("reactivate")}
                   </button>
                 ) : (
                   <Link
@@ -451,7 +437,7 @@ function ContactIssuesTable({
                     className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
                   >
                     <ExternalLink className="h-3 w-3" />
-                    Bearbeiten
+                    {tDQ("editLink")}
                   </Link>
                 )}
               </td>
@@ -468,6 +454,8 @@ function ContactIssuesTable({
 // ============================================================================
 
 function ProductIssuesTable({ issues }: { issues: ProductIssue[] }) {
+  const tDQ = useTranslations("dataQuality");
+
   return (
     <div className="rounded-lg border overflow-hidden">
       <table className="w-full text-sm">
@@ -481,7 +469,7 @@ function ProductIssuesTable({ issues }: { issues: ProductIssue[] }) {
                 </p>
               </td>
               <td className="px-4 py-3 text-sm text-warning">
-                {PRODUCT_ISSUE_LABELS[p.issue]}
+                {tDQ(`productIssue_${p.issue}` as Parameters<typeof tDQ>[0])}
               </td>
               <td className="px-4 py-3 text-right">
                 <Link
@@ -489,7 +477,7 @@ function ProductIssuesTable({ issues }: { issues: ProductIssue[] }) {
                   className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
                 >
                   <ExternalLink className="h-3 w-3" />
-                  Bearbeiten
+                  {tDQ("editLink")}
                 </Link>
               </td>
             </tr>
@@ -509,6 +497,7 @@ export function DataQualityPanel({
 }: {
   initialReport: DataQualityReport | null;
 }) {
+  const tDQ = useTranslations("dataQuality");
   const [report, setReport] = useState<DataQualityReport | null>(initialReport);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -523,7 +512,7 @@ export function DataQualityPanel({
     return (
       <div className="rounded-xl border bg-card p-8 text-center text-muted-foreground">
         <AlertTriangle className="mx-auto mb-3 h-8 w-8" />
-        <p>Datenqualitätsprüfung konnte nicht gestartet werden.</p>
+        <p>{tDQ("loadError")}</p>
       </div>
     );
   }
@@ -542,8 +531,8 @@ export function DataQualityPanel({
           )}
           <span className="font-medium">
             {summary.total === 0
-              ? "Keine Probleme gefunden"
-              : `${summary.total} Problem${summary.total !== 1 ? "e" : ""} gefunden`}
+              ? tDQ("noProblemsFound")
+              : tDQ("problemsFound", { count: summary.total })}
           </span>
         </div>
         <button
@@ -556,20 +545,18 @@ export function DataQualityPanel({
           ) : (
             <RefreshCw className="h-4 w-4" />
           )}
-          Neu prüfen
+          {tDQ("checkAgain")}
         </button>
       </div>
 
       {/* Duplicates */}
       <Section
         icon={Users}
-        title="Doppelte Kontakte"
+        title={tDQ("duplicateContactsTitle")}
         count={summary.duplicateContactGroups}
       >
         {report.duplicateContactGroups.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Keine Duplikate gefunden.
-          </p>
+          <p className="text-sm text-muted-foreground">{tDQ("noDuplicates")}</p>
         ) : (
           <div className="space-y-4">
             {report.duplicateContactGroups.map((group) => (
@@ -586,12 +573,12 @@ export function DataQualityPanel({
       {/* Contact issues */}
       <Section
         icon={Users}
-        title="Kontaktdaten unvollständig"
+        title={tDQ("contactIssuesTitle")}
         count={summary.contactIssues}
       >
         {report.contactIssues.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            Alle Kontakte vollständig.
+            {tDQ("allContactsOk")}
           </p>
         ) : (
           <ContactIssuesTable issues={report.contactIssues} onFixed={refresh} />
@@ -601,12 +588,12 @@ export function DataQualityPanel({
       {/* Document issues */}
       <Section
         icon={FileText}
-        title="Dokumente mit Problemen"
+        title={tDQ("documentIssuesTitle")}
         count={summary.documentIssues}
       >
         {report.documentIssues.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            Alle Dokumente in Ordnung.
+            {tDQ("allDocumentsOk")}
           </p>
         ) : (
           <DocumentIssuesTable
@@ -619,12 +606,12 @@ export function DataQualityPanel({
       {/* Product issues */}
       <Section
         icon={Package}
-        title="Artikel mit Problemen"
+        title={tDQ("productIssuesTitle")}
         count={summary.productIssues}
       >
         {report.productIssues.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            Alle Artikel in Ordnung.
+            {tDQ("allProductsOk")}
           </p>
         ) : (
           <ProductIssuesTable issues={report.productIssues} />
