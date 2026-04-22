@@ -55,6 +55,17 @@ const ERASURE_METHOD_LABELS: Record<string, string> = {
   factory_reset: "Factory Reset",
 };
 
+interface ItemTimelineLabels {
+  intake: string;
+  from: string;
+  repair: string;
+  ready: string;
+  condition: string;
+  invested: string;
+  erasure: string;
+  sold: string;
+}
+
 interface ItemTimelineProps {
   createdAt: Date | string;
   donorName?: string | null;
@@ -66,6 +77,7 @@ interface ItemTimelineProps {
   conditionLabel: string;
   dataErasuredAt?: Date | string | null;
   dataErasureMethod?: string | null;
+  labels: ItemTimelineLabels;
 }
 
 export function ItemTimeline({
@@ -78,6 +90,7 @@ export function ItemTimeline({
   conditionLabel,
   dataErasuredAt,
   dataErasureMethod,
+  labels,
 }: ItemTimelineProps) {
   const repairs = repairLog ? parseRepairLog(repairLog) : [];
   const isSold = status === "sold" || !!soldPrice;
@@ -139,17 +152,17 @@ export function ItemTimeline({
           <div className="flex-1 pt-1">
             {event.type === "intake" && (
               <>
-                <p className="text-sm font-medium">Wareneingang</p>
+                <p className="text-sm font-medium">{labels.intake}</p>
                 <p className="text-xs text-muted-foreground">
                   {formatDate(event.date)}
-                  {event.donorName && ` · von ${event.donorName}`}
+                  {event.donorName && ` · ${labels.from} ${event.donorName}`}
                 </p>
               </>
             )}
             {event.type === "repair" && (
               <>
                 <p className="text-sm font-medium">
-                  Reparatur
+                  {labels.repair}
                   {event.cost && (
                     <span className="ml-2 font-normal text-muted-foreground">
                       CHF {parseFloat(event.cost).toFixed(2)}
@@ -168,17 +181,18 @@ export function ItemTimeline({
             {event.type === "ready" && (
               <>
                 <p className="text-sm font-medium text-success">
-                  Verkaufsbereit
+                  {labels.ready}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Zustand: {event.conditionLabel}
-                  {totalCost > 0 && ` · CHF ${totalCost.toFixed(2)} investiert`}
+                  {labels.condition}: {event.conditionLabel}
+                  {totalCost > 0 &&
+                    ` · CHF ${totalCost.toFixed(2)} ${labels.invested}`}
                 </p>
               </>
             )}
             {event.type === "erasure" && (
               <>
-                <p className="text-sm font-medium">Datenlöschung</p>
+                <p className="text-sm font-medium">{labels.erasure}</p>
                 <p className="text-xs text-muted-foreground">
                   {ERASURE_METHOD_LABELS[event.method ?? ""] ?? event.method}
                   {event.date && ` · ${formatDate(event.date)}`}
@@ -187,7 +201,9 @@ export function ItemTimeline({
             )}
             {event.type === "sold" && (
               <>
-                <p className="text-sm font-medium text-success">Verkauft</p>
+                <p className="text-sm font-medium text-success">
+                  {labels.sold}
+                </p>
                 {event.price && (
                   <p className="text-xs text-muted-foreground">
                     CHF {parseFloat(event.price).toFixed(2)}

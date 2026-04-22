@@ -437,6 +437,16 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
               conditionLabel={ti(getConditionLabelKey(item.condition))}
               dataErasuredAt={item.dataErasuredAt}
               dataErasureMethod={item.dataErasureMethod}
+              labels={{
+                intake: ti("timelineIntake"),
+                from: ti("timelineFrom"),
+                repair: ti("timelineRepair"),
+                ready: ti("timelineReady"),
+                condition: ti("timelineCondition"),
+                invested: ti("timelineInvested"),
+                erasure: ti("timelineErasure"),
+                sold: ti("timelineSold"),
+              }}
             />
           </CardSection>
 
