@@ -85,6 +85,8 @@
     "exported": "Export complete",
     "exportCsv": "Export CSV",
     "export": "Export",
+    "exportN": "Export {count} {entity}",
+    "nothingToExport": "No {entity} to export",
     "exporting": "Exporting...",
     "dashboard": "Dashboard",
     "aria": {

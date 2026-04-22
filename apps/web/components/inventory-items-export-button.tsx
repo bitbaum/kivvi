@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { CsvExportButton } from "@/components/csv-export-button";
 import { exportInventoryItemsCsvAction } from "@/app/actions/csv-export";
 
@@ -18,11 +19,12 @@ export function InventoryItemsExportButton({
   totalCount,
   filters,
 }: InventoryItemsExportButtonProps) {
+  const t = useTranslations("common");
   return (
     <CsvExportButton
       onExport={() => exportInventoryItemsCsvAction(filters)}
       totalCount={totalCount}
-      entityLabel="Artikel"
+      entityLabel={t("items")}
     />
   );
 }

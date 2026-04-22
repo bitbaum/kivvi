@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Download, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface CsvExportButtonProps {
   /** Server action that returns { csvData, filename, rowCount } */
@@ -12,7 +13,7 @@ interface CsvExportButtonProps {
   }>;
   /** Number of items that will be exported (shown in button) */
   totalCount: number;
-  /** Entity label for display, e.g. "Kontakte" */
+  /** Translated entity label for the tooltip, e.g. "Contacts" */
   entityLabel: string;
 }
 
@@ -21,6 +22,7 @@ export function CsvExportButton({
   totalCount,
   entityLabel,
 }: CsvExportButtonProps) {
+  const t = useTranslations("common");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -54,8 +56,8 @@ export function CsvExportButton({
         className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2 text-sm font-medium hover:bg-accent transition-colors disabled:opacity-50"
         title={
           totalCount > 0
-            ? `${totalCount} ${entityLabel} exportieren`
-            : `Keine ${entityLabel} zum Exportieren`
+            ? t("exportN", { count: totalCount, entity: entityLabel })
+            : t("nothingToExport", { entity: entityLabel })
         }
       >
         {isPending ? (

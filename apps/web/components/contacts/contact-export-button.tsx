@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { CsvExportButton } from "@/components/csv-export-button";
 import { exportContactsCsvAction } from "@/app/actions/csv-export";
 
@@ -12,11 +13,12 @@ export function ContactExportButton({
   totalCount,
   filters,
 }: ContactExportButtonProps) {
+  const t = useTranslations("common");
   return (
     <CsvExportButton
       onExport={() => exportContactsCsvAction(filters)}
       totalCount={totalCount}
-      entityLabel="Kontakte"
+      entityLabel={t("contacts")}
     />
   );
 }
