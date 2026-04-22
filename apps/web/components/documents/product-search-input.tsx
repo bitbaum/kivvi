@@ -200,7 +200,9 @@ export function ProductSearchInput({
                               : "text-muted-foreground";
                         return (
                           <span className={color}>
-                            {stock <= 0 ? "Out of stock" : `${stock} in stock`}
+                            {stock <= 0
+                              ? t("outOfStock")
+                              : t("inStock", { count: stock })}
                           </span>
                         );
                       })()}

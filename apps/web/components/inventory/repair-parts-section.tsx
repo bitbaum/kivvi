@@ -10,6 +10,7 @@ import {
   removeRepairPartAction,
 } from "@/app/actions/inventory-items";
 import { formatCurrency } from "@/lib/utils";
+import { ProductSearchInput } from "@/components/documents/product-search-input";
 import type { RepairPartWithProduct } from "@kivvi/core/src/domain/inventory-items";
 
 interface RepairPartsSectionProps {
@@ -30,6 +31,7 @@ export function RepairPartsSection({
 
   // Add form state
   const [description, setDescription] = useState("");
+  const [productId, setProductId] = useState<string | null>(null);
   const [quantity, setQuantity] = useState("1");
   const [unitCost, setUnitCost] = useState("");
   const [notes, setNotes] = useState("");
@@ -44,6 +46,7 @@ export function RepairPartsSection({
 
   function resetForm() {
     setDescription("");
+    setProductId(null);
     setQuantity("1");
     setUnitCost("");
     setNotes("");
@@ -57,6 +60,7 @@ export function RepairPartsSection({
     startTransition(async () => {
       const result = await addRepairPartAction(itemId, {
         description,
+        productId: productId ?? undefined,
         quantity,
         unitCost,
         notes: notes || undefined,
@@ -126,14 +130,21 @@ export function RepairPartsSection({
                 {t("repairPartDescription")}
                 <span className="text-destructive ml-0.5">*</span>
               </label>
-              <input
-                type="text"
+              <ProductSearchInput
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={(val) => {
+                  setDescription(val);
+                  // Clear product link if user edits freely
+                  if (productId) setProductId(null);
+                }}
+                onProductSelect={(product) => {
+                  setDescription(product.name);
+                  setProductId(product.productId ?? product.id ?? null);
+                  if (product.unitPrice && product.unitPrice !== "0") {
+                    setUnitCost(parseFloat(product.unitPrice).toFixed(2));
+                  }
+                }}
                 placeholder={t("repairPartDescriptionPlaceholder")}
-                required
-                maxLength={200}
-                className="w-full rounded-md border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
             <div>
