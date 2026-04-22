@@ -1507,7 +1507,35 @@
     "dataTools": "Data Tools",
     "repairImport": {
       "title": "Repair Import",
-      "description": "Re-import line items from Kivitendo CSV exports"
+      "description": "Re-import line items from Kivitendo CSV exports",
+      "productImport": {
+        "title": "Import Products",
+        "description": "Load Kivitendo product export (CSV) — creates product master data, groups and manufacturers, updates number sequence.",
+        "csvEmpty": "CSV is empty or only has a header row.",
+        "csvMissingColumns": "Missing columns: {columns}. Is this a Kivitendo product export?",
+        "csvParseError": "CSV error: {message}",
+        "importSuccess": "{inserted} {inserted, plural, one {product} other {products}} imported, {skipped} skipped.",
+        "importFailed": "Import failed.",
+        "statsTotal": "Total rows",
+        "statsWithName": "With name",
+        "statsWithPrice": "With price",
+        "colArticleNr": "Article No.",
+        "colName": "Name",
+        "colType": "Type",
+        "colPrice": "Price",
+        "colGroup": "Product group",
+        "noName": "no name",
+        "andMore": "… and {count} more",
+        "importing": "Importing…",
+        "importN": "Import {count} {count, plural, one {product} other {products}}",
+        "cancel": "Cancel",
+        "importDone": "Import complete",
+        "importedCount": "Imported",
+        "skippedCount": "Skipped",
+        "startAnother": "Start another import",
+        "uploadLabel": "Upload CSV file",
+        "uploadHint": "Kivitendo product export — or drag here"
+      }
     },
     "dataPrivacy": {
       "title": "Data & Privacy",
@@ -1639,7 +1667,11 @@
       "noIssuesFound": "No Issues Found",
       "allGood": "All data is correct. There is nothing to repair.",
       "errorsOccurred": "Errors Occurred",
-      "repairFailed": "Repair Failed"
+      "repairFailed": "Repair Failed",
+      "qualityTitle": "Data Quality",
+      "qualityDesc": "Duplicates, missing fields, and inconsistent values — after migrations and ongoing.",
+      "migrationTitle": "Migration Corrections",
+      "migrationDesc": "Number sequences, historical invoice statuses, and missing journal entries."
     },
     "apiTokens": {
       "title": "API Keys",

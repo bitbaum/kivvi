@@ -36,9 +36,11 @@ export default async function DataRepairPage() {
       {/* Data quality — duplicates, missing fields, bad values */}
       <section className="space-y-4">
         <div>
-          <h2 className="text-lg font-semibold">Datenqualität</h2>
+          <h2 className="text-lg font-semibold">
+            {t("dataRepair.qualityTitle")}
+          </h2>
           <p className="text-sm text-muted-foreground">
-            Duplikate, fehlende Felder und inkonsistente Werte — nach Migrationen und laufend.
+            {t("dataRepair.qualityDesc")}
           </p>
         </div>
         <DataQualityPanel
@@ -49,9 +51,11 @@ export default async function DataRepairPage() {
       {/* Migration repair — sequences, statuses, journal entries */}
       <section className="space-y-4">
         <div>
-          <h2 className="text-lg font-semibold">Migrations-Korrekturen</h2>
+          <h2 className="text-lg font-semibold">
+            {t("dataRepair.migrationTitle")}
+          </h2>
           <p className="text-sm text-muted-foreground">
-            Nummernkreise, historische Rechnungsstatus und fehlende Buchungssätze.
+            {t("dataRepair.migrationDesc")}
           </p>
         </div>
         <DataRepairPanel

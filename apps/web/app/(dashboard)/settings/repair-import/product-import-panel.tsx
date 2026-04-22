@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import { Loader2, Upload, CheckCircle2, PackagePlus } from "lucide-react";
 import { toast } from "sonner";
 import Papa from "papaparse";
+import { useTranslations } from "next-intl";
 import {
   cleanHeaders,
   applyMapping,
@@ -21,6 +22,7 @@ interface ParsedPreview {
 }
 
 export function ProductImportPanel() {
+  const t = useTranslations("settings.repairImport.productImport");
   const [preview, setPreview] = useState<ParsedPreview | null>(null);
   const [isImporting, setIsImporting] = useState(false);
   const [result, setResult] = useState<{
@@ -28,58 +30,61 @@ export function ProductImportPanel() {
     skipped: number;
   } | null>(null);
 
-  const handleFile = useCallback((file: File) => {
-    Papa.parse(file, {
-      header: false,
-      skipEmptyLines: true,
-      encoding: "UTF-8",
-      complete: (results) => {
-        const rawRows = results.data as string[][];
-        if (rawRows.length < 2) {
-          toast.error("CSV ist leer oder hat nur eine Kopfzeile.");
-          return;
-        }
+  const handleFile = useCallback(
+    (file: File) => {
+      Papa.parse(file, {
+        header: false,
+        skipEmptyLines: true,
+        encoding: "UTF-8",
+        complete: (results) => {
+          const rawRows = results.data as string[][];
+          if (rawRows.length < 2) {
+            toast.error(t("csvEmpty"));
+            return;
+          }
 
-        const headers = cleanHeaders(rawRows[0].map((h) => h || ""));
-        const missing = KIVITENDO_PRODUCT_PROFILE.signatureColumns.filter(
-          (col) => !headers.includes(col),
-        );
-        if (missing.length > 0) {
-          toast.error(
-            `Spalten fehlen: ${missing.join(", ")}. Ist das ein Kivitendo-Produktexport?`,
+          const headers = cleanHeaders(rawRows[0].map((h) => h || ""));
+          const missing = KIVITENDO_PRODUCT_PROFILE.signatureColumns.filter(
+            (col) => !headers.includes(col),
           );
-          return;
-        }
+          if (missing.length > 0) {
+            toast.error(
+              t("csvMissingColumns", { columns: missing.join(", ") }),
+            );
+            return;
+          }
 
-        const dataRows = rawRows.slice(1).map((row) => {
-          const record: Record<string, string> = {};
-          headers.forEach((h, i) => {
-            record[h] = row[i] || "";
+          const dataRows = rawRows.slice(1).map((row) => {
+            const record: Record<string, string> = {};
+            headers.forEach((h, i) => {
+              record[h] = row[i] || "";
+            });
+            return record;
           });
-          return record;
-        });
 
-        const mapped = dataRows.map((row) =>
-          applyMapping(row, KIVITENDO_PRODUCT_PROFILE),
-        );
+          const mapped = dataRows.map((row) =>
+            applyMapping(row, KIVITENDO_PRODUCT_PROFILE),
+          );
 
-        setPreview({
-          fileName: file.name,
-          totalRows: mapped.length,
-          rowsWithName: mapped.filter((r) => r.name).length,
-          rowsWithPrice: mapped.filter(
-            (r) => r.unitPrice && r.unitPrice !== "0",
-          ).length,
-          sample: mapped.slice(0, 5),
-          rows: mapped,
-        });
-        setResult(null);
-      },
-      error: (err) => {
-        toast.error(`CSV-Fehler: ${err.message}`);
-      },
-    });
-  }, []);
+          setPreview({
+            fileName: file.name,
+            totalRows: mapped.length,
+            rowsWithName: mapped.filter((r) => r.name).length,
+            rowsWithPrice: mapped.filter(
+              (r) => r.unitPrice && r.unitPrice !== "0",
+            ).length,
+            sample: mapped.slice(0, 5),
+            rows: mapped,
+          });
+          setResult(null);
+        },
+        error: (err) => {
+          toast.error(t("csvParseError", { message: err.message }));
+        },
+      });
+    },
+    [t],
+  );
 
   const handleImport = async () => {
     if (!preview) return;
@@ -90,10 +95,13 @@ export function ProductImportPanel() {
     if (res.success && res.data) {
       setResult(res.data);
       toast.success(
-        `${res.data.inserted} Artikel importiert, ${res.data.skipped} übersprungen.`,
+        t("importSuccess", {
+          inserted: res.data.inserted,
+          skipped: res.data.skipped,
+        }),
       );
     } else {
-      toast.error(res.error || "Import fehlgeschlagen.");
+      toast.error(res.error || t("importFailed"));
     }
 
     setIsImporting(false);
@@ -104,15 +112,12 @@ export function ProductImportPanel() {
       <div className="flex items-center gap-3">
         <PackagePlus className="h-5 w-5 text-muted-foreground" />
         <div>
-          <h3 className="font-semibold">Produkte importieren</h3>
-          <p className="text-sm text-muted-foreground">
-            Kivitendo-Produktexport (CSV) laden — Artikelstamm, Warengruppen und
-            Hersteller werden angelegt, Nummernkreis wird angepasst.
-          </p>
+          <h3 className="font-semibold">{t("title")}</h3>
+          <p className="text-sm text-muted-foreground">{t("description")}</p>
         </div>
       </div>
 
-      {!preview && !result && <FileDropZone onFile={handleFile} />}
+      {!preview && !result && <FileDropZone onFile={handleFile} t={t} />}
 
       {preview && !result && (
         <div className="space-y-4">
@@ -122,9 +127,9 @@ export function ProductImportPanel() {
           </div>
 
           <div className="grid grid-cols-3 gap-3 text-sm">
-            <Stat label="Zeilen gesamt" value={preview.totalRows} />
-            <Stat label="Mit Name" value={preview.rowsWithName} />
-            <Stat label="Mit Preis" value={preview.rowsWithPrice} />
+            <Stat label={t("statsTotal")} value={preview.totalRows} />
+            <Stat label={t("statsWithName")} value={preview.rowsWithName} />
+            <Stat label={t("statsWithPrice")} value={preview.rowsWithPrice} />
           </div>
 
           {/* Sample table */}
@@ -133,13 +138,19 @@ export function ProductImportPanel() {
               <thead>
                 <tr className="border-b bg-muted/50">
                   <th className="px-3 py-2 text-left font-medium">
-                    Artikelnr.
+                    {t("colArticleNr")}
                   </th>
-                  <th className="px-3 py-2 text-left font-medium">Name</th>
-                  <th className="px-3 py-2 text-left font-medium">Typ</th>
-                  <th className="px-3 py-2 text-right font-medium">Preis</th>
                   <th className="px-3 py-2 text-left font-medium">
-                    Warengruppe
+                    {t("colName")}
+                  </th>
+                  <th className="px-3 py-2 text-left font-medium">
+                    {t("colType")}
+                  </th>
+                  <th className="px-3 py-2 text-right font-medium">
+                    {t("colPrice")}
+                  </th>
+                  <th className="px-3 py-2 text-left font-medium">
+                    {t("colGroup")}
                   </th>
                 </tr>
               </thead>
@@ -151,7 +162,7 @@ export function ProductImportPanel() {
                     </td>
                     <td className="px-3 py-1.5 max-w-[200px] truncate">
                       {row.name || (
-                        <span className="text-destructive">kein Name</span>
+                        <span className="text-destructive">{t("noName")}</span>
                       )}
                     </td>
                     <td className="px-3 py-1.5">{row.type || "product"}</td>
@@ -165,7 +176,7 @@ export function ProductImportPanel() {
             </table>
             {preview.totalRows > 5 && (
               <p className="px-3 py-2 text-muted-foreground">
-                … und {preview.totalRows - 5} weitere
+                {t("andMore", { count: preview.totalRows - 5 })}
               </p>
             )}
           </div>
@@ -178,15 +189,15 @@ export function ProductImportPanel() {
             >
               {isImporting && <Loader2 className="h-4 w-4 animate-spin" />}
               {isImporting
-                ? "Importiere…"
-                : `${preview.rowsWithName} Artikel importieren`}
+                ? t("importing")
+                : t("importN", { count: preview.rowsWithName })}
             </button>
             <button
               onClick={() => setPreview(null)}
               disabled={isImporting}
               className="rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted/50 disabled:opacity-50"
             >
-              Abbrechen
+              {t("cancel")}
             </button>
           </div>
         </div>
@@ -196,11 +207,11 @@ export function ProductImportPanel() {
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-success" />
-            <span className="font-medium">Import abgeschlossen</span>
+            <span className="font-medium">{t("importDone")}</span>
           </div>
           <div className="grid grid-cols-2 gap-3 text-sm">
-            <Stat label="Importiert" value={result.inserted} />
-            <Stat label="Übersprungen" value={result.skipped} />
+            <Stat label={t("importedCount")} value={result.inserted} />
+            <Stat label={t("skippedCount")} value={result.skipped} />
           </div>
           <button
             onClick={() => {
@@ -209,7 +220,7 @@ export function ProductImportPanel() {
             }}
             className="rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted/50"
           >
-            Weiteren Import starten
+            {t("startAnother")}
           </button>
         </div>
       )}
@@ -228,7 +239,13 @@ function Stat({ label, value }: { label: string; value: number }) {
   );
 }
 
-function FileDropZone({ onFile }: { onFile: (file: File) => void }) {
+function FileDropZone({
+  onFile,
+  t,
+}: {
+  onFile: (file: File) => void;
+  t: ReturnType<typeof useTranslations<"settings.repairImport.productImport">>;
+}) {
   const [isDragging, setIsDragging] = useState(false);
 
   return (
@@ -251,9 +268,9 @@ function FileDropZone({ onFile }: { onFile: (file: File) => void }) {
       }`}
     >
       <Upload className="mb-2 h-7 w-7 text-muted-foreground" />
-      <span className="text-sm font-medium">CSV-Datei hochladen</span>
+      <span className="text-sm font-medium">{t("uploadLabel")}</span>
       <span className="mt-1 text-xs text-muted-foreground">
-        Kivitendo-Produktexport — oder hierher ziehen
+        {t("uploadHint")}
       </span>
       <input
         type="file"
