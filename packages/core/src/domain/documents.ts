@@ -32,7 +32,7 @@ import {
   INTAKE_SOURCE_VALUES,
 } from "@kivvi/database/src/enums";
 import type { PaginatedResult } from "./contacts";
-import { rappenRound } from "../utils/swiss-currency";
+import { calcItemNet, calcDocumentTotals } from "../utils/document-totals";
 import { getNextNumber } from "./number-sequences";
 import {
   createInvoiceSentJournalEntry,
@@ -152,34 +152,19 @@ export interface CalculatedTotals {
 
 /**
  * Calculate line item totals, subtotal, VAT, and grand total.
- * Uses decimal.js for exact arithmetic. Rounds per line item (Swiss standard).
+ * Delegates to the shared document-totals utility (zero DB deps, client-safe).
+ * Returns strings for DB persistence.
  */
 export function calculateTotals(items: DocumentItemInput[]): CalculatedTotals {
-  let subtotal = new Decimal(0);
-  let vatAmount = new Decimal(0);
-  const itemTotals: string[] = [];
+  const normalized = items.map((item) => ({
+    quantity: item.quantity || "0",
+    unitPrice: item.unitPrice || "0",
+    discount: item.discount || "0",
+    vatRate: item.vatRate || DEFAULT_VAT_RATE,
+  }));
 
-  for (const item of items) {
-    const qty = new Decimal(item.quantity || "0");
-    const price = new Decimal(item.unitPrice || "0");
-    const discountPct = new Decimal(item.discount || "0");
-    const vatPct = new Decimal(item.vatRate || DEFAULT_VAT_RATE);
-
-    const lineGross = qty.times(price);
-    const discountAmount = lineGross.times(discountPct).div(100);
-    // Round line net to 2dp
-    const lineNet = lineGross.minus(discountAmount).toDecimalPlaces(2);
-    // Round VAT per line to 2dp (Swiss standard)
-    const lineVat = lineNet.times(vatPct).div(100).toDecimalPlaces(2);
-
-    subtotal = subtotal.plus(lineNet);
-    vatAmount = vatAmount.plus(lineVat);
-    itemTotals.push(lineNet.toFixed(2));
-  }
-
-  // Rappen-round the final total for CHF
-  const rawTotal = subtotal.plus(vatAmount);
-  const total = rappenRound(rawTotal);
+  const { subtotal, vatAmount, total } = calcDocumentTotals(normalized);
+  const itemTotals = normalized.map((item) => calcItemNet(item).toFixed(2));
 
   return {
     subtotal: subtotal.toFixed(2),
