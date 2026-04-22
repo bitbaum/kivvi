@@ -168,6 +168,17 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
             icon={<Package className="h-4 w-4" />}
           >
             <div className="grid gap-4 sm:grid-cols-2">
+              {item.category && (
+                <InfoRow
+                  icon={<ClipboardList className="h-4 w-4" />}
+                  label={ti("category")}
+                  value={tck(
+                    getChecklistTemplate(item.category).labelKey as Parameters<
+                      typeof tck
+                    >[0],
+                  )}
+                />
+              )}
               {item.productName && (
                 <InfoRow
                   icon={<Package className="h-4 w-4" />}
@@ -193,7 +204,7 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
               {item.warehouseName && (
                 <InfoRow
                   icon={<Warehouse className="h-4 w-4" />}
-                  label={ti("locationShelf")}
+                  label={ti("warehouseLabel")}
                   value={item.warehouseName}
                 />
               )}

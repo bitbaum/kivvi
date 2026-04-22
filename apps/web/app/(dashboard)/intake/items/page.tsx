@@ -8,6 +8,7 @@ import { SelectableItemList } from "@/components/inventory/selectable-item-list"
 import {
   listInventoryItems,
   getInventoryItemCounts,
+  getInventoryItemConditionCounts,
   getInventoryDashboard,
 } from "@kivvi/core";
 import { PageHeader } from "@/components/page-header";
@@ -15,8 +16,14 @@ import { SearchInput } from "@/components/search-input";
 import { Pagination } from "@/components/pagination";
 import { EmptyState } from "@/components/empty-state";
 import { cn, formatCurrency } from "@/lib/utils";
-import { ITEM_STATUS_VALUES } from "@kivvi/database/src/enums";
-import { getStatusLabelKey } from "@/lib/config/inventory-items";
+import {
+  ITEM_STATUS_VALUES,
+  ITEM_CONDITION_VALUES,
+} from "@kivvi/database/src/enums";
+import {
+  getStatusLabelKey,
+  getConditionLabelKey,
+} from "@/lib/config/inventory-items";
 import {
   getChecklistTemplate,
   type ChecklistData,
@@ -45,7 +52,7 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
 
   const assignedToUserId = assignedTo === "me" ? session.user.id : undefined;
 
-  const [result, counts, dashboard] = await Promise.all([
+  const [result, counts, conditionCounts, dashboard] = await Promise.all([
     listInventoryItems(db, session.user.companyId, {
       status,
       condition,
@@ -55,6 +62,7 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
       pageSize: 25,
     }),
     getInventoryItemCounts(db, session.user.companyId),
+    getInventoryItemConditionCounts(db, session.user.companyId, status),
     getInventoryDashboard(db, session.user.companyId, { periodDays: 30 }),
   ]);
 
@@ -221,6 +229,39 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
             {ti("assignedToMe")}
           </Link>
         </div>
+
+        {/* Condition filter pills — only shown when at least one condition has items */}
+        {ITEM_CONDITION_VALUES.some((c) => conditionCounts[c]) && (
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href={buildHref({ condition: undefined, page: undefined })}
+              className={cn(
+                "rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
+                !condition
+                  ? "bg-secondary text-secondary-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80",
+              )}
+            >
+              {t("allConditions")}
+            </Link>
+            {ITEM_CONDITION_VALUES.filter((c) => conditionCounts[c]).map(
+              (c) => (
+                <Link
+                  key={c}
+                  href={buildHref({ condition: c, page: undefined })}
+                  className={cn(
+                    "rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
+                    condition === c
+                      ? "bg-secondary text-secondary-foreground"
+                      : "bg-muted text-muted-foreground hover:bg-muted/80",
+                  )}
+                >
+                  {ti(getConditionLabelKey(c))} ({conditionCounts[c]})
+                </Link>
+              ),
+            )}
+          </div>
+        )}
       </div>
 
       {/* Items table */}

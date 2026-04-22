@@ -757,3 +757,25 @@ export async function getInventoryItemCounts(
 
   return Object.fromEntries(result.map((r) => [r.status, r.count]));
 }
+
+export async function getInventoryItemConditionCounts(
+  db: Database,
+  companyId: string,
+  statusFilter?: string,
+): Promise<Record<string, number>> {
+  const conditions = [eq(inventoryItems.companyId, companyId)];
+  if (statusFilter) {
+    conditions.push(eq(inventoryItems.status, statusFilter as ItemStatusValue));
+  }
+
+  const result = await db
+    .select({
+      condition: inventoryItems.condition,
+      count: count(),
+    })
+    .from(inventoryItems)
+    .where(and(...conditions))
+    .groupBy(inventoryItems.condition);
+
+  return Object.fromEntries(result.map((r) => [r.condition, r.count]));
+}
