@@ -15,6 +15,7 @@ import type {
   StockMovement,
   SerialNumber,
 } from "@kivvi/database";
+import { STOCK_MOVEMENT_TYPE_VALUES } from "@kivvi/database/src/enums";
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -29,7 +30,7 @@ export const createWarehouseSchema = z.object({
 export const createStockMovementSchema = z.object({
   productId: z.string().uuid(),
   warehouseId: z.string().uuid(),
-  type: z.enum(["purchase", "sale", "adjustment", "transfer", "return"]),
+  type: z.enum(STOCK_MOVEMENT_TYPE_VALUES),
   quantity: z.string().min(1, "Quantity is required"),
   reference: z.string().optional().nullable(),
   documentId: z.string().uuid().optional().nullable(),

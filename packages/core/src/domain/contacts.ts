@@ -3,6 +3,7 @@ import { eq, and, or, ilike, sql, desc, asc } from "drizzle-orm";
 import { contacts, contactAddresses, documents } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
 import type { Contact, ContactAddress } from "@kivvi/database";
+import { CONTACT_TYPE_VALUES } from "@kivvi/database/src/enums";
 import { getNextNumber } from "./number-sequences";
 
 // ============================================================================
@@ -11,7 +12,7 @@ import { getNextNumber } from "./number-sequences";
 
 // Base fields shared between create and update schemas
 const contactBaseSchema = z.object({
-  type: z.enum(["customer", "vendor", "both"]),
+  type: z.enum(CONTACT_TYPE_VALUES),
   /** Display name. If omitted on create, auto-derived from firstName + lastName. */
   name: z.string().min(1).max(200).optional().nullable(),
   firstName: z.string().max(100).optional().nullable(),

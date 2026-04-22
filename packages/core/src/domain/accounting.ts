@@ -17,6 +17,7 @@ import type {
   FiscalYear,
   FiscalPeriod,
 } from "@kivvi/database";
+import { ACCOUNT_TYPE_VALUES } from "@kivvi/database/src/enums";
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -25,7 +26,7 @@ import type {
 export const createAccountSchema = z.object({
   code: z.string().min(1, "Code is required").max(10),
   name: z.string().min(1, "Name is required").max(200),
-  type: z.enum(["asset", "liability", "equity", "revenue", "expense"]),
+  type: z.enum(ACCOUNT_TYPE_VALUES),
   parentId: z.string().uuid().optional().nullable(),
 });
 
@@ -620,7 +621,9 @@ export async function getTrialBalance(
       ...r,
       totalDebit: new Decimal(r.totalDebit || "0").toNumber(),
       totalCredit: new Decimal(r.totalCredit || "0").toNumber(),
-      balance: new Decimal(r.totalDebit || "0").minus(r.totalCredit || "0").toNumber(),
+      balance: new Decimal(r.totalDebit || "0")
+        .minus(r.totalCredit || "0")
+        .toNumber(),
     }))
     .filter((r) => r.totalDebit !== 0 || r.totalCredit !== 0);
 }

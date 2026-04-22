@@ -12,6 +12,7 @@ import type {
   RecurringInvoiceConfig,
   RecurringPeriodicity,
 } from "@kivvi/database";
+import { RECURRING_PERIODICITY_VALUES } from "@kivvi/database/src/enums";
 import { convertDocument } from "./documents";
 import { buildInvoiceEmailSubject } from "./email";
 import { logger } from "../logger";
@@ -22,7 +23,7 @@ import { logger } from "../logger";
 
 export const createRecurringConfigSchema = z.object({
   orderId: z.string().uuid(),
-  periodicity: z.enum(["monthly", "quarterly", "annual"]),
+  periodicity: z.enum(RECURRING_PERIODICITY_VALUES),
   startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}/, "Invalid date"),
   endDate: z
     .string()

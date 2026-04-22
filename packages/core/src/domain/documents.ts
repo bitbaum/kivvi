@@ -27,6 +27,10 @@ import type {
   DocumentStatus,
   PaymentMethodValue,
 } from "@kivvi/database";
+import {
+  DOCUMENT_TYPE_VALUES,
+  INTAKE_SOURCE_VALUES,
+} from "@kivvi/database/src/enums";
 import type { PaginatedResult } from "./contacts";
 import { rappenRound } from "../utils/swiss-currency";
 import { getNextNumber } from "./number-sequences";
@@ -77,18 +81,7 @@ const documentItemSchema = z.object({
 });
 
 export const createDocumentSchema = z.object({
-  type: z.enum([
-    "quote",
-    "order",
-    "order_confirmation",
-    "delivery_note",
-    "invoice",
-    "credit_note",
-    "purchase_order",
-    "purchase_invoice",
-    "dunning",
-    "intake",
-  ]),
+  type: z.enum(DOCUMENT_TYPE_VALUES),
   contactId: z.string().uuid().optional().nullable(),
   projectId: z.string().uuid().optional().nullable(),
   issueDate: z.string().optional(), // ISO date string
@@ -98,18 +91,7 @@ export const createDocumentSchema = z.object({
   notes: z.string().max(5000).optional().nullable(),
   internalNotes: z.string().max(5000).optional().nullable(),
   // Intake-specific fields
-  intakeSource: z
-    .enum([
-      "donation",
-      "purchase",
-      "trade_in",
-      "consignment",
-      "estate_clearance",
-      "return",
-      "other",
-    ])
-    .optional()
-    .nullable(),
+  intakeSource: z.enum(INTAKE_SOURCE_VALUES).optional().nullable(),
   donorId: z.string().uuid().optional().nullable(),
   items: z
     .array(documentItemSchema)
