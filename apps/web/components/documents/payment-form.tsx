@@ -7,7 +7,7 @@ import { CreditCard, AlertTriangle, Loader2 } from "lucide-react";
 import { recordPaymentAction } from "@/app/actions/documents";
 import { FormInput, FormSelect } from "@/components/ui/form-field";
 import { Button } from "@/components/ui/button";
-import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
+import { formatCurrency } from "@/lib/utils";
 import type { PaymentMethodValue } from "@kivvi/database/src/enums";
 
 export function PaymentForm({
@@ -85,10 +85,7 @@ export function PaymentForm({
       <p className="text-xs text-muted-foreground">
         {t("outstanding")}:{" "}
         <span className="font-medium text-foreground">
-          {currency}{" "}
-          {parseFloat(outstanding).toLocaleString(DEFAULT_LOCALE, {
-            minimumFractionDigits: 2,
-          })}
+          {formatCurrency(outstanding)}
         </span>
       </p>
       <div>
@@ -165,9 +162,7 @@ export function PaymentForm({
           className="mt-1"
         />
       </div>
-      {error && (
-        <p className="text-sm text-destructive">{error}</p>
-      )}
+      {error && <p className="text-sm text-destructive">{error}</p>}
       <div className="flex gap-2">
         <Button
           type="submit"

@@ -5,6 +5,7 @@ import { Loader2, Upload, CheckCircle2, PackagePlus } from "lucide-react";
 import { toast } from "sonner";
 import Papa from "papaparse";
 import { useTranslations } from "next-intl";
+import { formatCurrency } from "@/lib/utils";
 import {
   cleanHeaders,
   applyMapping,
@@ -167,7 +168,7 @@ export function ProductImportPanel() {
                     </td>
                     <td className="px-3 py-1.5">{row.type || "product"}</td>
                     <td className="px-3 py-1.5 text-right">
-                      {row.unitPrice ? `CHF ${row.unitPrice}` : "—"}
+                      {row.unitPrice ? formatCurrency(row.unitPrice) : "—"}
                     </td>
                     <td className="px-3 py-1.5">{row.productGroup || "—"}</td>
                   </tr>

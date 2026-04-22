@@ -325,7 +325,9 @@ export function EditDocumentForm({
                             {tc("total")}
                           </label>
                           <p className="mt-1 rounded-lg border bg-muted/50 px-3 py-2 text-sm font-medium">
-                            {calculateItemTotal(item).toFixed(2).toString()}
+                            {formatCurrency(
+                              calculateItemTotal(item).toFixed(2),
+                            )}
                           </p>
                         </div>
                       </div>
