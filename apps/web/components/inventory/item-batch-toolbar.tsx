@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import {
   bulkUpdateItemStatusAction,
   bulkUpdateItemConditionAction,
+  bulkUpdateItemAskingPriceAction,
 } from "@/app/actions/inventory-items";
 import {
   ITEM_STATUS_VALUES,
@@ -31,6 +32,7 @@ export function ItemBatchToolbar({
   const [isPending, startTransition] = useTransition();
   const [statusValue, setStatusValue] = useState("");
   const [conditionValue, setConditionValue] = useState("");
+  const [priceValue, setPriceValue] = useState("");
 
   if (selectedIds.length === 0) return null;
 
@@ -66,6 +68,25 @@ export function ItemBatchToolbar({
         );
         onClear();
         setConditionValue("");
+      } else {
+        toast.error(result.error || "Failed");
+      }
+    });
+  }
+
+  function applyPrice() {
+    if (!priceValue || !/^\d+(\.\d{1,2})?$/.test(priceValue)) return;
+    startTransition(async () => {
+      const result = await bulkUpdateItemAskingPriceAction({
+        itemIds: selectedIds,
+        askingPrice: priceValue,
+      });
+      if (result.success && result.data) {
+        toast.success(
+          `${result.data.succeeded} ${t("updated")}${result.data.failed > 0 ? `, ${result.data.failed} ${t("failed")}` : ""}`,
+        );
+        onClear();
+        setPriceValue("");
       } else {
         toast.error(result.error || "Failed");
       }
@@ -125,6 +146,31 @@ export function ItemBatchToolbar({
           <button
             onClick={applyCondition}
             disabled={!conditionValue || isPending}
+            className="rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+          >
+            {isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              tc("apply")
+            )}
+          </button>
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <input
+            type="number"
+            min="0"
+            step="0.05"
+            placeholder={t("bulkSetPrice")}
+            value={priceValue}
+            onChange={(e) => setPriceValue(e.target.value)}
+            className="w-28 rounded-lg border bg-background px-2 py-1.5 text-sm"
+          />
+          <button
+            onClick={applyPrice}
+            disabled={
+              !priceValue || !/^\d+(\.\d{1,2})?$/.test(priceValue) || isPending
+            }
             className="rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
             {isPending ? (

@@ -1166,7 +1166,8 @@
     "metricProfit": "bénéfice total",
     "metricNoSalesYet": "Pas encore de ventes",
     "metricAvgDaysToSale": "Jours moy. de vente",
-    "metricDays": "jours en moyenne"
+    "metricDays": "jours en moyenne",
+    "bulkSetPrice": "Définir le prix..."
   },
   "checklist": {
     "categoryLaptop": "Ordinateur portable",

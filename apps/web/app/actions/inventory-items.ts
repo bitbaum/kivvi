@@ -366,6 +366,44 @@ export async function bulkUpdateItemConditionAction(
   }
 }
 
+const bulkPriceSchema = z.object({
+  itemIds: z.array(z.string().uuid()).min(1),
+  askingPrice: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid price"),
+});
+
+export async function bulkUpdateItemAskingPriceAction(
+  input: unknown,
+): Promise<ActionResult<{ succeeded: number; failed: number }>> {
+  try {
+    const { companyId } = await requireRole("member");
+    const parsed = bulkPriceSchema.safeParse(input);
+    if (!parsed.success)
+      return { success: false, ...formatZodError(parsed.error) };
+
+    let succeeded = 0;
+    let failed = 0;
+
+    for (const id of parsed.data.itemIds) {
+      try {
+        await updateInventoryItem(db, companyId, id, {
+          askingPrice: parsed.data.askingPrice,
+        });
+        succeeded++;
+      } catch {
+        failed++;
+      }
+    }
+
+    revalidatePath("/intake/items");
+    return { success: true, data: { succeeded, failed } };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to update prices"),
+    };
+  }
+}
+
 const assignTechnicianSchema = z.object({
   assignedToUserId: z.string().uuid().nullable(),
 });

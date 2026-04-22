@@ -1164,7 +1164,8 @@
     "metricProfit": "Gewinn gesamt",
     "metricNoSalesYet": "Noch keine Verkäufe",
     "metricAvgDaysToSale": "Ø Tage bis Verkauf",
-    "metricDays": "Tage im Schnitt"
+    "metricDays": "Tage im Schnitt",
+    "bulkSetPrice": "Preis setzen..."
   },
   "checklist": {
     "categoryLaptop": "Laptop",
