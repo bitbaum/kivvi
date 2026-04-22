@@ -97,6 +97,7 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
                 status: status || undefined,
                 condition: condition || undefined,
                 search: search || undefined,
+                assignedToUserId: assignedToUserId,
               }}
             />
             {(counts["repair"] ?? 0) > 0 && (

@@ -5,7 +5,12 @@ import { exportInventoryItemsCsvAction } from "@/app/actions/csv-export";
 
 interface InventoryItemsExportButtonProps {
   totalCount: number;
-  filters?: { status?: string; condition?: string; search?: string };
+  filters?: {
+    status?: string;
+    condition?: string;
+    search?: string;
+    assignedToUserId?: string;
+  };
 }
 
 export function InventoryItemsExportButton({

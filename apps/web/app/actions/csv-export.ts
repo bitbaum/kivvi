@@ -200,6 +200,7 @@ export async function exportInventoryItemsCsvAction(filters?: {
   status?: string;
   condition?: string;
   search?: string;
+  assignedToUserId?: string;
 }): Promise<ActionResult<CsvExportResult>> {
   try {
     const { companyId } = await requireRole("member");
@@ -211,32 +212,42 @@ export async function exportInventoryItemsCsvAction(filters?: {
     const headers = [
       "Artikelnummer",
       "Beschreibung",
+      "Kategorie",
       "Zustand",
       "Status",
       "Produkt",
       "Lager",
+      "Standort",
       "Spender",
+      "Zugewiesen an",
       "Schätzwert",
       "Verkaufspreis",
       "Mindestpreis",
+      "Verkauft für",
+      "Reparaturkosten",
+      "Reparaturstunden",
       "Seriennummer",
-      "Standort",
       "Erfasst am",
     ];
 
     const rows = result.data.map((item) => [
       item.itemNumber,
       item.description,
+      item.category,
       item.condition,
       item.status,
       item.productName,
       item.warehouseName,
+      item.location,
       item.donorName,
+      item.assignedToName,
       item.estimatedValue,
       item.askingPrice,
       item.minPrice,
+      item.soldPrice,
+      item.repairCost,
+      item.repairHours,
       item.serialNumber,
-      item.location,
       formatDateCsv(item.createdAt),
     ]);
 
