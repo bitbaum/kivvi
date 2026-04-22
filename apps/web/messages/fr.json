@@ -1462,7 +1462,12 @@
         "vatNumber": "CHE-123.456.789 TVA",
         "aiModel": "p.ex. claude-sonnet-4-20250514",
         "aiApiKey": "sk-..."
-      }
+      },
+      "co2Factors": "Facteurs CO₂",
+      "co2FactorsDesc": "kg de CO₂ évités estimés par article vendu ou donné (au lieu d'acheter neuf). Ajustez selon votre inventaire.",
+      "co2FactorsReset": "Réinitialiser les valeurs par défaut",
+      "co2FactorsSaved": "Facteurs CO₂ enregistrés",
+      "co2FactorsDefault": "défaut : {kg} kg"
     },
     "profileSection": {
       "title": "Profil utilisateur",

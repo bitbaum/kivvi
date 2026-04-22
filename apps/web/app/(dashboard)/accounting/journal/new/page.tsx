@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ArrowLeft, Plus, Trash2, AlertCircle, Loader2 } from "lucide-react";
+import { formatCurrency } from "@/lib/utils";
 import { FormInput } from "@/components/ui/form-field";
 import { Button } from "@/components/ui/button";
 import { AccountPicker } from "./account-picker";
@@ -96,12 +97,7 @@ export default function NewJournalEntryPage() {
           <div className="rounded-xl border bg-card">
             <div className="flex items-center justify-between border-b p-4">
               <h2 className="font-semibold">{t("journalEntry")}</h2>
-              <Button
-                type="button"
-                variant="link"
-                size="sm"
-                onClick={addLine}
-              >
+              <Button type="button" variant="link" size="sm" onClick={addLine}>
                 <Plus className="h-4 w-4" />
                 {t("addLine")}
               </Button>
@@ -213,13 +209,13 @@ export default function NewJournalEntryPage() {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{t("debit")}</span>
                 <span className="font-medium">
-                  CHF {totalDebits.toFixed(2)}
+                  {formatCurrency(totalDebits.toFixed(2))}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{t("credit")}</span>
                 <span className="font-medium">
-                  CHF {totalCredits.toFixed(2)}
+                  {formatCurrency(totalCredits.toFixed(2))}
                 </span>
               </div>
               <div className="flex justify-between border-t pt-2">
@@ -233,7 +229,9 @@ export default function NewJournalEntryPage() {
                         : ""
                   }`}
                 >
-                  CHF {totalDebits.minus(totalCredits).abs().toFixed(2)}
+                  {formatCurrency(
+                    totalDebits.minus(totalCredits).abs().toFixed(2),
+                  )}
                 </span>
               </div>
             </div>

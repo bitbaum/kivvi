@@ -9,6 +9,7 @@ import { eq } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
 import { DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
 import { CompanyForm } from "./company-form";
+import { Co2FactorsSection } from "./co2-factors-section";
 
 export default async function CompanySettingsPage() {
   const session = await getSessionOrRedirect();
@@ -64,6 +65,8 @@ export default async function CompanySettingsPage() {
           aiApiKey: settings.aiApiKey ? "********" : "",
         }}
       />
+
+      <Co2FactorsSection initialFactors={settings.co2FactorsKg} />
     </div>
   );
 }

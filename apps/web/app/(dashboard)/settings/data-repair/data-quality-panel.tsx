@@ -26,6 +26,7 @@ import type {
   ProductIssue,
 } from "@kivvi/core/src/domain/data-quality";
 import { DOCUMENT_TYPES } from "@/lib/config/document-types";
+import { formatCurrency } from "@/lib/utils";
 import {
   mergeContactsAction,
   cancelZeroTotalDocumentsAction,
@@ -323,7 +324,7 @@ function DocumentIssuesTable({
                     )}
                   </td>
                   <td className="px-3 py-2 text-right font-mono text-xs">
-                    CHF {parseFloat(doc.total).toFixed(2)}
+                    {formatCurrency(doc.total)}
                   </td>
                   <td className="px-3 py-2">
                     <Link

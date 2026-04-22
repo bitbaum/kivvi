@@ -1460,7 +1460,12 @@
         "vatNumber": "CHE-123.456.789 MWST",
         "aiModel": "z.B. claude-sonnet-4-20250514",
         "aiApiKey": "sk-..."
-      }
+      },
+      "co2Factors": "CO₂-Faktoren",
+      "co2FactorsDesc": "Geschätzte kg CO₂, die pro verkauftem oder gespendetem Artikel vermieden werden (statt Neukauf). Anpassen je nach Sortiment.",
+      "co2FactorsReset": "Auf Standardwerte zurücksetzen",
+      "co2FactorsSaved": "CO₂-Faktoren gespeichert",
+      "co2FactorsDefault": "Standard: {kg} kg"
     },
     "profileSection": {
       "title": "Benutzerprofil",

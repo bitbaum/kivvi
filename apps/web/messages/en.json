@@ -1461,7 +1461,12 @@
         "vatNumber": "CHE-123.456.789 MWST",
         "aiModel": "e.g. claude-sonnet-4-20250514",
         "aiApiKey": "sk-..."
-      }
+      },
+      "co2Factors": "CO₂ Impact Factors",
+      "co2FactorsDesc": "Estimated kg CO₂ avoided per item sold or donated (instead of buying new). Adjust for your inventory mix.",
+      "co2FactorsReset": "Reset to defaults",
+      "co2FactorsSaved": "CO₂ factors saved",
+      "co2FactorsDefault": "default: {kg} kg"
     },
     "profileSection": {
       "title": "User Profile",

@@ -380,3 +380,39 @@ export const updateNumberSequenceAction = createAction<
   errorMessage: "Failed to update number sequence",
   minRole: "admin",
 });
+
+// ============================================================================
+// CO2 IMPACT FACTORS
+// ============================================================================
+
+export async function updateCo2FactorsAction(
+  factors: Record<string, number>,
+): Promise<ActionResult<void>> {
+  try {
+    const { companyId } = await requireRole("admin");
+
+    const [existing] = await db
+      .select({ settings: companies.settings })
+      .from(companies)
+      .where(eq(companies.id, companyId));
+
+    const existingSettings = (existing?.settings as CompanySettings) ?? {};
+
+    await db
+      .update(companies)
+      .set({
+        settings: { ...existingSettings, co2FactorsKg: factors },
+        updatedAt: new Date(),
+      })
+      .where(eq(companies.id, companyId));
+
+    revalidatePath("/settings");
+    revalidatePath("/reports/impact");
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to update CO₂ factors"),
+    };
+  }
+}
