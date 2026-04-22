@@ -7,7 +7,7 @@ import { db } from "@/lib/db";
 import { users } from "@kivvi/database";
 import { listInventoryItems } from "@kivvi/core";
 import { PageHeader } from "@/components/page-header";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import {
   getConditionStyle,
   getConditionLabelKey,
@@ -120,11 +120,12 @@ export default async function RepairQueuePage() {
                         <span className={cn("text-xs", ageClass(days))}>
                           {ti("ageInRepair", { days })}
                         </span>
-                        {item.repairCost && parseFloat(item.repairCost) > 0 && (
-                          <p className="text-xs text-muted-foreground">
-                            CHF {parseFloat(item.repairCost).toFixed(2)}
-                          </p>
-                        )}
+                        {item.effectiveCost &&
+                          parseFloat(item.effectiveCost) > 0 && (
+                            <p className="text-xs text-muted-foreground">
+                              {formatCurrency(item.effectiveCost)}
+                            </p>
+                          )}
                       </div>
                       <RepairQueueDoneButton itemId={item.id} />
                       <RepairQueueAssignButton
@@ -182,6 +183,12 @@ export default async function RepairQueuePage() {
                         <span className={cn("text-xs", ageClass(days))}>
                           {ti("ageInRepair", { days })}
                         </span>
+                        {item.effectiveCost &&
+                          parseFloat(item.effectiveCost) > 0 && (
+                            <p className="text-xs text-muted-foreground">
+                              {formatCurrency(item.effectiveCost)}
+                            </p>
+                          )}
                       </div>
                       <RepairQueueDoneButton itemId={item.id} />
                       <RepairQueueAssignButton

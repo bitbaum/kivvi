@@ -76,7 +76,9 @@ export interface InventoryItemWithDetails extends InventoryItem {
   warehouseName?: string | null;
   donorName?: string | null;
   assignedToName?: string | null;
-  /** Derived: acquisition cost + total repair cost. The true cost basis for margin. */
+  /** Sum of all repair parts costs. Populated by listInventoryItems; null in getInventoryItem. */
+  partsTotal?: string | null;
+  /** Derived: acquisition cost + labour repairs + parts. The true cost basis for margin. */
   effectiveCost?: string | null;
 }
 
@@ -855,6 +857,13 @@ export async function listInventoryItems(
       warehouseName: warehouses.name,
       donorName: contacts.name,
       assignedToName: assignedUsers.name,
+      // Single-query parts aggregation — avoids N+1 while keeping the list fast
+      partsTotal: sql<string>`(
+        SELECT coalesce(sum(rp.quantity * rp.unit_cost), '0')::text
+        FROM repair_parts rp
+        WHERE rp.inventory_item_id = ${inventoryItems.id}
+          AND rp.company_id = ${inventoryItems.companyId}
+      )`,
     })
     .from(inventoryItems)
     .leftJoin(products, eq(inventoryItems.productId, products.id))
@@ -876,7 +885,8 @@ export async function listInventoryItems(
       warehouseName: row.warehouseName,
       donorName: row.donorName,
       assignedToName: row.assignedToName,
-      effectiveCost: calculateEffectiveCost(row.item),
+      partsTotal: row.partsTotal,
+      effectiveCost: calculateEffectiveCost(row.item, row.partsTotal),
     })),
     total,
     page,

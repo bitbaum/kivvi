@@ -225,7 +225,9 @@ export async function exportInventoryItemsCsvAction(filters?: {
       "Asking Price",
       "Min Price",
       "Sold Price",
-      "Repair Cost",
+      "Labour Cost",
+      "Parts Cost",
+      "Effective Cost",
       "Repair Hours",
       "Serial Number",
       "Created At",
@@ -247,6 +249,10 @@ export async function exportInventoryItemsCsvAction(filters?: {
       item.minPrice,
       item.soldPrice,
       item.repairCost,
+      item.partsTotal && parseFloat(item.partsTotal) > 0
+        ? item.partsTotal
+        : null,
+      item.effectiveCost,
       item.repairHours,
       item.serialNumber,
       formatDateCsv(item.createdAt),
