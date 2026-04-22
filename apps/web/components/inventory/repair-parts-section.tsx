@@ -66,7 +66,7 @@ export function RepairPartsSection({
         notes: notes || undefined,
       });
       if (!result.success) {
-        setError(result.error ?? "Error");
+        setError(result.error ?? tc("error"));
         return;
       }
       // Optimistic update: re-fetch by reloading via router.refresh() equivalent
@@ -95,7 +95,7 @@ export function RepairPartsSection({
     startTransition(async () => {
       const result = await removeRepairPartAction(partId, itemId);
       if (!result.success) {
-        setError(result.error ?? "Error");
+        setError(result.error ?? tc("error"));
         return;
       }
       setParts((prev) => prev.filter((p) => p.id !== partId));

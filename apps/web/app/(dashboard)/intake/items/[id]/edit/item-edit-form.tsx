@@ -26,6 +26,7 @@ import {
   getValidTransitions,
 } from "@/lib/config/inventory-items";
 import { useTranslations } from "next-intl";
+import { formatCurrency } from "@/lib/utils";
 import { ItemPhotoUpload } from "@/components/inventory/item-photo-upload";
 import { ItemSpecsEditor } from "@/components/inventory/item-specs-editor";
 import { Button } from "@/components/ui/button";
@@ -116,7 +117,7 @@ export function ItemEditForm({
           condition: newCondition,
         });
         if (!condResult.success) {
-          setError(condResult.error || "Failed to update condition");
+          setError(condResult.error || tc("error"));
           return;
         }
       }
@@ -137,7 +138,7 @@ export function ItemEditForm({
       });
 
       if (!result.success) {
-        setError(result.error || "Failed to update");
+        setError(result.error || tc("error"));
         return;
       }
 
@@ -147,7 +148,7 @@ export function ItemEditForm({
           newStatus,
         });
         if (!statusResult.success) {
-          setError(statusResult.error || "Failed to update status");
+          setError(statusResult.error || tc("error"));
           return;
         }
       }
@@ -415,6 +416,7 @@ function RepairSection({
   }) => void;
 }) {
   const ti = useTranslations("inventory");
+  const tc = useTranslations("common");
   const [cost, setCost] = useState("");
   const [hours, setHours] = useState("");
   const [note, setNote] = useState("");
@@ -452,7 +454,7 @@ function RepairSection({
       setNote("");
       toast.success(ti("repairRecorded"));
     } else {
-      setRepairError(result.error || "Failed to record repair");
+      setRepairError(result.error || tc("error"));
     }
 
     setIsRecording(false);
@@ -464,7 +466,7 @@ function RepairSection({
         <h2 className="font-semibold">{ti("repairLog")}</h2>
         {totalCost > 0 && (
           <p className="mt-1 text-xs text-muted-foreground">
-            Total: {totalCost.toFixed(2)}
+            {tc("total")}: {formatCurrency(totalCost.toFixed(2))}
             {totalHours > 0 && ` · ${totalHours}h`}
           </p>
         )}

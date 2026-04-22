@@ -45,7 +45,7 @@ export function Co2FactorsSection({ initialFactors }: Co2FactorsSectionProps) {
       if (result.success) {
         toast.success(t("co2FactorsSaved"));
       } else {
-        toast.error(result.error ?? "Error");
+        toast.error(result.error ?? tc("error"));
       }
     });
   }

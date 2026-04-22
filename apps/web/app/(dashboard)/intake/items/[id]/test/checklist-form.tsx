@@ -230,6 +230,7 @@ export function ChecklistForm({
   const router = useRouter();
   const tl = useTranslations("checklist");
   const tc = useTranslations("inventory");
+  const tcommon = useTranslations("common");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -298,7 +299,7 @@ export function ChecklistForm({
         completions: buildCompletions(),
       });
       if (!result.success) {
-        setError(result.error ?? "Failed to save");
+        setError(result.error ?? tcommon("error"));
         return;
       }
       toast.success(tc("checklistSaved"));
@@ -314,7 +315,7 @@ export function ChecklistForm({
         completions: buildCompletions(),
       });
       if (!saveResult.success) {
-        setError(saveResult.error ?? "Failed to save checklist");
+        setError(saveResult.error ?? tcommon("error"));
         return;
       }
 
@@ -324,7 +325,7 @@ export function ChecklistForm({
           condition: selectedCondition,
         });
         if (!condResult.success) {
-          setError(condResult.error ?? "Failed to update condition");
+          setError(condResult.error ?? tcommon("error"));
           return;
         }
       }
@@ -334,7 +335,7 @@ export function ChecklistForm({
         newStatus: "ready_for_sale",
       });
       if (!statusResult.success) {
-        setError(statusResult.error ?? "Cannot approve for sale");
+        setError(statusResult.error ?? tcommon("error"));
         return;
       }
 
@@ -354,7 +355,7 @@ export function ChecklistForm({
       });
       const result = await updateItemStatusAction(itemId, { newStatus });
       if (!result.success) {
-        setError(result.error ?? "Failed to update status");
+        setError(result.error ?? tcommon("error"));
         return;
       }
       router.push(`/intake/items/${itemId}`);

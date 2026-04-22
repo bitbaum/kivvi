@@ -14,6 +14,7 @@ interface RepairQueueDoneButtonProps {
 
 export function RepairQueueDoneButton({ itemId }: RepairQueueDoneButtonProps) {
   const ti = useTranslations("inventory");
+  const tc = useTranslations("common");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -28,7 +29,7 @@ export function RepairQueueDoneButton({ itemId }: RepairQueueDoneButtonProps) {
         toast.success(ti("updated"));
         router.refresh();
       } else {
-        toast.error(result.error ?? "Failed to update status");
+        toast.error(result.error ?? tc("error"));
       }
     });
   }
