@@ -1153,7 +1153,16 @@
     "erasureMethod": "Méthode d'effacement",
     "erasureRecorded": "Effacement enregistré",
     "selectErasureMethod": "Choisir la méthode...",
-    "conditionSuggestion": "État suggéré: {condition}"
+    "conditionSuggestion": "État suggéré: {condition}",
+    "metricInventoryValue": "Valeur du stock",
+    "metricUnsoldItems": "{count} articles invendus",
+    "metricSellThrough": "Taux de vente",
+    "metricSoldItems": "{count} en 30 jours",
+    "metricAvgMargin": "Marge moy.",
+    "metricProfit": "bénéfice total",
+    "metricNoSalesYet": "Pas encore de ventes",
+    "metricAvgDaysToSale": "Jours moy. de vente",
+    "metricDays": "jours en moyenne"
   },
   "checklist": {
     "categoryLaptop": "Ordinateur portable",

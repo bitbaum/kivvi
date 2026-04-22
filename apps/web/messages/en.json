@@ -1151,7 +1151,16 @@
     "erasureMethod": "Erasure Method",
     "erasureRecorded": "Data erasure recorded",
     "selectErasureMethod": "Select method...",
-    "conditionSuggestion": "Suggested condition: {condition}"
+    "conditionSuggestion": "Suggested condition: {condition}",
+    "metricInventoryValue": "Inventory Value",
+    "metricUnsoldItems": "{count} items unsold",
+    "metricSellThrough": "Sell-Through",
+    "metricSoldItems": "{count} in last 30 days",
+    "metricAvgMargin": "Avg. Margin",
+    "metricProfit": "total profit",
+    "metricNoSalesYet": "No sales yet",
+    "metricAvgDaysToSale": "Avg. Days to Sale",
+    "metricDays": "days on average"
   },
   "checklist": {
     "categoryLaptop": "Laptop",

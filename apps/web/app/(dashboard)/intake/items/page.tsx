@@ -5,12 +5,16 @@ import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { InventoryItemsExportButton } from "@/components/inventory-items-export-button";
 import { SelectableItemList } from "@/components/inventory/selectable-item-list";
-import { listInventoryItems, getInventoryItemCounts } from "@kivvi/core";
+import {
+  listInventoryItems,
+  getInventoryItemCounts,
+  getInventoryDashboard,
+} from "@kivvi/core";
 import { PageHeader } from "@/components/page-header";
 import { SearchInput } from "@/components/search-input";
 import { Pagination } from "@/components/pagination";
 import { EmptyState } from "@/components/empty-state";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import { ITEM_STATUS_VALUES } from "@kivvi/database/src/enums";
 import { getStatusLabelKey } from "@/lib/config/inventory-items";
 
@@ -37,7 +41,7 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
 
   const assignedToUserId = assignedTo === "me" ? session.user.id : undefined;
 
-  const [result, counts] = await Promise.all([
+  const [result, counts, dashboard] = await Promise.all([
     listInventoryItems(db, session.user.companyId, {
       status,
       condition,
@@ -47,6 +51,7 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
       pageSize: 25,
     }),
     getInventoryItemCounts(db, session.user.companyId),
+    getInventoryDashboard(db, session.user.companyId, { periodDays: 30 }),
   ]);
 
   const totalItems = Object.values(counts).reduce((a, b) => a + b, 0);
@@ -101,6 +106,69 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
           </div>
         }
       />
+
+      {/* Inventory metrics */}
+      {totalItems > 0 && (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="rounded-xl border bg-card px-4 py-3">
+            <p className="text-xs text-muted-foreground">
+              {ti("metricInventoryValue")}
+            </p>
+            <p className="mt-1 text-lg font-semibold">
+              {formatCurrency(dashboard.inventoryValue)}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {ti("metricUnsoldItems", { count: dashboard.unsoldCount })}
+            </p>
+          </div>
+          <div className="rounded-xl border bg-card px-4 py-3">
+            <p className="text-xs text-muted-foreground">
+              {ti("metricSellThrough")}
+            </p>
+            <p className="mt-1 text-lg font-semibold">
+              {dashboard.sellThroughRate}%
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {ti("metricSoldItems", { count: dashboard.soldCount })}
+            </p>
+          </div>
+          <div className="rounded-xl border bg-card px-4 py-3">
+            <p className="text-xs text-muted-foreground">
+              {ti("metricAvgMargin")}
+            </p>
+            <p
+              className={cn(
+                "mt-1 text-lg font-semibold",
+                dashboard.averageMarginPercent > 0
+                  ? "text-success"
+                  : "text-muted-foreground",
+              )}
+            >
+              {dashboard.averageMarginPercent > 0
+                ? `${dashboard.averageMarginPercent}%`
+                : "—"}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {dashboard.totalProfit !== "0"
+                ? `CHF ${parseFloat(dashboard.totalProfit).toFixed(0)} ${ti("metricProfit")}`
+                : ti("metricNoSalesYet")}
+            </p>
+          </div>
+          <div className="rounded-xl border bg-card px-4 py-3">
+            <p className="text-xs text-muted-foreground">
+              {ti("metricAvgDaysToSale")}
+            </p>
+            <p className="mt-1 text-lg font-semibold">
+              {dashboard.avgDaysToSale > 0 ? dashboard.avgDaysToSale : "—"}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {dashboard.avgDaysToSale > 0
+                ? ti("metricDays")
+                : ti("metricNoSalesYet")}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="space-y-3">
