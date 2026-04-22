@@ -1,15 +1,18 @@
 import Link from "next/link";
-import { Wrench, User } from "lucide-react";
+import { Wrench } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { eq } from "drizzle-orm";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
+import { users } from "@kivvi/database";
 import { listInventoryItems } from "@kivvi/core";
 import { PageHeader } from "@/components/page-header";
-import { cn, formatDate } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import {
   getConditionStyle,
   getConditionLabelKey,
 } from "@/lib/config/inventory-items";
+import { RepairQueueAssignButton } from "@/components/inventory/repair-queue-assign-button";
 
 function daysAgo(date: Date | string): number {
   const d = typeof date === "string" ? new Date(date) : date;
@@ -27,12 +30,23 @@ export default async function RepairQueuePage() {
   const ti = await getTranslations("inventory");
   const tc = await getTranslations("common");
 
-  const allRepairResult = await listInventoryItems(db, session.user.companyId, {
-    status: "repair",
-    pageSize: 500,
-    sortBy: "createdAt",
-    sortOrder: "asc",
-  });
+  const [allRepairResult, companyUsers] = await Promise.all([
+    listInventoryItems(db, session.user.companyId, {
+      status: "repair",
+      pageSize: 500,
+      sortBy: "createdAt",
+      sortOrder: "asc",
+    }),
+    db
+      .select({ id: users.id, name: users.name })
+      .from(users)
+      .where(eq(users.companyId, session.user.companyId)),
+  ]);
+
+  const userOptions = companyUsers.map((u) => ({
+    id: u.id,
+    label: u.name ?? u.id,
+  }));
 
   const unassignedItems = allRepairResult.data.filter(
     (item) => item.assignedToUserId === null,
@@ -76,12 +90,14 @@ export default async function RepairQueuePage() {
                 {unassignedItems.map((item) => {
                   const days = daysAgo(item.createdAt);
                   return (
-                    <Link
+                    <div
                       key={item.id}
-                      href={`/intake/items/${item.id}`}
-                      className="flex items-center gap-4 px-4 py-3 hover:bg-muted/50 transition-colors"
+                      className="flex items-center gap-4 px-4 py-3"
                     >
-                      <div className="flex-1 min-w-0">
+                      <Link
+                        href={`/intake/items/${item.id}`}
+                        className="flex-1 min-w-0 hover:underline"
+                      >
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-sm font-medium">
                             {item.itemNumber}
@@ -98,7 +114,7 @@ export default async function RepairQueuePage() {
                         <p className="mt-0.5 truncate text-sm text-muted-foreground">
                           {item.description}
                         </p>
-                      </div>
+                      </Link>
                       <div className="shrink-0 text-right">
                         <span className={cn("text-xs", ageClass(days))}>
                           {ti("ageInRepair", { days })}
@@ -109,10 +125,13 @@ export default async function RepairQueuePage() {
                           </p>
                         )}
                       </div>
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted">
-                        <User className="h-4 w-4 text-muted-foreground" />
-                      </div>
-                    </Link>
+                      <RepairQueueAssignButton
+                        itemId={item.id}
+                        assignedToUserId={item.assignedToUserId ?? null}
+                        assignedToName={item.assignedToName ?? null}
+                        companyUsers={userOptions}
+                      />
+                    </div>
                   );
                 })}
               </div>
@@ -132,12 +151,14 @@ export default async function RepairQueuePage() {
                 {assignedItems.map((item) => {
                   const days = daysAgo(item.createdAt);
                   return (
-                    <Link
+                    <div
                       key={item.id}
-                      href={`/intake/items/${item.id}`}
-                      className="flex items-center gap-4 px-4 py-3 hover:bg-muted/50 transition-colors"
+                      className="flex items-center gap-4 px-4 py-3"
                     >
-                      <div className="flex-1 min-w-0">
+                      <Link
+                        href={`/intake/items/${item.id}`}
+                        className="flex-1 min-w-0 hover:underline"
+                      >
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-sm font-medium">
                             {item.itemNumber}
@@ -154,21 +175,19 @@ export default async function RepairQueuePage() {
                         <p className="mt-0.5 truncate text-sm text-muted-foreground">
                           {item.description}
                         </p>
-                      </div>
+                      </Link>
                       <div className="shrink-0 text-right">
                         <span className={cn("text-xs", ageClass(days))}>
                           {ti("ageInRepair", { days })}
                         </span>
-                        {item.assignedToName && (
-                          <p className="text-xs text-muted-foreground">
-                            {item.assignedToName}
-                          </p>
-                        )}
                       </div>
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                        <User className="h-4 w-4 text-primary" />
-                      </div>
-                    </Link>
+                      <RepairQueueAssignButton
+                        itemId={item.id}
+                        assignedToUserId={item.assignedToUserId ?? null}
+                        assignedToName={item.assignedToName ?? null}
+                        companyUsers={userOptions}
+                      />
+                    </div>
                   );
                 })}
               </div>

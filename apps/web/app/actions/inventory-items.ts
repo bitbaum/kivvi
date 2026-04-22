@@ -366,6 +366,37 @@ export async function bulkUpdateItemConditionAction(
   }
 }
 
+const assignTechnicianSchema = z.object({
+  assignedToUserId: z.string().uuid().nullable(),
+});
+
+export async function assignItemTechnicianAction(
+  itemId: string,
+  input: unknown,
+): Promise<ActionResult<{ id: string }>> {
+  try {
+    const { companyId } = await requireRole("member");
+    const parsed = assignTechnicianSchema.safeParse(input);
+    if (!parsed.success)
+      return { success: false, ...formatZodError(parsed.error) };
+
+    const item = await db.transaction(async (tx) => {
+      return updateInventoryItem(tx, companyId, itemId, {
+        assignedToUserId: parsed.data.assignedToUserId,
+      });
+    });
+
+    revalidatePath("/intake/repair-queue");
+    revalidatePath(`/intake/items/${itemId}`);
+    return { success: true, data: { id: item.id } };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to assign technician"),
+    };
+  }
+}
+
 export async function deleteInventoryItemAction(
   itemId: string,
 ): Promise<ActionResult<void>> {
