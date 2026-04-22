@@ -437,6 +437,15 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
               conditionLabel={ti(getConditionLabelKey(item.condition))}
               dataErasuredAt={item.dataErasuredAt}
               dataErasureMethod={item.dataErasureMethod}
+              erasureMethodLabel={
+                item.dataErasureMethod
+                  ? ti(
+                      `erasureMethod_${item.dataErasureMethod}` as Parameters<
+                        typeof ti
+                      >[0],
+                    )
+                  : null
+              }
               labels={{
                 intake: ti("timelineIntake"),
                 from: ti("timelineFrom"),

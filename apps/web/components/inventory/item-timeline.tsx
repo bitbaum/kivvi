@@ -47,14 +47,6 @@ function parseRepairLog(log: string): RepairEntry[] {
     });
 }
 
-const ERASURE_METHOD_LABELS: Record<string, string> = {
-  secure_erase: "ATA Secure Erase",
-  dban: "DBAN",
-  manual: "Manuell / Degausser",
-  certified: "Zertifizierter Dienstleister",
-  factory_reset: "Factory Reset",
-};
-
 interface ItemTimelineLabels {
   intake: string;
   from: string;
@@ -77,6 +69,8 @@ interface ItemTimelineProps {
   conditionLabel: string;
   dataErasuredAt?: Date | string | null;
   dataErasureMethod?: string | null;
+  /** Translated label for the erasure method value (resolved by caller) */
+  erasureMethodLabel?: string | null;
   labels: ItemTimelineLabels;
 }
 
@@ -90,6 +84,7 @@ export function ItemTimeline({
   conditionLabel,
   dataErasuredAt,
   dataErasureMethod,
+  erasureMethodLabel,
   labels,
 }: ItemTimelineProps) {
   const repairs = repairLog ? parseRepairLog(repairLog) : [];
@@ -194,7 +189,7 @@ export function ItemTimeline({
               <>
                 <p className="text-sm font-medium">{labels.erasure}</p>
                 <p className="text-xs text-muted-foreground">
-                  {ERASURE_METHOD_LABELS[event.method ?? ""] ?? event.method}
+                  {erasureMethodLabel ?? event.method}
                   {event.date && ` · ${formatDate(event.date)}`}
                 </p>
               </>
