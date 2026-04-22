@@ -78,7 +78,7 @@ export default async function RepairQueuePage() {
                   return (
                     <Link
                       key={item.id}
-                      href={`/intake/items/${item.id}/edit`}
+                      href={`/intake/items/${item.id}`}
                       className="flex items-center gap-4 px-4 py-3 hover:bg-muted/50 transition-colors"
                     >
                       <div className="flex-1 min-w-0">
@@ -134,7 +134,7 @@ export default async function RepairQueuePage() {
                   return (
                     <Link
                       key={item.id}
-                      href={`/intake/items/${item.id}/edit`}
+                      href={`/intake/items/${item.id}`}
                       className="flex items-center gap-4 px-4 py-3 hover:bg-muted/50 transition-colors"
                     >
                       <div className="flex-1 min-w-0">

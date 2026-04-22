@@ -5,6 +5,7 @@ import {
   products,
   bankTransactions,
   bankAccounts,
+  inventoryItems,
 } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
 import { detectOverdueInvoices } from "./dunning";
@@ -20,7 +21,9 @@ export interface DashboardAlert {
     | "expiring_quote"
     | "draft_documents"
     | "low_stock"
-    | "unreconciled_transaction";
+    | "unreconciled_transaction"
+    | "aging_repair"
+    | "stale_inventory";
   severity: "urgent" | "warning" | "info";
   titleKey: string;
   descriptionKey: string;
@@ -216,6 +219,60 @@ export async function getDashboardAlerts(
       descriptionParams: { count: unreconciledCount },
       count: unreconciledCount,
       linkTo: "/banking/transactions?reconciled=false",
+    });
+  }
+
+  // 6. Items aging in repair (>14 days since intake — same logic as repair-queue page)
+  const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+  const [agingRepairResult] = await db
+    .select({ count: sql<number>`COUNT(*)::int` })
+    .from(inventoryItems)
+    .where(
+      and(
+        eq(inventoryItems.companyId, companyId),
+        eq(inventoryItems.status, "repair"),
+        lte(inventoryItems.createdAt, fourteenDaysAgo),
+      ),
+    );
+
+  const agingRepairCount = agingRepairResult?.count || 0;
+  if (agingRepairCount > 0) {
+    alerts.push({
+      id: "aging-repairs",
+      type: "aging_repair",
+      severity: agingRepairCount >= 5 ? "urgent" : "warning",
+      titleKey: "alerts.agingRepairs",
+      descriptionKey: "alerts.agingRepairsDesc",
+      descriptionParams: { count: agingRepairCount },
+      count: agingRepairCount,
+      linkTo: "/intake/repair-queue",
+    });
+  }
+
+  // 7. Items in ready_for_sale not sold after 60 days (pricing may need review)
+  const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
+  const [staleReadyResult] = await db
+    .select({ count: sql<number>`COUNT(*)::int` })
+    .from(inventoryItems)
+    .where(
+      and(
+        eq(inventoryItems.companyId, companyId),
+        eq(inventoryItems.status, "ready_for_sale"),
+        lte(inventoryItems.updatedAt, sixtyDaysAgo),
+      ),
+    );
+
+  const staleReadyCount = staleReadyResult?.count || 0;
+  if (staleReadyCount > 0) {
+    alerts.push({
+      id: "stale-inventory",
+      type: "stale_inventory",
+      severity: "info",
+      titleKey: "alerts.staleInventory",
+      descriptionKey: "alerts.staleInventoryDesc",
+      descriptionParams: { count: staleReadyCount },
+      count: staleReadyCount,
+      linkTo: "/intake/items?status=ready_for_sale",
     });
   }
 

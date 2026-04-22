@@ -411,7 +411,11 @@
       "lowStock": "Stock faible",
       "lowStockDesc": "{count, plural, one {# produit} other {# produits}} en dessous du stock minimum",
       "unreconciledTransactions": "Transactions non rapprochées",
-      "unreconciledTransactionsDesc": "{count, plural, one {# transaction bancaire} other {# transactions bancaires}} non rapprochées"
+      "unreconciledTransactionsDesc": "{count, plural, one {# transaction bancaire} other {# transactions bancaires}} non rapprochées",
+      "agingRepairs": "Réparations de plus de 14 jours",
+      "agingRepairsDesc": "{count, plural, one {# article} other {# articles}} en réparation depuis plus de 14 jours",
+      "staleInventory": "Stock stagnant",
+      "staleInventoryDesc": "{count, plural, one {# article} other {# articles}} en vente depuis plus de 60 jours — revoir les prix?"
     },
     "workflow": {
       "title": "Suggestions de flux",

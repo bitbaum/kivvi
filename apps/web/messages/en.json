@@ -411,7 +411,11 @@
       "lowStock": "Low Stock",
       "lowStockDesc": "{count, plural, one {# product} other {# products}} below minimum stock",
       "unreconciledTransactions": "Unreconciled Transactions",
-      "unreconciledTransactionsDesc": "{count, plural, one {# bank transaction} other {# bank transactions}} not yet matched"
+      "unreconciledTransactionsDesc": "{count, plural, one {# bank transaction} other {# bank transactions}} not yet matched",
+      "agingRepairs": "Repairs Over 14 Days",
+      "agingRepairsDesc": "{count, plural, one {# item} other {# items}} in repair for more than 14 days",
+      "staleInventory": "Stale Inventory",
+      "staleInventoryDesc": "{count, plural, one {# item} other {# items}} ready for sale for over 60 days — review pricing?"
     },
     "workflow": {
       "title": "Workflow Suggestions",

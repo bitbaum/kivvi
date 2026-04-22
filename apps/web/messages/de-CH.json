@@ -411,7 +411,11 @@
       "lowStock": "Niedriger Lagerbestand",
       "lowStockDesc": "{count, plural, one {# Produkt} other {# Produkte}} unter Mindestbestand",
       "unreconciledTransactions": "Nicht abgestimmte Transaktionen",
-      "unreconciledTransactionsDesc": "{count, plural, one {# Banktransaktion} other {# Banktransaktionen}} noch nicht zugeordnet"
+      "unreconciledTransactionsDesc": "{count, plural, one {# Banktransaktion} other {# Banktransaktionen}} noch nicht zugeordnet",
+      "agingRepairs": "Reparaturen über 14 Tage",
+      "agingRepairsDesc": "{count, plural, one {# Artikel} other {# Artikel}} seit mehr als 14 Tagen in Reparatur",
+      "staleInventory": "Stagnierende Artikel",
+      "staleInventoryDesc": "{count, plural, one {# Artikel} other {# Artikel}} seit über 60 Tagen verkaufsbereit — Preise prüfen?"
     },
     "workflow": {
       "title": "Workflow-Vorschläge",
