@@ -1,13 +1,15 @@
-/** Project status values for form selectors (SSOT) */
-export const PROJECT_STATUSES = ['active', 'completed', 'on_hold', 'cancelled'] as const;
+import { PROJECT_STATUS_VALUES } from "@kivvi/core/src/config/project";
+
+/** Re-export from domain SSOT — do not duplicate these values here */
+export const PROJECT_STATUSES = PROJECT_STATUS_VALUES;
 export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
 
 /** Translation key mapping for project statuses */
 export const PROJECT_STATUS_LABEL_KEYS: Record<ProjectStatus, string> = {
-  active: 'statusActive',
-  completed: 'statusCompleted',
-  on_hold: 'statusOnHold',
-  cancelled: 'statusCancelled',
+  active: "statusActive",
+  completed: "statusCompleted",
+  on_hold: "statusOnHold",
+  cancelled: "statusCancelled",
 };
 
 export const PROJECT_STATUS_STYLES: Record<ProjectStatus, string> = {

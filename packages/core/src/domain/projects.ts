@@ -1,22 +1,19 @@
-import { z } from 'zod';
-import Decimal from 'decimal.js';
-import { eq, and, asc, desc, sql, ilike } from 'drizzle-orm';
-import {
-  projects,
-  documents,
-  contacts,
-} from '@kivvi/database';
-import type { Database, Project } from '@kivvi/database';
+import { z } from "zod";
+import Decimal from "decimal.js";
+import { eq, and, asc, desc, sql, ilike } from "drizzle-orm";
+import { projects, documents, contacts } from "@kivvi/database";
+import type { Database, Project } from "@kivvi/database";
+import { PROJECT_STATUS_VALUES } from "../config/project";
 
 // ============================================================================
 // VALIDATION SCHEMAS
 // ============================================================================
 
 export const createProjectSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(200),
+  name: z.string().min(1, "Name is required").max(200),
   description: z.string().max(2000).optional().nullable(),
   contactId: z.string().uuid().optional().nullable(),
-  status: z.enum(['active', 'completed', 'on_hold', 'cancelled']).optional().default('active'),
+  status: z.enum(PROJECT_STATUS_VALUES).optional().default("active"),
   budget: z.string().optional().nullable(),
   startDate: z.string().optional().nullable(),
   endDate: z.string().optional().nullable(),
@@ -45,8 +42,14 @@ export interface ProjectFilters {
 export async function listProjects(
   db: Database,
   companyId: string,
-  filters: ProjectFilters = {}
-): Promise<{ data: ProjectWithContact[]; total: number; page: number; pageSize: number; totalPages: number }> {
+  filters: ProjectFilters = {},
+): Promise<{
+  data: ProjectWithContact[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}> {
   const page = filters.page || 1;
   const pageSize = filters.pageSize || 50;
 
@@ -86,13 +89,19 @@ export async function listProjects(
     contactName: r.contactName,
   }));
 
-  return { data, total: count, page, pageSize, totalPages: Math.ceil(count / pageSize) };
+  return {
+    data,
+    total: count,
+    page,
+    pageSize,
+    totalPages: Math.ceil(count / pageSize),
+  };
 }
 
 export async function getProject(
   db: Database,
   companyId: string,
-  projectId: string
+  projectId: string,
 ): Promise<ProjectWithContact | null> {
   const [row] = await db
     .select({
@@ -110,7 +119,7 @@ export async function getProject(
 export async function createProject(
   db: Database,
   companyId: string,
-  input: z.infer<typeof createProjectSchema>
+  input: z.infer<typeof createProjectSchema>,
 ): Promise<Project> {
   const validated = createProjectSchema.parse(input);
 
@@ -135,18 +144,22 @@ export async function updateProject(
   db: Database,
   companyId: string,
   projectId: string,
-  input: z.infer<typeof updateProjectSchema>
+  input: z.infer<typeof updateProjectSchema>,
 ): Promise<Project> {
   const validated = updateProjectSchema.parse(input);
 
   const updates: Record<string, unknown> = { updatedAt: new Date() };
   if (validated.name !== undefined) updates.name = validated.name;
-  if (validated.description !== undefined) updates.description = validated.description || null;
-  if (validated.contactId !== undefined) updates.contactId = validated.contactId || null;
+  if (validated.description !== undefined)
+    updates.description = validated.description || null;
+  if (validated.contactId !== undefined)
+    updates.contactId = validated.contactId || null;
   if (validated.status !== undefined) updates.status = validated.status;
   if (validated.budget !== undefined) updates.budget = validated.budget || null;
-  if (validated.startDate !== undefined) updates.startDate = validated.startDate || null;
-  if (validated.endDate !== undefined) updates.endDate = validated.endDate || null;
+  if (validated.startDate !== undefined)
+    updates.startDate = validated.startDate || null;
+  if (validated.endDate !== undefined)
+    updates.endDate = validated.endDate || null;
   if (validated.isActive !== undefined) updates.isActive = validated.isActive;
 
   const [project] = await db
@@ -155,15 +168,25 @@ export async function updateProject(
     .where(and(eq(projects.id, projectId), eq(projects.companyId, companyId)))
     .returning();
 
-  if (!project) throw new Error('Project not found');
+  if (!project) throw new Error("Project not found");
   return project;
 }
 
 export async function getProjectDocuments(
   db: Database,
   companyId: string,
-  projectId: string
-): Promise<{ id: string; type: string; number: string; status: string; total: string; contactName: string | null; issueDate: Date }[]> {
+  projectId: string,
+): Promise<
+  {
+    id: string;
+    type: string;
+    number: string;
+    status: string;
+    total: string;
+    contactName: string | null;
+    issueDate: Date;
+  }[]
+> {
   const rows = await db
     .select({
       id: documents.id,
@@ -176,7 +199,12 @@ export async function getProjectDocuments(
     })
     .from(documents)
     .leftJoin(contacts, eq(documents.contactId, contacts.id))
-    .where(and(eq(documents.projectId, projectId), eq(documents.companyId, companyId)))
+    .where(
+      and(
+        eq(documents.projectId, projectId),
+        eq(documents.companyId, companyId),
+      ),
+    )
     .orderBy(desc(documents.issueDate));
 
   return rows.map((r) => ({
@@ -188,8 +216,12 @@ export async function getProjectDocuments(
 export async function getProjectSummary(
   db: Database,
   companyId: string,
-  projectId: string
-): Promise<{ totalDocuments: number; totalRevenue: number; totalInvoiced: number }> {
+  projectId: string,
+): Promise<{
+  totalDocuments: number;
+  totalRevenue: number;
+  totalInvoiced: number;
+}> {
   const [stats] = await db
     .select({
       totalDocuments: sql<number>`count(*)::int`,
@@ -197,7 +229,12 @@ export async function getProjectSummary(
       totalInvoiced: sql<number>`COALESCE(SUM(CASE WHEN ${documents.type} = 'invoice' THEN CAST(${documents.total} AS DECIMAL) ELSE 0 END), 0)`,
     })
     .from(documents)
-    .where(and(eq(documents.projectId, projectId), eq(documents.companyId, companyId)));
+    .where(
+      and(
+        eq(documents.projectId, projectId),
+        eq(documents.companyId, companyId),
+      ),
+    );
 
   return {
     totalDocuments: stats.totalDocuments,

@@ -1,17 +1,23 @@
 /**
- * Product form option values (SSOT).
- * Components derive translated labels from these at render time.
+ * Product form option values.
+ * Re-exports from core SSOT — do not duplicate values here.
  */
+import {
+  PRODUCT_TYPE_VALUES,
+  UNIT_TYPE_VALUES,
+} from "@kivvi/core/src/config/product";
 
 /** Product types */
-export const PRODUCT_TYPES = ['product', 'service'] as const;
+export const PRODUCT_TYPES = PRODUCT_TYPE_VALUES;
 export type ProductType = (typeof PRODUCT_TYPES)[number];
 
 /** Units of measure (Swiss-centric) */
-export const UNIT_VALUES = ['piece', 'hour', 'kg', 'm', 'm2', 'm3', 'liter'] as const;
+export const UNIT_VALUES = UNIT_TYPE_VALUES;
 export type UnitValue = (typeof UNIT_VALUES)[number];
 
 /** Build translated product type labels from PRODUCT_TYPES (SSOT). */
-export function getProductTypeLabels(t: (key: string) => string): Record<string, string> {
+export function getProductTypeLabels(
+  t: (key: string) => string,
+): Record<string, string> {
   return Object.fromEntries(PRODUCT_TYPES.map((type) => [type, t(type)]));
 }

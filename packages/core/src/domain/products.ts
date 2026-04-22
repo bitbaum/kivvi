@@ -3,6 +3,7 @@ import { eq, and, or, ilike, desc, asc, count } from "drizzle-orm";
 import { products, manufacturers, productGroups } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
 import { DEFAULT_CURRENCY } from "../config/locale";
+import { PRODUCT_TYPE_VALUES, UNIT_TYPE_VALUES } from "../config/product";
 import { getNextNumber } from "./number-sequences";
 import type { PaginatedResult } from "./contacts";
 
@@ -13,7 +14,7 @@ import type { PaginatedResult } from "./contacts";
 export const createProductSchema = z.object({
   name: z.string().min(1, "Name is required").max(255),
   description: z.string().max(5000).optional().nullable(),
-  type: z.enum(["product", "service"]),
+  type: z.enum(PRODUCT_TYPE_VALUES),
   sku: z.string().max(100).optional().nullable(),
   ean: z.string().max(50).optional().nullable(),
   manufacturerId: z.string().uuid().optional().nullable(),
@@ -26,9 +27,7 @@ export const createProductSchema = z.object({
     .nullable(),
   currency: z.string().default(DEFAULT_CURRENCY),
   vatRate: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid VAT rate"),
-  unit: z
-    .enum(["piece", "hour", "kg", "m", "m2", "m3", "liter"])
-    .default("piece"),
+  unit: z.enum(UNIT_TYPE_VALUES).default("piece"),
   weight: z
     .string()
     .regex(/^\d+(\.\d{1,3})?$/, "Invalid weight")
