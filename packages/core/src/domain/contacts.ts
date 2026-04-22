@@ -3,7 +3,10 @@ import { eq, and, or, ilike, sql, desc, asc } from "drizzle-orm";
 import { contacts, contactAddresses, documents } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
 import type { Contact, ContactAddress } from "@kivvi/database";
-import { CONTACT_TYPE_VALUES } from "@kivvi/database/src/enums";
+import {
+  CONTACT_TYPE_VALUES,
+  ADDRESS_TYPE_VALUES,
+} from "@kivvi/database/src/enums";
 import { getNextNumber } from "./number-sequences";
 
 // ============================================================================
@@ -431,7 +434,7 @@ export async function searchContacts(
 // ============================================================================
 
 export const createAddressSchema = z.object({
-  type: z.enum(["billing", "shipping", "other"]),
+  type: z.enum(ADDRESS_TYPE_VALUES),
   name: z.string().max(200).optional().nullable(),
   address: z.string().max(500).optional().nullable(),
   city: z.string().max(100).optional().nullable(),

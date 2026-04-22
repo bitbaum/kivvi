@@ -37,7 +37,7 @@ export const createRecurringConfigSchema = z.object({
 
 export const updateRecurringConfigSchema = z.object({
   isActive: z.boolean().optional(),
-  periodicity: z.enum(["monthly", "quarterly", "annual"]).optional(),
+  periodicity: z.enum(RECURRING_PERIODICITY_VALUES).optional(),
   startDate: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}/, "Invalid date")

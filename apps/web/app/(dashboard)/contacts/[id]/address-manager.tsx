@@ -12,13 +12,12 @@ import {
 import { FormInput, FormSelect } from "@/components/ui/form-field";
 import { Button } from "@/components/ui/button";
 import type { ContactAddress } from "@kivvi/database";
+import { ADDRESS_TYPE_VALUES } from "@kivvi/database/src/enums";
 
 interface AddressManagerProps {
   contactId: string;
   addresses: ContactAddress[];
 }
-
-const ADDRESS_TYPES = ["billing", "shipping", "other"] as const;
 
 export function AddressManager({ contactId, addresses }: AddressManagerProps) {
   const router = useRouter();
@@ -176,7 +175,7 @@ export function AddressManager({ contactId, addresses }: AddressManagerProps) {
                 name="type"
                 defaultValue={editingAddr?.type || "billing"}
               >
-                {ADDRESS_TYPES.map((at) => (
+                {ADDRESS_TYPE_VALUES.map((at) => (
                   <option key={at} value={at}>
                     {t(`addressType_${at}`)}
                   </option>
@@ -280,11 +279,7 @@ export function AddressManager({ contactId, addresses }: AddressManagerProps) {
             >
               {tc("cancel")}
             </Button>
-            <Button
-              type="submit"
-              size="sm"
-              disabled={isSubmitting}
-            >
+            <Button type="submit" size="sm" disabled={isSubmitting}>
               {isSubmitting && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
               {editingId ? tc("save") : t("addAddress")}
             </Button>

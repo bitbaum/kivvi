@@ -120,3 +120,6 @@ export const ITEM_STATUS_VALUES = [
   "recycled",
 ] as const;
 export type ItemStatusValue = (typeof ITEM_STATUS_VALUES)[number];
+
+export const ADDRESS_TYPE_VALUES = ["billing", "shipping", "other"] as const;
+export type AddressTypeValue = (typeof ADDRESS_TYPE_VALUES)[number];
