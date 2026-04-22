@@ -57,6 +57,16 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
 
   const specs = (item.specs as Record<string, string>) || {};
 
+  // Compute parts total for pricing section
+  const partsTotal = repairPartsList.reduce((sum, p) => {
+    try {
+      return sum.plus(new Decimal(p.quantity).times(new Decimal(p.unitCost)));
+    } catch {
+      return sum;
+    }
+  }, new Decimal(0));
+  const hasPartsTotal = partsTotal.greaterThan(0);
+
   // Generate QR code for label
   const baseUrl = process.env.NEXTAUTH_URL || "https://kivvi.vercel.app";
   const qrDataUrl = await generateQrDataUrl(`${baseUrl}/intake/items/${id}`);
@@ -344,14 +354,24 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
               {item.repairCost && parseFloat(item.repairCost) > 0 && (
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">
-                    {ti("repairCostLabel")}
+                    {hasPartsTotal
+                      ? ti("labourCostLabel")
+                      : ti("repairCostLabel")}
                   </span>
                   <span>+{formatCurrency(item.repairCost)}</span>
                 </div>
               )}
+              {hasPartsTotal && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">
+                    {ti("repairPartsTotal")}
+                  </span>
+                  <span>+{formatCurrency(partsTotal.toFixed(2))}</span>
+                </div>
+              )}
               {item.effectiveCost &&
-                item.repairCost &&
-                parseFloat(item.repairCost) > 0 && (
+                (hasPartsTotal ||
+                  (item.repairCost && parseFloat(item.repairCost) > 0)) && (
                   <div className="flex justify-between text-sm border-t pt-2">
                     <span className="text-muted-foreground font-medium">
                       {ti("effectiveCost")}

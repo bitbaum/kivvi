@@ -80,15 +80,19 @@ export interface InventoryItemWithDetails extends InventoryItem {
   effectiveCost?: string | null;
 }
 
-/** Calculate effective cost: acquisition + repairs. Used for true margin. */
-export function calculateEffectiveCost(item: {
-  estimatedValue: string | null;
-  repairCost: string | null;
-}): string | null {
-  if (!item.estimatedValue && !item.repairCost) return null;
+/** Calculate effective cost: acquisition + labour repairs + parts. Used for true margin. */
+export function calculateEffectiveCost(
+  item: {
+    estimatedValue: string | null;
+    repairCost: string | null;
+  },
+  partsCost?: string | null,
+): string | null {
+  if (!item.estimatedValue && !item.repairCost && !partsCost) return null;
   const base = new Decimal(item.estimatedValue ?? "0");
-  const repairs = new Decimal(item.repairCost ?? "0");
-  return base.plus(repairs).toDecimalPlaces(2).toString();
+  const labour = new Decimal(item.repairCost ?? "0");
+  const parts = new Decimal(partsCost ?? "0");
+  return base.plus(labour).plus(parts).toDecimalPlaces(2).toString();
 }
 
 export interface PaginatedInventoryItems {
@@ -746,13 +750,26 @@ export async function getInventoryItem(
 
   if (!result[0]) return null;
 
+  // Aggregate parts cost for accurate effectiveCost (labour + parts)
+  const [partsAgg] = await db
+    .select({
+      total: sql<string>`coalesce(sum(${repairParts.quantity} * ${repairParts.unitCost}), '0')`,
+    })
+    .from(repairParts)
+    .where(
+      and(
+        eq(repairParts.inventoryItemId, itemId),
+        eq(repairParts.companyId, companyId),
+      ),
+    );
+
   return {
     ...result[0].item,
     productName: result[0].productName,
     warehouseName: result[0].warehouseName,
     donorName: result[0].donorName,
     assignedToName: result[0].assignedToName,
-    effectiveCost: calculateEffectiveCost(result[0].item),
+    effectiveCost: calculateEffectiveCost(result[0].item, partsAgg?.total),
   };
 }
 
