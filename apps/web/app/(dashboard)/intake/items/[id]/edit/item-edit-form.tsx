@@ -71,8 +71,26 @@ export function ItemEditForm({
   const [error, setError] = useState<string | null>(null);
   const [item, setItem] = useState(initialItem);
 
+  // Controlled state for gate-relevant fields — drives pre-flight warnings only.
+  const [selectedStatus, setSelectedStatus] = useState(initialItem.status);
+  const [selectedCondition, setSelectedCondition] = useState(
+    initialItem.condition,
+  );
+  const [enteredAskingPrice, setEnteredAskingPrice] = useState(
+    initialItem.askingPrice || "",
+  );
+
   // Only show statuses that are valid transitions from current + current status
   const validNextStatuses = [item.status, ...getValidTransitions(item.status)];
+
+  // Pre-flight gate warnings — only relevant when transitioning to ready_for_sale
+  const gateWarnings: string[] = [];
+  if (selectedStatus === "ready_for_sale") {
+    if (selectedCondition === "untested")
+      gateWarnings.push("conditionRequired");
+    if (!enteredAskingPrice || parseFloat(enteredAskingPrice) <= 0)
+      gateWarnings.push("askingPriceRequired");
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -196,7 +214,8 @@ export function ItemEditForm({
               <FormSelect
                 id="condition"
                 name="condition"
-                defaultValue={item.condition}
+                value={selectedCondition}
+                onChange={(e) => setSelectedCondition(e.target.value)}
               >
                 {ITEM_CONDITION_VALUES.map((c) => (
                   <option key={c} value={c}>
@@ -212,7 +231,12 @@ export function ItemEditForm({
               >
                 {ti("status")}
               </label>
-              <FormSelect id="status" name="status" defaultValue={item.status}>
+              <FormSelect
+                id="status"
+                name="status"
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
+              >
                 {ITEM_STATUS_VALUES.filter((s) =>
                   validNextStatuses.includes(s),
                 ).map((s) => (
@@ -291,6 +315,17 @@ export function ItemEditForm({
           </div>
         </CardSection>
 
+        {/* Pre-flight gate warnings: shown when ready_for_sale is selected */}
+        {gateWarnings.length > 0 && (
+          <div className="rounded-xl border border-warning/30 bg-warning/5 px-4 py-3 space-y-1">
+            {gateWarnings.map((key) => (
+              <p key={key} className="text-sm text-warning">
+                ⚠ {ti(key as Parameters<typeof ti>[0])}
+              </p>
+            ))}
+          </div>
+        )}
+
         <CardSection title={ti("specifications")}>
           <ItemSpecsEditor initialSpecs={item.specs} />
         </CardSection>
@@ -321,7 +356,8 @@ export function ItemEditForm({
               <FormInput
                 id="askingPrice"
                 name="askingPrice"
-                defaultValue={item.askingPrice || ""}
+                value={enteredAskingPrice}
+                onChange={(e) => setEnteredAskingPrice(e.target.value)}
                 placeholder="0.00"
               />
             </div>
