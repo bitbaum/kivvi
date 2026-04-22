@@ -9,6 +9,7 @@ import {
 } from "@/app/actions/sellables";
 import { FormInput } from "@/components/ui/form-field";
 import { getConditionLabelKey } from "@/lib/config/inventory-items";
+import { formatCurrency } from "@/lib/utils";
 
 /**
  * The callback receives a normalized product structure. For backward compat,
@@ -185,7 +186,7 @@ export function ProductSearchInput({
                   <div className="flex flex-col items-end gap-0.5 shrink-0 text-xs">
                     {sellable.price && (
                       <span className="text-foreground font-medium">
-                        CHF {parseFloat(sellable.price).toFixed(2)}
+                        {formatCurrency(sellable.price)}
                       </span>
                     )}
                     {!isInventoryItem &&

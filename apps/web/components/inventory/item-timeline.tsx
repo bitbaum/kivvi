@@ -5,7 +5,7 @@ import {
   ShoppingCart,
   ShieldCheck,
 } from "lucide-react";
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatCurrency } from "@/lib/utils";
 
 interface RepairEntry {
   date: string;
@@ -160,7 +160,7 @@ export function ItemTimeline({
                   {labels.repair}
                   {event.cost && (
                     <span className="ml-2 font-normal text-muted-foreground">
-                      CHF {parseFloat(event.cost).toFixed(2)}
+                      {formatCurrency(event.cost)}
                       {event.hours && ` · ${event.hours}h`}
                     </span>
                   )}
@@ -181,7 +181,7 @@ export function ItemTimeline({
                 <p className="text-xs text-muted-foreground">
                   {labels.condition}: {event.conditionLabel}
                   {totalCost > 0 &&
-                    ` · CHF ${totalCost.toFixed(2)} ${labels.invested}`}
+                    ` · ${formatCurrency(totalCost.toFixed(2))} ${labels.invested}`}
                 </p>
               </>
             )}
@@ -201,7 +201,7 @@ export function ItemTimeline({
                 </p>
                 {event.price && (
                   <p className="text-xs text-muted-foreground">
-                    CHF {parseFloat(event.price).toFixed(2)}
+                    {formatCurrency(event.price)}
                   </p>
                 )}
               </>

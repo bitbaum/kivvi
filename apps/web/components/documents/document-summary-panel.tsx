@@ -3,6 +3,7 @@
 import { Loader2 } from "lucide-react";
 import type Decimal from "decimal.js";
 import type { useTranslations } from "next-intl";
+import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import type { DocumentTypeConfig } from "@/lib/config/document-types";
 
@@ -55,15 +56,15 @@ export function DocumentSummaryPanel({
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
             <span className="text-muted-foreground">{tc("subtotal")}</span>
-            <span>CHF {subtotal.toFixed(2).toString()}</span>
+            <span>{formatCurrency(subtotal.toFixed(2))}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-muted-foreground">{t("vat")}</span>
-            <span>CHF {vatAmount.toFixed(2).toString()}</span>
+            <span>{formatCurrency(vatAmount.toFixed(2))}</span>
           </div>
           <div className="flex justify-between border-t pt-2 text-lg font-bold">
             <span>{tc("total")}</span>
-            <span>CHF {total.toFixed(2).toString()}</span>
+            <span>{formatCurrency(total.toFixed(2))}</span>
           </div>
         </div>
       )}

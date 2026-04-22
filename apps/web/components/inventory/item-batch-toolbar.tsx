@@ -110,7 +110,7 @@ export function ItemBatchToolbar({
             onChange={(e) => setStatusValue(e.target.value)}
             className="rounded-lg border bg-background px-2 py-1.5 text-sm"
           >
-            <option value="">Status...</option>
+            <option value="">{t("setStatus")}</option>
             {editableStatuses.map((s) => (
               <option key={s} value={s}>
                 {t(getStatusLabelKey(s))}
@@ -136,7 +136,7 @@ export function ItemBatchToolbar({
             onChange={(e) => setConditionValue(e.target.value)}
             className="rounded-lg border bg-background px-2 py-1.5 text-sm"
           >
-            <option value="">Condition...</option>
+            <option value="">{t("setCondition")}</option>
             {ITEM_CONDITION_VALUES.map((c) => (
               <option key={c} value={c}>
                 {t(getConditionLabelKey(c))}

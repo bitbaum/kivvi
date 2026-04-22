@@ -176,7 +176,7 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
             </p>
             <p className="text-xs text-muted-foreground">
               {dashboard.totalProfit !== "0"
-                ? `CHF ${parseFloat(dashboard.totalProfit).toFixed(0)} ${ti("metricProfit")}`
+                ? `${formatCurrency(dashboard.totalProfit)} ${ti("metricProfit")}`
                 : ti("metricNoSalesYet")}
             </p>
           </div>

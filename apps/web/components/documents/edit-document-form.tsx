@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { ArrowLeft, Plus, Trash2, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { updateDocumentAction } from "@/app/actions/documents";
+import { formatCurrency } from "@/lib/utils";
 import type { DocumentTypeConfig } from "@/lib/config/document-types";
 import { SWISS_VAT_RATES, DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
 import { ContactPicker } from "@/components/contacts/contact-picker";
@@ -381,15 +382,15 @@ export function EditDocumentForm({
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{tc("subtotal")}</span>
-                <span>CHF {subtotal.toFixed(2).toString()}</span>
+                <span>{formatCurrency(subtotal.toFixed(2))}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{t("vat")}</span>
-                <span>CHF {vatAmount.toFixed(2).toString()}</span>
+                <span>{formatCurrency(vatAmount.toFixed(2))}</span>
               </div>
               <div className="flex justify-between border-t pt-2 text-lg font-bold">
                 <span>{tc("total")}</span>
-                <span>CHF {total.toFixed(2).toString()}</span>
+                <span>{formatCurrency(total.toFixed(2))}</span>
               </div>
             </div>
 
