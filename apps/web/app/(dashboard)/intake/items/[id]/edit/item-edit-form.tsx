@@ -83,6 +83,16 @@ export function ItemEditForm({
     const newStatus = formData.get("status") as string;
 
     startTransition(async () => {
+      const specsRaw = formData.get("specs") as string;
+      let specs: Record<string, string> | null = null;
+      try {
+        const parsed = JSON.parse(specsRaw);
+        specs = Object.keys(parsed).length > 0 ? parsed : null;
+      } catch {
+        /* ignore malformed */
+      }
+
+      // Step 1: update condition first (gate reads condition from DB)
       if (newCondition !== item.condition) {
         const condResult = await updateItemConditionAction(item.id, {
           condition: newCondition,
@@ -93,25 +103,8 @@ export function ItemEditForm({
         }
       }
 
-      if (newStatus !== item.status) {
-        const statusResult = await updateItemStatusAction(item.id, {
-          newStatus,
-        });
-        if (!statusResult.success) {
-          setError(statusResult.error || "Failed to update status");
-          return;
-        }
-      }
-
-      const specsRaw = formData.get("specs") as string;
-      let specs: Record<string, string> | null = null;
-      try {
-        const parsed = JSON.parse(specsRaw);
-        specs = Object.keys(parsed).length > 0 ? parsed : null;
-      } catch {
-        /* ignore malformed */
-      }
-
+      // Step 2: save all other fields (incl. askingPrice) before status transition,
+      // so the ready_for_sale gate reads the freshly-saved price from the DB.
       const result = await updateInventoryItemAction(item.id, {
         description: formData.get("description") as string,
         category: (formData.get("category") as string) || null,
@@ -125,13 +118,25 @@ export function ItemEditForm({
         specs,
       });
 
-      if (result.success) {
-        toast.success(tc("saved"));
-        router.push(`/intake/items/${item.id}`);
-        router.refresh();
-      } else {
+      if (!result.success) {
         setError(result.error || "Failed to update");
+        return;
       }
+
+      // Step 3: transition status last so all gate checks see updated DB state
+      if (newStatus !== item.status) {
+        const statusResult = await updateItemStatusAction(item.id, {
+          newStatus,
+        });
+        if (!statusResult.success) {
+          setError(statusResult.error || "Failed to update status");
+          return;
+        }
+      }
+
+      toast.success(tc("saved"));
+      router.push(`/intake/items/${item.id}`);
+      router.refresh();
     });
   }
 
@@ -343,9 +348,7 @@ export function ItemEditForm({
 
         <div className="flex justify-end gap-3">
           <Button asChild variant="secondary">
-            <Link href={`/intake/items/${item.id}`}>
-              {tc("cancel")}
-            </Link>
+            <Link href={`/intake/items/${item.id}`}>{tc("cancel")}</Link>
           </Button>
           <Button type="submit" disabled={isPending}>
             {isPending && <Loader2 className="h-4 w-4 animate-spin" />}

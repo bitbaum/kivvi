@@ -101,6 +101,7 @@ export default async function TestItemPage({
           existingData={checklistData}
           currentCondition={item.condition}
           currentStatus={item.status}
+          askingPrice={item.askingPrice}
         />
       )}
     </div>

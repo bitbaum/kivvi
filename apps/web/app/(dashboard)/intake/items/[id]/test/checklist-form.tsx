@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import {
   CheckCircle2,
@@ -53,6 +54,7 @@ interface ChecklistFormProps {
   existingData: ChecklistData | null;
   currentCondition: string;
   currentStatus: string;
+  askingPrice: string | null;
 }
 
 // ============================================================================
@@ -83,12 +85,9 @@ function CheckRow({
     <div
       className={cn(
         "rounded-xl border p-4 transition-colors",
-        state.result === "pass" &&
-          "border-success/30 bg-success/5",
-        state.result === "fail" &&
-          "border-destructive/30 bg-destructive/5",
-        state.result === "skip" &&
-          "border-warning/30 bg-warning/5",
+        state.result === "pass" && "border-success/30 bg-success/5",
+        state.result === "fail" && "border-destructive/30 bg-destructive/5",
+        state.result === "skip" && "border-warning/30 bg-warning/5",
         !state.result && "border-border bg-card",
       )}
     >
@@ -226,6 +225,7 @@ export function ChecklistForm({
   existingData,
   currentCondition,
   currentStatus,
+  askingPrice,
 }: ChecklistFormProps) {
   const router = useRouter();
   const tl = useTranslations("checklist");
@@ -383,9 +383,12 @@ export function ChecklistForm({
   ).length;
   const totalCount = template.checks.length;
 
+  const hasPriceSet = !!askingPrice && parseFloat(askingPrice) > 0;
+
   const canApprove =
     blockingOk &&
     hasCondition &&
+    hasPriceSet &&
     (currentStatus === "testing" || currentStatus === "intake");
 
   return (
@@ -454,6 +457,19 @@ export function ChecklistForm({
           </p>
         )}
       </div>
+
+      {/* Missing asking price notice — shown when checklist is otherwise ready */}
+      {blockingOk && hasCondition && !hasPriceSet && (
+        <div className="flex items-center justify-between rounded-xl border border-warning/30 bg-warning/5 px-4 py-3">
+          <p className="text-sm text-warning">{tc("askingPriceRequired")}</p>
+          <Link
+            href={`/intake/items/${itemId}/edit`}
+            className="ml-4 shrink-0 text-sm font-medium text-warning underline-offset-2 hover:underline"
+          >
+            {tc("setAskingPrice")}
+          </Link>
+        </div>
+      )}
 
       {/* Error */}
       {error && (

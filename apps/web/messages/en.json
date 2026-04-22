@@ -1150,6 +1150,8 @@
     "checklistSaved": "Checklist saved",
     "saveChecklist": "Save",
     "conditionRequired": "Condition is required for approval",
+    "askingPriceRequired": "Asking price must be set before approving for sale",
+    "setAskingPrice": "Set asking price →",
     "passLabel": "Pass",
     "failLabel": "Fail",
     "skipLabel": "Skip",
