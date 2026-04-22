@@ -874,6 +874,44 @@ export const inventoryItems = pgTable(
 );
 
 // ============================================================================
+// REPAIR PARTS
+// ============================================================================
+
+/**
+ * Individual parts consumed during an inventory item repair.
+ * Provides cost breakdown (labour vs. parts) and optional inventory deduction.
+ */
+export const repairParts = pgTable(
+  "repair_parts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    companyId: uuid("company_id")
+      .references(() => companies.id)
+      .notNull(),
+    inventoryItemId: uuid("inventory_item_id")
+      .references(() => inventoryItems.id, { onDelete: "cascade" })
+      .notNull(),
+    // Link to product catalog (optional — may be an external/ad-hoc part)
+    productId: uuid("product_id").references(() => products.id),
+    description: text("description").notNull(),
+    quantity: decimal("quantity", { precision: 10, scale: 4 })
+      .notNull()
+      .default("1"),
+    unitCost: decimal("unit_cost", { precision: 12, scale: 2 }).notNull(),
+    notes: text("notes"),
+    recordedByUserId: uuid("recorded_by_user_id").references(() => users.id),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    companyIdIdx: index("repair_parts_company_id_idx").on(table.companyId),
+    inventoryItemIdx: index("repair_parts_inventory_item_idx").on(
+      table.inventoryItemId,
+    ),
+  }),
+);
+
+// ============================================================================
 // PROJECTS
 // ============================================================================
 
@@ -1465,32 +1503,55 @@ export const serialNumbersRelations = relations(serialNumbers, ({ one }) => ({
   }),
 }));
 
-export const inventoryItemsRelations = relations(inventoryItems, ({ one }) => ({
+export const inventoryItemsRelations = relations(
+  inventoryItems,
+  ({ one, many }) => ({
+    company: one(companies, {
+      fields: [inventoryItems.companyId],
+      references: [companies.id],
+    }),
+    product: one(products, {
+      fields: [inventoryItems.productId],
+      references: [products.id],
+    }),
+    warehouse: one(warehouses, {
+      fields: [inventoryItems.warehouseId],
+      references: [warehouses.id],
+    }),
+    intakeDocument: one(documents, {
+      fields: [inventoryItems.intakeDocumentId],
+      references: [documents.id],
+      relationName: "intakeItems",
+    }),
+    saleDocument: one(documents, {
+      fields: [inventoryItems.saleDocumentId],
+      references: [documents.id],
+      relationName: "saleItems",
+    }),
+    donorContact: one(contacts, {
+      fields: [inventoryItems.donorContactId],
+      references: [contacts.id],
+    }),
+    repairParts: many(repairParts),
+  }),
+);
+
+export const repairPartsRelations = relations(repairParts, ({ one }) => ({
   company: one(companies, {
-    fields: [inventoryItems.companyId],
+    fields: [repairParts.companyId],
     references: [companies.id],
   }),
+  inventoryItem: one(inventoryItems, {
+    fields: [repairParts.inventoryItemId],
+    references: [inventoryItems.id],
+  }),
   product: one(products, {
-    fields: [inventoryItems.productId],
+    fields: [repairParts.productId],
     references: [products.id],
   }),
-  warehouse: one(warehouses, {
-    fields: [inventoryItems.warehouseId],
-    references: [warehouses.id],
-  }),
-  intakeDocument: one(documents, {
-    fields: [inventoryItems.intakeDocumentId],
-    references: [documents.id],
-    relationName: "intakeItems",
-  }),
-  saleDocument: one(documents, {
-    fields: [inventoryItems.saleDocumentId],
-    references: [documents.id],
-    relationName: "saleItems",
-  }),
-  donorContact: one(contacts, {
-    fields: [inventoryItems.donorContactId],
-    references: [contacts.id],
+  recordedBy: one(users, {
+    fields: [repairParts.recordedByUserId],
+    references: [users.id],
   }),
 }));
 
@@ -1711,6 +1772,8 @@ export type PriceList = typeof priceLists.$inferSelect;
 export type PriceRule = typeof priceRules.$inferSelect;
 export type InventoryItem = typeof inventoryItems.$inferSelect;
 export type NewInventoryItem = typeof inventoryItems.$inferInsert;
+export type RepairPart = typeof repairParts.$inferSelect;
+export type NewRepairPart = typeof repairParts.$inferInsert;
 export type RecurringInvoiceConfig =
   typeof recurringInvoiceConfigs.$inferSelect;
 export type NewRecurringInvoiceConfig =

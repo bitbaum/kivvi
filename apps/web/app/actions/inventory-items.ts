@@ -12,10 +12,13 @@ import {
   listInventoryItems,
   getInventoryItem,
   recordRepair,
+  addRepairPart,
+  removeRepairPart,
   recordChecklist,
   recordDataErasure,
   createInventoryItemSchema,
   updateInventoryItemSchema,
+  addRepairPartSchema,
 } from "@kivvi/core";
 import { DATA_ERASURE_METHODS } from "@kivvi/core/src/config/checklist-templates";
 import type { ChecklistItemCompletion } from "@kivvi/core/src/config/checklist-templates";
@@ -326,6 +329,49 @@ export async function recordRepairAction(
     return {
       success: false,
       error: safeErrorMessage(error, "Failed to record repair"),
+    };
+  }
+}
+
+export async function addRepairPartAction(
+  itemId: string,
+  input: unknown,
+): Promise<ActionResult<{ id: string }>> {
+  try {
+    const { companyId, userId } = await requireRole("member");
+    const parsed = addRepairPartSchema.safeParse(input);
+    if (!parsed.success)
+      return { success: false, ...formatZodError(parsed.error) };
+
+    const part = await db.transaction(async (tx) => {
+      return addRepairPart(tx, companyId, itemId, parsed.data, userId);
+    });
+
+    revalidatePath(`/intake/items/${itemId}`);
+    return { success: true, data: { id: part.id } };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to add repair part"),
+    };
+  }
+}
+
+export async function removeRepairPartAction(
+  partId: string,
+  itemId: string,
+): Promise<ActionResult<void>> {
+  try {
+    const { companyId } = await requireRole("member");
+    await db.transaction(async (tx) => {
+      return removeRepairPart(tx, companyId, partId);
+    });
+    revalidatePath(`/intake/items/${itemId}`);
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to remove repair part"),
     };
   }
 }

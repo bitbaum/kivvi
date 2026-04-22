@@ -3,12 +3,13 @@ import Decimal from "decimal.js";
 import { eq, and, ilike, desc, asc, sql, count, inArray } from "drizzle-orm";
 import {
   inventoryItems,
+  repairParts,
   products,
   warehouses,
   contacts,
   users,
 } from "@kivvi/database";
-import type { Database, InventoryItem } from "@kivvi/database";
+import type { Database, InventoryItem, RepairPart } from "@kivvi/database";
 import type {
   ItemStatusValue,
   ItemConditionValue,
@@ -407,6 +408,132 @@ export async function recordRepair(
     .returning();
 
   return updated;
+}
+
+// ============================================================================
+// REPAIR PARTS
+// ============================================================================
+
+export const addRepairPartSchema = z.object({
+  description: z.string().min(1, "Description is required").max(200),
+  quantity: z
+    .string()
+    .regex(/^\d+(\.\d{1,4})?$/, "Invalid quantity")
+    .default("1"),
+  unitCost: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid cost"),
+  productId: z.string().uuid().optional().nullable(),
+  notes: z.string().max(500).optional().nullable(),
+});
+
+export type AddRepairPartInput = z.infer<typeof addRepairPartSchema>;
+
+export type RepairPartWithProduct = RepairPart & {
+  product: { id: string; name: string; articleNumber: string | null } | null;
+};
+
+/**
+ * Add a part consumed during repair of an inventory item.
+ * Returns the created part record (with product name if linked).
+ */
+export async function addRepairPart(
+  db: Database,
+  companyId: string,
+  itemId: string,
+  input: AddRepairPartInput,
+  recordedByUserId?: string,
+): Promise<RepairPartWithProduct> {
+  // Verify the item belongs to this company
+  const [item] = await db
+    .select({ id: inventoryItems.id })
+    .from(inventoryItems)
+    .where(
+      and(
+        eq(inventoryItems.id, itemId),
+        eq(inventoryItems.companyId, companyId),
+      ),
+    )
+    .limit(1);
+  if (!item) throw new Error("Inventory item not found");
+
+  const [part] = await db
+    .insert(repairParts)
+    .values({
+      companyId,
+      inventoryItemId: itemId,
+      productId: input.productId ?? null,
+      description: input.description,
+      quantity: input.quantity,
+      unitCost: input.unitCost,
+      notes: input.notes ?? null,
+      recordedByUserId: recordedByUserId ?? null,
+    })
+    .returning();
+
+  // Fetch with product name if linked
+  if (part.productId) {
+    const [prod] = await db
+      .select({
+        id: products.id,
+        name: products.name,
+        articleNumber: products.articleNumber,
+      })
+      .from(products)
+      .where(eq(products.id, part.productId))
+      .limit(1);
+    return { ...part, product: prod ?? null };
+  }
+
+  return { ...part, product: null };
+}
+
+/**
+ * Remove a repair part record. Validates tenant ownership.
+ */
+export async function removeRepairPart(
+  db: Database,
+  companyId: string,
+  partId: string,
+): Promise<void> {
+  const [part] = await db
+    .select({ id: repairParts.id })
+    .from(repairParts)
+    .where(
+      and(eq(repairParts.id, partId), eq(repairParts.companyId, companyId)),
+    )
+    .limit(1);
+  if (!part) throw new Error("Repair part not found");
+
+  await db.delete(repairParts).where(eq(repairParts.id, partId));
+}
+
+/**
+ * List all repair parts for an inventory item, newest first.
+ */
+export async function listRepairParts(
+  db: Database,
+  companyId: string,
+  itemId: string,
+): Promise<RepairPartWithProduct[]> {
+  const rows = await db
+    .select({
+      part: repairParts,
+      product: {
+        id: products.id,
+        name: products.name,
+        articleNumber: products.articleNumber,
+      },
+    })
+    .from(repairParts)
+    .leftJoin(products, eq(repairParts.productId, products.id))
+    .where(
+      and(
+        eq(repairParts.inventoryItemId, itemId),
+        eq(repairParts.companyId, companyId),
+      ),
+    )
+    .orderBy(desc(repairParts.createdAt));
+
+  return rows.map((r) => ({ ...r.part, product: r.product ?? null }));
 }
 
 /**

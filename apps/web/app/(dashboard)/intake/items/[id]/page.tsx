@@ -12,7 +12,7 @@ import {
 import { getTranslations } from "next-intl/server";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
-import { getInventoryItem } from "@kivvi/core";
+import { getInventoryItem, listRepairParts } from "@kivvi/core";
 import { isValidUUID, formatCurrency, formatDate } from "@/lib/utils";
 import Decimal from "decimal.js";
 import { DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
@@ -31,6 +31,7 @@ import {
   getConditionLabelKey,
 } from "@/lib/config/inventory-items";
 import { ItemTimeline } from "@/components/inventory/item-timeline";
+import { RepairPartsSection } from "@/components/inventory/repair-parts-section";
 import { getChecklistTemplate } from "@kivvi/core/src/config/checklist-templates";
 import type { ChecklistData } from "@kivvi/core/src/config/checklist-templates";
 
@@ -48,7 +49,10 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
   const { id } = await params;
   if (!isValidUUID(id)) notFound();
 
-  const item = await getInventoryItem(db, session.user.companyId, id);
+  const [item, repairPartsList] = await Promise.all([
+    getInventoryItem(db, session.user.companyId, id),
+    listRepairParts(db, session.user.companyId, id),
+  ]);
   if (!item) notFound();
 
   const specs = (item.specs as Record<string, string>) || {};
@@ -320,6 +324,8 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
               </CardSection>
             );
           })()}
+          {/* Repair Parts */}
+          <RepairPartsSection itemId={id} initialParts={repairPartsList} />
         </div>
 
         {/* Sidebar */}
