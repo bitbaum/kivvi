@@ -1059,6 +1059,7 @@
     "serialNumber": "Numéro de série",
     "locationShelf": "Emplacement / Étagère",
     "warehouseLabel": "Entrepôt",
+    "allWarehouses": "Tous les entrepôts",
     "specifications": "Spécifications",
     "specValue": "Valeur",
     "addSpec": "Ajouter une propriété",

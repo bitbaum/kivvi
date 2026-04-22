@@ -1057,6 +1057,7 @@
     "serialNumber": "Seriennummer",
     "locationShelf": "Standort / Regal",
     "warehouseLabel": "Lager",
+    "allWarehouses": "Alle Lager",
     "specifications": "Spezifikationen",
     "specValue": "Wert",
     "addSpec": "Eigenschaft hinzufügen",

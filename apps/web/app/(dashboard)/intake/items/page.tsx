@@ -10,6 +10,7 @@ import {
   getInventoryItemCounts,
   getInventoryItemConditionCounts,
   getInventoryDashboard,
+  listWarehouses,
 } from "@kivvi/core";
 import { PageHeader } from "@/components/page-header";
 import { SearchInput } from "@/components/search-input";
@@ -35,6 +36,7 @@ interface PageProps {
     status?: string;
     condition?: string;
     assignedTo?: string;
+    warehouseId?: string;
     page?: string;
   }>;
 }
@@ -49,22 +51,31 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
   const condition = params.condition;
   const search = params.search;
   const assignedTo = params.assignedTo; // "me" | undefined
+  const warehouseId = params.warehouseId;
 
   const assignedToUserId = assignedTo === "me" ? session.user.id : undefined;
 
-  const [result, counts, conditionCounts, dashboard] = await Promise.all([
-    listInventoryItems(db, session.user.companyId, {
-      status,
-      condition,
-      search,
-      assignedToUserId,
-      page,
-      pageSize: 25,
-    }),
-    getInventoryItemCounts(db, session.user.companyId),
-    getInventoryItemConditionCounts(db, session.user.companyId, status),
-    getInventoryDashboard(db, session.user.companyId, { periodDays: 30 }),
-  ]);
+  const [result, counts, conditionCounts, dashboard, allWarehouses] =
+    await Promise.all([
+      listInventoryItems(db, session.user.companyId, {
+        status,
+        condition,
+        search,
+        assignedToUserId,
+        warehouseId,
+        page,
+        pageSize: 25,
+      }),
+      getInventoryItemCounts(db, session.user.companyId),
+      getInventoryItemConditionCounts(
+        db,
+        session.user.companyId,
+        status,
+        warehouseId,
+      ),
+      getInventoryDashboard(db, session.user.companyId, { periodDays: 30 }),
+      listWarehouses(db, session.user.companyId),
+    ]);
 
   const totalItems = Object.values(counts).reduce((a, b) => a + b, 0);
 
@@ -75,6 +86,7 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
       status,
       condition,
       assignedTo,
+      warehouseId,
       page: String(page),
       ...overrides,
     };
@@ -98,6 +110,7 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
                 condition: condition || undefined,
                 search: search || undefined,
                 assignedToUserId: assignedToUserId,
+                warehouseId: warehouseId,
               }}
             />
             {(counts["repair"] ?? 0) > 0 && (
@@ -261,6 +274,37 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
                 </Link>
               ),
             )}
+          </div>
+        )}
+
+        {/* Warehouse filter pills — only shown when company has multiple warehouses */}
+        {allWarehouses.length > 1 && (
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href={buildHref({ warehouseId: undefined, page: undefined })}
+              className={cn(
+                "rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
+                !warehouseId
+                  ? "bg-secondary text-secondary-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80",
+              )}
+            >
+              {ti("allWarehouses")}
+            </Link>
+            {allWarehouses.map((w) => (
+              <Link
+                key={w.id}
+                href={buildHref({ warehouseId: w.id, page: undefined })}
+                className={cn(
+                  "rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
+                  warehouseId === w.id
+                    ? "bg-secondary text-secondary-foreground"
+                    : "bg-muted text-muted-foreground hover:bg-muted/80",
+                )}
+              >
+                {w.name}
+              </Link>
+            ))}
           </div>
         )}
       </div>

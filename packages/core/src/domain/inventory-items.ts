@@ -762,10 +762,14 @@ export async function getInventoryItemConditionCounts(
   db: Database,
   companyId: string,
   statusFilter?: string,
+  warehouseId?: string,
 ): Promise<Record<string, number>> {
   const conditions = [eq(inventoryItems.companyId, companyId)];
   if (statusFilter) {
     conditions.push(eq(inventoryItems.status, statusFilter as ItemStatusValue));
+  }
+  if (warehouseId) {
+    conditions.push(eq(inventoryItems.warehouseId, warehouseId));
   }
 
   const result = await db

@@ -10,6 +10,7 @@ interface InventoryItemsExportButtonProps {
     condition?: string;
     search?: string;
     assignedToUserId?: string;
+    warehouseId?: string;
   };
 }
 

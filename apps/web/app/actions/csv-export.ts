@@ -201,6 +201,7 @@ export async function exportInventoryItemsCsvAction(filters?: {
   condition?: string;
   search?: string;
   assignedToUserId?: string;
+  warehouseId?: string;
 }): Promise<ActionResult<CsvExportResult>> {
   try {
     const { companyId } = await requireRole("member");
