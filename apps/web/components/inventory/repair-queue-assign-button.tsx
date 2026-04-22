@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { User, ChevronDown, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { assignItemTechnicianAction } from "@/app/actions/inventory-items";
 
@@ -23,6 +24,7 @@ export function RepairQueueAssignButton({
   assignedToName,
   companyUsers,
 }: RepairQueueAssignButtonProps) {
+  const ti = useTranslations("inventory");
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
@@ -53,7 +55,7 @@ export function RepairQueueAssignButton({
       >
         <User className="h-3.5 w-3.5" />
         <span className="max-w-[100px] truncate">
-          {assignedToName ?? "Zuweisen"}
+          {assignedToName ?? ti("assignItem")}
         </span>
         <ChevronDown className="h-3 w-3 opacity-60" />
       </button>
@@ -103,7 +105,7 @@ export function RepairQueueAssignButton({
                     className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm text-destructive transition-colors hover:bg-destructive/10"
                   >
                     <X className="h-3.5 w-3.5" />
-                    Zuweisung aufheben
+                    {ti("unassignItem")}
                   </button>
                 </>
               )}

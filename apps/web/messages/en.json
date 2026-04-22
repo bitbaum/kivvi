@@ -1161,6 +1161,8 @@
     "unassignedItems": "Unassigned",
     "ageInRepair": "{days} days",
     "assignItem": "Assign",
+    "unassignItem": "Remove assignment",
+    "repairDoneAction": "Done → Testing",
     "noRepairItems": "No items in repair",
     "backToRepairQueue": "Back to Queue",
     "dataErasure": "Data Erasure",

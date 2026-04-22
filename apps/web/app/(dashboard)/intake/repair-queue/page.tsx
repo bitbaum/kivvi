@@ -13,6 +13,7 @@ import {
   getConditionLabelKey,
 } from "@/lib/config/inventory-items";
 import { RepairQueueAssignButton } from "@/components/inventory/repair-queue-assign-button";
+import { RepairQueueDoneButton } from "@/components/inventory/repair-queue-done-button";
 
 function daysAgo(date: Date | string): number {
   const d = typeof date === "string" ? new Date(date) : date;
@@ -125,6 +126,7 @@ export default async function RepairQueuePage() {
                           </p>
                         )}
                       </div>
+                      <RepairQueueDoneButton itemId={item.id} />
                       <RepairQueueAssignButton
                         itemId={item.id}
                         assignedToUserId={item.assignedToUserId ?? null}
@@ -181,6 +183,7 @@ export default async function RepairQueuePage() {
                           {ti("ageInRepair", { days })}
                         </span>
                       </div>
+                      <RepairQueueDoneButton itemId={item.id} />
                       <RepairQueueAssignButton
                         itemId={item.id}
                         assignedToUserId={item.assignedToUserId ?? null}
