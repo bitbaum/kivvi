@@ -1077,6 +1077,7 @@
     "provenance": "Provenance",
     "donor": "Donor",
     "viewIntakeDocument": "View Intake Document",
+    "viewSaleInvoice": "View Sale Invoice",
     "label": "Label",
     "printLabels": "Print Labels",
     "donationReceipt": "Donation Receipt",

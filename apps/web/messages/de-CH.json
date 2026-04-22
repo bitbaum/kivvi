@@ -1077,6 +1077,7 @@
     "provenance": "Herkunft",
     "donor": "Spender",
     "viewIntakeDocument": "Eingangsbeleg anzeigen",
+    "viewSaleInvoice": "Verkaufsrechnung anzeigen",
     "label": "Etikett",
     "printLabels": "Etiketten drucken",
     "donationReceipt": "Spendenquittung",

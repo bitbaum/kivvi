@@ -1079,6 +1079,7 @@
     "provenance": "Provenance",
     "donor": "Donateur",
     "viewIntakeDocument": "Voir le document d'entrée",
+    "viewSaleInvoice": "Voir la facture de vente",
     "label": "Étiquette",
     "printLabels": "Imprimer les étiquettes",
     "donationReceipt": "Reçu de don",

@@ -392,6 +392,17 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
                         </div>
                       );
                     })()}
+                  {item.saleDocumentId && (
+                    <div className="border-t pt-2">
+                      <Link
+                        href={`/sales/invoices/${item.saleDocumentId}`}
+                        className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
+                      >
+                        <Receipt className="h-3.5 w-3.5" />
+                        {ti("viewSaleInvoice")}
+                      </Link>
+                    </div>
+                  )}
                 </>
               )}
               {!item.estimatedValue && !item.askingPrice && !item.soldPrice && (
