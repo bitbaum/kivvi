@@ -194,7 +194,7 @@ export async function recordPaymentAction(
 
           const emailData = {
             recipientEmail: contactEmail,
-            recipientName: doc.contact?.name || "Kunde",
+            recipientName: doc.contact?.name || "Customer",
             companyName,
             documentNumber: doc.number,
             amount: parsed.data.amount,

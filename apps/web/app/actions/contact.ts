@@ -14,8 +14,8 @@ import { CONTACT_EMAIL } from "@/lib/config/site";
 // ============================================================================
 
 const contactFormSchema = z.object({
-  name: z.string().min(2, "Name muss mindestens 2 Zeichen haben"),
-  email: z.string().email("Ungültige E-Mail-Adresse"),
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Invalid email address"),
   organisation: z.string().optional(),
   betriebstyp: z
     .enum([
@@ -28,7 +28,7 @@ const contactFormSchema = z.object({
     .optional(),
   message: z
     .string()
-    .max(2000, "Nachricht darf maximal 2000 Zeichen haben")
+    .max(2000, "Message must be at most 2000 characters")
     .optional(),
   type: z
     .enum(["demo_request", "waitlist", "general"])

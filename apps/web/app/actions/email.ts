@@ -34,7 +34,7 @@ import { isEmailConfigured } from "@/lib/config/email";
 
 const sendEmailSchema = z.object({
   documentId: z.string().uuid(),
-  recipientEmail: z.string().email("Ungültige E-Mail-Adresse"),
+  recipientEmail: z.string().email("Invalid email address"),
 });
 
 // ============================================================================
@@ -64,7 +64,7 @@ export async function sendDocumentEmailAction(
       return {
         success: false,
         error:
-          "E-Mail-Versand ist nicht konfiguriert. Bitte setzen Sie EMAIL_USER und EMAIL_PASS in den Umgebungsvariablen oder kontaktieren Sie den Administrator.",
+          "Email sending is not configured. Please set EMAIL_USER and EMAIL_PASS in the environment variables or contact the administrator.",
       };
     }
 
@@ -82,7 +82,7 @@ export async function sendDocumentEmailAction(
 
     const emailData = {
       recipientEmail: parsed.data.recipientEmail,
-      recipientName: doc.contact?.name || "Kunde",
+      recipientName: doc.contact?.name || "Customer",
       companyName,
       documentNumber: doc.number,
       documentType: doc.type,
@@ -129,7 +129,7 @@ export async function sendDocumentEmailAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "E-Mail konnte nicht gesendet werden"),
+      error: safeErrorMessage(error, "Email could not be sent"),
     };
   }
 }
@@ -149,7 +149,7 @@ export async function sendPasswordResetEmail(
 ): Promise<void> {
   if (!isEmailConfigured()) {
     throw new Error(
-      "E-Mail-Versand ist nicht konfiguriert. Bitte setzen Sie EMAIL_USER und EMAIL_PASS in den Umgebungsvariablen oder kontaktieren Sie den Administrator.",
+      "Email sending is not configured. Please set EMAIL_USER and EMAIL_PASS in the environment variables or contact the administrator.",
     );
   }
 
