@@ -23,6 +23,7 @@ interface ItemData {
   donorName: string | null;
   productName: string | null;
   photoBase64: string | null;
+  qcProgress?: { done: number; total: number; signedOff: boolean };
 }
 
 interface SelectableItemListProps {
@@ -99,6 +100,17 @@ export function SelectableItemList({ items }: SelectableItemListProps) {
               {item.itemNumber}
               {item.productName && ` — ${item.productName}`}
             </div>
+            {item.qcProgress && (
+              <div className="mt-0.5 text-xs">
+                {item.qcProgress.signedOff ? (
+                  <span className="text-success font-medium">✓ QC</span>
+                ) : item.qcProgress.total > 0 ? (
+                  <span className="text-muted-foreground">
+                    QC {item.qcProgress.done}/{item.qcProgress.total}
+                  </span>
+                ) : null}
+              </div>
+            )}
           </Link>
           <span
             className={cn(

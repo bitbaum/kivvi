@@ -17,6 +17,10 @@ import { EmptyState } from "@/components/empty-state";
 import { cn, formatCurrency } from "@/lib/utils";
 import { ITEM_STATUS_VALUES } from "@kivvi/database/src/enums";
 import { getStatusLabelKey } from "@/lib/config/inventory-items";
+import {
+  getChecklistTemplate,
+  type ChecklistData,
+} from "@kivvi/core/src/config/checklist-templates";
 
 interface PageProps {
   searchParams: Promise<{
@@ -231,17 +235,38 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
       ) : (
         <div className="rounded-xl border bg-card">
           <SelectableItemList
-            items={result.data.map((item) => ({
-              id: item.id,
-              itemNumber: item.itemNumber,
-              description: item.description,
-              condition: item.condition,
-              status: item.status,
-              askingPrice: item.askingPrice,
-              donorName: item.donorName || null,
-              productName: item.productName || null,
-              photoBase64: item.photoBase64 || null,
-            }))}
+            items={result.data.map((item) => {
+              const cd = item.checklistData as ChecklistData | null;
+              let qcProgress:
+                | { done: number; total: number; signedOff: boolean }
+                | undefined;
+              if (cd?.completions?.length && item.category) {
+                const template = getChecklistTemplate(item.category);
+                const requiredTotal = template.checks.filter(
+                  (c) => c.required,
+                ).length;
+                const done = cd.completions.filter(
+                  (c) => c.result === "pass",
+                ).length;
+                qcProgress = {
+                  done,
+                  total: requiredTotal,
+                  signedOff: !!cd.signedOffAt,
+                };
+              }
+              return {
+                id: item.id,
+                itemNumber: item.itemNumber,
+                description: item.description,
+                condition: item.condition,
+                status: item.status,
+                askingPrice: item.askingPrice,
+                donorName: item.donorName || null,
+                productName: item.productName || null,
+                photoBase64: item.photoBase64 || null,
+                qcProgress,
+              };
+            })}
           />
 
           {/* Pagination */}
