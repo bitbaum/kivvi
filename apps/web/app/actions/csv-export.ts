@@ -34,18 +34,18 @@ export async function exportContactsCsvAction(filters?: {
     });
 
     const headers = [
-      "Kontaktnummer",
+      "Contact Number",
       "Name",
-      "Vorname",
-      "Nachname",
-      "Typ",
-      "E-Mail",
-      "Telefon",
-      "Mobil",
-      "Adresse",
-      "PLZ",
-      "Ort",
-      "Land",
+      "First Name",
+      "Last Name",
+      "Type",
+      "Email",
+      "Phone",
+      "Mobile",
+      "Address",
+      "Postal Code",
+      "City",
+      "Country",
     ];
 
     const rows = result.data.map((c) => [
@@ -68,7 +68,7 @@ export async function exportContactsCsvAction(filters?: {
       success: true,
       data: {
         csvData: buildCsv(headers, rows),
-        filename: `kontakte-${date}.csv`,
+        filename: `contacts-${date}.csv`,
         rowCount: rows.length,
       },
     };
@@ -92,16 +92,16 @@ export async function exportProductsCsvAction(filters?: {
     });
 
     const headers = [
-      "Artikelnummer",
+      "Article Number",
       "Name",
-      "Typ",
+      "Type",
       "SKU",
-      "Preis",
-      "Einkaufspreis",
-      "MWST",
-      "Einheit",
-      "Lagerbestand",
-      "Mindestbestand",
+      "Price",
+      "Purchase Price",
+      "VAT",
+      "Unit",
+      "Stock",
+      "Min Stock",
     ];
 
     const rows = result.data.map((p) => [
@@ -122,7 +122,7 @@ export async function exportProductsCsvAction(filters?: {
       success: true,
       data: {
         csvData: buildCsv(headers, rows),
-        filename: `produkte-${date}.csv`,
+        filename: `products-${date}.csv`,
         rowCount: rows.length,
       },
     };
@@ -152,16 +152,16 @@ export async function exportDocumentsCsvAction(filters?: {
     });
 
     const headers = [
-      "Nummer",
-      "Typ",
+      "Number",
+      "Type",
       "Status",
-      "Kontakt",
-      "Datum",
-      "Fällig",
-      "Netto",
-      "MWST",
+      "Contact",
+      "Date",
+      "Due",
+      "Net",
+      "VAT",
       "Total",
-      "Währung",
+      "Currency",
     ];
 
     const rows = result.data.map((d) => [
@@ -178,7 +178,7 @@ export async function exportDocumentsCsvAction(filters?: {
     ]);
 
     const date = new Date().toISOString().split("T")[0];
-    const typeLabel = filters?.type || "dokumente";
+    const typeLabel = filters?.type || "documents";
     return {
       success: true,
       data: {
@@ -211,24 +211,24 @@ export async function exportInventoryItemsCsvAction(filters?: {
     });
 
     const headers = [
-      "Artikelnummer",
-      "Beschreibung",
-      "Kategorie",
-      "Zustand",
+      "Item Number",
+      "Description",
+      "Category",
+      "Condition",
       "Status",
-      "Produkt",
-      "Lager",
-      "Standort",
-      "Spender",
-      "Zugewiesen an",
-      "Schätzwert",
-      "Verkaufspreis",
-      "Mindestpreis",
-      "Verkauft für",
-      "Reparaturkosten",
-      "Reparaturstunden",
-      "Seriennummer",
-      "Erfasst am",
+      "Product",
+      "Warehouse",
+      "Location",
+      "Donor",
+      "Assigned To",
+      "Estimated Value",
+      "Asking Price",
+      "Min Price",
+      "Sold Price",
+      "Repair Cost",
+      "Repair Hours",
+      "Serial Number",
+      "Created At",
     ];
 
     const rows = result.data.map((item) => [
@@ -257,7 +257,7 @@ export async function exportInventoryItemsCsvAction(filters?: {
       success: true,
       data: {
         csvData: buildCsv(headers, rows),
-        filename: `inventar-${date}.csv`,
+        filename: `inventory-${date}.csv`,
         rowCount: rows.length,
       },
     };
