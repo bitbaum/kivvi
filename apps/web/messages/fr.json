@@ -1129,6 +1129,7 @@
     "testItem": "Tester l'article",
     "checklistTitle": "Liste de contrôle",
     "checklistResults": "Contrôle qualité",
+    "checklistSignedOff": "Approuvé le",
     "checklistProgress": "{done} sur {total} contrôles",
     "approveForSale": "Approuver pour la vente",
     "approvingForSale": "Approbation...",

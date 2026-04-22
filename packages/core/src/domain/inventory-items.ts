@@ -163,6 +163,7 @@ export async function updateItemStatus(
   companyId: string,
   itemId: string,
   newStatus: (typeof ITEM_STATUS_VALUES)[number],
+  userId?: string,
 ): Promise<InventoryItem> {
   // Fetch current item
   const [current] = await db
@@ -187,6 +188,7 @@ export async function updateItemStatus(
 
   // ── Quality gates for ready_for_sale ────────────────────────────────────
   // These prevent selling items that haven't been properly assessed.
+  let signedOffChecklistData: ChecklistData | null = null;
   if (newStatus === "ready_for_sale") {
     // Gate 1: condition must be assessed
     if (current.condition === "untested") {
@@ -213,13 +215,25 @@ export async function updateItemStatus(
           `Cannot approve for sale: blocking checks incomplete or failed (${missing.join(", ")})`,
         );
       }
+      // Stamp QC sign-off on the checklist data
+      signedOffChecklistData = {
+        ...checklistData,
+        signedOffAt: new Date().toISOString(),
+        ...(userId ? { signedOffBy: userId } : {}),
+      };
     }
   }
   // ────────────────────────────────────────────────────────────────────────
 
   const [updated] = await db
     .update(inventoryItems)
-    .set({ status: newStatus, updatedAt: new Date() })
+    .set({
+      status: newStatus,
+      ...(signedOffChecklistData
+        ? { checklistData: signedOffChecklistData }
+        : {}),
+      updatedAt: new Date(),
+    })
     .where(
       and(
         eq(inventoryItems.id, itemId),

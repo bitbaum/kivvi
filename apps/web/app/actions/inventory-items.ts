@@ -102,13 +102,19 @@ export async function updateItemStatusAction(
   input: unknown,
 ): Promise<ActionResult<{ id: string; status: string }>> {
   try {
-    const { companyId } = await requireRole("member");
+    const { companyId, userId } = await requireRole("member");
     const parsed = updateStatusSchema.safeParse(input);
     if (!parsed.success)
       return { success: false, ...formatZodError(parsed.error) };
 
     const item = await db.transaction(async (tx) => {
-      return updateItemStatus(tx, companyId, itemId, parsed.data.newStatus);
+      return updateItemStatus(
+        tx,
+        companyId,
+        itemId,
+        parsed.data.newStatus,
+        userId,
+      );
     });
 
     dispatchWebhookEvent(db, companyId, "inventory_item.status_changed", {

@@ -119,6 +119,7 @@ Use after record_repair to move an item back to testing. Use when a technician c
         context.companyId,
         item.id,
         params.status,
+        context.userId,
       );
 
       return {

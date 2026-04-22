@@ -1127,6 +1127,7 @@
     "testItem": "Artikel testen",
     "checklistTitle": "Prüfliste",
     "checklistResults": "QC-Prüfung",
+    "checklistSignedOff": "Freigegeben am",
     "checklistProgress": "{done} von {total} Prüfungen",
     "approveForSale": "Für Verkauf freigeben",
     "approvingForSale": "Wird freigegeben...",

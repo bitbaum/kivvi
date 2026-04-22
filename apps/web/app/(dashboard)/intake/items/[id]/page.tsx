@@ -296,6 +296,16 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
                       );
                     })}
                 </div>
+                {/* QC sign-off */}
+                {checklistData.signedOffAt && (
+                  <div className="mt-3 flex items-center gap-1.5 rounded-md bg-success/10 px-3 py-2 text-xs text-success">
+                    <span>✓</span>
+                    <span>
+                      {ti("checklistSignedOff")}{" "}
+                      {formatDate(checklistData.signedOffAt)}
+                    </span>
+                  </div>
+                )}
               </CardSection>
             );
           })()}
