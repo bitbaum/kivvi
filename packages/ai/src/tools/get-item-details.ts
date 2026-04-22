@@ -21,7 +21,7 @@ export const getItemDetailsTool: Tool = {
     context: ExecutionContext,
   ): Promise<ToolResult> => {
     try {
-      const { getInventoryItem } =
+      const { getInventoryItem, listRepairParts } =
         await import("@kivvi/core/src/domain/inventory-items");
       const { inventoryItems } = await import("@kivvi/database");
       const db = getDb(context);
@@ -60,7 +60,10 @@ export const getItemDetailsTool: Tool = {
         itemId = row.id;
       }
 
-      const item = await getInventoryItem(db, context.companyId, itemId);
+      const [item, repairParts] = await Promise.all([
+        getInventoryItem(db, context.companyId, itemId),
+        listRepairParts(db, context.companyId, itemId),
+      ]);
 
       if (!item) {
         return {
@@ -135,12 +138,24 @@ export const getItemDetailsTool: Tool = {
               : null,
           },
           repair: {
-            totalCost:
+            labourCost:
               item.repairCost && parseFloat(item.repairCost) > 0
                 ? `${currency} ${parseFloat(item.repairCost).toFixed(2)}`
                 : null,
             totalHours: item.repairHours ? parseFloat(item.repairHours) : null,
             logEntries: repairLines,
+            parts: repairParts.map((p) => ({
+              id: p.id,
+              description: p.description,
+              quantity: parseFloat(p.quantity),
+              unitCost: `${currency} ${parseFloat(p.unitCost).toFixed(2)}`,
+              lineTotal: `${currency} ${(parseFloat(p.quantity) * parseFloat(p.unitCost)).toFixed(2)}`,
+              notes: p.notes ?? null,
+            })),
+            partsTotal:
+              repairParts.length > 0
+                ? `${currency} ${repairParts.reduce((sum, p) => sum + parseFloat(p.quantity) * parseFloat(p.unitCost), 0).toFixed(2)}`
+                : null,
           },
           dataErasure: {
             erased: item.dataErasuredAt !== null,

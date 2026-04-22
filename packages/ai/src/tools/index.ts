@@ -32,6 +32,7 @@ export { prepareDocumentTool } from "./prepare-document";
 export { searchInventoryTool } from "./search-inventory";
 export { getInventoryDashboardTool } from "./get-inventory-dashboard";
 export { recordRepairTool } from "./record-repair";
+export { recordRepairPartTool } from "./record-repair-part";
 export {
   updateItemStatusTool,
   updateItemConditionTool,
@@ -72,6 +73,7 @@ import { prepareDocumentTool } from "./prepare-document";
 import { searchInventoryTool } from "./search-inventory";
 import { getInventoryDashboardTool } from "./get-inventory-dashboard";
 import { recordRepairTool } from "./record-repair";
+import { recordRepairPartTool } from "./record-repair-part";
 import {
   updateItemStatusTool,
   updateItemConditionTool,
@@ -116,6 +118,7 @@ export function getDefaultTools(): Tool[] {
     searchInventoryTool,
     getInventoryDashboardTool,
     recordRepairTool,
+    recordRepairPartTool,
     updateItemStatusTool,
     updateItemConditionTool,
     recordDataErasureTool,
