@@ -92,12 +92,6 @@ export default async function IntakeDetailPage({ params }: PageProps) {
               <p className="text-sm text-muted-foreground">
                 {ti("noItemsFound")}
               </p>
-              <Link
-                href={`/intake/new?intakeDocumentId=${id}`}
-                className="mt-1 text-xs text-primary hover:underline"
-              >
-                {ti("newIntake")}
-              </Link>
             </div>
           ) : (
             <div className="divide-y rounded-lg border">
