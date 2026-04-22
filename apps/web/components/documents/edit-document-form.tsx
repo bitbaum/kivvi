@@ -17,16 +17,7 @@ import {
   calculateItemTotal,
   calculateDocumentTotals,
 } from "./calculate-item-total";
-
-interface LineItem {
-  id: string;
-  productId: string | null;
-  description: string;
-  quantity: string;
-  unitPrice: string;
-  discount: string;
-  vatRate: string;
-}
+import type { LineItem } from "./document-form";
 
 interface EditDocumentFormProps {
   documentId: string;
@@ -74,11 +65,13 @@ export function EditDocumentForm({
       {
         id: crypto.randomUUID(),
         productId: null,
+        inventoryItemId: null,
         description: "",
         quantity: "1",
         unitPrice: "0.00",
         discount: "0",
         vatRate: DEFAULT_VAT_RATE,
+        stockQuantity: null,
       },
     ]);
 
@@ -118,6 +111,7 @@ export function EditDocumentForm({
         items: validItems.map((item, index) => ({
           position: index,
           productId: item.productId || null,
+          inventoryItemId: item.inventoryItemId || null,
           description: item.description,
           quantity: item.quantity,
           unitPrice: item.unitPrice,

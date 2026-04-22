@@ -675,6 +675,7 @@ export async function updateDocument(
         items.map((item, index) => ({
           documentId,
           productId: item.productId ?? null,
+          inventoryItemId: item.inventoryItemId ?? null,
           position: item.position ?? index,
           description: item.description,
           quantity: item.quantity,

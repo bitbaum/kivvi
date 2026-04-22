@@ -76,6 +76,7 @@ export async function EditDocumentPage({
             (item: {
               id: string;
               productId: string | null;
+              inventoryItemId: string | null;
               description: string;
               quantity: string;
               unitPrice: string;
@@ -84,12 +85,14 @@ export async function EditDocumentPage({
             }) => ({
               id: item.id,
               productId: item.productId || null,
+              inventoryItemId: item.inventoryItemId || null,
               description: item.description,
               quantity: item.quantity.replace(/\.?0+$/, "") || "0",
               unitPrice: item.unitPrice.replace(/\.?0+$/, "") || "0",
               discount: (item.discount || "0").replace(/\.?0+$/, "") || "0",
               vatRate:
                 (item.vatRate || DEFAULT_VAT_RATE).replace(/\.?0+$/, "") || "0",
+              stockQuantity: null,
             }),
           ),
         }}
