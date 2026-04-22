@@ -1,4 +1,10 @@
-import { PackageOpen, Wrench, CheckCircle2, ShoppingCart } from "lucide-react";
+import {
+  PackageOpen,
+  Wrench,
+  CheckCircle2,
+  ShoppingCart,
+  ShieldCheck,
+} from "lucide-react";
 import { formatDate } from "@/lib/utils";
 
 interface RepairEntry {
@@ -41,6 +47,14 @@ function parseRepairLog(log: string): RepairEntry[] {
     });
 }
 
+const ERASURE_METHOD_LABELS: Record<string, string> = {
+  secure_erase: "ATA Secure Erase",
+  dban: "DBAN",
+  manual: "Manuell / Degausser",
+  certified: "Zertifizierter Dienstleister",
+  factory_reset: "Factory Reset",
+};
+
 interface ItemTimelineProps {
   createdAt: Date | string;
   donorName?: string | null;
@@ -50,6 +64,8 @@ interface ItemTimelineProps {
   soldPrice?: string | null;
   condition: string;
   conditionLabel: string;
+  dataErasuredAt?: Date | string | null;
+  dataErasureMethod?: string | null;
 }
 
 export function ItemTimeline({
@@ -60,6 +76,8 @@ export function ItemTimeline({
   status,
   soldPrice,
   conditionLabel,
+  dataErasuredAt,
+  dataErasureMethod,
 }: ItemTimelineProps) {
   const repairs = repairLog ? parseRepairLog(repairLog) : [];
   const isSold = status === "sold" || !!soldPrice;
@@ -72,6 +90,18 @@ export function ItemTimeline({
       donorName,
     },
     ...repairs.map((r) => ({ type: "repair" as const, ...r })),
+    ...(dataErasuredAt
+      ? [
+          {
+            type: "erasure" as const,
+            date:
+              typeof dataErasuredAt === "string"
+                ? dataErasuredAt
+                : dataErasuredAt.toISOString(),
+            method: dataErasureMethod ?? null,
+          },
+        ]
+      : []),
     ...(isSold
       ? [{ type: "sold" as const, price: soldPrice || "", date: "" }]
       : status === "ready_for_sale"
@@ -96,6 +126,9 @@ export function ItemTimeline({
             )}
             {event.type === "ready" && (
               <CheckCircle2 className="h-3.5 w-3.5 text-success" />
+            )}
+            {event.type === "erasure" && (
+              <ShieldCheck className="h-3.5 w-3.5 text-info" />
             )}
             {event.type === "sold" && (
               <ShoppingCart className="h-3.5 w-3.5 text-success" />
@@ -143,11 +176,18 @@ export function ItemTimeline({
                 </p>
               </>
             )}
+            {event.type === "erasure" && (
+              <>
+                <p className="text-sm font-medium">Datenlöschung</p>
+                <p className="text-xs text-muted-foreground">
+                  {ERASURE_METHOD_LABELS[event.method ?? ""] ?? event.method}
+                  {event.date && ` · ${formatDate(event.date)}`}
+                </p>
+              </>
+            )}
             {event.type === "sold" && (
               <>
-                <p className="text-sm font-medium text-success">
-                  Verkauft
-                </p>
+                <p className="text-sm font-medium text-success">Verkauft</p>
                 {event.price && (
                   <p className="text-xs text-muted-foreground">
                     CHF {parseFloat(event.price).toFixed(2)}

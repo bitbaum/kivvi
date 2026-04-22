@@ -1126,6 +1126,7 @@
     "continueTesting": "Testen fortsetzen",
     "testItem": "Artikel testen",
     "checklistTitle": "Prüfliste",
+    "checklistResults": "QC-Prüfung",
     "checklistProgress": "{done} von {total} Prüfungen",
     "approveForSale": "Für Verkauf freigeben",
     "approvingForSale": "Wird freigegeben...",

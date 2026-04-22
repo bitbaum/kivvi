@@ -31,6 +31,8 @@ import {
   getConditionLabelKey,
 } from "@/lib/config/inventory-items";
 import { ItemTimeline } from "@/components/inventory/item-timeline";
+import { getChecklistTemplate } from "@kivvi/core/src/config/checklist-templates";
+import type { ChecklistData } from "@kivvi/core/src/config/checklist-templates";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -42,6 +44,7 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
   const session = await getSessionOrRedirect();
   const tc = await getTranslations("common");
   const ti = await getTranslations("inventory");
+  const tck = await getTranslations("checklist");
   const { id } = await params;
   if (!isValidUUID(id)) notFound();
 
@@ -220,6 +223,82 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
               <p className="whitespace-pre-wrap text-sm">{item.notes}</p>
             </CardSection>
           )}
+
+          {/* Checklist results */}
+          {(() => {
+            const checklistData = item.checklistData as ChecklistData | null;
+            if (!checklistData?.completions?.length) return null;
+            const template = getChecklistTemplate(checklistData.category);
+            const completionMap = new Map(
+              checklistData.completions.map((c) => [c.id, c]),
+            );
+            const passed = checklistData.completions.filter(
+              (c) => c.result === "pass",
+            ).length;
+            const failed = checklistData.completions.filter(
+              (c) => c.result === "fail",
+            ).length;
+            const skipped = checklistData.completions.filter(
+              (c) => c.result === "skip",
+            ).length;
+            return (
+              <CardSection title={ti("checklistResults")}>
+                {/* Summary badges */}
+                <div className="mb-3 flex gap-2 text-xs">
+                  {passed > 0 && (
+                    <span className="rounded-full bg-success/10 px-2 py-0.5 text-success">
+                      {passed} ✓
+                    </span>
+                  )}
+                  {failed > 0 && (
+                    <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-destructive">
+                      {failed} ✗
+                    </span>
+                  )}
+                  {skipped > 0 && (
+                    <span className="rounded-full bg-muted px-2 py-0.5 text-muted-foreground">
+                      {skipped} —
+                    </span>
+                  )}
+                </div>
+                {/* Individual checks */}
+                <div className="space-y-1">
+                  {template.checks
+                    .filter((check) => completionMap.has(check.id))
+                    .map((check) => {
+                      const completion = completionMap.get(check.id)!;
+                      return (
+                        <div
+                          key={check.id}
+                          className="flex items-center justify-between rounded px-2 py-1 text-xs hover:bg-muted/50"
+                        >
+                          <span className="text-muted-foreground">
+                            {tck(check.labelKey as Parameters<typeof tck>[0])}
+                          </span>
+                          <span
+                            className={cn(
+                              "font-medium",
+                              completion.result === "pass" && "text-success",
+                              completion.result === "fail" &&
+                                "text-destructive",
+                              completion.result === "skip" &&
+                                "text-muted-foreground",
+                            )}
+                          >
+                            {completion.result === "pass" && "✓"}
+                            {completion.result === "fail" && "✗"}
+                            {completion.result === "skip" && "—"}
+                            {check.type === "measurement" &&
+                              completion.value &&
+                              ` ${completion.value}${check.unit ?? ""}`}
+                          </span>
+                        </div>
+                      );
+                    })}
+                </div>
+              </CardSection>
+            );
+          })()}
         </div>
 
         {/* Sidebar */}
@@ -324,6 +403,8 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
               soldPrice={item.soldPrice}
               condition={item.condition}
               conditionLabel={ti(getConditionLabelKey(item.condition))}
+              dataErasuredAt={item.dataErasuredAt}
+              dataErasureMethod={item.dataErasureMethod}
             />
           </CardSection>
 

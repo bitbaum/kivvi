@@ -1126,6 +1126,7 @@
     "continueTesting": "Continue Testing",
     "testItem": "Test Item",
     "checklistTitle": "Checklist",
+    "checklistResults": "QC Checklist",
     "checklistProgress": "{done} of {total} checks",
     "approveForSale": "Approve for Sale",
     "approvingForSale": "Approving...",
