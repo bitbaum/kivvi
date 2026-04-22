@@ -26,13 +26,6 @@ export default async function RepairImportPage() {
 
       {/* Product import from kivitendo CSV */}
       <section className="space-y-4">
-        <div>
-          <h2 className="text-lg font-semibold">Artikelstamm importieren</h2>
-          <p className="text-sm text-muted-foreground">
-            Kompletten Artikelstamm aus einem Kivitendo-Export laden — einmalig
-            nach Migration oder wenn neue Produkte extern erfasst wurden.
-          </p>
-        </div>
         <ProductImportPanel />
       </section>
 
