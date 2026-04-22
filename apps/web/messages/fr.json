@@ -1768,7 +1768,10 @@
     },
     "modeNew": "Nouvelle organisation",
     "modeJoin": "Rejoindre une équipe",
-    "joinHint": "Votre organisation vous enverra une invitation. Inscrivez-vous ici, puis cliquez sur le lien d'invitation que votre administrateur vous envoie — vous rejoindrez automatiquement."
+    "joinHint": "Votre organisation vous enverra une invitation. Inscrivez-vous ici, puis cliquez sur le lien d'invitation que votre administrateur vous envoie — vous rejoindrez automatiquement.",
+    "errorTitle": "Une erreur s'est produite",
+    "errorDescription": "Veuillez réessayer ou retourner à la page de connexion.",
+    "tryAgain": "Réessayer"
   },
   "onboarding": {
     "welcome": "Bienvenue sur Kivvi",

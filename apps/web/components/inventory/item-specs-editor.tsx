@@ -13,11 +13,11 @@ const COMMON_SPECS = [
   "OS",
   "Display",
   "GPU",
-  "Rahmengrösse",
-  "Schaltgruppe",
-  "Kilometerstand",
-  "Baujahr",
-  "Farbe",
+  "Frame Size",
+  "Gears",
+  "Mileage",
+  "Year",
+  "Color",
 ];
 
 interface SpecRow {

@@ -2,11 +2,13 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { Package, Tag } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   searchSellablesAction,
   type SellableResult,
 } from "@/app/actions/sellables";
 import { FormInput } from "@/components/ui/form-field";
+import { getConditionLabelKey } from "@/lib/config/inventory-items";
 
 /**
  * The callback receives a normalized product structure. For backward compat,
@@ -38,16 +40,6 @@ interface ProductSearchInputProps {
   "data-field"?: string;
 }
 
-const CONDITION_LABELS: Record<string, string> = {
-  untested: "Untested",
-  like_new: "Like New",
-  good: "Good",
-  fair: "Fair",
-  poor: "Poor",
-  parts_only: "Parts",
-  scrap: "Scrap",
-};
-
 export function ProductSearchInput({
   value,
   onChange,
@@ -55,6 +47,7 @@ export function ProductSearchInput({
   placeholder,
   ...dataAttrs
 }: ProductSearchInputProps) {
+  const t = useTranslations("inventory");
   const [results, setResults] = useState<SellableResult[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [highlightIndex, setHighlightIndex] = useState(-1);
@@ -179,8 +172,11 @@ export function ProductSearchInput({
                         {sellable.number && <span>{sellable.number}</span>}
                         {isInventoryItem && sellable.condition && (
                           <span className="rounded bg-muted px-1.5 py-0.5">
-                            {CONDITION_LABELS[sellable.condition] ||
-                              sellable.condition}
+                            {t(
+                              getConditionLabelKey(
+                                sellable.condition,
+                              ) as Parameters<typeof t>[0],
+                            )}
                           </span>
                         )}
                       </div>

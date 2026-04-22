@@ -1767,7 +1767,10 @@
     },
     "modeNew": "New organisation",
     "modeJoin": "Join a team",
-    "joinHint": "You'll be invited by your organisation. Register here, then click the invite link your admin sends you — you'll join automatically."
+    "joinHint": "You'll be invited by your organisation. Register here, then click the invite link your admin sends you — you'll join automatically.",
+    "errorTitle": "An error occurred",
+    "errorDescription": "Please try again or return to the sign in page.",
+    "tryAgain": "Try again"
   },
   "onboarding": {
     "welcome": "Welcome to Kivvi",

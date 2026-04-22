@@ -1766,7 +1766,10 @@
     },
     "modeNew": "Neuer Betrieb",
     "modeJoin": "Team beitreten",
-    "joinHint": "Sie werden von Ihrem Betrieb eingeladen. Registrieren Sie sich hier und klicken Sie danach auf den Einladungslink — Sie treten dem Betrieb automatisch bei."
+    "joinHint": "Sie werden von Ihrem Betrieb eingeladen. Registrieren Sie sich hier und klicken Sie danach auf den Einladungslink — Sie treten dem Betrieb automatisch bei.",
+    "errorTitle": "Ein Fehler ist aufgetreten",
+    "errorDescription": "Bitte versuchen Sie es erneut oder kehren Sie zur Anmeldeseite zurück.",
+    "tryAgain": "Erneut versuchen"
   },
   "onboarding": {
     "welcome": "Willkommen bei Kivvi",
