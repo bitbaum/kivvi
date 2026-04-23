@@ -114,7 +114,9 @@ export function SendEmailButton({
         </button>
       </form>
       {error && (
-        <p className="text-sm text-destructive">{error}</p>
+        <p role="alert" className="text-sm text-destructive">
+          {error}
+        </p>
       )}
     </div>
   );

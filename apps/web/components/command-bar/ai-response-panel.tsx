@@ -80,7 +80,10 @@ export function AIResponsePanel({
       )}
 
       {error && (
-        <div className="flex items-start gap-2 text-sm text-destructive">
+        <div
+          role="alert"
+          className="flex items-start gap-2 text-sm text-destructive"
+        >
           <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           <span>{error}</span>
         </div>

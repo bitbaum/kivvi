@@ -42,7 +42,11 @@ export function ContactForm({ mode, contact }: ContactFormProps) {
     const form = formRef.current;
     const set = (name: string, value: string | null | undefined) => {
       if (!value) return;
-      const el = form.elements.namedItem(name) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
+      const el = form.elements.namedItem(name) as
+        | HTMLInputElement
+        | HTMLSelectElement
+        | HTMLTextAreaElement
+        | null;
       if (el) {
         el.value = value;
         el.dispatchEvent(new Event("input", { bubbles: true }));
@@ -129,7 +133,10 @@ export function ContactForm({ mode, contact }: ContactFormProps) {
 
       {/* Error banner */}
       {error && (
-        <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
+        <div
+          role="alert"
+          className="rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive"
+        >
           {error}
         </div>
       )}
@@ -137,9 +144,7 @@ export function ContactForm({ mode, contact }: ContactFormProps) {
       {/* Form */}
       <form ref={formRef} onSubmit={handleSubmit} className="space-y-8">
         {/* AI fill — only in create mode */}
-        {!isEdit && (
-          <ContactAiFillButton onFill={handleAiFill} />
-        )}
+        {!isEdit && <ContactAiFillButton onFill={handleAiFill} />}
 
         {/* Basic Information */}
         <section className="rounded-xl border bg-card">
@@ -220,7 +225,9 @@ export function ContactForm({ mode, contact }: ContactFormProps) {
                 name="name"
                 maxLength={200}
                 defaultValue={contact?.name || ""}
-                placeholder={!isEdit ? t("placeholders.companyOrName") : undefined}
+                placeholder={
+                  !isEdit ? t("placeholders.companyOrName") : undefined
+                }
               />
               <p className="mt-1 text-xs text-muted-foreground">
                 {t("nameOrFirstLastHint")}
@@ -528,15 +535,9 @@ export function ContactForm({ mode, contact }: ContactFormProps) {
         {/* Submit */}
         <div className="flex items-center justify-end gap-4">
           <Button asChild variant="secondary">
-            <Link href={backHref}>
-              {tc("cancel")}
-            </Link>
+            <Link href={backHref}>{tc("cancel")}</Link>
           </Button>
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            size="lg"
-          >
+          <Button type="submit" disabled={isSubmitting} size="lg">
             {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
             {isSubmitting
               ? isEdit

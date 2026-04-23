@@ -49,7 +49,11 @@ export function DunningButton({
         <Send className="h-3 w-3" />
         {isPending ? t("sending") : LEVEL_LABELS[currentLevel] || t("maxLevel")}
       </Button>
-      {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
+      {error && (
+        <p role="alert" className="mt-1 text-xs text-destructive">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

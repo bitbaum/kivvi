@@ -253,7 +253,7 @@ export function SelectableDunningTable({
                           "Escalate"}
                     </button>
                     {rowErrors[inv.id] && (
-                      <p className="mt-1 text-xs text-destructive">
+                      <p role="alert" className="mt-1 text-xs text-destructive">
                         {rowErrors[inv.id]}
                       </p>
                     )}

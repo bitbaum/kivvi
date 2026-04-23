@@ -1,14 +1,20 @@
-'use client';
+"use client";
 
-import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
-import { ArrowRightLeft } from 'lucide-react';
-import { updateDocumentStatusAction, convertDocumentAction } from '@/app/actions/documents';
-import type { DocumentTypeConfig, StatusAction } from '@/lib/config/document-types';
-import type { DocumentStatus, DocumentType } from '@kivvi/database';
-import { DOCUMENT_TYPES } from '@/lib/config/document-types';
-import { cn } from '@/lib/utils';
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { ArrowRightLeft } from "lucide-react";
+import {
+  updateDocumentStatusAction,
+  convertDocumentAction,
+} from "@/app/actions/documents";
+import type {
+  DocumentTypeConfig,
+  StatusAction,
+} from "@/lib/config/document-types";
+import type { DocumentStatus, DocumentType } from "@kivvi/database";
+import { DOCUMENT_TYPES } from "@/lib/config/document-types";
+import { cn } from "@/lib/utils";
 
 export function DocumentStatusActions({
   documentId,
@@ -20,8 +26,8 @@ export function DocumentStatusActions({
   config: DocumentTypeConfig;
 }) {
   const router = useRouter();
-  const t = useTranslations('statusActions');
-  const tc = useTranslations('common');
+  const t = useTranslations("statusActions");
+  const tc = useTranslations("common");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -36,7 +42,7 @@ export function DocumentStatusActions({
       if (result.success) {
         router.refresh();
       } else {
-        setError(result.error || tc('error'));
+        setError(result.error || tc("error"));
       }
     });
   }
@@ -48,17 +54,23 @@ export function DocumentStatusActions({
           key={action.targetStatus}
           onClick={() => handleAction(action.targetStatus)}
           disabled={isPending}
-          className={cn('inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50',
-            action.variant === 'destructive'
-              ? 'border border-destructive/20 text-destructive hover:bg-destructive/5 dark:hover:bg-destructive/10'
-              : action.variant === 'primary'
-              ? 'bg-primary text-primary-foreground hover:bg-primary/90'
-              : 'border hover:bg-muted')}
+          className={cn(
+            "inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50",
+            action.variant === "destructive"
+              ? "border border-destructive/20 text-destructive hover:bg-destructive/5 dark:hover:bg-destructive/10"
+              : action.variant === "primary"
+                ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                : "border hover:bg-muted",
+          )}
         >
           {t(action.label)}
         </button>
       ))}
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && (
+        <p role="alert" className="text-sm text-destructive">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
@@ -71,8 +83,8 @@ export function DocumentConvertActions({
   config: DocumentTypeConfig;
 }) {
   const router = useRouter();
-  const t = useTranslations('documents');
-  const tc = useTranslations('common');
+  const t = useTranslations("documents");
+  const tc = useTranslations("common");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -86,7 +98,7 @@ export function DocumentConvertActions({
         const targetConfig = DOCUMENT_TYPES[targetType];
         router.push(`${targetConfig.basePath}/${result.data.id}`);
       } else {
-        setError(result.error || tc('error'));
+        setError(result.error || tc("error"));
       }
     });
   }
@@ -103,11 +115,15 @@ export function DocumentConvertActions({
             className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium hover:bg-muted disabled:opacity-50"
           >
             <ArrowRightLeft className="h-4 w-4" />
-            {t('convertTo')} {t(targetConfig.label)}
+            {t("convertTo")} {t(targetConfig.label)}
           </button>
         );
       })}
-      {error && <p className="text-sm text-destructive">{error}</p>}
+      {error && (
+        <p role="alert" className="text-sm text-destructive">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

@@ -237,7 +237,10 @@ export default function NewJournalEntryPage() {
             </div>
 
             {hasAmounts && !isBalanced && (
-              <div className="mt-4 flex items-start gap-2 rounded-lg bg-destructive/5">
+              <div
+                role="alert"
+                className="mt-4 flex items-start gap-2 rounded-lg bg-destructive/5"
+              >
                 <AlertCircle className="h-4 w-4 mt-0.5 text-destructive" />
                 <p className="text-sm text-destructive">
                   {t("entryMustBalance")}
@@ -246,7 +249,10 @@ export default function NewJournalEntryPage() {
             )}
 
             {error && (
-              <p className="mt-4 rounded-lg bg-destructive/5 p-3 text-sm text-destructive ">
+              <p
+                role="alert"
+                className="mt-4 rounded-lg bg-destructive/5 p-3 text-sm text-destructive"
+              >
                 {error}
               </p>
             )}

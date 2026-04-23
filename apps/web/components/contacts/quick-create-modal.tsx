@@ -158,7 +158,7 @@ export function QuickCreateContactModal({
               autoFocus
             />
             {fieldErrors.name && (
-              <p className="mt-1 text-sm text-destructive">
+              <p role="alert" className="mt-1 text-sm text-destructive">
                 {fieldErrors.name[0]}
               </p>
             )}
@@ -182,7 +182,7 @@ export function QuickCreateContactModal({
               error={!!fieldErrors.email}
             />
             {fieldErrors.email && (
-              <p className="mt-1 text-sm text-destructive">
+              <p role="alert" className="mt-1 text-sm text-destructive">
                 {fieldErrors.email[0]}
               </p>
             )}
@@ -206,7 +206,7 @@ export function QuickCreateContactModal({
               error={!!fieldErrors.phone}
             />
             {fieldErrors.phone && (
-              <p className="mt-1 text-sm text-destructive">
+              <p role="alert" className="mt-1 text-sm text-destructive">
                 {fieldErrors.phone[0]}
               </p>
             )}
@@ -214,7 +214,10 @@ export function QuickCreateContactModal({
 
           {/* Error message */}
           {error && (
-            <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+            <div
+              role="alert"
+              className="rounded-lg border border-destructive/50 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+            >
               {error}
             </div>
           )}

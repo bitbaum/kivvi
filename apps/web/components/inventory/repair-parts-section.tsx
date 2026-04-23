@@ -190,7 +190,11 @@ export function RepairPartsSection({
               />
             </div>
           </div>
-          {error && <p className="text-xs text-destructive">{error}</p>}
+          {error && (
+            <p role="alert" className="text-xs text-destructive">
+              {error}
+            </p>
+          )}
           <div className="flex gap-2">
             <button
               type="submit"

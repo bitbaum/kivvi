@@ -67,7 +67,11 @@ export function CsvExportButton({
         )}
         CSV
       </button>
-      {error && <span className="text-xs text-destructive">{error}</span>}
+      {error && (
+        <span role="alert" className="text-xs text-destructive">
+          {error}
+        </span>
+      )}
     </>
   );
 }

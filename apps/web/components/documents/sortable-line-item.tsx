@@ -117,13 +117,13 @@ export function SortableLineItem({
                   const stock = parseFloat(item.stockQuantity || "0");
                   if (stock <= 0)
                     return (
-                      <p className="mt-1 text-xs text-destructive">
+                      <p role="alert" className="mt-1 text-xs text-destructive">
                         {t("outOfStock")}
                       </p>
                     );
                   if (qty > stock)
                     return (
-                      <p className="mt-1 text-xs text-warning">
+                      <p role="alert" className="mt-1 text-xs text-warning">
                         {t("inStock").replace(
                           "{count}",
                           String(Math.floor(stock)),
