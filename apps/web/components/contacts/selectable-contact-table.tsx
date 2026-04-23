@@ -1,27 +1,7 @@
 "use client";
 
-import {
-  useCallback,
-  useMemo,
-  useState,
-  useTransition,
-  useRef,
-  useEffect,
-} from "react";
-import { useRouter } from "next/navigation";
-import { useSelection } from "@/hooks/use-selection";
-import {
-  Loader2,
-  MoreHorizontal,
-  FileText,
-  Receipt,
-  ShoppingCart,
-  Package,
-  FileInput,
-  Mail,
-  Eye,
-  Pencil,
-} from "lucide-react";
+import { useCallback, useMemo, useState, useTransition, useRef } from "react";
+import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { BulkActionToolbar } from "@/components/bulk-action-toolbar";
 import { BulkResultBanner } from "@/components/bulk-result-banner";
@@ -30,53 +10,17 @@ import {
   bulkDeactivateContactsAction,
 } from "@/app/actions/bulk-operations";
 import type { BulkOperationResult } from "@/app/actions/bulk-operations";
-import { cn, formatDate } from "@/lib/utils";
-import { StatusBadge } from "@/components/status-badge";
+import { useSelection } from "@/hooks/use-selection";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
-import { CONTACT_TYPE_STYLES } from "@/lib/config/contact-types";
 import { SortableHeader } from "@/components/sortable-header";
+import { ContactTableRow } from "./contact-table-row";
+import type {
+  ContactItem,
+  ContactTableTranslations,
+} from "./contact-table-types";
 
-interface ContactItem {
-  id: string;
-  contactNumber: string | null;
-  name: string;
-  firstName: string | null;
-  lastName: string | null;
-  type: string;
-  email: string | null;
-  phone: string | null;
-  mobile: string | null;
-  city: string | null;
-  isActive: boolean | null;
-  lastDocumentAt?: Date | null;
-}
-
-interface Translations {
-  columnLabels: {
-    number: string;
-    name: string;
-    type: string;
-    email: string;
-    phone: string;
-    city: string;
-    lastDocument: string;
-    status: string;
-    active: string;
-    inactive: string;
-  };
-  typeLabels: Record<string, string>;
-  bulkLabels: Record<string, string>;
-  quickActionLabels: {
-    createInvoice: string;
-    createQuote: string;
-    createOrder: string;
-    createPurchaseOrder: string;
-    createPurchaseInvoice: string;
-    sendEmail: string;
-    view: string;
-    edit: string;
-  };
-}
+// Re-export for consumers that imported from this file
+export type { ContactItem, ContactTableTranslations as Translations };
 
 interface SortProps {
   field: string;
@@ -86,7 +30,7 @@ interface SortProps {
 
 interface SelectableContactTableProps {
   data: ContactItem[];
-  translations: Translations;
+  translations: ContactTableTranslations;
   sort?: SortProps;
 }
 
@@ -96,7 +40,6 @@ export function SelectableContactTable({
   sort,
 }: SelectableContactTableProps) {
   const tc = useTranslations("common");
-  const router = useRouter();
   const allIds = useMemo(() => data.map((c) => c.id), [data]);
   const {
     selectedIds,
@@ -225,103 +168,13 @@ export function SelectableContactTable({
       {/* Table rows */}
       <div className="divide-y">
         {data.map((contact) => (
-          <div
+          <ContactTableRow
             key={contact.id}
-            role="link"
-            tabIndex={0}
-            onClick={() => router.push(`/contacts/${contact.id}`)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                router.push(`/contacts/${contact.id}`);
-              }
-            }}
-            className={cn(
-              "flex cursor-pointer flex-col gap-1 p-4 transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:grid sm:grid-cols-[auto_1fr_2fr_auto_auto] sm:items-center sm:gap-4 sm:px-6 lg:grid-cols-[auto_1fr_2fr_auto_1.5fr_1fr_1fr_1fr_auto]",
-              isSelected(contact.id) && "bg-primary/5",
-            )}
-          >
-            <div
-              className="flex items-center"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <input
-                type="checkbox"
-                checked={isSelected(contact.id)}
-                onChange={() => toggle(contact.id)}
-                aria-label={`Select ${contact.name}`}
-                className="h-4 w-4 rounded border-input"
-              />
-            </div>
-            <div className="text-sm font-mono text-muted-foreground">
-              {contact.contactNumber || "-"}
-            </div>
-            <div>
-              <p className="text-sm font-medium">{contact.name}</p>
-              {(contact.firstName || contact.lastName) && (
-                <p className="text-xs text-muted-foreground">
-                  {[contact.firstName, contact.lastName]
-                    .filter(Boolean)
-                    .join(" ")}
-                </p>
-              )}
-              {/* Mobile: show key info inline */}
-              <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground sm:hidden">
-                {contact.email && <span>{contact.email}</span>}
-                {contact.email && (contact.phone || contact.city) && (
-                  <span>·</span>
-                )}
-                {contact.phone && <span>{contact.phone}</span>}
-                {contact.phone && contact.city && <span>·</span>}
-                {contact.city && <span>{contact.city}</span>}
-              </div>
-            </div>
-            <div>
-              <span
-                className={cn(
-                  "inline-block rounded-full px-2 py-0.5 text-xs font-medium",
-                  CONTACT_TYPE_STYLES[
-                    contact.type as keyof typeof CONTACT_TYPE_STYLES
-                  ] || "",
-                )}
-              >
-                {translations.typeLabels[contact.type] || contact.type}
-              </span>
-            </div>
-            <div className="hidden truncate text-sm text-muted-foreground lg:block">
-              {contact.email || "-"}
-            </div>
-            <div className="hidden text-sm text-muted-foreground lg:block">
-              {contact.phone || contact.mobile || "-"}
-            </div>
-            <div className="hidden text-sm text-muted-foreground lg:block">
-              {contact.city || "-"}
-            </div>
-            <div className="hidden text-sm text-muted-foreground lg:block">
-              {contact.lastDocumentAt
-                ? formatDate(contact.lastDocumentAt)
-                : "-"}
-            </div>
-            <div>
-              <StatusBadge
-                variant={contact.isActive ? "active" : "inactive"}
-                label={
-                  contact.isActive
-                    ? translations.columnLabels.active
-                    : translations.columnLabels.inactive
-                }
-              />
-            </div>
-            <div
-              className="hidden lg:flex items-center justify-end"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <ContactQuickActions
-                contact={contact}
-                labels={translations.quickActionLabels}
-              />
-            </div>
-          </div>
+            contact={contact}
+            isSelected={isSelected(contact.id)}
+            onToggle={() => toggle(contact.id)}
+            translations={translations}
+          />
         ))}
       </div>
 
@@ -395,138 +248,5 @@ export function SelectableContactTable({
         </div>
       )}
     </>
-  );
-}
-
-// ============================================================================
-// QUICK ACTIONS DROPDOWN
-// ============================================================================
-
-function ContactQuickActions({
-  contact,
-  labels,
-}: {
-  contact: ContactItem;
-  labels: Translations["quickActionLabels"];
-}) {
-  const [open, setOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    function handleClickOutside(e: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    }
-    function handleEscape(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false);
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("keydown", handleEscape);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("keydown", handleEscape);
-    };
-  }, [open]);
-
-  const isCustomer = contact.type === "customer" || contact.type === "both";
-  const isVendor = contact.type === "vendor" || contact.type === "both";
-  const contactQuery = `contactId=${contact.id}&contactName=${encodeURIComponent(contact.name)}`;
-
-  const actions = [
-    // Sales actions (for customers)
-    ...(isCustomer
-      ? [
-          {
-            label: labels.createInvoice,
-            href: `/sales/invoices/new?${contactQuery}`,
-            icon: FileText,
-          },
-          {
-            label: labels.createQuote,
-            href: `/sales/quotes/new?${contactQuery}`,
-            icon: Receipt,
-          },
-          {
-            label: labels.createOrder,
-            href: `/sales/orders/new?${contactQuery}`,
-            icon: ShoppingCart,
-          },
-        ]
-      : []),
-    // Purchase actions (for vendors)
-    ...(isVendor
-      ? [
-          {
-            label: labels.createPurchaseOrder,
-            href: `/purchasing/purchase-orders/new?${contactQuery}`,
-            icon: Package,
-          },
-          {
-            label: labels.createPurchaseInvoice,
-            href: `/purchasing/purchase-invoices/new?${contactQuery}`,
-            icon: FileInput,
-          },
-        ]
-      : []),
-    // Universal actions
-    ...(contact.email
-      ? [
-          {
-            label: labels.sendEmail,
-            href: `mailto:${contact.email}`,
-            icon: Mail,
-          },
-        ]
-      : []),
-    { type: "separator" as const },
-    { label: labels.view, href: `/contacts/${contact.id}`, icon: Eye },
-    { label: labels.edit, href: `/contacts/${contact.id}/edit`, icon: Pencil },
-  ];
-
-  return (
-    <div className="relative" ref={menuRef}>
-      <button
-        onClick={() => setOpen(!open)}
-        className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-        aria-label="Quick actions"
-        aria-expanded={open}
-      >
-        <MoreHorizontal className="h-4 w-4" />
-      </button>
-
-      {open && (
-        <div className="absolute right-0 top-full z-50 mt-1 w-56 rounded-lg border bg-popover p-1 shadow-lg animate-in fade-in-0 zoom-in-95">
-          {actions.map((action, i) => {
-            if ("type" in action && action.type === "separator") {
-              return <div key={i} className="my-1 h-px bg-border" />;
-            }
-            const {
-              label,
-              href,
-              icon: Icon,
-            } = action as {
-              label: string;
-              href: string;
-              icon: typeof FileText;
-            };
-            const isExternal = href.startsWith("mailto:");
-            return (
-              <a
-                key={i}
-                href={href}
-                onClick={() => setOpen(false)}
-                className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-foreground hover:bg-accent transition-colors"
-                {...(isExternal ? { target: "_blank", rel: "noopener" } : {})}
-              >
-                <Icon className="h-4 w-4 text-muted-foreground" />
-                {label}
-              </a>
-            );
-          })}
-        </div>
-      )}
-    </div>
   );
 }
