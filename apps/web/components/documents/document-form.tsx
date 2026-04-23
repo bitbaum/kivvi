@@ -14,54 +14,15 @@ import {
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { createDocumentAction } from "@/app/actions/documents";
 import { DOCUMENT_TYPES } from "@/lib/config/document-types";
-import { DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
-import { ContactPicker } from "@/components/contacts/contact-picker";
 import { CharCountTextarea } from "@/components/ui/char-count-textarea";
-import { FormInput, FormSelect } from "@/components/ui/form-field";
 import type { DocumentType } from "@kivvi/database";
 import { IntakeQuickEntry } from "./intake-quick-entry";
 import { useDocumentForm, decodePrefill } from "@/hooks/use-document-form";
 import { LineItemsEditor } from "./line-items-editor";
 import { DocumentSummaryPanel } from "./document-summary-panel";
-
-// ============================================================================
-// LINE ITEM TYPES (exported for use by SortableLineItem + useDocumentForm)
-// ============================================================================
-
-export interface LineItem {
-  id: string;
-  productId: string | null;
-  inventoryItemId: string | null;
-  description: string;
-  quantity: string;
-  unitPrice: string;
-  discount: string;
-  vatRate: string;
-  stockQuantity: string | null;
-}
-
-export function emptyItem(): LineItem {
-  return {
-    id: crypto.randomUUID(),
-    productId: null,
-    inventoryItemId: null,
-    description: "",
-    quantity: "1",
-    unitPrice: "0.00",
-    discount: "0",
-    vatRate: DEFAULT_VAT_RATE,
-    stockQuantity: null,
-  };
-}
-
-export {
-  calculateItemTotal,
-  calculateDocumentTotals,
-} from "./calculate-item-total";
-
-// ============================================================================
-// DOCUMENT FORM COMPONENT
-// ============================================================================
+import { DocumentContactDatesCard } from "./document-contact-dates-card";
+import type { LineItem } from "./document-form-types";
+import { emptyItem } from "./document-form-types";
 
 interface DocumentFormProps {
   type: DocumentType;
@@ -208,128 +169,32 @@ export function DocumentForm({ type }: DocumentFormProps) {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left: form */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Contact & dates */}
-          <div className="rounded-xl border bg-card p-6 space-y-4">
-            {/* Intake source selector — shown first so it controls the rest of the form */}
-            {isIntake && (
-              <div>
-                <label className="block text-sm font-medium">
-                  {t("intakeSource")}
-                </label>
-                <FormSelect
-                  className="mt-1"
-                  value={intakeSource}
-                  onChange={(e) => setIntakeSource(e.target.value)}
-                >
-                  <option value="donation">{t("intakeSourceDonation")}</option>
-                  <option value="purchase">{t("intakeSourcePurchase")}</option>
-                  <option value="trade_in">{t("intakeSourceTradeIn")}</option>
-                  <option value="consignment">
-                    {t("intakeSourceConsignment")}
-                  </option>
-                  <option value="estate_clearance">
-                    {t("intakeSourceEstate")}
-                  </option>
-                  <option value="return">{t("intakeSourceReturn")}</option>
-                  <option value="other">{t("intakeSourceOther")}</option>
-                </FormSelect>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {intakeSource === "donation" && t("intakeSourceDonationHint")}
-                  {intakeSource === "purchase" && t("intakeSourcePurchaseHint")}
-                  {intakeSource === "trade_in" && t("intakeSourceTradeInHint")}
-                  {intakeSource === "consignment" &&
-                    t("intakeSourceConsignmentHint")}
-                  {intakeSource === "estate_clearance" &&
-                    t("intakeSourceEstateHint")}
-                  {intakeSource === "return" && t("intakeSourceReturnHint")}
-                </p>
-              </div>
-            )}
-
-            {/* Contact — label adapts to intake source */}
-            {isIntake && (
-              <label className="block text-sm font-medium text-muted-foreground">
-                {intakeSource === "donation"
-                  ? t("intakeContactDonor")
-                  : intakeSource === "purchase" ||
-                      intakeSource === "estate_clearance"
-                    ? t("intakeContactSeller")
-                    : intakeSource === "trade_in" || intakeSource === "return"
-                      ? t("intakeContactCustomer")
-                      : intakeSource === "consignment"
-                        ? t("intakeContactOwner")
-                        : t("intakeContactSeller")}
-              </label>
-            )}
-            <ContactPicker
-              value={form.contactId}
-              displayValue={form.contactName}
-              onChange={(id, name, paymentTermsDays) => {
-                form.setContactId(id);
-                form.setContactName(name);
-                if (config.hasDueDate && paymentTermsDays && form.issueDate) {
-                  const issue = new Date(form.issueDate);
-                  issue.setDate(issue.getDate() + paymentTermsDays);
-                  form.setDueDate(issue.toISOString().split("T")[0]);
-                }
-              }}
-              contactType={
-                config.contactFilter === "vendor" ? "vendor" : "customer"
+          <DocumentContactDatesCard
+            isIntake={isIntake}
+            intakeSource={intakeSource}
+            onIntakeSourceChange={setIntakeSource}
+            contactId={form.contactId}
+            contactName={form.contactName}
+            onContactChange={(id, name, paymentTermsDays) => {
+              form.setContactId(id);
+              form.setContactName(name);
+              if (config.hasDueDate && paymentTermsDays && form.issueDate) {
+                const issue = new Date(form.issueDate);
+                issue.setDate(issue.getDate() + paymentTermsDays);
+                form.setDueDate(issue.toISOString().split("T")[0]);
               }
-            />
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label
-                  htmlFor="issueDate"
-                  className="block text-sm font-medium"
-                >
-                  {t("issueDate")}
-                </label>
-                <FormInput
-                  id="issueDate"
-                  type="date"
-                  value={form.issueDate}
-                  onChange={(e) => form.setIssueDate(e.target.value)}
-                  className="mt-1"
-                />
-              </div>
-              {config.hasDueDate && (
-                <div>
-                  <label className="block text-sm font-medium">
-                    {t(config.dueDateLabel)}
-                  </label>
-                  <FormInput
-                    type="date"
-                    value={form.dueDate}
-                    onChange={(e) => form.setDueDate(e.target.value)}
-                    min={form.issueDate}
-                    className="mt-1"
-                  />
-                  {form.dueDate &&
-                    form.issueDate &&
-                    form.dueDate < form.issueDate && (
-                      <p className="mt-1 text-xs text-warning">
-                        {t("dueDateBeforeIssueDate")}
-                      </p>
-                    )}
-                </div>
-              )}
-              {config.hasDeliveryDate && (
-                <div>
-                  <label className="block text-sm font-medium">
-                    {t("deliveryDate")}
-                  </label>
-                  <FormInput
-                    type="date"
-                    value={form.deliveryDate}
-                    onChange={(e) => form.setDeliveryDate(e.target.value)}
-                    className="mt-1"
-                  />
-                </div>
-              )}
-            </div>
-          </div>
+            }}
+            contactFilter={config.contactFilter}
+            issueDate={form.issueDate}
+            onIssueDateChange={form.setIssueDate}
+            hasDueDate={config.hasDueDate}
+            dueDateLabel={t(config.dueDateLabel)}
+            dueDate={form.dueDate}
+            onDueDateChange={form.setDueDate}
+            hasDeliveryDate={config.hasDeliveryDate}
+            deliveryDate={form.deliveryDate}
+            onDeliveryDateChange={form.setDeliveryDate}
+          />
 
           {/* AI Quick Entry — available on all document types */}
           <IntakeQuickEntry onItemsExtracted={form.addItemsBulk} />

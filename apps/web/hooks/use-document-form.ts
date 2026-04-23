@@ -5,8 +5,8 @@ import {
   DEFAULT_PAYMENT_TERMS_DAYS,
   type DocumentTypeConfig,
 } from "@/lib/config/document-types";
-import type { LineItem } from "@/components/documents/document-form";
-import { emptyItem } from "@/components/documents/document-form";
+import type { LineItem } from "@/components/documents/document-form-types";
+import { emptyItem } from "@/components/documents/document-form-types";
 import { calculateDocumentTotals } from "@/components/documents/calculate-item-total";
 
 export interface DocumentFormInitialValues {

@@ -6,8 +6,8 @@ import { CSS } from "@dnd-kit/utilities";
 import { SWISS_VAT_RATES } from "@/lib/config/vat-rates";
 import { FormInput, FormSelect } from "@/components/ui/form-field";
 import { ProductSearchInput } from "./product-search-input";
-import type { LineItem } from "./document-form";
-import { calculateItemTotal } from "./document-form";
+import type { LineItem } from "./document-form-types";
+import { calculateItemTotal } from "./calculate-item-total";
 
 interface SortableLineItemProps {
   item: LineItem;

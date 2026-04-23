@@ -15,14 +15,18 @@ import {
 import type { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { SortableLineItem } from "./sortable-line-item";
-import type { LineItem } from "./document-form";
+import type { LineItem } from "./document-form-types";
 
 interface LineItemsEditorProps {
   items: LineItem[];
   sensors: SensorDescriptor<SensorOptions>[];
   onDragEnd: (event: DragEndEvent) => void;
   onAddItem: () => void;
-  onUpdateItem: (id: string, field: keyof LineItem, value: string | null) => void;
+  onUpdateItem: (
+    id: string,
+    field: keyof LineItem,
+    value: string | null,
+  ) => void;
   onRemoveItem: (id: string) => void;
   hideFinancials?: boolean;
   priceLabel?: string;
@@ -67,7 +71,9 @@ export function LineItemsEditor({
                 key={item.id}
                 item={item}
                 index={index}
-                updateItem={(id, field, value) => onUpdateItem(id, field, value)}
+                updateItem={(id, field, value) =>
+                  onUpdateItem(id, field, value)
+                }
                 removeItem={onRemoveItem}
                 canRemove={items.length > 1}
                 hideFinancials={hideFinancials}

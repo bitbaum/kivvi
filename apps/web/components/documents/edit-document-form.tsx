@@ -14,7 +14,7 @@ import { FormInput } from "@/components/ui/form-field";
 import type { DocumentType } from "@kivvi/database";
 import { toast } from "sonner";
 import { calculateDocumentTotals } from "./calculate-item-total";
-import type { LineItem } from "./document-form";
+import type { LineItem } from "./document-form-types";
 import { EditLineItemsTable } from "./edit-line-items-table";
 import { EditDocumentSummary } from "./edit-document-summary";
 

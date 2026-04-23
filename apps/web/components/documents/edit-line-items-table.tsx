@@ -6,7 +6,7 @@ import { formatCurrency } from "@/lib/utils";
 import { SWISS_VAT_RATES } from "@/lib/config/vat-rates";
 import { FormInput, FormSelect } from "@/components/ui/form-field";
 import { calculateItemTotal } from "./calculate-item-total";
-import type { LineItem } from "./document-form";
+import type { LineItem } from "./document-form-types";
 
 interface EditLineItemsTableProps {
   items: LineItem[];
