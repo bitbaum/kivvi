@@ -4,6 +4,10 @@ import { useState } from "react";
 import { Trash2, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { ExtractedItem } from "@/app/actions/ai-extract";
+import {
+  ITEM_CATEGORIES,
+  getChecklistTemplate,
+} from "@kivvi/core/src/config/checklist-templates";
 
 interface ReviewItem extends ExtractedItem {
   _id: string;
@@ -15,12 +19,6 @@ interface IntakeBulkReviewProps {
   onBack: () => void;
 }
 
-/** Category values — must match the AI extraction prompt in ai-extract.ts */
-const ITEM_CATEGORIES = [
-  "laptop", "desktop", "monitor", "tablet", "phone",
-  "keyboard", "mouse", "printer", "other",
-] as const;
-
 type EditingCell = { id: string; field: keyof ExtractedItem } | null;
 
 export function IntakeBulkReview({
@@ -28,8 +26,8 @@ export function IntakeBulkReview({
   onConfirm,
   onBack,
 }: IntakeBulkReviewProps) {
-  const t = useTranslations("documents");
   const tb = useTranslations("documents.bulkReview");
+  const tck = useTranslations("checklist");
   const [rows, setRows] = useState<ReviewItem[]>(() =>
     initial.map((item) => ({ ...item, _id: crypto.randomUUID() })),
   );
@@ -96,11 +94,21 @@ export function IntakeBulkReview({
           <thead>
             <tr className="border-b bg-muted/50 text-xs text-muted-foreground">
               <th className="px-3 py-2 text-left font-medium w-8">#</th>
-              <th className="px-3 py-2 text-left font-medium">{tb("colManufacturer")}</th>
-              <th className="px-3 py-2 text-left font-medium">{tb("colModelDesc")}</th>
-              <th className="px-3 py-2 text-left font-medium w-16">{tb("colQty")}</th>
-              <th className="px-3 py-2 text-left font-medium">{tb("colCategory")}</th>
-              <th className="px-3 py-2 text-left font-medium w-24">{tb("colPrice")}</th>
+              <th className="px-3 py-2 text-left font-medium">
+                {tb("colManufacturer")}
+              </th>
+              <th className="px-3 py-2 text-left font-medium">
+                {tb("colModelDesc")}
+              </th>
+              <th className="px-3 py-2 text-left font-medium w-16">
+                {tb("colQty")}
+              </th>
+              <th className="px-3 py-2 text-left font-medium">
+                {tb("colCategory")}
+              </th>
+              <th className="px-3 py-2 text-left font-medium w-24">
+                {tb("colPrice")}
+              </th>
               <th className="px-3 py-2 w-8" />
             </tr>
           </thead>
@@ -157,7 +165,11 @@ export function IntakeBulkReview({
                   >
                     {ITEM_CATEGORIES.map((v) => (
                       <option key={v} value={v}>
-                        {t(`category.${v}`)}
+                        {tck(
+                          getChecklistTemplate(v).labelKey as Parameters<
+                            typeof tck
+                          >[0],
+                        )}
                       </option>
                     ))}
                   </select>

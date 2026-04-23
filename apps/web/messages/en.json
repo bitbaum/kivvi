@@ -277,17 +277,6 @@
     "aiNoItemsFound": "No items found in text",
     "aiExtractionFailed": "Failed to extract items",
     "itemsAdded": "items added",
-    "category": {
-      "laptop": "Laptop",
-      "desktop": "Desktop",
-      "monitor": "Monitor",
-      "tablet": "Tablet",
-      "phone": "Smartphone",
-      "keyboard": "Keyboard",
-      "mouse": "Mouse",
-      "printer": "Printer",
-      "other": "Other"
-    },
     "bulkReview": {
       "colManufacturer": "Manufacturer",
       "colModelDesc": "Model / Description",

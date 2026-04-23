@@ -277,17 +277,6 @@
     "aiNoItemsFound": "Keine Artikel im Text erkannt",
     "aiExtractionFailed": "Erkennung fehlgeschlagen",
     "itemsAdded": "Artikel hinzugefügt",
-    "category": {
-      "laptop": "Laptop",
-      "desktop": "Desktop",
-      "monitor": "Monitor",
-      "tablet": "Tablet",
-      "phone": "Smartphone",
-      "keyboard": "Tastatur",
-      "mouse": "Maus",
-      "printer": "Drucker",
-      "other": "Sonstiges"
-    },
     "bulkReview": {
       "colManufacturer": "Hersteller",
       "colModelDesc": "Modell / Beschreibung",

@@ -277,17 +277,6 @@
     "aiNoItemsFound": "Aucun article trouvé dans le texte",
     "aiExtractionFailed": "Échec de l'extraction",
     "itemsAdded": "articles ajoutés",
-    "category": {
-      "laptop": "Ordinateur portable",
-      "desktop": "Ordinateur de bureau",
-      "monitor": "Écran",
-      "tablet": "Tablette",
-      "phone": "Smartphone",
-      "keyboard": "Clavier",
-      "mouse": "Souris",
-      "printer": "Imprimante",
-      "other": "Autre"
-    },
     "bulkReview": {
       "colManufacturer": "Fabricant",
       "colModelDesc": "Modèle / Description",

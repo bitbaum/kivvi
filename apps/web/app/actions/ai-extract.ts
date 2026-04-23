@@ -7,6 +7,7 @@ import {
   extractJSON,
 } from "@/lib/ai/call-provider";
 import type { CreateContactInput } from "@kivvi/core/src/domain/contacts";
+import { ITEM_CATEGORIES } from "@kivvi/core/src/config/checklist-templates";
 
 // ============================================================================
 // TYPES — derived from domain schemas (SSOT)
@@ -43,7 +44,7 @@ Each item: {"brand","model","quantity","category","estimatedPrice"}
 - brand: manufacturer (e.g. "Lenovo", "Dell", "HP", "Apple") or "" if unknown
 - model: product name without brand (e.g. "ThinkPad T480", "OptiPlex 390")
 - quantity: number as string, default "1"
-- category: one of laptop|desktop|monitor|tablet|phone|keyboard|mouse|printer|other
+- category: one of ${ITEM_CATEGORIES.join("|")}
 - estimatedPrice: resale price in CHF as string (digits only), "" if unknown
 
 Examples:
