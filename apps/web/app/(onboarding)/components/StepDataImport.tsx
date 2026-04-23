@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { Database, Rocket, Upload, Loader2 } from "lucide-react";
+import { Database, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "next-intl";
 import {
   detectMappingProfile,
-  applyMapping,
   applyTransform,
   isSubtotalRow,
   parseKivitendoLineItems,
@@ -20,58 +19,15 @@ import {
   executeImportAction,
   completeOnboardingAction,
 } from "@/app/actions/onboarding";
-import { CsvUploader } from "./CsvUploader";
-import { ColumnMapper } from "./ColumnMapper";
-import { ImportPreview } from "./ImportPreview";
 import { ImportProgress, type ImportStatus } from "./ImportProgress";
+import { ImportChoiceScreen } from "./ImportChoiceScreen";
+import { ImportCategoryList } from "./ImportCategoryList";
 
 interface StepDataImportProps {
   onComplete: () => void;
 }
 
-// Entity import categories — labels use translation keys resolved at render time
-const IMPORT_CATEGORY_DEFS = [
-  {
-    id: "contacts",
-    labelKey: "categories.contacts",
-    descKey: "categories.contactsDesc",
-    entityTypes: [
-      { type: "customer", labelKey: "categories.customers" },
-      { type: "vendor", labelKey: "categories.vendors" },
-    ],
-  },
-  {
-    id: "products",
-    labelKey: "categories.products",
-    descKey: "categories.productsDesc",
-    entityTypes: [{ type: "product", labelKey: "categories.products" }],
-  },
-  {
-    id: "documents",
-    labelKey: "categories.documents",
-    descKey: "categories.documentsDesc",
-    entityTypes: [
-      { type: "quote", labelKey: "categories.quotes" },
-      { type: "order", labelKey: "categories.salesOrders" },
-      { type: "invoice", labelKey: "categories.salesInvoices" },
-      { type: "delivery_note", labelKey: "categories.deliveryNotes" },
-      { type: "purchase_invoice", labelKey: "categories.purchaseInvoices" },
-    ],
-  },
-  {
-    id: "accounting",
-    labelKey: "categories.accounting",
-    descKey: "categories.accountingDesc",
-    entityTypes: [
-      { type: "journal_entry", labelKey: "categories.journalEntries" },
-      { type: "stock", labelKey: "categories.stockLevels" },
-    ],
-  },
-] as const;
-
-type ImportMode = "choice" | "import";
-
-interface PendingImport {
+export interface PendingImport {
   entityType: string;
   label: string;
   rawRows: Record<string, string>[];
@@ -82,9 +38,10 @@ interface PendingImport {
   confirmed: boolean;
 }
 
+type ImportMode = "choice" | "import";
+
 export function StepDataImport({ onComplete }: StepDataImportProps) {
   const t = useTranslations("onboarding");
-  const tc = useTranslations("common");
   const [mode, setMode] = useState<ImportMode>("choice");
   const [pendingImports, setPendingImports] = useState<
     Map<string, PendingImport>
@@ -114,7 +71,6 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
       rawArrayRows: string[][],
     ) => {
       const profile = detectMappingProfile(headers, entityType);
-
       setPendingImports((prev) => {
         const next = new Map(prev);
         next.set(entityType, {
@@ -140,7 +96,6 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
         const pending = next.get(entityType);
         if (!pending) return prev;
 
-        // Apply mapping to all rows, filter out subtotal rows
         const keyColumn = pending.headers[0] || "";
         const mappedRows = pending.rawRows
           .filter((row) => !isSubtotalRow(row, keyColumn))
@@ -152,17 +107,9 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
             }
             return result;
           })
-          .filter((row) => {
-            // Filter rows with no meaningful data
-            const values = Object.values(row).filter(Boolean);
-            return values.length >= 1;
-          });
+          .filter((row) => Object.values(row).filter(Boolean).length >= 1);
 
-        next.set(entityType, {
-          ...pending,
-          mappedRows,
-          confirmed: true,
-        });
+        next.set(entityType, { ...pending, mappedRows, confirmed: true });
         return next;
       });
     },
@@ -173,7 +120,6 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
     setIsImporting(true);
     setError("");
 
-    // Build import order: contacts → products → documents → accounting
     const importOrder = [
       "customer",
       "vendor",
@@ -193,7 +139,6 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
       )
       .map((type) => pendingImports.get(type)!);
 
-    // Initialize statuses
     const initialStatuses: ImportStatus[] = toImport.map((imp) => ({
       entityType: imp.entityType,
       label: imp.label,
@@ -201,7 +146,6 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
     }));
     setImportStatuses(initialStatuses);
 
-    // Execute sequentially
     for (let i = 0; i < toImport.length; i++) {
       const imp = toImport[i];
 
@@ -209,7 +153,6 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
         prev.map((s, idx) => (idx === i ? { ...s, state: "importing" } : s)),
       );
 
-      // For document types, extract structured line items from raw CSV arrays
       let structuredItems: Record<string, ParsedLineItem[]> | undefined;
       if (
         imp.entityType === "invoice" ||
@@ -217,19 +160,14 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
       ) {
         const positionenIdx = imp.headers.indexOf("Positionen");
         const buchungsnummerIdx = imp.headers.indexOf("Buchungsnummer");
-
         if (positionenIdx !== -1 && buchungsnummerIdx !== -1) {
           structuredItems = {};
-          // Skip header row (index 0) in rawArrayRows
           for (let ri = 1; ri < imp.rawArrayRows.length; ri++) {
             const rawRow = imp.rawArrayRows[ri];
             const docNumber = rawRow[buchungsnummerIdx]?.trim();
             if (!docNumber) continue;
-
             const items = parseKivitendoLineItems(rawRow, positionenIdx);
-            if (items.length > 0) {
-              structuredItems[docNumber] = items;
-            }
+            if (items.length > 0) structuredItems[docNumber] = items;
           }
         }
       }
@@ -278,63 +216,17 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
     importStatuses.length > 0 &&
     importStatuses.every((s) => s.state === "done" || s.state === "error");
 
-  // Choice screen
   if (mode === "choice") {
     return (
-      <div className="rounded-xl border bg-background p-6 shadow-sm md:p-8">
-        <div className="mb-6">
-          <div className="mb-2 flex items-center gap-2">
-            <Database className="h-5 w-5 text-primary" />
-            <h2 className="text-xl font-semibold">{t("dataImport")}</h2>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            {t("importDataQuestion")}
-          </p>
-        </div>
-
-        {error && (
-          <div className="mb-4 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
-            {error}
-          </div>
-        )}
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <button
-            onClick={() => setMode("import")}
-            className="flex flex-col items-center gap-3 rounded-xl border-2 border-dashed p-8 text-center transition-colors hover:border-primary hover:bg-primary/5"
-          >
-            <Upload className="h-10 w-10 text-muted-foreground" />
-            <div>
-              <div className="font-semibold">{t("importData")}</div>
-              <div className="mt-1 text-sm text-muted-foreground">
-                {t("importDataDesc")}
-              </div>
-            </div>
-          </button>
-
-          <button
-            onClick={handleStartFresh}
-            disabled={isCompleting}
-            className="flex flex-col items-center gap-3 rounded-xl border-2 border-dashed p-8 text-center transition-colors hover:border-primary hover:bg-primary/5 disabled:opacity-50"
-          >
-            {isCompleting ? (
-              <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
-            ) : (
-              <Rocket className="h-10 w-10 text-muted-foreground" />
-            )}
-            <div>
-              <div className="font-semibold">{t("startFresh")}</div>
-              <div className="mt-1 text-sm text-muted-foreground">
-                {t("startFreshDesc")}
-              </div>
-            </div>
-          </button>
-        </div>
-      </div>
+      <ImportChoiceScreen
+        error={error}
+        isCompleting={isCompleting}
+        onImportData={() => setMode("import")}
+        onStartFresh={handleStartFresh}
+      />
     );
   }
 
-  // Import interface
   return (
     <div className="space-y-6">
       <div className="rounded-xl border bg-background p-6 shadow-sm md:p-8">
@@ -352,89 +244,20 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
           </div>
         )}
 
-        {/* Import progress (when running) */}
         {importStatuses.length > 0 && (
           <div className="mb-6">
             <ImportProgress statuses={importStatuses} />
           </div>
         )}
 
-        {/* Upload sections (when not running) */}
         {!isImporting && importStatuses.length === 0 && (
-          <div className="space-y-6">
-            {IMPORT_CATEGORY_DEFS.map((category) => (
-              <div key={category.id} className="rounded-lg border p-4">
-                <h3 className="mb-1 font-medium">{t(category.labelKey)}</h3>
-                <p className="mb-3 text-xs text-muted-foreground">
-                  {t(category.descKey)}
-                </p>
-
-                <div className="space-y-4">
-                  {category.entityTypes.map((et) => {
-                    const pending = pendingImports.get(et.type);
-                    const etLabel = t(et.labelKey);
-
-                    return (
-                      <div key={et.type}>
-                        <div className="mb-2 text-sm font-medium">
-                          {etLabel}
-                        </div>
-
-                        {!pending && (
-                          <CsvUploader
-                            label={`${tc("upload")} ${etLabel} CSV`}
-                            onParsed={(headers, rows, rawArrayRows) =>
-                              handleCsvParsed(
-                                et.type,
-                                etLabel,
-                                headers,
-                                rows,
-                                rawArrayRows,
-                              )
-                            }
-                          />
-                        )}
-
-                        {pending && !pending.confirmed && pending.profile && (
-                          <ColumnMapper
-                            headers={pending.headers}
-                            profile={pending.profile}
-                            onMappingConfirmed={(mapping) =>
-                              handleMappingConfirmed(et.type, mapping)
-                            }
-                          />
-                        )}
-
-                        {pending && !pending.confirmed && !pending.profile && (
-                          <div className="rounded-lg bg-warning/5 p-3 text-sm text-warning">
-                            {t("noAutoDetect")}
-                          </div>
-                        )}
-
-                        {pending?.confirmed && pending.mappedRows && (
-                          <div>
-                            <div className="mb-2 flex items-center gap-2 text-sm text-success">
-                              <span className="inline-block h-2 w-2 rounded-full bg-success/50" />
-                              {t("readyToImport", {
-                                count: pending.mappedRows.length,
-                              })}
-                            </div>
-                            <ImportPreview
-                              rows={pending.mappedRows}
-                              maxRows={3}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
+          <ImportCategoryList
+            pendingImports={pendingImports}
+            onCsvParsed={handleCsvParsed}
+            onMappingConfirmed={handleMappingConfirmed}
+          />
         )}
 
-        {/* Action buttons */}
         <div className="mt-6 flex items-center justify-between">
           <Button
             variant="secondary"

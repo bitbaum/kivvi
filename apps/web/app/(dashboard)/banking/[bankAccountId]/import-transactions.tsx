@@ -19,14 +19,8 @@ import {
 import { useTranslations } from "next-intl";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
 import { Button } from "@/components/ui/button";
-
-interface ParsedTransaction {
-  date: string;
-  description: string;
-  reference: string;
-  amount: string;
-  balance: string;
-}
+import { parseCsv, type ParsedTransaction } from "./parse-bank-csv";
+import { TransactionPreviewTable } from "./transaction-preview-table";
 
 type FileType = "csv" | "xml";
 type ImportResult = { imported: number; skippedDuplicates: number };
@@ -41,14 +35,11 @@ export function ImportTransactions({
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fileType, setFileType] = useState<FileType | null>(null);
-  // CSV state
   const [csvTransactions, setCsvTransactions] = useState<ParsedTransaction[]>(
     [],
   );
-  // CAMT state
   const [camtPreview, setCamtPreview] = useState<CamtPreview | null>(null);
   const [camtXml, setCamtXml] = useState<string | null>(null);
-  // Shared state
   const [result, setResult] = useState<ImportResult | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
@@ -173,7 +164,7 @@ export function ImportTransactions({
       ref={modalRef}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
     >
-      <div className="w-full max-w-3xl max-h-[80vh] overflow-hidden rounded-xl border bg-card shadow-lg flex flex-col">
+      <div className="flex max-h-[80vh] w-full max-w-3xl flex-col overflow-hidden rounded-xl border bg-card shadow-lg">
         <div className="flex items-center justify-between border-b px-6 py-4">
           <h2 className="text-lg font-semibold">{t("importStatement")}</h2>
           <Button variant="ghost" size="icon" onClick={handleClose}>
@@ -181,7 +172,7 @@ export function ImportTransactions({
           </Button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        <div className="flex-1 space-y-4 overflow-y-auto p-6">
           {result ? (
             <div className="flex flex-col items-center py-8">
               <FileSpreadsheet className="h-12 w-12 text-success" />
@@ -200,7 +191,7 @@ export function ImportTransactions({
           ) : (
             <>
               <div>
-                <p className="text-sm text-muted-foreground mb-2">
+                <p className="mb-2 text-sm text-muted-foreground">
                   {t("supportedFormats")}
                 </p>
                 <input
@@ -226,7 +217,6 @@ export function ImportTransactions({
                 </div>
               )}
 
-              {/* CAMT statement info */}
               {camtPreview && (
                 <div className="flex items-center gap-2 rounded-lg bg-muted p-3 text-sm">
                   <Info className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -240,7 +230,6 @@ export function ImportTransactions({
                 </div>
               )}
 
-              {/* IBAN mismatch warning */}
               {camtPreview && !camtPreview.ibanMatch && (
                 <div className="flex items-start gap-2 rounded-lg bg-warning/5 p-3 text-sm text-warning">
                   <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
@@ -251,140 +240,16 @@ export function ImportTransactions({
                 </div>
               )}
 
-              {/* Preview table */}
-              {hasPreviewData && (
-                <>
-                  <div>
-                    <p className="text-sm font-medium mb-2">
-                      {t("preview", { count: previewCount })}
-                    </p>
-                    <div className="max-h-64 overflow-x-auto overflow-y-auto rounded-lg border">
-                      <table className="w-full text-sm">
-                        <thead className="sticky top-0 bg-muted">
-                          <tr className="text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                            <th className="px-3 py-2">{tc("date")}</th>
-                            <th className="px-3 py-2">{tc("description")}</th>
-                            {fileType === "xml" && (
-                              <th className="px-3 py-2">{t("debtor")}</th>
-                            )}
-                            {fileType === "xml" && (
-                              <th className="px-3 py-2">{t("creditor")}</th>
-                            )}
-                            {fileType === "csv" && (
-                              <th className="px-3 py-2">{t("reference")}</th>
-                            )}
-                            <th className="px-3 py-2 text-right">
-                              {tc("amount")}
-                            </th>
-                            {fileType === "csv" && (
-                              <th className="px-3 py-2 text-right">
-                                {t("balance")}
-                              </th>
-                            )}
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y">
-                          {fileType === "xml" && camtPreview
-                            ? camtPreview.entries
-                                .slice(0, 50)
-                                .map((entry, i) => {
-                                  const amt = Number(entry.amount);
-                                  return (
-                                    <tr key={i} className="hover:bg-muted/50">
-                                      <td className="whitespace-nowrap px-3 py-2">
-                                        {entry.bookingDate}
-                                      </td>
-                                      <td className="max-w-[180px] truncate px-3 py-2">
-                                        {entry.description || "-"}
-                                      </td>
-                                      <td className="max-w-[120px] truncate px-3 py-2">
-                                        {entry.debtorName || "-"}
-                                      </td>
-                                      <td className="max-w-[120px] truncate px-3 py-2">
-                                        {entry.creditorName || "-"}
-                                      </td>
-                                      <td
-                                        className={`whitespace-nowrap px-3 py-2 text-right font-medium ${amt >= 0 ? "text-success" : "text-destructive"}`}
-                                      >
-                                        {entry.amount}
-                                      </td>
-                                    </tr>
-                                  );
-                                })
-                            : csvTransactions.slice(0, 50).map((txn, i) => {
-                                const amt = Number(txn.amount);
-                                return (
-                                  <tr key={i} className="hover:bg-muted/50">
-                                    <td className="whitespace-nowrap px-3 py-2">
-                                      {txn.date}
-                                    </td>
-                                    <td className="max-w-[200px] truncate px-3 py-2">
-                                      {txn.description || "-"}
-                                    </td>
-                                    <td className="max-w-[120px] truncate px-3 py-2 font-mono text-xs">
-                                      {txn.reference || "-"}
-                                    </td>
-                                    <td
-                                      className={`whitespace-nowrap px-3 py-2 text-right font-medium ${amt >= 0 ? "text-success" : "text-destructive"}`}
-                                    >
-                                      {txn.amount}
-                                    </td>
-                                    <td className="whitespace-nowrap px-3 py-2 text-right">
-                                      {txn.balance || "-"}
-                                    </td>
-                                  </tr>
-                                );
-                              })}
-                        </tbody>
-                      </table>
-                      {previewCount > 50 && (
-                        <p className="px-3 py-2 text-xs text-muted-foreground">
-                          {t("andMore", { count: previewCount - 50 })}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Balances for CAMT */}
-                  {camtPreview?.openingBalance &&
-                    camtPreview?.closingBalance && (
-                      <div className="flex gap-4 text-sm">
-                        <div>
-                          <span className="text-muted-foreground">
-                            {t("openingBalance")}:{" "}
-                          </span>
-                          <span className="font-medium">
-                            {camtPreview.openingBalance.amount}{" "}
-                            {camtPreview.openingBalance.currency}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">
-                            {t("closingBalance")}:{" "}
-                          </span>
-                          <span className="font-medium">
-                            {camtPreview.closingBalance.amount}{" "}
-                            {camtPreview.closingBalance.currency}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={handleImport}
-                      disabled={isPending}
-                      className="flex-1"
-                    >
-                      {isPending
-                        ? t("importing")
-                        : t("importTransactions", { count: previewCount })}
-                    </Button>
-                    <Button variant="secondary" onClick={handleClose}>
-                      {tc("cancel")}
-                    </Button>
-                  </div>
-                </>
+              {hasPreviewData && fileType && (
+                <TransactionPreviewTable
+                  fileType={fileType}
+                  csvTransactions={csvTransactions}
+                  camtPreview={camtPreview}
+                  previewCount={previewCount}
+                  isPending={isPending}
+                  onImport={handleImport}
+                  onClose={handleClose}
+                />
               )}
             </>
           )}
@@ -392,89 +257,4 @@ export function ImportTransactions({
       </div>
     </div>
   );
-}
-
-// ============================================================================
-// CSV PARSER
-// ============================================================================
-
-function parseCsv(text: string): ParsedTransaction[] {
-  const lines = text.trim().split("\n");
-  if (lines.length < 2) return [];
-
-  // Parse header to find column indices
-  const header = parseCsvLine(lines[0]).map((h) => h.toLowerCase().trim());
-
-  const dateIdx = header.findIndex((h) => h === "date" || h === "datum");
-  const descIdx = header.findIndex(
-    (h) => h === "description" || h === "beschreibung" || h === "text",
-  );
-  const refIdx = header.findIndex(
-    (h) => h === "reference" || h === "referenz" || h === "ref",
-  );
-  const amountIdx = header.findIndex((h) => h === "amount" || h === "betrag");
-  const balanceIdx = header.findIndex((h) => h === "balance" || h === "saldo");
-
-  if (dateIdx === -1 || amountIdx === -1) {
-    throw new Error('CSV must contain at least "date" and "amount" columns');
-  }
-
-  const transactions: ParsedTransaction[] = [];
-
-  for (let i = 1; i < lines.length; i++) {
-    const line = lines[i].trim();
-    if (!line) continue;
-
-    const cols = parseCsvLine(line);
-    const date = cols[dateIdx]?.trim();
-    const amount = cols[amountIdx]?.trim().replace(/['\s]/g, "");
-
-    if (!date || !amount) continue;
-
-    transactions.push({
-      date,
-      description: descIdx >= 0 ? cols[descIdx]?.trim() || "" : "",
-      reference: refIdx >= 0 ? cols[refIdx]?.trim() || "" : "",
-      amount,
-      balance:
-        balanceIdx >= 0
-          ? cols[balanceIdx]?.trim().replace(/['\s]/g, "") || ""
-          : "",
-    });
-  }
-
-  return transactions;
-}
-
-function parseCsvLine(line: string): string[] {
-  const result: string[] = [];
-  let current = "";
-  let inQuotes = false;
-
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    if (inQuotes) {
-      if (char === '"') {
-        if (i + 1 < line.length && line[i + 1] === '"') {
-          current += '"';
-          i++;
-        } else {
-          inQuotes = false;
-        }
-      } else {
-        current += char;
-      }
-    } else {
-      if (char === '"') {
-        inQuotes = true;
-      } else if (char === "," || char === ";") {
-        result.push(current);
-        current = "";
-      } else {
-        current += char;
-      }
-    }
-  }
-  result.push(current);
-  return result;
 }
