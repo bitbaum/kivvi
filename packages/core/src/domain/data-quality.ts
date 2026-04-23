@@ -9,16 +9,7 @@
  * All checks are tenant-scoped (companyId required).
  */
 
-import {
-  eq,
-  and,
-  sql,
-  isNull,
-  ne,
-  lt,
-  or,
-  inArray,
-} from "drizzle-orm";
+import { eq, and, sql, isNull, ne, lt, or, inArray } from "drizzle-orm";
 import {
   contacts,
   contactAddresses,
@@ -27,6 +18,7 @@ import {
   products,
 } from "@kivvi/database";
 import type { Database, DocumentStatusValue } from "@kivvi/database";
+import { ACTIVE_STATUSES } from "../config/document-constants";
 
 // ============================================================================
 // TYPES
@@ -114,10 +106,7 @@ export async function findDuplicateContacts(
   // Group by normalized name
   const groups = new Map<string, typeof allContacts>();
   for (const c of allContacts) {
-    const normalized = c.name
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, " ");
+    const normalized = c.name.toLowerCase().trim().replace(/\s+/g, " ");
     const existing = groups.get(normalized) ?? [];
     existing.push(c);
     groups.set(normalized, existing);
@@ -248,17 +237,7 @@ export async function findContactIssues(
   }
 
   // 3. Inactive contacts with open documents
-  const openStatuses: DocumentStatusValue[] = [
-    "draft",
-    "sent",
-    "confirmed",
-    "delivered",
-    "partially_paid",
-    "overdue",
-    "dunning_1",
-    "dunning_2",
-    "dunning_3",
-  ];
+  const openStatuses = [...ACTIVE_STATUSES] as DocumentStatusValue[];
 
   const inactiveWithOpenDocs = await db
     .select({
@@ -275,18 +254,8 @@ export async function findContactIssues(
         inArray(documents.status, openStatuses),
       ),
     )
-    .where(
-      and(
-        eq(contacts.companyId, companyId),
-        eq(contacts.isActive, false),
-      ),
-    )
-    .groupBy(
-      contacts.id,
-      contacts.name,
-      contacts.contactNumber,
-      contacts.type,
-    );
+    .where(and(eq(contacts.companyId, companyId), eq(contacts.isActive, false)))
+    .groupBy(contacts.id, contacts.name, contacts.contactNumber, contacts.type);
 
   for (const c of inactiveWithOpenDocs) {
     issues.push({ ...c, issue: "inactive_with_open_docs" });
@@ -384,7 +353,11 @@ export async function findDocumentIssues(
     }
 
     // Stale drafts
-    if (doc.status === "draft" && doc.issueDate && doc.issueDate < staleThreshold) {
+    if (
+      doc.status === "draft" &&
+      doc.issueDate &&
+      doc.issueDate < staleThreshold
+    ) {
       issues.push({ ...doc, total: doc.total ?? "0", issue: "stale_draft" });
     }
   }

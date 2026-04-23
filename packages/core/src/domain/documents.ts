@@ -55,6 +55,8 @@ import { SALES_DOCUMENT_TYPES } from "../config/item-transitions";
 import {
   PAYABLE_DOCUMENT_TYPES,
   QR_REFERENCE_TYPES,
+  OPEN_STATUSES,
+  NON_TERMINAL_STATUSES,
 } from "../config/document-constants";
 import { logger } from "../logger";
 
@@ -1331,22 +1333,8 @@ export async function getDocumentSummary(
   const baseFilters = [eq(documents.companyId, companyId)];
   if (type) baseFilters.push(eq(documents.type, type));
 
-  const openStatuses: DocumentStatus[] = [
-    "sent",
-    "confirmed",
-    "delivered",
-    "partially_paid",
-  ];
-  const nonTerminalStatuses: DocumentStatus[] = [
-    "sent",
-    "confirmed",
-    "delivered",
-    "partially_paid",
-    "overdue",
-    "dunning_1",
-    "dunning_2",
-    "dunning_3",
-  ];
+  const openStatuses = [...OPEN_STATUSES] as DocumentStatus[];
+  const nonTerminalStatuses = [...NON_TERMINAL_STATUSES] as DocumentStatus[];
 
   const [row] = await db
     .select({
