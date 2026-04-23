@@ -8,6 +8,7 @@ import {
   listDocuments,
   listJournalEntries,
 } from "@kivvi/core";
+import type { DocumentType } from "@kivvi/database";
 
 export async function GET(
   request: NextRequest,
@@ -76,7 +77,7 @@ export async function GET(
     case "invoices": {
       const type = searchParams.get("type") || "invoice";
       const result = await listDocuments(db, companyId, {
-        type: type as any,
+        type: type as DocumentType,
         pageSize: 10000,
       });
       const rows = result.data.map((d) => ({
