@@ -1094,6 +1094,8 @@
     "viewSaleInvoice": "View Sale Invoice",
     "label": "Label",
     "printLabels": "Print Labels",
+    "qcSignedOff": "QC ✓",
+    "qcProgress": "QC {done}/{total}",
     "donationReceipt": "Donation Receipt",
     "sell": "Sell",
     "photo": "Photo",

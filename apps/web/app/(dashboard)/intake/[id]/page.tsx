@@ -156,8 +156,8 @@ export default async function IntakeDetailPage({ params }: PageProps) {
                             )}
                           >
                             {qcProgress.signedOff
-                              ? "· ✓ QC"
-                              : `· QC ${qcProgress.done}/${qcProgress.total}`}
+                              ? `· ${ti("qcSignedOff")}`
+                              : `· ${ti("qcProgress", { done: qcProgress.done, total: qcProgress.total })}`}
                           </span>
                         )}
                       </div>

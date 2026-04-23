@@ -1096,6 +1096,8 @@
     "viewSaleInvoice": "Voir la facture de vente",
     "label": "Étiquette",
     "printLabels": "Imprimer les étiquettes",
+    "qcSignedOff": "QC ✓",
+    "qcProgress": "QC {done}/{total}",
     "donationReceipt": "Reçu de don",
     "sell": "Vendre",
     "photo": "Photo",
