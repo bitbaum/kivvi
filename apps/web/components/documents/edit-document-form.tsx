@@ -3,22 +3,20 @@
 import { useState, useTransition, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { ArrowLeft, Plus, Trash2, Loader2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { updateDocumentAction } from "@/app/actions/documents";
-import { formatCurrency } from "@/lib/utils";
 import type { DocumentTypeConfig } from "@/lib/config/document-types";
-import { SWISS_VAT_RATES, DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
+import { DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
 import { ContactPicker } from "@/components/contacts/contact-picker";
 import { CharCountTextarea } from "@/components/ui/char-count-textarea";
-import { FormInput, FormSelect } from "@/components/ui/form-field";
+import { FormInput } from "@/components/ui/form-field";
 import type { DocumentType } from "@kivvi/database";
 import { toast } from "sonner";
-import {
-  calculateItemTotal,
-  calculateDocumentTotals,
-} from "./calculate-item-total";
+import { calculateDocumentTotals } from "./calculate-item-total";
 import type { LineItem } from "./document-form";
+import { EditLineItemsTable } from "./edit-line-items-table";
+import { EditDocumentSummary } from "./edit-document-summary";
 
 interface EditDocumentFormProps {
   documentId: string;
@@ -38,7 +36,7 @@ interface EditDocumentFormProps {
 
 export function EditDocumentForm({
   documentId,
-  documentType,
+  documentType: _documentType,
   config,
   initialData,
 }: EditDocumentFormProps) {
@@ -52,7 +50,6 @@ export function EditDocumentForm({
     initialData.contactId,
   );
   const [contactName, setContactName] = useState(initialData.contactName);
-
   const [issueDate, setIssueDate] = useState(initialData.issueDate);
   const [dueDate, setDueDate] = useState(initialData.dueDate);
   const [deliveryDate, setDeliveryDate] = useState(initialData.deliveryDate);
@@ -89,7 +86,6 @@ export function EditDocumentForm({
     setItems(items.map((i) => (i.id === id ? { ...i, [field]: value } : i)));
   };
 
-  // Totals (single source of calculation logic)
   const { subtotal, vatAmount, total } = calculateDocumentTotals(items);
 
   const handleSubmit = useCallback(async () => {
@@ -144,7 +140,6 @@ export function EditDocumentForm({
     startTransition,
   ]);
 
-  // Cmd+Enter (Mac) / Ctrl+Enter (Win/Linux) to submit
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "Enter" && (e.metaKey || e.ctrlKey) && !isPending) {
@@ -174,9 +169,9 @@ export function EditDocumentForm({
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-6">
+        <div className="space-y-6 lg:col-span-2">
           {/* Contact & dates */}
-          <div className="rounded-xl border bg-card p-6 space-y-4">
+          <div className="space-y-4 rounded-xl border bg-card p-6">
             <ContactPicker
               value={contactId}
               displayValue={contactName}
@@ -231,125 +226,15 @@ export function EditDocumentForm({
             </div>
           </div>
 
-          {/* Line items */}
-          <div className="rounded-xl border bg-card">
-            <div className="flex items-center justify-between border-b p-4">
-              <h2 className="font-semibold">{t("lineItems")}</h2>
-              <button
-                type="button"
-                onClick={addItem}
-                className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
-              >
-                <Plus className="h-4 w-4" /> {t("addItem")}
-              </button>
-            </div>
-            <div className="divide-y">
-              {items.map((item, index) => (
-                <div key={item.id} className="p-4 space-y-3">
-                  <div className="flex items-start gap-3">
-                    <span className="mt-2.5 text-sm text-muted-foreground w-6">
-                      {index + 1}
-                    </span>
-                    <div className="flex-1 space-y-3">
-                      <FormInput
-                        type="text"
-                        value={item.description}
-                        onChange={(e) =>
-                          updateItem(item.id, "description", e.target.value)
-                        }
-                        placeholder={tc("description")}
-                      />
-                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-                        <div>
-                          <label className="block text-xs text-muted-foreground">
-                            {t("quantity")}
-                          </label>
-                          <FormInput
-                            type="number"
-                            step="0.01"
-                            value={item.quantity}
-                            onChange={(e) =>
-                              updateItem(item.id, "quantity", e.target.value)
-                            }
-                            className="mt-1"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs text-muted-foreground">
-                            {t("unitPrice")}
-                          </label>
-                          <FormInput
-                            type="number"
-                            step="0.01"
-                            value={item.unitPrice}
-                            onChange={(e) =>
-                              updateItem(item.id, "unitPrice", e.target.value)
-                            }
-                            className="mt-1"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs text-muted-foreground">
-                            {t("discount")} %
-                          </label>
-                          <FormInput
-                            type="number"
-                            step="0.1"
-                            value={item.discount}
-                            onChange={(e) =>
-                              updateItem(item.id, "discount", e.target.value)
-                            }
-                            className="mt-1"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs text-muted-foreground">
-                            {t("vatPercent")}
-                          </label>
-                          <FormSelect
-                            value={item.vatRate}
-                            onChange={(e) =>
-                              updateItem(item.id, "vatRate", e.target.value)
-                            }
-                            className="mt-1"
-                          >
-                            {SWISS_VAT_RATES.map((rate) => (
-                              <option key={rate.value} value={rate.value}>
-                                {rate.value}%
-                              </option>
-                            ))}
-                          </FormSelect>
-                        </div>
-                        <div>
-                          <label className="block text-xs text-muted-foreground">
-                            {tc("total")}
-                          </label>
-                          <p className="mt-1 rounded-lg border bg-muted/50 px-3 py-2 text-sm font-medium">
-                            {formatCurrency(
-                              calculateItemTotal(item).toFixed(2),
-                            )}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                    {items.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeItem(item.id)}
-                        aria-label={tc("remove")}
-                        className="mt-2 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-muted-foreground hover:bg-destructive/5 hover:text-destructive dark:hover:bg-destructive/10"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <EditLineItemsTable
+            items={items}
+            onAddItem={addItem}
+            onRemoveItem={removeItem}
+            onUpdateItem={updateItem}
+          />
 
           {/* Notes */}
-          <div className="rounded-xl border bg-card p-6 space-y-4">
+          <div className="space-y-4 rounded-xl border bg-card p-6">
             <div>
               <label className="block text-sm font-medium">{tc("notes")}</label>
               <CharCountTextarea
@@ -377,55 +262,15 @@ export function EditDocumentForm({
           </div>
         </div>
 
-        {/* Right: summary */}
         <div className="space-y-6">
-          <div className="sticky top-6 rounded-xl border bg-card p-6">
-            <h2 className="mb-4 font-semibold">{t("summary")}</h2>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">{tc("subtotal")}</span>
-                <span>{formatCurrency(subtotal.toFixed(2))}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">{t("vat")}</span>
-                <span>{formatCurrency(vatAmount.toFixed(2))}</span>
-              </div>
-              <div className="flex justify-between border-t pt-2 text-lg font-bold">
-                <span>{tc("total")}</span>
-                <span>{formatCurrency(total.toFixed(2))}</span>
-              </div>
-            </div>
-
-            {error && (
-              <p
-                role="alert"
-                className="mt-4 rounded-lg bg-destructive/5 p-3 text-sm text-destructive"
-              >
-                {error}
-              </p>
-            )}
-
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={isPending}
-              className="mt-6 w-full rounded-lg bg-primary px-4 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-            >
-              {isPending ? (
-                <span className="flex items-center justify-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  {tc("saving")}
-                </span>
-              ) : (
-                <span className="flex items-center justify-center gap-2">
-                  {tc("saveChanges")}
-                  <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded border border-primary-foreground/20 bg-primary-foreground/10 px-1.5 py-0.5 text-[10px] font-mono">
-                    ⌘↵
-                  </kbd>
-                </span>
-              )}
-            </button>
-          </div>
+          <EditDocumentSummary
+            subtotal={subtotal}
+            vatAmount={vatAmount}
+            total={total}
+            error={error}
+            isPending={isPending}
+            onSubmit={handleSubmit}
+          />
         </div>
       </div>
     </div>
