@@ -1,19 +1,13 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  PackageOpen,
-  ClipboardCheck,
   Tag,
   BarChart3,
   Sparkles,
   Shield,
   Recycle,
   BookOpen,
-  Server,
-  Cloud,
-  Code2,
-  Zap,
-  MessageSquare,
+  ClipboardCheck,
 } from "lucide-react";
 import type { Metadata } from "next";
 import { VERTICALS, buildPageMeta } from "@/lib/config/site";
@@ -21,6 +15,9 @@ import { PainList } from "@/components/landing/pain-list";
 import { LandingCtaSection } from "@/components/landing/landing-cta-section";
 import { VerticalCard } from "@/components/landing/vertical-card";
 import { Button } from "@/components/ui/button";
+import { ScenariosSection } from "./landing-scenarios-section";
+import { DeploymentOptionsSection } from "./landing-deployment-section";
+import { AIAutopilotSection } from "./landing-ai-section";
 
 const SOFTWARE_LD = {
   "@context": "https://schema.org",
@@ -84,9 +81,7 @@ export default function Home() {
             </Link>
           </Button>
           <Button asChild variant="secondary" size="lg">
-            <Link href="/register">
-              Selbst ausprobieren
-            </Link>
+            <Link href="/register">Selbst ausprobieren</Link>
           </Button>
         </div>
       </section>
@@ -133,50 +128,7 @@ export default function Home() {
       {/* ============================================================ */}
       {/* AI / AUTOPILOT — Organisation auf Autopilot                  */}
       {/* ============================================================ */}
-      <section className="mx-auto max-w-4xl py-8">
-        <div className="rounded-2xl border bg-card p-8 sm:p-12">
-          <div className="mb-6 flex items-center gap-3">
-            <div className="rounded-lg bg-primary/10 p-2">
-              <Sparkles className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold">Ihr Betrieb auf Autopilot</h2>
-              <p className="text-sm text-muted-foreground">
-                KI-gestützte Eingabe für den Alltag
-              </p>
-            </div>
-          </div>
-          <div className="mb-8 rounded-xl border border-primary/20 bg-primary/5 p-4 font-mono text-sm">
-            <span className="text-muted-foreground">Sie tippen: </span>
-            <span className="font-medium">
-              &ldquo;50 ThinkPad T14 aus UBS-Spende, Zustand mittel&rdquo;
-            </span>
-            <br />
-            <span className="text-primary">
-              → 50 Artikel erfasst · Spendenquittung generiert · QR-Etiketten
-              druckbereit
-            </span>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <AIFeature
-              icon={<MessageSquare className="h-4 w-4" />}
-              text="Natürlichsprachige Erfassung: Tippen, was passiert — Kivvi erledigt den Rest"
-            />
-            <AIFeature
-              icon={<Zap className="h-4 w-4" />}
-              text="Bulk-Intake: Hunderte Artikel in Minuten erfassen, nicht Stunden"
-            />
-            <AIFeature
-              icon={<Tag className="h-4 w-4" />}
-              text="Automatische Beschreibungen und Kategorisierung"
-            />
-            <AIFeature
-              icon={<ClipboardCheck className="h-4 w-4" />}
-              text="Intelligente Preisvorschläge basierend auf Zustand und Markt"
-            />
-          </div>
-        </div>
-      </section>
+      <AIAutopilotSection />
 
       {/* ============================================================ */}
       {/* ORIGIN STORY — Who built this and why                        */}
@@ -205,71 +157,12 @@ export default function Home() {
       {/* ============================================================ */}
       {/* SCENARIOS — A typical day, not a feature list                */}
       {/* ============================================================ */}
-      <section className="mx-auto max-w-4xl py-16">
-        <h2 className="mb-12 text-center text-3xl font-bold">
-          Ein ganz normaler Tag
-        </h2>
-
-        <div className="space-y-12">
-          <ScenarioCard
-            time="Dienstag, 9 Uhr"
-            title="Wareneingang"
-            text="Eine Firma liefert 50 ausgemusterte Laptops. Sie tippen '50 Lenovo ThinkPad' und drücken Enter. 50 Artikel erfasst, QR-Etiketten druckbereit, Spendenquittung generiert."
-            icon={<PackageOpen className="h-5 w-5" />}
-            color="blue"
-          />
-          <ScenarioCard
-            time="Mittwoch, 14 Uhr"
-            title="Prüfung & Reparatur"
-            text="Freiwillige Maria öffnet Laptop #23. Akku: 78%. Bildschirm: Kratzer. Zustand: Mittel. Neue Batterie: CHF 40. In 30 Sekunden erfasst — Reparaturkosten fliessen direkt in die Margenberechnung."
-            icon={<ClipboardCheck className="h-5 w-5" />}
-            color="amber"
-          />
-          <ScenarioCard
-            time="Freitag, 16 Uhr"
-            title="Verkauf & Impact"
-            text="Kunde kommt rein. CHF 80 statt CHF 135 — Richtpreis, angepasst an sein Budget. QR scannen. Fertig. Dashboard zeigt: CHF 30 Marge, 25 kg Elektroschrott vermieden."
-            icon={<BarChart3 className="h-5 w-5" />}
-            color="green"
-          />
-        </div>
-      </section>
+      <ScenariosSection />
 
       {/* ============================================================ */}
       {/* DEPLOYMENT OPTIONS — Open Source / Cloud / On-Premise        */}
       {/* ============================================================ */}
-      <section className="mx-auto max-w-4xl py-8">
-        <h2 className="mb-8 text-center text-2xl font-bold">
-          Wie Sie Kivvi nutzen
-        </h2>
-        <div className="grid gap-4 sm:grid-cols-3">
-          <DeploymentCard
-            icon={<Code2 className="h-5 w-5" />}
-            title="Open Source"
-            subtitle="Selbst hosten"
-            description="MIT-Lizenz. Sie kontrollieren alles. Kein Vendor Lock-in. Für technische Teams oder mit IT-Support."
-            href="https://github.com/g-but/kivvi"
-            cta="GitHub ansehen"
-            external
-          />
-          <DeploymentCard
-            icon={<Cloud className="h-5 w-5" />}
-            title="Cloud"
-            subtitle="Verwaltet · Demnächst"
-            description="Wir betreiben, Sie nutzen. Keine Infrastruktur, keine Updates. Ideal für Betriebe ohne IT-Ressourcen."
-            href="/contact"
-            cta="Warteliste"
-          />
-          <DeploymentCard
-            icon={<Server className="h-5 w-5" />}
-            title="On-Premise"
-            subtitle="Mit Support"
-            description="Ihre Infrastruktur, unser Support. Installation, Konfiguration und laufende Betreuung durch uns."
-            href="/contact"
-            cta="Kontakt aufnehmen"
-          />
-        </div>
-      </section>
+      <DeploymentOptionsSection />
 
       {/* ============================================================ */}
       {/* CAPABILITIES — Compact, not cards                            */}
@@ -349,105 +242,11 @@ export default function Home() {
 
 // ── Sub-components ──────────────────────────────────────────────────────────
 
-function AIFeature({ icon, text }: { icon: React.ReactNode; text: string }) {
-  return (
-    <div className="flex items-start gap-3">
-      <div className="mt-0.5 shrink-0 text-primary">{icon}</div>
-      <span className="text-sm text-muted-foreground">{text}</span>
-    </div>
-  );
-}
-
-function DeploymentCard({
-  icon,
-  title,
-  subtitle,
-  description,
-  href,
-  cta,
-  external,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  subtitle: string;
-  description: string;
-  href: string;
-  cta: string;
-  external?: boolean;
-}) {
-  return (
-    <div className="flex flex-col rounded-xl border bg-card p-6">
-      <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-        {icon}
-      </div>
-      <div className="font-semibold">{title}</div>
-      <div className="mb-3 text-xs text-muted-foreground">{subtitle}</div>
-      <p className="mb-6 flex-1 text-sm text-muted-foreground leading-relaxed">
-        {description}
-      </p>
-      {external ? (
-        <Button asChild variant="link" className="px-0 text-sm gap-1.5">
-          <a
-            href={href}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {cta}
-            <ArrowRight className="h-3.5 w-3.5" />
-          </a>
-        </Button>
-      ) : (
-        <Button asChild variant="link" className="px-0 text-sm gap-1.5">
-          <Link href={href}>
-            {cta}
-            <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
-        </Button>
-      )}
-    </div>
-  );
-}
-
 function StatBlock({ value, label }: { value: string; label: string }) {
   return (
     <div className="text-center">
       <div className="text-2xl font-bold text-primary">{value}</div>
       <div className="text-xs text-muted-foreground">{label}</div>
-    </div>
-  );
-}
-
-const SCENARIO_COLORS = {
-  blue: "border-l-info bg-info/5",
-  amber: "border-l-warning bg-warning/5",
-  green: "border-l-success bg-success/5",
-};
-
-function ScenarioCard({
-  time,
-  title,
-  text,
-  icon,
-  color,
-}: {
-  time: string;
-  title: string;
-  text: string;
-  icon: React.ReactNode;
-  color: "blue" | "amber" | "green";
-}) {
-  return (
-    <div
-      className={`rounded-xl border-l-4 p-6 sm:p-8 ${SCENARIO_COLORS[color]}`}
-    >
-      <div className="mb-3 flex items-center gap-3">
-        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-          {icon}
-          <span>{time}</span>
-        </div>
-        <span className="text-sm font-bold">{title}</span>
-      </div>
-      <p className="leading-relaxed text-muted-foreground">{text}</p>
     </div>
   );
 }
