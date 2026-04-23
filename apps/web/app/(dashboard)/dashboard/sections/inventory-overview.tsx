@@ -4,16 +4,10 @@ import { getTranslations } from "next-intl/server";
 import { db } from "@/lib/db";
 import { getInventoryDashboard } from "@kivvi/core/src/domain/inventory-dashboard";
 import { formatCurrency } from "@/lib/utils";
-import { getStatusLabelKey } from "@/lib/config/inventory-items";
-
-const PIPELINE_STATUSES = [
-  "intake",
-  "testing",
-  "repair",
-  "ready_for_sale",
-  "listed",
-  "reserved",
-];
+import {
+  getStatusLabelKey,
+  PIPELINE_STATUSES,
+} from "@/lib/config/inventory-items";
 
 export async function InventoryOverview() {
   const session = await getSessionOrRedirect();

@@ -69,6 +69,16 @@ export const ITEM_STATUS_CONFIG: Record<string, ItemStatusConfig> = {
   },
 };
 
+/** Active pipeline statuses — items that are in-progress, not yet sold/disposed */
+export const PIPELINE_STATUSES = [
+  "intake",
+  "testing",
+  "repair",
+  "ready_for_sale",
+  "listed",
+  "reserved",
+] as const satisfies readonly (typeof ITEM_STATUS_VALUES)[number][];
+
 // ============================================================================
 // CONDITION CONFIG
 // ============================================================================
@@ -145,7 +155,9 @@ export function getStatusStyle(status: string): string {
 
 /** Get condition style or fallback */
 export function getConditionStyle(condition: string): string {
-  return ITEM_CONDITION_CONFIG[condition]?.style || "bg-neutral/10 text-neutral";
+  return (
+    ITEM_CONDITION_CONFIG[condition]?.style || "bg-neutral/10 text-neutral"
+  );
 }
 
 /** Get label key for a status. Use with t(getStatusLabelKey(status)) */

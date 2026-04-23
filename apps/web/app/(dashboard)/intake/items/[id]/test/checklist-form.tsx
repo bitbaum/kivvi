@@ -17,6 +17,7 @@ import type {
   ChecklistData,
 } from "@kivvi/core/src/config/checklist-templates";
 import { getConditionLabelKey } from "@/lib/config/inventory-items";
+import { ITEM_CONDITION_VALUES } from "@kivvi/database/src/enums";
 import { CheckRow } from "./checklist-check-row";
 import { useChecklistState } from "./use-checklist-state";
 
@@ -180,9 +181,7 @@ export function ChecklistForm({
           {tc("condition")}
         </label>
         <div className="flex flex-wrap gap-2">
-          {(
-            ["like_new", "good", "fair", "poor", "parts_only", "scrap"] as const
-          ).map((c) => (
+          {ITEM_CONDITION_VALUES.filter((c) => c !== "untested").map((c) => (
             <button
               key={c}
               type="button"
