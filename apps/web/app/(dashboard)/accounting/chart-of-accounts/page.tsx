@@ -219,7 +219,10 @@ export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
                           <p className="text-sm font-medium">{account.name}</p>
                           {parent && (
                             <p className="text-xs text-muted-foreground">
-                              Parent: {parent.code} {parent.name}
+                              {t("parentLabel", {
+                                code: parent.code,
+                                name: parent.name,
+                              })}
                             </p>
                           )}
                         </div>
@@ -265,12 +268,10 @@ export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
                 {/* Footer */}
                 <div className="border-t px-6 py-3">
                   <p className="text-sm text-muted-foreground">
-                    Showing {accounts.length} account
-                    {accounts.length !== 1 ? "s" : ""}
-                    {typeFilter
-                      ? ` of type "${typeLabels[typeFilter] || typeFilter}"`
-                      : ""}
-                    {search ? ` matching "${search}"` : ""}
+                    {t("accountCount", { count: accounts.length })}
+                    {typeFilter &&
+                      ` ${t("accountFilterType", { type: typeLabels[typeFilter] || typeFilter })}`}
+                    {search && ` ${t("accountFilterSearch", { search })}`}
                   </p>
                 </div>
               </>

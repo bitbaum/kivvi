@@ -50,7 +50,7 @@ export function ItemBatchToolbar({
         onClear();
         setStatusValue("");
       } else {
-        toast.error(result.error || "Failed");
+        toast.error(result.error || tc("error"));
       }
     });
   }
@@ -69,7 +69,7 @@ export function ItemBatchToolbar({
         onClear();
         setConditionValue("");
       } else {
-        toast.error(result.error || "Failed");
+        toast.error(result.error || tc("error"));
       }
     });
   }
@@ -88,7 +88,7 @@ export function ItemBatchToolbar({
         onClear();
         setPriceValue("");
       } else {
-        toast.error(result.error || "Failed");
+        toast.error(result.error || tc("error"));
       }
     });
   }

@@ -33,6 +33,7 @@ interface Token {
 
 export function ApiTokensPanel({ initialTokens }: { initialTokens: Token[] }) {
   const t = useTranslations("settings.apiTokens");
+  const tc = useTranslations("common");
   const [tokens, setTokens] = useState<Token[]>(initialTokens);
   const [isCreating, setIsCreating] = useState(false);
   const [newTokenName, setNewTokenName] = useState("");
@@ -62,7 +63,7 @@ export function ApiTokensPanel({ initialTokens }: { initialTokens: Token[] }) {
       setNewTokenName("");
       toast.success(t("tokenCreated"));
     } else {
-      toast.error(result.error || "Failed");
+      toast.error(result.error || tc("error"));
     }
     setIsCreating(false);
   }
@@ -76,7 +77,7 @@ export function ApiTokensPanel({ initialTokens }: { initialTokens: Token[] }) {
       );
       toast.success(t("revoked"));
     } else {
-      toast.error(result.error || "Failed");
+      toast.error(result.error || tc("error"));
     }
   }
 
@@ -87,7 +88,7 @@ export function ApiTokensPanel({ initialTokens }: { initialTokens: Token[] }) {
       setTokens((prev) => prev.filter((t) => t.id !== tokenId));
       toast.success(t("deleted"));
     } else {
-      toast.error(result.error || "Failed");
+      toast.error(result.error || tc("error"));
     }
   }
 

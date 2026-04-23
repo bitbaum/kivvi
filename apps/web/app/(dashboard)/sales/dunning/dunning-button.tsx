@@ -3,14 +3,9 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Send } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { createDunningAction } from "@/app/actions/dunning";
 import { Button } from "@/components/ui/button";
-
-const LEVEL_LABELS: Record<number, string> = {
-  0: "Send Reminder",
-  1: "Send 2nd Reminder",
-  2: "Send Final Notice",
-};
 
 export function DunningButton({
   invoiceId,
@@ -19,9 +14,17 @@ export function DunningButton({
   invoiceId: string;
   currentLevel: number;
 }) {
+  const t = useTranslations("dunning");
+  const tc = useTranslations("common");
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+
+  const LEVEL_LABELS: Record<number, string> = {
+    0: t("sendReminder"),
+    1: t("send2ndReminder"),
+    2: t("sendFinalNotice"),
+  };
 
   function handleClick() {
     setError(null);
@@ -30,7 +33,7 @@ export function DunningButton({
       if (result.success) {
         router.refresh();
       } else {
-        setError(result.error || "Failed");
+        setError(result.error || tc("error"));
       }
     });
   }
@@ -44,7 +47,7 @@ export function DunningButton({
         disabled={isPending}
       >
         <Send className="h-3 w-3" />
-        {isPending ? "Sending..." : LEVEL_LABELS[currentLevel] || "Escalate"}
+        {isPending ? t("sending") : LEVEL_LABELS[currentLevel] || t("maxLevel")}
       </Button>
       {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
     </div>

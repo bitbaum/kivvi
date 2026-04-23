@@ -111,7 +111,7 @@ export function SelectableDunningTable({
       if (!result.success) {
         setRowErrors((prev) => ({
           ...prev,
-          [invoiceId]: result.error || "Failed",
+          [invoiceId]: result.error || tc("error"),
         }));
       }
     });
