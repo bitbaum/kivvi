@@ -10,10 +10,12 @@
  * - Clothing: ~20 kg per item (Ellen MacArthur Foundation)
  * - Furniture: ~100 kg per item
  * - Books: ~2 kg
+ * - Appliances: ~100 kg (typical small-medium household appliance)
  *
  * Conservative estimates — companies can adjust via settings.
  *
- * SSOT: These keys must match the `category` field on inventory_items.
+ * SSOT: These keys must match ITEM_CATEGORIES from checklist-templates.ts.
+ * When adding a new category there, add a CO2 factor here too.
  */
 export const CO2_FACTORS_KG: Record<string, number> = {
   laptop: 300,
@@ -32,6 +34,7 @@ export const CO2_FACTORS_KG: Record<string, number> = {
   book: 2,
   toy: 5,
   bike: 80,
+  appliance: 100, // typical small-medium household appliance
   electronics: 50, // generic fallback for electronics
   other: 50, // default fallback
 };

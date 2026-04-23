@@ -603,8 +603,6 @@
     "narrative": {
       "allGood": "Tout est en ordre — aucun élément en attente."
     },
-    "allCaughtUp": "Tout est à jour!",
-    "noUrgentActions": "Aucune action urgente",
     "welcome": {
       "title": "Bienvenue sur Kivvi, {company} !",
       "subtitle": "Configurons votre entreprise. Voici les meilleurs points de départ.",

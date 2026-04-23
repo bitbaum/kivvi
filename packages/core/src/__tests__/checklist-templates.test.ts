@@ -35,6 +35,7 @@ describe("CHECKLIST_TEMPLATES structure", () => {
       "book",
       "toy",
       "bike",
+      "appliance",
       "electronics",
       "other",
     ];
