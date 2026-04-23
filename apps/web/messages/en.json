@@ -150,7 +150,9 @@
       "product": "Product",
       "project": "Project",
       "journal": "Journal Entry"
-    }
+    },
+    "fileTooLarge": "File too large. Max {maxKB} KB.",
+    "removeImage": "Remove image"
   },
   "nav": {
     "home": "Home",

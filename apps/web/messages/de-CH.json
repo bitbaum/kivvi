@@ -150,7 +150,9 @@
       "product": "Produkt",
       "project": "Projekt",
       "journal": "Buchung"
-    }
+    },
+    "fileTooLarge": "Datei zu gross. Max {maxKB} KB.",
+    "removeImage": "Bild entfernen"
   },
   "nav": {
     "home": "Start",

@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { Loader2, Upload, Trash2, ImageIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 /**
@@ -51,6 +52,7 @@ export function ImageUpload({
   className,
   alt = "Image",
 }: ImageUploadProps) {
+  const tc = useTranslations("common");
   const [preview, setPreview] = useState<string | null>(currentImage);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -62,7 +64,7 @@ export function ImageUpload({
     if (!file) return;
 
     if (file.size > maxSize) {
-      setError(`File too large. Max ${Math.round(maxSize / 1024)}KB.`);
+      setError(tc("fileTooLarge", { maxKB: Math.round(maxSize / 1024) }));
       return;
     }
 
@@ -79,10 +81,10 @@ export function ImageUpload({
         reader.onload = () => setPreview(reader.result as string);
         reader.readAsDataURL(file);
       } else {
-        setError(result.error || "Upload failed");
+        setError(result.error || tc("error"));
       }
     } catch {
-      setError("Upload failed");
+      setError(tc("error"));
     } finally {
       setIsUploading(false);
       if (fileRef.current) fileRef.current.value = "";
@@ -95,9 +97,9 @@ export function ImageUpload({
     try {
       const result = await onRemove();
       if (result.success) setPreview(null);
-      else setError(result.error || "Remove failed");
+      else setError(result.error || tc("error"));
     } catch {
-      setError("Remove failed");
+      setError(tc("error"));
     } finally {
       setIsUploading(false);
     }
@@ -118,7 +120,7 @@ export function ImageUpload({
             onClick={handleRemove}
             disabled={isUploading}
             className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-md hover:bg-destructive/90 disabled:opacity-50"
-            aria-label="Remove image"
+            aria-label={tc("removeImage")}
           >
             <Trash2 className="h-3.5 w-3.5" />
           </button>
@@ -138,7 +140,7 @@ export function ImageUpload({
               <ImageIcon className="h-8 w-8 text-muted-foreground/50" />
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
                 <Upload className="h-3 w-3" />
-                Upload
+                {tc("upload")}
               </div>
             </>
           )}

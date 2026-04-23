@@ -641,7 +641,7 @@ export const CHECKLIST_TEMPLATES: Record<string, ChecklistTemplate> = {
       {
         id: "data_erasure",
         labelKey: "checkDataErasure",
-        type: "pass_fail",
+        type: "confirm",
         blocking: true,
         required: true,
       },

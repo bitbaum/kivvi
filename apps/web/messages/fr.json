@@ -150,7 +150,9 @@
       "product": "Produit",
       "project": "Projet",
       "journal": "Écriture"
-    }
+    },
+    "fileTooLarge": "Fichier trop grand. Max {maxKB} Ko.",
+    "removeImage": "Supprimer l'image"
   },
   "nav": {
     "home": "Accueil",
