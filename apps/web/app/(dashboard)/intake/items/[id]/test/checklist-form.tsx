@@ -16,7 +16,10 @@ import type {
   ChecklistTemplate,
   ChecklistData,
 } from "@kivvi/core/src/config/checklist-templates";
-import { getConditionLabelKey } from "@/lib/config/inventory-items";
+import {
+  getConditionLabelKey,
+  TESTABLE_STATUSES,
+} from "@/lib/config/inventory-items";
 import { ITEM_CONDITION_VALUES } from "@kivvi/database/src/enums";
 import { CheckRow } from "./checklist-check-row";
 import { useChecklistState } from "./use-checklist-state";
@@ -236,7 +239,7 @@ export function ChecklistForm({
         </button>
 
         {suggestRepair &&
-          (currentStatus === "testing" || currentStatus === "intake") && (
+          (TESTABLE_STATUSES as readonly string[]).includes(currentStatus) && (
             <button
               type="button"
               onClick={() => handleRoute("repair")}

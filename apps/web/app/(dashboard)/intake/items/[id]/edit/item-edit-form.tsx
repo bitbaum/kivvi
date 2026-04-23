@@ -11,7 +11,10 @@ import {
   updateItemStatusAction,
   updateItemConditionAction,
 } from "@/app/actions/inventory-items";
-import { getValidTransitions } from "@/lib/config/inventory-items";
+import {
+  getValidTransitions,
+  REPAIR_STATUSES,
+} from "@/lib/config/inventory-items";
 import { useTranslations } from "next-intl";
 import { ItemDetailsFields } from "./item-details-fields";
 import { ItemPhotoUpload } from "@/components/inventory/item-photo-upload";
@@ -159,8 +162,7 @@ export function ItemEditForm({
       </CardSection>
 
       {/* Repair log */}
-      {(item.status === "testing" ||
-        item.status === "repair" ||
+      {((REPAIR_STATUSES as readonly string[]).includes(item.status) ||
         (item.repairCost && parseFloat(item.repairCost) > 0)) && (
         <RepairSection
           itemId={item.id}

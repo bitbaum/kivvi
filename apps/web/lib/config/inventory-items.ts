@@ -85,6 +85,12 @@ export const TESTABLE_STATUSES = [
   "testing",
 ] as const satisfies readonly (typeof ITEM_STATUS_VALUES)[number][];
 
+/** Statuses where a repair workflow is relevant (show repair log section) */
+export const REPAIR_STATUSES = [
+  "testing",
+  "repair",
+] as const satisfies readonly (typeof ITEM_STATUS_VALUES)[number][];
+
 // ============================================================================
 // CONDITION CONFIG
 // ============================================================================

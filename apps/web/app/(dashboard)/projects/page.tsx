@@ -9,6 +9,8 @@ import { getTranslations } from "next-intl/server";
 import {
   PROJECT_STATUS_STYLES as STATUS_STYLES,
   PROJECT_STATUS_LABEL_KEYS,
+  PROJECT_STATUSES,
+  type ProjectStatus,
 } from "@/lib/config/project-status";
 import { DEFAULT_PAGE_SIZE } from "@/lib/config/document-types";
 import { PageHeader } from "@/components/page-header";
@@ -29,12 +31,11 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
 
   const params = await searchParams;
   const search = params.search || "";
-  const statusFilter = params.status as
-    | "active"
-    | "completed"
-    | "on_hold"
-    | "cancelled"
-    | undefined;
+  const rawStatus = params.status;
+  const statusFilter: ProjectStatus | undefined =
+    rawStatus && (PROJECT_STATUSES as readonly string[]).includes(rawStatus)
+      ? (rawStatus as ProjectStatus)
+      : undefined;
   const page = Math.max(1, parseInt(params.page || "1", 10));
 
   const result = await listProjects(db, session.user.companyId, {
@@ -77,33 +78,23 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
           />
         </form>
 
-        {/* Status filter */}
+        {/* Status filter — derived from PROJECT_STATUSES SSOT */}
         <div className="flex items-center gap-1 rounded-lg border bg-card p-1">
           <StatusFilterLink
             href={buildFilterUrl({ search, status: undefined })}
             active={!statusFilter}
             label={tc("all")}
           />
-          <StatusFilterLink
-            href={buildFilterUrl({ search, status: "active" })}
-            active={statusFilter === "active"}
-            label={t("statusActive")}
-          />
-          <StatusFilterLink
-            href={buildFilterUrl({ search, status: "completed" })}
-            active={statusFilter === "completed"}
-            label={t("statusCompleted")}
-          />
-          <StatusFilterLink
-            href={buildFilterUrl({ search, status: "on_hold" })}
-            active={statusFilter === "on_hold"}
-            label={t("statusOnHold")}
-          />
-          <StatusFilterLink
-            href={buildFilterUrl({ search, status: "cancelled" })}
-            active={statusFilter === "cancelled"}
-            label={t("statusCancelled")}
-          />
+          {PROJECT_STATUSES.map((status) => (
+            <StatusFilterLink
+              key={status}
+              href={buildFilterUrl({ search, status })}
+              active={statusFilter === status}
+              label={t(
+                PROJECT_STATUS_LABEL_KEYS[status] as Parameters<typeof t>[0],
+              )}
+            />
+          ))}
         </div>
       </div>
 
