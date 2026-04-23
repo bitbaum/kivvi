@@ -1,17 +1,17 @@
 "use client";
 
-import { useCallback, useMemo, useState, useTransition, useRef } from "react";
+import { useCallback, useMemo, useState, useTransition } from "react";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useSelection } from "@/hooks/use-selection";
 import { BulkActionToolbar } from "@/components/bulk-action-toolbar";
 import { BulkResultBanner } from "@/components/bulk-result-banner";
+import { BulkConfirmDialog } from "@/components/bulk-confirm-dialog";
 import {
   bulkDeleteProductsAction,
   bulkDeactivateProductsAction,
 } from "@/app/actions/bulk-operations";
 import type { BulkOperationResult } from "@/app/actions/bulk-operations";
-import { useFocusTrap } from "@/hooks/use-focus-trap";
 import { SortableHeader } from "@/components/sortable-header";
 import { ProductTableRow } from "./product-table-row";
 import type {
@@ -58,9 +58,6 @@ export function SelectableProductTable({
   const [confirmAction, setConfirmAction] = useState<
     "delete" | "deactivate" | null
   >(null);
-  const confirmRef = useRef<HTMLDivElement>(null);
-  useFocusTrap(confirmRef, !!confirmAction);
-
   const handleComplete = useCallback(
     (result: BulkOperationResult) => {
       setBulkResult(result);
@@ -212,47 +209,22 @@ export function SelectableProductTable({
 
       {/* Confirmation dialog */}
       {confirmAction && (
-        <div
-          ref={confirmRef}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-          onKeyDown={(e) => {
-            if (e.key === "Escape") setConfirmAction(null);
-          }}
-        >
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="confirm-dialog-title"
-            className="mx-4 w-full max-w-md rounded-xl border bg-card p-6 shadow-xl"
-          >
-            <h2 id="confirm-dialog-title" className="text-lg font-semibold">
-              {translations.bulkLabels.confirmTitle}
-            </h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {(confirmAction === "delete"
-                ? translations.bulkLabels.confirmDelete
-                : translations.bulkLabels.confirmDeactivate
-              ).replace("{count}", String(selectedIds.length))}
-            </p>
-            <div className="mt-4 flex justify-end gap-2">
-              <button
-                onClick={() => setConfirmAction(null)}
-                className="rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted"
-              >
-                {translations.bulkLabels.cancel}
-              </button>
-              <button
-                onClick={() => executeAction(confirmAction)}
-                disabled={isPending}
-                className="rounded-lg bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
-              >
-                {isPending
-                  ? translations.bulkLabels.processing
-                  : translations.bulkLabels.confirmAction}
-              </button>
-            </div>
-          </div>
-        </div>
+        <BulkConfirmDialog
+          title={translations.bulkLabels.confirmTitle}
+          message={(confirmAction === "delete"
+            ? translations.bulkLabels.confirmDelete
+            : translations.bulkLabels.confirmDeactivate
+          ).replace("{count}", String(selectedIds.length))}
+          confirmLabel={
+            isPending
+              ? translations.bulkLabels.processing
+              : translations.bulkLabels.confirmAction
+          }
+          cancelLabel={translations.bulkLabels.cancel}
+          isLoading={isPending}
+          onConfirm={() => executeAction(confirmAction)}
+          onCancel={() => setConfirmAction(null)}
+        />
       )}
     </>
   );
