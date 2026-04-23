@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { User, FileText } from "lucide-react";
+import { User, FileText, Recycle } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { formatDate } from "@/lib/utils";
 import { CardSection } from "@/components/card-section";
@@ -8,6 +8,7 @@ import { ItemTimeline } from "@/components/inventory/item-timeline";
 import { ItemPricingCard } from "@/components/inventory/item-pricing-card";
 import { PrintLabelsButton } from "@/app/(dashboard)/intake/[id]/labels/print-button";
 import { getConditionLabelKey } from "@/lib/config/inventory-items";
+import { getCo2Factor } from "@/lib/config/co2-factors";
 import type { getInventoryItem, listRepairParts } from "@kivvi/core";
 
 type InventoryItem = NonNullable<Awaited<ReturnType<typeof getInventoryItem>>>;
@@ -28,8 +29,34 @@ export async function InventoryItemSidebar({
 }: InventoryItemSidebarProps) {
   const ti = await getTranslations("inventory");
 
+  const co2Kg = getCo2Factor(item.category);
+  const showImpact = item.status === "sold" || item.status === "donated";
+
   return (
     <div className="space-y-6">
+      {/* Impact callout — shown when item is sold or donated */}
+      {showImpact && (
+        <div className="rounded-xl border border-success/30 bg-success/5 p-4">
+          <div className="mb-2 flex items-center gap-2">
+            <Recycle className="h-4 w-4 text-success" />
+            <span className="text-sm font-semibold text-success">
+              {ti("itemImpactTitle")}
+            </span>
+          </div>
+          <p className="mb-3 text-sm text-muted-foreground">
+            {item.status === "sold"
+              ? ti("itemImpactTaglineSold")
+              : ti("itemImpactTaglineDonated")}
+          </p>
+          <p className="text-sm font-semibold text-success">
+            {ti("itemImpactCo2", { kg: co2Kg })}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {ti("itemImpactCo2Hint")}
+          </p>
+        </div>
+      )}
+
       {/* Pricing */}
       <ItemPricingCard item={item} repairParts={repairParts} />
 
