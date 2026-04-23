@@ -9,17 +9,15 @@ import {
   createProductAction,
   updateProductAction,
 } from "@/app/actions/products";
-import { SWISS_VAT_RATES, DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
-import { PRODUCT_TYPES, UNIT_VALUES } from "@/lib/config/products";
-import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 import type { Product } from "@kivvi/database";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import {
-  FormInput,
-  FormSelect,
-  FormTextarea,
-} from "@/components/ui/form-field";
+  ProductFormBasicSection,
+  ProductFormPricingSection,
+  ProductFormInventorySection,
+  ProductFormVisibilitySection,
+} from "./product-form-sections";
 
 interface ProductFormProps {
   mode: "create" | "edit";
@@ -36,18 +34,6 @@ export function ProductForm({ mode, product }: ProductFormProps) {
   const tc = useTranslations("common");
 
   const isEdit = mode === "edit";
-
-  const vatRateOptions = SWISS_VAT_RATES.map((rate) => ({
-    value: rate.value,
-    label: t(`vatRates.${rate.labelKey}`),
-  }));
-
-  const unitOptions = UNIT_VALUES.map((u) => ({
-    value: u,
-    label: t(`units.${u}`),
-  }));
-  const typeOptions = PRODUCT_TYPES.map((pt) => ({ value: pt, label: t(pt) }));
-
   const backHref = isEdit ? `/products/${product!.id}` : "/products";
 
   async function handleSubmit(formData: FormData) {
@@ -82,7 +68,6 @@ export function ProductForm({ mode, product }: ProductFormProps) {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      {/* Header */}
       <div className="flex items-center gap-4">
         <Link
           href={backHref}
@@ -102,7 +87,6 @@ export function ProductForm({ mode, product }: ProductFormProps) {
         </div>
       </div>
 
-      {/* Error */}
       {error && (
         <div
           role="alert"
@@ -112,329 +96,19 @@ export function ProductForm({ mode, product }: ProductFormProps) {
         </div>
       )}
 
-      {/* Form */}
       <form action={handleSubmit} className="space-y-6">
-        {/* Basic Information */}
-        <div className="rounded-xl border bg-card">
-          <div className="border-b px-6 py-4">
-            <h2 className="font-semibold">{t("basicInformation")}</h2>
-          </div>
-          <div className="space-y-4 p-6">
-            {/* Type */}
-            <div>
-              <label
-                htmlFor="type"
-                className="mb-1.5 block text-sm font-medium"
-              >
-                {tc("type")} <span className="text-destructive">*</span>
-              </label>
-              <FormSelect
-                id="type"
-                name="type"
-                required
-                value={productType}
-                onChange={(e) =>
-                  setProductType(e.target.value as "product" | "service")
-                }
-              >
-                {typeOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </FormSelect>
-            </div>
-
-            {/* Name */}
-            <div>
-              <label
-                htmlFor="name"
-                className="mb-1.5 block text-sm font-medium"
-              >
-                {tc("name")} <span className="text-destructive">*</span>
-              </label>
-              <FormInput
-                type="text"
-                id="name"
-                name="name"
-                required
-                maxLength={255}
-                defaultValue={product?.name || ""}
-                placeholder={!isEdit ? tc("name") : undefined}
-              />
-            </div>
-
-            {/* Description */}
-            <div>
-              <label
-                htmlFor="description"
-                className="mb-1.5 block text-sm font-medium"
-              >
-                {tc("description")}
-              </label>
-              <FormTextarea
-                id="description"
-                name="description"
-                rows={3}
-                maxLength={5000}
-                defaultValue={product?.description || ""}
-              />
-            </div>
-
-            {/* SKU & EAN */}
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label
-                  htmlFor="sku"
-                  className="mb-1.5 block text-sm font-medium"
-                >
-                  {t("sku")}
-                </label>
-                <FormInput
-                  type="text"
-                  id="sku"
-                  name="sku"
-                  maxLength={100}
-                  defaultValue={product?.sku || ""}
-                  placeholder={
-                    !isEdit ? t("placeholders.articleNumber") : undefined
-                  }
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="ean"
-                  className="mb-1.5 block text-sm font-medium"
-                >
-                  {t("ean")}
-                </label>
-                <FormInput
-                  type="text"
-                  id="ean"
-                  name="ean"
-                  maxLength={50}
-                  defaultValue={product?.ean || ""}
-                  placeholder={!isEdit ? t("placeholders.ean") : undefined}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Pricing */}
-        <div className="rounded-xl border bg-card">
-          <div className="border-b px-6 py-4">
-            <h2 className="font-semibold">{t("pricing")}</h2>
-          </div>
-          <div className="space-y-4 p-6">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label
-                  htmlFor="unitPrice"
-                  className="mb-1.5 block text-sm font-medium"
-                >
-                  {t("unitPrice")} ({product?.currency || DEFAULT_CURRENCY}){" "}
-                  <span className="text-destructive">*</span>
-                </label>
-                <FormInput
-                  type="text"
-                  id="unitPrice"
-                  name="unitPrice"
-                  required
-                  defaultValue={product?.unitPrice || ""}
-                  placeholder={!isEdit ? "0.00" : undefined}
-                  pattern={!isEdit ? "\\d+(\\.\\d{1,2})?" : undefined}
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="purchasePrice"
-                  className="mb-1.5 block text-sm font-medium"
-                >
-                  {t("purchasePrice")} ({product?.currency || DEFAULT_CURRENCY})
-                </label>
-                <FormInput
-                  type="text"
-                  id="purchasePrice"
-                  name="purchasePrice"
-                  defaultValue={product?.purchasePrice || ""}
-                  placeholder={!isEdit ? "0.00" : undefined}
-                  pattern={!isEdit ? "\\d+(\\.\\d{1,2})?" : undefined}
-                />
-              </div>
-            </div>
-
-            <input
-              type="hidden"
-              name="currency"
-              value={product?.currency || DEFAULT_CURRENCY}
-            />
-
-            {/* Flexible pricing (Richtpreis) */}
-            <div className="rounded-lg border p-4">
-              <label className="flex items-center gap-2 text-sm font-medium">
-                <input
-                  type="checkbox"
-                  name="isPriceFlexible"
-                  value="true"
-                  defaultChecked={product?.isPriceFlexible || false}
-                  className="h-4 w-4 rounded border-input"
-                />
-                {t("flexiblePricing")}
-              </label>
-              <p className="mt-1 text-xs text-muted-foreground">
-                {t("flexiblePricingDesc")}
-              </p>
-              <div className="mt-3 grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label
-                    htmlFor="minPrice"
-                    className="mb-1.5 block text-xs font-medium text-muted-foreground"
-                  >
-                    {t("minPrice")}
-                  </label>
-                  <FormInput
-                    type="text"
-                    id="minPrice"
-                    name="minPrice"
-                    defaultValue={product?.minPrice || ""}
-                    placeholder="0.00"
-                    pattern="\d+(\.\d{1,2})?"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="maxPrice"
-                    className="mb-1.5 block text-xs font-medium text-muted-foreground"
-                  >
-                    {t("maxPrice")}
-                  </label>
-                  <FormInput
-                    type="text"
-                    id="maxPrice"
-                    name="maxPrice"
-                    defaultValue={product?.maxPrice || ""}
-                    placeholder="0.00"
-                    pattern="\d+(\.\d{1,2})?"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label
-                  htmlFor="vatRate"
-                  className="mb-1.5 block text-sm font-medium"
-                >
-                  {t("vatRate")} <span className="text-destructive">*</span>
-                </label>
-                <FormSelect
-                  id="vatRate"
-                  name="vatRate"
-                  required
-                  defaultValue={product?.vatRate || DEFAULT_VAT_RATE}
-                >
-                  {vatRateOptions.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </FormSelect>
-              </div>
-              <div>
-                <label
-                  htmlFor="unit"
-                  className="mb-1.5 block text-sm font-medium"
-                >
-                  {t("unit")}
-                </label>
-                <FormSelect
-                  id="unit"
-                  name="unit"
-                  defaultValue={product?.unit || "piece"}
-                >
-                  {unitOptions.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </FormSelect>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Inventory (only for products) */}
+        <ProductFormBasicSection
+          product={product}
+          isEdit={isEdit}
+          productType={productType}
+          onTypeChange={setProductType}
+        />
+        <ProductFormPricingSection product={product} isEdit={isEdit} />
         {productType === "product" && (
-          <div className="rounded-xl border bg-card">
-            <div className="border-b px-6 py-4">
-              <h2 className="font-semibold">{t("inventorySection")}</h2>
-            </div>
-            <div className="space-y-4 p-6">
-              <div className="max-w-xs">
-                <label
-                  htmlFor="minStock"
-                  className="mb-1.5 block text-sm font-medium"
-                >
-                  {t("minStock")}
-                </label>
-                <FormInput
-                  type="number"
-                  id="minStock"
-                  name="minStock"
-                  min={0}
-                  step={1}
-                  defaultValue={product?.minStock ?? ""}
-                  placeholder={!isEdit ? "0" : undefined}
-                />
-              </div>
-              <div className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  id="serialNumberTracking"
-                  name="serialNumberTracking"
-                  defaultChecked={product?.serialNumberTracking ?? false}
-                  className="h-4 w-4 rounded border-input text-primary focus:ring-primary"
-                />
-                <label
-                  htmlFor="serialNumberTracking"
-                  className="text-sm font-medium"
-                >
-                  {t("serialNumberTracking")}
-                </label>
-              </div>
-            </div>
-          </div>
+          <ProductFormInventorySection product={product} isEdit={isEdit} />
         )}
+        <ProductFormVisibilitySection product={product} isEdit={isEdit} />
 
-        {/* Visibility */}
-        <div className="rounded-xl border bg-card">
-          <div className="border-b px-6 py-4">
-            <h2 className="font-semibold">{t("visibility")}</h2>
-          </div>
-          <div className="space-y-4 p-6">
-            <div className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                id="shopVisible"
-                name="shopVisible"
-                defaultChecked={product?.shopVisible ?? false}
-                className="h-4 w-4 rounded border-input text-primary focus:ring-primary"
-              />
-              <div>
-                <label htmlFor="shopVisible" className="text-sm font-medium">
-                  {t("visibleInShop")}
-                </label>
-                <p className="text-xs text-muted-foreground">
-                  {t("shopVisibleDescription")}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Submit */}
         <div className="flex items-center justify-end gap-3">
           <Link
             href={backHref}

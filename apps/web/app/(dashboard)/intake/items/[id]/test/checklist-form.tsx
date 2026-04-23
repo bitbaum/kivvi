@@ -4,13 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import {
-  CheckCircle2,
-  XCircle,
-  SkipForward,
-  AlertTriangle,
-  Loader2,
-} from "lucide-react";
+import { AlertTriangle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
@@ -20,31 +14,11 @@ import {
 } from "@/app/actions/inventory-items";
 import type {
   ChecklistTemplate,
-  ChecklistCheckDef,
-  ChecklistItemCompletion,
   ChecklistData,
 } from "@kivvi/core/src/config/checklist-templates";
-import {
-  areBlockingChecksPassed,
-  suggestCondition,
-} from "@kivvi/core/src/config/checklist-templates";
-import { ITEM_CONDITION_VALUES } from "@kivvi/database/src/enums";
-import {
-  getConditionLabelKey,
-  getStatusLabelKey,
-} from "@/lib/config/inventory-items";
-
-// ============================================================================
-// Types
-// ============================================================================
-
-type CheckResult = "pass" | "fail" | "skip" | null;
-
-interface CheckState {
-  result: CheckResult;
-  value: string;
-  skipReason: string;
-}
+import { getConditionLabelKey } from "@/lib/config/inventory-items";
+import { CheckRow } from "./checklist-check-row";
+import { useChecklistState } from "./use-checklist-state";
 
 interface ChecklistFormProps {
   itemId: string;
@@ -56,166 +30,6 @@ interface ChecklistFormProps {
   currentStatus: string;
   askingPrice: string | null;
 }
-
-// ============================================================================
-// Single check row
-// ============================================================================
-
-function CheckRow({
-  check,
-  state,
-  onChange,
-  tl,
-  tc,
-}: {
-  check: ChecklistCheckDef;
-  state: CheckState;
-  onChange: (s: CheckState) => void;
-  tl: (key: string) => string;
-  tc: (key: string) => string;
-}) {
-  const label = tl(check.labelKey);
-  const isBlocking = check.blocking;
-
-  function setResult(r: CheckResult) {
-    onChange({ ...state, result: r });
-  }
-
-  return (
-    <div
-      className={cn(
-        "rounded-xl border p-4 transition-colors",
-        state.result === "pass" && "border-success/30 bg-success/5",
-        state.result === "fail" && "border-destructive/30 bg-destructive/5",
-        state.result === "skip" && "border-warning/30 bg-warning/5",
-        !state.result && "border-border bg-card",
-      )}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm font-medium">{label}</span>
-            {isBlocking && (
-              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-                {tl("blockingBadge")}
-              </span>
-            )}
-          </div>
-
-          {/* Measurement input */}
-          {check.type === "measurement" && state.result !== "skip" && (
-            <div className="mt-2 flex items-center gap-2">
-              <input
-                type="number"
-                min="0"
-                placeholder={tc("measurementPlaceholder")}
-                value={state.value}
-                onChange={(e) =>
-                  onChange({
-                    ...state,
-                    value: e.target.value,
-                    result: e.target.value ? "pass" : null,
-                  })
-                }
-                className="w-28 rounded-lg border px-3 py-1.5 text-sm"
-              />
-              {check.unit && (
-                <span className="text-sm text-muted-foreground">
-                  {check.unit}
-                </span>
-              )}
-            </div>
-          )}
-
-          {/* Confirm type */}
-          {check.type === "confirm" && (
-            <label className="mt-2 flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={state.result === "pass"}
-                onChange={(e) => setResult(e.target.checked ? "pass" : null)}
-                className="h-4 w-4 rounded border-gray-300"
-              />
-              <span className="text-sm text-muted-foreground">
-                {tc("confirmCheck")}
-              </span>
-            </label>
-          )}
-
-          {/* Skip reason */}
-          {state.result === "skip" && (
-            <input
-              type="text"
-              placeholder={tc("skipReason")}
-              value={state.skipReason}
-              onChange={(e) =>
-                onChange({ ...state, skipReason: e.target.value })
-              }
-              className="mt-2 w-full rounded-lg border px-3 py-1.5 text-sm"
-            />
-          )}
-        </div>
-
-        {/* Pass/Fail/Skip buttons (for pass_fail type) */}
-        {check.type === "pass_fail" && (
-          <div className="flex items-center gap-1 shrink-0">
-            <button
-              type="button"
-              onClick={() => setResult(state.result === "pass" ? null : "pass")}
-              className={cn(
-                "rounded-lg p-2 transition-colors",
-                state.result === "pass"
-                  ? "bg-success/50 text-white"
-                  : "bg-muted text-muted-foreground hover:bg-success/10 hover:text-success",
-              )}
-              title={tc("passLabel")}
-            >
-              <CheckCircle2 className="h-5 w-5" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setResult(state.result === "fail" ? null : "fail")}
-              className={cn(
-                "rounded-lg p-2 transition-colors",
-                state.result === "fail"
-                  ? "bg-destructive/50 text-white"
-                  : "bg-muted text-muted-foreground hover:bg-destructive/10 hover:text-destructive",
-              )}
-              title={tc("failLabel")}
-            >
-              <XCircle className="h-5 w-5" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setResult(state.result === "skip" ? null : "skip")}
-              className={cn(
-                "rounded-lg p-2 transition-colors",
-                state.result === "skip"
-                  ? "bg-warning/50 text-white"
-                  : "bg-muted text-muted-foreground hover:bg-warning/10 hover:text-warning",
-              )}
-              title={tc("skipLabel")}
-            >
-              <SkipForward className="h-4 w-4" />
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Fail suggestion */}
-      {state.result === "fail" && check.failSuggestsStatus && (
-        <div className="mt-2 flex items-center gap-1.5 text-xs text-destructive">
-          <AlertTriangle className="h-3 w-3" />
-          {tl("failSuggestion").replace("{status}", check.failSuggestsStatus)}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ============================================================================
-// Main form
-// ============================================================================
 
 export function ChecklistForm({
   itemId,
@@ -234,62 +48,30 @@ export function ChecklistForm({
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
-  // Initialise check states from existing data or blank
-  const initStates = (): Record<string, CheckState> => {
-    const existingMap = new Map(
-      (existingData?.completions ?? []).map((c) => [c.id, c]),
-    );
-    return Object.fromEntries(
-      template.checks.map((check) => {
-        const existing = existingMap.get(check.id);
-        return [
-          check.id,
-          {
-            result: existing?.result ?? null,
-            value: existing?.value ?? "",
-            skipReason: existing?.skipReason ?? "",
-          },
-        ];
-      }),
-    );
-  };
-
-  const [states, setStates] = useState<Record<string, CheckState>>(initStates);
-  const [selectedCondition, setSelectedCondition] = useState(
-    currentCondition === "untested" ? "" : currentCondition,
-  );
-
-  function updateCheck(id: string, state: CheckState) {
-    const newStates = { ...states, [id]: state };
-    setStates(newStates);
-
-    // Auto-suggest condition when all required checks are attempted
-    const completions = Object.entries(newStates)
-      .filter(([, s]) => s.result !== null)
-      .map(([cid, s]) => ({
-        id: cid,
-        result: s.result as "pass" | "fail" | "skip",
-        value: s.value || undefined,
-        skipReason: s.skipReason || undefined,
-        completedAt: new Date().toISOString(),
-        completedBy: userId,
-      }));
-    const suggested = suggestCondition(completions);
-    if (suggested && !selectedCondition) setSelectedCondition(suggested);
-  }
-
-  function buildCompletions(): ChecklistItemCompletion[] {
-    return Object.entries(states)
-      .filter(([, s]) => s.result !== null)
-      .map(([id, s]) => ({
-        id,
-        result: s.result as "pass" | "fail" | "skip",
-        value: s.value || undefined,
-        skipReason: s.skipReason || undefined,
-        completedAt: new Date().toISOString(),
-        completedBy: userId,
-      }));
-  }
+  const {
+    states,
+    updateCheck,
+    selectedCondition,
+    setSelectedCondition,
+    buildCompletions,
+    completedCount,
+    totalCount,
+    blockingOk,
+    hasCondition,
+    hasPriceSet,
+    canApprove,
+    suggestRepair,
+    suggestScrap,
+    suggestParts,
+  } = useChecklistState({
+    userId,
+    category,
+    template,
+    existingData,
+    currentCondition,
+    currentStatus,
+    askingPrice,
+  });
 
   async function handleSave() {
     setError(null);
@@ -309,7 +91,6 @@ export function ChecklistForm({
   async function handleApprove() {
     setError(null);
     startTransition(async () => {
-      // Save checklist first
       const saveResult = await recordChecklistAction(itemId, {
         category,
         completions: buildCompletions(),
@@ -318,8 +99,6 @@ export function ChecklistForm({
         setError(saveResult.error ?? tcommon("error"));
         return;
       }
-
-      // Update condition if changed
       if (selectedCondition && selectedCondition !== currentCondition) {
         const condResult = await updateItemConditionAction(itemId, {
           condition: selectedCondition,
@@ -329,8 +108,6 @@ export function ChecklistForm({
           return;
         }
       }
-
-      // Transition to ready_for_sale
       const statusResult = await updateItemStatusAction(itemId, {
         newStatus: "ready_for_sale",
       });
@@ -338,7 +115,6 @@ export function ChecklistForm({
         setError(statusResult.error ?? tcommon("error"));
         return;
       }
-
       toast.success(tc("approveForSale"));
       router.push(`/intake/items/${itemId}`);
       router.refresh();
@@ -348,7 +124,6 @@ export function ChecklistForm({
   async function handleRoute(newStatus: string) {
     setError(null);
     startTransition(async () => {
-      // Save checklist before routing
       await recordChecklistAction(itemId, {
         category,
         completions: buildCompletions(),
@@ -362,35 +137,6 @@ export function ChecklistForm({
       router.refresh();
     });
   }
-
-  // Compute current state for the approve button
-  const completions = buildCompletions();
-  const { passed: blockingOk } = areBlockingChecksPassed(template, completions);
-  const hasCondition = !!selectedCondition && selectedCondition !== "untested";
-
-  // Detect if any failing blocking check suggests routing to repair
-  const failedBlockingSuggestions = template.checks
-    .filter(
-      (c) =>
-        c.blocking && c.failSuggestsStatus && states[c.id]?.result === "fail",
-    )
-    .map((c) => c.failSuggestsStatus!);
-  const suggestRepair = failedBlockingSuggestions.includes("repair");
-  const suggestScrap = failedBlockingSuggestions.includes("scrap");
-  const suggestParts = failedBlockingSuggestions.includes("parts_only");
-
-  const completedCount = Object.values(states).filter(
-    (s) => s.result !== null,
-  ).length;
-  const totalCount = template.checks.length;
-
-  const hasPriceSet = !!askingPrice && parseFloat(askingPrice) > 0;
-
-  const canApprove =
-    blockingOk &&
-    hasCondition &&
-    hasPriceSet &&
-    (currentStatus === "testing" || currentStatus === "intake");
 
   return (
     <div className="space-y-6">
@@ -459,7 +205,7 @@ export function ChecklistForm({
         )}
       </div>
 
-      {/* Missing asking price notice — shown when checklist is otherwise ready */}
+      {/* Missing asking price notice */}
       {blockingOk && hasCondition && !hasPriceSet && (
         <div className="flex items-center justify-between rounded-xl border border-warning/30 bg-warning/5 px-4 py-3">
           <p className="text-sm text-warning">{tc("askingPriceRequired")}</p>
@@ -472,7 +218,6 @@ export function ChecklistForm({
         </div>
       )}
 
-      {/* Error */}
       {error && (
         <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
           {error}
@@ -491,7 +236,6 @@ export function ChecklistForm({
           {tc("saveChecklist")}
         </button>
 
-        {/* Routing suggestions for failed blocking checks */}
         {suggestRepair &&
           (currentStatus === "testing" || currentStatus === "intake") && (
             <button
@@ -524,7 +268,6 @@ export function ChecklistForm({
           </button>
         )}
 
-        {/* Approve for sale */}
         <button
           type="button"
           onClick={handleApprove}
