@@ -5,12 +5,15 @@ import { Loader2, CheckCircle2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { updateCompanyAction } from "@/app/actions/settings";
 import { cn } from "@/lib/utils";
-import { COUNTRY_OPTIONS } from "@/lib/config/locales";
-import { SUPPORTED_CURRENCIES } from "@/lib/config/currencies";
-import { SWISS_VAT_RATES } from "@/lib/config/vat-rates";
-import { FormInput, FormSelect } from "@/components/ui/form-field";
 import { LogoUpload } from "./logo-upload";
 import { AIConfigSection } from "./ai-config-section";
+import {
+  CompanyInfoSection,
+  AddressSection,
+  BankDetailsSection,
+  PreferencesSection,
+  DocumentFooterSection,
+} from "./company-form-sections";
 
 interface CompanyFormProps {
   initialData: {
@@ -87,14 +90,12 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
-      {/* Error banner */}
       {error && (
         <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-4 text-sm text-destructive">
           {error}
         </div>
       )}
 
-      {/* Success banner */}
       {success && (
         <div className="flex items-center gap-2 rounded-lg border border-success/20 bg-success/5 p-4 text-sm text-success">
           <CheckCircle2 className="h-4 w-4" />
@@ -102,279 +103,41 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
         </div>
       )}
 
-      {/* Company Logo */}
       <LogoUpload
         initialLogoBase64={initialData.logoBase64}
         onError={setError}
       />
 
-      {/* Company Information */}
-      <section className="rounded-xl border bg-card">
-        <div className="border-b px-6 py-4">
-          <h2 className="font-semibold">{t("company.companyInfo")}</h2>
-        </div>
-        <div className="grid gap-6 p-6 sm:grid-cols-2">
-          <div className="sm:col-span-2">
-            <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
-              {t("company.companyName")}{" "}
-              <span className="text-destructive">*</span>
-            </label>
-            <FormInput
-              type="text"
-              id="name"
-              name="name"
-              required
-              maxLength={200}
-              defaultValue={initialData.name}
-            />
-          </div>
+      <CompanyInfoSection
+        name={initialData.name}
+        legalName={initialData.legalName}
+        vatNumber={initialData.vatNumber}
+      />
 
-          <div className="sm:col-span-2">
-            <label
-              htmlFor="legalName"
-              className="mb-1.5 block text-sm font-medium"
-            >
-              {t("company.legalName")}
-            </label>
-            <FormInput
-              type="text"
-              id="legalName"
-              name="legalName"
-              maxLength={200}
-              defaultValue={initialData.legalName}
-            />
-          </div>
+      <AddressSection
+        address={initialData.address}
+        city={initialData.city}
+        postalCode={initialData.postalCode}
+        country={initialData.country}
+      />
 
-          <div>
-            <label
-              htmlFor="vatNumber"
-              className="mb-1.5 block text-sm font-medium"
-            >
-              {t("company.vatNumber")}
-            </label>
-            <FormInput
-              type="text"
-              id="vatNumber"
-              name="vatNumber"
-              maxLength={50}
-              placeholder={t("company.placeholders.vatNumber")}
-              defaultValue={initialData.vatNumber}
-            />
-          </div>
-        </div>
-      </section>
+      <BankDetailsSection
+        iban={initialData.iban}
+        bankName={initialData.bankName}
+      />
 
-      {/* Address */}
-      <section className="rounded-xl border bg-card">
-        <div className="border-b px-6 py-4">
-          <h2 className="font-semibold">{t("company.address")}</h2>
-        </div>
-        <div className="grid gap-6 p-6 sm:grid-cols-2">
-          <div className="sm:col-span-2">
-            <label
-              htmlFor="address"
-              className="mb-1.5 block text-sm font-medium"
-            >
-              {t("company.streetAddress")}
-            </label>
-            <FormInput
-              type="text"
-              id="address"
-              name="address"
-              maxLength={500}
-              defaultValue={initialData.address}
-            />
-          </div>
+      <PreferencesSection
+        currency={initialData.currency}
+        defaultVatRate={initialData.defaultVatRate}
+        defaultPaymentTermsDays={initialData.defaultPaymentTermsDays}
+      />
 
-          <div>
-            <label
-              htmlFor="postalCode"
-              className="mb-1.5 block text-sm font-medium"
-            >
-              {t("company.postalCode")}
-            </label>
-            <FormInput
-              type="text"
-              id="postalCode"
-              name="postalCode"
-              maxLength={20}
-              defaultValue={initialData.postalCode}
-            />
-          </div>
+      <DocumentFooterSection
+        defaultDocumentFooter={initialData.defaultDocumentFooter}
+      />
 
-          <div>
-            <label htmlFor="city" className="mb-1.5 block text-sm font-medium">
-              {t("company.city")}
-            </label>
-            <FormInput
-              type="text"
-              id="city"
-              name="city"
-              maxLength={100}
-              defaultValue={initialData.city}
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="country"
-              className="mb-1.5 block text-sm font-medium"
-            >
-              {t("company.country")}
-            </label>
-            <FormSelect
-              id="country"
-              name="country"
-              defaultValue={initialData.country}
-            >
-              {COUNTRY_OPTIONS.map((c) => (
-                <option key={c} value={c}>
-                  {tc(`countries.${c.toLowerCase()}`)}
-                </option>
-              ))}
-            </FormSelect>
-          </div>
-        </div>
-      </section>
-
-      {/* Bank Details */}
-      <section className="rounded-xl border bg-card">
-        <div className="border-b px-6 py-4">
-          <h2 className="font-semibold">{t("company.bankDetails")}</h2>
-        </div>
-        <div className="grid gap-6 p-6 sm:grid-cols-2">
-          <div className="sm:col-span-2">
-            <label htmlFor="iban" className="mb-1.5 block text-sm font-medium">
-              {t("company.iban")}
-            </label>
-            <FormInput
-              type="text"
-              id="iban"
-              name="iban"
-              maxLength={34}
-              placeholder="CH93 0076 2011 6238 5295 7"
-              defaultValue={initialData.iban}
-            />
-          </div>
-
-          <div className="sm:col-span-2">
-            <label
-              htmlFor="bankName"
-              className="mb-1.5 block text-sm font-medium"
-            >
-              {t("company.bankName")}
-            </label>
-            <FormInput
-              type="text"
-              id="bankName"
-              name="bankName"
-              maxLength={200}
-              placeholder={t("company.placeholders.bankName")}
-              defaultValue={initialData.bankName}
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Preferences */}
-      <section className="rounded-xl border bg-card">
-        <div className="border-b px-6 py-4">
-          <h2 className="font-semibold">{t("company.preferences")}</h2>
-        </div>
-        <div className="grid gap-6 p-6 sm:grid-cols-2">
-          <div>
-            <label
-              htmlFor="currency"
-              className="mb-1.5 block text-sm font-medium"
-            >
-              {t("company.defaultCurrency")}
-            </label>
-            <FormSelect
-              id="currency"
-              name="currency"
-              defaultValue={initialData.currency}
-            >
-              {SUPPORTED_CURRENCIES.map((c) => (
-                <option key={c} value={c}>
-                  {t(`currencies.${c.toLowerCase()}`)}
-                </option>
-              ))}
-            </FormSelect>
-          </div>
-
-          <div>
-            <label
-              htmlFor="defaultVatRate"
-              className="mb-1.5 block text-sm font-medium"
-            >
-              {t("company.defaultVatRate")}
-            </label>
-            <FormSelect
-              id="defaultVatRate"
-              name="defaultVatRate"
-              defaultValue={initialData.defaultVatRate}
-            >
-              {SWISS_VAT_RATES.map((r) => (
-                <option key={r.value} value={r.value}>
-                  {t(`vatRates.${r.labelKey}`)}
-                </option>
-              ))}
-            </FormSelect>
-          </div>
-
-          <div>
-            <label
-              htmlFor="defaultPaymentTermsDays"
-              className="mb-1.5 block text-sm font-medium"
-            >
-              {t("company.paymentTermsDays")}
-            </label>
-            <FormInput
-              type="number"
-              id="defaultPaymentTermsDays"
-              name="defaultPaymentTermsDays"
-              min={0}
-              max={365}
-              defaultValue={initialData.defaultPaymentTermsDays}
-            />
-            <p className="mt-1 text-xs text-muted-foreground">
-              {t("company.paymentTermsDaysHint")}
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Document Footer */}
-      <section className="rounded-xl border bg-card">
-        <div className="border-b px-6 py-4">
-          <h2 className="font-semibold">{t("company.documentFooter")}</h2>
-        </div>
-        <div className="p-6">
-          <label
-            htmlFor="defaultDocumentFooter"
-            className="mb-1.5 block text-sm font-medium"
-          >
-            {t("company.defaultDocumentFooter")}
-          </label>
-          <textarea
-            id="defaultDocumentFooter"
-            name="defaultDocumentFooter"
-            rows={3}
-            maxLength={1000}
-            className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            placeholder={t("company.placeholders.documentFooter")}
-            defaultValue={initialData.defaultDocumentFooter}
-          />
-          <p className="mt-1 text-xs text-muted-foreground">
-            {t("company.defaultDocumentFooterHint")}
-          </p>
-        </div>
-      </section>
-
-      {/* AI Configuration */}
       <AIConfigSection initialData={initialData} />
 
-      {/* Submit */}
       <div className="flex items-center justify-end">
         <button
           type="submit"
