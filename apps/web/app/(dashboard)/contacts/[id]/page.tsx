@@ -7,8 +7,6 @@ import {
   Phone,
   Globe,
   MapPin,
-  Building2,
-  CreditCard,
   FileText,
   Receipt,
   ShoppingCart,
@@ -18,15 +16,14 @@ import { getTranslations } from "next-intl/server";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { getContact } from "@kivvi/core";
-import { formatCurrency, formatDate, isValidUUID } from "@/lib/utils";
-import { STATUS_STYLES, toCamelCase } from "@/lib/config/document-types";
+import { isValidUUID } from "@/lib/utils";
 import {
   CONTACT_TYPE_STYLES,
   getContactTypeLabels,
 } from "@/lib/config/contact-types";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { CardSection } from "@/components/card-section";
-import { InfoRow, InfoItem } from "@/components/info-display";
+import { InfoRow } from "@/components/info-display";
 import { StatusBadge } from "@/components/status-badge";
 import { DeleteContactButton } from "./delete-button";
 import { AddressManager } from "./address-manager";
@@ -34,6 +31,8 @@ import {
   QuickActionsBar,
   type QuickAction,
 } from "@/components/quick-actions-bar";
+import { ContactDetailSidebar } from "./contact-detail-sidebar";
+import { ContactRecentDocuments } from "./contact-recent-documents";
 
 interface ContactDetailPageProps {
   params: { id: string };
@@ -46,8 +45,6 @@ export default async function ContactDetailPage({
 
   const t = await getTranslations("contacts");
   const tc = await getTranslations("common");
-  const td = await getTranslations("documents");
-  const ts = await getTranslations("status");
 
   if (!isValidUUID(params.id)) notFound();
   const data = await getContact(db, session.user.companyId, params.id);
@@ -125,7 +122,7 @@ export default async function ContactDetailPage({
       {/* Quick Actions */}
       <QuickActionsBar actions={buildContactQuickActions(contact, t)} />
 
-      {/* Content tabs using simple sections */}
+      {/* Content grid */}
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left column: Contact details */}
         <div className="lg:col-span-2 space-y-6">
@@ -182,133 +179,18 @@ export default async function ContactDetailPage({
           <AddressManager contactId={contact.id} addresses={addresses} />
 
           {/* Recent Documents */}
-          <CardSection
-            title={t("recentDocuments")}
-            icon={<FileText className="h-4 w-4" />}
-            actions={
-              <Link
-                href={`/documents?contactId=${contact.id}`}
-                className="text-sm text-primary hover:underline"
-              >
-                {tc("viewAll")}
-              </Link>
-            }
-            noPadding
-          >
-            {recentDocuments.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12">
-                <FileText className="h-8 w-8 text-muted-foreground/50" />
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {t("noDocuments")}
-                </p>
-              </div>
-            ) : (
-              <div className="divide-y">
-                {recentDocuments.map((doc) => (
-                  <div
-                    key={doc.id}
-                    className="flex items-center justify-between px-6 py-4"
-                  >
-                    <div>
-                      <p className="text-sm font-medium">{doc.number}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {td(toCamelCase(doc.type))} &middot;{" "}
-                        {formatDate(doc.issueDate)}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium">
-                        {formatCurrency(doc.total)}
-                      </p>
-                      <StatusBadge
-                        status={doc.status}
-                        label={ts(toCamelCase(doc.status))}
-                        styleMap={STATUS_STYLES}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardSection>
+          <ContactRecentDocuments
+            contactId={contact.id}
+            documents={recentDocuments}
+          />
         </div>
 
         {/* Right column: Financial & settings */}
-        <div className="space-y-6">
-          {/* Financial Details */}
-          <CardSection
-            title={t("financialDetails")}
-            icon={<CreditCard className="h-4 w-4" />}
-          >
-            <div className="space-y-4">
-              <InfoItem
-                label={t("vatNumber")}
-                value={contact.vatNumber}
-                copyable
-              />
-              <InfoItem label={t("iban")} value={contact.iban} copyable />
-              <InfoItem label={t("bic")} value={contact.bic} copyable />
-              <InfoItem
-                label={t("paymentTerms")}
-                value={
-                  contact.paymentTermsDays
-                    ? `${contact.paymentTermsDays} ${t("days")}`
-                    : null
-                }
-              />
-              <InfoItem
-                label={t("creditLimit")}
-                value={
-                  contact.creditLimit
-                    ? formatCurrency(contact.creditLimit)
-                    : null
-                }
-              />
-            </div>
-          </CardSection>
-
-          {/* Settings */}
-          <CardSection
-            title={tc("settings")}
-            icon={<Building2 className="h-4 w-4" />}
-          >
-            <div className="space-y-4">
-              <InfoItem
-                label={t("language")}
-                value={contact.language?.toUpperCase()}
-              />
-              <InfoItem
-                label={t("createdAt")}
-                value={formatDate(contact.createdAt)}
-              />
-              <InfoItem
-                label={t("updatedAt")}
-                value={formatDate(contact.updatedAt)}
-              />
-              {contact.kivitendoId && (
-                <InfoItem
-                  label={t("kivitendoId")}
-                  value={contact.kivitendoId.toString()}
-                />
-              )}
-            </div>
-          </CardSection>
-
-          {/* Notes */}
-          {contact.notes && (
-            <CardSection title={tc("notes")}>
-              <p className="text-sm whitespace-pre-wrap">{contact.notes}</p>
-            </CardSection>
-          )}
-        </div>
+        <ContactDetailSidebar contact={contact} />
       </div>
     </div>
   );
 }
-
-// ============================================================================
-// QUICK ACTIONS BUILDER
-// ============================================================================
 
 function buildContactQuickActions(
   contact: { id: string; name: string; type: string; email: string | null },

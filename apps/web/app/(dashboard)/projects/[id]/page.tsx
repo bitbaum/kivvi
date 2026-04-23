@@ -2,12 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   ArrowLeft,
-  Pencil,
   FileText,
   DollarSign,
   Receipt,
-  Calendar,
-  User,
   ShoppingCart,
 } from "lucide-react";
 import { getSessionOrRedirect } from "@/lib/session";
@@ -17,12 +14,8 @@ import {
   getProjectDocuments,
   getProjectSummary,
 } from "@kivvi/core";
-import { cn, formatCurrency, formatDate, isValidUUID } from "@/lib/utils";
+import { cn, formatCurrency, isValidUUID } from "@/lib/utils";
 import { getTranslations } from "next-intl/server";
-import {
-  STATUS_STYLES as DOC_STATUS_STYLES,
-  toCamelCase,
-} from "@/lib/config/document-types";
 import {
   PROJECT_STATUS_STYLES as STATUS_STYLES,
   PROJECT_STATUS_LABEL_KEYS,
@@ -32,6 +25,8 @@ import {
   QuickActionsBar,
   type QuickAction,
 } from "@/components/quick-actions-bar";
+import { ProjectLinkedDocuments } from "./project-linked-documents";
+import { ProjectDetailSidebar } from "./project-detail-sidebar";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -41,8 +36,6 @@ export default async function ProjectDetailPage({ params }: PageProps) {
   const session = await getSessionOrRedirect();
   const t = await getTranslations("projects");
   const tc = await getTranslations("common");
-  const td = await getTranslations("documents");
-  const ts = await getTranslations("status");
 
   const { id } = await params;
   if (!isValidUUID(id)) notFound();
@@ -181,83 +174,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
             </div>
           )}
 
-          {/* Linked Documents */}
-          <div className="rounded-xl border bg-card">
-            <div className="flex items-center gap-2 border-b px-6 py-4">
-              <FileText className="h-4 w-4 text-muted-foreground" />
-              <h2 className="font-semibold">{t("linkedDocuments")}</h2>
-            </div>
-            {documents.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12">
-                <FileText className="h-8 w-8 text-muted-foreground/50" />
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {t("noLinkedDocuments")}
-                </p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b text-muted-foreground">
-                      <th className="px-4 py-3 text-left font-medium">
-                        {tc("type")}
-                      </th>
-                      <th className="px-4 py-3 text-left font-medium">
-                        {tc("number")}
-                      </th>
-                      <th className="px-4 py-3 text-left font-medium">
-                        {tc("name")}
-                      </th>
-                      <th className="px-4 py-3 text-left font-medium">
-                        {tc("date")}
-                      </th>
-                      <th className="px-4 py-3 text-left font-medium">
-                        {tc("status")}
-                      </th>
-                      <th className="px-4 py-3 text-right font-medium">
-                        {tc("total")}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y">
-                    {documents.map((doc) => (
-                      <tr
-                        key={doc.id}
-                        className="transition-colors hover:bg-muted/50"
-                      >
-                        <td className="whitespace-nowrap px-4 py-3">
-                          {td(toCamelCase(doc.type))}
-                        </td>
-                        <td className="whitespace-nowrap px-4 py-3 font-mono">
-                          {doc.number}
-                        </td>
-                        <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
-                          {doc.contactName || "-"}
-                        </td>
-                        <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">
-                          {formatDate(doc.issueDate)}
-                        </td>
-                        <td className="whitespace-nowrap px-4 py-3">
-                          <span
-                            className={cn(
-                              "inline-block rounded-full px-2 py-0.5 text-xs font-medium",
-                              DOC_STATUS_STYLES[doc.status] ||
-                                DOC_STATUS_STYLES.draft,
-                            )}
-                          >
-                            {ts(toCamelCase(doc.status))}
-                          </span>
-                        </td>
-                        <td className="whitespace-nowrap px-4 py-3 text-right font-medium">
-                          {formatCurrency(doc.total)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
+          <ProjectLinkedDocuments documents={documents} />
 
           {/* Edit Form */}
           <ProjectEditForm
@@ -279,96 +196,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
         </div>
 
         {/* Right column */}
-        <div className="space-y-6">
-          {/* Client Info */}
-          {project.contactName && (
-            <div className="rounded-xl border bg-card p-6">
-              <h2 className="mb-4 font-semibold flex items-center gap-2">
-                <User className="h-4 w-4 text-muted-foreground" />
-                {t("client")}
-              </h2>
-              <div className="space-y-1 text-sm">
-                <p className="font-medium">{project.contactName}</p>
-              </div>
-              <Link
-                href={`/contacts/${project.contactId}`}
-                className="mt-3 inline-block text-sm text-primary hover:underline"
-              >
-                {t("viewContact")}
-              </Link>
-            </div>
-          )}
-
-          {/* Project Details */}
-          <div className="rounded-xl border bg-card">
-            <div className="border-b px-6 py-4">
-              <h2 className="font-semibold flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                {t("details")}
-              </h2>
-            </div>
-            <div className="divide-y">
-              <div className="flex items-center justify-between px-6 py-3">
-                <span className="text-sm text-muted-foreground">
-                  {tc("status")}
-                </span>
-                <span
-                  className={cn(
-                    "inline-block rounded-full px-2 py-0.5 text-xs font-medium",
-                    STATUS_STYLES[project.status ?? "active"] || "",
-                  )}
-                >
-                  {t(
-                    PROJECT_STATUS_LABEL_KEYS[
-                      (project.status ??
-                        "active") as keyof typeof PROJECT_STATUS_LABEL_KEYS
-                    ] || "statusActive",
-                  )}
-                </span>
-              </div>
-              {project.budget && (
-                <div className="flex items-center justify-between px-6 py-3">
-                  <span className="text-sm text-muted-foreground">
-                    {t("budget")}
-                  </span>
-                  <span className="text-sm font-medium">
-                    {formatCurrency(project.budget)}
-                  </span>
-                </div>
-              )}
-              <div className="flex items-center justify-between px-6 py-3">
-                <span className="text-sm text-muted-foreground">
-                  {t("startDate")}
-                </span>
-                <span className="text-sm">
-                  {project.startDate
-                    ? formatDate(project.startDate)
-                    : tc("notSet")}
-                </span>
-              </div>
-              <div className="flex items-center justify-between px-6 py-3">
-                <span className="text-sm text-muted-foreground">
-                  {t("endDate")}
-                </span>
-                <span className="text-sm">
-                  {project.endDate ? formatDate(project.endDate) : tc("notSet")}
-                </span>
-              </div>
-              <div className="flex items-center justify-between px-6 py-3">
-                <span className="text-sm text-muted-foreground">
-                  {t("createdAt")}
-                </span>
-                <span className="text-sm">{formatDate(project.createdAt)}</span>
-              </div>
-              <div className="flex items-center justify-between px-6 py-3">
-                <span className="text-sm text-muted-foreground">
-                  {t("updatedAt")}
-                </span>
-                <span className="text-sm">{formatDate(project.updatedAt)}</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ProjectDetailSidebar project={project} />
       </div>
     </div>
   );
