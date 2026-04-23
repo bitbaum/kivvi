@@ -3,7 +3,6 @@ import Link from "next/link";
 import {
   Pencil,
   Package,
-  User,
   Warehouse,
   FileText,
   Receipt,
@@ -13,14 +12,12 @@ import { getTranslations } from "next-intl/server";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { getInventoryItem, listRepairParts } from "@kivvi/core";
-import { isValidUUID, formatDate } from "@/lib/utils";
+import { isValidUUID } from "@/lib/utils";
 import { DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
 import { SELLABLE_ITEM_STATUSES } from "@/lib/config/inventory-items";
 import { CardSection } from "@/components/card-section";
 import { InfoRow } from "@/components/info-display";
-import { ItemLabel } from "@/components/inventory/item-label";
 import { generateQrDataUrl } from "@/lib/qr";
-import { PrintLabelsButton } from "@/app/(dashboard)/intake/[id]/labels/print-button";
 import { cn } from "@/lib/utils";
 import { DetailPageHeader } from "@/components/page-header";
 import {
@@ -29,12 +26,11 @@ import {
   getStatusLabelKey,
   getConditionLabelKey,
 } from "@/lib/config/inventory-items";
-import { ItemTimeline } from "@/components/inventory/item-timeline";
 import { RepairPartsSection } from "@/components/inventory/repair-parts-section";
 import { ItemChecklistDisplay } from "@/components/inventory/item-checklist-display";
-import { ItemPricingCard } from "@/components/inventory/item-pricing-card";
 import type { ChecklistData } from "@kivvi/core/src/config/checklist-templates";
 import { getChecklistTemplate } from "@kivvi/core/src/config/checklist-templates";
+import { InventoryItemSidebar } from "./inventory-item-sidebar";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -249,98 +245,12 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Pricing */}
-          <ItemPricingCard item={item} repairParts={repairPartsList} />
-
-          {/* Item lifecycle timeline */}
-          <CardSection title={ti("lifecycle")}>
-            <ItemTimeline
-              createdAt={item.createdAt}
-              donorName={item.donorName}
-              repairLog={item.repairLog}
-              repairCost={item.repairCost}
-              status={item.status}
-              soldPrice={item.soldPrice}
-              condition={item.condition}
-              conditionLabel={ti(getConditionLabelKey(item.condition))}
-              dataErasuredAt={item.dataErasuredAt}
-              dataErasureMethod={item.dataErasureMethod}
-              erasureMethodLabel={
-                item.dataErasureMethod
-                  ? ti(
-                      `erasureMethod_${item.dataErasureMethod}` as Parameters<
-                        typeof ti
-                      >[0],
-                    )
-                  : null
-              }
-              labels={{
-                intake: ti("timelineIntake"),
-                from: ti("timelineFrom"),
-                repair: ti("timelineRepair"),
-                ready: ti("timelineReady"),
-                condition: ti("timelineCondition"),
-                invested: ti("timelineInvested"),
-                erasure: ti("timelineErasure"),
-                sold: ti("timelineSold"),
-              }}
-            />
-          </CardSection>
-
-          {/* Provenance */}
-          <CardSection title={ti("provenance")}>
-            <div className="space-y-3">
-              {item.donorName && (
-                <div className="flex items-center gap-2 text-sm">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                  <span>
-                    {ti("donor")}:{" "}
-                    <span className="font-medium">{item.donorName}</span>
-                  </span>
-                </div>
-              )}
-              {item.assignedToName && (
-                <div className="flex items-center gap-2 text-sm">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                  <span>
-                    {ti("assignedTo")}:{" "}
-                    <span className="font-medium">{item.assignedToName}</span>
-                  </span>
-                </div>
-              )}
-              {item.intakeDocumentId && (
-                <div className="flex items-center gap-2 text-sm">
-                  <FileText className="h-4 w-4 text-muted-foreground" />
-                  <Link
-                    href={`/intake/${item.intakeDocumentId}`}
-                    className="text-primary hover:underline"
-                  >
-                    {ti("viewIntakeDocument")}
-                  </Link>
-                </div>
-              )}
-              <div className="text-xs text-muted-foreground">
-                {ti("created")} {formatDate(item.createdAt)}
-              </div>
-            </div>
-          </CardSection>
-
-          {/* Printable label */}
-          <CardSection title={ti("label")}>
-            <div className="flex flex-col items-center gap-3">
-              <ItemLabel
-                itemNumber={item.itemNumber}
-                description={item.description}
-                condition={item.condition}
-                qrDataUrl={qrDataUrl}
-              />
-              <div className="no-print">
-                <PrintLabelsButton />
-              </div>
-            </div>
-          </CardSection>
-        </div>
+        <InventoryItemSidebar
+          item={item}
+          repairParts={repairPartsList}
+          qrDataUrl={qrDataUrl}
+          itemId={id}
+        />
       </div>
     </div>
   );

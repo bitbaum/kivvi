@@ -1,15 +1,14 @@
 import Link from "next/link";
-import { Plus, Search, BookOpen, Download } from "lucide-react";
+import { Plus, Search, Download } from "lucide-react";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { listJournalEntries } from "@kivvi/core";
-import { formatCurrency, formatDate, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { getTranslations } from "next-intl/server";
 import { DEFAULT_PAGE_SIZE } from "@/lib/config/document-types";
 import { SOURCE_TYPE_STYLES, getSourceTypeLabels } from "@/lib/config/journal";
 import { PageHeader } from "@/components/page-header";
-import { Pagination } from "@/components/pagination";
-import { EmptyState } from "@/components/empty-state";
+import { JournalEntriesTable } from "./journal-entries-table";
 
 interface PageProps {
   searchParams: Promise<{
@@ -177,105 +176,13 @@ export default async function JournalPage({ searchParams }: PageProps) {
         )}
       </form>
 
-      {/* Table */}
-      <div className="rounded-xl border bg-card">
-        {result.data.length === 0 ? (
-          <EmptyState
-            icon={
-              search || sourceType || dateFrom || dateTo ? Search : BookOpen
-            }
-            title={t("noJournalEntries")}
-            description={
-              search || sourceType || dateFrom || dateTo
-                ? tc("noResults")
-                : t("viewJournalEntries")
-            }
-            actionLabel={
-              !search && !sourceType && !dateFrom && !dateTo
-                ? t("newJournalEntry")
-                : undefined
-            }
-            actionHref={
-              !search && !sourceType && !dateFrom && !dateTo
-                ? "/accounting/journal/new"
-                : undefined
-            }
-          />
-        ) : (
-          <>
-            {/* Table header */}
-            <div className="hidden border-b px-4 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground sm:grid sm:grid-cols-[auto_1fr_2fr_auto_auto]">
-              <span className="w-24">{tc("date")}</span>
-              <span>{t("reference")}</span>
-              <span>{tc("description")}</span>
-              <span className="px-4 text-center">{t("sourceType")}</span>
-              <span className="w-28 text-right">{tc("total")}</span>
-            </div>
-
-            {/* Rows */}
-            <div className="divide-y">
-              {result.data.map((entry) => (
-                <Link
-                  key={entry.id}
-                  href={`/accounting/journal/${entry.id}`}
-                  className="flex flex-col gap-1 p-4 hover:bg-muted/50 transition-colors sm:grid sm:grid-cols-[auto_1fr_2fr_auto_auto] sm:items-center sm:gap-4"
-                >
-                  <div className="w-24 text-sm text-muted-foreground">
-                    {formatDate(entry.date)}
-                  </div>
-                  <div className="text-sm font-medium font-mono">
-                    {entry.reference || "-"}
-                  </div>
-                  <div className="text-sm text-muted-foreground truncate">
-                    {entry.description}
-                  </div>
-                  <div className="px-4 text-center">
-                    <span
-                      className={cn(
-                        "inline-block rounded-full px-2.5 py-0.5 text-xs font-medium",
-                        SOURCE_TYPE_STYLES[entry.sourceType ?? "manual"] ||
-                          SOURCE_TYPE_STYLES.manual,
-                      )}
-                    >
-                      {SOURCE_TYPE_LABELS[entry.sourceType ?? "manual"] ||
-                        entry.sourceType}
-                    </span>
-                  </div>
-                  <div className="w-28 text-right text-sm font-medium">
-                    {/* Total will be calculated from lines on the detail page;
-                        here we don't have lines so we just show a dash or use
-                        any aggregated field if available */}
-                    -
-                  </div>
-                </Link>
-              ))}
-            </div>
-
-            <Pagination
-              page={result.page}
-              totalPages={result.totalPages}
-              total={result.total}
-              pageSize={result.pageSize}
-              buildHref={(p) =>
-                buildPageUrl(p, { search, sourceType, dateFrom, dateTo })
-              }
-              labels={{
-                showing: tc("showing", {
-                  from: (result.page - 1) * result.pageSize + 1,
-                  to: Math.min(result.page * result.pageSize, result.total),
-                  total: result.total,
-                }),
-                previous: tc("previous"),
-                next: tc("next"),
-                pageOf: tc("pageOf", {
-                  page: result.page,
-                  totalPages: result.totalPages,
-                }),
-              }}
-            />
-          </>
-        )}
-      </div>
+      <JournalEntriesTable
+        result={result}
+        search={search}
+        sourceType={sourceType}
+        dateFrom={dateFrom}
+        dateTo={dateTo}
+      />
     </div>
   );
 }
@@ -333,23 +240,5 @@ function buildFilterUrl(filters: {
   if (filters.sourceType) params.set("sourceType", filters.sourceType);
   if (filters.dateFrom) params.set("dateFrom", filters.dateFrom);
   if (filters.dateTo) params.set("dateTo", filters.dateTo);
-  return `/accounting/journal${params.toString() ? `?${params.toString()}` : ""}`;
-}
-
-function buildPageUrl(
-  page: number,
-  filters: {
-    search?: string;
-    sourceType?: string;
-    dateFrom?: string;
-    dateTo?: string;
-  },
-): string {
-  const params = new URLSearchParams();
-  if (filters.search) params.set("search", filters.search);
-  if (filters.sourceType) params.set("sourceType", filters.sourceType);
-  if (filters.dateFrom) params.set("dateFrom", filters.dateFrom);
-  if (filters.dateTo) params.set("dateTo", filters.dateTo);
-  if (page > 1) params.set("page", page.toString());
   return `/accounting/journal${params.toString() ? `?${params.toString()}` : ""}`;
 }
