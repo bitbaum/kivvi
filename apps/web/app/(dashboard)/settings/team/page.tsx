@@ -9,7 +9,6 @@ import {
   Trash2,
   ChevronDown,
   UserPlus,
-  Clock,
   X,
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
@@ -28,6 +27,7 @@ import type { CompanyMember } from "@kivvi/core/src/domain/memberships";
 import type { PendingInvitation } from "@kivvi/core/src/domain/invitations";
 import type { MembershipRole } from "@kivvi/database";
 import { useSession } from "next-auth/react";
+import { TeamInvitationsList } from "./team-invitations-list";
 
 const ROLE_COLORS: Record<MembershipRole, string> = {
   owner: "bg-warning/10 text-warning",
@@ -294,47 +294,7 @@ export default function TeamPage() {
         </div>
       </div>
 
-      {/* Pending invitations */}
-      {invites.length > 0 && (
-        <div className="rounded-xl border bg-card">
-          <div className="flex items-center gap-2 border-b p-4">
-            <Mail className="h-5 w-5 text-muted-foreground" />
-            <h2 className="font-semibold">
-              {t("pendingInvitations")} ({invites.length})
-            </h2>
-          </div>
-          <div className="divide-y">
-            {invites.map((invite) => (
-              <div key={invite.id} className="flex items-center gap-4 p-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
-                  <Clock className="h-4 w-4" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium truncate">{invite.email}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {t("expiresOn", {
-                      date: new Date(invite.expiresAt).toLocaleDateString(
-                        DEFAULT_LOCALE,
-                      ),
-                    })}
-                  </p>
-                </div>
-                <RoleBadge
-                  role={invite.role}
-                  label={tc(`roleLabel.${invite.role}`)}
-                />
-                <button
-                  onClick={() => handleRevokeInvite(invite.id)}
-                  className="rounded-lg p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                  title={t("revokeInvitation")}
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      <TeamInvitationsList invites={invites} onRevoke={handleRevokeInvite} />
     </div>
   );
 }

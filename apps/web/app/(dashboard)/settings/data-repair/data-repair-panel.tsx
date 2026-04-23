@@ -6,10 +6,12 @@ import {
   CheckCircle2,
   AlertTriangle,
   Hash,
-  FileText,
   BookOpen,
-  CalendarX,
 } from "lucide-react";
+import {
+  InvoiceStatusesRepairCard,
+  PaidDatesRepairCard,
+} from "./repair-card-sections";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import {
@@ -219,51 +221,14 @@ export function DataRepairPanel({
         </button>
       </div>
 
-      {/* Invoice Statuses */}
-      {(status.sentInvoicesBefore2026 > 0 ||
-        status.sentPurchaseInvoicesBefore2026 > 0) && (
-        <div className="rounded-xl border bg-card p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="rounded-lg border bg-background p-2">
-              <FileText className="h-4 w-4 text-warning" />
-            </div>
-            <div>
-              <h3 className="font-semibold">{t("invoiceStatuses")}</h3>
-              <p className="text-sm text-muted-foreground">
-                {t("invoiceStatusesDesc")}
-              </p>
-            </div>
-          </div>
-
-          <div className="mb-4 space-y-2 text-sm">
-            <p>{t("sentInvoices", { count: status.sentInvoicesBefore2026 })}</p>
-            <p>
-              {t("sentPurchaseInvoices", {
-                count: status.sentPurchaseInvoicesBefore2026,
-              })}
-            </p>
-          </div>
-
-          <div className="mb-4 flex items-center gap-3">
-            <label className="text-sm font-medium">{t("cutoffDate")}</label>
-            <input
-              type="date"
-              value={cutoffDate}
-              onChange={(e) => setCutoffDate(e.target.value)}
-              className="rounded-lg border bg-background px-3 py-1.5 text-sm"
-            />
-          </div>
-
-          <button
-            onClick={handleRepairStatuses}
-            disabled={repairingStatuses}
-            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-          >
-            {repairingStatuses && <Loader2 className="h-4 w-4 animate-spin" />}
-            {repairingStatuses ? t("repairingStatuses") : t("repairStatuses")}
-          </button>
-        </div>
-      )}
+      <InvoiceStatusesRepairCard
+        sentInvoicesBefore2026={status.sentInvoicesBefore2026}
+        sentPurchaseInvoicesBefore2026={status.sentPurchaseInvoicesBefore2026}
+        cutoffDate={cutoffDate}
+        onCutoffDateChange={setCutoffDate}
+        repairing={repairingStatuses}
+        onRepair={handleRepairStatuses}
+      />
 
       {/* Journal Entries */}
       <div className="rounded-xl border bg-card p-6">
@@ -307,41 +272,11 @@ export function DataRepairPanel({
         )}
       </div>
 
-      {/* Paid Dates */}
-      {status.paidInvoicesWithoutPaidDate > 0 && (
-        <div className="rounded-xl border bg-card p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="rounded-lg border bg-background p-2">
-              <CalendarX className="h-4 w-4 text-warning" />
-            </div>
-            <div>
-              <h3 className="font-semibold">{t("paidDates")}</h3>
-              <p className="text-sm text-muted-foreground">
-                {t("paidDatesDesc")}
-              </p>
-            </div>
-          </div>
-
-          <div className="mb-4 space-y-2 text-sm">
-            <p className="text-warning">
-              {t("paidDatesCount", {
-                count: status.paidInvoicesWithoutPaidDate,
-              })}
-            </p>
-          </div>
-
-          <button
-            onClick={handleRepairPaidDates}
-            disabled={repairingPaidDates}
-            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-          >
-            {repairingPaidDates && <Loader2 className="h-4 w-4 animate-spin" />}
-            {repairingPaidDates
-              ? t("repairingPaidDates")
-              : t("repairPaidDates")}
-          </button>
-        </div>
-      )}
+      <PaidDatesRepairCard
+        count={status.paidInvoicesWithoutPaidDate}
+        repairing={repairingPaidDates}
+        onRepair={handleRepairPaidDates}
+      />
 
       {/* All good message */}
       {!hasIssues && (
@@ -352,9 +287,7 @@ export function DataRepairPanel({
               <h3 className="font-semibold text-success">
                 {t("noIssuesFound")}
               </h3>
-              <p className="text-sm text-success/80">
-                {t("allGood")}
-              </p>
+              <p className="text-sm text-success/80">{t("allGood")}</p>
             </div>
           </div>
         </div>
