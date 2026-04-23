@@ -8,6 +8,7 @@ import type { CompanySettings } from "@kivvi/database";
 import { getSessionOrRedirect } from "@/lib/session";
 import { getTranslations } from "next-intl/server";
 import { getImpactMetrics } from "@kivvi/core/src/domain/impact";
+import { getChecklistTemplate } from "@kivvi/core/src/config/checklist-templates";
 import { PageHeader } from "@/components/page-header";
 import { CO2_FACTORS_KG } from "@/lib/config/co2-factors";
 import { ImpactPdfDownload } from "./impact-pdf-download";
@@ -23,6 +24,7 @@ export default async function ImpactReportPage() {
   const t = await getTranslations("inventory");
   const tr = await getTranslations("reports");
   const tc = await getTranslations("common");
+  const tck = await getTranslations("checklist");
   const companyId = session.user.companyId;
 
   // Fetch company CO2 overrides
@@ -154,8 +156,11 @@ export default async function ImpactReportPage() {
                     <div key={cat.category}>
                       <div className="mb-1 flex items-center justify-between text-sm">
                         <div className="flex items-center gap-2">
-                          <span className="capitalize font-medium">
-                            {cat.category}
+                          <span className="font-medium">
+                            {tck(
+                              getChecklistTemplate(cat.category)
+                                .labelKey as Parameters<typeof tck>[0],
+                            )}
                           </span>
                           <span className="text-xs text-muted-foreground">
                             {tr("impactItemCount", { count: cat.itemCount })} ×{" "}

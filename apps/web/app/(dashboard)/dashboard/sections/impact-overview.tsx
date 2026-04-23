@@ -7,10 +7,12 @@ import { db } from "@/lib/db";
 import { companies } from "@kivvi/database";
 import type { CompanySettings } from "@kivvi/database";
 import { getImpactMetrics } from "@kivvi/core/src/domain/impact";
+import { getChecklistTemplate } from "@kivvi/core/src/config/checklist-templates";
 
 export async function ImpactOverview() {
   const session = await getSessionOrRedirect();
   const ti = await getTranslations("inventory");
+  const tck = await getTranslations("checklist");
   const companyId = session.user.companyId;
 
   // Fetch company CO2 factor overrides from settings
@@ -76,8 +78,17 @@ export async function ImpactOverview() {
           {topCategories.length > 0 ? (
             <div className="space-y-1.5 mt-1">
               {topCategories.map((cat) => (
-                <div key={cat.category} className="flex items-center justify-between text-xs">
-                  <span className="capitalize text-muted-foreground">{cat.category}</span>
+                <div
+                  key={cat.category}
+                  className="flex items-center justify-between text-xs"
+                >
+                  <span className="text-muted-foreground">
+                    {tck(
+                      getChecklistTemplate(cat.category).labelKey as Parameters<
+                        typeof tck
+                      >[0],
+                    )}
+                  </span>
                   <span className="font-medium tabular-nums">
                     {Number(cat.co2TotalKg) >= 1000
                       ? `${(Number(cat.co2TotalKg) / 1000).toFixed(1)} t`
