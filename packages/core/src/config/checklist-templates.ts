@@ -602,6 +602,226 @@ export const CHECKLIST_TEMPLATES: Record<string, ChecklistTemplate> = {
     ],
   },
 
+  server: {
+    category: "server",
+    labelKey: "categoryServer",
+    hasDataToErase: true,
+    checks: [
+      {
+        id: "power_on",
+        labelKey: "checkPowerOn",
+        type: "pass_fail",
+        blocking: true,
+        required: true,
+        failSuggestsStatus: "repair",
+      },
+      {
+        id: "post_ok",
+        labelKey: "checkPostOk",
+        type: "pass_fail",
+        blocking: false,
+        required: true,
+        failSuggestsStatus: "repair",
+      },
+      {
+        id: "storage_smart",
+        labelKey: "checkStorageSmart",
+        type: "pass_fail",
+        blocking: false,
+        required: false,
+        failSuggestsStatus: "repair",
+      },
+      {
+        id: "ram_ok",
+        labelKey: "checkRamOk",
+        type: "pass_fail",
+        blocking: false,
+        required: false,
+      },
+      {
+        id: "data_erasure",
+        labelKey: "checkDataErasure",
+        type: "pass_fail",
+        blocking: true,
+        required: true,
+      },
+    ],
+  },
+
+  keyboard: {
+    category: "keyboard",
+    labelKey: "categoryKeyboard",
+    hasDataToErase: false,
+    checks: [
+      {
+        id: "functional",
+        labelKey: "checkFunctional",
+        type: "pass_fail",
+        blocking: true,
+        required: true,
+        failSuggestsStatus: "repair",
+      },
+      {
+        id: "clean",
+        labelKey: "checkClean",
+        type: "pass_fail",
+        blocking: false,
+        required: true,
+      },
+    ],
+  },
+
+  mouse: {
+    category: "mouse",
+    labelKey: "categoryMouse",
+    hasDataToErase: false,
+    checks: [
+      {
+        id: "functional",
+        labelKey: "checkFunctional",
+        type: "pass_fail",
+        blocking: true,
+        required: true,
+        failSuggestsStatus: "repair",
+      },
+      {
+        id: "clean",
+        labelKey: "checkClean",
+        type: "pass_fail",
+        blocking: false,
+        required: true,
+      },
+    ],
+  },
+
+  peripheral: {
+    category: "peripheral",
+    labelKey: "categoryPeripheral",
+    hasDataToErase: false,
+    checks: [
+      {
+        id: "functional",
+        labelKey: "checkFunctional",
+        type: "pass_fail",
+        blocking: true,
+        required: true,
+        failSuggestsStatus: "repair",
+      },
+      {
+        id: "clean",
+        labelKey: "checkClean",
+        type: "pass_fail",
+        blocking: false,
+        required: false,
+      },
+      {
+        id: "cable_ok",
+        labelKey: "checkCableOk",
+        type: "pass_fail",
+        blocking: false,
+        required: false,
+      },
+    ],
+  },
+
+  networking: {
+    category: "networking",
+    labelKey: "categoryNetworking",
+    hasDataToErase: false,
+    checks: [
+      {
+        id: "power_on",
+        labelKey: "checkPowerOn",
+        type: "pass_fail",
+        blocking: true,
+        required: true,
+        failSuggestsStatus: "repair",
+      },
+      {
+        id: "functions_ok",
+        labelKey: "checkFunctionsOk",
+        type: "pass_fail",
+        blocking: true,
+        required: true,
+        failSuggestsStatus: "repair",
+      },
+      {
+        id: "clean",
+        labelKey: "checkClean",
+        type: "pass_fail",
+        blocking: false,
+        required: false,
+      },
+    ],
+  },
+
+  toy: {
+    category: "toy",
+    labelKey: "categoryToy",
+    hasDataToErase: false,
+    checks: [
+      {
+        id: "functional",
+        labelKey: "checkFunctional",
+        type: "pass_fail",
+        blocking: false,
+        required: true,
+      },
+      {
+        id: "clean",
+        labelKey: "checkClean",
+        type: "pass_fail",
+        blocking: true,
+        required: true,
+      },
+      {
+        id: "no_damage",
+        labelKey: "checkNoDamage",
+        type: "pass_fail",
+        blocking: false,
+        required: true,
+      },
+      {
+        id: "complete",
+        labelKey: "checkComplete",
+        type: "pass_fail",
+        blocking: false,
+        required: false,
+      },
+    ],
+  },
+
+  electronics: {
+    category: "electronics",
+    labelKey: "categoryElectronics",
+    hasDataToErase: false,
+    checks: [
+      {
+        id: "power_on",
+        labelKey: "checkPowerOn",
+        type: "pass_fail",
+        blocking: true,
+        required: true,
+        failSuggestsStatus: "repair",
+      },
+      {
+        id: "functions_ok",
+        labelKey: "checkFunctionsOk",
+        type: "pass_fail",
+        blocking: true,
+        required: true,
+        failSuggestsStatus: "repair",
+      },
+      {
+        id: "clean",
+        labelKey: "checkClean",
+        type: "pass_fail",
+        blocking: false,
+        required: false,
+      },
+    ],
+  },
+
   other: {
     category: "other",
     labelKey: "categoryOther",
