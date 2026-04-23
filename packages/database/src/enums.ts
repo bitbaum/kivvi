@@ -72,6 +72,9 @@ export const RECURRING_PERIODICITY_VALUES = [
 export type RecurringPeriodicityValue =
   (typeof RECURRING_PERIODICITY_VALUES)[number];
 
+export const PRODUCT_TYPE_VALUES = ["product", "service"] as const;
+export type ProductTypeValue = (typeof PRODUCT_TYPE_VALUES)[number];
+
 export const PAYMENT_METHOD_VALUES = [
   "bank_transfer",
   "cash",

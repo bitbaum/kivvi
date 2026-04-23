@@ -3,16 +3,14 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { authenticateApi, apiError, apiSuccess } from "@/lib/api-handler";
 import { recordPayment } from "@kivvi/core";
+import { PAYMENT_METHOD_VALUES } from "@kivvi/database/src/enums";
 
 const recordPaymentSchema = z.object({
   amount: z
     .string()
     .regex(/^\d+(\.\d{1,2})?$/, "Amount must be a decimal string"),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be YYYY-MM-DD"),
-  method: z
-    .enum(["bank_transfer", "cash", "card", "other"])
-    .optional()
-    .default("bank_transfer"),
+  method: z.enum(PAYMENT_METHOD_VALUES).optional().default("bank_transfer"),
   reference: z.string().max(200).optional(),
 });
 
