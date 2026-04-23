@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { TESTABLE_STATUSES } from "@/lib/config/inventory-items";
 import type {
   ChecklistTemplate,
   ChecklistData,
@@ -111,7 +112,7 @@ export function useChecklistState({
     blockingOk &&
     hasCondition &&
     hasPriceSet &&
-    (currentStatus === "testing" || currentStatus === "intake");
+    (TESTABLE_STATUSES as readonly string[]).includes(currentStatus);
 
   return {
     states,

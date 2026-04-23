@@ -14,7 +14,10 @@ import { db } from "@/lib/db";
 import { getInventoryItem, listRepairParts } from "@kivvi/core";
 import { isValidUUID } from "@/lib/utils";
 import { DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
-import { SELLABLE_ITEM_STATUSES } from "@/lib/config/inventory-items";
+import {
+  SELLABLE_ITEM_STATUSES,
+  TESTABLE_STATUSES,
+} from "@/lib/config/inventory-items";
 import { CardSection } from "@/components/card-section";
 import { InfoRow } from "@/components/info-display";
 import { generateQrDataUrl } from "@/lib/qr";
@@ -118,7 +121,7 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
         actions={
           <div className="flex items-center gap-2">
             {/* Test button: shown when item is in intake or testing status */}
-            {(item.status === "intake" || item.status === "testing") && (
+            {(TESTABLE_STATUSES as readonly string[]).includes(item.status) && (
               <Link
                 href={`/intake/items/${id}/test`}
                 className="inline-flex items-center gap-2 rounded-lg border border-warning/30 bg-warning/5 px-4 py-2 text-sm font-medium text-warning hover:bg-warning/10 transition-colors"

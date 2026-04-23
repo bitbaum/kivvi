@@ -79,6 +79,12 @@ export const PIPELINE_STATUSES = [
   "reserved",
 ] as const satisfies readonly (typeof ITEM_STATUS_VALUES)[number][];
 
+/** Statuses that allow a checklist/condition test to be run on the item */
+export const TESTABLE_STATUSES = [
+  "intake",
+  "testing",
+] as const satisfies readonly (typeof ITEM_STATUS_VALUES)[number][];
+
 // ============================================================================
 // CONDITION CONFIG
 // ============================================================================

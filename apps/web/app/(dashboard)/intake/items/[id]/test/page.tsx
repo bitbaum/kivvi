@@ -10,6 +10,7 @@ import {
   getChecklistTemplate,
   ITEM_CATEGORIES,
 } from "@kivvi/core/src/config/checklist-templates";
+import { TESTABLE_STATUSES } from "@/lib/config/inventory-items";
 import type { ChecklistData } from "@kivvi/core/src/config/checklist-templates";
 import { ChecklistForm } from "./checklist-form";
 import { DetailPageHeader } from "@/components/page-header";
@@ -40,7 +41,7 @@ export default async function TestItemPage({
   if (!item) notFound();
 
   // Only items in testing or intake status can be tested
-  if (!["intake", "testing"].includes(item.status)) {
+  if (!(TESTABLE_STATUSES as readonly string[]).includes(item.status)) {
     redirect(`/intake/items/${id}`);
   }
 
