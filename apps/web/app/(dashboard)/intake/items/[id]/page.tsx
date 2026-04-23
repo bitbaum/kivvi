@@ -13,8 +13,7 @@ import { getTranslations } from "next-intl/server";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { getInventoryItem, listRepairParts } from "@kivvi/core";
-import { isValidUUID, formatCurrency, formatDate } from "@/lib/utils";
-import Decimal from "decimal.js";
+import { isValidUUID, formatDate } from "@/lib/utils";
 import { DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
 import { SELLABLE_ITEM_STATUSES } from "@/lib/config/inventory-items";
 import { CardSection } from "@/components/card-section";
@@ -32,8 +31,10 @@ import {
 } from "@/lib/config/inventory-items";
 import { ItemTimeline } from "@/components/inventory/item-timeline";
 import { RepairPartsSection } from "@/components/inventory/repair-parts-section";
-import { getChecklistTemplate } from "@kivvi/core/src/config/checklist-templates";
+import { ItemChecklistDisplay } from "@/components/inventory/item-checklist-display";
+import { ItemPricingCard } from "@/components/inventory/item-pricing-card";
 import type { ChecklistData } from "@kivvi/core/src/config/checklist-templates";
+import { getChecklistTemplate } from "@kivvi/core/src/config/checklist-templates";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -56,16 +57,6 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
   if (!item) notFound();
 
   const specs = (item.specs as Record<string, string>) || {};
-
-  // Compute parts total for pricing section
-  const partsTotal = repairPartsList.reduce((sum, p) => {
-    try {
-      return sum.plus(new Decimal(p.quantity).times(new Decimal(p.unitCost)));
-    } catch {
-      return sum;
-    }
-  }, new Decimal(0));
-  const hasPartsTotal = partsTotal.greaterThan(0);
 
   // Generate QR code for label
   const baseUrl = process.env.NEXTAUTH_URL || "https://kivvi.vercel.app";
@@ -250,90 +241,9 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
           )}
 
           {/* Checklist results */}
-          {(() => {
-            const checklistData = item.checklistData as ChecklistData | null;
-            if (!checklistData?.completions?.length) return null;
-            const template = getChecklistTemplate(checklistData.category);
-            const completionMap = new Map(
-              checklistData.completions.map((c) => [c.id, c]),
-            );
-            const passed = checklistData.completions.filter(
-              (c) => c.result === "pass",
-            ).length;
-            const failed = checklistData.completions.filter(
-              (c) => c.result === "fail",
-            ).length;
-            const skipped = checklistData.completions.filter(
-              (c) => c.result === "skip",
-            ).length;
-            return (
-              <CardSection title={ti("checklistResults")}>
-                {/* Summary badges */}
-                <div className="mb-3 flex gap-2 text-xs">
-                  {passed > 0 && (
-                    <span className="rounded-full bg-success/10 px-2 py-0.5 text-success">
-                      {passed} ✓
-                    </span>
-                  )}
-                  {failed > 0 && (
-                    <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-destructive">
-                      {failed} ✗
-                    </span>
-                  )}
-                  {skipped > 0 && (
-                    <span className="rounded-full bg-muted px-2 py-0.5 text-muted-foreground">
-                      {skipped} —
-                    </span>
-                  )}
-                </div>
-                {/* Individual checks */}
-                <div className="space-y-1">
-                  {template.checks
-                    .filter((check) => completionMap.has(check.id))
-                    .map((check) => {
-                      const completion = completionMap.get(check.id)!;
-                      return (
-                        <div
-                          key={check.id}
-                          className="flex items-center justify-between rounded px-2 py-1 text-xs hover:bg-muted/50"
-                        >
-                          <span className="text-muted-foreground">
-                            {tck(check.labelKey as Parameters<typeof tck>[0])}
-                          </span>
-                          <span
-                            className={cn(
-                              "font-medium",
-                              completion.result === "pass" && "text-success",
-                              completion.result === "fail" &&
-                                "text-destructive",
-                              completion.result === "skip" &&
-                                "text-muted-foreground",
-                            )}
-                          >
-                            {completion.result === "pass" && "✓"}
-                            {completion.result === "fail" && "✗"}
-                            {completion.result === "skip" && "—"}
-                            {check.type === "measurement" &&
-                              completion.value &&
-                              ` ${completion.value}${check.unit ?? ""}`}
-                          </span>
-                        </div>
-                      );
-                    })}
-                </div>
-                {/* QC sign-off */}
-                {checklistData.signedOffAt && (
-                  <div className="mt-3 flex items-center gap-1.5 rounded-md bg-success/10 px-3 py-2 text-xs text-success">
-                    <span>✓</span>
-                    <span>
-                      {ti("checklistSignedOff")}{" "}
-                      {formatDate(checklistData.signedOffAt)}
-                    </span>
-                  </div>
-                )}
-              </CardSection>
-            );
-          })()}
+          <ItemChecklistDisplay
+            checklistData={item.checklistData as ChecklistData | null}
+          />
           {/* Repair Parts */}
           <RepairPartsSection itemId={id} initialParts={repairPartsList} />
         </div>
@@ -341,114 +251,7 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Pricing */}
-          <CardSection title={ti("pricing")}>
-            <div className="space-y-3">
-              {item.estimatedValue && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">
-                    {ti("acquisitionCost")}
-                  </span>
-                  <span>{formatCurrency(item.estimatedValue)}</span>
-                </div>
-              )}
-              {item.repairCost && parseFloat(item.repairCost) > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">
-                    {hasPartsTotal
-                      ? ti("labourCostLabel")
-                      : ti("repairCostLabel")}
-                  </span>
-                  <span>+{formatCurrency(item.repairCost)}</span>
-                </div>
-              )}
-              {hasPartsTotal && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">
-                    {ti("repairPartsTotal")}
-                  </span>
-                  <span>+{formatCurrency(partsTotal.toFixed(2))}</span>
-                </div>
-              )}
-              {item.effectiveCost &&
-                (hasPartsTotal ||
-                  (item.repairCost && parseFloat(item.repairCost) > 0)) && (
-                  <div className="flex justify-between text-sm border-t pt-2">
-                    <span className="text-muted-foreground font-medium">
-                      {ti("effectiveCost")}
-                    </span>
-                    <span className="font-medium">
-                      {formatCurrency(item.effectiveCost)}
-                    </span>
-                  </div>
-                )}
-              {item.askingPrice && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">
-                    {ti("askingPrice")}
-                  </span>
-                  <span className="font-medium">
-                    {formatCurrency(item.askingPrice)}
-                  </span>
-                </div>
-              )}
-              {item.minPrice && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">
-                    {ti("minPrice")}
-                  </span>
-                  <span>{formatCurrency(item.minPrice)}</span>
-                </div>
-              )}
-              {item.soldPrice && (
-                <>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      {ti("soldFor")}
-                    </span>
-                    <span className="font-medium text-success">
-                      {formatCurrency(item.soldPrice)}
-                    </span>
-                  </div>
-                  {item.effectiveCost &&
-                    (() => {
-                      const margin = new Decimal(item.soldPrice).minus(
-                        item.effectiveCost,
-                      );
-                      const marginClass = margin.gte(0)
-                        ? "text-success"
-                        : "text-destructive";
-                      return (
-                        <div className="flex justify-between text-sm border-t pt-2">
-                          <span className="text-muted-foreground font-medium">
-                            {ti("margin")}
-                          </span>
-                          <span className={`font-medium ${marginClass}`}>
-                            {margin.gte(0) ? "+" : ""}
-                            {formatCurrency(margin.toFixed(2))}
-                          </span>
-                        </div>
-                      );
-                    })()}
-                  {item.saleDocumentId && (
-                    <div className="border-t pt-2">
-                      <Link
-                        href={`/sales/invoices/${item.saleDocumentId}`}
-                        className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
-                      >
-                        <Receipt className="h-3.5 w-3.5" />
-                        {ti("viewSaleInvoice")}
-                      </Link>
-                    </div>
-                  )}
-                </>
-              )}
-              {!item.estimatedValue && !item.askingPrice && !item.soldPrice && (
-                <p className="text-sm text-muted-foreground">
-                  {ti("noPricingSet")}
-                </p>
-              )}
-            </div>
-          </CardSection>
+          <ItemPricingCard item={item} repairParts={repairPartsList} />
 
           {/* Item lifecycle timeline */}
           <CardSection title={ti("lifecycle")}>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useRef } from "react";
+import { useState, useTransition } from "react";
 import { Loader2 } from "lucide-react";
 import type { BulkActionDef } from "@/lib/config/document-types";
 import {
@@ -12,7 +12,7 @@ import {
 } from "@/app/actions/bulk-operations";
 import type { BulkOperationResult } from "@/app/actions/bulk-operations";
 import { cn } from "@/lib/utils";
-import { useFocusTrap } from "@/hooks/use-focus-trap";
+import { BulkConfirmDialog } from "@/components/bulk-confirm-dialog";
 
 interface DocumentBulkActionsProps {
   selectedIds: string[];
@@ -37,8 +37,6 @@ export function DocumentBulkActions({
   const [paymentDate, setPaymentDate] = useState(
     new Date().toISOString().split("T")[0],
   );
-  const confirmRef = useRef<HTMLDivElement>(null);
-  useFocusTrap(confirmRef, !!confirmAction);
 
   function isActionApplicable(action: BulkActionDef): boolean {
     if (!action.applicableStatuses) return true;
@@ -105,7 +103,8 @@ export function DocumentBulkActions({
   const variantClasses: Record<string, string> = {
     default: "border bg-background text-foreground hover:bg-muted",
     primary: "bg-primary text-primary-foreground hover:bg-primary/90",
-    destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+    destructive:
+      "bg-destructive text-destructive-foreground hover:bg-destructive/90",
   };
 
   return (
@@ -160,44 +159,27 @@ export function DocumentBulkActions({
 
       {/* Confirmation dialog */}
       {confirmAction && (
-        <div
-          ref={confirmRef}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-        >
-          <div className="mx-4 w-full max-w-md rounded-xl border bg-card p-6 shadow-xl">
-            <h3 className="text-lg font-semibold">
-              {labels.confirmTitle || "Confirm"}
-            </h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {(
-                labels.confirmMessage ||
-                "Are you sure you want to {action} {count} items?"
-              )
-                .replace(
-                  "{action}",
-                  labels[confirmAction.label] || confirmAction.label,
-                )
-                .replace("{count}", String(selectedIds.length))}
-            </p>
-            <div className="mt-4 flex justify-end gap-2">
-              <button
-                onClick={() => setConfirmAction(null)}
-                className="rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted"
-              >
-                {labels.cancel || "Cancel"}
-              </button>
-              <button
-                onClick={() => executeAction(confirmAction)}
-                disabled={isPending}
-                className="rounded-lg bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
-              >
-                {isPending
-                  ? labels.processing || "Processing..."
-                  : labels.confirmAction || "Confirm"}
-              </button>
-            </div>
-          </div>
-        </div>
+        <BulkConfirmDialog
+          title={labels.confirmTitle || "Confirm"}
+          message={(
+            labels.confirmMessage ||
+            "Are you sure you want to {action} {count} items?"
+          )
+            .replace(
+              "{action}",
+              labels[confirmAction.label] || confirmAction.label,
+            )
+            .replace("{count}", String(selectedIds.length))}
+          confirmLabel={
+            isPending
+              ? labels.processing || "Processing..."
+              : labels.confirmAction || "Confirm"
+          }
+          cancelLabel={labels.cancel || "Cancel"}
+          isLoading={isPending}
+          onConfirm={() => executeAction(confirmAction)}
+          onCancel={() => setConfirmAction(null)}
+        />
       )}
     </>
   );
