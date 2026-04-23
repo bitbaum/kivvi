@@ -137,6 +137,19 @@
       "admin": "Admin",
       "member": "Membre",
       "viewer": "Lecteur"
+    },
+    "itemTypes": {
+      "invoice": "Facture",
+      "quote": "Devis",
+      "order": "Commande",
+      "credit_note": "Avoir",
+      "delivery_note": "Bon de livraison",
+      "purchase_order": "Commande fournisseur",
+      "purchase_invoice": "Facture fournisseur",
+      "contact": "Contact",
+      "product": "Produit",
+      "project": "Projet",
+      "journal": "Écriture"
     }
   },
   "nav": {

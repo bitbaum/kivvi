@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { updateCo2FactorsAction } from "@/app/actions/settings";
 import { CO2_FACTORS_KG } from "@/lib/config/co2-factors";
+import { getChecklistTemplate } from "@kivvi/core/src/config/checklist-templates";
 
 interface Co2FactorsSectionProps {
   /** Company-specific overrides from settings.co2FactorsKg */
@@ -15,6 +16,7 @@ interface Co2FactorsSectionProps {
 export function Co2FactorsSection({ initialFactors }: Co2FactorsSectionProps) {
   const t = useTranslations("settings.company");
   const tc = useTranslations("common");
+  const tck = useTranslations("checklist");
   const [isPending, startTransition] = useTransition();
 
   // Merged state: defaults overlaid with company overrides
@@ -79,8 +81,12 @@ export function Co2FactorsSection({ initialFactors }: Co2FactorsSectionProps) {
           const isCustom = current !== defaultKg;
           return (
             <div key={cat} className="space-y-1">
-              <label className="block text-xs font-medium capitalize">
-                {cat}
+              <label className="block text-xs font-medium">
+                {tck(
+                  getChecklistTemplate(cat).labelKey as Parameters<
+                    typeof tck
+                  >[0],
+                )}
                 {isCustom && (
                   <span className="ml-1.5 text-xs text-muted-foreground font-normal">
                     ({t("co2FactorsDefault", { kg: defaultKg })})

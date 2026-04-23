@@ -137,6 +137,19 @@
       "admin": "Admin",
       "member": "Mitglied",
       "viewer": "Leser·in"
+    },
+    "itemTypes": {
+      "invoice": "Rechnung",
+      "quote": "Angebot",
+      "order": "Auftrag",
+      "credit_note": "Gutschrift",
+      "delivery_note": "Lieferschein",
+      "purchase_order": "Bestellung",
+      "purchase_invoice": "Eingangsrechnung",
+      "contact": "Kontakt",
+      "product": "Produkt",
+      "project": "Projekt",
+      "journal": "Buchung"
     }
   },
   "nav": {

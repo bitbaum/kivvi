@@ -205,8 +205,12 @@ export default async function ImpactReportPage() {
                     key={cat}
                     className="flex items-center justify-between rounded-lg border px-3 py-2"
                   >
-                    <span className="capitalize text-muted-foreground">
-                      {cat}
+                    <span className="text-muted-foreground">
+                      {tck(
+                        getChecklistTemplate(cat).labelKey as Parameters<
+                          typeof tck
+                        >[0],
+                      )}
                     </span>
                     <span className="font-medium tabular-nums">{kg} kg</span>
                   </div>

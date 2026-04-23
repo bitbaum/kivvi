@@ -116,8 +116,10 @@ export function RecentItemsDropdown() {
                       <p className="text-sm font-medium truncate">
                         {item.label}
                       </p>
-                      <p className="text-xs text-muted-foreground capitalize">
-                        {item.type}
+                      <p className="text-xs text-muted-foreground">
+                        {tc(
+                          `itemTypes.${item.type}` as Parameters<typeof tc>[0],
+                        )}
                       </p>
                     </div>
                   </Link>

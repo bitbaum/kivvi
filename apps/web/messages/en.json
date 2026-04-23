@@ -137,6 +137,19 @@
       "admin": "Admin",
       "member": "Member",
       "viewer": "Viewer"
+    },
+    "itemTypes": {
+      "invoice": "Invoice",
+      "quote": "Quote",
+      "order": "Order",
+      "credit_note": "Credit Note",
+      "delivery_note": "Delivery Note",
+      "purchase_order": "Purchase Order",
+      "purchase_invoice": "Purchase Invoice",
+      "contact": "Contact",
+      "product": "Product",
+      "project": "Project",
+      "journal": "Journal Entry"
     }
   },
   "nav": {
