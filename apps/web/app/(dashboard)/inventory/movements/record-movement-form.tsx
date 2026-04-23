@@ -73,7 +73,7 @@ export function RecordMovementForm({
     setError(null);
 
     if (!selectedProduct) {
-      setError("Please select a product");
+      setError(t("selectProductRequired"));
       return;
     }
 
@@ -87,7 +87,7 @@ export function RecordMovementForm({
     };
 
     if (!input.warehouseId || !input.type || !input.quantity) {
-      setError("All required fields must be filled in");
+      setError(t("allFieldsRequired"));
       return;
     }
 
@@ -270,9 +270,7 @@ export function RecordMovementForm({
             />
           </div>
 
-          {error && (
-            <p className="text-sm text-destructive">{error}</p>
-          )}
+          {error && <p className="text-sm text-destructive">{error}</p>}
 
           <div className="flex gap-2 pt-2">
             <Button type="submit" disabled={isPending} className="flex-1">

@@ -1214,7 +1214,9 @@
     "metricNoSalesYet": "No sales yet",
     "metricAvgDaysToSale": "Avg. Days to Sale",
     "metricDays": "days on average",
-    "bulkSetPrice": "Set price..."
+    "bulkSetPrice": "Set price...",
+    "selectProductRequired": "Please select a product",
+    "allFieldsRequired": "All required fields must be filled in"
   },
   "checklist": {
     "categoryLaptop": "Laptop",

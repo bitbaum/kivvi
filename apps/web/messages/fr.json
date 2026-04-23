@@ -1216,7 +1216,9 @@
     "metricNoSalesYet": "Pas encore de ventes",
     "metricAvgDaysToSale": "Jours moy. de vente",
     "metricDays": "jours en moyenne",
-    "bulkSetPrice": "Définir le prix..."
+    "bulkSetPrice": "Définir le prix...",
+    "selectProductRequired": "Veuillez sélectionner un produit",
+    "allFieldsRequired": "Tous les champs obligatoires doivent être remplis"
   },
   "checklist": {
     "categoryLaptop": "Ordinateur portable",

@@ -48,7 +48,7 @@ export async function ProductDetailSidebar({
                     className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-2"
                   >
                     <span className="text-sm">
-                      {sl.warehouse?.name || "Unknown"}
+                      {sl.warehouse?.name || tc("unknown")}
                     </span>
                     <div className="text-right text-sm">
                       <span className="font-medium">{Number(sl.quantity)}</span>

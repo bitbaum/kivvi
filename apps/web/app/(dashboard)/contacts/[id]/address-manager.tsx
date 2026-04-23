@@ -9,6 +9,7 @@ import {
   updateContactAddressAction,
   deleteContactAddressAction,
 } from "@/app/actions/contacts";
+import { toast } from "sonner";
 import { FormInput, FormSelect } from "@/components/ui/form-field";
 import { Button } from "@/components/ui/button";
 import type { ContactAddress } from "@kivvi/database";
@@ -54,6 +55,8 @@ export function AddressManager({ contactId, addresses }: AddressManagerProps) {
       setShowForm(false);
       setEditingId(null);
       router.refresh();
+    } else {
+      toast.error(result.error ?? tc("error"));
     }
   }
 
@@ -63,6 +66,8 @@ export function AddressManager({ contactId, addresses }: AddressManagerProps) {
     setDeletingId(null);
     if (result.success) {
       router.refresh();
+    } else {
+      toast.error(result.error ?? tc("error"));
     }
   }
 

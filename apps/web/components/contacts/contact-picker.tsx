@@ -90,6 +90,8 @@ export function ContactPicker({
       if (result.success && result.data) {
         setResults(result.data);
         setShowDropdown(true);
+      } else {
+        setResults([]);
       }
     }, 200);
   }, []);

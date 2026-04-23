@@ -1214,7 +1214,9 @@
     "metricNoSalesYet": "Noch keine Verkäufe",
     "metricAvgDaysToSale": "Ø Tage bis Verkauf",
     "metricDays": "Tage im Schnitt",
-    "bulkSetPrice": "Preis setzen..."
+    "bulkSetPrice": "Preis setzen...",
+    "selectProductRequired": "Bitte Produkt auswählen",
+    "allFieldsRequired": "Alle Pflichtfelder müssen ausgefüllt werden"
   },
   "checklist": {
     "categoryLaptop": "Laptop",

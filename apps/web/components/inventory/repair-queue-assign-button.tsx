@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { User, ChevronDown, X } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { assignItemTechnicianAction } from "@/app/actions/inventory-items";
 
@@ -25,13 +26,19 @@ export function RepairQueueAssignButton({
   companyUsers,
 }: RepairQueueAssignButtonProps) {
   const ti = useTranslations("inventory");
+  const tc = useTranslations("common");
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   function assign(userId: string | null) {
     setOpen(false);
     startTransition(async () => {
-      await assignItemTechnicianAction(itemId, { assignedToUserId: userId });
+      const result = await assignItemTechnicianAction(itemId, {
+        assignedToUserId: userId,
+      });
+      if (!result.success) {
+        toast.error(result.error ?? tc("error"));
+      }
     });
   }
 

@@ -64,8 +64,8 @@ export default async function EditRecurringInvoicePage({
     id: o.id,
     number: o.number,
     contactName: o.contactId
-      ? contactMap.get(o.contactId) || "Unknown"
-      : "No Contact",
+      ? contactMap.get(o.contactId) || tc("unknown")
+      : tc("noContact"),
   }));
 
   return (
