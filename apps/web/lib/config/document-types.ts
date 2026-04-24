@@ -131,7 +131,9 @@ export function toCamelCase(snakeCase: string): string {
 // STATUS CONFIG
 // ============================================================================
 
-export const STATUS_STYLES: Record<string, string> = {
+// `satisfies` ensures every DocumentStatus has a style entry.
+// TypeScript errors here if a new status is added to the enum without a style.
+const _statusStyles = {
   draft: "bg-neutral/10 text-neutral",
   sent: "bg-info/10 text-info",
   confirmed: "bg-info/10 text-info",
@@ -143,7 +145,9 @@ export const STATUS_STYLES: Record<string, string> = {
   dunning_1: "bg-destructive/10 text-destructive",
   dunning_2: "bg-destructive/20 text-destructive",
   dunning_3: "bg-destructive/30 text-destructive",
-};
+} satisfies Record<DocumentStatus, string>;
+
+export const STATUS_STYLES: Record<string, string> = _statusStyles;
 
 // Status labels are in translation files under the 'status' namespace.
 // Usage: t(toCamelCase(status)) where t = useTranslations('status') or getTranslations('status')

@@ -11,6 +11,10 @@ import {
 } from "@kivvi/database/src/enums";
 import { ITEM_STATUS_TRANSITIONS } from "@kivvi/core/src/config/item-transitions";
 
+// Derive union types from the authoritative enum arrays
+type ItemStatusValue = (typeof ITEM_STATUS_VALUES)[number];
+type ItemConditionValue = (typeof ITEM_CONDITION_VALUES)[number];
+
 // ============================================================================
 // STATUS CONFIG (UI: labels + styles only — transitions from SSOT)
 // ============================================================================
@@ -22,7 +26,11 @@ export interface ItemStatusConfig {
   style: string;
 }
 
-export const ITEM_STATUS_CONFIG: Record<string, ItemStatusConfig> = {
+// `satisfies` enforces that every ITEM_STATUS_VALUES entry has an entry here.
+// TypeScript will error at compile time if a new status is added to the enum
+// without a corresponding UI config. The public type includes `| undefined`
+// so helpers can safely index with arbitrary strings from the database.
+const _statusConfig = {
   intake: {
     labelKey: "statusIntake",
     style: "bg-info/10 text-info",
@@ -67,7 +75,10 @@ export const ITEM_STATUS_CONFIG: Record<string, ItemStatusConfig> = {
     labelKey: "statusRecycled",
     style: "bg-neutral/10 text-neutral",
   },
-};
+} satisfies Record<ItemStatusValue, ItemStatusConfig>;
+
+export const ITEM_STATUS_CONFIG: Record<string, ItemStatusConfig | undefined> =
+  _statusConfig;
 
 /** Active pipeline statuses — items that are in-progress, not yet sold/disposed */
 export const PIPELINE_STATUSES = [
@@ -104,7 +115,8 @@ export interface ItemConditionConfig {
   style: string;
 }
 
-export const ITEM_CONDITION_CONFIG: Record<string, ItemConditionConfig> = {
+// `satisfies` enforces that every ITEM_CONDITION_VALUES entry has an entry here.
+const _conditionConfig = {
   untested: {
     labelKey: "conditionUntested",
     shortLabel: "?",
@@ -140,7 +152,12 @@ export const ITEM_CONDITION_CONFIG: Record<string, ItemConditionConfig> = {
     shortLabel: "X",
     style: "bg-neutral/20 text-neutral",
   },
-};
+} satisfies Record<ItemConditionValue, ItemConditionConfig>;
+
+export const ITEM_CONDITION_CONFIG: Record<
+  string,
+  ItemConditionConfig | undefined
+> = _conditionConfig;
 
 // ============================================================================
 // SELLABLE STATUSES — items that can appear on an invoice

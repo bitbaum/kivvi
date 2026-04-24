@@ -23,9 +23,11 @@ import Decimal from "decimal.js";
 import { eq, and, gte, lte, count, inArray } from "drizzle-orm";
 import { inventoryItems } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
+import { getCo2Factor, CO2_DEFAULT_KG } from "../config/co2-factors";
 
 // Default CO2 savings per item when category is unknown (kg)
-export const DEFAULT_CO2_PER_ITEM_KG = 50;
+// Re-exported from co2-factors SSOT so callers don't need to import from two places.
+export const DEFAULT_CO2_PER_ITEM_KG = CO2_DEFAULT_KG;
 
 /** Per-category CO2 totals for breakdown views */
 export interface Co2ByCategory {
@@ -102,7 +104,7 @@ export async function getImpactMetrics(
   for (const row of reusedRows) {
     const cat = row.category || "other";
     const itemCount = row.count;
-    const factor = resolveCo2Factor(cat, options.co2FactorsKg);
+    const factor = getCo2Factor(cat, options.co2FactorsKg);
     const co2Total = new Decimal(itemCount).times(factor);
 
     totalCo2 = totalCo2.plus(co2Total);
@@ -117,9 +119,7 @@ export async function getImpactMetrics(
   }
 
   // Sort by CO2 contribution descending
-  co2ByCategory.sort(
-    (a, b) => Number(b.co2TotalKg) - Number(a.co2TotalKg),
-  );
+  co2ByCategory.sort((a, b) => Number(b.co2TotalKg) - Number(a.co2TotalKg));
 
   const wasteDiverted = totalReused + itemsRecycled;
   const reuseRatePercent =
@@ -134,35 +134,4 @@ export async function getImpactMetrics(
     reuseRatePercent,
     co2ByCategory,
   };
-}
-
-/** Resolve CO2 factor for a category, with optional company overrides */
-function resolveCo2Factor(
-  category: string,
-  overrides?: Record<string, number>,
-): number {
-  const cat = category.toLowerCase();
-  if (overrides?.[cat] !== undefined) return overrides[cat];
-  // Built-in defaults
-  const defaults: Record<string, number> = {
-    laptop: 300,
-    desktop: 500,
-    monitor: 200,
-    phone: 70,
-    tablet: 70,
-    server: 800,
-    printer: 150,
-    keyboard: 10,
-    mouse: 5,
-    peripheral: 10,
-    networking: 50,
-    clothing: 20,
-    furniture: 100,
-    book: 2,
-    toy: 5,
-    bike: 80,
-    electronics: 50,
-    other: 50,
-  };
-  return defaults[cat] ?? DEFAULT_CO2_PER_ITEM_KG;
 }
