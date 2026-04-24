@@ -54,13 +54,67 @@ export interface ImpactMetrics {
   co2ByCategory: Co2ByCategory[];
 }
 
+/**
+ * Pure calculation kernel — converts raw DB row counts into ImpactMetrics.
+ * Extracted so it can be unit-tested without a database.
+ *
+ * @param reusedRows   Rows from a GROUP BY category query for sold/donated items
+ * @param itemsRecycled  Count of items with status "recycled"
+ * @param itemsProcessed Count of all items ever processed
+ * @param co2FactorsKg  Optional company-specific CO2 overrides
+ */
+export function calculateImpactMetrics(
+  reusedRows: { category: string | null; count: number }[],
+  itemsRecycled: number,
+  itemsProcessed: number,
+  co2FactorsKg?: Record<string, number>,
+): ImpactMetrics {
+  let totalCo2 = new Decimal(0);
+  let totalReused = 0;
+  const co2ByCategory: Co2ByCategory[] = [];
+
+  for (const row of reusedRows) {
+    const cat = row.category || "other";
+    const itemCount = row.count;
+    const factor = getCo2Factor(cat, co2FactorsKg);
+    const co2Total = new Decimal(itemCount).times(factor);
+
+    totalCo2 = totalCo2.plus(co2Total);
+    totalReused += itemCount;
+
+    co2ByCategory.push({
+      category: cat,
+      itemCount,
+      co2KgFactor: factor,
+      co2TotalKg: co2Total.toFixed(0),
+    });
+  }
+
+  // Sort by CO2 contribution descending (highest impact first)
+  co2ByCategory.sort((a, b) => Number(b.co2TotalKg) - Number(a.co2TotalKg));
+
+  const wasteDiverted = totalReused + itemsRecycled;
+  const reuseRatePercent =
+    itemsProcessed > 0 ? Math.round((totalReused / itemsProcessed) * 100) : 0;
+
+  return {
+    itemsReused: totalReused,
+    itemsRecycled,
+    itemsProcessed,
+    co2AvoidedKg: totalCo2.toFixed(0),
+    wasteDiverted,
+    reuseRatePercent,
+    co2ByCategory,
+  };
+}
+
 export async function getImpactMetrics(
   db: Database,
   companyId: string,
   options: {
     startDate?: Date;
     endDate?: Date;
-    /** Per-category CO2 factors (kg). Falls back to DEFAULT_CO2_PER_ITEM_KG. */
+    /** Per-category CO2 factors (kg). Falls back to CO2_FACTORS_KG defaults. */
     co2FactorsKg?: Record<string, number>;
   } = {},
 ): Promise<ImpactMetrics> {
@@ -93,45 +147,10 @@ export async function getImpactMetrics(
       .where(and(...conditions)),
   ]);
 
-  const itemsRecycled = recycledRows[0]?.count || 0;
-  const itemsProcessed = totalRows[0]?.count || 0;
-
-  // Calculate CO2 avoided per category
-  let totalCo2 = new Decimal(0);
-  let totalReused = 0;
-  const co2ByCategory: Co2ByCategory[] = [];
-
-  for (const row of reusedRows) {
-    const cat = row.category || "other";
-    const itemCount = row.count;
-    const factor = getCo2Factor(cat, options.co2FactorsKg);
-    const co2Total = new Decimal(itemCount).times(factor);
-
-    totalCo2 = totalCo2.plus(co2Total);
-    totalReused += itemCount;
-
-    co2ByCategory.push({
-      category: cat,
-      itemCount,
-      co2KgFactor: factor,
-      co2TotalKg: co2Total.toFixed(0),
-    });
-  }
-
-  // Sort by CO2 contribution descending
-  co2ByCategory.sort((a, b) => Number(b.co2TotalKg) - Number(a.co2TotalKg));
-
-  const wasteDiverted = totalReused + itemsRecycled;
-  const reuseRatePercent =
-    itemsProcessed > 0 ? Math.round((totalReused / itemsProcessed) * 100) : 0;
-
-  return {
-    itemsReused: totalReused,
-    itemsRecycled,
-    itemsProcessed,
-    co2AvoidedKg: totalCo2.toFixed(0),
-    wasteDiverted,
-    reuseRatePercent,
-    co2ByCategory,
-  };
+  return calculateImpactMetrics(
+    reusedRows,
+    recycledRows[0]?.count || 0,
+    totalRows[0]?.count || 0,
+    options.co2FactorsKg,
+  );
 }
