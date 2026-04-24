@@ -5,6 +5,11 @@ import {
   generateQuotePdf,
   generateDonationReceiptPdf,
 } from "../domain/pdf-generation";
+import {
+  generateErasureCertificate,
+  buildCertificateNumber,
+  type ErasureCertificateData,
+} from "../domain/erasure-certificate";
 import type {
   InvoicePdfData,
   DeliveryNotePdfData,
@@ -534,6 +539,110 @@ describe("generateDonationReceiptPdf", () => {
     const [pdf1, pdf2] = await Promise.all([
       generateDonationReceiptPdf(DONATION_RECEIPT_DATA),
       generateDonationReceiptPdf(alt),
+    ]);
+    expect(pdf1.equals(pdf2)).toBe(false);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// buildCertificateNumber — pure function, no PDF involved
+// ─────────────────────────────────────────────────────────────────────────────
+
+describe("buildCertificateNumber", () => {
+  it("formats as CERT-{itemNumber}-{YYYYMMDD}", () => {
+    const date = new Date("2026-04-24T10:00:00Z");
+    expect(buildCertificateNumber("IT-00042", date)).toBe(
+      "CERT-IT-00042-20260424",
+    );
+  });
+
+  it("pads single-digit month", () => {
+    const date = new Date("2026-03-05T00:00:00Z");
+    expect(buildCertificateNumber("IT-00001", date)).toBe(
+      "CERT-IT-00001-20260305",
+    );
+  });
+
+  it("pads single-digit day", () => {
+    const date = new Date("2026-07-09T00:00:00Z");
+    expect(buildCertificateNumber("IT-00099", date)).toBe(
+      "CERT-IT-00099-20260709",
+    );
+  });
+
+  it("preserves item number as-is", () => {
+    const date = new Date("2026-12-31T00:00:00Z");
+    expect(buildCertificateNumber("IT-99999", date)).toBe(
+      "CERT-IT-99999-20261231",
+    );
+  });
+
+  it("works across year boundary", () => {
+    const date = new Date("2027-01-01T00:00:00Z");
+    expect(buildCertificateNumber("IT-00001", date)).toBe(
+      "CERT-IT-00001-20270101",
+    );
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// generateErasureCertificate — PDF buffer smoke tests
+// ─────────────────────────────────────────────────────────────────────────────
+
+const ERASURE_DATA: ErasureCertificateData = {
+  companyName: "revamp-it Genossenschaft",
+  companyAddress: "Quellenstrasse 25",
+  companyCity: "8005 Zürich",
+  itemNumber: "IT-00042",
+  description: "Lenovo ThinkPad T14 — generalüberholt",
+  serialNumber: "PF2X3Y45",
+  category: "laptop",
+  dataErasureMethod: "secure_erase",
+  erasureMethodLabel: "NIST Secure Erase",
+  dataErasuredAt: new Date("2026-04-24T10:00:00Z"),
+  erasedByName: "Anna Muster",
+  certificateNumber: "CERT-IT-00042-20260424",
+  generatedAt: new Date("2026-04-24T12:00:00Z"),
+};
+
+describe("generateErasureCertificate", () => {
+  it("returns a non-empty Buffer", async () => {
+    const pdf = await generateErasureCertificate(ERASURE_DATA);
+    expect(pdf).toBeInstanceOf(Buffer);
+    expect(pdf.length).toBeGreaterThan(0);
+  });
+
+  it("starts with PDF magic bytes", async () => {
+    const pdf = await generateErasureCertificate(ERASURE_DATA);
+    expect(pdf.slice(0, 4).toString()).toBe("%PDF");
+  });
+
+  it("does not throw with minimal required fields", async () => {
+    const minimal: ErasureCertificateData = {
+      companyName: "Brocki GmbH",
+      itemNumber: "IT-00001",
+      description: "Dell Laptop",
+      dataErasureMethod: "dban",
+      erasureMethodLabel: "DBAN",
+      dataErasuredAt: new Date("2026-01-01"),
+      certificateNumber: "CERT-IT-00001-20260101",
+      generatedAt: new Date("2026-01-01"),
+    };
+    await expect(generateErasureCertificate(minimal)).resolves.toBeInstanceOf(
+      Buffer,
+    );
+  });
+
+  it("different items produce different PDFs", async () => {
+    const alt: ErasureCertificateData = {
+      ...ERASURE_DATA,
+      itemNumber: "IT-00099",
+      serialNumber: "ABCD1234",
+      certificateNumber: "CERT-IT-00099-20260424",
+    };
+    const [pdf1, pdf2] = await Promise.all([
+      generateErasureCertificate(ERASURE_DATA),
+      generateErasureCertificate(alt),
     ]);
     expect(pdf1.equals(pdf2)).toBe(false);
   });
