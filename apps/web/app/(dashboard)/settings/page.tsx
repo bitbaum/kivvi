@@ -12,6 +12,7 @@ import {
   Key,
   Users,
   Plug,
+  Webhook,
 } from "lucide-react";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
@@ -82,6 +83,12 @@ export default async function SettingsPage() {
       subtitle: "Ricardo.ch und weitere Marktplätze",
       href: "/settings/integrations",
       icon: Plug,
+    },
+    {
+      title: "Webhooks",
+      subtitle: "Externe Systeme über Ereignisse benachrichtigen",
+      href: "/settings/webhooks",
+      icon: Webhook,
     },
   ];
 
