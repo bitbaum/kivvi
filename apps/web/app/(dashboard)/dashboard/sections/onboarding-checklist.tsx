@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { CheckCircle2, Circle, X } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 
 const DISMISS_KEY = "kivvi-checklist-dismissed";
 
@@ -31,6 +32,7 @@ export function OnboardingChecklist({
   hasShopUrl,
   companyAgeDays,
 }: ChecklistState) {
+  const t = useTranslations("dashboard.onboardingChecklist");
   const [dismissed, setDismissed] = useState(true);
 
   useEffect(() => {
@@ -40,36 +42,36 @@ export function OnboardingChecklist({
   const items: ChecklistItem[] = [
     {
       id: "intake",
-      label: "Ersten Artikel erfassen",
-      description: "Nimm deinen ersten gespendeten Artikel auf",
+      label: t("intakeLabel"),
+      description: t("intakeDesc"),
       href: "/intake/quick",
       done: hasIntake,
     },
     {
       id: "invoice",
-      label: "Erste Rechnung erstellen",
-      description: "Stelle deine erste Rechnung aus",
+      label: t("invoiceLabel"),
+      description: t("invoiceDesc"),
       href: "/sales/invoices/new",
       done: hasInvoice,
     },
     {
       id: "bank",
-      label: "Bankkonto einrichten",
-      description: "Verbinde dein IBAN für QR-Rechnungen und Abgleich",
+      label: t("bankLabel"),
+      description: t("bankDesc"),
       href: "/banking",
       done: hasBankAccount,
     },
     {
       id: "team",
-      label: "Teammitglied einladen",
-      description: "Arbeite mit deinem Team zusammen",
+      label: t("teamLabel"),
+      description: t("teamDesc"),
       href: "/settings/team",
       done: hasTeamMember,
     },
     {
       id: "shop",
-      label: "Shop-URL konfigurieren",
-      description: "Richte deine öffentliche Shopseite ein",
+      label: t("shopLabel"),
+      description: t("shopDesc"),
       href: "/settings/company",
       done: hasShopUrl,
     },
@@ -94,9 +96,9 @@ export function OnboardingChecklist({
     <div className="rounded-xl border bg-card">
       <div className="flex items-start justify-between border-b p-5">
         <div>
-          <h2 className="font-semibold">Erste Schritte mit Kivvi</h2>
+          <h2 className="font-semibold">{t("title")}</h2>
           <p className="mt-0.5 text-sm text-muted-foreground">
-            {completedCount} von {items.length} abgeschlossen
+            {t("progress", { completed: completedCount, total: items.length })}
           </p>
           <div className="mt-2 h-1.5 w-48 overflow-hidden rounded-full bg-muted">
             <div
@@ -108,7 +110,7 @@ export function OnboardingChecklist({
         <button
           onClick={handleDismiss}
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground"
-          aria-label="Schliessen"
+          aria-label={t("close")}
         >
           <X className="h-4 w-4" />
         </button>

@@ -618,6 +618,27 @@
       "createInvoice": "Create your first invoice",
       "createInvoiceDesc": "Send a professional invoice with QR-bill",
       "dismiss": "I'll explore on my own"
+    },
+    "onboardingChecklist": {
+      "title": "Getting started with Kivvi",
+      "progress": "{completed} of {total} completed",
+      "close": "Close",
+      "intakeLabel": "Record your first item",
+      "intakeDesc": "Add your first donated item",
+      "invoiceLabel": "Create your first invoice",
+      "invoiceDesc": "Issue your first invoice",
+      "bankLabel": "Set up bank account",
+      "bankDesc": "Connect your IBAN for QR invoices and reconciliation",
+      "teamLabel": "Invite a team member",
+      "teamDesc": "Collaborate with your team",
+      "shopLabel": "Configure your shop URL",
+      "shopDesc": "Set up your public shop page"
+    },
+    "sampleData": {
+      "notice": "You are working with sample data — this data is for exploration only and can be deleted at any time.",
+      "clearButton": "Delete sample data",
+      "clearing": "Deleting…",
+      "close": "Close"
     }
   },
   "footer": {

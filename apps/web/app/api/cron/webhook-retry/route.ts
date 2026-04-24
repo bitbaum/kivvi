@@ -7,7 +7,7 @@ import { logger } from "@/lib/logger";
 
 /**
  * Cron endpoint for retrying failed webhook deliveries.
- * Run every 5 minutes via Vercel Cron (see vercel.json).
+ * Run daily at 08:00 via Vercel Cron (see vercel.json).
  * Picks up deliveries where nextRetryAt <= now and re-attempts them.
  * Protected by CRON_SECRET.
  */

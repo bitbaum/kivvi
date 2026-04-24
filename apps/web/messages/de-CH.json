@@ -618,6 +618,27 @@
       "createInvoice": "Erste Rechnung erstellen",
       "createInvoiceDesc": "Professionelle Rechnung mit QR-Einzahlungsschein versenden",
       "dismiss": "Ich erkunde selbst"
+    },
+    "onboardingChecklist": {
+      "title": "Erste Schritte mit Kivvi",
+      "progress": "{completed} von {total} abgeschlossen",
+      "close": "Schliessen",
+      "intakeLabel": "Ersten Artikel erfassen",
+      "intakeDesc": "Nimm deinen ersten gespendeten Artikel auf",
+      "invoiceLabel": "Erste Rechnung erstellen",
+      "invoiceDesc": "Stelle deine erste Rechnung aus",
+      "bankLabel": "Bankkonto einrichten",
+      "bankDesc": "Verbinde dein IBAN für QR-Rechnungen und Abgleich",
+      "teamLabel": "Teammitglied einladen",
+      "teamDesc": "Arbeite mit deinem Team zusammen",
+      "shopLabel": "Shop-URL konfigurieren",
+      "shopDesc": "Richte deine öffentliche Shopseite ein"
+    },
+    "sampleData": {
+      "notice": "Du arbeitest mit Beispieldaten — diese Daten dienen nur zur Erkundung und können jederzeit gelöscht werden.",
+      "clearButton": "Beispieldaten löschen",
+      "clearing": "Wird gelöscht…",
+      "close": "Schliessen"
     }
   },
   "footer": {

@@ -618,6 +618,27 @@
       "createInvoice": "Créer votre première facture",
       "createInvoiceDesc": "Envoyer une facture professionnelle avec bulletin QR",
       "dismiss": "Je vais explorer seul"
+    },
+    "onboardingChecklist": {
+      "title": "Premiers pas avec Kivvi",
+      "progress": "{completed} sur {total} complété",
+      "close": "Fermer",
+      "intakeLabel": "Enregistrer votre premier article",
+      "intakeDesc": "Ajoutez votre premier article donné",
+      "invoiceLabel": "Créer votre première facture",
+      "invoiceDesc": "Émettez votre première facture",
+      "bankLabel": "Configurer un compte bancaire",
+      "bankDesc": "Connectez votre IBAN pour les factures QR et le rapprochement",
+      "teamLabel": "Inviter un membre de l’équipe",
+      "teamDesc": "Collaborez avec votre équipe",
+      "shopLabel": "Configurer l’URL de la boutique",
+      "shopDesc": "Configurez votre page de boutique publique"
+    },
+    "sampleData": {
+      "notice": "Vous travaillez avec des données d’exemple — ces données sont uniquement à titre exploratoire et peuvent être supprimées à tout moment.",
+      "clearButton": "Supprimer les données d’exemple",
+      "clearing": "Suppression…",
+      "close": "Fermer"
     }
   },
   "footer": {
