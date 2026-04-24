@@ -20,8 +20,8 @@
  */
 
 import Decimal from "decimal.js";
-import { eq, and, gte, lte, count, inArray } from "drizzle-orm";
-import { inventoryItems } from "@kivvi/database";
+import { eq, and, gte, lte, count, inArray, sql } from "drizzle-orm";
+import { inventoryItems, contacts } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
 import { getCo2Factor, CO2_DEFAULT_KG } from "../config/co2-factors";
 
@@ -158,4 +158,184 @@ export async function getImpactMetrics(
     totalRows[0]?.count || 0,
     options.co2FactorsKg,
   );
+}
+
+// ============================================================================
+// MONTHLY BREAKDOWN
+// ============================================================================
+
+export interface MonthlyBreakdown {
+  /** "2026-01" format */
+  month: string;
+  processed: number;
+  reused: number;
+  reuseRatePercent: number;
+}
+
+export async function getMonthlyBreakdown(
+  db: Database,
+  companyId: string,
+  options: { startDate?: Date; endDate?: Date } = {},
+): Promise<MonthlyBreakdown[]> {
+  const conditions = [eq(inventoryItems.companyId, companyId)];
+  if (options.startDate)
+    conditions.push(gte(inventoryItems.createdAt, options.startDate));
+  if (options.endDate)
+    conditions.push(lte(inventoryItems.createdAt, options.endDate));
+
+  const [processedRows, reusedRows] = await Promise.all([
+    db
+      .select({
+        month: sql<string>`to_char(${inventoryItems.createdAt}, 'YYYY-MM')`,
+        count: count(),
+      })
+      .from(inventoryItems)
+      .where(and(...conditions))
+      .groupBy(sql`to_char(${inventoryItems.createdAt}, 'YYYY-MM')`)
+      .orderBy(sql`to_char(${inventoryItems.createdAt}, 'YYYY-MM')`),
+    db
+      .select({
+        month: sql<string>`to_char(${inventoryItems.createdAt}, 'YYYY-MM')`,
+        count: count(),
+      })
+      .from(inventoryItems)
+      .where(
+        and(...conditions, inArray(inventoryItems.status, ["sold", "donated"])),
+      )
+      .groupBy(sql`to_char(${inventoryItems.createdAt}, 'YYYY-MM')`)
+      .orderBy(sql`to_char(${inventoryItems.createdAt}, 'YYYY-MM')`),
+  ]);
+
+  const reusedByMonth = new Map(reusedRows.map((r) => [r.month, r.count]));
+
+  return processedRows.map((r) => {
+    const reused = reusedByMonth.get(r.month) || 0;
+    return {
+      month: r.month,
+      processed: r.count,
+      reused,
+      reuseRatePercent: r.count > 0 ? Math.round((reused / r.count) * 100) : 0,
+    };
+  });
+}
+
+// ============================================================================
+// TOP DONORS
+// ============================================================================
+
+export interface TopDonor {
+  donorId: string;
+  donorName: string;
+  itemsDonated: number;
+  itemsReused: number;
+}
+
+export async function getTopDonors(
+  db: Database,
+  companyId: string,
+  options: {
+    startDate?: Date;
+    endDate?: Date;
+    limit?: number;
+    anonymize?: boolean;
+  } = {},
+): Promise<TopDonor[]> {
+  const limit = options.limit ?? 5;
+  const conditions = [
+    eq(inventoryItems.companyId, companyId),
+    sql`${inventoryItems.donorContactId} IS NOT NULL`,
+  ];
+  if (options.startDate)
+    conditions.push(gte(inventoryItems.createdAt, options.startDate));
+  if (options.endDate)
+    conditions.push(lte(inventoryItems.createdAt, options.endDate));
+
+  const [donatedRows, reusedRows] = await Promise.all([
+    db
+      .select({
+        donorContactId: inventoryItems.donorContactId,
+        donorName: contacts.name,
+        count: count(),
+      })
+      .from(inventoryItems)
+      .leftJoin(contacts, eq(inventoryItems.donorContactId, contacts.id))
+      .where(and(...conditions))
+      .groupBy(inventoryItems.donorContactId, contacts.name)
+      .orderBy(sql`count(*) DESC`)
+      .limit(limit),
+    db
+      .select({
+        donorContactId: inventoryItems.donorContactId,
+        count: count(),
+      })
+      .from(inventoryItems)
+      .where(
+        and(...conditions, inArray(inventoryItems.status, ["sold", "donated"])),
+      )
+      .groupBy(inventoryItems.donorContactId),
+  ]);
+
+  const reusedByDonor = new Map(
+    reusedRows.map((r) => [r.donorContactId, r.count]),
+  );
+
+  return donatedRows.map((r, i) => ({
+    donorId: r.donorContactId!,
+    donorName: options.anonymize
+      ? `Spender ${i + 1}`
+      : r.donorName || "Unbekannt",
+    itemsDonated: r.count,
+    itemsReused: reusedByDonor.get(r.donorContactId) || 0,
+  }));
+}
+
+// ============================================================================
+// DESTINATION BREAKDOWN
+// ============================================================================
+
+export interface DestinationBreakdown {
+  sold: number;
+  donated: number;
+  recycled: number;
+  inStock: number;
+}
+
+export async function getDestinationBreakdown(
+  db: Database,
+  companyId: string,
+  options: { startDate?: Date; endDate?: Date } = {},
+): Promise<DestinationBreakdown> {
+  const conditions = [eq(inventoryItems.companyId, companyId)];
+  if (options.startDate)
+    conditions.push(gte(inventoryItems.createdAt, options.startDate));
+  if (options.endDate)
+    conditions.push(lte(inventoryItems.createdAt, options.endDate));
+
+  const rows = await db
+    .select({ status: inventoryItems.status, count: count() })
+    .from(inventoryItems)
+    .where(and(...conditions))
+    .groupBy(inventoryItems.status);
+
+  const byStatus = new Map(rows.map((r) => [r.status, r.count]));
+
+  const inStockStatuses = [
+    "intake",
+    "testing",
+    "repair",
+    "ready_for_sale",
+    "listed",
+    "reserved",
+  ] as const;
+  const inStock = inStockStatuses.reduce(
+    (sum, s) => sum + (byStatus.get(s) || 0),
+    0,
+  );
+
+  return {
+    sold: byStatus.get("sold") || 0,
+    donated: byStatus.get("donated") || 0,
+    recycled: byStatus.get("recycled") || 0,
+    inStock,
+  };
 }

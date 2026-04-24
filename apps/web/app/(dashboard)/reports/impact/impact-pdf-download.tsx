@@ -11,14 +11,16 @@ const YEAR_VALUES = Array.from({ length: 5 }, (_, i) => CURRENT_YEAR - i);
 export function ImpactPdfDownload() {
   const tr = useTranslations("reports");
   const [year, setYear] = useState(String(CURRENT_YEAR));
+  const [anonymize, setAnonymize] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function handleDownload() {
     setLoading(true);
     try {
-      const url = year
-        ? `/api/reports/impact-pdf?year=${year}`
-        : "/api/reports/impact-pdf";
+      const params = new URLSearchParams();
+      if (year) params.set("year", year);
+      if (anonymize) params.set("anonymize", "1");
+      const url = `/api/reports/impact-pdf?${params.toString()}`;
       const res = await fetch(url);
       if (!res.ok) throw new Error(tr("impactPdfError"));
       const blob = await res.blob();
@@ -49,6 +51,15 @@ export function ImpactPdfDownload() {
           </option>
         ))}
       </select>
+      <label className="flex items-center gap-1.5 text-sm text-muted-foreground cursor-pointer select-none">
+        <input
+          type="checkbox"
+          checked={anonymize}
+          onChange={(e) => setAnonymize(e.target.checked)}
+          className="h-4 w-4 rounded border"
+        />
+        {tr("impactAnonymizeDonors")}
+      </label>
       <Button
         variant="secondary"
         onClick={handleDownload}

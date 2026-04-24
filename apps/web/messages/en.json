@@ -1372,6 +1372,7 @@
     "impactAllPeriods": "All time",
     "impactReportYear": "Report year",
     "impactPdfError": "PDF generation failed",
+    "impactAnonymizeDonors": "Anonymize donors",
     "impactCo2Factors": "CO₂ Factors",
     "impactCo2FactorsDesc": "Estimated values used for CO₂ calculation (kg CO₂ per item, avoided through reuse instead of new production).",
     "impactCo2FactorsCustom": "Includes company-specific adjustments.",

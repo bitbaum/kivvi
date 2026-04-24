@@ -4,7 +4,12 @@ import { db } from "@/lib/db";
 import { companies } from "@kivvi/database";
 import type { CompanySettings } from "@kivvi/database";
 import { eq } from "drizzle-orm";
-import { getImpactMetrics } from "@kivvi/core/src/domain/impact";
+import {
+  getImpactMetrics,
+  getMonthlyBreakdown,
+  getTopDonors,
+  getDestinationBreakdown,
+} from "@kivvi/core/src/domain/impact";
 import { generateImpactPdf } from "@kivvi/core/src/domain/impact-pdf";
 
 export async function GET(request: NextRequest) {
@@ -35,11 +40,37 @@ export async function GET(request: NextRequest) {
     }
 
     const settings = (company.settings as CompanySettings) ?? {};
-    const metrics = await getImpactMetrics(db, companyId, {
-      startDate,
-      endDate,
-      co2FactorsKg: settings.co2FactorsKg,
-    });
+    const opts = { startDate, endDate };
+
+    // Fetch all data in parallel
+    const [metrics, monthlyBreakdown, topDonors, destinationBreakdown] =
+      await Promise.all([
+        getImpactMetrics(db, companyId, {
+          ...opts,
+          co2FactorsKg: settings.co2FactorsKg,
+        }),
+        getMonthlyBreakdown(db, companyId, opts),
+        getTopDonors(db, companyId, {
+          ...opts,
+          limit: 5,
+          anonymize: request.nextUrl.searchParams.get("anonymize") === "1",
+        }),
+        getDestinationBreakdown(db, companyId, opts),
+      ]);
+
+    // Fetch previous year metrics for comparison (only when a specific year is selected)
+    let previousYearMetrics = undefined;
+    let previousYear = undefined;
+    if (year && !isNaN(year)) {
+      const prevStart = new Date(year - 1, 0, 1);
+      const prevEnd = new Date(year - 1, 11, 31, 23, 59, 59);
+      previousYearMetrics = await getImpactMetrics(db, companyId, {
+        startDate: prevStart,
+        endDate: prevEnd,
+        co2FactorsKg: settings.co2FactorsKg,
+      });
+      previousYear = String(year - 1);
+    }
 
     const yearLabel = year ? String(year) : "Gesamt";
     const pdf = await generateImpactPdf({
@@ -47,6 +78,11 @@ export async function GET(request: NextRequest) {
       year: yearLabel,
       generatedAt: new Date().toISOString(),
       metrics,
+      monthlyBreakdown,
+      topDonors,
+      destinationBreakdown,
+      previousYearMetrics,
+      previousYear,
     });
 
     const filename = `wirkungsbericht-${yearLabel.toLowerCase()}-${company.name.replace(/\s+/g, "-").toLowerCase()}.pdf`;

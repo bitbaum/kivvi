@@ -10,13 +10,24 @@
  */
 
 import PDFDocument from "pdfkit";
-import type { ImpactMetrics } from "./impact";
+import type {
+  ImpactMetrics,
+  MonthlyBreakdown,
+  TopDonor,
+  DestinationBreakdown,
+} from "./impact";
 
 export interface ImpactPdfData {
   companyName: string;
   year: string; // "2026" or "Gesamt" for all-time
   generatedAt: string; // ISO date string
   metrics: ImpactMetrics;
+  monthlyBreakdown?: MonthlyBreakdown[];
+  topDonors?: TopDonor[];
+  destinationBreakdown?: DestinationBreakdown;
+  /** Previous year metrics for comparison — shown only when available */
+  previousYearMetrics?: ImpactMetrics;
+  previousYear?: string;
 }
 
 /**
@@ -273,6 +284,276 @@ export function generateImpactPdf(data: ImpactPdfData): Promise<Buffer> {
           );
         rowY += 14;
       }
+
+      doc.y = rowY;
+    }
+
+    // ── Year Comparison ───────────────────────────────────────────────────
+    if (data.previousYearMetrics && data.previousYear) {
+      const prev = data.previousYearMetrics;
+      const prevCo2Kg = Number(prev.co2AvoidedKg);
+      const currCo2Kg = Number(metrics.co2AvoidedKg);
+
+      doc
+        .moveDown(0.8)
+        .fontSize(11)
+        .fillColor("#111827")
+        .font("Helvetica-Bold")
+        .text("Jahresvergleich");
+
+      doc.moveDown(0.4);
+
+      const ycStartY = doc.y;
+      const colW = (PAGE_W - 24) / 3;
+      const comparisons = [
+        {
+          label: "Artikel wiederverwendet",
+          curr: metrics.itemsReused,
+          prev: prev.itemsReused,
+          fmt: (n: number) => n.toLocaleString("de-CH"),
+        },
+        {
+          label: "CO₂ vermieden (kg)",
+          curr: currCo2Kg,
+          prev: prevCo2Kg,
+          fmt: (n: number) => n.toLocaleString("de-CH"),
+        },
+        {
+          label: "Wiederverwendungsrate",
+          curr: metrics.reuseRatePercent,
+          prev: prev.reuseRatePercent,
+          fmt: (n: number) => `${n}%`,
+        },
+      ];
+
+      comparisons.forEach((c, i) => {
+        const x = 56 + i * (colW + 12);
+        const diff = c.curr - c.prev;
+        const diffSign = diff >= 0 ? "+" : "";
+        const diffColor = diff >= 0 ? GREEN : "#dc2626";
+
+        doc.roundedRect(x, ycStartY, colW, 64, 6).fillColor(BG_GREEN).fill();
+
+        doc
+          .fontSize(8)
+          .fillColor(MUTED)
+          .font("Helvetica")
+          .text(c.label, x + 10, ycStartY + 8, { width: colW - 20 });
+
+        doc
+          .fontSize(18)
+          .fillColor("#111827")
+          .font("Helvetica-Bold")
+          .text(c.fmt(c.curr), x + 10, ycStartY + 22, { width: colW - 20 });
+
+        doc
+          .fontSize(8)
+          .fillColor(MUTED)
+          .font("Helvetica")
+          .text(
+            `${data.previousYear}: ${c.fmt(c.prev)}`,
+            x + 10,
+            ycStartY + 44,
+            { width: (colW - 20) * 0.6 },
+          );
+
+        doc
+          .fontSize(8)
+          .fillColor(diffColor)
+          .font("Helvetica-Bold")
+          .text(
+            `${diffSign}${c.fmt(diff)}`,
+            x + 10 + (colW - 20) * 0.6,
+            ycStartY + 44,
+            { width: (colW - 20) * 0.4, align: "right" },
+          );
+      });
+
+      doc.y = ycStartY + 74;
+    }
+
+    // ── Destination Breakdown ─────────────────────────────────────────────
+    if (data.destinationBreakdown) {
+      const dest = data.destinationBreakdown;
+      const total =
+        dest.sold + dest.donated + dest.recycled + dest.inStock || 1;
+
+      doc
+        .moveDown(0.8)
+        .fontSize(11)
+        .fillColor("#111827")
+        .font("Helvetica-Bold")
+        .text("Verbleib der Artikel");
+
+      doc.moveDown(0.4);
+
+      const destStartY = doc.y;
+      const destColW = (PAGE_W - 36) / 4;
+
+      const destinations = [
+        { label: "Verkauft", count: dest.sold, color: GREEN },
+        { label: "Gespendet", count: dest.donated, color: "#2563eb" },
+        { label: "Recycelt", count: dest.recycled, color: "#d97706" },
+        { label: "Lagerbestand", count: dest.inStock, color: MUTED },
+      ];
+
+      destinations.forEach((d, i) => {
+        const x = 56 + i * (destColW + 12);
+        const pct = Math.round((d.count / total) * 100);
+
+        doc
+          .roundedRect(x, destStartY, destColW, 58, 6)
+          .fillColor(BG_GREEN)
+          .fill();
+
+        doc
+          .fontSize(20)
+          .fillColor(d.color)
+          .font("Helvetica-Bold")
+          .text(d.count.toLocaleString("de-CH"), x + 10, destStartY + 8, {
+            width: destColW - 20,
+          });
+
+        doc
+          .fontSize(8)
+          .fillColor("#111827")
+          .font("Helvetica-Bold")
+          .text(d.label, x + 10, destStartY + 36, { width: destColW - 20 });
+
+        doc
+          .fontSize(8)
+          .fillColor(MUTED)
+          .font("Helvetica")
+          .text(`${pct}%`, x + 10, destStartY + 46, { width: destColW - 20 });
+      });
+
+      doc.y = destStartY + 68;
+    }
+
+    // ── Monthly Breakdown ─────────────────────────────────────────────────
+    if (data.monthlyBreakdown && data.monthlyBreakdown.length > 0) {
+      doc
+        .moveDown(0.8)
+        .fontSize(11)
+        .fillColor("#111827")
+        .font("Helvetica-Bold")
+        .text("Monatsübersicht");
+
+      doc.moveDown(0.4);
+
+      const mbStartY = doc.y;
+      const mbColWidths = [
+        PAGE_W * 0.22,
+        PAGE_W * 0.26,
+        PAGE_W * 0.26,
+        PAGE_W * 0.26,
+      ];
+      const mbHeaders = [
+        "Monat",
+        "Verarbeitet",
+        "Wiederverwendet",
+        "Wiederverwendungsrate",
+      ];
+
+      let xPos = 56;
+      doc.fontSize(8).fillColor(MUTED).font("Helvetica-Bold");
+      mbHeaders.forEach((h, i) => {
+        const align = i >= 1 ? "right" : "left";
+        doc.text(h, xPos, mbStartY, { width: mbColWidths[i], align });
+        xPos += mbColWidths[i];
+      });
+
+      doc
+        .moveTo(56, mbStartY + 14)
+        .lineTo(56 + PAGE_W, mbStartY + 14)
+        .strokeColor(BORDER)
+        .lineWidth(0.5)
+        .stroke();
+
+      let rowY = mbStartY + 18;
+      const months = data.monthlyBreakdown.slice(0, 12);
+
+      months.forEach((m) => {
+        const [year, month] = m.month.split("-");
+        const monthLabel = new Date(
+          Number(year),
+          Number(month) - 1,
+          1,
+        ).toLocaleDateString("de-CH", { month: "long", year: "numeric" });
+
+        xPos = 56;
+        doc.fontSize(9).fillColor("#111827").font("Helvetica");
+        const row = [
+          monthLabel,
+          m.processed.toLocaleString("de-CH"),
+          m.reused.toLocaleString("de-CH"),
+          `${m.reuseRatePercent}%`,
+        ];
+        row.forEach((cell, i) => {
+          const align = i >= 1 ? "right" : "left";
+          doc.text(cell, xPos, rowY, { width: mbColWidths[i], align });
+          xPos += mbColWidths[i];
+        });
+
+        rowY += 16;
+      });
+
+      doc.y = rowY;
+    }
+
+    // ── Top Donors ────────────────────────────────────────────────────────
+    if (data.topDonors && data.topDonors.length > 0) {
+      doc
+        .moveDown(0.8)
+        .fontSize(11)
+        .fillColor("#111827")
+        .font("Helvetica-Bold")
+        .text("Top-Spender");
+
+      doc.moveDown(0.4);
+
+      const tdStartY = doc.y;
+      const tdColWidths = [PAGE_W * 0.5, PAGE_W * 0.25, PAGE_W * 0.25];
+      const tdHeaders = ["Spender", "Gespendete Artikel", "Wiederverwendet"];
+
+      let xPos = 56;
+      doc.fontSize(8).fillColor(MUTED).font("Helvetica-Bold");
+      tdHeaders.forEach((h, i) => {
+        const align = i >= 1 ? "right" : "left";
+        doc.text(h, xPos, tdStartY, { width: tdColWidths[i], align });
+        xPos += tdColWidths[i];
+      });
+
+      doc
+        .moveTo(56, tdStartY + 14)
+        .lineTo(56 + PAGE_W, tdStartY + 14)
+        .strokeColor(BORDER)
+        .lineWidth(0.5)
+        .stroke();
+
+      let rowY = tdStartY + 18;
+
+      data.topDonors.forEach((donor) => {
+        const reuseRate =
+          donor.itemsDonated > 0
+            ? Math.round((donor.itemsReused / donor.itemsDonated) * 100)
+            : 0;
+
+        xPos = 56;
+        doc.fontSize(9).fillColor("#111827").font("Helvetica");
+        const row = [
+          donor.donorName,
+          donor.itemsDonated.toLocaleString("de-CH"),
+          `${donor.itemsReused.toLocaleString("de-CH")} (${reuseRate}%)`,
+        ];
+        row.forEach((cell, i) => {
+          const align = i >= 1 ? "right" : "left";
+          doc.text(cell, xPos, rowY, { width: tdColWidths[i], align });
+          xPos += tdColWidths[i];
+        });
+
+        rowY += 16;
+      });
 
       doc.y = rowY;
     }
