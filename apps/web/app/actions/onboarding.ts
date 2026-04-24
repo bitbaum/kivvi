@@ -25,7 +25,10 @@ import {
   ensureManufacturers,
   updateSequencesAfterImport,
 } from "@kivvi/core";
-import { seedSampleData } from "@kivvi/core/src/domain/sample-data";
+import {
+  seedSampleData,
+  clearSampleData,
+} from "@kivvi/core/src/domain/sample-data";
 import { DEFAULT_VAT_RATE } from "@kivvi/core/src/config/vat-rates";
 
 // ============================================================================
@@ -342,6 +345,20 @@ export async function seedSampleDataAction(): Promise<ActionResult> {
     return {
       success: false,
       error: safeErrorMessage(error, "Failed to seed sample data"),
+    };
+  }
+}
+
+export async function clearSampleDataAction(): Promise<ActionResult> {
+  try {
+    const { companyId } = await getSession();
+    await clearSampleData(db, companyId);
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to clear sample data"),
     };
   }
 }

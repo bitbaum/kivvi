@@ -34,6 +34,7 @@ import {
 import type { CompanySettings } from "@kivvi/database";
 import { eq, count } from "drizzle-orm";
 import { OnboardingChecklist } from "./sections/onboarding-checklist";
+import { SampleDataBanner } from "./sections/sample-data-banner";
 
 // Cache dashboard for 60 seconds
 export const revalidate = 60;
@@ -101,6 +102,9 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
+      {/* Sample data mode banner */}
+      {settings.isSampleData && <SampleDataBanner />}
+
       {/* Welcome guide for brand new companies */}
       <WelcomeSection
         companyName={companyName}

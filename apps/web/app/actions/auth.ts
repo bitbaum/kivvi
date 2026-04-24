@@ -13,8 +13,15 @@ import {
   getInvitationByToken,
   acceptInvitation,
 } from "@kivvi/core/src/domain/invitations";
+import {
+  buildWelcomeEmailSubject,
+  buildWelcomeEmailHtml,
+} from "@kivvi/core/src/domain/email";
 import type { ActionResult } from "./utils";
 import { safeErrorMessage } from "./utils";
+import { getTransporter, getFromEmail } from "@/lib/email/transporter";
+import { isEmailConfigured } from "@/lib/config/email";
+import { logger } from "@/lib/logger";
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -109,6 +116,31 @@ export async function registerAction(
         companyName: null,
       };
     });
+
+    // Send welcome email — best-effort, never block registration
+    if (isEmailConfigured() && result.companyName) {
+      try {
+        const transporter = getTransporter();
+        const loginUrl = process.env.NEXTAUTH_URL
+          ? `${process.env.NEXTAUTH_URL}/login`
+          : "https://kivvi.ch/login";
+        const emailData = {
+          userName: name,
+          userEmail: result.email,
+          companyName: result.companyName,
+          loginUrl,
+        };
+        await transporter.sendMail({
+          from: getFromEmail(),
+          to: result.email,
+          subject: buildWelcomeEmailSubject(emailData),
+          html: buildWelcomeEmailHtml(emailData),
+        });
+      } catch (emailError) {
+        logger.error("Failed to send welcome email", emailError);
+        // Do not fail registration because of email error
+      }
+    }
 
     return {
       success: true,
