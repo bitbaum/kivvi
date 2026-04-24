@@ -51,6 +51,14 @@ export const FAQ_PAGE_LD = {
         text: "Die Benutzeroberfläche ist auf Deutsch (Schweiz), Englisch und Französisch verfügbar. Die Oberfläche lässt sich per Sprachumschalter wechseln. Für weitere Sprachen können Übersetzungen über das Open-Source-Projekt beigesteuert werden.",
       },
     },
+    {
+      "@type": "Question",
+      name: "Kann Kivvi Datenlöschzertifikate ausstellen?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Ja. Sobald für ein Gerät eine Datenlöschung erfasst ist, kann ein PDF-Zertifikat heruntergeladen werden. Es enthält Gerätedaten, die Löschmethode, Datum und durchführende Person sowie Verweise auf NIST SP 800-88, DIN 66399 und das nDSG.",
+      },
+    },
   ],
 };
 
@@ -134,6 +142,10 @@ export const FAQ_GROUPS = [
       {
         q: "Was sind Spendenquittungen und wie generiert Kivvi sie?",
         a: "Wenn jemand Waren spendet (statt verkauft), kann der Spender diese Zuwendung in seiner Steuererklärung abziehen — sofern Ihr Betrieb als gemeinnützig anerkannt ist. Dafür braucht er eine Spendenquittung mit Pflichtangaben (Name/Adresse Organisation und Spender, Datum, Art und Wert der Zuwendung, Bestätigung der Gemeinnützigkeit). Kivvi generiert diese Quittung beim Wareneingang automatisch als PDF — vorausgefüllt, druckbereit.",
+      },
+      {
+        q: "Kann Kivvi Datenlöschzertifikate ausstellen?",
+        a: "Ja. Sobald für ein Gerät eine Datenlöschung erfasst ist — ob über die QC-Checkliste oder manuell — kann ein PDF-Zertifikat heruntergeladen werden. Es enthält Gerätedaten (Artikelnummer, Seriennummer, Beschreibung), die Löschmethode (ATA Secure Erase, DBAN, Factory Reset usw.), Datum und durchführende Person sowie Verweise auf NIST SP 800-88, DIN 66399 und das nDSG (Schweizer Datenschutzgesetz). Unternehmenskunden fordern diesen Nachweis häufig als Bedingung für den Geräteankauf.",
       },
       {
         q: "Unterstützt Kivvi Kommissionsverkauf?",

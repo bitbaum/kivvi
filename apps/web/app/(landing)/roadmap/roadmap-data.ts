@@ -93,6 +93,16 @@ export const COMPARISON: CompetitorFeature[] = [
     kivvi: "yes",
   },
   {
+    feature: "Datenlöschzertifikat (nDSG)",
+    desc: "Nachweisbare Datenlöschung nach NIST SP 800-88 / DIN 66399 — Zertifikat als PDF",
+    bexio: "no",
+    odoo: "no",
+    abacus: "no",
+    kivitendo: "no",
+    repairshopr: "no",
+    kivvi: "yes",
+  },
+  {
     feature: "KI-Eingabe",
     desc: "Natürlichsprachige Erfassung — «50 Laptops von UBS»",
     bexio: "no",
