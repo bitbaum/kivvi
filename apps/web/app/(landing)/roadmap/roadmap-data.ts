@@ -274,12 +274,11 @@ export const PIPELINE: PipelineItem[] = [
     title: "CAMT-Import (Schweizer Bankformat)",
     desc: "Kontoauszüge direkt im CAMT.053-Format — der Standard aller Schweizer Banken.",
   },
-  // ── In Entwicklung ────────────────────────────────────────────────────────
   {
-    status: "building",
+    status: "live",
     category: "Inventar",
     title: "Reparatur-Workflow",
-    desc: "Reparaturaufträge mit Techniker-Zuweisung, Arbeitszeit und Statusverfolgung. Reparatur-Queue, Kostenerfassung, Protokoll und KI-Befehle (Kosten/Stunden, Zustand, Status, Datenlöschung, QC-Checkliste) bereits live — Teile-Tracking folgt.",
+    desc: "Reparaturaufträge mit Techniker-Zuweisung, Arbeitsstunden und Statusverfolgung. Reparatur-Queue, Teile-Tracking (Kostenerfassung pro Teil), Protokoll und KI-Befehle (Kosten/Stunden, Zustand, Status, Datenlöschung, QC-Checkliste).",
   },
   // ── Geplant ───────────────────────────────────────────────────────────────
   {
