@@ -49,6 +49,7 @@ export const createInventoryItemSchema = z.object({
   specs: z.record(z.string()).optional().nullable(),
   serialNumber: z.string().max(200).optional().nullable(),
   location: z.string().max(200).optional().nullable(),
+  photoBase64: z.string().optional().nullable(),
 });
 
 export const updateInventoryItemSchema = createInventoryItemSchema.partial();
@@ -135,6 +136,8 @@ export async function createInventoryItem(
       specs: input.specs,
       serialNumber: input.serialNumber,
       location: input.location,
+      photoBase64: input.photoBase64,
+      category: input.category,
     })
     .returning();
 

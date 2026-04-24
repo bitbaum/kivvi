@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Package, Wrench } from "lucide-react";
+import { Package, Wrench, Zap } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { getSessionOrRedirect } from "@/lib/session";
 import { listDocuments, getInventoryItemCounts } from "@kivvi/core";
@@ -47,6 +47,13 @@ export default async function IntakePage({ searchParams }: PageProps) {
       status={status}
       headerActions={
         <div className="flex items-center gap-2">
+          <Link
+            href="/intake/quick"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            <Zap className="h-4 w-4" />
+            {ti("quickIntake")}
+          </Link>
           {repairCount > 0 && (
             <Link
               href="/intake/repair-queue"
