@@ -1237,7 +1237,8 @@
     "donationReceiptSent": "Quittung gesendet",
     "donationReceiptSending": "Wird gesendet…",
     "donationReceiptError": "Quittung konnte nicht gesendet werden",
-    "donationReceiptNoDonorEmail": "Spender hat keine E-Mail-Adresse"
+    "donationReceiptNoDonorEmail": "Spender hat keine E-Mail-Adresse",
+    "printLabel": "Etikett drucken"
   },
   "checklist": {
     "categoryLaptop": "Laptop",

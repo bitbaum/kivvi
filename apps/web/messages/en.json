@@ -1237,7 +1237,8 @@
     "donationReceiptSent": "Receipt sent",
     "donationReceiptSending": "Sending…",
     "donationReceiptError": "Could not send receipt",
-    "donationReceiptNoDonorEmail": "Donor has no email address"
+    "donationReceiptNoDonorEmail": "Donor has no email address",
+    "printLabel": "Print label"
   },
   "checklist": {
     "categoryLaptop": "Laptop",

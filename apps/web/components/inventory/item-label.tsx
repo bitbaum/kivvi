@@ -9,6 +9,8 @@ interface ItemLabelProps {
   description: string;
   condition: string;
   qrDataUrl: string;
+  askingPrice?: string | null;
+  currency?: string;
 }
 
 const CONDITION_SHORT: Record<string, string> = {
@@ -26,7 +28,13 @@ export function ItemLabel({
   description,
   condition,
   qrDataUrl,
+  askingPrice,
+  currency = "CHF",
 }: ItemLabelProps) {
+  const priceText =
+    askingPrice && Number(askingPrice) > 0
+      ? `${currency} ${Number(askingPrice).toFixed(2)}`
+      : null;
   return (
     <div
       className="flex items-center gap-2 border border-gray-300 p-2"
@@ -50,10 +58,15 @@ export function ItemLabel({
             {description}
           </div>
         </div>
-        <div className="mt-1 flex items-center gap-1">
+        <div className="mt-1 flex items-center justify-between gap-1">
           <span className="inline-block rounded border px-1 py-0.5 text-[7pt] font-bold">
             {CONDITION_SHORT[condition] || condition}
           </span>
+          {priceText && (
+            <span className="text-[8pt] font-bold tabular-nums">
+              {priceText}
+            </span>
+          )}
         </div>
       </div>
     </div>

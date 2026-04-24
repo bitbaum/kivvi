@@ -1237,7 +1237,8 @@
     "donationReceiptSent": "Reçu envoyé",
     "donationReceiptSending": "Envoi en cours…",
     "donationReceiptError": "Impossible d'envoyer le reçu",
-    "donationReceiptNoDonorEmail": "Le donateur n'a pas d'adresse e-mail"
+    "donationReceiptNoDonorEmail": "Le donateur n'a pas d'adresse e-mail",
+    "printLabel": "Imprimer l'étiquette"
   },
   "checklist": {
     "categoryLaptop": "Ordinateur portable",

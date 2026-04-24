@@ -90,6 +90,7 @@ export default async function IntakeLabelsPage({ params }: PageProps) {
             description={item.description}
             condition={item.condition}
             qrDataUrl={qrCodes[i]}
+            askingPrice={item.askingPrice}
           />
         ))}
       </div>

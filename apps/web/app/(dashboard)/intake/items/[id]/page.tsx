@@ -7,6 +7,7 @@ import {
   FileText,
   Receipt,
   ClipboardList,
+  Tag,
 } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { getSessionOrRedirect } from "@/lib/session";
@@ -132,6 +133,13 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
                   : ti("startTesting")}
               </Link>
             )}
+            <Link
+              href={`/intake/items/${id}/label`}
+              className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted"
+            >
+              <Tag className="h-4 w-4" />
+              {ti("printLabel")}
+            </Link>
             <Link
               href={`/intake/items/${id}/edit`}
               className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted"
