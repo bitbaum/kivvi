@@ -230,6 +230,8 @@ export async function exportInventoryItemsCsvAction(filters?: {
       "Effective Cost",
       "Repair Hours",
       "Serial Number",
+      "Data Erasure Date",
+      "Data Erasure Method",
       "Created At",
     ];
 
@@ -255,6 +257,8 @@ export async function exportInventoryItemsCsvAction(filters?: {
       item.effectiveCost,
       item.repairHours,
       item.serialNumber,
+      item.dataErasuredAt ? formatDateCsv(item.dataErasuredAt) : null,
+      item.dataErasureMethod,
       formatDateCsv(item.createdAt),
     ]);
 
