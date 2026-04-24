@@ -26,6 +26,10 @@ export interface SellableResult {
   /** Inventory item specifics */
   condition?: string;
   productId?: string | null;
+  /** Flexible pricing (Richtpreis) — catalog products only */
+  isPriceFlexible?: boolean;
+  minPrice?: string | null;
+  maxPrice?: string | null;
 }
 
 /**
@@ -109,6 +113,9 @@ export async function searchSellablesAction(
         vatRate: p.vatRate,
         unit: p.unit,
         stockQuantity: p.stockQuantity,
+        isPriceFlexible: p.isPriceFlexible ?? false,
+        minPrice: p.minPrice,
+        maxPrice: p.maxPrice,
       });
     }
 

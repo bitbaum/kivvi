@@ -8,6 +8,7 @@ import { FormInput, FormSelect } from "@/components/ui/form-field";
 import { ProductSearchInput } from "./product-search-input";
 import type { LineItem } from "./document-form-types";
 import { calculateItemTotal } from "./calculate-item-total";
+import { formatCurrency } from "@/lib/utils";
 
 interface SortableLineItemProps {
   item: LineItem;
@@ -84,6 +85,8 @@ export function SortableLineItem({
               );
               updateItem(item.id, "description", product.name);
               updateItem(item.id, "stockQuantity", product.stockQuantity);
+              updateItem(item.id, "minPrice", product.minPrice ?? null);
+              updateItem(item.id, "maxPrice", product.maxPrice ?? null);
               if (product.unitPrice)
                 updateItem(item.id, "unitPrice", product.unitPrice);
               if (product.vatRate)
@@ -148,6 +151,12 @@ export function SortableLineItem({
                     }
                     className="mt-1"
                   />
+                  {item.minPrice && item.maxPrice && (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {t("flexPriceHint")}: {formatCurrency(item.minPrice)} –{" "}
+                      {formatCurrency(item.maxPrice)}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-xs text-muted-foreground">

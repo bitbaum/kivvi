@@ -294,6 +294,7 @@
     "quantity": "Menge",
     "unitPrice": "Stückpreis",
     "discount": "Rabatt",
+    "flexPriceHint": "Richtpreis",
     "outOfStock": "Nicht an Lager",
     "onlyXAvailable": "Nur {count} verfügbar",
     "inStock": "{count} an Lager",

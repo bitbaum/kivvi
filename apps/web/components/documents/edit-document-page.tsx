@@ -93,6 +93,8 @@ export async function EditDocumentPage({
               vatRate:
                 (item.vatRate || DEFAULT_VAT_RATE).replace(/\.?0+$/, "") || "0",
               stockQuantity: null,
+              minPrice: null,
+              maxPrice: null,
             }),
           ),
         }}

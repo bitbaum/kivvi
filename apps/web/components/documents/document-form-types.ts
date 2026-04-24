@@ -10,6 +10,9 @@ export interface LineItem {
   discount: string;
   vatRate: string;
   stockQuantity: string | null;
+  /** Richtpreis (guide price range) from the linked catalog product — display only */
+  minPrice: string | null;
+  maxPrice: string | null;
 }
 
 export function emptyItem(): LineItem {
@@ -23,5 +26,7 @@ export function emptyItem(): LineItem {
     discount: "0",
     vatRate: DEFAULT_VAT_RATE,
     stockQuantity: null,
+    minPrice: null,
+    maxPrice: null,
   };
 }

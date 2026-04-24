@@ -420,6 +420,9 @@ export async function searchProducts(
       vatRate: products.vatRate,
       unit: products.unit,
       stockQuantity: products.stockQuantity,
+      isPriceFlexible: products.isPriceFlexible,
+      minPrice: products.minPrice,
+      maxPrice: products.maxPrice,
     })
     .from(products)
     .where(

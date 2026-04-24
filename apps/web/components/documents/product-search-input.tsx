@@ -29,6 +29,10 @@ interface ProductResult {
   inventoryItemId?: string | null;
   productId?: string | null;
   condition?: string;
+  /** Richtpreis (guide price range) — catalog products only */
+  isPriceFlexible?: boolean;
+  minPrice?: string | null;
+  maxPrice?: string | null;
 }
 
 interface ProductSearchInputProps {
@@ -107,6 +111,9 @@ export function ProductSearchInput({
         sellable.kind === "product" ? sellable.id : sellable.productId || null,
       inventoryItemId: sellable.kind === "inventory_item" ? sellable.id : null,
       condition: sellable.condition,
+      isPriceFlexible: sellable.isPriceFlexible,
+      minPrice: sellable.minPrice,
+      maxPrice: sellable.maxPrice,
     });
     setShowDropdown(false);
     setResults([]);
@@ -184,10 +191,19 @@ export function ProductSearchInput({
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-0.5 shrink-0 text-xs">
-                    {sellable.price && (
+                    {sellable.isPriceFlexible &&
+                    sellable.minPrice &&
+                    sellable.maxPrice ? (
                       <span className="text-foreground font-medium">
-                        {formatCurrency(sellable.price)}
+                        {formatCurrency(sellable.minPrice)} –{" "}
+                        {formatCurrency(sellable.maxPrice)}
                       </span>
+                    ) : (
+                      sellable.price && (
+                        <span className="text-foreground font-medium">
+                          {formatCurrency(sellable.price)}
+                        </span>
+                      )
                     )}
                     {!isInventoryItem &&
                       sellable.stockQuantity !== null &&

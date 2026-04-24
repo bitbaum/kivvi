@@ -294,6 +294,7 @@
     "quantity": "Quantity",
     "unitPrice": "Unit Price",
     "discount": "Discount",
+    "flexPriceHint": "Guide price",
     "outOfStock": "Out of stock",
     "onlyXAvailable": "Only {count} available",
     "inStock": "{count} in stock",

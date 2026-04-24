@@ -70,6 +70,8 @@ export function EditDocumentForm({
         discount: "0",
         vatRate: DEFAULT_VAT_RATE,
         stockQuantity: null,
+        minPrice: null,
+        maxPrice: null,
       },
     ]);
 
