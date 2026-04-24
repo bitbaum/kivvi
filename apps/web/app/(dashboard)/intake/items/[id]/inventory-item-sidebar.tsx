@@ -103,7 +103,16 @@ export async function InventoryItemSidebar({
               <User className="h-4 w-4 text-muted-foreground" />
               <span>
                 {ti("donor")}:{" "}
-                <span className="font-medium">{item.donorName}</span>
+                {item.donorContactId ? (
+                  <Link
+                    href={`/contacts/${item.donorContactId}`}
+                    className="font-medium text-primary hover:underline"
+                  >
+                    {item.donorName}
+                  </Link>
+                ) : (
+                  <span className="font-medium">{item.donorName}</span>
+                )}
               </span>
             </div>
           )}
