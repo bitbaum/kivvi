@@ -1378,7 +1378,15 @@
     "noPurchaseVatEntries": "Aucune TVA sur achats pour cette période.",
     "fromInvoices": "sur {count} factures",
     "creditNotesCount": "{count} avoirs",
-    "balanceEquation": "Total actifs ({assets}) = Total passifs ({liabilities}) + Capitaux propres ({equity}) + Report à nouveau ({earnings})"
+    "balanceEquation": "Total actifs ({assets}) = Total passifs ({liabilities}) + Capitaux propres ({equity}) + Report à nouveau ({earnings})",
+    "salesByCategory": "Ventes par catégorie",
+    "salesByCategoryDesc": "Répartition du chiffre d'affaires brut par catégorie de produit pour la période sélectionnée.",
+    "categoryName": "Catégorie",
+    "categoryRevenue": "Chiffre d'affaires",
+    "categoryItems": "Lignes",
+    "categoryShare": "Part",
+    "uncategorized": "Sans catégorie",
+    "noCategoryData": "Aucune donnée par catégorie pour cette période."
   },
   "dunning": {
     "title": "Relances",

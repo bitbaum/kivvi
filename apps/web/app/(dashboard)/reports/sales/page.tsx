@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, BarChart3, FileText, TrendingUp } from "lucide-react";
+import { ArrowLeft, BarChart3, LayoutGrid, TrendingUp } from "lucide-react";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { getSalesReport } from "@kivvi/core";
@@ -177,6 +177,69 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
               </tfoot>
             </table>
           </div>
+
+          {/* Category Breakdown */}
+          {report.byCategory.length > 0 && (
+            <div className="border-t">
+              <div className="flex items-center gap-2 border-b p-4">
+                <LayoutGrid className="h-5 w-5 text-primary" />
+                <div>
+                  <h2 className="font-semibold">{t("salesByCategory")}</h2>
+                  <p className="text-xs text-muted-foreground">
+                    {t("salesByCategoryDesc")}
+                  </p>
+                </div>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                      <th className="px-4 py-3 md:px-6">{t("categoryName")}</th>
+                      <th className="hidden px-4 py-3 text-right sm:table-cell md:px-6">
+                        {t("categoryItems")}
+                      </th>
+                      <th className="px-4 py-3 text-right md:px-6">
+                        {t("categoryRevenue")}
+                      </th>
+                      <th className="px-4 py-3 text-right md:px-6">
+                        {t("categoryShare")}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y">
+                    {report.byCategory.map((row) => (
+                      <tr key={row.groupName} className="hover:bg-muted/50">
+                        <td className="px-4 py-3 font-medium md:px-6">
+                          {row.groupName === "Uncategorized"
+                            ? t("uncategorized")
+                            : row.groupName}
+                        </td>
+                        <td className="hidden px-4 py-3 text-right text-muted-foreground sm:table-cell md:px-6">
+                          {row.itemCount}
+                        </td>
+                        <td className="px-4 py-3 text-right md:px-6">
+                          {formatCurrency(row.revenue)}
+                        </td>
+                        <td className="px-4 py-3 text-right md:px-6">
+                          <div className="flex items-center justify-end gap-2">
+                            <div className="hidden w-20 overflow-hidden rounded-full bg-muted sm:block">
+                              <div
+                                className="h-1.5 rounded-full bg-primary"
+                                style={{ width: `${row.percentage}%` }}
+                              />
+                            </div>
+                            <span className="tabular-nums">
+                              {row.percentage}%
+                            </span>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
 
           {/* Summary Cards */}
           <div className="border-t p-6">

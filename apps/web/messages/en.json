@@ -1378,7 +1378,15 @@
     "noPurchaseVatEntries": "No purchase VAT entries for this period.",
     "fromInvoices": "from {count} invoices",
     "creditNotesCount": "{count} credit notes",
-    "balanceEquation": "Total Assets ({assets}) = Total Liabilities ({liabilities}) + Total Equity ({equity}) + Retained Earnings ({earnings})"
+    "balanceEquation": "Total Assets ({assets}) = Total Liabilities ({liabilities}) + Total Equity ({equity}) + Retained Earnings ({earnings})",
+    "salesByCategory": "Sales by Category",
+    "salesByCategoryDesc": "Gross revenue breakdown by product category for the selected period.",
+    "categoryName": "Category",
+    "categoryRevenue": "Revenue",
+    "categoryItems": "Line Items",
+    "categoryShare": "Share",
+    "uncategorized": "Uncategorized",
+    "noCategoryData": "No category data for this period."
   },
   "dunning": {
     "title": "Dunning",

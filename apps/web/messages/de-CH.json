@@ -1378,7 +1378,15 @@
     "noPurchaseVatEntries": "Keine Vorsteuer-Einträge in diesem Zeitraum.",
     "fromInvoices": "aus {count} Rechnungen",
     "creditNotesCount": "{count} Gutschriften",
-    "balanceEquation": "Total Aktiven ({assets}) = Total Passiven ({liabilities}) + Eigenkapital ({equity}) + Gewinnvortrag ({earnings})"
+    "balanceEquation": "Total Aktiven ({assets}) = Total Passiven ({liabilities}) + Eigenkapital ({equity}) + Gewinnvortrag ({earnings})",
+    "salesByCategory": "Umsatz nach Kategorie",
+    "salesByCategoryDesc": "Aufschlüsselung des Bruttoumsatzes pro Produktkategorie im gewählten Zeitraum.",
+    "categoryName": "Kategorie",
+    "categoryRevenue": "Umsatz",
+    "categoryItems": "Positionen",
+    "categoryShare": "Anteil",
+    "uncategorized": "Ohne Kategorie",
+    "noCategoryData": "Keine Kategoriedaten für diesen Zeitraum."
   },
   "dunning": {
     "title": "Mahnwesen",
