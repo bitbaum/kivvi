@@ -1229,7 +1229,12 @@
     "metricDays": "days on average",
     "bulkSetPrice": "Set price...",
     "selectProductRequired": "Please select a product",
-    "allFieldsRequired": "All required fields must be filled in"
+    "allFieldsRequired": "All required fields must be filled in",
+    "sendDonationReceipt": "Send receipt by email",
+    "donationReceiptSent": "Receipt sent",
+    "donationReceiptSending": "Sending…",
+    "donationReceiptError": "Could not send receipt",
+    "donationReceiptNoDonorEmail": "Donor has no email address"
   },
   "checklist": {
     "categoryLaptop": "Laptop",

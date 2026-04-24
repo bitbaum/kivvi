@@ -17,6 +17,7 @@ import {
 } from "@/lib/config/inventory-items";
 import { getChecklistTemplate } from "@kivvi/core/src/config/checklist-templates";
 import type { ChecklistData } from "@kivvi/core/src/config/checklist-templates";
+import { SendReceiptButton } from "./send-receipt-button";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -73,15 +74,18 @@ export default async function IntakeDetailPage({ params }: PageProps) {
                 </Link>
               )}
               {doc.intakeSource === "donation" && (
-                <a
-                  href={`/api/intake/${id}/receipt`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium hover:bg-muted transition-colors"
-                >
-                  <FileText className="h-3.5 w-3.5" />
-                  {ti("donationReceipt")}
-                </a>
+                <>
+                  <a
+                    href={`/api/intake/${id}/receipt`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium hover:bg-muted transition-colors"
+                  >
+                    <FileText className="h-3.5 w-3.5" />
+                    {ti("donationReceipt")}
+                  </a>
+                  <SendReceiptButton intakeId={id} />
+                </>
               )}
             </div>
           </div>

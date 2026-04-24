@@ -1229,7 +1229,12 @@
     "metricDays": "jours en moyenne",
     "bulkSetPrice": "Définir le prix...",
     "selectProductRequired": "Veuillez sélectionner un produit",
-    "allFieldsRequired": "Tous les champs obligatoires doivent être remplis"
+    "allFieldsRequired": "Tous les champs obligatoires doivent être remplis",
+    "sendDonationReceipt": "Envoyer le reçu par e-mail",
+    "donationReceiptSent": "Reçu envoyé",
+    "donationReceiptSending": "Envoi en cours…",
+    "donationReceiptError": "Impossible d'envoyer le reçu",
+    "donationReceiptNoDonorEmail": "Le donateur n'a pas d'adresse e-mail"
   },
   "checklist": {
     "categoryLaptop": "Ordinateur portable",
