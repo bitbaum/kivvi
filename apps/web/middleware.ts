@@ -26,6 +26,7 @@ const PUBLIC_PREFIXES = [
   "/about",
   "/impressum",
   "/datenschutz",
+  "/shop",
 ];
 
 function getClientIp(req: { headers: Headers }): string {

@@ -90,6 +90,7 @@ export const invitationStatusEnum = pgEnum("invitation_status", [
 export const companies = pgTable("companies", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
+  slug: text("slug").unique(),
   legalName: text("legal_name"),
   vatNumber: text("vat_number"),
   address: text("address"),

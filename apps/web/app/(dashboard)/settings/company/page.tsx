@@ -10,6 +10,7 @@ import { getTranslations } from "next-intl/server";
 import { DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
 import { CompanyForm } from "./company-form";
 import { Co2FactorsSection } from "./co2-factors-section";
+import { ShopUrlSection } from "./shop-url-section";
 
 export default async function CompanySettingsPage() {
   const session = await getSessionOrRedirect();
@@ -65,6 +66,8 @@ export default async function CompanySettingsPage() {
           aiApiKey: settings.aiApiKey ? "********" : "",
         }}
       />
+
+      <ShopUrlSection currentSlug={company.slug ?? null} />
 
       <Co2FactorsSection initialFactors={settings.co2FactorsKg} />
     </div>

@@ -114,6 +114,50 @@ export const updateCompanyAction = createAction<unknown, unknown>({
 });
 
 // ============================================================================
+// COMPANY SHOP SLUG
+// ============================================================================
+
+export async function updateCompanySlugAction(
+  slug: string | null,
+): Promise<ActionResult<{ slug: string | null }>> {
+  try {
+    const { companyId } = await requireRole("admin");
+
+    // Sanitize: lowercase, alphanumeric + hyphens, max 80 chars
+    const cleanSlug = slug
+      ? slug
+          .trim()
+          .toLowerCase()
+          .replace(/[^a-z0-9-]/g, "-")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "")
+          .slice(0, 80)
+      : null;
+
+    const [updated] = await db
+      .update(companies)
+      .set({ slug: cleanSlug, updatedAt: new Date() })
+      .where(eq(companies.id, companyId))
+      .returning({ slug: companies.slug });
+
+    revalidatePath("/settings/company");
+    return { success: true, data: { slug: updated?.slug ?? null } };
+  } catch (error) {
+    // Unique constraint violation
+    if (error instanceof Error && error.message.includes("unique")) {
+      return {
+        success: false,
+        error: "Dieser Shop-Name ist bereits vergeben.",
+      };
+    }
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Fehler beim Speichern der Shop-URL."),
+    };
+  }
+}
+
+// ============================================================================
 // COMPANY LOGO
 // ============================================================================
 
