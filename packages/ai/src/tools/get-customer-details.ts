@@ -1,37 +1,55 @@
-import { z } from 'zod';
-import Decimal from 'decimal.js';
-import type { Tool, ExecutionContext, ToolResult } from '../types';
-import { getContact } from '@kivvi/core';
-import { getDb } from './utils';
+import { z } from "zod";
+import Decimal from "decimal.js";
+import type { Tool, ExecutionContext, ToolResult } from "../types";
+import { getContact, getImpactMetrics } from "@kivvi/core";
+import { getDb } from "./utils";
 
 const getCustomerDetailsSchema = z.object({
-  customerId: z.string().uuid().describe('The UUID of the customer/contact to retrieve'),
+  customerId: z
+    .string()
+    .uuid()
+    .describe("The UUID of the customer/contact to retrieve"),
 });
 
 export const getCustomerDetailsTool: Tool = {
-  name: 'get_customer_details',
-  description: `Get detailed information about a specific customer or vendor including their address, contact info, payment terms, and recent document history. Requires the customer ID.`,
+  name: "get_customer_details",
+  description: `Get detailed information about a specific customer, vendor, or donor including their address, contact info, payment terms, recent document history, and (for donors) the number of items donated, reuse rate, and CO2 impact. Requires the customer ID.`,
   parameters: getCustomerDetailsSchema,
-  requiredPermissions: ['contact:read'],
-  execute: async (params: z.infer<typeof getCustomerDetailsSchema>, context: ExecutionContext): Promise<ToolResult> => {
+  requiredPermissions: ["contact:read"],
+  execute: async (
+    params: z.infer<typeof getCustomerDetailsSchema>,
+    context: ExecutionContext,
+  ): Promise<ToolResult> => {
     try {
       const db = getDb(context);
 
-      const result = await getContact(db, context.companyId, params.customerId);
+      const [result, donorImpact] = await Promise.all([
+        getContact(db, context.companyId, params.customerId),
+        getImpactMetrics(db, context.companyId, {
+          donorContactId: params.customerId,
+        }),
+      ]);
 
       if (!result) {
         return {
           success: false,
-          error: 'Customer not found or you do not have access.',
+          error: "Customer not found or you do not have access.",
         };
       }
 
       const { contact, addresses, recentDocuments } = result;
 
-      const invoices = recentDocuments.filter((d) => d.type === 'invoice');
-      const totalRevenue = invoices.reduce((sum, inv) => sum.plus(inv.total || '0'), new Decimal(0));
-      const unpaidInvoices = invoices.filter((inv) => inv.status !== 'paid' && inv.status !== 'cancelled');
-      const overdueInvoices = unpaidInvoices.filter((inv) => inv.issueDate && new Date(inv.issueDate) < new Date());
+      const invoices = recentDocuments.filter((d) => d.type === "invoice");
+      const totalRevenue = invoices.reduce(
+        (sum, inv) => sum.plus(inv.total || "0"),
+        new Decimal(0),
+      );
+      const unpaidInvoices = invoices.filter(
+        (inv) => inv.status !== "paid" && inv.status !== "cancelled",
+      );
+      const overdueInvoices = unpaidInvoices.filter(
+        (inv) => inv.issueDate && new Date(inv.issueDate) < new Date(),
+      );
 
       return {
         success: true,
@@ -67,7 +85,9 @@ export const getCustomerDetailsTool: Tool = {
             vatNumber: contact.vatNumber,
             iban: contact.iban,
             paymentTermsDays: contact.paymentTermsDays,
-            creditLimit: contact.creditLimit ? new Decimal(contact.creditLimit).toNumber() : null,
+            creditLimit: contact.creditLimit
+              ? new Decimal(contact.creditLimit).toNumber()
+              : null,
           },
           stats: {
             totalInvoices: invoices.length,
@@ -75,13 +95,22 @@ export const getCustomerDetailsTool: Tool = {
             unpaidCount: unpaidInvoices.length,
             overdueCount: overdueInvoices.length,
           },
+          donorImpact:
+            donorImpact.itemsProcessed > 0
+              ? {
+                  itemsDonated: donorImpact.itemsProcessed,
+                  itemsReused: donorImpact.itemsReused,
+                  reuseRate: `${donorImpact.reuseRatePercent}%`,
+                  co2AvoidedKg: donorImpact.co2AvoidedKg,
+                }
+              : null,
           recentDocuments: recentDocuments.slice(0, 5).map((doc) => ({
             id: doc.id,
             number: doc.number,
             type: doc.type,
             status: doc.status,
-            date: doc.issueDate.toISOString().split('T')[0],
-            total: `${context.defaultCurrency} ${new Decimal(doc.total || '0').toFixed(2)}`,
+            date: doc.issueDate.toISOString().split("T")[0],
+            total: `${context.defaultCurrency} ${new Decimal(doc.total || "0").toFixed(2)}`,
           })),
           notes: contact.notes,
           language: contact.language,
@@ -90,7 +119,7 @@ export const getCustomerDetailsTool: Tool = {
     } catch (error) {
       return {
         success: false,
-        error: `Failed to get customer details: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        error: `Failed to get customer details: ${error instanceof Error ? error.message : "Unknown error"}`,
       };
     }
   },
