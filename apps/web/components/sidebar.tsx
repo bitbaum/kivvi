@@ -22,6 +22,7 @@ import {
   BarChart3,
   FolderKanban,
   X,
+  ShoppingBag,
 } from "lucide-react";
 import { KivviLogo } from "@/components/kivvi-logo";
 import { CompanySwitcher } from "@/components/sidebar/company-switcher";
@@ -66,6 +67,7 @@ const primaryNavigation: NavItem[] = [
     badgeKey: "repair",
     badgeVariant: "warning",
   },
+  { nameKey: "pos", href: "/pos", icon: ShoppingBag },
   {
     nameKey: "inventory",
     href: "/inventory",

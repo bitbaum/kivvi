@@ -187,7 +187,8 @@
     "fiscalYears": "Exercices fiscaux",
     "warehouses": "Entrepôts",
     "stockMovements": "Mouvements de stock",
-    "deliveryNotes": "Bons de livraison"
+    "deliveryNotes": "Bons de livraison",
+    "pos": "Caisse"
   },
   "status": {
     "draft": "Brouillon",
@@ -1257,7 +1258,21 @@
     "quickSave": "Enregistrer l'article",
     "quickSaving": "Enregistrement…",
     "quickSubmitError": "Impossible de créer l'article",
-    "descriptionRequired": "La description est requise"
+    "descriptionRequired": "La description est requise",
+    "posTitle": "Point de vente",
+    "posSearchItems": "Rechercher des articles…",
+    "posCart": "Panier",
+    "posEmptyCart": "Le panier est vide",
+    "posSearchHint": "Recherchez des articles ci-dessus",
+    "posPaymentMethod": "Mode de paiement",
+    "posCash": "Espèces",
+    "posCard": "Carte",
+    "posTwint": "TWINT",
+    "posCompleteSale": "Finaliser la vente",
+    "posSaleComplete": "Vente finalisée",
+    "posInvoiceNumber": "Facture {number}",
+    "posViewInvoice": "Voir la facture",
+    "posNewSale": "Nouvelle vente"
   },
   "checklist": {
     "categoryLaptop": "Ordinateur portable",

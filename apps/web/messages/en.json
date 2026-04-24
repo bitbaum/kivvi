@@ -187,7 +187,8 @@
     "fiscalYears": "Fiscal Years",
     "warehouses": "Warehouses",
     "stockMovements": "Stock Movements",
-    "deliveryNotes": "Delivery Notes"
+    "deliveryNotes": "Delivery Notes",
+    "pos": "POS"
   },
   "status": {
     "draft": "Draft",
@@ -1257,7 +1258,21 @@
     "quickSave": "Save item",
     "quickSaving": "Saving…",
     "quickSubmitError": "Could not create item",
-    "descriptionRequired": "Description is required"
+    "descriptionRequired": "Description is required",
+    "posTitle": "Point of Sale",
+    "posSearchItems": "Search items…",
+    "posCart": "Cart",
+    "posEmptyCart": "Cart is empty",
+    "posSearchHint": "Search for items above",
+    "posPaymentMethod": "Payment method",
+    "posCash": "Cash",
+    "posCard": "Card",
+    "posTwint": "TWINT",
+    "posCompleteSale": "Complete sale",
+    "posSaleComplete": "Sale complete",
+    "posInvoiceNumber": "Invoice {number}",
+    "posViewInvoice": "View invoice",
+    "posNewSale": "New sale"
   },
   "checklist": {
     "categoryLaptop": "Laptop",

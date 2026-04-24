@@ -187,7 +187,8 @@
     "fiscalYears": "Geschäftsjahre",
     "warehouses": "Lagerhäuser",
     "stockMovements": "Lagerbewegungen",
-    "deliveryNotes": "Lieferscheine"
+    "deliveryNotes": "Lieferscheine",
+    "pos": "Kasse"
   },
   "status": {
     "draft": "Entwurf",
@@ -1257,7 +1258,21 @@
     "quickSave": "Artikel erfassen",
     "quickSaving": "Wird gespeichert…",
     "quickSubmitError": "Artikel konnte nicht erstellt werden",
-    "descriptionRequired": "Beschreibung ist erforderlich"
+    "descriptionRequired": "Beschreibung ist erforderlich",
+    "posTitle": "Kasse",
+    "posSearchItems": "Artikel suchen…",
+    "posCart": "Warenkorb",
+    "posEmptyCart": "Warenkorb ist leer",
+    "posSearchHint": "Suchen Sie nach Artikeln oben",
+    "posPaymentMethod": "Zahlungsart",
+    "posCash": "Bargeld",
+    "posCard": "Karte",
+    "posTwint": "TWINT",
+    "posCompleteSale": "Verkauf abschliessen",
+    "posSaleComplete": "Verkauf abgeschlossen",
+    "posInvoiceNumber": "Rechnung {number}",
+    "posViewInvoice": "Rechnung anzeigen",
+    "posNewSale": "Neuer Verkauf"
   },
   "checklist": {
     "categoryLaptop": "Laptop",
