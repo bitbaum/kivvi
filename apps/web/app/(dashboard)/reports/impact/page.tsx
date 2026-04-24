@@ -10,7 +10,7 @@ import { getTranslations } from "next-intl/server";
 import { getImpactMetrics } from "@kivvi/core/src/domain/impact";
 import { getChecklistTemplate } from "@kivvi/core/src/config/checklist-templates";
 import { PageHeader } from "@/components/page-header";
-import { CO2_FACTORS_KG } from "@/lib/config/co2-factors";
+import { CO2_FACTORS_KG } from "@kivvi/core/src/config/co2-factors";
 import { ImpactPdfDownload } from "./impact-pdf-download";
 
 export const metadata: Metadata = {

@@ -8,7 +8,7 @@ import { ItemTimeline } from "@/components/inventory/item-timeline";
 import { ItemPricingCard } from "@/components/inventory/item-pricing-card";
 import { PrintLabelsButton } from "@/app/(dashboard)/intake/[id]/labels/print-button";
 import { getConditionLabelKey } from "@/lib/config/inventory-items";
-import { getCo2Factor } from "@/lib/config/co2-factors";
+import { getCo2Factor } from "@kivvi/core/src/config/co2-factors";
 import type { getInventoryItem, listRepairParts } from "@kivvi/core";
 
 type InventoryItem = NonNullable<Awaited<ReturnType<typeof getInventoryItem>>>;

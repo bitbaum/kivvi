@@ -16,6 +16,7 @@
  *
  * SSOT: These keys must match ITEM_CATEGORIES from checklist-templates.ts.
  * When adding a new category there, add a CO2 factor here too.
+ * The invariant is enforced by packages/core/src/__tests__/co2-factors.test.ts.
  */
 export const CO2_FACTORS_KG: Record<string, number> = {
   laptop: 300,

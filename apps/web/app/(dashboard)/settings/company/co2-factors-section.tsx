@@ -5,7 +5,7 @@ import { Leaf, RotateCcw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { updateCo2FactorsAction } from "@/app/actions/settings";
-import { CO2_FACTORS_KG } from "@/lib/config/co2-factors";
+import { CO2_FACTORS_KG } from "@kivvi/core/src/config/co2-factors";
 import { getChecklistTemplate } from "@kivvi/core/src/config/checklist-templates";
 
 interface Co2FactorsSectionProps {

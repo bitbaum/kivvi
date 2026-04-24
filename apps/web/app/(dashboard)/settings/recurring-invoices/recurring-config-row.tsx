@@ -56,7 +56,7 @@ export function RecurringConfigRow({
         toast.error(result.error || tc("error"));
       }
     } catch {
-      toast.error("An error occurred");
+      toast.error(tc("error"));
     } finally {
       setIsDeleting(false);
       setShowDeleteConfirm(false);
@@ -80,8 +80,8 @@ export function RecurringConfigRow({
       } else {
         toast.error(result.error || tc("error"));
       }
-    } catch (error) {
-      toast.error("An error occurred");
+    } catch {
+      toast.error(tc("error"));
     } finally {
       setIsToggling(false);
     }
