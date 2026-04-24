@@ -854,6 +854,10 @@ export const inventoryItems = pgTable(
     // Tracking
     serialNumber: text("serial_number"),
     location: text("location"), // Shelf/bin within warehouse
+    // External marketplace listing (Ricardo.ch etc.)
+    externalListingUrl: text("external_listing_url"),
+    externalListingId: text("external_listing_id"),
+    externalListingStatus: text("external_listing_status"), // "active" | "sold" | "expired" | "removed"
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -1740,6 +1744,8 @@ export interface CompanySettings {
   defaultDocumentFooter?: string;
   /** CO2 savings factors (kg) per item category — overrides the app defaults */
   co2FactorsKg?: Record<string, number>;
+  /** Ricardo.ch seller API key for publishing items to the marketplace */
+  ricardoApiKey?: string;
 }
 
 // Inferred types from schema — use these throughout the app

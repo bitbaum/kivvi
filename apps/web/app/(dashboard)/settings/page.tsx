@@ -11,6 +11,7 @@ import {
   Database,
   Key,
   Users,
+  Plug,
 } from "lucide-react";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
@@ -75,6 +76,12 @@ export default async function SettingsPage() {
       subtitle: t("team.settingsDesc"),
       href: "/settings/team",
       icon: Users,
+    },
+    {
+      title: "Integrationen",
+      subtitle: "Ricardo.ch und weitere Marktplätze",
+      href: "/settings/integrations",
+      icon: Plug,
     },
   ];
 

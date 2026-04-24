@@ -12,7 +12,11 @@ import {
 import { getTranslations } from "next-intl/server";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
+import { companies } from "@kivvi/database";
+import type { CompanySettings } from "@kivvi/database";
+import { eq } from "drizzle-orm";
 import { getInventoryItem, listRepairParts } from "@kivvi/core";
+import { RicardoButton } from "./ricardo-button";
 import { isValidUUID } from "@/lib/utils";
 import { DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
 import {
@@ -50,10 +54,18 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
   const { id } = await params;
   if (!isValidUUID(id)) notFound();
 
-  const [item, repairPartsList] = await Promise.all([
+  const [item, repairPartsList, companyRow] = await Promise.all([
     getInventoryItem(db, session.user.companyId, id),
     listRepairParts(db, session.user.companyId, id),
+    db
+      .select({ settings: companies.settings })
+      .from(companies)
+      .where(eq(companies.id, session.user.companyId))
+      .then((r) => r[0]),
   ]);
+
+  const hasRicardoKey = !!(companyRow?.settings as CompanySettings | undefined)
+    ?.ricardoApiKey;
   if (!item) notFound();
 
   const specs = (item.specs as Record<string, string>) || {};
@@ -147,6 +159,13 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
               <Pencil className="h-4 w-4" />
               {tc("edit")}
             </Link>
+            {isSellable && hasRicardoKey && (
+              <RicardoButton
+                itemId={id}
+                externalListingUrl={item.externalListingUrl ?? null}
+                externalListingStatus={item.externalListingStatus ?? null}
+              />
+            )}
             {isSellable && (
               <Link
                 href={sellHref}

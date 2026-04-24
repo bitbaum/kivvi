@@ -1,6 +1,7 @@
 "use server";
 
 import { z } from "zod";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   createInventoryItem,
@@ -26,6 +27,7 @@ import {
   ITEM_STATUS_VALUES,
   ITEM_CONDITION_VALUES,
 } from "@kivvi/database/src/enums";
+import { inventoryItems } from "@kivvi/database";
 import {
   type ActionResult,
   requireRole,
