@@ -1,11 +1,13 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { getSessionOrRedirect } from "@/lib/session";
+import { getTranslations } from "next-intl/server";
 import { listWebhookEndpointsAction } from "@/app/actions/webhooks";
 import { WebhooksPanel } from "./webhooks-panel";
 
 export default async function WebhooksSettingsPage() {
   await getSessionOrRedirect();
+  const t = await getTranslations("settings.webhooks");
   const result = await listWebhookEndpointsAction();
   const endpoints = result.success ? (result.data ?? []) : [];
 
@@ -19,10 +21,8 @@ export default async function WebhooksSettingsPage() {
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold">Webhooks</h1>
-          <p className="text-sm text-muted-foreground">
-            Benachrichtige externe Systeme bei Ereignissen in Kivvi
-          </p>
+          <h1 className="text-2xl font-bold">{t("title")}</h1>
+          <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
       </div>
 

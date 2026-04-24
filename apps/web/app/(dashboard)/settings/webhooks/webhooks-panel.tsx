@@ -13,6 +13,7 @@ import {
   EyeOff,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTranslations } from "next-intl";
 import { WEBHOOK_EVENT_VALUES } from "@kivvi/database";
 import type { WebhookEndpoint, WebhookEvent } from "@kivvi/database";
 import {
@@ -20,15 +21,6 @@ import {
   deleteWebhookEndpointAction,
   toggleWebhookEndpointAction,
 } from "@/app/actions/webhooks";
-
-const EVENT_LABELS: Record<WebhookEvent, string> = {
-  "inventory_item.created": "Artikel erstellt",
-  "inventory_item.updated": "Artikel aktualisiert",
-  "inventory_item.status_changed": "Artikel-Status geändert",
-  "document.created": "Dokument erstellt",
-  "document.status_changed": "Dokument-Status geändert",
-  "payment.received": "Zahlung eingegangen",
-};
 
 function generateSecret(): string {
   const bytes = new Uint8Array(24);
@@ -43,6 +35,7 @@ interface Props {
 }
 
 export function WebhooksPanel({ initialEndpoints }: Props) {
+  const t = useTranslations("settings.webhooks");
   const [endpoints, setEndpoints] = useState(initialEndpoints);
   const [showForm, setShowForm] = useState(false);
   const [formState, setFormState] = useState({
@@ -56,16 +49,24 @@ export function WebhooksPanel({ initialEndpoints }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  const EVENT_LABELS: Record<WebhookEvent, string> = {
+    "inventory_item.created": t("eventItemCreated"),
+    "inventory_item.updated": t("eventItemUpdated"),
+    "inventory_item.status_changed": t("eventItemStatusChanged"),
+    "document.created": t("eventDocumentCreated"),
+    "document.status_changed": t("eventDocumentStatusChanged"),
+    "payment.received": t("eventPaymentReceived"),
+  };
+
   async function handleCreate() {
     setSaving(true);
     setError(null);
     const result = await createWebhookEndpointAction(formState);
     setSaving(false);
     if (!result.success) {
-      setError(result.error ?? "Fehler beim Erstellen");
+      setError(result.error ?? t("createError"));
       return;
     }
-    // Refresh by adding optimistic entry
     setEndpoints((prev) => [
       ...prev,
       {
@@ -115,15 +116,13 @@ export function WebhooksPanel({ initialEndpoints }: Props) {
     <div className="space-y-4">
       {/* Explanation */}
       <div className="rounded-xl border bg-card p-5">
-        <h2 className="font-semibold">Wie Webhooks funktionieren</h2>
+        <h2 className="font-semibold">{t("howItWorks")}</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Kivvi sendet einen signierten POST-Request an deine URL, wenn ein
-          Event auftritt. Verifiziere die Signatur mit dem Secret via
-          HMAC-SHA256 (Header:{" "}
+          {t("howItWorksDesc")} (Header:{" "}
           <code className="rounded bg-muted px-1 py-0.5 text-xs">
             X-Kivvi-Signature
           </code>
-          ).
+          )
         </p>
       </div>
 
@@ -140,12 +139,12 @@ export function WebhooksPanel({ initialEndpoints }: Props) {
                     {ep.isActive ? (
                       <span className="flex items-center gap-1 rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
                         <CheckCircle2 className="h-3 w-3" />
-                        Aktiv
+                        {t("statusActive")}
                       </span>
                     ) : (
                       <span className="flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
                         <XCircle className="h-3 w-3" />
-                        Inaktiv
+                        {t("statusInactive")}
                       </span>
                     )}
                   </div>
@@ -169,7 +168,7 @@ export function WebhooksPanel({ initialEndpoints }: Props) {
                     size="sm"
                     onClick={() => handleToggle(ep.id, ep.isActive)}
                   >
-                    {ep.isActive ? "Deaktivieren" : "Aktivieren"}
+                    {ep.isActive ? t("deactivate") : t("activate")}
                   </Button>
                   <Button
                     variant="ghost"
@@ -190,15 +189,15 @@ export function WebhooksPanel({ initialEndpoints }: Props) {
       {endpoints.length === 0 && !showForm && (
         <div className="rounded-xl border bg-card p-10 text-center text-muted-foreground">
           <Globe className="mx-auto mb-3 h-8 w-8 opacity-40" />
-          <p className="text-sm">Noch keine Webhook-Endpunkte konfiguriert</p>
+          <p className="text-sm">{t("emptyState")}</p>
         </div>
       )}
 
       {/* Add form */}
       {showForm ? (
-        <div className="rounded-xl border bg-card p-5 space-y-4">
+        <div className="space-y-4 rounded-xl border bg-card p-5">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold">Neuer Endpunkt</h3>
+            <h3 className="font-semibold">{t("newEndpoint")}</h3>
             <Button
               variant="ghost"
               size="sm"
@@ -210,34 +209,34 @@ export function WebhooksPanel({ initialEndpoints }: Props) {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium mb-1">Name</label>
+              <label className="mb-1 block text-sm font-medium">Name</label>
               <input
                 type="text"
                 value={formState.name}
                 onChange={(e) =>
                   setFormState((p) => ({ ...p, name: e.target.value }))
                 }
-                placeholder="Mein System"
+                placeholder={t("namePlaceholder")}
                 className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">URL</label>
+              <label className="mb-1 block text-sm font-medium">URL</label>
               <input
                 type="url"
                 value={formState.url}
                 onChange={(e) =>
                   setFormState((p) => ({ ...p, url: e.target.value }))
                 }
-                placeholder="https://mein-system.ch/webhooks/kivvi"
+                placeholder="https://example.com/webhooks/kivvi"
                 className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Secret</label>
+            <label className="mb-1 block text-sm font-medium">Secret</label>
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <input
@@ -246,7 +245,7 @@ export function WebhooksPanel({ initialEndpoints }: Props) {
                   onChange={(e) =>
                     setFormState((p) => ({ ...p, secret: e.target.value }))
                   }
-                  className="w-full rounded-lg border bg-background px-3 py-2 pr-10 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full rounded-lg border bg-background px-3 py-2 pr-10 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 />
                 <button
                   type="button"
@@ -267,17 +266,16 @@ export function WebhooksPanel({ initialEndpoints }: Props) {
                   setFormState((p) => ({ ...p, secret: generateSecret() }))
                 }
               >
-                Neu generieren
+                {t("regenerate")}
               </Button>
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
-              Dieses Secret wird nur jetzt angezeigt — kopiere es, bevor du
-              speicherst.
+              {t("secretHint")}
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Events</label>
+            <label className="mb-2 block text-sm font-medium">Events</label>
             <div className="grid gap-2 sm:grid-cols-2">
               {WEBHOOK_EVENT_VALUES.map((ev) => (
                 <label
@@ -300,7 +298,7 @@ export function WebhooksPanel({ initialEndpoints }: Props) {
 
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => setShowForm(false)}>
-              Abbrechen
+              {t("cancel")}
             </Button>
             <Button
               onClick={handleCreate}
@@ -312,7 +310,7 @@ export function WebhooksPanel({ initialEndpoints }: Props) {
                 formState.events.length === 0
               }
             >
-              {saving ? "Wird gespeichert…" : "Endpunkt speichern"}
+              {saving ? t("saving") : t("save")}
             </Button>
           </div>
         </div>
@@ -323,7 +321,7 @@ export function WebhooksPanel({ initialEndpoints }: Props) {
           className="gap-2"
         >
           <Plus className="h-4 w-4" />
-          Endpunkt hinzufügen
+          {t("addEndpoint")}
         </Button>
       )}
     </div>

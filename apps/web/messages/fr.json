@@ -1834,6 +1834,32 @@
     "team": {
       "title": "Équipe",
       "settingsDesc": "Gérer les membres de l'équipe et l'accès."
+    },
+    "webhooks": {
+      "title": "Webhooks",
+      "subtitle": "Notifiez les systèmes externes lors d’événements dans Kivvi",
+      "howItWorks": "Comment fonctionnent les webhooks",
+      "howItWorksDesc": "Kivvi envoie une requête POST signée à votre URL lorsqu’un événement se produit. Vérifiez la signature avec le secret via HMAC-SHA256.",
+      "statusActive": "Actif",
+      "statusInactive": "Inactif",
+      "deactivate": "Désactiver",
+      "activate": "Activer",
+      "emptyState": "Aucun endpoint webhook configuré",
+      "newEndpoint": "Nouvel endpoint",
+      "namePlaceholder": "Mon système",
+      "secretHint": "Ce secret n’est affiché qu’une seule fois — copiez-le avant d’enregistrer.",
+      "regenerate": "Régénérer",
+      "cancel": "Annuler",
+      "saving": "Enregistrement…",
+      "save": "Enregistrer l’endpoint",
+      "addEndpoint": "Ajouter un endpoint",
+      "createError": "Erreur lors de la création",
+      "eventItemCreated": "Article créé",
+      "eventItemUpdated": "Article mis à jour",
+      "eventItemStatusChanged": "Statut de l’article modifié",
+      "eventDocumentCreated": "Document créé",
+      "eventDocumentStatusChanged": "Statut du document modifié",
+      "eventPaymentReceived": "Paiement reçu"
     }
   },
   "auth": {
