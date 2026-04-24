@@ -723,6 +723,9 @@
       "companyOrName": "z.B. Müller AG oder Hans Müller",
       "vatNumber": "CHE-123.456.789 MWST"
     },
+    "donorImpact": "Spender-Impact",
+    "donorItemsDonated": "Gespendete Artikel",
+    "donorImpactSummary": "{reused} von {total} Artikeln wiederverwendet — {co2} CO₂ vermieden",
     "addAddress": "Adresse hinzufügen",
     "noAddresses": "Keine weiteren Adressen.",
     "addressLine": "Adresse",

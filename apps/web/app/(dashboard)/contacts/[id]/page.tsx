@@ -33,6 +33,7 @@ import {
 } from "@/components/quick-actions-bar";
 import { ContactDetailSidebar } from "./contact-detail-sidebar";
 import { ContactRecentDocuments } from "./contact-recent-documents";
+import { ContactDonorImpact } from "./contact-donor-impact";
 
 interface ContactDetailPageProps {
   params: { id: string };
@@ -177,6 +178,12 @@ export default async function ContactDetailPage({
 
           {/* Addresses */}
           <AddressManager contactId={contact.id} addresses={addresses} />
+
+          {/* Donor Impact — only shows if this contact has donated items */}
+          <ContactDonorImpact
+            contactId={contact.id}
+            companyId={session.user.companyId}
+          />
 
           {/* Recent Documents */}
           <ContactRecentDocuments

@@ -114,6 +114,8 @@ export async function getImpactMetrics(
   options: {
     startDate?: Date;
     endDate?: Date;
+    /** Filter to items donated by a specific contact */
+    donorContactId?: string;
     /** Per-category CO2 factors (kg). Falls back to CO2_FACTORS_KG defaults. */
     co2FactorsKg?: Record<string, number>;
   } = {},
@@ -124,6 +126,9 @@ export async function getImpactMetrics(
   }
   if (options.endDate) {
     conditions.push(lte(inventoryItems.createdAt, options.endDate));
+  }
+  if (options.donorContactId) {
+    conditions.push(eq(inventoryItems.donorContactId, options.donorContactId));
   }
 
   const [reusedRows, recycledRows, totalRows] = await Promise.all([
