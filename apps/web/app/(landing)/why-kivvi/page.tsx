@@ -84,7 +84,7 @@ const DIMENSIONS = [
     circularReality:
       "Kreislaufbetriebe in der Schweiz haben spezifische Pflichten: Spendenrecht (Quittungsinhalt), QR-Rechnung (seit 2022 gesetzlich), MWST-Sonderregelungen für Gebrauchtware, Datenlöschzertifikate für IT.",
     kivviAnswer:
-      "QR-Rechnungen automatisch, Rappen-Rundung (0.05 CHF) korrekt, Spendenquittungen nach Schweizer Recht vorausgefüllt. Kein manueller Compliance-Aufwand.",
+      "QR-Rechnungen automatisch, Rappen-Rundung (0.05 CHF) korrekt, Spendenquittungen nach Schweizer Recht vorausgefüllt, Datenlöschzertifikate (nDSG / NIST SP 800-88) herunterladbar. Kein manueller Compliance-Aufwand.",
   },
 ];
 

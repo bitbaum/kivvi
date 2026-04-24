@@ -27,7 +27,7 @@ const PAIN_ITEMS = [
 
 const SOLUTION_ITEMS = [
   "Spendenquittung sofort bei Wareneingang generieren — konforme Vorlage, druckbereit",
-  "Jeder Donor ist im System: Kontaktdaten, Spendenhistorie, ausgestellte Quittungen",
+  "Jeder Donor im System: Kontaktdaten, Spendenhistorie und individueller CO₂-Impact auf der Kontaktseite",
   "Impact-Dashboard: Anzahl Artikel, geschätzter Wert, CO₂-Einsparung — auf Knopfdruck",
   "Wareneingang per KI-Schnelleingabe: «20 Winterjacken, 5 Fahrräder» → erfasst",
   "QR-Rechnungen automatisch für jeden Verkauf — gesetzlich korrekt, null Aufwand",

@@ -23,6 +23,7 @@ const PAIN_ITEMS = [
   "Marge pro Gerät ist eine Schätzung, keine Zahl",
   "Spendenquittungen werden manuell getippt",
   "Impact (CO₂, Geräte gerettet) lässt sich nicht messen oder belegen",
+  "Datenlöschnachweis fehlt — Unternehmenskunden verlangen Zertifikate vor dem Kauf",
   "Migration aus Kivitendo blockiert — die Daten sitzen im alten System",
 ];
 
@@ -30,7 +31,7 @@ const SOLUTION_ITEMS = [
   "Jedes Gerät hat eine eindeutige ID, Seriennummer, Zustandsbewertung und vollständige Kostenhistorie",
   "Reparaturkosten werden pro Gerät geloggt: Datum, CHF, Stunden, Notiz",
   "Marge = Verkaufspreis − (Intake-Preis + alle Reparaturkosten) — sekundengenau",
-  "Spendenquittungen bei Geräten-Eingang automatisch generiert",
+  "Datenlöschzertifikat (nDSG / NIST SP 800-88 / DIN 66399) pro Gerät als PDF — auf Knopfdruck",
   "Impact-Dashboard rechnet CO₂-Einsparung pro Gerätekategorie",
   "CSV-Import aus Kivitendo — Kontakte, Artikel, Rechnungen in einem Schritt",
 ];
