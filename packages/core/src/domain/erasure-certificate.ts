@@ -311,12 +311,23 @@ export function generateErasureCertificate(
 /**
  * Build a certificate number from item number and erasure date.
  * Format: CERT-{itemNumber}-{YYYYMMDD}
+ *
+ * Uses Europe/Zurich timezone so the date on the certificate matches
+ * the calendar date visible in Switzerland, regardless of where the
+ * server runs.
  */
 export function buildCertificateNumber(
   itemNumber: string,
   erasedAt: Date,
 ): string {
-  const d = erasedAt;
-  const date = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}`;
+  const parts = new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "Europe/Zurich",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  })
+    .format(erasedAt)
+    .split("-"); // sv-SE gives YYYY-MM-DD
+  const date = parts.join("");
   return `CERT-${itemNumber}-${date}`;
 }

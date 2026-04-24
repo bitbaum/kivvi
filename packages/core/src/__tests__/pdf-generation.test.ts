@@ -583,6 +583,15 @@ describe("buildCertificateNumber", () => {
       "CERT-IT-00001-20270101",
     );
   });
+
+  it("uses Europe/Zurich timezone — 23:30 UTC Dec 31 shows Jan 1 (CET UTC+1)", () => {
+    // 2026-12-31T23:30:00Z = 2027-01-01T00:30:00 CET
+    // A UTC-based implementation would produce 20261231; correct is 20270101
+    const date = new Date("2026-12-31T23:30:00Z");
+    expect(buildCertificateNumber("IT-00001", date)).toBe(
+      "CERT-IT-00001-20270101",
+    );
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
