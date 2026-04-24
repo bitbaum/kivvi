@@ -733,7 +733,11 @@
     "setAsDefault": "Définir par défaut",
     "addressType_billing": "Facturation",
     "addressType_shipping": "Livraison",
-    "addressType_other": "Autre"
+    "addressType_other": "Autre",
+    "donatedItemsTitle": "Articles donnés",
+    "donatedItemsAndMore": "+ {count} de plus",
+    "viewAllDonatedItems": "Voir les {count} articles",
+    "donatedItemsEmpty": "Aucun article donné par ce contact pour l'instant."
   },
   "products": {
     "title": "Produits",

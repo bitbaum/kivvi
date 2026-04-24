@@ -733,7 +733,11 @@
     "setAsDefault": "Set as default",
     "addressType_billing": "Billing",
     "addressType_shipping": "Shipping",
-    "addressType_other": "Other"
+    "addressType_other": "Other",
+    "donatedItemsTitle": "Donated Items",
+    "donatedItemsAndMore": "+ {count} more",
+    "viewAllDonatedItems": "View all {count} items",
+    "donatedItemsEmpty": "No items donated by this contact yet."
   },
   "products": {
     "title": "Products",

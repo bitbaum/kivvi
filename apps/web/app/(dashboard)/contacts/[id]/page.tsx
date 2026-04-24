@@ -34,6 +34,7 @@ import {
 import { ContactDetailSidebar } from "./contact-detail-sidebar";
 import { ContactRecentDocuments } from "./contact-recent-documents";
 import { ContactDonorImpact } from "./contact-donor-impact";
+import { ContactDonatedItems } from "./contact-donated-items";
 
 interface ContactDetailPageProps {
   params: { id: string };
@@ -181,6 +182,12 @@ export default async function ContactDetailPage({
 
           {/* Donor Impact — only shows if this contact has donated items */}
           <ContactDonorImpact
+            contactId={contact.id}
+            companyId={session.user.companyId}
+          />
+
+          {/* Donated Items — only shows if this contact has donated items */}
+          <ContactDonatedItems
             contactId={contact.id}
             companyId={session.user.companyId}
           />

@@ -785,6 +785,7 @@ export async function listInventoryItems(
     warehouseId?: string;
     intakeDocumentId?: string;
     assignedToUserId?: string | null;
+    donorContactId?: string;
     page?: number;
     pageSize?: number;
     sortBy?: string;
@@ -798,6 +799,7 @@ export async function listInventoryItems(
     warehouseId,
     intakeDocumentId,
     assignedToUserId,
+    donorContactId,
     page = 1,
     pageSize = 25,
     sortBy = "createdAt",
@@ -824,6 +826,9 @@ export async function listInventoryItems(
     conditions.push(sql`${inventoryItems.assignedToUserId} is null`);
   } else if (assignedToUserId) {
     conditions.push(eq(inventoryItems.assignedToUserId, assignedToUserId));
+  }
+  if (donorContactId) {
+    conditions.push(eq(inventoryItems.donorContactId, donorContactId));
   }
   if (search) {
     conditions.push(ilike(inventoryItems.description, `%${search}%`));
