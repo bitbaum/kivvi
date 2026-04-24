@@ -21,6 +21,7 @@ interface ItemData {
   status: string;
   askingPrice: string | null;
   donorName: string | null;
+  donorContactId: string | null;
   productName: string | null;
   photoBase64: string | null;
   qcProgress?: { done: number; total: number; signedOff: boolean };
@@ -132,7 +133,17 @@ export function SelectableItemList({ items }: SelectableItemListProps) {
             {item.askingPrice ? formatCurrency(item.askingPrice) : "—"}
           </div>
           <div className="text-sm text-muted-foreground truncate max-w-[150px]">
-            {item.donorName || "—"}
+            {item.donorContactId && item.donorName ? (
+              <Link
+                href={`/contacts/${item.donorContactId}`}
+                className="hover:underline hover:text-primary"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {item.donorName}
+              </Link>
+            ) : (
+              item.donorName || "—"
+            )}
           </div>
         </div>
       ))}

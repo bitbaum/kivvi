@@ -179,6 +179,7 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
                 status: item.status,
                 askingPrice: item.askingPrice,
                 donorName: item.donorName || null,
+                donorContactId: item.donorContactId || null,
                 productName: item.productName || null,
                 photoBase64: item.photoBase64 || null,
                 qcProgress,
