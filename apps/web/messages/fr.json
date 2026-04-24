@@ -358,7 +358,10 @@
     "paymentReferenceLabel": "Référence de paiement",
     "overpaymentWarning": "Le montant dépasse le solde impayé.",
     "dueDateBeforeIssueDate": "La date d'échéance est antérieure à la date d'émission.",
-    "failedToCreate": "Échec de la création du {type}"
+    "failedToCreate": "Échec de la création du {type}",
+    "emailLog": "Journal des e-mails",
+    "lastEmailedTo": "Envoyé à {email}",
+    "ccSender": "M'envoyer une copie"
   },
   "dashboard": {
     "title": "Tableau de bord",

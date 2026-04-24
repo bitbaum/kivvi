@@ -21,6 +21,7 @@ export function SendEmailButton({
   const [isPending, startTransition] = useTransition();
   const [isOpen, setIsOpen] = useState(false);
   const [email, setEmail] = useState(defaultEmail || "");
+  const [ccSender, setCcSender] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
   const emailInputRef = useRef<HTMLInputElement>(null);
@@ -62,7 +63,7 @@ export function SendEmailButton({
     setError(null);
 
     startTransition(async () => {
-      const result = await sendDocumentEmailAction(documentId, email);
+      const result = await sendDocumentEmailAction(documentId, email, ccSender);
       if (result.success) {
         setSent(true);
         toast.success(t("emailSent"));
@@ -78,10 +79,10 @@ export function SendEmailButton({
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-col gap-2">
       <form
         onSubmit={handleSubmit}
-        className="flex items-center gap-2"
+        className="flex flex-wrap items-center gap-2"
         role="region"
         aria-label={t("emailSend")}
       >
@@ -113,6 +114,15 @@ export function SendEmailButton({
           {tc("cancel")}
         </button>
       </form>
+      <label className="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground">
+        <input
+          type="checkbox"
+          checked={ccSender}
+          onChange={(e) => setCcSender(e.target.checked)}
+          className="h-3.5 w-3.5 rounded"
+        />
+        {t("ccSender")}
+      </label>
       {error && (
         <p role="alert" className="text-sm text-destructive">
           {error}

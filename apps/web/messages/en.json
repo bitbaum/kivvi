@@ -358,7 +358,10 @@
     "paymentReferenceLabel": "Payment reference",
     "overpaymentWarning": "Amount exceeds the outstanding balance.",
     "dueDateBeforeIssueDate": "Due date is before the issue date.",
-    "failedToCreate": "Failed to create {type}"
+    "failedToCreate": "Failed to create {type}",
+    "emailLog": "Email log",
+    "lastEmailedTo": "Sent to {email}",
+    "ccSender": "Send me a copy"
   },
   "dashboard": {
     "title": "Dashboard",

@@ -358,7 +358,10 @@
     "paymentReferenceLabel": "Zahlungsreferenz",
     "overpaymentWarning": "Der Betrag übersteigt den ausstehenden Saldo.",
     "dueDateBeforeIssueDate": "Das Fälligkeitsdatum liegt vor dem Rechnungsdatum.",
-    "failedToCreate": "Fehler beim Erstellen von {type}"
+    "failedToCreate": "Fehler beim Erstellen von {type}",
+    "emailLog": "E-Mail-Verlauf",
+    "lastEmailedTo": "Gesendet an {email}",
+    "ccSender": "Kopie an mich senden"
   },
   "dashboard": {
     "title": "Übersicht",

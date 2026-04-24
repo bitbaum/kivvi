@@ -1,6 +1,6 @@
 import Decimal from "decimal.js";
 import Link from "next/link";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Mail } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { PaymentForm } from "./payment-form";
@@ -108,6 +108,24 @@ export async function DocumentDetailSidebar({
                 />
               </div>
             )}
+        </div>
+      )}
+
+      {/* Last emailed */}
+      {doc.lastEmailedAt && (
+        <div className="rounded-xl border bg-card p-6">
+          <h2 className="mb-3 font-semibold">{t("emailLog")}</h2>
+          <div className="flex items-start gap-2 text-sm">
+            <Mail className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+            <div className="space-y-0.5">
+              <p className="text-muted-foreground">
+                {t("lastEmailedTo", { email: doc.lastEmailedTo || "—" })}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {formatDate(doc.lastEmailedAt.toISOString())}
+              </p>
+            </div>
+          </div>
         </div>
       )}
 

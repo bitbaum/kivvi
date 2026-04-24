@@ -421,6 +421,9 @@ export const documents = pgTable(
     // Intake-specific fields (for type='intake')
     intakeSource: intakeSourceEnum("intake_source"),
     donorId: uuid("donor_id").references(() => contacts.id),
+    // Email tracking
+    lastEmailedAt: timestamp("last_emailed_at"),
+    lastEmailedTo: text("last_emailed_to"),
     // Tracking
     createdBy: uuid("created_by").references(() => users.id),
     createdAt: timestamp("created_at").defaultNow().notNull(),

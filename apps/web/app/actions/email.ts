@@ -3,7 +3,13 @@
 import { z } from "zod";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { companies, contacts, documentItems } from "@kivvi/database";
+import {
+  companies,
+  contacts,
+  documentItems,
+  documents,
+  users,
+} from "@kivvi/database";
 import type { CompanySettings } from "@kivvi/database";
 import { getDocument } from "@kivvi/core";
 import {
@@ -41,6 +47,7 @@ import { isEmailConfigured } from "@/lib/config/email";
 const sendEmailSchema = z.object({
   documentId: z.string().uuid(),
   recipientEmail: z.string().email("Invalid email address"),
+  ccSender: z.boolean().optional(),
 });
 
 // ============================================================================
@@ -50,12 +57,17 @@ const sendEmailSchema = z.object({
 export async function sendDocumentEmailAction(
   documentId: string,
   recipientEmail: string,
+  ccSender?: boolean,
 ): Promise<ActionResult<{ messageId: string }>> {
   try {
-    const { companyId } = await requireRole("member");
+    const { companyId, userId } = await requireRole("member");
 
     // Validate inputs
-    const parsed = sendEmailSchema.safeParse({ documentId, recipientEmail });
+    const parsed = sendEmailSchema.safeParse({
+      documentId,
+      recipientEmail,
+      ccSender,
+    });
     if (!parsed.success) {
       const firstError = parsed.error.errors[0];
       return { success: false, error: firstError.message };
@@ -107,9 +119,21 @@ export async function sendDocumentEmailAction(
     });
     const pdfBuffer = await generateInvoicePdf(pdfData);
 
+    // Resolve Cc email if requested
+    let ccEmail: string | undefined;
+    if (parsed.data.ccSender) {
+      const [senderUser] = await db
+        .select({ email: users.email })
+        .from(users)
+        .where(eq(users.id, userId))
+        .limit(1);
+      if (senderUser?.email) ccEmail = senderUser.email;
+    }
+
     const info = await transporter.sendMail({
       from: `${companyName} <${getFromEmail()}>`,
       to: parsed.data.recipientEmail,
+      ...(ccEmail ? { cc: ccEmail } : {}),
       subject: buildInvoiceEmailSubject(emailData),
       html: buildInvoiceEmailHtml(emailData),
       attachments: [
@@ -120,6 +144,20 @@ export async function sendDocumentEmailAction(
         },
       ],
     });
+
+    // Record last email send timestamp + recipient
+    await db
+      .update(documents)
+      .set({
+        lastEmailedAt: new Date(),
+        lastEmailedTo: parsed.data.recipientEmail,
+      })
+      .where(
+        and(
+          eq(documents.id, parsed.data.documentId),
+          eq(documents.companyId, companyId),
+        ),
+      );
 
     // Auto-transition to "sent" if the document is still in draft/confirmed
     // (emailing IS the act of sending — no need for a separate status change)
