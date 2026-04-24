@@ -25,6 +25,7 @@ import {
   ensureManufacturers,
   updateSequencesAfterImport,
 } from "@kivvi/core";
+import { seedSampleData } from "@kivvi/core/src/domain/sample-data";
 import { DEFAULT_VAT_RATE } from "@kivvi/core/src/config/vat-rates";
 
 // ============================================================================
@@ -322,6 +323,25 @@ export async function completeOnboardingAction(): Promise<ActionResult> {
     return {
       success: false,
       error: safeErrorMessage(error, "Failed to complete onboarding"),
+    };
+  }
+}
+
+// ============================================================================
+// SAMPLE DATA SEEDING
+// ============================================================================
+
+export async function seedSampleDataAction(): Promise<ActionResult> {
+  try {
+    const { companyId, userId } = await getSession();
+    await seedSampleData(db, companyId, userId);
+    await completeOnboarding(db, companyId);
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to seed sample data"),
     };
   }
 }

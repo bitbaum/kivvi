@@ -1,6 +1,6 @@
 "use client";
 
-import { Database, Rocket, Upload, Loader2 } from "lucide-react";
+import { Database, Rocket, Upload, Loader2, FlaskConical } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 interface ImportChoiceScreenProps {
@@ -8,6 +8,7 @@ interface ImportChoiceScreenProps {
   isCompleting: boolean;
   onImportData: () => void;
   onStartFresh: () => void;
+  onSampleData: () => void;
 }
 
 export function ImportChoiceScreen({
@@ -15,6 +16,7 @@ export function ImportChoiceScreen({
   isCompleting,
   onImportData,
   onStartFresh,
+  onSampleData,
 }: ImportChoiceScreenProps) {
   const t = useTranslations("onboarding");
 
@@ -36,7 +38,7 @@ export function ImportChoiceScreen({
         </div>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-3">
         <button
           onClick={onImportData}
           className="flex flex-col items-center gap-3 rounded-xl border-2 border-dashed p-8 text-center transition-colors hover:border-primary hover:bg-primary/5"
@@ -64,6 +66,24 @@ export function ImportChoiceScreen({
             <div className="font-semibold">{t("startFresh")}</div>
             <div className="mt-1 text-sm text-muted-foreground">
               {t("startFreshDesc")}
+            </div>
+          </div>
+        </button>
+
+        <button
+          onClick={onSampleData}
+          disabled={isCompleting}
+          className="flex flex-col items-center gap-3 rounded-xl border-2 border-dashed p-8 text-center transition-colors hover:border-primary hover:bg-primary/5 disabled:opacity-50"
+        >
+          {isCompleting ? (
+            <Loader2 className="h-10 w-10 animate-spin text-muted-foreground" />
+          ) : (
+            <FlaskConical className="h-10 w-10 text-muted-foreground" />
+          )}
+          <div>
+            <div className="font-semibold">{t("sampleData")}</div>
+            <div className="mt-1 text-sm text-muted-foreground">
+              {t("sampleDataDesc")}
             </div>
           </div>
         </button>

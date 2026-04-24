@@ -18,6 +18,7 @@ import type {
 import {
   executeImportAction,
   completeOnboardingAction,
+  seedSampleDataAction,
 } from "@/app/actions/onboarding";
 import { ImportProgress, type ImportStatus } from "./ImportProgress";
 import { ImportChoiceScreen } from "./ImportChoiceScreen";
@@ -54,6 +55,17 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
   const handleStartFresh = async () => {
     setIsCompleting(true);
     const result = await completeOnboardingAction();
+    if (result.success) {
+      onComplete();
+    } else {
+      setError(result.error || "Failed");
+      setIsCompleting(false);
+    }
+  };
+
+  const handleSampleData = async () => {
+    setIsCompleting(true);
+    const result = await seedSampleDataAction();
     if (result.success) {
       onComplete();
     } else {
@@ -223,6 +235,7 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
         isCompleting={isCompleting}
         onImportData={() => setMode("import")}
         onStartFresh={handleStartFresh}
+        onSampleData={handleSampleData}
       />
     );
   }

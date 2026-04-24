@@ -23,8 +23,17 @@ import {
   QuickActionsSkeleton,
 } from "./skeletons";
 import { db } from "@/lib/db";
-import { companies, contacts, documents } from "@kivvi/database";
+import {
+  companies,
+  contacts,
+  documents,
+  inventoryItems,
+  users,
+  bankAccounts,
+} from "@kivvi/database";
+import type { CompanySettings } from "@kivvi/database";
 import { eq, count } from "drizzle-orm";
+import { OnboardingChecklist } from "./sections/onboarding-checklist";
 
 // Cache dashboard for 60 seconds
 export const revalidate = 60;
@@ -35,10 +44,17 @@ export default async function DashboardPage() {
 
   // Fetch company info and counts for welcome section + sinceDate filter
   const companyId = session.user.companyId;
-  const [company, contactCountResult, documentCountResult] = await Promise.all([
+  const [
+    company,
+    contactCountResult,
+    documentCountResult,
+    inventoryCountResult,
+    userCountResult,
+    bankAccountResult,
+  ] = await Promise.all([
     db.query.companies.findFirst({
       where: eq(companies.id, companyId),
-      columns: { createdAt: true, name: true },
+      columns: { createdAt: true, name: true, settings: true, slug: true },
     }),
     db
       .select({ value: count() })
@@ -48,11 +64,40 @@ export default async function DashboardPage() {
       .select({ value: count() })
       .from(documents)
       .where(eq(documents.companyId, companyId)),
+    db
+      .select({ value: count() })
+      .from(inventoryItems)
+      .where(eq(inventoryItems.companyId, companyId)),
+    db
+      .select({ value: count() })
+      .from(users)
+      .where(eq(users.companyId, companyId)),
+    db
+      .select({ iban: bankAccounts.iban })
+      .from(bankAccounts)
+      .where(eq(bankAccounts.companyId, companyId))
+      .limit(1),
   ]);
   const sinceDate = company?.createdAt;
   const companyName = company?.name ?? "";
   const contactCount = contactCountResult[0]?.value ?? 0;
   const documentCount = documentCountResult[0]?.value ?? 0;
+
+  // Checklist data
+  const companyAgeDays = company?.createdAt
+    ? Math.floor((Date.now() - company.createdAt.getTime()) / 86_400_000)
+    : 999;
+  const settings = (company?.settings as CompanySettings) ?? {};
+  const checklistState = {
+    hasIntake: (inventoryCountResult[0]?.value ?? 0) > 0,
+    hasInvoice: documentCount > 0,
+    hasBankAccount: !!(
+      bankAccountResult[0]?.iban || settings.bankAccount?.iban
+    ),
+    hasTeamMember: (userCountResult[0]?.value ?? 0) > 1,
+    hasShopUrl: !!company?.slug,
+    companyAgeDays,
+  };
 
   return (
     <div className="space-y-8">
@@ -62,6 +107,9 @@ export default async function DashboardPage() {
         contactCount={contactCount}
         documentCount={documentCount}
       />
+
+      {/* Post-onboarding guided checklist (first 7 days) */}
+      <OnboardingChecklist {...checklistState} />
 
       {/* Feature hint: Cmd+K */}
       <CmdKHint />

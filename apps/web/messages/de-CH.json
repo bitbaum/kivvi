@@ -1899,6 +1899,8 @@
     "importDataDesc": "CSV-Dateien aus Kivitendo oder einem anderen System hochladen",
     "startFresh": "Neu beginnen",
     "startFreshDesc": "Mit einem leeren System starten, Daten später manuell erfassen",
+    "sampleData": "Mit Beispieldaten erkunden",
+    "sampleDataDesc": "Kivvi mit realistischen Beispielen entdecken — Kontakte, Artikel und Rechnungen bereits vorhanden",
     "importOrder": "Upload-Reihenfolge wird erzwungen (zuerst Kontakte, dann Produkte, dann Dokumente).",
     "back": "Zurück",
     "skipAndFinish": "Überspringen & abschliessen",

@@ -1899,6 +1899,8 @@
     "importDataDesc": "Upload CSV files from kivitendo or another system",
     "startFresh": "Start fresh",
     "startFreshDesc": "Begin with an empty system, add data manually later",
+    "sampleData": "Explore with sample data",
+    "sampleDataDesc": "Discover Kivvi with realistic examples — contacts, items, and invoices ready to go",
     "importOrder": "Import order is enforced (contacts first, then products, then documents).",
     "back": "Back",
     "skipAndFinish": "Skip & finish",

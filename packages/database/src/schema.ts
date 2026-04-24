@@ -1746,6 +1746,10 @@ export interface CompanySettings {
   co2FactorsKg?: Record<string, number>;
   /** Ricardo.ch seller API key for publishing items to the marketplace */
   ricardoApiKey?: string;
+  /** True if company was seeded with sample data during onboarding */
+  isSampleData?: boolean;
+  /** Post-onboarding guided checklist — keys are step IDs, value is ISO date completed */
+  onboardingChecklist?: Record<string, string>;
 }
 
 // Inferred types from schema — use these throughout the app
