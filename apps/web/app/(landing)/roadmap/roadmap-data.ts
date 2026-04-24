@@ -294,10 +294,10 @@ export const PIPELINE: PipelineItem[] = [
     desc: "Artikel automatisch auf WooCommerce, Shopify oder eigenem Shop publizieren.",
   },
   {
-    status: "planned",
+    status: "live",
     category: "Compliance",
     title: "Datenlöschzertifikate (nDSG)",
-    desc: "Nachweisbare Datenlöschung nach NIST SP 800-88 / DIN 66399. Zertifikat pro Seriennummer.",
+    desc: "Nachweisbare Datenlöschung nach NIST SP 800-88 / DIN 66399. Zertifikat pro Seriennummer als PDF herunterladbar.",
   },
   {
     status: "planned",
@@ -306,10 +306,10 @@ export const PIPELINE: PipelineItem[] = [
     desc: "Intake, Barcode-Scanning und Lagerführung auf dem Tablet — offline-fähig.",
   },
   {
-    status: "planned",
+    status: "live",
     category: "Impact",
     title: "Impact pro Kundin / Spender",
-    desc: "Personalisierte Impact-Quittung: «Ihre Spende hat 316 kg CO₂ vermieden.»",
+    desc: "Impact-Panel auf der Kontaktseite: Gespendete Artikel, Wiederverwertungsrate und vermiedenes CO₂ pro Spender.",
   },
   // ── Vision ────────────────────────────────────────────────────────────────
   {
