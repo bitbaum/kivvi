@@ -1897,6 +1897,34 @@
     "publishError": "Failed to publish.",
     "unpublishError": "Failed to remove."
   },
+  "shop": {
+    "itemsAvailable": "{count, plural, =1 {1 item} other {# items}} available",
+    "searchPlaceholder": "Search…",
+    "allConditions": "All conditions",
+    "filter": "Filter",
+    "reset": "Reset",
+    "noItemsFound": "No items found. Try different filters.",
+    "noItemsYet": "No items available yet.",
+    "priceOnRequest": "Price on request",
+    "previous": "← Previous",
+    "next": "Next →",
+    "pageOf": "Page {page} of {total}",
+    "poweredBy": "Powered by",
+    "conditionLabel": "Condition:",
+    "categoryLabel": "Category: {category}",
+    "inquiry": {
+      "title": "Send inquiry",
+      "send": "Send inquiry",
+      "sending": "Sending…",
+      "namePlaceholder": "Max Sample",
+      "emailPlaceholder": "max@example.com",
+      "messageLabel": "Message (optional)",
+      "messagePlaceholder": "Questions or comments…",
+      "sendError": "Failed to send.",
+      "sentTitle": "Inquiry sent!",
+      "sentMessage": "{companyName} will get back to you."
+    }
+  },
   "auth": {
     "signIn": "Sign in",
     "signInSubtitle": "Sign in to your account.",

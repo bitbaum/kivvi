@@ -1,13 +1,17 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Package, Tag } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { createDb } from "@kivvi/database";
 import {
   getPublicCompanyBySlug,
   getPublicItem,
 } from "@kivvi/core/src/domain/shop";
 import { formatCurrency } from "@/lib/utils";
-import { ITEM_CONDITION_CONFIG } from "@/lib/config/inventory-items";
+import {
+  ITEM_CONDITION_CONFIG,
+  getConditionLabelKey,
+} from "@/lib/config/inventory-items";
 import { ShopInquiryForm } from "./inquiry-form";
 
 export const dynamic = "force-dynamic";
@@ -24,6 +28,8 @@ export default async function ShopItemPage({ params }: PageProps) {
   const item = await getPublicItem(db, company.id, params.itemId);
   if (!item) notFound();
 
+  const t = await getTranslations("shop");
+  const tInventory = await getTranslations("inventory");
   const conditionCfg = ITEM_CONDITION_CONFIG[item.condition];
 
   return (
@@ -72,30 +78,22 @@ export default async function ShopItemPage({ params }: PageProps) {
               <span className="text-3xl font-bold tabular-nums">
                 {item.askingPrice
                   ? formatCurrency(item.askingPrice, item.currency)
-                  : "Preis auf Anfrage"}
+                  : t("priceOnRequest")}
               </span>
             </div>
 
             <div className="flex items-center gap-2">
               <Tag className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Zustand:</span>
+              <span className="text-sm text-muted-foreground">
+                {t("conditionLabel")}
+              </span>
               <span
                 className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-bold ${conditionCfg?.style ?? "bg-muted text-muted-foreground"}`}
               >
                 {conditionCfg?.shortLabel ?? "?"}
                 {conditionCfg && (
                   <span className="font-normal">
-                    {
-                      {
-                        like_new: "Wie neu",
-                        good: "Gut",
-                        fair: "Befriedigend",
-                        poor: "Mangelhaft",
-                        parts_only: "Nur Teile",
-                        scrap: "Schrott",
-                        untested: "Ungetestet",
-                      }[item.condition]
-                    }
+                    {tInventory(getConditionLabelKey(item.condition))}
                   </span>
                 )}
               </span>
@@ -103,7 +101,7 @@ export default async function ShopItemPage({ params }: PageProps) {
 
             {item.category && (
               <p className="text-sm text-muted-foreground capitalize">
-                Kategorie: {item.category}
+                {t("categoryLabel", { category: item.category })}
               </p>
             )}
 
@@ -122,7 +120,7 @@ export default async function ShopItemPage({ params }: PageProps) {
       </main>
 
       <footer className="border-t mt-16 py-8 text-center text-xs text-muted-foreground">
-        Powered by{" "}
+        {t("poweredBy")}{" "}
         <a
           href="/"
           className="underline hover:text-foreground"

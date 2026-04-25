@@ -1897,6 +1897,34 @@
     "publishError": "Fehler beim Publizieren.",
     "unpublishError": "Fehler beim Entfernen."
   },
+  "shop": {
+    "itemsAvailable": "{count, plural, =1 {1 Artikel} other {# Artikel}} verfügbar",
+    "searchPlaceholder": "Suchen…",
+    "allConditions": "Alle Zustände",
+    "filter": "Filtern",
+    "reset": "Zurücksetzen",
+    "noItemsFound": "Keine Artikel gefunden. Versuche andere Filter.",
+    "noItemsYet": "Noch keine Artikel verfügbar.",
+    "priceOnRequest": "Preis auf Anfrage",
+    "previous": "← Zurück",
+    "next": "Weiter →",
+    "pageOf": "Seite {page} von {total}",
+    "poweredBy": "Powered by",
+    "conditionLabel": "Zustand:",
+    "categoryLabel": "Kategorie: {category}",
+    "inquiry": {
+      "title": "Anfrage stellen",
+      "send": "Anfrage senden",
+      "sending": "Senden…",
+      "namePlaceholder": "Max Muster",
+      "emailPlaceholder": "max@beispiel.ch",
+      "messageLabel": "Nachricht (optional)",
+      "messagePlaceholder": "Fragen oder Anmerkungen…",
+      "sendError": "Fehler beim Senden.",
+      "sentTitle": "Anfrage gesendet!",
+      "sentMessage": "{companyName} wird sich bei Ihnen melden."
+    }
+  },
   "auth": {
     "signIn": "Anmelden",
     "signInSubtitle": "Melden Sie sich bei Ihrem Konto an.",

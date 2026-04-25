@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Package, MapPin } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { createDb } from "@kivvi/database";
 import {
   getPublicCompanyBySlug,
@@ -25,6 +26,9 @@ export default async function ShopPage({ params, searchParams }: PageProps) {
   const db = createDb(process.env.DATABASE_URL!);
   const company = await getPublicCompanyBySlug(db, params.slug);
   if (!company) notFound();
+
+  const t = await getTranslations("shop");
+  const tInventory = await getTranslations("inventory");
 
   const page = Math.max(1, Number(searchParams.page ?? "1"));
   const { data: items, total } = await listPublicItems(db, company.id, {
@@ -56,7 +60,7 @@ export default async function ShopPage({ params, searchParams }: PageProps) {
               )}
             </div>
             <p className="text-sm text-muted-foreground">
-              {total} {total === 1 ? "Artikel" : "Artikel"} verfügbar
+              {t("itemsAvailable", { count: total })}
             </p>
           </div>
 
@@ -66,7 +70,7 @@ export default async function ShopPage({ params, searchParams }: PageProps) {
               type="search"
               name="search"
               defaultValue={searchParams.search ?? ""}
-              placeholder="Suchen…"
+              placeholder={t("searchPlaceholder")}
               className="rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary w-full sm:w-auto sm:flex-1 max-w-xs"
             />
             <select
@@ -74,17 +78,17 @@ export default async function ShopPage({ params, searchParams }: PageProps) {
               defaultValue={searchParams.condition ?? ""}
               className="rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >
-              <option value="">Alle Zustände</option>
-              <option value="like_new">Wie neu</option>
-              <option value="good">Gut</option>
-              <option value="fair">Befriedigend</option>
-              <option value="poor">Mangelhaft</option>
+              <option value="">{t("allConditions")}</option>
+              <option value="like_new">{tInventory("conditionLikeNew")}</option>
+              <option value="good">{tInventory("conditionGood")}</option>
+              <option value="fair">{tInventory("conditionFair")}</option>
+              <option value="poor">{tInventory("conditionPoor")}</option>
             </select>
             <button
               type="submit"
               className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
             >
-              Filtern
+              {t("filter")}
             </button>
             {(searchParams.search ||
               searchParams.condition ||
@@ -93,7 +97,7 @@ export default async function ShopPage({ params, searchParams }: PageProps) {
                 href={`/shop/${params.slug}`}
                 className="rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted"
               >
-                Zurücksetzen
+                {t("reset")}
               </Link>
             )}
           </form>
@@ -107,8 +111,8 @@ export default async function ShopPage({ params, searchParams }: PageProps) {
             <Package className="h-12 w-12 text-muted-foreground/30" />
             <p className="text-muted-foreground">
               {searchParams.search || searchParams.condition
-                ? "Keine Artikel gefunden. Versuche andere Filter."
-                : "Noch keine Artikel verfügbar."}
+                ? t("noItemsFound")
+                : t("noItemsYet")}
             </p>
           </div>
         ) : (
@@ -151,7 +155,7 @@ export default async function ShopPage({ params, searchParams }: PageProps) {
                     <p className="mt-auto text-base font-bold tabular-nums">
                       {item.askingPrice
                         ? formatCurrency(item.askingPrice, item.currency)
-                        : "Preis auf Anfrage"}
+                        : t("priceOnRequest")}
                     </p>
                   </div>
                 </Link>
@@ -168,18 +172,18 @@ export default async function ShopPage({ params, searchParams }: PageProps) {
                 href={`/shop/${params.slug}?page=${page - 1}${searchParams.search ? `&search=${encodeURIComponent(searchParams.search)}` : ""}${searchParams.condition ? `&condition=${searchParams.condition}` : ""}`}
                 className="rounded-lg border px-4 py-2 text-sm hover:bg-muted"
               >
-                ← Zurück
+                {t("previous")}
               </Link>
             )}
             <span className="text-sm text-muted-foreground">
-              Seite {page} von {totalPages}
+              {t("pageOf", { page, total: totalPages })}
             </span>
             {page < totalPages && (
               <Link
                 href={`/shop/${params.slug}?page=${page + 1}${searchParams.search ? `&search=${encodeURIComponent(searchParams.search)}` : ""}${searchParams.condition ? `&condition=${searchParams.condition}` : ""}`}
                 className="rounded-lg border px-4 py-2 text-sm hover:bg-muted"
               >
-                Weiter →
+                {t("next")}
               </Link>
             )}
           </div>
@@ -188,7 +192,7 @@ export default async function ShopPage({ params, searchParams }: PageProps) {
 
       {/* Footer */}
       <footer className="border-t mt-16 py-8 text-center text-xs text-muted-foreground">
-        Powered by{" "}
+        {t("poweredBy")}{" "}
         <a
           href="/"
           className="underline hover:text-foreground"

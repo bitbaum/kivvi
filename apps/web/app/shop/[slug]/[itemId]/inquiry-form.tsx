@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "next-intl";
 import { sendShopInquiryAction } from "@/app/actions/shop";
 import { Check, Send } from "lucide-react";
 
@@ -19,6 +20,8 @@ export function ShopInquiryForm({
   itemDescription,
   slug,
 }: Props) {
+  const t = useTranslations("shop.inquiry");
+  const tCommon = useTranslations("common");
   const [isPending, startTransition] = useTransition();
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +46,7 @@ export function ShopInquiryForm({
       if (result.success) {
         setSent(true);
       } else {
-        setError(result.error ?? "Fehler beim Senden.");
+        setError(result.error ?? t("sendError"));
       }
     });
   }
@@ -55,9 +58,9 @@ export function ShopInquiryForm({
           <Check className="h-6 w-6 text-success" />
         </div>
         <div>
-          <p className="font-semibold">Anfrage gesendet!</p>
+          <p className="font-semibold">{t("sentTitle")}</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            {companyName} wird sich bei Ihnen melden.
+            {t("sentMessage", { companyName })}
           </p>
         </div>
       </div>
@@ -66,44 +69,44 @@ export function ShopInquiryForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-      <h3 className="font-semibold">Anfrage stellen</h3>
+      <h3 className="font-semibold">{t("title")}</h3>
 
       <div>
         <label className="mb-1 block text-xs font-medium text-muted-foreground">
-          Name *
+          {tCommon("name")} *
         </label>
         <input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          placeholder="Max Muster"
+          placeholder={t("namePlaceholder")}
           className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
         />
       </div>
 
       <div>
         <label className="mb-1 block text-xs font-medium text-muted-foreground">
-          E-Mail *
+          {tCommon("email")} *
         </label>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          placeholder="max@beispiel.ch"
+          placeholder={t("emailPlaceholder")}
           className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
         />
       </div>
 
       <div>
         <label className="mb-1 block text-xs font-medium text-muted-foreground">
-          Nachricht (optional)
+          {t("messageLabel")}
         </label>
         <textarea
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          placeholder="Fragen oder Anmerkungen…"
+          placeholder={t("messagePlaceholder")}
           rows={3}
           className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
         />
@@ -117,11 +120,11 @@ export function ShopInquiryForm({
         className="flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50 min-h-[44px]"
       >
         {isPending ? (
-          "Senden…"
+          t("sending")
         ) : (
           <>
             <Send className="h-4 w-4" />
-            Anfrage senden
+            {t("send")}
           </>
         )}
       </button>

@@ -1897,6 +1897,34 @@
     "publishError": "Échec de la publication.",
     "unpublishError": "Échec du retrait."
   },
+  "shop": {
+    "itemsAvailable": "{count, plural, =1 {1 article} other {# articles}} disponible{count, plural, =1 {} other {s}}",
+    "searchPlaceholder": "Rechercher…",
+    "allConditions": "Tous les états",
+    "filter": "Filtrer",
+    "reset": "Réinitialiser",
+    "noItemsFound": "Aucun article trouvé. Essayez d'autres filtres.",
+    "noItemsYet": "Aucun article disponible pour le moment.",
+    "priceOnRequest": "Prix sur demande",
+    "previous": "← Précédent",
+    "next": "Suivant →",
+    "pageOf": "Page {page} sur {total}",
+    "poweredBy": "Propulsé par",
+    "conditionLabel": "État :",
+    "categoryLabel": "Catégorie : {category}",
+    "inquiry": {
+      "title": "Envoyer une demande",
+      "send": "Envoyer la demande",
+      "sending": "Envoi…",
+      "namePlaceholder": "Marie Exemple",
+      "emailPlaceholder": "marie@exemple.ch",
+      "messageLabel": "Message (optionnel)",
+      "messagePlaceholder": "Questions ou remarques…",
+      "sendError": "Échec de l'envoi.",
+      "sentTitle": "Demande envoyée !",
+      "sentMessage": "{companyName} va vous contacter."
+    }
+  },
   "auth": {
     "signIn": "Se connecter",
     "signInSubtitle": "Connectez-vous à votre compte.",
