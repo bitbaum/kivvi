@@ -3140,6 +3140,294 @@
       "disclaimerHeader": "Clause de non-responsabilité",
       "disclaimerText": "Le contenu de ce site web a été préparé avec le plus grand soin. revamp-it ne donne aucune garantie quant à l'exactitude, l'exhaustivité ou l'actualité du contenu. En tant que prestataire de services, nous sommes responsables de nos propres contenus. Pour les liens externes, nous déclinons toute responsabilité ; celle-ci incombe au prestataire respectif."
     },
+    "roadmap": {
+      "hero": {
+        "title": "Roadmap & comparaison",
+        "description": "Pourquoi les ERP existants échouent pour l'économie circulaire, ce que Kivvi fait aujourd'hui, et ce qui vient ensuite."
+      },
+      "comparison": {
+        "title": "Le problème logiciel de l'économie circulaire",
+        "intro": "Aucun ERP existant ne relie tous les morceaux — chacun échoue pour des raisons structurelles. Kivvi a été construit parce que l'écart était trop grand et trop coûteux à combler par des contournements.",
+        "columnFeature": "Fonctionnalité",
+        "legend": {
+          "native": "Pris en charge nativement",
+          "partial": "Possible avec effort / partiel",
+          "missing": "Non disponible",
+          "kivitendoInspired": "★ Kivitendo a inspiré Kivvi"
+        },
+        "completeLink": "Lire l'analyse complète"
+      },
+      "competitors": [
+        {
+          "key": "bexio",
+          "name": "Bexio",
+          "note": "Standard PME suisse",
+          "verdict": "Plus de 100 000 PME suisses, factures QR, CAMT — solide côté comptable. Échoue sur le postulat de base : le stock est une quantité, pas un individu. Pas de dons, pas d'état, pas d'impact. La hausse de prix de mars 2026 pousse les clients à évaluer."
+        },
+        {
+          "key": "odoo",
+          "name": "Odoo",
+          "note": "ERP open source tout-en-un",
+          "verdict": "Open source, extensible, Odoo 19 avec une vraie IA. Mais : 5 000 à 30 000 CHF pour une configuration de base suisse, puis les workflows circulaires à partir de zéro. Un partenaire motivé pourrait le construire — cela prendrait des années."
+        },
+        {
+          "key": "abacus",
+          "name": "Abacus",
+          "note": "Entreprise suisse",
+          "verdict": "Le standard comptable suisse pour les moyennes entreprises. Implémentations à partir de 20 000 CHF. Aucune fonctionnalité spécifique au circulaire — et aucune incitation à la construire pour des associations de 20 personnes."
+        },
+        {
+          "key": "kivitendo",
+          "name": "Kivitendo ★",
+          "note": "Prédécesseur open source",
+          "verdict": "A inspiré Kivvi. Base de code Perl mature, factures QR, plan comptable PME. Pas de suivi par article, pas d'évaluation d'état, pas de tableau de bord d'impact, pas d'interface moderne. Kivvi importe directement les données Kivitendo via CSV."
+        },
+        {
+          "key": "repairshopr",
+          "name": "RepairShopr / RepairDesk",
+          "note": "Systèmes de tickets de réparation",
+          "verdict": "Tickets de réparation matures, messagerie client, suivi des pièces. Pas un ERP complet : pas de comptabilité en partie double, pas de factures QR, pas de bilan. La comptabilité doit être résolue séparément."
+        },
+        {
+          "key": "kivvi",
+          "name": "Kivvi",
+          "note": "La pièce manquante",
+          "verdict": "Relie tous les morceaux : conformité suisse, réception, évaluation d'état, workflow de réparation, comptabilité, factures QR, reçus de don et reporting d'impact — nativement pour l'économie circulaire."
+        }
+      ],
+      "features": [
+        {
+          "feature": "Suivi par article",
+          "desc": "Chaque appareil avec son propre identifiant, historique et coûts"
+        },
+        {
+          "feature": "Évaluation d'état",
+          "desc": "Classification à 5 niveaux (bon / moyen / mauvais / pièces / rebut)"
+        },
+        {
+          "feature": "Workflow de réception",
+          "desc": "Réception sans bon de commande — dons, retours, échanges"
+        },
+        {
+          "feature": "Workflow de réparation",
+          "desc": "Techniciens, pièces, temps de travail, contrôles qualité par article"
+        },
+        {
+          "feature": "Facture QR suisse",
+          "desc": "Bulletins QR conformes — obligatoires depuis 2022"
+        },
+        {
+          "feature": "Comptabilité en partie double",
+          "desc": "Comptabilité financière complète, bilan, compte de résultat, TVA"
+        },
+        {
+          "feature": "Suivi d'impact / CO₂",
+          "desc": "CO₂ évité, taux de réutilisation, reporting"
+        },
+        {
+          "feature": "Certificat d'effacement de données (nLPD)",
+          "desc": "Effacement de données prouvable selon NIST SP 800-88 / DIN 66399 — certificat en PDF"
+        },
+        {
+          "feature": "Saisie IA",
+          "desc": "Saisie en langage naturel — « 50 ordinateurs portables d'UBS »"
+        },
+        {
+          "feature": "Open source",
+          "desc": "Code source public, licence MIT"
+        },
+        {
+          "feature": "Auto-hébergeable",
+          "desc": "Faire tourner sur sa propre infrastructure — sans dépendance"
+        }
+      ],
+      "donate": {
+        "title": "Soutenir le développement",
+        "description": "Kivvi est open source et est développé par revamp-it, un reconditionneur IT à but non lucratif de Zurich. Chaque don est directement investi dans de nouvelles fonctionnalités et dans l'exploitation de la plateforme.",
+        "button": "Faire un don",
+        "footnote": "Redirection vers revamp-it Zürich · à but non lucratif selon art. 56 lit. g LIFD"
+      },
+      "pipelineHeader": {
+        "title": "Ce que nous construisons",
+        "intro": "Nous construisons Kivvi en public — sans surprises."
+      },
+      "statuses": {
+        "live": "En ligne",
+        "building": "En développement",
+        "planned": "Planifié",
+        "vision": "Vision"
+      },
+      "stages": {
+        "live": {
+          "title": "En ligne aujourd'hui",
+          "desc": "Fonctionnalités utilisables dès maintenant."
+        },
+        "building": {
+          "title": "En développement",
+          "desc": "Ce sur quoi nous travaillons — disponible dans les prochaines semaines."
+        },
+        "planned": {
+          "title": "Planifié",
+          "desc": "Décidé et au programme — l'implémentation suit."
+        },
+        "vision": {
+          "title": "Grande vision",
+          "desc": "Là où le voyage se dirige à long terme."
+        }
+      },
+      "pipeline": [
+        {
+          "status": "live",
+          "category": "Réception & inventaire",
+          "title": "Workflow de réception avec évaluation d'état",
+          "desc": "Saisir les articles, documenter l'état (bon / moyen / mauvais / pièces / rebut), router vers vente ou réparation."
+        },
+        {
+          "status": "live",
+          "category": "Inventaire",
+          "title": "Gestion de stock & numéros de série",
+          "desc": "Plusieurs entrepôts, mouvements de stock, suivi individuel des numéros de série par article."
+        },
+        {
+          "status": "live",
+          "category": "Vente & achat",
+          "title": "Tous les types de documents — facture QR incluse",
+          "desc": "Devis → commande → bon de livraison → facture → avoir. Factures QR conformes, générées automatiquement."
+        },
+        {
+          "status": "live",
+          "category": "Comptabilité",
+          "title": "Comptabilité en partie double (plan comptable PME)",
+          "desc": "227 comptes, écritures automatiques sur les factures, exercices comptables, périodes fiscales."
+        },
+        {
+          "status": "live",
+          "category": "Comptabilité",
+          "title": "Rapports : compte de résultat, bilan, TVA, balance âgée",
+          "desc": "Tous les rapports légalement pertinents, calculés en temps réel à partir des écritures."
+        },
+        {
+          "status": "live",
+          "category": "Banque",
+          "title": "Comptes bancaires & rapprochement des transactions",
+          "desc": "Gérer les comptes bancaires, importer les relevés (CSV), rapprocher les transactions avec les factures."
+        },
+        {
+          "status": "live",
+          "category": "Relances",
+          "title": "Relances automatiques",
+          "desc": "Détecter les factures en retard, gérer les niveaux de relance, générer les lettres de relance."
+        },
+        {
+          "status": "live",
+          "category": "IA",
+          "title": "Barre de commandes IA (Cmd+K)",
+          "desc": "Saisie en langage naturel : « 50 ordinateurs portables donnés par UBS » — Kivvi fait le reste. Fonctionne sur Claude, GPT-4 ou localement via Ollama."
+        },
+        {
+          "status": "live",
+          "category": "Impact",
+          "title": "Tableau de bord d'impact & suivi CO₂",
+          "desc": "Taux de réutilisation, CO₂ évité (par catégorie), articles sauvés du cycle linéaire. Facteurs CO₂ configurables par catégorie de produit."
+        },
+        {
+          "status": "live",
+          "category": "Migration",
+          "title": "Migration Kivitendo via CSV",
+          "desc": "Importer contacts, produits, documents et écritures depuis Kivitendo — sans intervention d'ingénierie."
+        },
+        {
+          "status": "live",
+          "category": "Plateforme",
+          "title": "Multi-locataire & auto-hébergement",
+          "desc": "Isolation stricte des données entre locataires. Exploitable sur votre propre infrastructure."
+        },
+        {
+          "status": "live",
+          "category": "Plateforme",
+          "title": "Open source (licence MIT)",
+          "desc": "Code source complet public. Pas de verrouillage fournisseur, pas de boîte noire."
+        },
+        {
+          "status": "live",
+          "category": "Onboarding",
+          "title": "Flux d'inscription simplifié",
+          "desc": "Création de compte en moins de 60 secondes. Pas de formulaire à rallonge."
+        },
+        {
+          "status": "live",
+          "category": "Impact",
+          "title": "Rapport d'impact en PDF",
+          "desc": "Rapport annuel d'une page, partageable, pour rapports d'association et demandes de subvention."
+        },
+        {
+          "status": "live",
+          "category": "Banque",
+          "title": "Import CAMT (format bancaire suisse)",
+          "desc": "Relevés de compte directement au format CAMT.053 — le standard de toutes les banques suisses."
+        },
+        {
+          "status": "live",
+          "category": "Inventaire",
+          "title": "Workflow de réparation",
+          "desc": "Ordres de réparation avec affectation d'un technicien, heures et suivi de statut. File d'attente, suivi des pièces (saisie des coûts par pièce), protocole, et commandes IA (coûts/heures, état, statut, effacement de données, check-list QC)."
+        },
+        {
+          "status": "planned",
+          "category": "Communauté",
+          "title": "Marché de talents de l'économie circulaire",
+          "desc": "Les personnes sans organisation propre peuvent rechercher des entreprises circulaires et postuler."
+        },
+        {
+          "status": "planned",
+          "category": "Boutique en ligne",
+          "title": "Intégration boutique en ligne",
+          "desc": "Publier automatiquement les articles sur WooCommerce, Shopify ou votre propre boutique."
+        },
+        {
+          "status": "live",
+          "category": "Conformité",
+          "title": "Certificats d'effacement de données (nLPD)",
+          "desc": "Effacement de données prouvable selon NIST SP 800-88 / DIN 66399. Certificat par numéro de série téléchargeable en PDF."
+        },
+        {
+          "status": "planned",
+          "category": "Mobile",
+          "title": "App mobile / PWA",
+          "desc": "Réception, scan de codes-barres et gestion de stock sur tablette — capable hors ligne."
+        },
+        {
+          "status": "live",
+          "category": "Impact",
+          "title": "Impact par client / donateur",
+          "desc": "Panneau d'impact sur la page contact : articles donnés, taux de réutilisation et CO₂ évité par donateur."
+        },
+        {
+          "status": "vision",
+          "category": "Réglementation",
+          "title": "Passeport numérique de produit (UE ESPR à partir de 2028)",
+          "desc": "Événements de réparation et reconditionnement enregistrés sous forme lisible par machine pour le DPP."
+        },
+        {
+          "status": "vision",
+          "category": "Plateforme",
+          "title": "Annuaire public d'organisations",
+          "desc": "Toutes les entreprises Kivvi visibles en option : que reçoivent-elles ? Où peut-on aider ?"
+        },
+        {
+          "status": "vision",
+          "category": "Données",
+          "title": "Agrégation d'impact à l'échelle du secteur",
+          "desc": "Combien de CO₂ la communauté Kivvi entière a-t-elle évité cette année ?"
+        }
+      ],
+      "footer": {
+        "openSourceText": "Kivvi est sous licence MIT et public sur GitHub.",
+        "openSourceLink": "Contributions bienvenues.",
+        "suggestText": "Manque-t-il quelque chose dans cette liste ?",
+        "suggestLink": "Écrivez-nous."
+      }
+    },
     "datenschutz": {
       "title": "Politique de confidentialité",
       "validity": "En vigueur depuis le 1er janvier 2025 · Conforme à la loi suisse sur la protection des données (nLPD)",

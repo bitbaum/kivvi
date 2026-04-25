@@ -1,16 +1,17 @@
 import Link from "next/link";
 import { Check, Minus, X, Heart, ArrowRight, ExternalLink } from "lucide-react";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { buildPageMeta } from "@/lib/config/site";
 import {
-  COMPARISON,
-  COMPETITORS,
-  PIPELINE,
+  COMPETITOR_KEYS,
+  FEATURE_SUPPORT,
   STATUS_CONFIG,
   STAGES,
-  STAGE_HEADINGS,
+  type CompetitorKey,
+  type PipelineStatus,
+  type Support,
 } from "./roadmap-data";
-import type { Support } from "./roadmap-data";
 
 export const metadata: Metadata = {
   title: "Roadmap & Vergleich — Kivvi",
@@ -22,6 +23,25 @@ export const metadata: Metadata = {
   ),
 };
 
+interface Competitor {
+  key: CompetitorKey;
+  name: string;
+  note: string;
+  verdict: string;
+}
+
+interface Feature {
+  feature: string;
+  desc: string;
+}
+
+interface PipelineItem {
+  status: PipelineStatus;
+  category: string;
+  title: string;
+  desc: string;
+}
+
 function SupportIcon({ value }: { value: Support }) {
   if (value === "yes")
     return <Check className="mx-auto h-4 w-4 text-success" />;
@@ -30,36 +50,34 @@ function SupportIcon({ value }: { value: Support }) {
   return <X className="mx-auto h-4 w-4 text-muted-foreground/40" />;
 }
 
-export default function RoadmapPage() {
+export default async function RoadmapPage() {
+  const t = await getTranslations("landing.roadmap");
+  const competitors = t.raw("competitors") as Competitor[];
+  const features = t.raw("features") as Feature[];
+  const pipeline = t.raw("pipeline") as PipelineItem[];
+
   return (
     <div className="container mx-auto max-w-5xl px-4 py-16 space-y-20">
       {/* Header */}
       <div className="text-center space-y-4">
         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-          Roadmap & Vergleich
+          {t("hero.title")}
         </h1>
         <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-          Warum bestehende ERPs für die Kreislaufwirtschaft scheitern, was Kivvi
-          heute kann, und was als Nächstes kommt.
+          {t("hero.description")}
         </p>
       </div>
 
       {/* ── Competitor comparison ────────────────────────────────────────────── */}
       <section id="vergleich" className="space-y-8">
         <div>
-          <h2 className="text-2xl font-semibold">
-            Das Software-Problem der Kreislaufwirtschaft
-          </h2>
-          <p className="mt-2 text-muted-foreground">
-            Kein bestehendes ERP verbindet alle Teile — jedes scheitert aus
-            strukturellen Gründen. Kivvi wurde gebaut, weil die Lücke zu gross
-            und zu teuer war, um sie mit Workarounds zu schliessen.
-          </p>
+          <h2 className="text-2xl font-semibold">{t("comparison.title")}</h2>
+          <p className="mt-2 text-muted-foreground">{t("comparison.intro")}</p>
         </div>
 
         {/* Competitor verdicts */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {COMPETITORS.map((c) => (
+          {competitors.map((c) => (
             <div
               key={c.key}
               className={`rounded-xl border p-5 space-y-2 ${
@@ -89,9 +107,9 @@ export default function RoadmapPage() {
             <thead>
               <tr className="border-b bg-muted/40">
                 <th className="px-4 py-3 text-left font-medium text-muted-foreground w-[220px]">
-                  Funktion
+                  {t("comparison.columnFeature")}
                 </th>
-                {COMPETITORS.map((c) => (
+                {competitors.map((c) => (
                   <th
                     key={c.key}
                     className={`px-3 py-3 text-center font-medium w-20 ${
@@ -109,7 +127,7 @@ export default function RoadmapPage() {
               </tr>
             </thead>
             <tbody>
-              {COMPARISON.map((row, i) => (
+              {features.map((row, i) => (
                 <tr
                   key={row.feature}
                   className={`border-b last:border-0 ${i % 2 === 0 ? "" : "bg-muted/20"}`}
@@ -122,11 +140,9 @@ export default function RoadmapPage() {
                       {row.desc}
                     </div>
                   </td>
-                  {COMPETITORS.map((c) => (
-                    <td key={c.key} className="px-3 py-3 text-center">
-                      <SupportIcon
-                        value={row[c.key as keyof typeof row] as Support}
-                      />
+                  {COMPETITOR_KEYS.map((k) => (
+                    <td key={k} className="px-3 py-3 text-center">
+                      <SupportIcon value={FEATURE_SUPPORT[i][k]} />
                     </td>
                   ))}
                 </tr>
@@ -137,17 +153,19 @@ export default function RoadmapPage() {
 
         <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
           <span className="flex items-center gap-2">
-            <Check className="h-4 w-4 text-success" /> Nativ unterstützt
+            <Check className="h-4 w-4 text-success" />{" "}
+            {t("comparison.legend.native")}
           </span>
           <span className="flex items-center gap-2">
-            <Minus className="h-4 w-4 text-warning" /> Möglich mit Aufwand /
-            partiell
+            <Minus className="h-4 w-4 text-warning" />{" "}
+            {t("comparison.legend.partial")}
           </span>
           <span className="flex items-center gap-2">
-            <X className="h-4 w-4 text-muted-foreground/40" /> Nicht vorhanden
+            <X className="h-4 w-4 text-muted-foreground/40" />{" "}
+            {t("comparison.legend.missing")}
           </span>
           <span className="ml-auto text-xs">
-            ★ Kivitendo hat Kivvi inspiriert
+            {t("comparison.legend.kivitendoInspired")}
           </span>
         </div>
 
@@ -156,7 +174,7 @@ export default function RoadmapPage() {
             href="/knowledge/kreislaufwirtschaft-software-problem"
             className="inline-flex items-center gap-1.5 font-medium text-primary hover:underline"
           >
-            Vollständige Analyse lesen
+            {t("comparison.completeLink")}
             <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
@@ -169,11 +187,9 @@ export default function RoadmapPage() {
             <Heart className="h-6 w-6 text-destructive" />
           </div>
         </div>
-        <h2 className="text-xl font-semibold">Entwicklung unterstützen</h2>
+        <h2 className="text-xl font-semibold">{t("donate.title")}</h2>
         <p className="mx-auto max-w-lg text-muted-foreground">
-          Kivvi ist Open Source und wird von revamp-it, einem gemeinnützigen
-          IT-Refurbisher aus Zürich, entwickelt. Jede Spende fliesst direkt in
-          neue Funktionen und den Betrieb der Plattform.
+          {t("donate.description")}
         </p>
         <a
           href="https://revamp-it.ch"
@@ -182,21 +198,20 @@ export default function RoadmapPage() {
           className="inline-flex items-center gap-2 rounded-lg bg-destructive px-6 py-3 text-sm font-semibold text-destructive-foreground shadow-sm hover:bg-destructive/90 transition-colors"
         >
           <Heart className="h-4 w-4" />
-          Jetzt spenden
+          {t("donate.button")}
           <ExternalLink className="h-3.5 w-3.5 opacity-70" />
         </a>
-        <p className="text-xs text-muted-foreground">
-          Weiterleitung zu revamp-it Zürich · gemeinnützig nach Art. 56 lit. g
-          DBG
-        </p>
+        <p className="text-xs text-muted-foreground">{t("donate.footnote")}</p>
       </div>
 
       {/* ── Pipeline ────────────────────────────────────────────────────────── */}
       <section id="pipeline" className="space-y-4">
         <div>
-          <h2 className="text-2xl font-semibold">Was wir bauen</h2>
+          <h2 className="text-2xl font-semibold">
+            {t("pipelineHeader.title")}
+          </h2>
           <p className="mt-2 text-muted-foreground">
-            Wir bauen Kivvi öffentlich — keine Überraschungen.
+            {t("pipelineHeader.intro")}
           </p>
         </div>
 
@@ -211,7 +226,7 @@ export default function RoadmapPage() {
                 className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${cfg.bg} ${cfg.color}`}
               >
                 <Icon className="h-3 w-3" />
-                {cfg.label}
+                {t(`statuses.${s}`)}
               </span>
             );
           })}
@@ -220,11 +235,10 @@ export default function RoadmapPage() {
 
       {/* Pipeline stages */}
       {STAGES.map((stage) => {
-        const items = PIPELINE.filter((p) => p.status === stage);
+        const items = pipeline.filter((p) => p.status === stage);
         if (items.length === 0) return null;
         const cfg = STATUS_CONFIG[stage];
         const Icon = cfg.icon;
-        const heading = STAGE_HEADINGS[stage];
 
         return (
           <section key={stage} className="space-y-6">
@@ -233,8 +247,12 @@ export default function RoadmapPage() {
                 <Icon className={`h-5 w-5 ${cfg.color}`} />
               </div>
               <div>
-                <h3 className="text-xl font-semibold">{heading.title}</h3>
-                <p className="text-sm text-muted-foreground">{heading.desc}</p>
+                <h3 className="text-xl font-semibold">
+                  {t(`stages.${stage}.title`)}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {t(`stages.${stage}.desc`)}
+                </p>
               </div>
             </div>
 
@@ -267,23 +285,23 @@ export default function RoadmapPage() {
       {/* Footer links */}
       <div className="text-center space-y-3 text-sm text-muted-foreground border-t pt-10">
         <p>
-          Kivvi ist MIT-lizenziert und auf GitHub öffentlich.{" "}
+          {t("footer.openSourceText")}{" "}
           <a
             href="https://github.com/g-but/kivvi"
             target="_blank"
             rel="noopener noreferrer"
             className="font-medium text-foreground hover:underline"
           >
-            Mitwirken willkommen.
+            {t("footer.openSourceLink")}
           </a>
         </p>
         <p>
-          Fehlt dir etwas auf dieser Liste?{" "}
+          {t("footer.suggestText")}{" "}
           <Link
             href="/contact"
             className="font-medium text-foreground hover:underline"
           >
-            Schreib uns.
+            {t("footer.suggestLink")}
           </Link>
         </p>
       </div>

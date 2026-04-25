@@ -3140,6 +3140,294 @@
       "disclaimerHeader": "Disclaimer",
       "disclaimerText": "The content on this website was prepared with the greatest care. revamp-it makes no guarantees regarding the accuracy, completeness, or timeliness of the content. As a service provider we are responsible for our own content. For external links we accept no liability; responsibility lies with the respective provider."
     },
+    "roadmap": {
+      "hero": {
+        "title": "Roadmap & comparison",
+        "description": "Why existing ERPs fail the circular economy, what Kivvi does today, and what's next."
+      },
+      "comparison": {
+        "title": "The circular economy's software problem",
+        "intro": "No existing ERP connects all the parts — each fails for structural reasons. Kivvi was built because the gap was too big and too costly to close with workarounds.",
+        "columnFeature": "Feature",
+        "legend": {
+          "native": "Natively supported",
+          "partial": "Possible with effort / partial",
+          "missing": "Not available",
+          "kivitendoInspired": "★ Kivitendo inspired Kivvi"
+        },
+        "completeLink": "Read the full analysis"
+      },
+      "competitors": [
+        {
+          "key": "bexio",
+          "name": "Bexio",
+          "note": "Swiss SME standard",
+          "verdict": "100,000+ Swiss SMEs, QR invoices, CAMT — accounting-solid. Fails on the foundational assumption: stock is quantity, not individuals. No donations, no condition, no impact. The March 2026 price hike is pushing customers to evaluate."
+        },
+        {
+          "key": "odoo",
+          "name": "Odoo",
+          "note": "All-in-one open-source ERP",
+          "verdict": "Open source, extensible, Odoo 19 with serious AI. But: CHF 5,000–30,000 for a Swiss base setup, then circular workflows from scratch. A motivated partner could build it — would take years."
+        },
+        {
+          "key": "abacus",
+          "name": "Abacus",
+          "note": "Swiss enterprise",
+          "verdict": "The Swiss accounting standard for mid-sized companies. Implementations from CHF 20,000. No circular-specific functionality — and no incentive to build it for 20-person non-profits."
+        },
+        {
+          "key": "kivitendo",
+          "name": "Kivitendo ★",
+          "note": "Open-source predecessor",
+          "verdict": "Inspired Kivvi. Mature Perl codebase, QR invoices, SME chart of accounts. No per-item tracking, no condition grading, no impact dashboard, no modern UI. Kivvi imports Kivitendo data directly via CSV."
+        },
+        {
+          "key": "repairshopr",
+          "name": "RepairShopr / RepairDesk",
+          "note": "Repair ticketing systems",
+          "verdict": "Mature repair tickets, customer messaging, parts tracking. Not a full ERP: no double-entry accounting, no QR invoices, no balance sheet. Accounting has to be solved separately."
+        },
+        {
+          "key": "kivvi",
+          "name": "Kivvi",
+          "note": "The missing piece",
+          "verdict": "Connects all the parts: Swiss compliance, intake, condition grading, repair workflow, accounting, QR invoices, donation receipts, and impact reporting — natively for the circular economy."
+        }
+      ],
+      "features": [
+        {
+          "feature": "Per-item tracking",
+          "desc": "Every device with its own ID, history, and costs"
+        },
+        {
+          "feature": "Condition grading",
+          "desc": "5-grade classification (good / fair / poor / parts / scrap)"
+        },
+        {
+          "feature": "Intake workflow",
+          "desc": "Goods receipt without a PO — donations, returns, exchanges"
+        },
+        {
+          "feature": "Repair workflow",
+          "desc": "Technicians, parts, labour, quality gates per item"
+        },
+        {
+          "feature": "Swiss QR invoice",
+          "desc": "Compliant QR payment slips — required since 2022"
+        },
+        {
+          "feature": "Double-entry accounting",
+          "desc": "Full financial accounting, balance sheet, P&L, VAT"
+        },
+        {
+          "feature": "Impact tracking / CO₂",
+          "desc": "CO₂ avoided, reuse rate, reporting"
+        },
+        {
+          "feature": "Data-erasure certificate (FADP)",
+          "desc": "Auditable data wipe per NIST SP 800-88 / DIN 66399 — certificate as PDF"
+        },
+        {
+          "feature": "AI input",
+          "desc": "Natural-language entry — \"50 laptops from UBS\""
+        },
+        {
+          "feature": "Open source",
+          "desc": "Source code public, MIT-licensed"
+        },
+        {
+          "feature": "Self-hostable",
+          "desc": "Run on your own infrastructure — no dependence"
+        }
+      ],
+      "donate": {
+        "title": "Support development",
+        "description": "Kivvi is open source and developed by revamp-it, a non-profit IT refurbisher in Zürich. Every donation flows directly into new features and platform operations.",
+        "button": "Donate now",
+        "footnote": "Redirects to revamp-it Zürich · non-profit per Art. 56 lit. g DBG"
+      },
+      "pipelineHeader": {
+        "title": "What we're building",
+        "intro": "We build Kivvi in public — no surprises."
+      },
+      "statuses": {
+        "live": "Live",
+        "building": "Building",
+        "planned": "Planned",
+        "vision": "Vision"
+      },
+      "stages": {
+        "live": {
+          "title": "Live today",
+          "desc": "Features you can use right now."
+        },
+        "building": {
+          "title": "Building",
+          "desc": "What we're working on right now — landing in the next few weeks."
+        },
+        "planned": {
+          "title": "Planned",
+          "desc": "Decided and on the plan — implementation to come."
+        },
+        "vision": {
+          "title": "Big vision",
+          "desc": "Where the journey is headed long-term."
+        }
+      },
+      "pipeline": [
+        {
+          "status": "live",
+          "category": "Intake & inventory",
+          "title": "Intake workflow with condition grading",
+          "desc": "Record items, document condition (good / fair / poor / parts / scrap), route to sales or repair."
+        },
+        {
+          "status": "live",
+          "category": "Inventory",
+          "title": "Stock management & serial numbers",
+          "desc": "Multiple warehouses, stock movements, individual serial-number tracking per item."
+        },
+        {
+          "status": "live",
+          "category": "Sales & purchasing",
+          "title": "All document types — QR invoice included",
+          "desc": "Quote → order → delivery note → invoice → credit note. Compliant QR invoices, generated automatically."
+        },
+        {
+          "status": "live",
+          "category": "Accounting",
+          "title": "Double-entry accounting (SME chart of accounts)",
+          "desc": "227 accounts, automatic journal entries on invoices, fiscal years, fiscal periods."
+        },
+        {
+          "status": "live",
+          "category": "Accounting",
+          "title": "Reports: P&L, balance sheet, VAT, aging",
+          "desc": "All legally relevant reports, computed in real time from postings."
+        },
+        {
+          "status": "live",
+          "category": "Banking",
+          "title": "Bank accounts & transaction reconciliation",
+          "desc": "Manage bank accounts, import statements (CSV), reconcile transactions with invoices."
+        },
+        {
+          "status": "live",
+          "category": "Dunning",
+          "title": "Automatic dunning",
+          "desc": "Detect overdue invoices, manage dunning levels, generate dunning letters."
+        },
+        {
+          "status": "live",
+          "category": "AI",
+          "title": "AI command bar (Cmd+K)",
+          "desc": "Natural-language entry: \"50 laptops donated by UBS\" — Kivvi handles the rest. Runs on Claude, GPT-4, or locally via Ollama."
+        },
+        {
+          "status": "live",
+          "category": "Impact",
+          "title": "Impact dashboard & CO₂ tracking",
+          "desc": "Reuse rate, CO₂ avoided (by category), items rescued from the linear cycle. Configurable CO₂ factors per product category."
+        },
+        {
+          "status": "live",
+          "category": "Migration",
+          "title": "Kivitendo migration via CSV",
+          "desc": "Import contacts, products, documents, and bookings from Kivitendo — no engineering required."
+        },
+        {
+          "status": "live",
+          "category": "Platform",
+          "title": "Multi-tenant & self-hosting",
+          "desc": "Strict data isolation between tenants. Runs on your own infrastructure."
+        },
+        {
+          "status": "live",
+          "category": "Platform",
+          "title": "Open source (MIT license)",
+          "desc": "Full source code public. No vendor lock-in, no black boxes."
+        },
+        {
+          "status": "live",
+          "category": "Onboarding",
+          "title": "Simplified registration flow",
+          "desc": "Account creation in under 60 seconds. No form overkill."
+        },
+        {
+          "status": "live",
+          "category": "Impact",
+          "title": "Impact report as PDF",
+          "desc": "Single-page, shareable annual report for association reports and grant applications."
+        },
+        {
+          "status": "live",
+          "category": "Banking",
+          "title": "CAMT import (Swiss bank format)",
+          "desc": "Account statements directly in CAMT.053 format — the standard at all Swiss banks."
+        },
+        {
+          "status": "live",
+          "category": "Inventory",
+          "title": "Repair workflow",
+          "desc": "Repair orders with technician assignment, hours, and status tracking. Repair queue, parts tracking (per-part cost capture), log, and AI commands (cost/hours, condition, status, data wipe, QC checklist)."
+        },
+        {
+          "status": "planned",
+          "category": "Community",
+          "title": "Circular-economy talent marketplace",
+          "desc": "People without their own organisation can search circular businesses and apply."
+        },
+        {
+          "status": "planned",
+          "category": "Webshop",
+          "title": "Webshop integration",
+          "desc": "Publish items automatically to WooCommerce, Shopify, or your own shop."
+        },
+        {
+          "status": "live",
+          "category": "Compliance",
+          "title": "Data-erasure certificates (FADP)",
+          "desc": "Auditable data wipe per NIST SP 800-88 / DIN 66399. Certificate per serial number downloadable as PDF."
+        },
+        {
+          "status": "planned",
+          "category": "Mobile",
+          "title": "Mobile app / PWA",
+          "desc": "Intake, barcode scanning, and stock management on tablet — offline-capable."
+        },
+        {
+          "status": "live",
+          "category": "Impact",
+          "title": "Impact per customer / donor",
+          "desc": "Impact panel on the contact page: items donated, reuse rate, and CO₂ avoided per donor."
+        },
+        {
+          "status": "vision",
+          "category": "Regulation",
+          "title": "Digital product passport (EU ESPR from 2028)",
+          "desc": "Machine-readable repair and refurbishment events for the DPP."
+        },
+        {
+          "status": "vision",
+          "category": "Platform",
+          "title": "Public organisation directory",
+          "desc": "All Kivvi businesses optionally visible: what do they accept? Where can you help?"
+        },
+        {
+          "status": "vision",
+          "category": "Data",
+          "title": "Industry-wide impact aggregation",
+          "desc": "How much CO₂ has the entire Kivvi community avoided this year?"
+        }
+      ],
+      "footer": {
+        "openSourceText": "Kivvi is MIT-licensed and public on GitHub.",
+        "openSourceLink": "Contributions welcome.",
+        "suggestText": "Missing something on this list?",
+        "suggestLink": "Write to us."
+      }
+    },
     "datenschutz": {
       "title": "Privacy policy",
       "validity": "Effective from 1 January 2025 · In accordance with the Swiss Federal Act on Data Protection (FADP)",
