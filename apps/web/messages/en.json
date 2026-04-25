@@ -2286,6 +2286,176 @@
       },
       "ctaTitle": "Questions about hosting or enterprise?",
       "ctaDescription": "Reach out — we'll help you find the right option for your business."
+    },
+    "faq": {
+      "hero": {
+        "title": "Frequently asked questions",
+        "subtitle": "Everything you want to know before getting started."
+      },
+      "groups": [
+        {
+          "id": "allgemeines",
+          "title": "General",
+          "questions": [
+            {
+              "q": "What is Kivvi?",
+              "a": "Kivvi is an open-source ERP (Enterprise Resource Planning) built specifically for circular-economy businesses — thrift stores, IT refurbishers, repair cafés, vintage shops, and similar organisations. It manages the full lifecycle of goods: from intake through condition grading and repair to sale and impact measurement. Kivvi is built in Switzerland and natively supports Swiss law (QR invoicing, VAT, donation rules)."
+            },
+            {
+              "q": "Is Kivvi free?",
+              "a": "Yes. Kivvi is released under the MIT license — you can use, host, modify, and redistribute it for free. There are no license fees, no subscription fees, no freemium model. The only costs are infrastructure (server, backup) when you self-host — or any external hosting service you choose."
+            },
+            {
+              "q": "Can I self-host Kivvi?",
+              "a": "Yes, Kivvi is designed for self-hosting. You need a server with PostgreSQL and Node.js. Setup takes about an hour for technically capable people. Your data stays fully under your control — no cloud provider has access. For businesses without their own IT we offer hosted instances."
+            },
+            {
+              "q": "Who is Kivvi for?",
+              "a": "Kivvi is built for businesses giving goods a second life: thrift stores and social department stores, IT refurbishers and computer recyclers, repair cafés and workshops, vintage shops and clothing exchanges, bike refurbishers, upcycling ateliers, and non-profits with goods logistics. Anyone selling new goods is better served by a standard ERP."
+            },
+            {
+              "q": "Which languages does Kivvi support?",
+              "a": "The interface is available in German (Switzerland), English, and French. The interface can be switched via a language switcher. Additional languages can be contributed through the open-source project."
+            },
+            {
+              "q": "Is Kivvi only for Switzerland?",
+              "a": "No — Kivvi can be used anywhere. Some features are however Swiss-specific: QR invoices following the Swiss standard, VAT rates (8.1%, 2.6%, 0%), Rappen rounding to 0.05 CHF, and donation receipts under Swiss law. Businesses in Germany or Austria can use Kivvi but need to adapt these compliance fields accordingly."
+            }
+          ]
+        },
+        {
+          "id": "vergleich",
+          "title": "Kivvi vs. other software",
+          "questions": [
+            {
+              "q": "What's the difference from Bexio or Abacus?",
+              "a": "Bexio and Abacus are general Swiss accounting and ERP software for businesses selling new goods. They can manage stock quantities, invoices, and VAT — but they have no concept of per-item condition grading, donation receipts, per-device repair logs, or impact dashboards. For a secondhand business you end up with workarounds and Excel sheets next to the system. Kivvi solves these problems natively."
+            },
+            {
+              "q": "Can Kivvi replace Kivitendo?",
+              "a": "Yes — that was a core goal during development. Kivvi offers full goods management with quotes, orders, delivery notes, invoices, and accounting, like Kivitendo. On top, Kivvi brings per-item tracking, condition grading, repair logs, and an impact dashboard — things Kivitendo never properly modelled for secondhand businesses. Data can be exported via CSV from Kivitendo and imported into Kivvi."
+            },
+            {
+              "q": "What's the difference from a normal stock management system?",
+              "a": "Normal stock systems think in SKUs: \"50 Lenovo ThinkPad T14 — quantity: 50\". Kivvi thinks in individuals: laptop #23 has scratches on the case, battery 78%, was repaired for CHF 40, suggested price CHF 95, minimum price CHF 70. This difference is fundamental — it enables real per-device margin calculation, quality records, and repair histories that standard stock systems structurally cannot represent."
+            },
+            {
+              "q": "Why not a standard ERP with customisations?",
+              "a": "Standard ERPs are based on assumptions that are wrong for circular businesses: goods come from suppliers (not donors), have a fixed value at intake (not an assessed one), are tracked as quantities (not individuals), and impact is not a business concept. These assumptions are deeply embedded in the data model. Workarounds cost more time than a system that thinks correctly from day one."
+            },
+            {
+              "q": "Is Kivvi a full ERP or just stock management?",
+              "a": "Kivvi is a full ERP: contact management (customers, vendors, donors), goods management (intake, stock, sales), document management (quotes, orders, delivery notes, invoices, credit notes), accounting (Swiss SME chart of accounts, journal entries, VAT report), bank reconciliation, and impact dashboard. It covers the full operational cycle."
+            }
+          ]
+        },
+        {
+          "id": "kreislauf",
+          "title": "Circular economy & core features",
+          "questions": [
+            {
+              "q": "What does Kivvi mean by circular economy?",
+              "a": "The circular economy includes all businesses that return goods to the economic cycle after their first use: through repair, resale, redesign (upcycling), or parts harvesting. The opposite is the linear economy: make → buy → throw away. Circular businesses interrupt that loop and extend the lifespan of goods."
+            },
+            {
+              "q": "How does Kivvi track individual items?",
+              "a": "Every item gets a unique ID and a QR code at intake. Attached to it: condition grade (Good/Fair/Poor/For Parts/Scrap), serial number, location, all repair entries with date/cost/hours/note, suggested price, minimum price, intake source (donation/purchase/trade-in/consignment), and finally sale date and price. The full lifecycle is queryable at any time."
+            },
+            {
+              "q": "What are the 5 condition grades?",
+              "a": "Good: barely any signs of use, fully functional. Fair: visible signs of use, works flawlessly. Poor: clear wear, works. For parts: partly broken, suitable as a parts source. Scrap: not repairable, recycling. The grades apply to IT, clothing, furniture, bikes, and other categories with adapted criteria. The condition grade directly influences the suggested price."
+            },
+            {
+              "q": "How does Kivvi calculate impact (CO₂, devices)?",
+              "a": "The impact dashboard calculates three core metrics: number of items in new use (devices saved), CO₂ savings in kg (count × category-specific factor, e.g. laptop ~300 kg, jeans ~8 kg) and number of people served (transactions). The CO₂ factors are based on lifecycle assessments (Fraunhofer, Ecoinvent). Results can be exported for grant applications."
+            },
+            {
+              "q": "What are donation receipts and how does Kivvi generate them?",
+              "a": "When someone donates goods (instead of selling them), the donor can deduct that contribution from their tax return — provided your business is recognised as a non-profit. For that they need a donation receipt with mandatory information (name/address of organisation and donor, date, type and value of contribution, confirmation of non-profit status). Kivvi generates this receipt automatically as a PDF at intake — pre-filled and ready to print."
+            },
+            {
+              "q": "Can Kivvi issue data-erasure certificates?",
+              "a": "Yes. As soon as a data wipe is recorded for a device — whether through the QC checklist or manually — a PDF certificate can be downloaded. It contains device data (item number, serial number, description), the wipe method (ATA Secure Erase, DBAN, factory reset, etc.), date and operator, plus references to NIST SP 800-88, DIN 66399, and the Swiss FADP. Corporate customers often demand this proof as a precondition for buying back devices."
+            },
+            {
+              "q": "Does Kivvi support consignment sales?",
+              "a": "Yes. In a consignment model, private people drop off goods — the business sells them and keeps a commission. Kivvi records the depositor as a contact, links the items, and enables settlement after sale: what was sold? What's still in stock? What do we still owe? Fully without manual Excel sheets."
+            }
+          ]
+        },
+        {
+          "id": "betrieb",
+          "title": "Operations & migration",
+          "questions": [
+            {
+              "q": "How long does setup take?",
+              "a": "Initial setup takes about 10 minutes: company name, address, VAT number, default VAT rate, bank IBAN. Kivvi then automatically creates the Swiss SME chart of accounts (227 accounts), 11 number sequences (invoices, quotes, etc.), and the default warehouse. You can start right away. A full migration from Kivitendo with historical data takes 1–4 hours depending on data volume."
+            },
+            {
+              "q": "Can I import data from Excel?",
+              "a": "Yes. Kivvi imports CSV files for contacts (customers, vendors), products, and documents (invoices, quotes). Kivvi auto-detects the column structure and proposes a mapping. Swiss number formats (5'007.20) and date formats (22.01.2026) are converted automatically."
+            },
+            {
+              "q": "Can I import data from Kivitendo?",
+              "a": "Yes — this is explicitly supported. Kivitendo CSV exports are auto-detected. The import order (contacts → products → documents → bookings → stock levels) is enforced and documented by Kivvi. Number sequences are automatically set to the maximum imported number after the import."
+            },
+            {
+              "q": "Does Kivvi work with volunteer teams?",
+              "a": "Yes. Kivvi is designed so that new staff and volunteers can be onboarded in 5 minutes. The most common actions (intake via AI quick entry, scanning QRs, grading condition, selling items) are reduced to a few clicks. More complex features (accounting, reports) are intended for experienced users."
+            },
+            {
+              "q": "Is there support?",
+              "a": "Kivvi is open source — primary support runs through GitHub Issues and the community. For businesses that deploy Kivvi, we offer direct email support. Reach us at info@revamp-it.ch. For complex setups or migrations we can offer dedicated support."
+            },
+            {
+              "q": "Can I manage multiple sites or warehouses?",
+              "a": "Yes. Kivvi supports multiple warehouses per business. Items can be transferred between warehouses, stock levels are tracked per location. Multi-tenancy (multiple legally independent businesses in one instance) is also supported."
+            }
+          ]
+        },
+        {
+          "id": "technik",
+          "title": "Tech & compliance",
+          "questions": [
+            {
+              "q": "Does Kivvi create Swiss QR invoices?",
+              "a": "Yes. Every invoice in Kivvi automatically generates a valid Swiss QR payment slip — legally required since 2022. The QR reference is generated automatically, IBAN and recipient data come from the company configuration. The payment slip is included in the invoice PDF and can be used for automatic payment matching (CAMT import)."
+            },
+            {
+              "q": "How does Kivvi calculate VAT correctly?",
+              "a": "Kivvi uses Decimal.js for all financial calculations — no floating-point arithmetic, no rounding errors. VAT is calculated per invoice line (Swiss standard), not on the total. CHF amounts are rounded to 0.05 Rappen (Rappen rounding). VAT rates (8.1%, 2.6%, 0%) come from system configuration, not from code."
+            },
+            {
+              "q": "Is my data safe?",
+              "a": "Kivvi stores data in a PostgreSQL database. With self-hosting, responsibility for backup, encryption, and access control lies with you. For hosted instances: data is stored in Switzerland, transmission is TLS-encrypted, passwords are hashed (never stored in clear text), each company only sees its own data (multi-tenant isolation at the database level)."
+            },
+            {
+              "q": "Where is my data stored?",
+              "a": "With self-hosting: on your own server — you have full control. For hosted instances: in Switzerland, in Swiss data centres. There is no data sale, no analytics passed to third parties."
+            },
+            {
+              "q": "Is there a mobile app?",
+              "a": "Kivvi is a web app that runs in the browser — on mobile, tablet, and desktop. There is no native iOS or Android app. The web app works well on mobile for common actions (scanning QR via camera, recording items, changing status). Complex accounting functions are more comfortable on larger screens."
+            },
+            {
+              "q": "How does bank reconciliation work?",
+              "a": "Kivvi imports CAMT.053 files (the Swiss standard for account statements, available at all Swiss banks). Imported transactions are automatically matched against open invoices — via QR reference or amount+date. Transactions not matched automatically are assigned manually."
+            },
+            {
+              "q": "Is there an API?",
+              "a": "Yes. Kivvi offers a REST API for contacts, products, and documents. The API is secured with API keys (bearer tokens). It enables integration with external systems — webshops, point-of-sale terminals, barcode-scanner software. API documentation is available in the system under Settings → API."
+            }
+          ]
+        }
+      ],
+      "bottomCta": {
+        "title": "Question not found?",
+        "description": "Reach out — we'll answer and add it to the FAQ.",
+        "linkWhyKivvi": "Why Kivvi →",
+        "linkHowItWorks": "How it works →",
+        "linkKnowledge": "Knowledge base →"
+      },
+      "organizationDescription": "IT refurbisher and developer of Kivvi ERP"
     }
   },
   "bulkActions": {

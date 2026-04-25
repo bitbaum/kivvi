@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { ArrowRight, HelpCircle } from "lucide-react";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { buildPageMeta } from "@/lib/config/site";
-import { ORGANIZATION_LD, FAQ_PAGE_LD, FAQ_GROUPS } from "./faq-data";
+import { buildOrganizationLd, buildFaqPageLd, type FaqGroup } from "./faq-data";
 
 export const metadata: Metadata = {
   title: "FAQ — Häufige Fragen zu Kivvi",
@@ -15,16 +16,22 @@ export const metadata: Metadata = {
   ),
 };
 
-export default function FaqPage() {
+export default async function FaqPage() {
+  const t = await getTranslations("landing.faq");
+  const tLanding = await getTranslations("landing");
+  const groups = t.raw("groups") as FaqGroup[];
+  const organizationLd = buildOrganizationLd(t("organizationDescription"));
+  const faqPageLd = buildFaqPageLd(groups);
+
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(ORGANIZATION_LD) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(FAQ_PAGE_LD) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageLd) }}
       />
       {/* Hero */}
       <section className="mx-auto max-w-3xl py-16 text-center">
@@ -34,17 +41,15 @@ export default function FaqPage() {
           </div>
         </div>
         <h1 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl">
-          Häufige Fragen
+          {t("hero.title")}
         </h1>
-        <p className="text-xl text-muted-foreground">
-          Alles, was Sie vor dem Start wissen wollen.
-        </p>
+        <p className="text-xl text-muted-foreground">{t("hero.subtitle")}</p>
       </section>
 
       {/* In-page nav */}
       <section className="mx-auto max-w-3xl py-4">
         <div className="flex flex-wrap gap-2 justify-center">
-          {FAQ_GROUPS.map((group) => (
+          {groups.map((group) => (
             <a
               key={group.id}
               href={`#${group.id}`}
@@ -58,7 +63,7 @@ export default function FaqPage() {
 
       {/* FAQ content */}
       <section className="mx-auto max-w-3xl py-8 space-y-16">
-        {FAQ_GROUPS.map((group) => (
+        {groups.map((group) => (
           <div key={group.id} id={group.id}>
             <h2 className="mb-6 text-2xl font-bold border-b pb-3">
               {group.title}
@@ -74,20 +79,20 @@ export default function FaqPage() {
 
       {/* Bottom CTA */}
       <section className="mx-auto max-w-2xl py-16 text-center">
-        <h2 className="mb-4 text-2xl font-bold">Frage nicht gefunden?</h2>
+        <h2 className="mb-4 text-2xl font-bold">{t("bottomCta.title")}</h2>
         <p className="mb-8 text-muted-foreground">
-          Schreiben Sie uns — wir antworten und ergänzen die FAQ.
+          {t("bottomCta.description")}
         </p>
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <Button asChild size="lg">
             <Link href="/contact">
-              Demo anfragen
+              {tLanding("requestDemo")}
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
           <Button asChild variant="secondary" size="lg">
             <Link href="/register">
-              Kivvi ausprobieren <ArrowRight className="h-4 w-4" />
+              {tLanding("ctaTryIt")} <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
         </div>
@@ -96,19 +101,19 @@ export default function FaqPage() {
             href="/why-kivvi"
             className="text-muted-foreground hover:text-foreground transition-colors"
           >
-            Warum Kivvi →
+            {t("bottomCta.linkWhyKivvi")}
           </Link>
           <Link
             href="/how-it-works"
             className="text-muted-foreground hover:text-foreground transition-colors"
           >
-            Wie es funktioniert →
+            {t("bottomCta.linkHowItWorks")}
           </Link>
           <Link
             href="/knowledge"
             className="text-muted-foreground hover:text-foreground transition-colors"
           >
-            Wissensdatenbank →
+            {t("bottomCta.linkKnowledge")}
           </Link>
         </div>
       </section>
