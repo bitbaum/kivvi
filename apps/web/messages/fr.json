@@ -2456,6 +2456,51 @@
         "linkKnowledge": "Base de connaissances →"
       },
       "organizationDescription": "Reconditionneur IT et développeur de Kivvi ERP"
+    },
+    "contact": {
+      "title": "Demander une démo",
+      "subtitle": "Contactez-nous — nous répondons sous 2 jours ouvrés.",
+      "whyTitle": "Pourquoi Kivvi ?",
+      "benefits": [
+        "Conçu spécifiquement pour l'économie circulaire",
+        "Factures QR suisses & TVA pris en charge nativement",
+        "Open source, licence MIT — pas de verrouillage fournisseur",
+        "Saisie rapide par IA pour une réception rapide",
+        "Migration depuis Kivitendo en quelques heures"
+      ],
+      "ctaCloud": {
+        "title": "Démarrer tout de suite",
+        "description": "La version cloud est disponible — hébergée en Suisse, exploitée par revamp-it. Ou auto-hébergement avec contrôle complet des données.",
+        "tryFree": "Essayer gratuitement",
+        "viewPricing": "Voir les tarifs"
+      },
+      "form": {
+        "namePlaceholder": "Marie Exemple",
+        "emailPlaceholder": "marie@exemple.ch",
+        "organisationLabel": "Organisation",
+        "organisationPlaceholder": "Votre entreprise",
+        "betriebstypLabel": "Type d'entreprise",
+        "betriebstypPlaceholder": "Veuillez choisir…",
+        "betriebstypOptions": {
+          "it_refurbisher": "Reconditionneur IT",
+          "brockenshaus": "Friperie / magasin social",
+          "repair_cafe": "Repair café",
+          "vintage_shop": "Boutique vintage",
+          "other": "Autre"
+        },
+        "messageLabel": "Message",
+        "messagePlaceholder": "Qu'est-ce qui vous préoccupe ?",
+        "optionalSuffix": "(optionnel)",
+        "submit": "Demander une démo",
+        "successTitle": "Merci !",
+        "successMessage": "Nous vous recontacterons sous 2 jours ouvrés.",
+        "genericError": "Une erreur inconnue est survenue."
+      },
+      "waitlist": {
+        "emailPlaceholder": "vous@email.ch",
+        "submit": "Rejoindre la liste d'attente",
+        "successMessage": "Vous êtes sur la liste d'attente. Nous vous contacterons !"
+      }
     }
   },
   "bulkActions": {

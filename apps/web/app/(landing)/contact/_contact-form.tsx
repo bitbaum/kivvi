@@ -2,14 +2,15 @@
 
 import { useState, useTransition } from "react";
 import { Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { submitContactFormAction } from "@/app/actions/contact";
 
-const BETRIEBSTYP_OPTIONS = [
-  { value: "it_refurbisher", label: "IT-Refurbisher" },
-  { value: "brockenshaus", label: "Brockenhaus / Sozialkaufhaus" },
-  { value: "repair_cafe", label: "Repair Café" },
-  { value: "vintage_shop", label: "Vintage-Shop" },
-  { value: "other", label: "Anderes" },
+const BETRIEBSTYP_VALUES = [
+  "it_refurbisher",
+  "brockenshaus",
+  "repair_cafe",
+  "vintage_shop",
+  "other",
 ] as const;
 
 const inputClass =
@@ -17,6 +18,8 @@ const inputClass =
 const labelClass = "mb-1.5 block text-sm font-medium";
 
 export function ContactForm() {
+  const t = useTranslations("landing.contact.form");
+  const tCommon = useTranslations("common");
   const [isPending, startTransition] = useTransition();
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -32,7 +35,7 @@ export function ContactForm() {
       if (result.success) {
         setSuccess(true);
       } else {
-        setError(result.error ?? "Ein unbekannter Fehler ist aufgetreten.");
+        setError(result.error ?? t("genericError"));
       }
     });
   }
@@ -55,9 +58,9 @@ export function ContactForm() {
             />
           </svg>
         </div>
-        <p className="text-lg font-semibold">Danke!</p>
+        <p className="text-lg font-semibold">{t("successTitle")}</p>
         <p className="mt-1 text-sm text-muted-foreground">
-          Wir melden uns innerhalb von 2 Werktagen.
+          {t("successMessage")}
         </p>
       </div>
     );
@@ -68,14 +71,14 @@ export function ContactForm() {
       {/* Name */}
       <div>
         <label htmlFor="name" className={labelClass}>
-          Name <span className="text-destructive">*</span>
+          {tCommon("name")} <span className="text-destructive">*</span>
         </label>
         <input
           id="name"
           name="name"
           type="text"
           required
-          placeholder="Max Muster"
+          placeholder={t("namePlaceholder")}
           disabled={isPending}
           className={inputClass}
         />
@@ -84,14 +87,14 @@ export function ContactForm() {
       {/* E-Mail */}
       <div>
         <label htmlFor="email" className={labelClass}>
-          E-Mail <span className="text-destructive">*</span>
+          {tCommon("email")} <span className="text-destructive">*</span>
         </label>
         <input
           id="email"
           name="email"
           type="email"
           required
-          placeholder="max@beispiel.ch"
+          placeholder={t("emailPlaceholder")}
           disabled={isPending}
           className={inputClass}
         />
@@ -100,16 +103,16 @@ export function ContactForm() {
       {/* Organisation */}
       <div>
         <label htmlFor="organisation" className={labelClass}>
-          Organisation{" "}
+          {t("organisationLabel")}{" "}
           <span className="text-muted-foreground text-xs font-normal">
-            (optional)
+            {t("optionalSuffix")}
           </span>
         </label>
         <input
           id="organisation"
           name="organisation"
           type="text"
-          placeholder="Ihr Betrieb"
+          placeholder={t("organisationPlaceholder")}
           disabled={isPending}
           className={inputClass}
         />
@@ -118,9 +121,9 @@ export function ContactForm() {
       {/* Betriebstyp */}
       <div>
         <label htmlFor="betriebstyp" className={labelClass}>
-          Betriebstyp{" "}
+          {t("betriebstypLabel")}{" "}
           <span className="text-muted-foreground text-xs font-normal">
-            (optional)
+            {t("optionalSuffix")}
           </span>
         </label>
         <select
@@ -131,11 +134,11 @@ export function ContactForm() {
           defaultValue=""
         >
           <option value="" disabled>
-            Bitte wählen…
+            {t("betriebstypPlaceholder")}
           </option>
-          {BETRIEBSTYP_OPTIONS.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
+          {BETRIEBSTYP_VALUES.map((value) => (
+            <option key={value} value={value}>
+              {t(`betriebstypOptions.${value}`)}
             </option>
           ))}
         </select>
@@ -144,16 +147,16 @@ export function ContactForm() {
       {/* Nachricht */}
       <div>
         <label htmlFor="message" className={labelClass}>
-          Nachricht{" "}
+          {t("messageLabel")}{" "}
           <span className="text-muted-foreground text-xs font-normal">
-            (optional)
+            {t("optionalSuffix")}
           </span>
         </label>
         <textarea
           id="message"
           name="message"
           rows={4}
-          placeholder="Was beschäftigt Sie?"
+          placeholder={t("messagePlaceholder")}
           disabled={isPending}
           className={inputClass}
         />
@@ -176,7 +179,7 @@ export function ContactForm() {
         className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60"
       >
         {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-        Demo anfragen
+        {t("submit")}
       </button>
     </form>
   );
@@ -187,6 +190,8 @@ export function ContactForm() {
 // ---------------------------------------------------------------------------
 
 export function WaitlistForm() {
+  const t = useTranslations("landing.contact.waitlist");
+  const tForm = useTranslations("landing.contact.form");
   const [isPending, startTransition] = useTransition();
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -206,16 +211,14 @@ export function WaitlistForm() {
       if (result.success) {
         setSuccess(true);
       } else {
-        setError(result.error ?? "Ein unbekannter Fehler ist aufgetreten.");
+        setError(result.error ?? tForm("genericError"));
       }
     });
   }
 
   if (success) {
     return (
-      <p className="text-sm font-medium text-success">
-        Sie sind auf der Warteliste. Wir melden uns!
-      </p>
+      <p className="text-sm font-medium text-success">{t("successMessage")}</p>
     );
   }
 
@@ -225,7 +228,7 @@ export function WaitlistForm() {
         name="email"
         type="email"
         required
-        placeholder="ihre@email.ch"
+        placeholder={t("emailPlaceholder")}
         disabled={isPending}
         className="flex-1 rounded-lg border bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50"
       />
@@ -235,7 +238,7 @@ export function WaitlistForm() {
         className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-60 whitespace-nowrap"
       >
         {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-        Auf Warteliste
+        {t("submit")}
       </button>
       {error && (
         <p className="w-full text-xs text-destructive sm:col-span-2">{error}</p>

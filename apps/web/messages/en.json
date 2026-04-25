@@ -2456,6 +2456,51 @@
         "linkKnowledge": "Knowledge base →"
       },
       "organizationDescription": "IT refurbisher and developer of Kivvi ERP"
+    },
+    "contact": {
+      "title": "Request a demo",
+      "subtitle": "Reach out — we'll reply within 2 working days.",
+      "whyTitle": "Why Kivvi?",
+      "benefits": [
+        "Built specifically for the circular economy",
+        "Swiss QR invoices & VAT supported natively",
+        "Open source, MIT license — no vendor lock-in",
+        "AI quick entry for fast intake",
+        "Kivitendo migration in a few hours"
+      ],
+      "ctaCloud": {
+        "title": "Get started right away",
+        "description": "The cloud version is available — hosted in Switzerland, operated by revamp-it. Or self-host with full data control.",
+        "tryFree": "Try free",
+        "viewPricing": "See pricing"
+      },
+      "form": {
+        "namePlaceholder": "Max Sample",
+        "emailPlaceholder": "max@example.com",
+        "organisationLabel": "Organisation",
+        "organisationPlaceholder": "Your business",
+        "betriebstypLabel": "Business type",
+        "betriebstypPlaceholder": "Please select…",
+        "betriebstypOptions": {
+          "it_refurbisher": "IT refurbisher",
+          "brockenshaus": "Thrift store / social department store",
+          "repair_cafe": "Repair café",
+          "vintage_shop": "Vintage shop",
+          "other": "Other"
+        },
+        "messageLabel": "Message",
+        "messagePlaceholder": "What's on your mind?",
+        "optionalSuffix": "(optional)",
+        "submit": "Request demo",
+        "successTitle": "Thank you!",
+        "successMessage": "We'll get back to you within 2 working days.",
+        "genericError": "An unknown error occurred."
+      },
+      "waitlist": {
+        "emailPlaceholder": "you@email.com",
+        "submit": "Join waitlist",
+        "successMessage": "You're on the waitlist. We'll be in touch!"
+      }
     }
   },
   "bulkActions": {

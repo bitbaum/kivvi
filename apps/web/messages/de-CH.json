@@ -2456,6 +2456,51 @@
         "linkKnowledge": "Wissensdatenbank →"
       },
       "organizationDescription": "IT-Refurbisher und Entwickler von Kivvi ERP"
+    },
+    "contact": {
+      "title": "Demo anfragen",
+      "subtitle": "Schreiben Sie uns, wir antworten innerhalb von 2 Werktagen.",
+      "whyTitle": "Warum Kivvi?",
+      "benefits": [
+        "Speziell für Kreislaufwirtschaft gebaut",
+        "Schweizer QR-Rechnungen & MWST nativ",
+        "Open Source, MIT-Lizenz — kein Vendor Lock-in",
+        "KI-Schnelleingabe für schnellen Wareneingang",
+        "Kivitendo-Migration in wenigen Stunden"
+      ],
+      "ctaCloud": {
+        "title": "Direkt loslegen",
+        "description": "Die Cloud-Version ist verfügbar — gehostet in der Schweiz, betrieben von revamp-it. Oder Self-Hosting mit vollständiger Datenkontrolle.",
+        "tryFree": "Kostenlos testen",
+        "viewPricing": "Preise ansehen"
+      },
+      "form": {
+        "namePlaceholder": "Max Muster",
+        "emailPlaceholder": "max@beispiel.ch",
+        "organisationLabel": "Organisation",
+        "organisationPlaceholder": "Ihr Betrieb",
+        "betriebstypLabel": "Betriebstyp",
+        "betriebstypPlaceholder": "Bitte wählen…",
+        "betriebstypOptions": {
+          "it_refurbisher": "IT-Refurbisher",
+          "brockenshaus": "Brockenhaus / Sozialkaufhaus",
+          "repair_cafe": "Repair Café",
+          "vintage_shop": "Vintage-Shop",
+          "other": "Anderes"
+        },
+        "messageLabel": "Nachricht",
+        "messagePlaceholder": "Was beschäftigt Sie?",
+        "optionalSuffix": "(optional)",
+        "submit": "Demo anfragen",
+        "successTitle": "Danke!",
+        "successMessage": "Wir melden uns innerhalb von 2 Werktagen.",
+        "genericError": "Ein unbekannter Fehler ist aufgetreten."
+      },
+      "waitlist": {
+        "emailPlaceholder": "ihre@email.ch",
+        "submit": "Auf Warteliste",
+        "successMessage": "Sie sind auf der Warteliste. Wir melden uns!"
+      }
     }
   },
   "bulkActions": {
