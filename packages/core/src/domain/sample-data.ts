@@ -93,6 +93,9 @@ export async function seedSampleData(
       vatRate: "8.1",
       unit: "piece",
       currency: "CHF",
+      serialNumberTracking: false,
+      shopVisible: false,
+      isPriceFlexible: false,
     }),
     createProduct(db, companyId, {
       name: "Refurbished Monitor (Beispiel)",
@@ -101,6 +104,9 @@ export async function seedSampleData(
       vatRate: "8.1",
       unit: "piece",
       currency: "CHF",
+      serialNumberTracking: false,
+      shopVisible: false,
+      isPriceFlexible: false,
     }),
     createProduct(db, companyId, {
       name: "Refurbished Desktop PC (Beispiel)",
@@ -109,6 +115,9 @@ export async function seedSampleData(
       vatRate: "8.1",
       unit: "piece",
       currency: "CHF",
+      serialNumberTracking: false,
+      shopVisible: false,
+      isPriceFlexible: false,
     }),
   ]);
 
@@ -124,6 +133,7 @@ export async function seedSampleData(
   // Paid invoice (30 days ago)
   const paidInvoice = await createDocument(db, companyId, userId, {
     type: "invoice",
+    currency: "CHF",
     contactId: customerA.id,
     issueDate: daysAgo(30),
     dueDate: daysAgo(0),
@@ -134,7 +144,7 @@ export async function seedSampleData(
         description: "Refurbished Laptop (Beispiel)",
         quantity: "2",
         unitPrice: "150.00",
-        unit: "piece",
+        discount: "0",
         vatRate: "8.1",
       },
       {
@@ -143,7 +153,7 @@ export async function seedSampleData(
         description: "Refurbished Monitor (Beispiel)",
         quantity: "2",
         unitPrice: "75.00",
-        unit: "piece",
+        discount: "0",
         vatRate: "8.1",
       },
     ],
@@ -153,6 +163,7 @@ export async function seedSampleData(
   // Pending invoice (10 days ago, due in 20 days)
   const pendingInvoice = await createDocument(db, companyId, userId, {
     type: "invoice",
+    currency: "CHF",
     contactId: customerB.id,
     issueDate: daysAgo(10),
     dueDate: daysAgo(-20),
@@ -163,7 +174,7 @@ export async function seedSampleData(
         description: "Refurbished Desktop PC (Beispiel)",
         quantity: "1",
         unitPrice: "200.00",
-        unit: "piece",
+        discount: "0",
         vatRate: "8.1",
       },
     ],
@@ -173,6 +184,7 @@ export async function seedSampleData(
   // Overdue invoice (60 days ago, due 30 days ago)
   const overdueInvoice = await createDocument(db, companyId, userId, {
     type: "invoice",
+    currency: "CHF",
     contactId: customerA.id,
     issueDate: daysAgo(60),
     dueDate: daysAgo(30),
@@ -183,7 +195,7 @@ export async function seedSampleData(
         description: "Refurbished Laptop (Beispiel)",
         quantity: "1",
         unitPrice: "150.00",
-        unit: "piece",
+        discount: "0",
         vatRate: "8.1",
       },
     ],
