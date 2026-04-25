@@ -1551,6 +1551,15 @@
       "logoMaxSize": "Max 500 KB",
       "logoFormats": "PNG, JPEG, or SVG",
       "savedSuccessfully": "Settings saved",
+      "shopUrl": {
+        "title": "Shop URL",
+        "description": "Your public shop page — share this URL with customers so they can browse your available items.",
+        "placeholder": "your-shop-name",
+        "saveError": "Failed to save.",
+        "saved": "Saved",
+        "copyTitle": "Copy URL",
+        "openTitle": "Open shop"
+      },
       "aiConfig": "AI Configuration",
       "aiConfigHint": "Configure your own AI provider and API key for this company. Overrides system defaults.",
       "aiProvider": "AI Provider",

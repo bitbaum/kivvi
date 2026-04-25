@@ -1551,6 +1551,15 @@
       "logoMaxSize": "Max. 500 Ko",
       "logoFormats": "PNG, JPEG ou SVG",
       "savedSuccessfully": "Paramètres enregistrés",
+      "shopUrl": {
+        "title": "URL de la boutique",
+        "description": "Votre page boutique publique — partagez cette URL avec vos clients pour qu'ils puissent parcourir vos articles disponibles.",
+        "placeholder": "nom-de-votre-boutique",
+        "saveError": "Échec de l'enregistrement.",
+        "saved": "Enregistré",
+        "copyTitle": "Copier l'URL",
+        "openTitle": "Ouvrir la boutique"
+      },
       "aiConfig": "Configuration IA",
       "aiConfigHint": "Configurez votre propre fournisseur IA et clé API pour cette entreprise. Remplace les valeurs par défaut du système.",
       "aiProvider": "Fournisseur IA",

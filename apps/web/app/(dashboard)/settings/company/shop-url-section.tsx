@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Check, Copy, ExternalLink } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { updateCompanySlugAction } from "@/app/actions/settings";
 
 interface Props {
@@ -9,6 +10,8 @@ interface Props {
 }
 
 export function ShopUrlSection({ currentSlug }: Props) {
+  const t = useTranslations("settings.company.shopUrl");
+  const tCommon = useTranslations("common");
   const [isPending, startTransition] = useTransition();
   const [slug, setSlug] = useState(currentSlug ?? "");
   const [saved, setSaved] = useState(false);
@@ -27,7 +30,7 @@ export function ShopUrlSection({ currentSlug }: Props) {
         setSaved(true);
         setTimeout(() => setSaved(false), 2000);
       } else {
-        setError(result.error ?? "Fehler beim Speichern.");
+        setError(result.error ?? t("saveError"));
       }
     });
   }
@@ -41,11 +44,8 @@ export function ShopUrlSection({ currentSlug }: Props) {
 
   return (
     <div className="rounded-xl border bg-card p-6">
-      <h2 className="mb-1 text-lg font-semibold">Shop-URL</h2>
-      <p className="mb-4 text-sm text-muted-foreground">
-        Ihre öffentliche Shopseite — teilen Sie diese URL mit Kunden, damit sie
-        Ihre verfügbaren Artikel durchsuchen können.
-      </p>
+      <h2 className="mb-1 text-lg font-semibold">{t("title")}</h2>
+      <p className="mb-4 text-sm text-muted-foreground">{t("description")}</p>
 
       <div className="flex gap-2">
         <div className="flex flex-1 items-center rounded-lg border bg-background overflow-hidden">
@@ -56,7 +56,7 @@ export function ShopUrlSection({ currentSlug }: Props) {
             type="text"
             value={slug}
             onChange={(e) => setSlug(e.target.value)}
-            placeholder="ihr-shop-name"
+            placeholder={t("placeholder")}
             className="flex-1 px-3 py-2 text-sm bg-transparent focus:outline-none"
           />
         </div>
@@ -68,12 +68,12 @@ export function ShopUrlSection({ currentSlug }: Props) {
           {saved ? (
             <>
               <Check className="h-4 w-4" />
-              Gespeichert
+              {t("saved")}
             </>
           ) : isPending ? (
-            "Speichern…"
+            tCommon("saving")
           ) : (
-            "Speichern"
+            tCommon("save")
           )}
         </button>
       </div>
@@ -88,7 +88,7 @@ export function ShopUrlSection({ currentSlug }: Props) {
           <button
             onClick={copyUrl}
             className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-            title="URL kopieren"
+            title={t("copyTitle")}
           >
             {copied ? (
               <Check className="h-4 w-4 text-success" />
@@ -101,7 +101,7 @@ export function ShopUrlSection({ currentSlug }: Props) {
             target="_blank"
             rel="noopener noreferrer"
             className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-            title="Shop öffnen"
+            title={t("openTitle")}
           >
             <ExternalLink className="h-4 w-4" />
           </a>
