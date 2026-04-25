@@ -2501,6 +2501,85 @@
         "submit": "Rejoindre la liste d'attente",
         "successMessage": "Vous êtes sur la liste d'attente. Nous vous contacterons !"
       }
+    },
+    "howItWorks": {
+      "hero": {
+        "label": "Comment fonctionne Kivvi",
+        "title": "Trois phases. Un système.",
+        "description": "De la réception à la conclusion de la vente — chaque étape enregistrée numériquement, chaque article avec un historique complet."
+      },
+      "core": {
+        "title": "Le cœur : individus, pas niveaux de stock",
+        "description": "Les ERP standard gèrent des quantités : « 100 ThinkPad T14 en stock ». Les entreprises circulaires gèrent des individus : « Ordinateur portable n°23 — batterie : 78 %, rayures sur le boîtier, coût de réparation 40 CHF, prix de vente 80 CHF, marge 12 CHF ». C'est seulement quand chaque appareil a sa propre histoire qu'on peut calculer de vraies marges, garantir la qualité et conseiller les clients."
+      },
+      "phase1": {
+        "label": "Phase 1",
+        "title": "Réception",
+        "features": [
+          {
+            "title": "Toutes les sources — un seul formulaire",
+            "description": "Don, achat, reprise ou consignation : Kivvi connaît la différence et l'enregistre correctement. Reçu de don pour un don, facture fournisseur pour un achat — automatiquement."
+          },
+          {
+            "title": "Saisie rapide par IA",
+            "description": "« 50 Lenovo ThinkPad T14, batteries faibles » → Entrée. L'IA reconnaît la marque, le modèle et la quantité. 50 articles enregistrés, étiquettes QR prêtes à imprimer, en quelques secondes."
+          },
+          {
+            "title": "Étiquettes QR",
+            "description": "Chaque article reçoit un numéro unique et un code QR. Le scan à la caisse ouvre instantanément la fiche complète."
+          },
+          {
+            "title": "Reçus de don",
+            "description": "Reçus de don conformes au droit suisse — générés automatiquement, prêts à imprimer. Plus de paperasse manuelle."
+          }
+        ]
+      },
+      "phase2": {
+        "label": "Phase 2",
+        "title": "Évaluation & réparation",
+        "gradesTitle": "Les 5 niveaux d'état",
+        "conditions": {
+          "good": "À peine de traces d'utilisation, pleinement fonctionnel",
+          "fair": "Traces d'utilisation visibles, pleinement fonctionnel",
+          "poor": "Usure marquée, fonctionne encore",
+          "parts_only": "Partiellement défectueux, utilisable comme source de pièces",
+          "scrap": "Non réparable, recyclage"
+        },
+        "features": [
+          {
+            "title": "Protocole de réparation",
+            "description": "Coûts, heures, notes — pour chaque étape de réparation. Le protocole s'accumule à travers les entrées. La base de coût est transparente à tout moment."
+          },
+          {
+            "title": "Calcul de marge réel",
+            "description": "Prix d'achat + tous les coûts de réparation = base de coût. Le prix indicatif et le prix minimum sont calculés par rapport à celle-ci. Pas d'estimations, des chiffres réels."
+          }
+        ]
+      },
+      "phase3": {
+        "label": "Phase 3",
+        "title": "Vente & impact",
+        "features": [
+          {
+            "title": "Tarification flexible",
+            "description": "Prix indicatif, prix minimum, prix spécial — tout enregistré sur l'article. La vente selon le budget se fait par scan et ajustement manuel du prix, journalisée avec un motif."
+          },
+          {
+            "title": "Facture QR (obligatoire)",
+            "description": "Chaque facture génère automatiquement un bulletin QR suisse valide — légalement obligatoire depuis 2022. TVA et arrondi des centimes calculés correctement."
+          },
+          {
+            "title": "Tableau de bord d'impact",
+            "description": "Combien d'appareils sauvés ? Combien de CO₂ évité ? Combien de personnes servies ? Le tableau de bord calcule l'impact à partir de valeurs définies par catégorie."
+          },
+          {
+            "title": "Historique de vie complet",
+            "description": "Chaque article a un historique de vie : date de réception, donateur, état, toutes les réparations, date de vente, prix final. Sans interruption, infalsifiable."
+          }
+        ]
+      },
+      "ctaTitle": "Prêt pour votre entreprise ?",
+      "ctaDescription": "Contactez-nous ou inscrivez-vous directement — la première démo est gratuite."
     }
   },
   "bulkActions": {

@@ -78,34 +78,29 @@ export const WISSEN_FEATURED_SLUGS = [
   "impact-messen",
 ] as const;
 
+/**
+ * Visual config for the 5-grade condition scale used on landing pages.
+ * Labels live in messages/{locale}.json under inventory.condition* (SSOT);
+ * descriptions live under landing.howItWorks.conditions.* per locale.
+ */
 export const CONDITION_GRADES = [
-  {
-    label: "Gut",
-    desc: "Kaum Gebrauchsspuren, voll funktionsfähig",
-    colorClass:
-      "bg-success/10 text-success",
-  },
-  {
-    label: "Mittel",
-    desc: "Sichtbare Gebrauchsspuren, funktionsfähig",
-    colorClass: "bg-info/10 text-info",
-  },
-  {
-    label: "Schlecht",
-    desc: "Starke Abnutzung, funktioniert noch",
-    colorClass: "bg-warning/10 text-warning",
-  },
-  {
-    label: "Für Teile",
-    desc: "Teilweise defekt, als Ersatzteillager",
-    colorClass: "bg-warning/10 text-warning",
-  },
-  {
-    label: "Schrott",
-    desc: "Nicht reparierbar, Recycling",
-    colorClass: "bg-destructive/10 text-destructive",
-  },
-];
+  { id: "good", colorClass: "bg-success/10 text-success" },
+  { id: "fair", colorClass: "bg-info/10 text-info" },
+  { id: "poor", colorClass: "bg-warning/10 text-warning" },
+  { id: "parts_only", colorClass: "bg-warning/10 text-warning" },
+  { id: "scrap", colorClass: "bg-destructive/10 text-destructive" },
+] as const;
+
+export type ConditionGradeId = (typeof CONDITION_GRADES)[number]["id"];
+
+/** Maps a CONDITION_GRADES entry id → the inventory.* label key. */
+export const CONDITION_GRADE_LABEL_KEY: Record<ConditionGradeId, string> = {
+  good: "conditionGood",
+  fair: "conditionFair",
+  poor: "conditionPoor",
+  parts_only: "conditionPartsOnly",
+  scrap: "conditionScrap",
+};
 
 // ============================================================================
 // METADATA HELPERS

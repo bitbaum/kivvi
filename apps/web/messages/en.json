@@ -2501,6 +2501,85 @@
         "submit": "Join waitlist",
         "successMessage": "You're on the waitlist. We'll be in touch!"
       }
+    },
+    "howItWorks": {
+      "hero": {
+        "label": "How Kivvi works",
+        "title": "Three phases. One system.",
+        "description": "From intake to sale — every step recorded digitally, every item with a full history."
+      },
+      "core": {
+        "title": "The core: individuals, not stock counts",
+        "description": "Standard ERPs manage quantities: \"100 ThinkPad T14 in stock\". Circular businesses manage individuals: \"Laptop #23 — battery: 78%, scratches on the case, repair cost CHF 40, sale price CHF 80, margin CHF 12\". Only when every device has its own history can you calculate true margins, guarantee quality, and advise customers."
+      },
+      "phase1": {
+        "label": "Phase 1",
+        "title": "Intake",
+        "features": [
+          {
+            "title": "All sources — one form",
+            "description": "Donation, purchase, trade-in, or consignment: Kivvi knows the difference and records it correctly. Donation receipt on a donation, supplier invoice on a purchase — automatic."
+          },
+          {
+            "title": "AI quick entry",
+            "description": "\"50 Lenovo ThinkPad T14, weak batteries\" → Enter. The AI recognises brand, model, and quantity. 50 items recorded, QR labels ready to print, in seconds."
+          },
+          {
+            "title": "QR labels",
+            "description": "Every item gets a unique number and a QR code. Scanning at the till instantly opens the full item record."
+          },
+          {
+            "title": "Donation receipts",
+            "description": "Compliant Swiss donation receipts — generated automatically, ready to print. No more manual paperwork."
+          }
+        ]
+      },
+      "phase2": {
+        "label": "Phase 2",
+        "title": "Grading & repair",
+        "gradesTitle": "The 5 condition grades",
+        "conditions": {
+          "good": "Barely any signs of use, fully functional",
+          "fair": "Visible signs of use, fully functional",
+          "poor": "Heavy wear, still works",
+          "parts_only": "Partly broken, suitable as parts source",
+          "scrap": "Not repairable, recycling"
+        },
+        "features": [
+          {
+            "title": "Repair log",
+            "description": "Costs, hours, notes — per repair step. The log accumulates across entries. Total cost basis is transparent at all times."
+          },
+          {
+            "title": "Real margin calculation",
+            "description": "Purchase price + all repair costs = cost basis. Suggested price and minimum price are netted against it. No estimates, real numbers."
+          }
+        ]
+      },
+      "phase3": {
+        "label": "Phase 3",
+        "title": "Sale & impact",
+        "features": [
+          {
+            "title": "Flexible pricing",
+            "description": "Suggested price, minimum price, special price — all stored on the item. Budget-based sale works via scan and manual price adjustment, logged with a reason."
+          },
+          {
+            "title": "QR invoice (mandatory)",
+            "description": "Every invoice automatically generates a valid Swiss QR payment slip — legally required since 2022. VAT and Rappen rounding handled correctly."
+          },
+          {
+            "title": "Impact dashboard",
+            "description": "How many devices saved? How much CO₂ avoided? How many people served? The dashboard computes impact from defined per-category values."
+          },
+          {
+            "title": "Full life history",
+            "description": "Every item has a life history: intake date, donor, condition, every repair, sale date, final price. Gapless and tamper-resistant."
+          }
+        ]
+      },
+      "ctaTitle": "Ready for your business?",
+      "ctaDescription": "Reach out or sign up directly — the first demo is free."
     }
   },
   "bulkActions": {

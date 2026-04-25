@@ -1,9 +1,14 @@
 import { Shirt } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { SeeAlsoSection } from "@/components/landing/see-also-section";
 import { PainList } from "@/components/landing/pain-list";
 import { SolutionList } from "@/components/landing/solution-list";
 import { LandingCtaSection } from "@/components/landing/landing-cta-section";
-import { CONDITION_GRADES, buildPageMeta } from "@/lib/config/site";
+import {
+  CONDITION_GRADES,
+  CONDITION_GRADE_LABEL_KEY,
+  buildPageMeta,
+} from "@/lib/config/site";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -52,7 +57,8 @@ const SOLUTION_ITEMS = [
   "Impact-Dashboard: Kilogramm Kleidung gerettet, Stücke verkauft, CO₂ vermieden",
 ];
 
-export default function ForVintageShopsPage() {
+export default async function ForVintageShopsPage() {
+  const tInventory = await getTranslations("inventory");
   return (
     <>
       {/* Hero */}
@@ -119,11 +125,11 @@ export default function ForVintageShopsPage() {
           </p>
           <div className="space-y-3">
             {CONDITION_GRADES.map((grade, i) => (
-              <div key={grade.label} className="flex items-start gap-3">
+              <div key={grade.id} className="flex items-start gap-3">
                 <span
                   className={`shrink-0 w-20 text-sm font-semibold ${CLOTHING_TEXT_COLORS[i]}`}
                 >
-                  {grade.label}
+                  {tInventory(CONDITION_GRADE_LABEL_KEY[grade.id])}
                 </span>
                 <span className="text-sm text-muted-foreground">
                   {CLOTHING_CRITERIA[i]}

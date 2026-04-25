@@ -2501,6 +2501,85 @@
         "submit": "Auf Warteliste",
         "successMessage": "Sie sind auf der Warteliste. Wir melden uns!"
       }
+    },
+    "howItWorks": {
+      "hero": {
+        "label": "Wie Kivvi funktioniert",
+        "title": "Drei Phasen. Ein System.",
+        "description": "Von der Warenannahme bis zum Verkaufsabschluss — jeder Schritt digital erfasst, jeder Artikel mit vollständiger Geschichte."
+      },
+      "core": {
+        "title": "Der Kern: Einzelartikel statt Lagerbestand",
+        "description": "Standard-ERPs verwalten Stückzahlen: «100 ThinkPad T14 auf Lager». Kreislaufbetriebe verwalten Individuen: «Laptop #23 — Batterie: 78%, Kratzer am Gehäuse, Reparaturkosten CHF 40, Verkaufspreis CHF 80, Marge CHF 12». Nur wenn jedes Gerät seine eigene Geschichte hat, kann man echte Margen berechnen, Qualität garantieren und Kunden beraten."
+      },
+      "phase1": {
+        "label": "Phase 1",
+        "title": "Wareneingang",
+        "features": [
+          {
+            "title": "Alle Quellen — eine Maske",
+            "description": "Spende, Einkauf, Rücknahme oder Kommission: Kivvi kennt den Unterschied und protokolliert ihn korrekt. Spendenquittung bei Spende, Lieferantenrechnung bei Einkauf — automatisch."
+          },
+          {
+            "title": "KI-Schnelleingabe",
+            "description": "«50 Lenovo ThinkPad T14, Akkus schwach» → Enter. Die KI erkennt Marke, Modell und Menge. 50 Artikel erfasst, QR-Etiketten druckbereit, in Sekunden."
+          },
+          {
+            "title": "QR-Etiketten",
+            "description": "Jeder Artikel bekommt eine eindeutige Nummer und einen QR-Code. Scannen am Verkaufstisch öffnet sofort den vollständigen Artikel-Datensatz."
+          },
+          {
+            "title": "Spendenquittungen",
+            "description": "Konforme Spendenquittungen nach Schweizer Recht — automatisch generiert, direkt druckbar. Kein manuelles Ausfüllen mehr."
+          }
+        ]
+      },
+      "phase2": {
+        "label": "Phase 2",
+        "title": "Bewertung & Reparatur",
+        "gradesTitle": "Die 5 Zustandsstufen",
+        "conditions": {
+          "good": "Kaum Gebrauchsspuren, voll funktionsfähig",
+          "fair": "Sichtbare Gebrauchsspuren, funktionsfähig",
+          "poor": "Starke Abnutzung, funktioniert noch",
+          "parts_only": "Teilweise defekt, als Ersatzteillager",
+          "scrap": "Nicht reparierbar, Recycling"
+        },
+        "features": [
+          {
+            "title": "Reparaturprotokoll",
+            "description": "Kosten, Stunden, Notizen — pro Reparaturschritt. Das Protokoll akkumuliert über alle Einträge. Entstehungskosten sind jederzeit transparent."
+          },
+          {
+            "title": "Echte Margenkalkulation",
+            "description": "Einkaufspreis + alle Reparaturkosten = Kostenbasis. Richtpreis und Mindestpreis werden dagegen gerechnet. Keine Schätzungen, echte Zahlen."
+          }
+        ]
+      },
+      "phase3": {
+        "label": "Phase 3",
+        "title": "Verkauf & Impact",
+        "features": [
+          {
+            "title": "Flexible Preisgestaltung",
+            "description": "Richtpreis, Mindestpreis, Sonderpreis — alles am Artikel hinterlegt. Budgetbasierter Verkauf geht per Scan und manuellem Preisanpassen, protokolliert mit Begründung."
+          },
+          {
+            "title": "QR-Rechnung (gesetzlich)",
+            "description": "Jede Rechnung generiert automatisch einen gültigen Schweizer QR-Zahlschein — seit 2022 gesetzlich vorgeschrieben. MWST und Rappen-Rundung korrekt gerechnet."
+          },
+          {
+            "title": "Impact-Dashboard",
+            "description": "Wie viele Geräte gerettet? Wie viel CO₂ vermieden? Wie viele Menschen bedient? Das Dashboard rechnet Impact aus definierten Werten pro Artikelkategorie."
+          },
+          {
+            "title": "Vollständiger Lebenslauf",
+            "description": "Jeder Artikel hat einen Lebenslauf: Intake-Datum, Spender, Zustand, alle Reparaturen, Verkaufsdatum, Endpreis. Lückenlos, manipulationssicher."
+          }
+        ]
+      },
+      "ctaTitle": "Bereit für Ihren Betrieb?",
+      "ctaDescription": "Schreiben Sie uns oder registrieren Sie sich direkt — die erste Demo ist kostenlos."
     }
   },
   "bulkActions": {
