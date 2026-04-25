@@ -2667,6 +2667,56 @@
       "tagline": "The ERP for the circular economy. Open source, Swiss-native.",
       "productHeader": "Product",
       "companyHeader": "Company"
+    },
+    "forItRefurbishers": {
+      "hero": {
+        "badge": "For IT refurbishers & computer recyclers",
+        "title": "The ERP that knows your devices.",
+        "description": "Not \"100 ThinkPad T14 in stock\" — but laptop #47 with serial number XYZ, battery 78%, repair cost CHF 40, margin CHF 12. Every device. Anytime."
+      },
+      "painTitle": "Sound familiar?",
+      "painItems": [
+        "Your current system can't represent 'condition' — good/fair/poor doesn't exist",
+        "Repair costs can't be assigned to a single device",
+        "Margin per device is a guess, not a number",
+        "Donation receipts are typed by hand",
+        "Impact (CO₂, devices saved) can't be measured or documented",
+        "Data-erasure proof is missing — corporate buyers demand certificates before purchase",
+        "Migration from Kivitendo is blocked — the data sits in the old system"
+      ],
+      "solutionTitle": "Kivvi solves that",
+      "solutionItems": [
+        "Every device has a unique ID, serial number, condition grade, and full cost history",
+        "Repair costs logged per device: date, CHF, hours, note",
+        "Margin = sale price − (intake price + all repair costs) — second by second",
+        "Data-erasure certificate (Swiss FADP / NIST SP 800-88 / DIN 66399) per device as a PDF — on demand",
+        "Impact dashboard computes CO₂ savings per device category",
+        "CSV import from Kivitendo — contacts, items, invoices in one step"
+      ],
+      "migration": {
+        "title": "From Kivitendo to Kivvi",
+        "description": "Kivvi was designed as a direct successor to Kivitendo for secondhand businesses. Migration is self-service: export CSV, upload, done.",
+        "steps": [
+          "Import contacts (customers & vendors)",
+          "Import items & product groups",
+          "Import quotes, orders, invoices",
+          "Carry over number sequences — no gaps"
+        ],
+        "guideLink": "Read the migration guide"
+      },
+      "proof": {
+        "label": "Proven in production",
+        "title": "Built by revamp-it — one of Switzerland's largest IT refurbishers",
+        "description": "Since 2003 revamp-it has accepted, tested, repaired, and resold electronics. Kivvi was developed out of real operational problems — not as a software project that happened to land in secondhand.",
+        "stat1Value": "23+",
+        "stat1Label": "Years of experience",
+        "stat2Value": "5'000+",
+        "stat2Label": "Devices managed",
+        "stat3Value": "MIT",
+        "stat3Label": "Open source"
+      },
+      "ctaTitle": "Demo for IT refurbishers",
+      "ctaDescription": "Show us your current workflow — we'll show you how Kivvi maps it."
     }
   },
   "bulkActions": {

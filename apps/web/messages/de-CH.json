@@ -2667,6 +2667,56 @@
       "tagline": "Das ERP für die Kreislaufwirtschaft. Open Source, Swiss-native.",
       "productHeader": "Produkt",
       "companyHeader": "Unternehmen"
+    },
+    "forItRefurbishers": {
+      "hero": {
+        "badge": "Für IT-Refurbisher & Computer-Recycler",
+        "title": "Das ERP, das Ihre Geräte kennt.",
+        "description": "Nicht «100 ThinkPad T14 auf Lager» — sondern Laptop #47 mit Seriennummer XYZ, Batterie 78%, Reparaturkosten CHF 40, Marge CHF 12. Jedes Gerät. Jederzeit."
+      },
+      "painTitle": "Das kennen Sie?",
+      "painItems": [
+        "Ihr heutiges System kann 'Zustand' nicht abbilden — gut/mittel/schlecht existiert nicht",
+        "Reparaturkosten lassen sich nicht einem einzelnen Gerät zuordnen",
+        "Marge pro Gerät ist eine Schätzung, keine Zahl",
+        "Spendenquittungen werden manuell getippt",
+        "Impact (CO₂, Geräte gerettet) lässt sich nicht messen oder belegen",
+        "Datenlöschnachweis fehlt — Unternehmenskunden verlangen Zertifikate vor dem Kauf",
+        "Migration aus Kivitendo blockiert — die Daten sitzen im alten System"
+      ],
+      "solutionTitle": "Kivvi löst das",
+      "solutionItems": [
+        "Jedes Gerät hat eine eindeutige ID, Seriennummer, Zustandsbewertung und vollständige Kostenhistorie",
+        "Reparaturkosten werden pro Gerät geloggt: Datum, CHF, Stunden, Notiz",
+        "Marge = Verkaufspreis − (Intake-Preis + alle Reparaturkosten) — sekundengenau",
+        "Datenlöschzertifikat (nDSG / NIST SP 800-88 / DIN 66399) pro Gerät als PDF — auf Knopfdruck",
+        "Impact-Dashboard rechnet CO₂-Einsparung pro Gerätekategorie",
+        "CSV-Import aus Kivitendo — Kontakte, Artikel, Rechnungen in einem Schritt"
+      ],
+      "migration": {
+        "title": "Von Kivitendo zu Kivvi",
+        "description": "Kivvi war als direkter Nachfolger von Kivitendo für Secondhand-Betriebe konzipiert. Die Migration ist Self-Service: CSV exportieren, hochladen, fertig.",
+        "steps": [
+          "Kontakte (Kunden & Lieferanten) importieren",
+          "Artikel & Produktgruppen importieren",
+          "Angebote, Aufträge, Rechnungen importieren",
+          "Nummernkreise übernehmen — keine Lücken"
+        ],
+        "guideLink": "Migrations-Guide lesen"
+      },
+      "proof": {
+        "label": "Bewährt im Betrieb",
+        "title": "Gebaut von revamp-it — einem der grössten IT-Refurbisher der Schweiz",
+        "description": "Seit 2003 nimmt revamp-it Elektronik an, testet, repariert und verkauft weiter. Kivvi wurde aus echten Betriebsproblemen heraus entwickelt — nicht als Software-Projekt, das zufällig im Secondhand landet.",
+        "stat1Value": "23+",
+        "stat1Label": "Jahre Erfahrung",
+        "stat2Value": "5'000+",
+        "stat2Label": "Geräte verwaltet",
+        "stat3Value": "MIT",
+        "stat3Label": "Open Source"
+      },
+      "ctaTitle": "Demo für IT-Refurbisher",
+      "ctaDescription": "Zeigen Sie uns Ihren heutigen Ablauf — wir zeigen Ihnen, wie Kivvi ihn abbildet."
     }
   },
   "bulkActions": {

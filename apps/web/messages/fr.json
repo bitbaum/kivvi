@@ -2667,6 +2667,56 @@
       "tagline": "L'ERP pour l'économie circulaire. Open source, conçu en Suisse.",
       "productHeader": "Produit",
       "companyHeader": "Entreprise"
+    },
+    "forItRefurbishers": {
+      "hero": {
+        "badge": "Pour reconditionneurs IT & recycleurs informatiques",
+        "title": "L'ERP qui connaît vos appareils.",
+        "description": "Pas « 100 ThinkPad T14 en stock » — mais ordinateur portable n°47 avec numéro de série XYZ, batterie 78 %, coût de réparation 40 CHF, marge 12 CHF. Chaque appareil. À tout moment."
+      },
+      "painTitle": "Cela vous parle ?",
+      "painItems": [
+        "Votre système actuel ne peut pas représenter l'« état » — bon/moyen/mauvais n'existe pas",
+        "Les coûts de réparation ne peuvent pas être attribués à un appareil précis",
+        "La marge par appareil est une estimation, pas un chiffre",
+        "Les reçus de don sont saisis à la main",
+        "L'impact (CO₂, appareils sauvés) ne peut pas être mesuré ni justifié",
+        "La preuve d'effacement de données manque — les clients entreprises exigent des certificats avant l'achat",
+        "Migration depuis Kivitendo bloquée — les données sont dans l'ancien système"
+      ],
+      "solutionTitle": "Kivvi résout cela",
+      "solutionItems": [
+        "Chaque appareil a un identifiant unique, un numéro de série, une évaluation d'état et un historique complet des coûts",
+        "Les coûts de réparation sont enregistrés par appareil : date, CHF, heures, note",
+        "Marge = prix de vente − (prix d'entrée + tous les coûts de réparation) — à la seconde",
+        "Certificat d'effacement de données (nLPD / NIST SP 800-88 / DIN 66399) par appareil en PDF — sur demande",
+        "Le tableau de bord d'impact calcule les économies de CO₂ par catégorie d'appareil",
+        "Import CSV depuis Kivitendo — contacts, articles, factures en une étape"
+      ],
+      "migration": {
+        "title": "De Kivitendo à Kivvi",
+        "description": "Kivvi a été conçu comme successeur direct de Kivitendo pour les entreprises de seconde main. La migration est en libre-service : exporter en CSV, importer, terminé.",
+        "steps": [
+          "Importer les contacts (clients & fournisseurs)",
+          "Importer les articles & groupes de produits",
+          "Importer les devis, commandes, factures",
+          "Reprendre les séquences de numérotation — sans lacunes"
+        ],
+        "guideLink": "Lire le guide de migration"
+      },
+      "proof": {
+        "label": "Éprouvé en production",
+        "title": "Construit par revamp-it — l'un des plus grands reconditionneurs IT de Suisse",
+        "description": "Depuis 2003, revamp-it accepte, teste, répare et revend de l'électronique. Kivvi a été développé à partir de vrais problèmes opérationnels — pas comme un projet logiciel qui aurait par hasard atterri dans la seconde main.",
+        "stat1Value": "23+",
+        "stat1Label": "années d'expérience",
+        "stat2Value": "5'000+",
+        "stat2Label": "appareils gérés",
+        "stat3Value": "MIT",
+        "stat3Label": "Open source"
+      },
+      "ctaTitle": "Démo pour reconditionneurs IT",
+      "ctaDescription": "Montrez-nous votre flux de travail actuel — nous vous montrons comment Kivvi le modélise."
     }
   },
   "bulkActions": {
