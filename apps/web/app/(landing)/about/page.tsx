@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Github, Recycle, Heart, Code2, Leaf } from "lucide-react";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { buildPageMeta } from "@/lib/config/site";
 
@@ -14,7 +15,8 @@ export const metadata: Metadata = {
   ),
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const t = await getTranslations("landing.about");
   return (
     <>
       {/* Hero */}
@@ -25,37 +27,20 @@ export default function AboutPage() {
           </div>
         </div>
         <h1 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl">
-          Das Betriebssystem der globalen Kreislaufwirtschaft.
+          {t("hero.title")}
         </h1>
-        <p className="text-xl text-muted-foreground">
-          Kivvi ist das Open-Source-ERP für Betriebe, die Waren ein zweites,
-          drittes oder viertes Leben geben — und unser Beitrag zu einer Welt,
-          in der linear wirtschaften die Ausnahme ist, nicht die Regel.
-        </p>
+        <p className="text-xl text-muted-foreground">{t("hero.description")}</p>
       </section>
 
       {/* Mission */}
       <section className="mx-auto max-w-3xl py-8">
         <div className="rounded-2xl border bg-card p-8 sm:p-10">
-          <h2 className="mb-4 text-2xl font-bold">Was wir glauben</h2>
+          <h2 className="mb-4 text-2xl font-bold">{t("mission.title")}</h2>
           <div className="space-y-4 text-muted-foreground leading-relaxed">
-            <p>
-              Die Kreislaufwirtschaft ist keine Nische. Sie ist das Gegenmittel
-              zu einem Wirtschaftssystem, das voraussetzt, dass Güter nur einmal
-              benutzt werden. Brockenhäuser, IT-Refurbisher, Repair Cafés und
-              Vintage-Shops machen täglich vor, dass das Gegenteil möglich ist.
-            </p>
-            <p>
-              Das Problem: Die Software, die diese Betriebe nutzen müssen, wurde
-              für das Gegenteil gebaut. Für neue Waren, feste Preise, klare
-              Lieferketten. Kein Feld für Zustand. Kein Konzept für
-              Spendenquittungen. Keine Marge pro Einzelartikel.
-            </p>
+            <p>{t("mission.paragraph1")}</p>
+            <p>{t("mission.paragraph2")}</p>
             <p className="font-medium text-foreground">
-              Kivvi schließt diese Lücke — mit einem ERP, das die Realität der
-              Kreislaufwirtschaft nativ abbildet, statt dagegen anzuarbeiten.
-              Unsere Ambition: das Betriebssystem für Kreislaufbetriebe
-              weltweit zu werden.
+              {t("mission.conclusion")}
             </p>
           </div>
         </div>
@@ -64,23 +49,23 @@ export default function AboutPage() {
       {/* Values */}
       <section className="mx-auto max-w-4xl py-16">
         <h2 className="mb-10 text-center text-2xl font-bold">
-          Was Kivvi antreibt
+          {t("values.title")}
         </h2>
         <div className="grid gap-6 sm:grid-cols-3">
           <ValueCard
             icon={<Leaf className="h-6 w-6" />}
-            title="Kreislauf zuerst"
-            text="Jede Entscheidung im Produkt fragt: Hilft das Betrieben, die Dingen ein zweites Leben geben? Wenn nicht, gehört es nicht rein."
+            title={t("values.value1Title")}
+            text={t("values.value1Text")}
           />
           <ValueCard
             icon={<Code2 className="h-6 w-6" />}
-            title="Offen per Prinzip"
-            text="Kivvi ist MIT-lizenziert. Nicht weil es keine Alternativen gibt — sondern weil wir glauben, dass offene Infrastruktur die Kreislaufwirtschaft schneller voranbringt als proprietäre Insellösungen."
+            title={t("values.value2Title")}
+            text={t("values.value2Text")}
           />
           <ValueCard
             icon={<Heart className="h-6 w-6" />}
-            title="Gebaut aus Praxis"
-            text="Kivvi entstand nicht in einer Produktabteilung. Es wurde in einem laufenden Betrieb entwickelt — mit echten Prozessen, echten Fehlern, echten Anforderungen."
+            title={t("values.value3Title")}
+            text={t("values.value3Text")}
           />
         </div>
       </section>
@@ -88,26 +73,11 @@ export default function AboutPage() {
       {/* Open source section */}
       <section className="mx-auto max-w-3xl py-8">
         <div className="rounded-2xl border bg-card p-8">
-          <h2 className="mb-4 text-xl font-bold">Warum Open Source?</h2>
+          <h2 className="mb-4 text-xl font-bold">{t("openSource.title")}</h2>
           <div className="space-y-4 text-muted-foreground leading-relaxed">
-            <p>
-              Kreislaufwirtschaft ist eine gesellschaftliche Aufgabe. Wenn
-              Hunderte von Brockenhäusern, Repair Cafés und IT-Refurbishern die
-              gleichen Probleme haben, sollten sie die gleiche Lösung teilen
-              können — und gemeinsam verbessern.
-            </p>
-            <p>
-              Kivvi unter MIT-Lizenz bedeutet: kein Vendor-Lock-in, keine
-              Lizenzkosten, keine Abhängigkeit von einem einzelnen Anbieter. Wer
-              Kivvi selbst hosten will, kann das. Wer beitragen will, ist
-              willkommen.
-            </p>
-            <p>
-              Wir glauben, dass die besten ERP-Lösungen für spezifische Sektoren
-              von denjenigen gebaut werden, die in diesen Sektoren arbeiten —
-              nicht von Software-Unternehmen, die Circular Economy als Zielmarkt
-              entdeckt haben.
-            </p>
+            <p>{t("openSource.paragraph1")}</p>
+            <p>{t("openSource.paragraph2")}</p>
+            <p>{t("openSource.paragraph3")}</p>
           </div>
           <div className="mt-6 flex items-center gap-4">
             <Button asChild variant="secondary">
@@ -117,7 +87,7 @@ export default function AboutPage() {
                 rel="noopener noreferrer"
               >
                 <Github className="h-4 w-4" />
-                GitHub öffnen
+                {t("openSource.githubButton")}
               </a>
             </Button>
           </div>
@@ -126,33 +96,26 @@ export default function AboutPage() {
 
       {/* Who builds it */}
       <section className="mx-auto max-w-3xl py-16">
-        <h2 className="mb-4 text-2xl font-bold">Wer baut Kivvi?</h2>
+        <h2 className="mb-4 text-2xl font-bold">{t("team.title")}</h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
-          Kivvi wird von einem Team entwickelt, das seit Jahren in der
-          Kreislaufwirtschaft arbeitet — in der Praxis, nicht nur in der
-          Theorie. Die Anforderungen kommen nicht aus Marktanalysen, sondern aus
-          echtem Betrieb: kaputte Laptops, Spendencontainer,
-          Werkstattprotokolle, Quartalszahlen.
+          {t("team.paragraph1")}
         </p>
         <p className="text-muted-foreground leading-relaxed mb-4">
-          Das macht Kivvi anders: Wenn eine neue Funktion gebaut wird, wissen
-          wir, warum sie gebraucht wird — weil wir das Problem selbst hatten.
+          {t("team.paragraph2")}
         </p>
         <p className="text-muted-foreground leading-relaxed">
-          Beitragende aus der Community sind willkommen. Wer in einem
-          Kreislaufbetrieb arbeitet und Ideen hat, was Kivvi besser machen kann
-          — wir hören zu.
+          {t("team.paragraph3")}
         </p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <Button asChild size="lg">
             <Link href="/contact">
-              Kontakt aufnehmen
+              {t("team.ctaContact")}
               <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
           <Button asChild variant="secondary" size="lg">
             <Link href="/circular-economy">
-              Kreislaufwirtschaft verstehen <ArrowRight className="h-4 w-4" />
+              {t("team.ctaCircularEconomy")} <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
         </div>

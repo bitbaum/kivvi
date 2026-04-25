@@ -2913,6 +2913,42 @@
         "linkHowItWorks": "How it works →",
         "linkCircularEconomy": "Understand the circular economy →"
       }
+    },
+    "about": {
+      "hero": {
+        "title": "The operating system for the global circular economy.",
+        "description": "Kivvi is the open-source ERP for businesses that give goods a second, third, or fourth life — and our contribution to a world where linear consumption is the exception, not the rule."
+      },
+      "mission": {
+        "title": "What we believe",
+        "paragraph1": "The circular economy isn't a niche. It's the antidote to an economic system that assumes goods are used only once. Thrift stores, IT refurbishers, repair cafés, and vintage shops show every day that the opposite is possible.",
+        "paragraph2": "The problem: the software these businesses have to use was built for the opposite. For new goods, fixed prices, clean supply chains. No field for condition. No concept of donation receipts. No margin per individual item.",
+        "conclusion": "Kivvi closes that gap — with an ERP that natively represents the reality of the circular economy, instead of working against it. Our ambition: to become the operating system for circular businesses worldwide."
+      },
+      "values": {
+        "title": "What drives Kivvi",
+        "value1Title": "Circular first",
+        "value1Text": "Every product decision asks: does this help businesses giving things a second life? If not, it doesn't belong in here.",
+        "value2Title": "Open by principle",
+        "value2Text": "Kivvi is MIT-licensed. Not because there are no alternatives — but because we believe open infrastructure moves the circular economy forward faster than proprietary point solutions.",
+        "value3Title": "Built from practice",
+        "value3Text": "Kivvi wasn't born in a product department. It was developed inside a running business — with real processes, real mistakes, real requirements."
+      },
+      "openSource": {
+        "title": "Why open source?",
+        "paragraph1": "The circular economy is a societal task. When hundreds of thrift stores, repair cafés, and IT refurbishers have the same problems, they should be able to share the same solution — and improve it together.",
+        "paragraph2": "Kivvi under the MIT license means: no vendor lock-in, no license fees, no dependence on a single provider. Whoever wants to self-host Kivvi can. Whoever wants to contribute is welcome.",
+        "paragraph3": "We believe the best ERP solutions for specific sectors are built by the people working in those sectors — not by software companies that discovered the circular economy as a target market.",
+        "githubButton": "Open GitHub"
+      },
+      "team": {
+        "title": "Who builds Kivvi?",
+        "paragraph1": "Kivvi is built by a team that has worked in the circular economy for years — in practice, not just in theory. The requirements don't come from market analyses but from real operations: broken laptops, donation bins, workshop logs, quarterly numbers.",
+        "paragraph2": "That's what makes Kivvi different: when a new feature is built, we know why it's needed — because we had the problem ourselves.",
+        "paragraph3": "Community contributors are welcome. If you work in a circular business and have ideas to make Kivvi better — we listen.",
+        "ctaContact": "Get in touch",
+        "ctaCircularEconomy": "Understand the circular economy"
+      }
     }
   },
   "bulkActions": {

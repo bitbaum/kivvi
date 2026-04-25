@@ -2913,6 +2913,42 @@
         "linkHowItWorks": "Wie es funktioniert →",
         "linkCircularEconomy": "Kreislaufwirtschaft verstehen →"
       }
+    },
+    "about": {
+      "hero": {
+        "title": "Das Betriebssystem der globalen Kreislaufwirtschaft.",
+        "description": "Kivvi ist das Open-Source-ERP für Betriebe, die Waren ein zweites, drittes oder viertes Leben geben — und unser Beitrag zu einer Welt, in der linear wirtschaften die Ausnahme ist, nicht die Regel."
+      },
+      "mission": {
+        "title": "Was wir glauben",
+        "paragraph1": "Die Kreislaufwirtschaft ist keine Nische. Sie ist das Gegenmittel zu einem Wirtschaftssystem, das voraussetzt, dass Güter nur einmal benutzt werden. Brockenhäuser, IT-Refurbisher, Repair Cafés und Vintage-Shops machen täglich vor, dass das Gegenteil möglich ist.",
+        "paragraph2": "Das Problem: Die Software, die diese Betriebe nutzen müssen, wurde für das Gegenteil gebaut. Für neue Waren, feste Preise, klare Lieferketten. Kein Feld für Zustand. Kein Konzept für Spendenquittungen. Keine Marge pro Einzelartikel.",
+        "conclusion": "Kivvi schließt diese Lücke — mit einem ERP, das die Realität der Kreislaufwirtschaft nativ abbildet, statt dagegen anzuarbeiten. Unsere Ambition: das Betriebssystem für Kreislaufbetriebe weltweit zu werden."
+      },
+      "values": {
+        "title": "Was Kivvi antreibt",
+        "value1Title": "Kreislauf zuerst",
+        "value1Text": "Jede Entscheidung im Produkt fragt: Hilft das Betrieben, die Dingen ein zweites Leben geben? Wenn nicht, gehört es nicht rein.",
+        "value2Title": "Offen per Prinzip",
+        "value2Text": "Kivvi ist MIT-lizenziert. Nicht weil es keine Alternativen gibt — sondern weil wir glauben, dass offene Infrastruktur die Kreislaufwirtschaft schneller voranbringt als proprietäre Insellösungen.",
+        "value3Title": "Gebaut aus Praxis",
+        "value3Text": "Kivvi entstand nicht in einer Produktabteilung. Es wurde in einem laufenden Betrieb entwickelt — mit echten Prozessen, echten Fehlern, echten Anforderungen."
+      },
+      "openSource": {
+        "title": "Warum Open Source?",
+        "paragraph1": "Kreislaufwirtschaft ist eine gesellschaftliche Aufgabe. Wenn Hunderte von Brockenhäusern, Repair Cafés und IT-Refurbishern die gleichen Probleme haben, sollten sie die gleiche Lösung teilen können — und gemeinsam verbessern.",
+        "paragraph2": "Kivvi unter MIT-Lizenz bedeutet: kein Vendor-Lock-in, keine Lizenzkosten, keine Abhängigkeit von einem einzelnen Anbieter. Wer Kivvi selbst hosten will, kann das. Wer beitragen will, ist willkommen.",
+        "paragraph3": "Wir glauben, dass die besten ERP-Lösungen für spezifische Sektoren von denjenigen gebaut werden, die in diesen Sektoren arbeiten — nicht von Software-Unternehmen, die Circular Economy als Zielmarkt entdeckt haben.",
+        "githubButton": "GitHub öffnen"
+      },
+      "team": {
+        "title": "Wer baut Kivvi?",
+        "paragraph1": "Kivvi wird von einem Team entwickelt, das seit Jahren in der Kreislaufwirtschaft arbeitet — in der Praxis, nicht nur in der Theorie. Die Anforderungen kommen nicht aus Marktanalysen, sondern aus echtem Betrieb: kaputte Laptops, Spendencontainer, Werkstattprotokolle, Quartalszahlen.",
+        "paragraph2": "Das macht Kivvi anders: Wenn eine neue Funktion gebaut wird, wissen wir, warum sie gebraucht wird — weil wir das Problem selbst hatten.",
+        "paragraph3": "Beitragende aus der Community sind willkommen. Wer in einem Kreislaufbetrieb arbeitet und Ideen hat, was Kivvi besser machen kann — wir hören zu.",
+        "ctaContact": "Kontakt aufnehmen",
+        "ctaCircularEconomy": "Kreislaufwirtschaft verstehen"
+      }
     }
   },
   "bulkActions": {

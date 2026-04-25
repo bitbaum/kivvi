@@ -2913,6 +2913,42 @@
         "linkHowItWorks": "Comment ça marche →",
         "linkCircularEconomy": "Comprendre l'économie circulaire →"
       }
+    },
+    "about": {
+      "hero": {
+        "title": "Le système d'exploitation de l'économie circulaire mondiale.",
+        "description": "Kivvi est l'ERP open source pour les entreprises qui donnent une deuxième, troisième ou quatrième vie aux biens — et notre contribution à un monde où la consommation linéaire est l'exception, pas la règle."
+      },
+      "mission": {
+        "title": "Ce en quoi nous croyons",
+        "paragraph1": "L'économie circulaire n'est pas une niche. C'est l'antidote à un système économique qui suppose que les biens ne sont utilisés qu'une seule fois. Friperies, reconditionneurs IT, repair cafés et boutiques vintage prouvent chaque jour que le contraire est possible.",
+        "paragraph2": "Le problème : les logiciels que ces entreprises doivent utiliser ont été conçus pour l'inverse. Pour des biens neufs, des prix fixes, des chaînes d'approvisionnement claires. Aucun champ pour l'état. Aucun concept de reçu de don. Aucune marge par article individuel.",
+        "conclusion": "Kivvi comble cette lacune — avec un ERP qui représente nativement la réalité de l'économie circulaire, au lieu de lutter contre elle. Notre ambition : devenir le système d'exploitation des entreprises circulaires dans le monde entier."
+      },
+      "values": {
+        "title": "Ce qui anime Kivvi",
+        "value1Title": "Le circulaire d'abord",
+        "value1Text": "Chaque décision produit pose la question : est-ce que cela aide les entreprises qui donnent une seconde vie aux objets ? Sinon, cela n'a pas sa place ici.",
+        "value2Title": "Ouvert par principe",
+        "value2Text": "Kivvi est sous licence MIT. Non parce qu'il n'y a pas d'alternatives — mais parce que nous croyons que l'infrastructure ouverte fait avancer l'économie circulaire plus vite que des solutions propriétaires en îlot.",
+        "value3Title": "Construit depuis la pratique",
+        "value3Text": "Kivvi n'est pas né dans un département produit. Il a été développé dans une entreprise en activité — avec de vrais processus, de vraies erreurs, de vraies exigences."
+      },
+      "openSource": {
+        "title": "Pourquoi open source ?",
+        "paragraph1": "L'économie circulaire est une mission sociétale. Si des centaines de friperies, repair cafés et reconditionneurs IT ont les mêmes problèmes, ils devraient pouvoir partager la même solution — et l'améliorer ensemble.",
+        "paragraph2": "Kivvi sous licence MIT signifie : pas de verrouillage fournisseur, pas de frais de licence, pas de dépendance à un seul prestataire. Qui veut auto-héberger Kivvi peut le faire. Qui veut contribuer est bienvenu.",
+        "paragraph3": "Nous croyons que les meilleures solutions ERP pour des secteurs spécifiques sont construites par ceux qui travaillent dans ces secteurs — pas par des éditeurs qui ont découvert l'économie circulaire comme marché cible.",
+        "githubButton": "Ouvrir GitHub"
+      },
+      "team": {
+        "title": "Qui construit Kivvi ?",
+        "paragraph1": "Kivvi est développé par une équipe qui travaille depuis des années dans l'économie circulaire — en pratique, pas seulement en théorie. Les exigences ne viennent pas d'analyses de marché mais d'une vraie activité : ordinateurs cassés, conteneurs de dons, protocoles d'atelier, chiffres trimestriels.",
+        "paragraph2": "C'est ce qui rend Kivvi différent : quand une nouvelle fonctionnalité est construite, nous savons pourquoi elle est nécessaire — parce que nous avons eu le problème nous-mêmes.",
+        "paragraph3": "Les contributeurs de la communauté sont bienvenus. Si vous travaillez dans une entreprise circulaire et avez des idées pour améliorer Kivvi — nous écoutons.",
+        "ctaContact": "Nous contacter",
+        "ctaCircularEconomy": "Comprendre l'économie circulaire"
+      }
     }
   },
   "bulkActions": {
