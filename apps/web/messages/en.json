@@ -2580,6 +2580,46 @@
       },
       "ctaTitle": "Ready for your business?",
       "ctaDescription": "Reach out or sign up directly — the first demo is free."
+    },
+    "seeAlso": {
+      "title": "Also interesting"
+    },
+    "forBrockenhaeuser": {
+      "hero": {
+        "badge": "For thrift stores & social department stores",
+        "title": "Less paperwork. More impact.",
+        "description": "Donation receipts at the press of a button, donor management, impact evidence for grant applications — and still simple enough for volunteers."
+      },
+      "painTitle": "What takes too long today",
+      "painItems": [
+        "Donation receipts typed by hand in Word — per donor, per drop-off",
+        "Who donated what? The answer lives in a notebook, or nowhere",
+        "For grant applications, impact must be added up by hand",
+        "Goods come in with no structured intake — you don't know what you have",
+        "QR invoices for sales? Legally required but too cumbersome without a system",
+        "End of quarter: Excel sheets, added by hand"
+      ],
+      "solutionTitle": "How Kivvi helps",
+      "solutionItems": [
+        "Generate donation receipts immediately at intake — compliant template, ready to print",
+        "Every donor in the system: contacts, donation history, and per-donor CO₂ impact on the contact page",
+        "Impact dashboard: number of items, estimated value, CO₂ savings — at the press of a button",
+        "Intake via AI quick entry: \"20 winter jackets, 5 bikes\" → recorded",
+        "QR invoices automatic for every sale — legally correct, zero effort",
+        "Monthly close: dashboard shows revenue, intake, impact — without Excel"
+      ],
+      "context": {
+        "title": "Built for the social economy",
+        "description": "Thrift stores often work with volunteers, have tight IT budgets, and must show transparency to funders. Kivvi is designed for that:",
+        "stat1Value": "CHF 0",
+        "stat1Label": "License cost (open source)",
+        "stat2Value": "5 min",
+        "stat2Label": "Onboarding for volunteers",
+        "stat3Value": "100%",
+        "stat3Label": "Data in your hands"
+      },
+      "ctaTitle": "Demo for thrift stores",
+      "ctaDescription": "We'll show you how Kivvi works in your thrift store — free and no commitment."
     }
   },
   "bulkActions": {

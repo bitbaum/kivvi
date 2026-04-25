@@ -2580,6 +2580,46 @@
       },
       "ctaTitle": "Bereit für Ihren Betrieb?",
       "ctaDescription": "Schreiben Sie uns oder registrieren Sie sich direkt — die erste Demo ist kostenlos."
+    },
+    "seeAlso": {
+      "title": "Auch interessant"
+    },
+    "forBrockenhaeuser": {
+      "hero": {
+        "badge": "Für Brockenhäuser & Sozialkaufhäuser",
+        "title": "Weniger Papier. Mehr Wirkung.",
+        "description": "Spendenquittungen auf Knopfdruck, Donorenverwaltung, Impact-Nachweis für Förderanträge — und trotzdem einfach genug für Freiwillige."
+      },
+      "painTitle": "Was heute zu lange dauert",
+      "painItems": [
+        "Spendenquittungen werden manuell in Word getippt — pro Spender, pro Abgabe",
+        "Wer hat was gespendet? Die Antwort liegt in einem Notizbuch oder gar nicht",
+        "Für Förderanträge muss Impact mühsam zusammengerechnet werden",
+        "Ware kommt rein ohne strukturierte Erfassung — man weiss nicht, was man hat",
+        "QR-Rechnungen für Verkäufe? Gesetzlich nötig, aber zu aufwändig ohne System",
+        "Am Quartalsende: Excel-Tabellen mit der Hand addieren"
+      ],
+      "solutionTitle": "Wie Kivvi hilft",
+      "solutionItems": [
+        "Spendenquittung sofort bei Wareneingang generieren — konforme Vorlage, druckbereit",
+        "Jeder Donor im System: Kontaktdaten, Spendenhistorie und individueller CO₂-Impact auf der Kontaktseite",
+        "Impact-Dashboard: Anzahl Artikel, geschätzter Wert, CO₂-Einsparung — auf Knopfdruck",
+        "Wareneingang per KI-Schnelleingabe: «20 Winterjacken, 5 Fahrräder» → erfasst",
+        "QR-Rechnungen automatisch für jeden Verkauf — gesetzlich korrekt, null Aufwand",
+        "Monatsabschluss: Dashboard zeigt Umsatz, Wareneingang, Impact — ohne Excel"
+      ],
+      "context": {
+        "title": "Gemacht für die Soziale Wirtschaft",
+        "description": "Brockenhäuser arbeiten oft mit Freiwilligen, haben knappe IT-Budgets und müssen Transparenz gegenüber Förderern nachweisen. Kivvi ist darauf ausgelegt:",
+        "stat1Value": "CHF 0",
+        "stat1Label": "Lizenzkosten (Open Source)",
+        "stat2Value": "5 min",
+        "stat2Label": "Einarbeitung für Freiwillige",
+        "stat3Value": "100%",
+        "stat3Label": "Daten in Ihrer Hand"
+      },
+      "ctaTitle": "Demo für Brockenhäuser",
+      "ctaDescription": "Wir zeigen Ihnen, wie Kivvi in Ihrer Brockenstube funktioniert — kostenlos und unverbindlich."
     }
   },
   "bulkActions": {

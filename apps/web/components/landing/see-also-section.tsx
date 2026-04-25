@@ -1,13 +1,15 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 import { VERTICALS } from "@/lib/config/site";
 
-export function SeeAlsoSection({ current }: { current: string }) {
+export async function SeeAlsoSection({ current }: { current: string }) {
+  const t = await getTranslations("landing.seeAlso");
   const others = VERTICALS.filter((v) => v.id !== current);
 
   return (
     <section className="mx-auto max-w-4xl py-8">
       <p className="mb-4 text-sm font-medium uppercase tracking-wider text-muted-foreground">
-        Auch interessant
+        {t("title")}
       </p>
       <div className="grid gap-3 sm:grid-cols-3">
         {others.map((v) => (

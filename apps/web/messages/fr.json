@@ -2580,6 +2580,46 @@
       },
       "ctaTitle": "Prêt pour votre entreprise ?",
       "ctaDescription": "Contactez-nous ou inscrivez-vous directement — la première démo est gratuite."
+    },
+    "seeAlso": {
+      "title": "À voir aussi"
+    },
+    "forBrockenhaeuser": {
+      "hero": {
+        "badge": "Pour friperies & magasins sociaux",
+        "title": "Moins de paperasse. Plus d'impact.",
+        "description": "Reçus de don en un clic, gestion des donateurs, justification d'impact pour les demandes de subvention — et pourtant assez simple pour les bénévoles."
+      },
+      "painTitle": "Ce qui prend trop de temps aujourd'hui",
+      "painItems": [
+        "Les reçus de don sont saisis manuellement dans Word — par donateur, par dépôt",
+        "Qui a donné quoi ? La réponse est dans un cahier ou nulle part",
+        "Pour les demandes de subvention, l'impact doit être additionné à la main",
+        "La marchandise arrive sans saisie structurée — on ne sait pas ce qu'on a",
+        "Factures QR pour les ventes ? Légalement nécessaires mais trop laborieuses sans système",
+        "En fin de trimestre : feuilles Excel additionnées à la main"
+      ],
+      "solutionTitle": "Comment Kivvi aide",
+      "solutionItems": [
+        "Générer le reçu de don dès la réception — modèle conforme, prêt à imprimer",
+        "Chaque donateur dans le système : coordonnées, historique des dons et impact CO₂ individuel sur la page contact",
+        "Tableau de bord d'impact : nombre d'articles, valeur estimée, économies de CO₂ — en un clic",
+        "Réception via saisie rapide IA : « 20 manteaux d'hiver, 5 vélos » → enregistré",
+        "Factures QR automatiques pour chaque vente — légalement correctes, sans effort",
+        "Clôture mensuelle : le tableau de bord montre revenu, réception, impact — sans Excel"
+      ],
+      "context": {
+        "title": "Conçu pour l'économie sociale",
+        "description": "Les friperies travaillent souvent avec des bénévoles, ont des budgets IT serrés et doivent rendre des comptes aux bailleurs. Kivvi est conçu pour cela :",
+        "stat1Value": "CHF 0",
+        "stat1Label": "Coût de licence (open source)",
+        "stat2Value": "5 min",
+        "stat2Label": "Formation des bénévoles",
+        "stat3Value": "100 %",
+        "stat3Label": "Données entre vos mains"
+      },
+      "ctaTitle": "Démo pour friperies",
+      "ctaDescription": "Nous vous montrons comment Kivvi fonctionne dans votre friperie — gratuit et sans engagement."
     }
   },
   "bulkActions": {
