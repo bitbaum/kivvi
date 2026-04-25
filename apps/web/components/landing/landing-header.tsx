@@ -54,6 +54,12 @@ export async function LandingHeader() {
             demoLabel={t("requestDemo")}
             isLoggedIn={isLoggedIn}
             dashboardLabel={t("goToDashboard")}
+            forWhomQuestionLabel={t("navForWhomQuestion")}
+            featuredArticlesLabel={t("navFeaturedArticles")}
+            allArticlesLabel={t("navAllArticles")}
+            allArticlesShortLabel={t("navAllArticlesShort")}
+            menuOpenLabel={t("menuOpen")}
+            menuCloseLabel={t("menuClose")}
           />
 
           {/* Right CTAs (desktop only) */}
@@ -74,9 +80,7 @@ export async function LandingHeader() {
                   {t("signIn")}
                 </Link>
                 <Button asChild>
-                  <Link href="/contact">
-                    {t("requestDemo")}
-                  </Link>
+                  <Link href="/contact">{t("requestDemo")}</Link>
                 </Button>
               </>
             )}

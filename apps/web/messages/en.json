@@ -2180,7 +2180,13 @@
     "problem5": "Handle QR-bills, VAT, and Swiss compliance natively",
     "knowledgeTeaserTitle": "Knowledge for circular economy businesses",
     "knowledgeTeaserText": "How do you grade condition correctly? What must a donation receipt contain? How do you measure impact? We've worked through these questions — and documented the answers.",
-    "knowledgeTeaserCta": "Open knowledge base"
+    "knowledgeTeaserCta": "Open knowledge base",
+    "navForWhomQuestion": "Who is Kivvi for?",
+    "navFeaturedArticles": "Featured articles",
+    "navAllArticles": "See all articles",
+    "navAllArticlesShort": "All articles",
+    "menuOpen": "Open menu",
+    "menuClose": "Close menu"
   },
   "bulkActions": {
     "selected": "selected",

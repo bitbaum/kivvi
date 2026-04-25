@@ -30,9 +30,11 @@ interface FeaturedArticle {
 
 interface MobileNavPanelProps {
   verticals: readonly Vertical[];
+  solutionsLabel: string;
   solutionsContextLinks: readonly SolutionsContextLink[];
   wissenLabel: string;
   wissenItems: FeaturedArticle[];
+  allArticlesShortLabel: string;
   links: NavLink[];
   isLoggedIn: boolean;
   dashboardLabel: string;
@@ -43,9 +45,11 @@ interface MobileNavPanelProps {
 
 export function MobileNavPanel({
   verticals,
+  solutionsLabel,
   solutionsContextLinks,
   wissenLabel,
   wissenItems,
+  allArticlesShortLabel,
   links,
   isLoggedIn,
   dashboardLabel,
@@ -58,7 +62,7 @@ export function MobileNavPanel({
       <nav className="container mx-auto flex flex-col px-4 py-4 gap-0.5 max-h-[80dvh] overflow-y-auto">
         {/* Solutions */}
         <p className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Für wen
+          {solutionsLabel}
         </p>
         {verticals.map((v) => {
           const Icon = VERTICAL_ICONS[v.id];
@@ -118,7 +122,7 @@ export function MobileNavPanel({
           className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         >
           <BookOpen className="h-4 w-4 shrink-0" />
-          Alle Artikel
+          {allArticlesShortLabel}
         </Link>
 
         <div className="my-1.5 border-t" />

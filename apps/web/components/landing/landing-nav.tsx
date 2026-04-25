@@ -51,6 +51,12 @@ export function LandingNav({
   demoLabel,
   isLoggedIn = false,
   dashboardLabel = "Dashboard",
+  forWhomQuestionLabel,
+  featuredArticlesLabel,
+  allArticlesLabel,
+  allArticlesShortLabel,
+  menuOpenLabel,
+  menuCloseLabel,
 }: {
   links: NavLink[];
   verticals: readonly Vertical[];
@@ -62,6 +68,12 @@ export function LandingNav({
   demoLabel: string;
   isLoggedIn?: boolean;
   dashboardLabel?: string;
+  forWhomQuestionLabel: string;
+  featuredArticlesLabel: string;
+  allArticlesLabel: string;
+  allArticlesShortLabel: string;
+  menuOpenLabel: string;
+  menuCloseLabel: string;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<DropdownId | null>(null);
@@ -135,7 +147,7 @@ export function LandingNav({
             <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50 w-[520px] rounded-xl border bg-background shadow-lg ring-1 ring-black/5 dark:ring-white/10">
               <div className="p-4">
                 <p className="mb-3 px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Für wen ist Kivvi?
+                  {forWhomQuestionLabel}
                 </p>
                 <div className="grid grid-cols-2 gap-1">
                   {verticals.map((v) => {
@@ -207,7 +219,7 @@ export function LandingNav({
             <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50 w-[400px] rounded-xl border bg-background shadow-lg ring-1 ring-black/5 dark:ring-white/10">
               <div className="p-4">
                 <p className="mb-3 px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Ausgewählte Artikel
+                  {featuredArticlesLabel}
                 </p>
                 <div className="space-y-0.5">
                   {wissenItems.map((article) => (
@@ -233,7 +245,7 @@ export function LandingNav({
                     className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                   >
                     <BookOpen className="h-3.5 w-3.5" />
-                    Alle Artikel ansehen
+                    {allArticlesLabel}
                   </Link>
                 </div>
               </div>
@@ -263,7 +275,7 @@ export function LandingNav({
         size="icon"
         className="md:hidden"
         onClick={() => setMobileOpen((p) => !p)}
-        aria-label={mobileOpen ? "Menü schliessen" : "Menü öffnen"}
+        aria-label={mobileOpen ? menuCloseLabel : menuOpenLabel}
       >
         {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </Button>
@@ -272,9 +284,11 @@ export function LandingNav({
       {mobileOpen && (
         <MobileNavPanel
           verticals={verticals}
+          solutionsLabel={solutionsLabel}
           solutionsContextLinks={solutionsContextLinks}
           wissenLabel={wissenLabel}
           wissenItems={wissenItems}
+          allArticlesShortLabel={allArticlesShortLabel}
           links={links}
           isLoggedIn={isLoggedIn}
           dashboardLabel={dashboardLabel}

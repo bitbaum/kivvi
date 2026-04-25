@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
 interface LandingCtaSectionProps {
   title: string;
@@ -7,11 +8,12 @@ interface LandingCtaSectionProps {
   id?: string;
 }
 
-export function LandingCtaSection({
+export async function LandingCtaSection({
   title,
   description,
   id,
 }: LandingCtaSectionProps) {
+  const t = await getTranslations("landing");
   return (
     <section
       id={id}
@@ -24,14 +26,14 @@ export function LandingCtaSection({
           href="/contact"
           className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-medium text-primary-foreground hover:bg-primary/90"
         >
-          Demo anfragen
+          {t("requestDemo")}
           <ArrowRight className="h-4 w-4" />
         </Link>
         <Link
           href="/register"
           className="inline-flex items-center gap-2 rounded-lg border px-6 py-3 font-medium hover:bg-muted"
         >
-          Kivvi ausprobieren <ArrowRight className="h-4 w-4" />
+          {t("ctaTryIt")} <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
     </section>

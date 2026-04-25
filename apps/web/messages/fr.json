@@ -2180,7 +2180,13 @@
     "problem5": "Gérer les factures QR, la TVA et la conformité suisse nativement",
     "knowledgeTeaserTitle": "Savoir pour l'économie circulaire",
     "knowledgeTeaserText": "Comment évaluer correctement l'état ? Que doit contenir un reçu de don ? Comment mesurer l'impact ? Nous avons réfléchi à ces questions — et documenté les réponses.",
-    "knowledgeTeaserCta": "Ouvrir la base de connaissances"
+    "knowledgeTeaserCta": "Ouvrir la base de connaissances",
+    "navForWhomQuestion": "À qui s'adresse Kivvi ?",
+    "navFeaturedArticles": "Articles en vedette",
+    "navAllArticles": "Voir tous les articles",
+    "navAllArticlesShort": "Tous les articles",
+    "menuOpen": "Ouvrir le menu",
+    "menuClose": "Fermer le menu"
   },
   "bulkActions": {
     "selected": "sélectionnés",

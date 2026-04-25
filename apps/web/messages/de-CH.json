@@ -2180,7 +2180,13 @@
     "problem5": "QR-Rechnung, MWST und Schweizer Compliance nativ abbilden",
     "knowledgeTeaserTitle": "Wissen für Kreislaufbetriebe",
     "knowledgeTeaserText": "Wie bewertet man Zustand korrekt? Was muss eine Spendenquittung enthalten? Wie misst man Impact? Wir haben diese Fragen durchdacht — und dokumentiert.",
-    "knowledgeTeaserCta": "Wissensdatenbank öffnen"
+    "knowledgeTeaserCta": "Wissensdatenbank öffnen",
+    "navForWhomQuestion": "Für wen ist Kivvi?",
+    "navFeaturedArticles": "Ausgewählte Artikel",
+    "navAllArticles": "Alle Artikel ansehen",
+    "navAllArticlesShort": "Alle Artikel",
+    "menuOpen": "Menü öffnen",
+    "menuClose": "Menü schliessen"
   },
   "bulkActions": {
     "selected": "ausgewählt",
