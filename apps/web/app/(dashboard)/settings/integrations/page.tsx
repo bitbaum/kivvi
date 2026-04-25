@@ -5,10 +5,12 @@ import { db } from "@/lib/db";
 import { companies } from "@kivvi/database";
 import type { CompanySettings } from "@kivvi/database";
 import { eq } from "drizzle-orm";
+import { getTranslations } from "next-intl/server";
 import { RicardoSection } from "./ricardo-section";
 
 export default async function IntegrationsPage() {
   const session = await getSessionOrRedirect();
+  const t = await getTranslations("settings.integrations");
 
   const [company] = await db
     .select({ settings: companies.settings })
@@ -24,14 +26,12 @@ export default async function IntegrationsPage() {
         className="inline-flex min-h-[44px] items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
-        Einstellungen
+        {t("backToSettings")}
       </Link>
 
       <div>
-        <h1 className="text-3xl font-bold">Integrationen</h1>
-        <p className="text-muted-foreground">
-          Verbinden Sie Kivvi mit externen Marktplätzen und Diensten.
-        </p>
+        <h1 className="text-3xl font-bold">{t("title")}</h1>
+        <p className="text-muted-foreground">{t("subtitle")}</p>
       </div>
 
       <RicardoSection hasApiKey={!!settings.ricardoApiKey} />

@@ -1863,7 +1863,20 @@
     },
     "integrations": {
       "title": "Integrationen",
-      "settingsDesc": "Ricardo.ch und weitere Marktplätze"
+      "settingsDesc": "Ricardo.ch und weitere Marktplätze",
+      "subtitle": "Verbinden Sie Kivvi mit externen Marktplätzen und Diensten.",
+      "backToSettings": "Einstellungen",
+      "ricardo": {
+        "description": "Artikel direkt aus Kivvi auf Ricardo.ch publizieren. Der API-Schlüssel wird als «clientId:clientSecret» erwartet.",
+        "apiDocs": "API-Dokumentation",
+        "apiKey": "API-Schlüssel",
+        "saveError": "Fehler beim Speichern.",
+        "connectionSuccess": "Verbindung erfolgreich",
+        "connectionFailed": "Verbindung fehlgeschlagen",
+        "saved": "Gespeichert",
+        "testConnection": "Verbindung testen",
+        "testing": "Testen…"
+      }
     }
   },
   "auth": {

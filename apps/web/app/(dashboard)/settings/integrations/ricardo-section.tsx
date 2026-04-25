@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Check, Loader2, ExternalLink } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   updateRicardoApiKeyAction,
   testRicardoConnectionAction,
@@ -12,6 +13,8 @@ interface Props {
 }
 
 export function RicardoSection({ hasApiKey }: Props) {
+  const t = useTranslations("settings.integrations.ricardo");
+  const tCommon = useTranslations("common");
   const [isPending, startTransition] = useTransition();
   const [isTesting, startTestTransition] = useTransition();
   const [apiKey, setApiKey] = useState(hasApiKey ? "••••••••" : "");
@@ -33,7 +36,7 @@ export function RicardoSection({ hasApiKey }: Props) {
         setSaved(true);
         setTimeout(() => setSaved(false), 2000);
       } else {
-        setError(result.error ?? "Fehler beim Speichern.");
+        setError(result.error ?? t("saveError"));
       }
     });
   }
@@ -46,8 +49,8 @@ export function RicardoSection({ hasApiKey }: Props) {
       setTestResult({
         ok: result.success,
         msg: result.success
-          ? "Verbindung erfolgreich"
-          : (result.error ?? "Verbindung fehlgeschlagen"),
+          ? t("connectionSuccess")
+          : (result.error ?? t("connectionFailed")),
       });
     });
   }
@@ -58,15 +61,14 @@ export function RicardoSection({ hasApiKey }: Props) {
         <div>
           <h3 className="font-semibold">Ricardo.ch</h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            Artikel direkt aus Kivvi auf Ricardo.ch publizieren. Der
-            API-Schlüssel wird als «clientId:clientSecret» erwartet.{" "}
+            {t("description")}{" "}
             <a
               href="https://api.ricardo.ch"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-0.5 underline hover:text-foreground"
             >
-              API-Dokumentation
+              {t("apiDocs")}
               <ExternalLink className="h-3 w-3" />
             </a>
           </p>
@@ -76,7 +78,7 @@ export function RicardoSection({ hasApiKey }: Props) {
       <div className="mt-4 space-y-3">
         <div>
           <label className="mb-1.5 block text-sm font-medium">
-            API-Schlüssel
+            {t("apiKey")}
           </label>
           <input
             type="password"
@@ -112,7 +114,11 @@ export function RicardoSection({ hasApiKey }: Props) {
             ) : saved ? (
               <Check className="h-4 w-4" />
             ) : null}
-            {saved ? "Gespeichert" : isPending ? "Speichern…" : "Speichern"}
+            {saved
+              ? t("saved")
+              : isPending
+                ? tCommon("saving")
+                : tCommon("save")}
           </button>
           {hasApiKey && (
             <button
@@ -121,7 +127,7 @@ export function RicardoSection({ hasApiKey }: Props) {
               className="flex items-center gap-1.5 rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted disabled:opacity-50 min-h-[44px]"
             >
               {isTesting && <Loader2 className="h-4 w-4 animate-spin" />}
-              {isTesting ? "Testen…" : "Verbindung testen"}
+              {isTesting ? t("testing") : t("testConnection")}
             </button>
           )}
         </div>
