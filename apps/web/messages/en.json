@@ -1860,6 +1860,10 @@
       "eventDocumentCreated": "Document created",
       "eventDocumentStatusChanged": "Document status changed",
       "eventPaymentReceived": "Payment received"
+    },
+    "integrations": {
+      "title": "Integrations",
+      "settingsDesc": "Ricardo.ch and other marketplaces"
     }
   },
   "auth": {

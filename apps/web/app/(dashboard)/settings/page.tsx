@@ -79,14 +79,14 @@ export default async function SettingsPage() {
       icon: Users,
     },
     {
-      title: "Integrationen",
-      subtitle: "Ricardo.ch und weitere Marktplätze",
+      title: t("integrations.title"),
+      subtitle: t("integrations.settingsDesc"),
       href: "/settings/integrations",
       icon: Plug,
     },
     {
-      title: "Webhooks",
-      subtitle: "Externe Systeme über Ereignisse benachrichtigen",
+      title: t("webhooks.title"),
+      subtitle: t("webhooks.subtitle"),
       href: "/settings/webhooks",
       icon: Webhook,
     },
