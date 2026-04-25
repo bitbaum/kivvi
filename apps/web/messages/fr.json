@@ -2759,6 +2759,49 @@
       },
       "ctaTitle": "Démo pour repair cafés",
       "ctaDescription": "Gratuit et sans engagement — nous vous montrons comment Kivvi numérise votre activité de réparation."
+    },
+    "forVintage": {
+      "hero": {
+        "badge": "Pour boutiques vintage & bourses de vêtements",
+        "title": "Chaque pièce a sa valeur.",
+        "description": "Le vintage, c'est de la curation. Chaque pièce est unique — avec son propre état, sa propre histoire, son propre prix. Kivvi pense comme votre activité."
+      },
+      "framing": {
+        "title": "Le vintage n'est pas de la seconde main de masse",
+        "paragraph1": "Les systèmes de stock standard pensent en SKU : « 50 jeans, taille 32 ». Cela fonctionne pour la fast-fashion en retour — mais pas pour le vintage. Aucune pièce vintage n'est identique à une autre. Prix, état et histoire sont individuels.",
+        "paragraph2": "S'y ajoutent souvent des modèles de consignation : les déposants apportent des pièces, la boutique vend et conserve une commission. Cela exige un suivi rigoureux — qui a déposé quoi, qu'est-ce qui a été vendu, que devons-nous encore ?"
+      },
+      "painTitle": "Ce qui manque dans l'activité vintage",
+      "painItems": [
+        "Pas de système d'état pour les vêtements — bon/moyen/mauvais n'existe pas dans les logiciels standard",
+        "Vente en consignation impossible à représenter : qui a déposé quoi, qu'est-ce qui reste à régler ?",
+        "Les prix sont à la pièce, mais les systèmes pensent prix-unité-par-SKU",
+        "L'origine (marque, décennie, particularité) ne peut être saisie proprement nulle part",
+        "Le chiffre d'affaires par déposant se fait à la main — Excel ou cahier",
+        "Les chiffres d'impact pour la communication manquent : combien de vêtements sauvés de la poubelle ?"
+      ],
+      "solutionTitle": "Kivvi pour boutiques vintage",
+      "solutionItems": [
+        "Chaque pièce reçoit un identifiant, un état (bon/moyen/mauvais), une catégorie et un prix",
+        "Source de consignation saisie à la réception — décompte du déposant automatique",
+        "Champs libres de spécification : marque, décennie, matière, particularités",
+        "Étiquette QR par pièce — un scan à la caisse ouvre instantanément la pièce",
+        "Chiffre d'affaires par déposant : qui, quoi, quand, combien — en un clic",
+        "Tableau de bord d'impact : kilogrammes de vêtements sauvés, pièces vendues, CO₂ évité"
+      ],
+      "clothingGuide": {
+        "title": "Évaluation de l'état pour les vêtements",
+        "intro": "Des évaluations cohérentes créent la confiance des clients. Kivvi utilise les mêmes 5 niveaux que pour l'IT et autres catégories — adaptés à vos critères :",
+        "criteria": {
+          "good": "Comme neuf, aucune trace d'utilisation visible, aucun dommage",
+          "fair": "Légères traces d'utilisation, peluchage minimal, à peine visible",
+          "poor": "Traces d'utilisation marquées, peluchage, décoloration — encore portable",
+          "parts_only": "Dommages (déchirure, trou, tache) — pour upcycling ou réparation",
+          "scrap": "Invendable, recyclage ou élimination"
+        }
+      },
+      "ctaTitle": "Démo pour boutiques vintage",
+      "ctaDescription": "Montrez-nous votre activité — nous vous montrons comment Kivvi la modélise."
     }
   },
   "bulkActions": {

@@ -2759,6 +2759,49 @@
       },
       "ctaTitle": "Demo für Repair Cafés",
       "ctaDescription": "Kostenlos und unverbindlich — wir zeigen Ihnen, wie Kivvi Ihren Reparaturbetrieb digital macht."
+    },
+    "forVintage": {
+      "hero": {
+        "badge": "Für Vintage-Shops & Kleiderbörsen",
+        "title": "Jedes Stück hat seinen Wert.",
+        "description": "Vintage ist Kuration. Jedes Stück ist einzigartig — mit eigenem Zustand, eigener Geschichte, eigenem Preis. Kivvi denkt wie Ihr Betrieb."
+      },
+      "framing": {
+        "title": "Vintage ist nicht Second-Hand-Massenware",
+        "paragraph1": "Standard-Lagersysteme denken in SKUs: «50 Jeans, Grösse 32». Das stimmt für Fast-Fashion-Retour — aber nicht für Vintage. Kein Vintage-Stück ist identisch mit einem anderen. Preis, Zustand und Geschichte sind individuell.",
+        "paragraph2": "Dazu kommen oft Kommissionsmodelle: Einlieferer bringen Stücke, der Shop verkauft und behält eine Provision. Das erfordert sauberes Tracking — wer hat was eingeliefert, was wurde verkauft, was schulden wir noch?"
+      },
+      "painTitle": "Was im Vintage-Betrieb fehlt",
+      "painItems": [
+        "Kein Zustandssystem für Kleidung — gut/mittel/schlecht existiert in Standard-Software nicht",
+        "Kommissionsverkauf nicht abbildbar: Wer hat was eingeliefert, was steht noch aus?",
+        "Preise sind pro Stück, aber Systeme denken in Einheitspreis-pro-SKU",
+        "Herkunft (Marke, Dekade, Besonderheit) ist nirgends sauber erfassbar",
+        "Umsatz pro Einlieferer ist manuell — Excel oder Notizbuch",
+        "Impact-Zahlen für Kommunikation fehlen: Wie viel Kleidung vor dem Müll gerettet?"
+      ],
+      "solutionTitle": "Kivvi für Vintage-Shops",
+      "solutionItems": [
+        "Jedes Stück bekommt eine ID, Zustand (Gut/Mittel/Schlecht), Kategorie und Preis",
+        "Kommissionsquelle wird beim Intake erfasst — Einlieferer-Abrechnung automatisch",
+        "Freie Spezifikationsfelder: Marke, Dekade, Material, Besonderheiten",
+        "QR-Etikett per Stück — scannen am Verkaufstisch öffnet sofort das Stück",
+        "Umsatz pro Einlieferer: wer, was, wann, wie viel — auf Knopfdruck",
+        "Impact-Dashboard: Kilogramm Kleidung gerettet, Stücke verkauft, CO₂ vermieden"
+      ],
+      "clothingGuide": {
+        "title": "Zustandsbewertung für Kleidung",
+        "intro": "Konsistente Bewertungen schaffen Kundenvertrauen. Kivvi verwendet die gleichen 5 Stufen wie für IT und andere Warengruppen — angepasst auf Ihre Kriterien:",
+        "criteria": {
+          "good": "Wie neu, keine sichtbaren Gebrauchsspuren, keine Beschädigungen",
+          "fair": "Leichte Gebrauchsspuren, minimale Pilling, kaum sichtbar",
+          "poor": "Deutliche Gebrauchsspuren, Pilling, Verfärbungen — noch tragbar",
+          "parts_only": "Beschädigungen (Riss, Loch, Fleck) — für Upcycling oder Reparatur",
+          "scrap": "Nicht verkäuflich, Recycling oder Entsorgung"
+        }
+      },
+      "ctaTitle": "Demo für Vintage-Shops",
+      "ctaDescription": "Zeigen Sie uns Ihren Betrieb — wir zeigen Ihnen, wie Kivvi ihn abbildet."
     }
   },
   "bulkActions": {

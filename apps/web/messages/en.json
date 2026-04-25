@@ -2759,6 +2759,49 @@
       },
       "ctaTitle": "Demo for repair cafés",
       "ctaDescription": "Free and no commitment — we'll show you how Kivvi digitises your repair operation."
+    },
+    "forVintage": {
+      "hero": {
+        "badge": "For vintage shops & clothing exchanges",
+        "title": "Every piece has its value.",
+        "description": "Vintage is curation. Every piece is unique — with its own condition, its own story, its own price. Kivvi thinks the way your business does."
+      },
+      "framing": {
+        "title": "Vintage isn't bulk secondhand",
+        "paragraph1": "Standard stock systems think in SKUs: \"50 jeans, size 32\". That works for fast-fashion returns — but not for vintage. No vintage piece is identical to another. Price, condition, and story are individual.",
+        "paragraph2": "On top of that come consignment models: depositors drop off pieces, the shop sells them and keeps a commission. That demands clean tracking — who deposited what, what was sold, what do we still owe?"
+      },
+      "painTitle": "What's missing in vintage operations",
+      "painItems": [
+        "No condition system for clothing — good/fair/poor doesn't exist in standard software",
+        "Consignment sales can't be represented: who deposited what, what's still outstanding?",
+        "Prices are per piece, but systems think unit-price-per-SKU",
+        "Provenance (brand, decade, special feature) can't be cleanly recorded anywhere",
+        "Revenue per depositor is manual — Excel or a notebook",
+        "Impact numbers for communications are missing: how much clothing rescued from the bin?"
+      ],
+      "solutionTitle": "Kivvi for vintage shops",
+      "solutionItems": [
+        "Every piece gets an ID, condition (good/fair/poor), category, and price",
+        "Consignment source recorded at intake — depositor settlement automatic",
+        "Free spec fields: brand, decade, material, special features",
+        "QR label per piece — scanning at the till opens the piece instantly",
+        "Revenue per depositor: who, what, when, how much — at the press of a button",
+        "Impact dashboard: kilograms of clothing saved, pieces sold, CO₂ avoided"
+      ],
+      "clothingGuide": {
+        "title": "Condition grading for clothing",
+        "intro": "Consistent grading builds customer trust. Kivvi uses the same 5 grades as for IT and other categories — adapted to your criteria:",
+        "criteria": {
+          "good": "Like new, no visible signs of use, no damage",
+          "fair": "Light signs of use, minimal pilling, barely visible",
+          "poor": "Clear signs of use, pilling, discolouration — still wearable",
+          "parts_only": "Damage (tear, hole, stain) — for upcycling or repair",
+          "scrap": "Not sellable, recycling or disposal"
+        }
+      },
+      "ctaTitle": "Demo for vintage shops",
+      "ctaDescription": "Show us your business — we'll show you how Kivvi maps it."
     }
   },
   "bulkActions": {
