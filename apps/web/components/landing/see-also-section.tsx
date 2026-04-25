@@ -4,6 +4,7 @@ import { VERTICALS } from "@/lib/config/site";
 
 export async function SeeAlsoSection({ current }: { current: string }) {
   const t = await getTranslations("landing.seeAlso");
+  const tVerticals = await getTranslations("landing.verticals");
   const others = VERTICALS.filter((v) => v.id !== current);
 
   return (
@@ -19,10 +20,10 @@ export async function SeeAlsoSection({ current }: { current: string }) {
             className="group rounded-xl border bg-card p-5 hover:shadow-md transition-shadow"
           >
             <h3 className="font-semibold text-sm mb-1 group-hover:text-primary transition-colors">
-              {v.title}
+              {tVerticals(`${v.id}.title`)}
             </h3>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              {v.description}
+              {tVerticals(`${v.id}.description`)}
             </p>
           </Link>
         ))}

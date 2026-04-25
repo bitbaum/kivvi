@@ -2620,6 +2620,53 @@
       },
       "ctaTitle": "Demo for thrift stores",
       "ctaDescription": "We'll show you how Kivvi works in your thrift store — free and no commitment."
+    },
+    "verticals": {
+      "it-refurbishers": {
+        "title": "IT refurbishers",
+        "description": "Per-item tracking, repair costs per device, Kivitendo migration",
+        "hook": "Laptop #47 with serial number, repair costs, and margin — not \"100 ThinkPad in stock\".",
+        "bullets": [
+          "Repair costs accumulate per device",
+          "Condition, battery, margin — at a glance",
+          "Donation receipts and impact report automatically"
+        ]
+      },
+      "brockenhaeuser": {
+        "title": "Thrift stores",
+        "description": "Donation receipts, donor management, impact for grant applications",
+        "hook": "Donation receipts at the press of a button — no more typing them in Word.",
+        "bullets": [
+          "Structured intake for donations and purchases",
+          "Donor management and impact evidence for grant applications",
+          "Swiss QR invoices and VAT supported natively"
+        ]
+      },
+      "repair-cafes": {
+        "title": "Repair cafés",
+        "description": "Repair log, hours tracking, impact evidence",
+        "hook": "What was repaired, by whom, with which parts, how much CO₂ — without Excel.",
+        "bullets": [
+          "Order entry even for volunteers without IT skills",
+          "Per-device repair history for follow-up repairs",
+          "Impact report at the press of a button for grant applications"
+        ]
+      },
+      "vintage": {
+        "title": "Vintage shops",
+        "description": "Condition grading, consignment tracking, QR labels",
+        "hook": "Every piece unique — with its own condition, origin, and price.",
+        "bullets": [
+          "No SKU thinking: every piece is its own item",
+          "Consignment sales with payout settlement",
+          "Condition system and provenance per piece"
+        ]
+      }
+    },
+    "footer": {
+      "tagline": "The ERP for the circular economy. Open source, Swiss-native.",
+      "productHeader": "Product",
+      "companyHeader": "Company"
     }
   },
   "bulkActions": {

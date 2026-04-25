@@ -15,12 +15,20 @@ import { Button } from "@/components/ui/button";
 
 export async function LandingHeader() {
   const t = await getTranslations("landing");
+  const tVerticals = await getTranslations("landing.verticals");
   const session = await auth();
   const isLoggedIn = !!session?.user;
 
   const navLinks = LANDING_NAV_LINKS.map((link) => ({
     href: link.href,
     label: t(link.labelKey),
+  }));
+
+  const verticals = VERTICALS.map((v) => ({
+    id: v.id,
+    href: v.href,
+    title: tVerticals(`${v.id}.title`),
+    description: tVerticals(`${v.id}.description`),
   }));
 
   // Resolve featured Wissen article slugs → metadata (title, tag) from .md frontmatter
@@ -45,7 +53,7 @@ export async function LandingHeader() {
           {/* Nav */}
           <LandingNav
             links={navLinks}
-            verticals={VERTICALS}
+            verticals={verticals}
             solutionsLabel={t("navForWhom")}
             solutionsContextLinks={SOLUTIONS_CONTEXT_LINKS}
             wissenLabel={t("navKnowledge")}

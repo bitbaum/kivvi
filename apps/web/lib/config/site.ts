@@ -1,57 +1,19 @@
 export const SITE_URL = "https://kivvi.ch";
 export const CONTACT_EMAIL = "info@revamp-it.ch";
 
+/**
+ * Marketing verticals (target customer segments). Holds only structural
+ * data — title/description/hook/bullets live in messages/{locale}.json
+ * under landing.verticals.{id}.* (SSOT for translation).
+ */
 export const VERTICALS = [
-  {
-    id: "it-refurbishers",
-    href: "/for/it-refurbishers",
-    title: "IT-Refurbisher",
-    description:
-      "Einzelartikel-Tracking, Reparaturkosten pro Gerät, Kivitendo-Migration",
-    hook: "Laptop #47 mit Seriennummer, Reparaturkosten und Marge — nicht «100 ThinkPad auf Lager».",
-    bullets: [
-      "Reparaturkosten akkumulieren sich pro Gerät",
-      "Zustand, Akku, Marge — auf einen Blick",
-      "Spendenquittungen und Impact-Bericht automatisch",
-    ],
-  },
-  {
-    id: "brockenhaeuser",
-    href: "/for/brockenhaeuser",
-    title: "Brockenhäuser",
-    description: "Spendenquittungen, Donormanagement, Impact für Förderanträge",
-    hook: "Spendenquittungen auf Knopfdruck — nicht mehr in Word getippt.",
-    bullets: [
-      "Strukturierter Wareneingang für Spenden und Einkäufe",
-      "Donorenverwaltung und Impact-Nachweis für Förderanträge",
-      "Schweizer QR-Rechnungen und MWST nativ",
-    ],
-  },
-  {
-    id: "repair-cafes",
-    href: "/for/repair-cafes",
-    title: "Repair Cafés",
-    description: "Reparaturprotokoll, Stunden-Tracking, Impact-Nachweis",
-    hook: "Was repariert, von wem, welche Teile, wie viel CO₂ — ohne Excel.",
-    bullets: [
-      "Auftragserfassung auch für Freiwillige ohne IT-Kenntnisse",
-      "Reparaturhistorie pro Gerät für Folgereparaturen",
-      "Impact-Bericht auf Knopfdruck für Förderanträge",
-    ],
-  },
-  {
-    id: "vintage",
-    href: "/for/vintage",
-    title: "Vintage-Shops",
-    description: "Zustandsbewertung, Kommissions-Tracking, QR-Etiketten",
-    hook: "Jedes Stück einmalig — mit Zustand, Herkunft und eigenem Preis.",
-    bullets: [
-      "Kein SKU-Denken: jedes Teil ist ein eigener Artikel",
-      "Kommissionsverkauf mit Auszahlungsabrechnung",
-      "Zustandssystem und Provenienz pro Stück",
-    ],
-  },
+  { id: "it-refurbishers", href: "/for/it-refurbishers" },
+  { id: "brockenhaeuser", href: "/for/brockenhaeuser" },
+  { id: "repair-cafes", href: "/for/repair-cafes" },
+  { id: "vintage", href: "/for/vintage" },
 ] as const;
+
+export type VerticalId = (typeof VERTICALS)[number]["id"];
 
 // Primary nav links (flat). Verticals surface via the "Für wen" dropdown.
 // Wissen surfaces via its own dropdown — not listed here.

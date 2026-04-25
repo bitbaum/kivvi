@@ -2620,6 +2620,53 @@
       },
       "ctaTitle": "Demo für Brockenhäuser",
       "ctaDescription": "Wir zeigen Ihnen, wie Kivvi in Ihrer Brockenstube funktioniert — kostenlos und unverbindlich."
+    },
+    "verticals": {
+      "it-refurbishers": {
+        "title": "IT-Refurbisher",
+        "description": "Einzelartikel-Tracking, Reparaturkosten pro Gerät, Kivitendo-Migration",
+        "hook": "Laptop #47 mit Seriennummer, Reparaturkosten und Marge — nicht «100 ThinkPad auf Lager».",
+        "bullets": [
+          "Reparaturkosten akkumulieren sich pro Gerät",
+          "Zustand, Akku, Marge — auf einen Blick",
+          "Spendenquittungen und Impact-Bericht automatisch"
+        ]
+      },
+      "brockenhaeuser": {
+        "title": "Brockenhäuser",
+        "description": "Spendenquittungen, Donormanagement, Impact für Förderanträge",
+        "hook": "Spendenquittungen auf Knopfdruck — nicht mehr in Word getippt.",
+        "bullets": [
+          "Strukturierter Wareneingang für Spenden und Einkäufe",
+          "Donorenverwaltung und Impact-Nachweis für Förderanträge",
+          "Schweizer QR-Rechnungen und MWST nativ"
+        ]
+      },
+      "repair-cafes": {
+        "title": "Repair Cafés",
+        "description": "Reparaturprotokoll, Stunden-Tracking, Impact-Nachweis",
+        "hook": "Was repariert, von wem, welche Teile, wie viel CO₂ — ohne Excel.",
+        "bullets": [
+          "Auftragserfassung auch für Freiwillige ohne IT-Kenntnisse",
+          "Reparaturhistorie pro Gerät für Folgereparaturen",
+          "Impact-Bericht auf Knopfdruck für Förderanträge"
+        ]
+      },
+      "vintage": {
+        "title": "Vintage-Shops",
+        "description": "Zustandsbewertung, Kommissions-Tracking, QR-Etiketten",
+        "hook": "Jedes Stück einmalig — mit Zustand, Herkunft und eigenem Preis.",
+        "bullets": [
+          "Kein SKU-Denken: jedes Teil ist ein eigener Artikel",
+          "Kommissionsverkauf mit Auszahlungsabrechnung",
+          "Zustandssystem und Provenienz pro Stück"
+        ]
+      }
+    },
+    "footer": {
+      "tagline": "Das ERP für die Kreislaufwirtschaft. Open Source, Swiss-native.",
+      "productHeader": "Produkt",
+      "companyHeader": "Unternehmen"
     }
   },
   "bulkActions": {

@@ -2620,6 +2620,53 @@
       },
       "ctaTitle": "Démo pour friperies",
       "ctaDescription": "Nous vous montrons comment Kivvi fonctionne dans votre friperie — gratuit et sans engagement."
+    },
+    "verticals": {
+      "it-refurbishers": {
+        "title": "Reconditionneurs IT",
+        "description": "Suivi par article, coûts de réparation par appareil, migration Kivitendo",
+        "hook": "Ordinateur portable n°47 avec numéro de série, coûts de réparation et marge — pas « 100 ThinkPad en stock ».",
+        "bullets": [
+          "Les coûts de réparation s'accumulent par appareil",
+          "État, batterie, marge — d'un coup d'œil",
+          "Reçus de don et rapport d'impact automatiques"
+        ]
+      },
+      "brockenhaeuser": {
+        "title": "Friperies",
+        "description": "Reçus de don, gestion des donateurs, impact pour les demandes de subvention",
+        "hook": "Reçus de don en un clic — fini la saisie dans Word.",
+        "bullets": [
+          "Réception structurée pour dons et achats",
+          "Gestion des donateurs et justification d'impact pour les subventions",
+          "Factures QR suisses et TVA pris en charge nativement"
+        ]
+      },
+      "repair-cafes": {
+        "title": "Repair cafés",
+        "description": "Protocole de réparation, suivi des heures, justification d'impact",
+        "hook": "Ce qui a été réparé, par qui, avec quelles pièces, combien de CO₂ — sans Excel.",
+        "bullets": [
+          "Saisie des ordres accessible aux bénévoles sans compétences IT",
+          "Historique de réparation par appareil pour les suivis",
+          "Rapport d'impact en un clic pour les demandes de subvention"
+        ]
+      },
+      "vintage": {
+        "title": "Boutiques vintage",
+        "description": "Évaluation de l'état, suivi de consignation, étiquettes QR",
+        "hook": "Chaque pièce unique — avec son état, son origine et son propre prix.",
+        "bullets": [
+          "Pas de logique SKU : chaque pièce est un article distinct",
+          "Vente en consignation avec décompte de versement",
+          "Système d'état et provenance par pièce"
+        ]
+      }
+    },
+    "footer": {
+      "tagline": "L'ERP pour l'économie circulaire. Open source, conçu en Suisse.",
+      "productHeader": "Produit",
+      "companyHeader": "Entreprise"
     }
   },
   "bulkActions": {

@@ -49,6 +49,7 @@ export const metadata: Metadata = {
 
 export default async function Home() {
   const t = await getTranslations("landing");
+  const tVerticals = await getTranslations("landing.verticals");
   return (
     <>
       <script
@@ -94,7 +95,14 @@ export default async function Home() {
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
           {VERTICALS.map((v) => (
-            <VerticalCard key={v.id} {...v} />
+            <VerticalCard
+              key={v.id}
+              id={v.id}
+              href={v.href}
+              title={tVerticals(`${v.id}.title`)}
+              hook={tVerticals(`${v.id}.hook`)}
+              bullets={tVerticals.raw(`${v.id}.bullets`) as string[]}
+            />
           ))}
         </div>
       </section>

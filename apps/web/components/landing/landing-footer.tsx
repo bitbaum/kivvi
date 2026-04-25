@@ -6,6 +6,9 @@ import { VERTICALS } from "@/lib/config/site";
 
 export async function LandingFooter() {
   const t = await getTranslations("landing");
+  const tFooter = await getTranslations("landing.footer");
+  const tVerticals = await getTranslations("landing.verticals");
+  const tFooterTop = await getTranslations("footer");
 
   return (
     <footer className="border-t bg-muted/30">
@@ -19,7 +22,7 @@ export async function LandingFooter() {
               <span className="font-semibold">Kivvi</span>
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed mb-4">
-              Das ERP für die Kreislaufwirtschaft. Open Source, Swiss-native.
+              {tFooter("tagline")}
             </p>
             <a
               href="https://github.com/g-but/kivvi"
@@ -35,7 +38,7 @@ export async function LandingFooter() {
           {/* Col 2: Produkt */}
           <div>
             <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Produkt
+              {tFooter("productHeader")}
             </p>
             <ul className="space-y-2.5 text-sm">
               <li>
@@ -51,7 +54,7 @@ export async function LandingFooter() {
                   href="/pricing"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  Preise
+                  {tFooterTop("pricing")}
                 </Link>
               </li>
               <li>
@@ -59,7 +62,7 @@ export async function LandingFooter() {
                   href="/roadmap"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  Roadmap
+                  {t("navRoadmap")}
                 </Link>
               </li>
               <li>
@@ -84,7 +87,7 @@ export async function LandingFooter() {
           {/* Col 3: Für wen */}
           <div>
             <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Für wen
+              {t("navForWhom")}
             </p>
             <ul className="space-y-2.5 text-sm">
               {VERTICALS.map((v) => (
@@ -93,7 +96,7 @@ export async function LandingFooter() {
                     href={v.href}
                     className="text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    {v.title}
+                    {tVerticals(`${v.id}.title`)}
                   </Link>
                 </li>
               ))}
@@ -103,7 +106,7 @@ export async function LandingFooter() {
           {/* Col 4: Unternehmen */}
           <div>
             <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Unternehmen
+              {tFooter("companyHeader")}
             </p>
             <ul className="space-y-2.5 text-sm">
               <li>
