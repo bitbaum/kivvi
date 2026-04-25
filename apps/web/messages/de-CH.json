@@ -1888,6 +1888,15 @@
       }
     }
   },
+  "ricardo": {
+    "publish": "Auf Ricardo publizieren",
+    "republish": "Erneut auf Ricardo publizieren",
+    "viewListing": "Auf Ricardo ansehen",
+    "removeListing": "Von Ricardo entfernen",
+    "sold": "Auf Ricardo verkauft",
+    "publishError": "Fehler beim Publizieren.",
+    "unpublishError": "Fehler beim Entfernen."
+  },
   "auth": {
     "signIn": "Anmelden",
     "signInSubtitle": "Melden Sie sich bei Ihrem Konto an.",

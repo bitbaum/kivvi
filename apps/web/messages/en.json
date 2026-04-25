@@ -1888,6 +1888,15 @@
       }
     }
   },
+  "ricardo": {
+    "publish": "Publish to Ricardo",
+    "republish": "Republish to Ricardo",
+    "viewListing": "View on Ricardo",
+    "removeListing": "Remove from Ricardo",
+    "sold": "Sold on Ricardo",
+    "publishError": "Failed to publish.",
+    "unpublishError": "Failed to remove."
+  },
   "auth": {
     "signIn": "Sign in",
     "signInSubtitle": "Sign in to your account.",

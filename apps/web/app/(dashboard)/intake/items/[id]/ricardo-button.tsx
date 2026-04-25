@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { ExternalLink, Upload, X, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   publishToRicardoAction,
   unpublishFromRicardoAction,
@@ -18,6 +19,7 @@ export function RicardoButton({
   externalListingUrl,
   externalListingStatus,
 }: Props) {
+  const t = useTranslations("ricardo");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [listingUrl, setListingUrl] = useState(externalListingUrl);
@@ -35,7 +37,7 @@ export function RicardoButton({
         setListingUrl(result.data.listingUrl);
         setListingStatus("active");
       } else {
-        setError(result.error ?? "Fehler beim Publizieren.");
+        setError(result.error ?? t("publishError"));
       }
     });
   }
@@ -47,7 +49,7 @@ export function RicardoButton({
       if (result.success) {
         setListingStatus("removed");
       } else {
-        setError(result.error ?? "Fehler beim Entfernen.");
+        setError(result.error ?? t("unpublishError"));
       }
     });
   }
@@ -63,13 +65,13 @@ export function RicardoButton({
             className="inline-flex items-center gap-1.5 rounded-lg border border-success/30 bg-success/5 px-3 py-2 text-sm font-medium text-success hover:bg-success/10 transition-colors"
           >
             <ExternalLink className="h-4 w-4" />
-            Auf Ricardo ansehen
+            {t("viewListing")}
           </a>
           <button
             onClick={handleUnpublish}
             disabled={isPending}
             className="rounded-lg border px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-destructive transition-colors"
-            title="Von Ricardo entfernen"
+            title={t("removeListing")}
           >
             {isPending ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -80,7 +82,7 @@ export function RicardoButton({
         </div>
       ) : isSold ? (
         <span className="inline-flex items-center gap-1.5 rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
-          Auf Ricardo verkauft
+          {t("sold")}
         </span>
       ) : (
         <button
@@ -93,9 +95,7 @@ export function RicardoButton({
           ) : (
             <Upload className="h-4 w-4" />
           )}
-          {isExpired
-            ? "Erneut auf Ricardo publizieren"
-            : "Auf Ricardo publizieren"}
+          {isExpired ? t("republish") : t("publish")}
         </button>
       )}
       {error && <p className="text-xs text-destructive">{error}</p>}
