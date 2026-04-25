@@ -2834,6 +2834,85 @@
         "description": "Your infrastructure, our support. Installation, configuration, and ongoing care by us.",
         "cta": "Get in touch"
       }
+    },
+    "whyKivvi": {
+      "hero": {
+        "label": "The argument",
+        "title": "Why a dedicated ERP?",
+        "description": "Kivvi isn't a universal ERP. It's the operating system for circular businesses — built on different first principles. Eight dimensions that explain why standard ERPs structurally fail."
+      },
+      "coreArgument": {
+        "title": "This isn't a feature problem — it's a model problem.",
+        "paragraph1": "You can use a standard ERP for circular businesses with workarounds. You can build hacks, repurpose custom fields, bend processes. That costs time, nerves, and produces errors.",
+        "paragraph2": "The real problem runs deeper: standard ERPs were built for a world where goods have a fixed value, come from suppliers, sit in stock, and are sold to customers. Circular businesses work differently — not in some detail, but in their fundamental structure."
+      },
+      "dimensionHeaders": {
+        "erpAssumption": "Standard ERP assumes",
+        "circularReality": "Circular business needs",
+        "kivviAnswer": "Kivvi's answer"
+      },
+      "dimensions": [
+        {
+          "title": "Item tracking",
+          "erpAssumption": "Stock consists of SKUs and quantities. \"100 ThinkPad T14\" is fully described by product number and unit count.",
+          "circularReality": "Every item is an individual. Laptop #47 has a different battery, different scratches, and a different repair history than laptop #48 — even though both are \"ThinkPad T14\".",
+          "kivviAnswer": "Every item gets a unique ID, QR code, condition grade, serial number, and full cost history. No SKU thinking."
+        },
+        {
+          "title": "Valuation",
+          "erpAssumption": "Value comes from purchase price. All like-for-like items have the same book value. Prices are rule-based (purchase × factor).",
+          "circularReality": "Value is determined by grading. Two identical laptops of the same brand can be CHF 40 apart because one was re-equipped and the other has a display fault.",
+          "kivviAnswer": "Five-grade condition system (good → scrap), combined with suggested price and minimum price per item. Grading determines price — not the other way around."
+        },
+        {
+          "title": "Cost accumulation",
+          "erpAssumption": "Costs are known and fixed at intake. Cost basis = purchase price.",
+          "circularReality": "Costs accrue over time: intake price (or CHF 0 for a donation) + cleaning + repair 1 + spare parts + repair 2 = effective cost basis is only known shortly before sale.",
+          "kivviAnswer": "Repair log accumulates all costs per item with date, CHF amount, and hours. Margin is calculated against the current cost basis — always live."
+        },
+        {
+          "title": "Source of goods",
+          "erpAssumption": "Goods come from suppliers with an invoice. One source, one accounting transaction.",
+          "circularReality": "Four fundamentally different sources with different legal consequences: donation (→ receipt obligation), purchase (→ supplier invoice), trade-in/return (→ credit note), consignment (→ revenue split after sale).",
+          "kivviAnswer": "Intake recognises all four source types. Donation receipt, supplier document, and consignment log are automatically attached to the transaction."
+        },
+        {
+          "title": "Pricing",
+          "erpAssumption": "Prices are rule-based and uniform. Systems optimise for margin targets at the product level.",
+          "circularReality": "Prices are case-by-case: condition of the item, current demand, social discount for the needy, special promo, budget adjustment in the sales conversation. No algorithm can fully automate this.",
+          "kivviAnswer": "Suggested price and minimum price as guardrails. Sales staff can adjust during the conversation. Every price change is logged. The system supports human decisions — it doesn't replace them."
+        },
+        {
+          "title": "Donor management",
+          "erpAssumption": "There are suppliers and customers. Both receive documents. Donation logic doesn't exist.",
+          "circularReality": "Donors are neither suppliers nor customers. They get receipts instead of invoices, are handled under Swiss donation law, and the relationship is more valuable to the business long-term than a single purchase.",
+          "kivviAnswer": "Donors are kept as their own contact type. Receipts are generated automatically. Donation history and issued documents are queryable at any time."
+        },
+        {
+          "title": "Impact measurement",
+          "erpAssumption": "An ERP tracks money. Impact isn't an ERP topic.",
+          "circularReality": "For circular businesses, impact is a core KPI: how many devices saved? How much CO₂ avoided? How many people supplied with affordable goods? Those numbers decide grants and credibility.",
+          "kivviAnswer": "Impact dashboard computes CO₂ savings, device counts, and people-served from defined values per category. Exportable for grant applications and annual reports."
+        },
+        {
+          "title": "Compliance",
+          "erpAssumption": "Standard VAT, standard invoice, standard documents. The legal framework is universal.",
+          "circularReality": "Circular businesses in Switzerland have specific obligations: donation law (receipt content), QR invoice (legally required since 2022), VAT special rules for used goods, data-erasure certificates for IT.",
+          "kivviAnswer": "QR invoices automatic, Rappen rounding (0.05 CHF) correct, donation receipts pre-filled per Swiss law, data-erasure certificates (Swiss FADP / NIST SP 800-88) downloadable. No manual compliance work."
+        }
+      ],
+      "summary": {
+        "title": "The alternative: nothing, or Excel",
+        "paragraph1": "Many circular businesses today work with Excel sheets, notebooks, or no software at all — not because they don't want a digital solution, but because no available solution fits their operations.",
+        "paragraph2": "That has consequences: margins are guesses. Impact can't be proven. Donation receipts are typed by hand. Every migration to a new system means data loss.",
+        "conclusion": "Kivvi isn't a perfect solution — but it's the first that starts with the right model."
+      },
+      "cta": {
+        "title": "Convinced? Or still have questions?",
+        "description": "Request a demo or just try it — the first setup takes 10 minutes.",
+        "linkHowItWorks": "How it works →",
+        "linkCircularEconomy": "Understand the circular economy →"
+      }
     }
   },
   "bulkActions": {

@@ -2834,6 +2834,85 @@
         "description": "Votre infrastructure, notre support. Installation, configuration et accompagnement continu par nos soins.",
         "cta": "Nous contacter"
       }
+    },
+    "whyKivvi": {
+      "hero": {
+        "label": "L'argument",
+        "title": "Pourquoi un ERP dédié ?",
+        "description": "Kivvi n'est pas un ERP universel. C'est le système d'exploitation des entreprises circulaires — bâti sur des prémisses différentes. Huit dimensions qui expliquent pourquoi les ERP standard échouent structurellement."
+      },
+      "coreArgument": {
+        "title": "Ce n'est pas un problème de fonctionnalité — c'est un problème de modèle.",
+        "paragraph1": "Vous pouvez utiliser un ERP standard pour des entreprises circulaires en bricolant. Vous pouvez créer des contournements, détourner des champs personnalisés, plier les processus. Cela coûte du temps, des nerfs et produit des erreurs.",
+        "paragraph2": "Le vrai problème est plus profond : les ERP standard ont été conçus pour un monde où les biens ont une valeur fixe, viennent de fournisseurs, dorment en stock et sont vendus à des clients. Les entreprises circulaires fonctionnent différemment — pas dans un détail, mais dans leur structure fondamentale."
+      },
+      "dimensionHeaders": {
+        "erpAssumption": "L'ERP standard suppose",
+        "circularReality": "L'entreprise circulaire a besoin",
+        "kivviAnswer": "La réponse de Kivvi"
+      },
+      "dimensions": [
+        {
+          "title": "Suivi des articles",
+          "erpAssumption": "Le stock est composé de SKU et de quantités. « 100 ThinkPad T14 » est entièrement décrit par numéro de produit et nombre d'unités.",
+          "circularReality": "Chaque article est un individu. L'ordinateur portable n°47 a une batterie différente, des rayures différentes et un historique de réparation différent du n°48 — bien que les deux soient des « ThinkPad T14 ».",
+          "kivviAnswer": "Chaque article reçoit un identifiant unique, un code QR, un état, un numéro de série et un historique de coûts complet. Pas de logique SKU."
+        },
+        {
+          "title": "Évaluation",
+          "erpAssumption": "La valeur vient du prix d'achat. Tous les articles similaires ont la même valeur comptable. Les prix sont basés sur des règles (achat × facteur).",
+          "circularReality": "La valeur naît de l'évaluation. Deux ordinateurs portables identiques de la même marque peuvent différer de 40 CHF parce que l'un a été ré-équipé et l'autre a un défaut d'écran.",
+          "kivviAnswer": "Système d'état à cinq niveaux (bon → rebut), combiné à un prix indicatif et un prix minimum par article. L'évaluation détermine le prix — et non l'inverse."
+        },
+        {
+          "title": "Accumulation des coûts",
+          "erpAssumption": "Les coûts sont connus et fixes à la réception. Base de coût = prix d'achat.",
+          "circularReality": "Les coûts s'accumulent dans le temps : prix d'entrée (ou 0 CHF en cas de don) + nettoyage + réparation 1 + pièces + réparation 2 = la base de coût effective n'est connue que peu avant la vente.",
+          "kivviAnswer": "Le protocole de réparation accumule tous les coûts par article avec date, montant en CHF et heures. La marge est calculée par rapport à la base de coût actuelle — toujours à jour."
+        },
+        {
+          "title": "Origine des marchandises",
+          "erpAssumption": "Les biens viennent de fournisseurs avec facture. Une source, une opération comptable.",
+          "circularReality": "Quatre sources fondamentalement différentes avec des conséquences juridiques différentes : don (→ obligation de reçu), achat (→ facture fournisseur), reprise/échange (→ avoir), consignation (→ partage du produit après vente).",
+          "kivviAnswer": "La réception connaît les quatre types de sources. Reçu de don, justificatif fournisseur et protocole de consignation sont automatiquement liés à l'opération."
+        },
+        {
+          "title": "Tarification",
+          "erpAssumption": "Les prix sont basés sur des règles et uniformes. Les systèmes optimisent les objectifs de marge au niveau produit.",
+          "circularReality": "Les prix sont au cas par cas : état de l'article, demande actuelle, rabais social pour personnes en difficulté, opération spéciale, ajustement budgétaire lors de la vente. Aucun algorithme ne peut entièrement automatiser cela.",
+          "kivviAnswer": "Prix indicatif et prix minimum comme garde-fous. La vente peut ajuster lors de l'échange. Chaque modification de prix est journalisée. Le système soutient la décision humaine, il ne la remplace pas."
+        },
+        {
+          "title": "Gestion des donateurs",
+          "erpAssumption": "Il y a des fournisseurs et des clients. Les deux reçoivent des justificatifs. La logique de don n'existe pas.",
+          "circularReality": "Les donateurs ne sont ni fournisseurs ni clients. Ils reçoivent des reçus au lieu de factures, sont traités selon le droit suisse des dons, et la relation est plus précieuse à long terme pour l'entreprise qu'un achat unique.",
+          "kivviAnswer": "Les donateurs sont gérés comme un type de contact propre. Les reçus sont générés automatiquement. L'historique des dons et les justificatifs émis sont consultables à tout moment."
+        },
+        {
+          "title": "Mesure d'impact",
+          "erpAssumption": "Un ERP suit l'argent. L'impact n'est pas un sujet d'ERP.",
+          "circularReality": "Pour les entreprises circulaires, l'impact est un KPI central : combien d'appareils sauvés ? Combien de CO₂ évité ? Combien de personnes approvisionnées en biens abordables ? Ces chiffres décident des subventions et de la crédibilité.",
+          "kivviAnswer": "Le tableau de bord d'impact calcule les économies de CO₂, le nombre d'appareils et le nombre de personnes à partir de valeurs définies par catégorie. Exportable pour demandes de subvention et rapports annuels."
+        },
+        {
+          "title": "Conformité",
+          "erpAssumption": "TVA standard, facture standard, justificatifs standard. Le cadre juridique est universel.",
+          "circularReality": "Les entreprises circulaires en Suisse ont des obligations spécifiques : droit des dons (contenu du reçu), facture QR (légalement obligatoire depuis 2022), règles TVA particulières pour biens d'occasion, certificats d'effacement de données pour l'IT.",
+          "kivviAnswer": "Factures QR automatiques, arrondi des centimes (0,05 CHF) correct, reçus de don pré-remplis selon le droit suisse, certificats d'effacement de données (nLPD / NIST SP 800-88) téléchargeables. Aucun travail de conformité manuel."
+        }
+      ],
+      "summary": {
+        "title": "L'alternative : rien ou Excel",
+        "paragraph1": "Beaucoup d'entreprises circulaires travaillent aujourd'hui avec des feuilles Excel, des cahiers ou aucun logiciel — non parce qu'elles ne veulent pas de solution numérique, mais parce qu'aucune solution disponible ne convient à leur activité.",
+        "paragraph2": "Cela a des conséquences : les marges sont des estimations. L'impact n'est pas démontrable. Les reçus de don sont saisis à la main. Chaque migration vers un nouveau système signifie une perte de données.",
+        "conclusion": "Kivvi n'est pas une solution parfaite — mais c'est la première qui démarre avec le bon modèle."
+      },
+      "cta": {
+        "title": "Convaincu ? Ou encore des questions ?",
+        "description": "Demandez une démo ou essayez directement — la configuration initiale prend 10 minutes.",
+        "linkHowItWorks": "Comment ça marche →",
+        "linkCircularEconomy": "Comprendre l'économie circulaire →"
+      }
     }
   },
   "bulkActions": {

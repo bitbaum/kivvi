@@ -2834,6 +2834,85 @@
         "description": "Ihre Infrastruktur, unser Support. Installation, Konfiguration und laufende Betreuung durch uns.",
         "cta": "Kontakt aufnehmen"
       }
+    },
+    "whyKivvi": {
+      "hero": {
+        "label": "Das Argument",
+        "title": "Warum ein eigenes ERP?",
+        "description": "Kivvi ist kein universelles ERP. Es ist das Betriebssystem für Kreislaufbetriebe — gebaut auf anderen Grundannahmen. Acht Dimensionen, die erklären warum Standard-ERPs strukturell scheitern."
+      },
+      "coreArgument": {
+        "title": "Das ist kein Feature-Problem — es ist ein Modell-Problem.",
+        "paragraph1": "Ein Standard-ERP kann man mit Umwegen für Kreislaufbetriebe verwenden. Man kann Workarounds bauen, Sonderfelder missbrauchen, Prozesse anpassen. Das kostet Zeit, Nerven und produziert Fehler.",
+        "paragraph2": "Das eigentliche Problem ist tiefer: Standard-ERPs wurden für eine Welt gebaut, in der Güter einen festen Wert haben, von Lieferanten kommen, auf Lager liegen und an Kunden verkauft werden. Kreislaufbetriebe funktionieren anders — nicht in einem Detail, sondern in der Grundstruktur."
+      },
+      "dimensionHeaders": {
+        "erpAssumption": "Standard-ERP nimmt an",
+        "circularReality": "Kreislaufbetrieb braucht",
+        "kivviAnswer": "Kivvis Antwort"
+      },
+      "dimensions": [
+        {
+          "title": "Artikelverfolgung",
+          "erpAssumption": "Lager besteht aus SKUs und Mengen. «100 ThinkPad T14» ist vollständig beschrieben durch Produktnummer und Stückzahl.",
+          "circularReality": "Jeder Artikel ist ein Individuum. Laptop #47 hat eine andere Batterie, andere Kratzer und andere Reparaturgeschichte als Laptop #48 — obwohl beide «ThinkPad T14» sind.",
+          "kivviAnswer": "Jeder Artikel bekommt eine eindeutige ID, QR-Code, Zustand, Seriennummer und vollständige Kostenhistorie. Kein SKU-Denken."
+        },
+        {
+          "title": "Wertermittlung",
+          "erpAssumption": "Wert kommt vom Einkaufspreis. Alle gleichartigen Artikel haben denselben Buchwert. Preise sind regelbasiert (Einkauf × Faktor).",
+          "circularReality": "Wert entsteht durch Bewertung. Zwei identische Laptops derselben Marke können CHF 40 auseinanderliegen, weil einer neu bestückt wurde und der andere einen Displayfehler hat.",
+          "kivviAnswer": "Fünfstufiges Zustandssystem (Gut → Schrott), kombiniert mit Richtpreis und Mindestpreis pro Artikel. Bewertung bestimmt Preis — nicht umgekehrt."
+        },
+        {
+          "title": "Kostenakkumulation",
+          "erpAssumption": "Kosten sind bei Wareneingang bekannt und unveränderlich. Kostenbasis = Einkaufspreis.",
+          "circularReality": "Kosten entstehen über Zeit: Intake-Preis (oder CHF 0 bei Spende) + Reinigung + Reparatur 1 + Ersatzteile + Reparatur 2 = effektive Kostenbasis erst kurz vor Verkauf bekannt.",
+          "kivviAnswer": "Reparaturprotokoll akkumuliert alle Kosten pro Artikel mit Datum, CHF-Betrag und Stunden. Marge wird gegen die aktuelle Kostenbasis gerechnet — immer aktuell."
+        },
+        {
+          "title": "Warenherkunft",
+          "erpAssumption": "Waren kommen von Lieferanten mit Rechnung. Eine Quelle, ein Buchhaltungsvorgang.",
+          "circularReality": "Vier grundlegend verschiedene Quellen mit verschiedenen Rechtsfolgen: Spende (→ Quittungspflicht), Kauf (→ Lieferantenrechnung), Tausch/Rücknahme (→ Gutschrift), Kommission (→ Erlösteilung nach Verkauf).",
+          "kivviAnswer": "Wareneingang kennt alle vier Quelltypen. Spendenquittung, Lieferantenbeleg und Kommissionsprotokoll werden automatisch dem Vorgang zugeordnet."
+        },
+        {
+          "title": "Preisgestaltung",
+          "erpAssumption": "Preise sind regelbasiert und einheitlich. Systeme optimieren für Margenziele auf Produktebene.",
+          "circularReality": "Preise sind einzelfallabhängig: Zustand des Artikels, aktuelle Nachfrage, Sozialrabatt für Bedürftige, Sonderaktion, Budgetanpassung im Verkaufsgespräch. Kein Algorithmus kann das vollständig automatisieren.",
+          "kivviAnswer": "Richtpreis und Mindestpreis als Leitplanken. Verkauf kann im Gespräch anpassen. Jede Preisänderung wird protokolliert. Das System unterstützt menschliche Entscheidung, ersetzt sie nicht."
+        },
+        {
+          "title": "Donormanagement",
+          "erpAssumption": "Es gibt Lieferanten und Kunden. Beide erhalten Belege. Spendenlogik existiert nicht.",
+          "circularReality": "Spender sind weder Lieferanten noch Kunden. Sie erhalten Quittungen statt Rechnungen, werden nach Schweizer Spendenrecht behandelt, und die Beziehung ist für die Betriebe langfristig wertvoller als ein einzelner Kauf.",
+          "kivviAnswer": "Spender werden als eigener Kontakttyp geführt. Quittungen werden automatisch generiert. Spendenhistorie und ausgestellte Belege sind jederzeit abrufbar."
+        },
+        {
+          "title": "Impact-Messung",
+          "erpAssumption": "ERP trackt Geld. Impact ist kein ERP-Thema.",
+          "circularReality": "Für Kreislaufbetriebe ist Impact ein Kern-KPI: Wie viele Geräte gerettet? Wie viel CO₂ vermieden? Wie viele Menschen mit günstigen Gütern versorgt? Diese Zahlen entscheiden über Fördergelder und Glaubwürdigkeit.",
+          "kivviAnswer": "Impact-Dashboard berechnet CO₂-Einsparung, Gerätezahlen und Personenzahlen aus definierten Werten pro Kategorie. Exportierbar für Förderanträge und Jahresberichte."
+        },
+        {
+          "title": "Compliance",
+          "erpAssumption": "Standard-MwSt., Standard-Rechnung, Standard-Belege. Rechtsrahmen ist universell.",
+          "circularReality": "Kreislaufbetriebe in der Schweiz haben spezifische Pflichten: Spendenrecht (Quittungsinhalt), QR-Rechnung (seit 2022 gesetzlich), MWST-Sonderregelungen für Gebrauchtware, Datenlöschzertifikate für IT.",
+          "kivviAnswer": "QR-Rechnungen automatisch, Rappen-Rundung (0.05 CHF) korrekt, Spendenquittungen nach Schweizer Recht vorausgefüllt, Datenlöschzertifikate (nDSG / NIST SP 800-88) herunterladbar. Kein manueller Compliance-Aufwand."
+        }
+      ],
+      "summary": {
+        "title": "Die Alternative: Nichts oder Excel",
+        "paragraph1": "Viele Kreislaufbetriebe arbeiten heute mit Excel-Tabellen, Notizbüchern oder gar keiner Software — nicht weil sie keine digitale Lösung wollen, sondern weil keine verfügbare Lösung zu ihrem Betrieb passt.",
+        "paragraph2": "Das hat Konsequenzen: Margen sind Schätzungen. Impact ist nicht belegbar. Spendenquittungen werden manuell getippt. Jede Migration in ein neues System bedeutet Datenverlust.",
+        "conclusion": "Kivvi ist keine perfekte Lösung — aber es ist die erste, die mit dem richtigen Modell startet."
+      },
+      "cta": {
+        "title": "Überzeugt? Oder noch Fragen?",
+        "description": "Demo anfragen oder direkt ausprobieren — die erste Einrichtung dauert 10 Minuten.",
+        "linkHowItWorks": "Wie es funktioniert →",
+        "linkCircularEconomy": "Kreislaufwirtschaft verstehen →"
+      }
     }
   },
   "bulkActions": {
