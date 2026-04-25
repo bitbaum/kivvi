@@ -2717,6 +2717,48 @@
       },
       "ctaTitle": "Demo for IT refurbishers",
       "ctaDescription": "Show us your current workflow — we'll show you how Kivvi maps it."
+    },
+    "forRepairCafes": {
+      "hero": {
+        "badge": "For repair cafés & workshops",
+        "title": "Repairs, finally documented.",
+        "description": "What was repaired? By whom? For how long? Which parts? At what cost? And how much CO₂ was avoided? Kivvi answers all of that — without Excel."
+      },
+      "movement": {
+        "title": "Repair cafés are more than repair",
+        "paragraph1": "Repair cafés and workshops are places where people come together to repair broken things — instead of throwing them away. That's a cultural movement, not just a service.",
+        "paragraph2": "At the same time, these businesses increasingly need provable numbers: how many devices saved? How much e-waste avoided? Those numbers decide grants, partnerships, and public perception."
+      },
+      "painTitle": "What's missing today",
+      "painItems": [
+        "No structured order intake — what was repaired today and by whom?",
+        "No per-device repair history — context is missing on follow-up repairs",
+        "Volunteer hours are tracked by hand or not at all",
+        "Impact numbers for grant applications must be added up by hand",
+        "Whether a repair was economically worth it can't be analysed",
+        "No QR invoices, even though they're legally required for professional operations"
+      ],
+      "solutionTitle": "What Kivvi delivers",
+      "solutionItems": [
+        "Per-device repair log: date, symptom, fix, parts, duration — structured",
+        "Device history: on a re-visit you immediately see all prior repairs",
+        "Hours tracking per job — for volunteers and paid staff",
+        "Impact dashboard: devices saved, CO₂ avoided, hours contributed — on demand",
+        "Cost transparency: what did the repair really cost vs. what was paid?",
+        "QR invoices for paid repairs — compliant, automatic"
+      ],
+      "model": {
+        "title": "The \"repair-as-a-service\" business model",
+        "description": "Repair cafés and workshops follow a different model than classic shops: ownership of the device stays with the customer. The business sells time and spare parts — not goods.",
+        "step1Title": "Order",
+        "step1Desc": "Customer problem is recorded, device identified, repair started",
+        "step2Title": "Log",
+        "step2Desc": "Diagnosis, parts used, hours worked are documented",
+        "step3Title": "Closing",
+        "step3Desc": "QR invoice or confirmation (for volunteer repair), impact recorded"
+      },
+      "ctaTitle": "Demo for repair cafés",
+      "ctaDescription": "Free and no commitment — we'll show you how Kivvi digitises your repair operation."
     }
   },
   "bulkActions": {

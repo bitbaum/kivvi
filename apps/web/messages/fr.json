@@ -2717,6 +2717,48 @@
       },
       "ctaTitle": "Démo pour reconditionneurs IT",
       "ctaDescription": "Montrez-nous votre flux de travail actuel — nous vous montrons comment Kivvi le modélise."
+    },
+    "forRepairCafes": {
+      "hero": {
+        "badge": "Pour repair cafés & ateliers",
+        "title": "La réparation enfin documentée.",
+        "description": "Quoi réparé ? Par qui ? Pendant combien de temps ? Quelles pièces ? Combien ça coûte ? Et combien de CO₂ évité ? Kivvi répond à tout cela — sans Excel."
+      },
+      "movement": {
+        "title": "Les repair cafés sont plus que de la réparation",
+        "paragraph1": "Les repair cafés et ateliers sont des lieux où les gens se rassemblent pour réparer des objets cassés — plutôt que de les jeter. C'est un mouvement culturel, pas seulement un service.",
+        "paragraph2": "En parallèle, ces structures ont de plus en plus besoin de chiffres prouvables : combien d'appareils sauvés ? Combien de déchets électroniques évités ? Ces données conditionnent les subventions, les partenariats et la perception publique."
+      },
+      "painTitle": "Ce qui manque aujourd'hui",
+      "painItems": [
+        "Pas de saisie structurée des ordres — qu'a-t-on réparé aujourd'hui et par qui ?",
+        "Pas d'historique de réparation par appareil — lors d'une nouvelle visite, le contexte manque",
+        "Les heures bénévoles sont saisies à la main ou pas du tout",
+        "Les chiffres d'impact pour les demandes de subvention doivent être additionnés à la main",
+        "Impossible d'analyser si une réparation valait économiquement la peine",
+        "Pas de factures QR, alors qu'elles sont légalement obligatoires en activité professionnelle"
+      ],
+      "solutionTitle": "Ce que Kivvi apporte",
+      "solutionItems": [
+        "Protocole de réparation par appareil : date, symptôme, solution, pièces, durée — structuré",
+        "Historique de l'appareil : lors d'un retour, on voit immédiatement toutes les réparations précédentes",
+        "Suivi des heures par ordre — pour bénévoles et personnel salarié",
+        "Tableau de bord d'impact : appareils sauvés, CO₂ évité, heures effectuées — en un clic",
+        "Transparence des coûts : combien la réparation a réellement coûté vs. ce qui a été payé ?",
+        "Factures QR pour les réparations payantes — conformes, automatiques"
+      ],
+      "model": {
+        "title": "Le modèle « réparation-en-service »",
+        "description": "Les repair cafés et ateliers suivent un modèle différent des boutiques classiques : la propriété de l'appareil reste au client. La structure vend du temps et des pièces — pas des biens.",
+        "step1Title": "Ordre",
+        "step1Desc": "Le problème client est enregistré, l'appareil identifié, la réparation lancée",
+        "step2Title": "Protocole",
+        "step2Desc": "Diagnostic, pièces utilisées, heures effectuées sont documentés",
+        "step3Title": "Clôture",
+        "step3Desc": "Facture QR ou confirmation (pour réparation bénévole), impact enregistré"
+      },
+      "ctaTitle": "Démo pour repair cafés",
+      "ctaDescription": "Gratuit et sans engagement — nous vous montrons comment Kivvi numérise votre activité de réparation."
     }
   },
   "bulkActions": {

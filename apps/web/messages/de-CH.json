@@ -2717,6 +2717,48 @@
       },
       "ctaTitle": "Demo für IT-Refurbisher",
       "ctaDescription": "Zeigen Sie uns Ihren heutigen Ablauf — wir zeigen Ihnen, wie Kivvi ihn abbildet."
+    },
+    "forRepairCafes": {
+      "hero": {
+        "badge": "Für Repair Cafés & Werkstätten",
+        "title": "Reparatur endlich dokumentiert.",
+        "description": "Was repariert? Von wem? Wie lange? Welche Teile? Was kostet es? Und wie viel CO₂ wurde vermieden? Kivvi beantwortet all das — ohne Excel."
+      },
+      "movement": {
+        "title": "Repair Cafés sind mehr als Reparatur",
+        "paragraph1": "Repair Cafés und Werkstätten sind Orte, wo Menschen zusammenkommen, um defekte Gegenstände zu reparieren — statt wegzuwerfen. Das ist eine kulturelle Bewegung, nicht nur ein Dienstleistungsangebot.",
+        "paragraph2": "Gleichzeitig brauchen diese Betriebe zunehmend nachweisbare Zahlen: Wie viele Geräte gerettet? Wie viel Elektroschrott vermieden? Diese Daten entscheiden über Fördergelder, Partnerschaften und öffentliche Wahrnehmung."
+      },
+      "painTitle": "Was heute fehlt",
+      "painItems": [
+        "Keine strukturierte Auftragserfassung — was wurde heute repariert und von wem?",
+        "Reparaturhistorie pro Gerät existiert nicht — bei Folgereparaturen fehlt der Kontext",
+        "Freiwilligenstunden werden nicht oder manuell erfasst",
+        "Impact-Zahlen für Förderanträge müssen mühsam zusammengerechnet werden",
+        "Ob eine Reparatur wirtschaftlich sinnvoll war, lässt sich nicht auswerten",
+        "Keine QR-Rechnungen, obwohl gesetzlich erforderlich bei professionellem Betrieb"
+      ],
+      "solutionTitle": "Was Kivvi bringt",
+      "solutionItems": [
+        "Reparaturprotokoll pro Gerät: Datum, Symptom, Lösung, Teile, Dauer — strukturiert erfasst",
+        "Gerätehistorie: Bei Wiedervorlage sieht man sofort alle früheren Reparaturen",
+        "Stunden-Tracking pro Auftrag — für Freiwillige und bezahltes Personal",
+        "Impact-Dashboard: Geräte gerettet, CO₂ vermieden, Stunden geleistet — auf Knopfdruck",
+        "Kostentransparenz: Was hat die Reparatur effektiv gekostet vs. was wurde bezahlt?",
+        "QR-Rechnungen für kostenpflichtige Reparaturen — gesetzeskonform, automatisch"
+      ],
+      "model": {
+        "title": "Das Geschäftsmodell «Reparatur-als-Service»",
+        "description": "Repair Cafés und Werkstätten arbeiten nach einem anderen Modell als klassische Läden: Das Eigentum am Gerät bleibt beim Kunden. Der Betrieb verkauft Zeit und Ersatzteile — nicht Güter.",
+        "step1Title": "Auftrag",
+        "step1Desc": "Kundenproblem wird erfasst, Gerät identifiziert, Reparatur gestartet",
+        "step2Title": "Protokoll",
+        "step2Desc": "Diagnose, verwendete Teile, geleistete Stunden werden dokumentiert",
+        "step3Title": "Abschluss",
+        "step3Desc": "QR-Rechnung oder Bestätigung (bei ehrenamtlicher Reparatur), Impact erfasst"
+      },
+      "ctaTitle": "Demo für Repair Cafés",
+      "ctaDescription": "Kostenlos und unverbindlich — wir zeigen Ihnen, wie Kivvi Ihren Reparaturbetrieb digital macht."
     }
   },
   "bulkActions": {
