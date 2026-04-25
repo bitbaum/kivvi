@@ -2914,6 +2914,180 @@
         "linkCircularEconomy": "Kreislaufwirtschaft verstehen →"
       }
     },
+    "circularEconomy": {
+      "hero": {
+        "title": "Die Kreislaufwirtschaft",
+        "description": "Wer sind die Betriebe, die Waren ein zweites Leben geben? Welche Geschäftsmodelle gibt es? Und warum brauchen sie andere Software als alle anderen?"
+      },
+      "nav": {
+        "participants": "Teilnehmer",
+        "businessModels": "Geschäftsmodelle",
+        "dimensions": "Was macht sie anders?"
+      },
+      "definition": {
+        "title": "Was ist Kreislaufwirtschaft?",
+        "paragraph1": "Die Linearwirtschaft folgt einem einfachen Muster: Herstellen → Kaufen → Wegwerfen. Die Kreislaufwirtschaft bricht dieses Muster. Güter werden repariert, wiederaufbereitet, weiterverkauft, umgewandelt oder geteilt — statt auf der Deponie zu landen.",
+        "paragraph2": "In der Schweiz gibt es Hunderte von Betrieben, die das täglich praktizieren: Brockenhäuser, IT-Refurbisher, Repair Cafés, Kleiderbörsen, Veloläden. Viele sind soziale Unternehmen. Viele arbeiten mit Freiwilligen. Fast alle kämpfen mit der gleichen Herausforderung: Ihre Software wurde nie für sie gebaut.",
+        "conclusion": "Kivvi wurde für sie gebaut."
+      },
+      "participantsSection": {
+        "title": "Wer ist dabei?",
+        "intro": "Die Kreislaufwirtschaft ist breiter, als man denkt. Hier sind die Hauptakteure:",
+        "typicalGoods": "Typische Waren:",
+        "more": "Mehr →"
+      },
+      "participants": [
+        {
+          "id": "it-refurbishers",
+          "name": "IT-Refurbisher",
+          "description": "Sammeln ausgemusterte Elektronik von Unternehmen, testen, reparieren und verkaufen sie weiter. Oft auch mit Datenlöschzertifikaten und Businesskunden.",
+          "examples": "Laptops, Desktops, Server, Tablets, Smartphones"
+        },
+        {
+          "id": "brockenhaeuser",
+          "name": "Brockenhäuser & Sozialkaufhäuser",
+          "description": "Nehmen gespendete Güter an und verkaufen sie günstig weiter — oft mit sozialem Auftrag (Integration, Beschäftigung, günstige Versorgung einkommensschwacher Haushalte).",
+          "examples": "Möbel, Haushaltsgeräte, Kleidung, Bücher, Spielzeug"
+        },
+        {
+          "id": "repair-cafes",
+          "name": "Repair Cafés & Werkstätten",
+          "description": "Reparieren defekte Gegenstände — oft mit Freiwilligen, manchmal professionell. Ziel: Reparatur statt Neukauf verankern.",
+          "examples": "Elektrogeräte, Fahrräder, Kleidung, Möbel, Spielzeug"
+        },
+        {
+          "id": "vintage",
+          "name": "Vintage & Second-Hand-Shops",
+          "description": "Spezialisiert auf bestimmte Warenkategorien mit Wiederverkaufswert. Qualität und Kuratierung sind das Produkt.",
+          "examples": "Kleidung, Schmuck, Uhren, Möbel, Vinyl, Sammlerstücke"
+        },
+        {
+          "id": "bike",
+          "name": "Fahrrad-Refurbisher",
+          "description": "Nehmen alte oder defekte Fahrräder an, reparieren und restaurieren sie. Wachsender Markt durch E-Bike-Boom und Urban Mobility.",
+          "examples": "City-Bikes, E-Bikes, Rennräder, Kindervelos"
+        },
+        {
+          "id": "upcycling",
+          "name": "Upcycling-Ateliers",
+          "description": "Verarbeiten Materialien und Gegenstände zu neuen Produkten. Die Transformation ist Teil des Werts — Design als Handwerk.",
+          "examples": "Palettenmöbel, Textil-Upcycling, Kunstobjekte aus Abfall"
+        },
+        {
+          "id": "social",
+          "name": "Soziale Unternehmen & NGOs",
+          "description": "Nutzen Kreislaufprozesse als Beschäftigungsmodell oder Finanzierungsquelle für den sozialen Auftrag. Spendenquittungen und Impact-Nachweis sind essenziell.",
+          "examples": "Beschäftigungsprogramme, Integrationsbetriebe, Hilfswerke"
+        },
+        {
+          "id": "takeback",
+          "name": "Take-Back-Programme",
+          "description": "Hersteller oder Händler nehmen Produkte am Ende des Lebenszyklus zurück — zur Wiederaufbereitung, Weitergabe oder Recycling.",
+          "examples": "Elektronikhersteller, Modeketten, Möbelhändler"
+        }
+      ],
+      "businessModelsSection": {
+        "title": "Die Geschäftsmodelle",
+        "intro": "Nicht alle Kreislaufbetriebe funktionieren gleich. Die Unterschiede im Geschäftsmodell bestimmen, welche Software-Anforderungen entstehen.",
+        "accountingHeader": "Buchhaltungslogik"
+      },
+      "businessModels": [
+        {
+          "name": "Spende → Aufbereitung → Verkauf",
+          "who": "Brockenhäuser, NGOs, Kleidersammlungen",
+          "description": "Das klassische Brockenhaus-Modell. Waren kommen kostenlos rein (Spende), werden aufbereitet und zum Sozialtarif verkauft. Herausforderung: Kosten entstehen ausschliesslich durch Aufbereitung.",
+          "accounting": "Null-Einkaufspreis, Reparatur-/Reinigungskosten als Kostenbasis"
+        },
+        {
+          "name": "Einkauf → Refurbishing → Weiterverkauf",
+          "who": "IT-Refurbisher, Vintage-Shops, Fahrrad-Ateliers",
+          "description": "Güter werden günstig eingekauft (von Unternehmen, Auktionen, Einzelpersonen), aufgewertet und mit Marge weiterverkauft. IT-Refurbisher und Vintage-Shops.",
+          "accounting": "Einkaufspreis + Reparaturkosten = Kostenbasis. Marge pro Einheit kritisch."
+        },
+        {
+          "name": "Reparatur-als-Service",
+          "who": "Repair Cafés (Werkstattteil), Veloläden, Elektriker",
+          "description": "Der Kunde bringt ein defektes Gerät — der Betrieb repariert gegen Entgelt. Das Eigentum bleibt beim Kunden. Kostenkalkulierung pro Auftrag ist zentral.",
+          "accounting": "Arbeitsstunden + Ersatzteile = Rechnungsbetrag"
+        },
+        {
+          "name": "Kommission / Konsignation",
+          "who": "Kleiderbörsen, Second-Hand-Shops, Auktionshäuser",
+          "description": "Privatpersonen geben Gegenstände ab — der Betrieb verkauft sie und behält eine Provision. Das Eigentum liegt bis zum Verkauf beim Einlieferer.",
+          "accounting": "Kein Einkauf, Erlösteilung nach Verkauf. Einlieferer-Tracking notwendig."
+        },
+        {
+          "name": "Upcycling & Transformation",
+          "who": "Upcycling-Ateliers, Designstudios, Soziale Werkstätten",
+          "description": "Materialien werden zu neuen Produkten verarbeitet. Der Wert entsteht durch Design und Handwerk — nicht durch Wiederverkauf des Originals.",
+          "accounting": "Material + Arbeitszeit = Kostenbasis. Produktkalkulation wie Handwerk."
+        },
+        {
+          "name": "Teile-Harvesting",
+          "who": "IT-Refurbisher (Ergänzungsmodell), Fahrradläden",
+          "description": "Defekte Geräte werden nicht repariert, sondern in Einzelteile zerlegt. Die Teile werden separat verkauft oder für andere Reparaturen genutzt.",
+          "accounting": "Ein Gerät → viele Teile mit je eigenem Wert. Stücklisten-Logik."
+        },
+        {
+          "name": "Tausch & Sharing",
+          "who": "Bibliotheken der Dinge, Werkzeugverleihe, Swap-Events",
+          "description": "Güter werden nicht verkauft, sondern verliehen oder getauscht. Mitgliedschafts- oder Nutzungsgebühren finanzieren den Betrieb.",
+          "accounting": "Gebührenmodell, kein klassischer Warenverkauf"
+        }
+      ],
+      "dimensionsSection": {
+        "title": "Was die Kreislaufwirtschaft fundamental anders macht",
+        "intro": "Diese sechs Dimensionen erklären, warum Standard-ERPs strukturell scheitern — und warum eine eigene Lösung nötig ist.",
+        "headerLinear": "Linearwirtschaft",
+        "headerCircular": "Kreislaufwirtschaft"
+      },
+      "dimensions": [
+        {
+          "title": "Warenwert",
+          "linear": "Definiert durch Einkaufspreis + Marge. Gilt für alle gleichartigen Waren identisch.",
+          "circular": "Zustandsabhängig: Zwei identische Laptops derselben Marke können CHF 40 auseinanderliegen, weil einer Kratzer hat und der andere nicht."
+        },
+        {
+          "title": "Artikelverfolgung",
+          "linear": "«100 ThinkPad T14 auf Lager». SKU + Menge reichen.",
+          "circular": "Jedes Gerät ist ein Individuum mit eigener ID, Zustand, Geschichte, Reparaturkosten und Verkaufspreis."
+        },
+        {
+          "title": "Kosten",
+          "linear": "Bekannt bei Wareneingang. Unveränderlich. Kostenbasis = Einkaufspreis.",
+          "circular": "Akkumulieren über Zeit: Intake-Preis (oder 0 bei Spende) + Reparatur 1 + Reparatur 2 + … = Kostenbasis."
+        },
+        {
+          "title": "Warenherkunft",
+          "linear": "Lieferant mit Rechnung. Eine Quelle, ein Prozess.",
+          "circular": "Spende (→ Quittung), Kauf (→ Lieferantenrechnung), Rücknahme (→ Gutschrift), Kommission (→ Erlösteilung) — vier völlig verschiedene Buchhaltungsvorgänge."
+        },
+        {
+          "title": "Preisgestaltung",
+          "linear": "Regelbasiert: Einkaufspreis × Faktor = Verkaufspreis. Einheitlich und skalierbar.",
+          "circular": "Einzelfallentscheidung: Zustand × Nachfrage × Sozialfaktor. Zwei gleiche Artikel, zwei verschiedene Preise."
+        },
+        {
+          "title": "Impact",
+          "linear": "Nicht relevant. Software trackt Geld, nicht Wirkung.",
+          "circular": "Kern-KPI: Wie viele Geräte gerettet? Wie viel CO₂ vermieden? Für Förderanträge, Jahresberichte und Kundenkommunikation essenziell."
+        }
+      ],
+      "bridges": {
+        "whyKivvi": {
+          "label": "Nächste Frage",
+          "title": "Warum braucht die Kreislaufwirtschaft ein eigenes ERP?",
+          "description": "8 Dimensionen, in denen Standard-Software strukturell scheitert — und wie Kivvi antwortet.",
+          "cta": "Warum Kivvi"
+        },
+        "howItWorks": {
+          "label": "In der Praxis",
+          "title": "Wie funktioniert Kivvi im Alltag?",
+          "description": "Die drei Phasen — Intake, Bewertung & Reparatur, Verkauf & Impact — im Detail.",
+          "cta": "Wie es funktioniert"
+        }
+      }
+    },
     "about": {
       "hero": {
         "title": "Das Betriebssystem der globalen Kreislaufwirtschaft.",

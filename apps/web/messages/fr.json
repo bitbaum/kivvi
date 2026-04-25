@@ -2914,6 +2914,180 @@
         "linkCircularEconomy": "Comprendre l'économie circulaire →"
       }
     },
+    "circularEconomy": {
+      "hero": {
+        "title": "L'économie circulaire",
+        "description": "Qui sont les entreprises qui donnent une seconde vie aux biens ? Quels modèles d'affaires existent ? Et pourquoi ont-elles besoin d'un autre logiciel que tous les autres ?"
+      },
+      "nav": {
+        "participants": "Acteurs",
+        "businessModels": "Modèles d'affaires",
+        "dimensions": "Qu'est-ce qui les rend différents ?"
+      },
+      "definition": {
+        "title": "Qu'est-ce que l'économie circulaire ?",
+        "paragraph1": "L'économie linéaire suit un schéma simple : produire → acheter → jeter. L'économie circulaire brise ce schéma. Les biens sont réparés, reconditionnés, revendus, transformés ou partagés — au lieu de finir en décharge.",
+        "paragraph2": "En Suisse, des centaines d'entreprises pratiquent cela quotidiennement : friperies, reconditionneurs IT, repair cafés, bourses de vêtements, magasins de vélos. Beaucoup sont des entreprises sociales. Beaucoup travaillent avec des bénévoles. Presque toutes luttent avec le même défi : leur logiciel n'a jamais été conçu pour elles.",
+        "conclusion": "Kivvi a été conçu pour elles."
+      },
+      "participantsSection": {
+        "title": "Qui en fait partie ?",
+        "intro": "L'économie circulaire est plus large qu'on ne le pense. Voici les principaux acteurs :",
+        "typicalGoods": "Biens typiques :",
+        "more": "Plus →"
+      },
+      "participants": [
+        {
+          "id": "it-refurbishers",
+          "name": "Reconditionneurs IT",
+          "description": "Collectent des appareils électroniques retirés des entreprises, les testent, les réparent et les revendent. Souvent avec certificats d'effacement de données et clients entreprises.",
+          "examples": "Ordinateurs portables, ordinateurs de bureau, serveurs, tablettes, smartphones"
+        },
+        {
+          "id": "brockenhaeuser",
+          "name": "Friperies & magasins sociaux",
+          "description": "Reçoivent des biens donnés et les revendent à bas prix — souvent avec une mission sociale (intégration, emploi, approvisionnement abordable des ménages à faibles revenus).",
+          "examples": "Meubles, électroménager, vêtements, livres, jouets"
+        },
+        {
+          "id": "repair-cafes",
+          "name": "Repair cafés & ateliers",
+          "description": "Réparent des objets défectueux — souvent avec des bénévoles, parfois en professionnel. Objectif : ancrer la réparation plutôt que le rachat.",
+          "examples": "Appareils électriques, vélos, vêtements, meubles, jouets"
+        },
+        {
+          "id": "vintage",
+          "name": "Boutiques vintage & seconde main",
+          "description": "Spécialisées dans certaines catégories à valeur de revente. La qualité et la curation sont le produit.",
+          "examples": "Vêtements, bijoux, montres, meubles, vinyles, objets de collection"
+        },
+        {
+          "id": "bike",
+          "name": "Reconditionneurs de vélos",
+          "description": "Reçoivent des vélos anciens ou défectueux, les réparent et les restaurent. Marché en croissance grâce au boom des vélos électriques et à la mobilité urbaine.",
+          "examples": "Vélos de ville, vélos électriques, vélos de course, vélos enfants"
+        },
+        {
+          "id": "upcycling",
+          "name": "Ateliers d'upcycling",
+          "description": "Transforment matériaux et objets en nouveaux produits. La transformation fait partie de la valeur — le design comme artisanat.",
+          "examples": "Meubles en palettes, upcycling textile, objets d'art à partir de déchets"
+        },
+        {
+          "id": "social",
+          "name": "Entreprises sociales & ONG",
+          "description": "Utilisent les processus circulaires comme modèle d'emploi ou source de financement pour la mission sociale. Reçus de don et justification d'impact sont essentiels.",
+          "examples": "Programmes d'emploi, entreprises d'intégration, œuvres d'entraide"
+        },
+        {
+          "id": "takeback",
+          "name": "Programmes de reprise",
+          "description": "Fabricants ou détaillants reprennent les produits en fin de cycle de vie — pour reconditionnement, redistribution ou recyclage.",
+          "examples": "Fabricants d'électronique, chaînes de mode, détaillants de meubles"
+        }
+      ],
+      "businessModelsSection": {
+        "title": "Les modèles d'affaires",
+        "intro": "Toutes les entreprises circulaires ne fonctionnent pas pareil. Les différences de modèle déterminent les exigences logicielles qui en découlent.",
+        "accountingHeader": "Logique comptable"
+      },
+      "businessModels": [
+        {
+          "name": "Don → préparation → vente",
+          "who": "Friperies, ONG, collectes de vêtements",
+          "description": "Le modèle classique de la friperie. Les biens arrivent gratuitement (don), sont préparés et vendus à des tarifs sociaux. Défi : les coûts naissent uniquement de la préparation.",
+          "accounting": "Prix d'achat nul, coûts de réparation/nettoyage comme base de coût"
+        },
+        {
+          "name": "Achat → reconditionnement → revente",
+          "who": "Reconditionneurs IT, boutiques vintage, ateliers vélo",
+          "description": "Les biens sont achetés à bas prix (entreprises, enchères, particuliers), valorisés et revendus avec marge. Reconditionneurs IT et boutiques vintage.",
+          "accounting": "Prix d'achat + coûts de réparation = base de coût. Marge unitaire critique."
+        },
+        {
+          "name": "Réparation en service",
+          "who": "Repair cafés (atelier), magasins de vélos, électriciens",
+          "description": "Le client apporte un appareil défectueux — l'entreprise répare contre rémunération. La propriété reste au client. Le calcul des coûts par ordre est central.",
+          "accounting": "Heures de travail + pièces = montant facturé"
+        },
+        {
+          "name": "Consignation",
+          "who": "Bourses de vêtements, boutiques de seconde main, salles de ventes",
+          "description": "Des particuliers déposent des objets — l'entreprise les vend et conserve une commission. La propriété reste au déposant jusqu'à la vente.",
+          "accounting": "Pas d'achat, partage du produit après vente. Suivi du déposant nécessaire."
+        },
+        {
+          "name": "Upcycling & transformation",
+          "who": "Ateliers d'upcycling, studios de design, ateliers sociaux",
+          "description": "Les matériaux sont transformés en nouveaux produits. La valeur naît du design et de l'artisanat — pas de la revente de l'original.",
+          "accounting": "Matériaux + temps de travail = base de coût. Calcul produit comme un artisanat."
+        },
+        {
+          "name": "Récupération de pièces",
+          "who": "Reconditionneurs IT (complémentaire), magasins de vélos",
+          "description": "Les appareils défectueux ne sont pas réparés mais démontés en pièces. Les pièces sont vendues séparément ou utilisées pour d'autres réparations.",
+          "accounting": "Un appareil → plusieurs pièces avec chacune leur valeur. Logique de nomenclature."
+        },
+        {
+          "name": "Partage & échange",
+          "who": "Bibliothèques d'objets, prêts d'outils, événements de troc",
+          "description": "Les biens ne sont pas vendus mais prêtés ou échangés. Cotisations ou frais d'utilisation financent l'activité.",
+          "accounting": "Modèle de redevance, pas de vente classique de marchandises"
+        }
+      ],
+      "dimensionsSection": {
+        "title": "Ce qui rend l'économie circulaire fondamentalement différente",
+        "intro": "Ces six dimensions expliquent pourquoi les ERP standard échouent structurellement — et pourquoi une solution dédiée est nécessaire.",
+        "headerLinear": "Économie linéaire",
+        "headerCircular": "Économie circulaire"
+      },
+      "dimensions": [
+        {
+          "title": "Valeur des biens",
+          "linear": "Définie par prix d'achat + marge. Identique pour tous les biens similaires.",
+          "circular": "Dépend de l'état : deux ordinateurs portables identiques de la même marque peuvent différer de 40 CHF parce que l'un a des rayures et l'autre non."
+        },
+        {
+          "title": "Suivi des articles",
+          "linear": "« 100 ThinkPad T14 en stock ». SKU + quantité suffisent.",
+          "circular": "Chaque appareil est un individu avec son propre identifiant, état, historique, coûts de réparation et prix de vente."
+        },
+        {
+          "title": "Coûts",
+          "linear": "Connus à la réception. Fixes. Base de coût = prix d'achat.",
+          "circular": "S'accumulent dans le temps : prix d'entrée (ou 0 en cas de don) + réparation 1 + réparation 2 + … = base de coût."
+        },
+        {
+          "title": "Origine des biens",
+          "linear": "Fournisseur avec facture. Une source, un processus.",
+          "circular": "Don (→ reçu), achat (→ facture fournisseur), reprise (→ avoir), consignation (→ partage de produit) — quatre opérations comptables totalement différentes."
+        },
+        {
+          "title": "Tarification",
+          "linear": "Basée sur des règles : prix d'achat × facteur = prix de vente. Uniforme et scalable.",
+          "circular": "Décision au cas par cas : état × demande × facteur social. Deux articles identiques, deux prix différents."
+        },
+        {
+          "title": "Impact",
+          "linear": "Non pertinent. Le logiciel suit l'argent, pas l'effet.",
+          "circular": "KPI central : combien d'appareils sauvés ? Combien de CO₂ évité ? Essentiel pour les demandes de subvention, rapports annuels et communication client."
+        }
+      ],
+      "bridges": {
+        "whyKivvi": {
+          "label": "Question suivante",
+          "title": "Pourquoi l'économie circulaire a-t-elle besoin d'un ERP dédié ?",
+          "description": "8 dimensions où le logiciel standard échoue structurellement — et comment Kivvi répond.",
+          "cta": "Pourquoi Kivvi"
+        },
+        "howItWorks": {
+          "label": "En pratique",
+          "title": "Comment fonctionne Kivvi au quotidien ?",
+          "description": "Les trois phases — réception, évaluation & réparation, vente & impact — en détail.",
+          "cta": "Comment ça marche"
+        }
+      }
+    },
     "about": {
       "hero": {
         "title": "Le système d'exploitation de l'économie circulaire mondiale.",

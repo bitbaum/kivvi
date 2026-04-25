@@ -2914,6 +2914,180 @@
         "linkCircularEconomy": "Understand the circular economy →"
       }
     },
+    "circularEconomy": {
+      "hero": {
+        "title": "The circular economy",
+        "description": "Who are the businesses giving goods a second life? What business models exist? And why do they need different software than everyone else?"
+      },
+      "nav": {
+        "participants": "Participants",
+        "businessModels": "Business models",
+        "dimensions": "What makes them different?"
+      },
+      "definition": {
+        "title": "What is the circular economy?",
+        "paragraph1": "The linear economy follows a simple pattern: make → buy → throw away. The circular economy breaks that pattern. Goods are repaired, refurbished, resold, transformed, or shared — instead of ending up in landfill.",
+        "paragraph2": "In Switzerland there are hundreds of businesses that practice this every day: thrift stores, IT refurbishers, repair cafés, clothing exchanges, bike shops. Many are social enterprises. Many work with volunteers. Almost all struggle with the same challenge: their software was never built for them.",
+        "conclusion": "Kivvi was built for them."
+      },
+      "participantsSection": {
+        "title": "Who's involved?",
+        "intro": "The circular economy is broader than people think. Here are the main players:",
+        "typicalGoods": "Typical goods:",
+        "more": "More →"
+      },
+      "participants": [
+        {
+          "id": "it-refurbishers",
+          "name": "IT refurbishers",
+          "description": "Collect retired electronics from companies, test, repair, and resell them. Often with data-erasure certificates and corporate customers.",
+          "examples": "Laptops, desktops, servers, tablets, smartphones"
+        },
+        {
+          "id": "brockenhaeuser",
+          "name": "Thrift stores & social department stores",
+          "description": "Accept donated goods and resell them affordably — often with a social mission (integration, employment, affordable supply for low-income households).",
+          "examples": "Furniture, household goods, clothing, books, toys"
+        },
+        {
+          "id": "repair-cafes",
+          "name": "Repair cafés & workshops",
+          "description": "Repair broken items — often with volunteers, sometimes professionally. Goal: anchor repair instead of replacement.",
+          "examples": "Electronics, bikes, clothing, furniture, toys"
+        },
+        {
+          "id": "vintage",
+          "name": "Vintage & second-hand shops",
+          "description": "Specialised in specific resaleable categories. Quality and curation are the product.",
+          "examples": "Clothing, jewellery, watches, furniture, vinyl, collectibles"
+        },
+        {
+          "id": "bike",
+          "name": "Bike refurbishers",
+          "description": "Accept old or broken bikes, repair and restore them. A growing market driven by the e-bike boom and urban mobility.",
+          "examples": "City bikes, e-bikes, road bikes, kids' bikes"
+        },
+        {
+          "id": "upcycling",
+          "name": "Upcycling ateliers",
+          "description": "Process materials and objects into new products. The transformation is part of the value — design as craft.",
+          "examples": "Pallet furniture, textile upcycling, art objects from waste"
+        },
+        {
+          "id": "social",
+          "name": "Social enterprises & NGOs",
+          "description": "Use circular processes as an employment model or funding source for the social mission. Donation receipts and impact evidence are essential.",
+          "examples": "Employment programmes, integration enterprises, charities"
+        },
+        {
+          "id": "takeback",
+          "name": "Take-back programmes",
+          "description": "Manufacturers or retailers take products back at end-of-life — for refurbishing, redistribution, or recycling.",
+          "examples": "Electronics manufacturers, fashion chains, furniture retailers"
+        }
+      ],
+      "businessModelsSection": {
+        "title": "The business models",
+        "intro": "Not all circular businesses work the same way. Differences in business model determine which software requirements arise.",
+        "accountingHeader": "Accounting logic"
+      },
+      "businessModels": [
+        {
+          "name": "Donation → preparation → sale",
+          "who": "Thrift stores, NGOs, clothing collections",
+          "description": "The classic thrift-store model. Goods come in for free (donation), are prepared, and sold at social rates. Challenge: costs arise solely from preparation.",
+          "accounting": "Zero purchase price, repair/cleaning costs as cost basis"
+        },
+        {
+          "name": "Purchase → refurbishing → resale",
+          "who": "IT refurbishers, vintage shops, bike workshops",
+          "description": "Goods are bought cheaply (from companies, auctions, individuals), upgraded, and resold at margin. IT refurbishers and vintage shops.",
+          "accounting": "Purchase price + repair costs = cost basis. Per-unit margin is critical."
+        },
+        {
+          "name": "Repair-as-a-service",
+          "who": "Repair cafés (workshop side), bike shops, electricians",
+          "description": "The customer brings a broken device — the business repairs it for a fee. Ownership stays with the customer. Per-job costing is central.",
+          "accounting": "Working hours + spare parts = invoice amount"
+        },
+        {
+          "name": "Consignment",
+          "who": "Clothing exchanges, second-hand shops, auction houses",
+          "description": "Private people drop off items — the business sells them and keeps a commission. Ownership stays with the depositor until sale.",
+          "accounting": "No purchase, revenue split after sale. Depositor tracking required."
+        },
+        {
+          "name": "Upcycling & transformation",
+          "who": "Upcycling ateliers, design studios, social workshops",
+          "description": "Materials are transformed into new products. Value comes from design and craft — not resale of the original.",
+          "accounting": "Materials + work time = cost basis. Product calculation like a craft."
+        },
+        {
+          "name": "Parts harvesting",
+          "who": "IT refurbishers (complementary), bike shops",
+          "description": "Broken devices are not repaired but disassembled into parts. Parts are sold separately or used for other repairs.",
+          "accounting": "One device → many parts each with their own value. BOM logic."
+        },
+        {
+          "name": "Sharing & exchange",
+          "who": "Libraries of things, tool lending, swap events",
+          "description": "Goods are not sold but lent or exchanged. Membership or usage fees fund the operation.",
+          "accounting": "Fee model, no classic goods sale"
+        }
+      ],
+      "dimensionsSection": {
+        "title": "What makes the circular economy fundamentally different",
+        "intro": "These six dimensions explain why standard ERPs structurally fail — and why a dedicated solution is necessary.",
+        "headerLinear": "Linear economy",
+        "headerCircular": "Circular economy"
+      },
+      "dimensions": [
+        {
+          "title": "Goods value",
+          "linear": "Defined by purchase price + margin. Identical for all like-for-like goods.",
+          "circular": "Condition-dependent: two identical laptops of the same brand can be CHF 40 apart because one has scratches and the other doesn't."
+        },
+        {
+          "title": "Item tracking",
+          "linear": "\"100 ThinkPad T14 in stock\". SKU + quantity is enough.",
+          "circular": "Every device is an individual with its own ID, condition, history, repair costs, and sale price."
+        },
+        {
+          "title": "Costs",
+          "linear": "Known at intake. Fixed. Cost basis = purchase price.",
+          "circular": "Accumulate over time: intake price (or 0 for a donation) + repair 1 + repair 2 + … = cost basis."
+        },
+        {
+          "title": "Source of goods",
+          "linear": "Supplier with invoice. One source, one process.",
+          "circular": "Donation (→ receipt), purchase (→ supplier invoice), trade-in (→ credit note), consignment (→ revenue split) — four completely different accounting transactions."
+        },
+        {
+          "title": "Pricing",
+          "linear": "Rule-based: purchase price × factor = sale price. Uniform and scalable.",
+          "circular": "Case-by-case decision: condition × demand × social factor. Two identical items, two different prices."
+        },
+        {
+          "title": "Impact",
+          "linear": "Not relevant. Software tracks money, not impact.",
+          "circular": "Core KPI: how many devices saved? How much CO₂ avoided? Essential for grant applications, annual reports, and customer communication."
+        }
+      ],
+      "bridges": {
+        "whyKivvi": {
+          "label": "Next question",
+          "title": "Why does the circular economy need a dedicated ERP?",
+          "description": "8 dimensions where standard software structurally fails — and how Kivvi answers.",
+          "cta": "Why Kivvi"
+        },
+        "howItWorks": {
+          "label": "In practice",
+          "title": "How does Kivvi work day-to-day?",
+          "description": "The three phases — intake, grading & repair, sale & impact — in detail.",
+          "cta": "How it works"
+        }
+      }
+    },
     "about": {
       "hero": {
         "title": "The operating system for the global circular economy.",

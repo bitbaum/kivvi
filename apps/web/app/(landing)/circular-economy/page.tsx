@@ -1,12 +1,9 @@
 import Link from "next/link";
 import { ArrowRight, Recycle } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { buildPageMeta } from "@/lib/config/site";
 import type { Metadata } from "next";
-import {
-  PARTICIPANTS,
-  BUSINESS_MODELS,
-  DIMENSIONS,
-} from "./circular-economy-data";
+import { PARTICIPANT_HREFS } from "./circular-economy-data";
 
 export const metadata: Metadata = {
   title: "Kreislaufwirtschaft verstehen — Kivvi",
@@ -18,7 +15,36 @@ export const metadata: Metadata = {
   ),
 };
 
-export default function CircularEconomyPage() {
+interface Participant {
+  id: string;
+  name: string;
+  description: string;
+  examples: string;
+}
+
+interface BusinessModel {
+  name: string;
+  who: string;
+  description: string;
+  accounting: string;
+}
+
+interface Dimension {
+  title: string;
+  linear: string;
+  circular: string;
+}
+
+export default async function CircularEconomyPage() {
+  const t = await getTranslations("landing.circularEconomy");
+  const participants = t.raw("participants") as Participant[];
+  const businessModels = t.raw("businessModels") as BusinessModel[];
+  const dimensions = t.raw("dimensions") as Dimension[];
+
+  const hrefById = Object.fromEntries(
+    PARTICIPANT_HREFS.map((p) => [p.id, p.href]),
+  );
+
   return (
     <>
       {/* Hero */}
@@ -29,22 +55,18 @@ export default function CircularEconomyPage() {
           </div>
         </div>
         <h1 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl">
-          Die Kreislaufwirtschaft
+          {t("hero.title")}
         </h1>
-        <p className="text-xl text-muted-foreground">
-          Wer sind die Betriebe, die Waren ein zweites Leben geben? Welche
-          Geschäftsmodelle gibt es? Und warum brauchen sie andere Software als
-          alle anderen?
-        </p>
+        <p className="text-xl text-muted-foreground">{t("hero.description")}</p>
       </section>
 
       {/* In-page anchor nav */}
       <nav className="mx-auto max-w-3xl mb-4">
         <div className="flex flex-wrap gap-2 justify-center">
           {[
-            { href: "#teilnehmer", label: "Teilnehmer" },
-            { href: "#geschaeftsmodelle", label: "Geschäftsmodelle" },
-            { href: "#dimensionen", label: "Was macht sie anders?" },
+            { href: "#teilnehmer", label: t("nav.participants") },
+            { href: "#geschaeftsmodelle", label: t("nav.businessModels") },
+            { href: "#dimensionen", label: t("nav.dimensions") },
           ].map((link) => (
             <a
               key={link.href}
@@ -60,58 +82,55 @@ export default function CircularEconomyPage() {
       {/* Definition */}
       <section className="mx-auto max-w-3xl py-8">
         <div className="rounded-2xl border bg-card p-8">
-          <h2 className="mb-4 text-xl font-bold">
-            Was ist Kreislaufwirtschaft?
-          </h2>
+          <h2 className="mb-4 text-xl font-bold">{t("definition.title")}</h2>
           <p className="text-muted-foreground leading-relaxed mb-4">
-            Die Linearwirtschaft folgt einem einfachen Muster: Herstellen →
-            Kaufen → Wegwerfen. Die Kreislaufwirtschaft bricht dieses Muster.
-            Güter werden repariert, wiederaufbereitet, weiterverkauft,
-            umgewandelt oder geteilt — statt auf der Deponie zu landen.
+            {t("definition.paragraph1")}
           </p>
           <p className="text-muted-foreground leading-relaxed mb-4">
-            In der Schweiz gibt es Hunderte von Betrieben, die das täglich
-            praktizieren: Brockenhäuser, IT-Refurbisher, Repair Cafés,
-            Kleiderbörsen, Veloläden. Viele sind soziale Unternehmen. Viele
-            arbeiten mit Freiwilligen. Fast alle kämpfen mit der gleichen
-            Herausforderung: Ihre Software wurde nie für sie gebaut.
+            {t("definition.paragraph2")}
           </p>
           <p className="font-medium text-foreground">
-            Kivvi wurde für sie gebaut.
+            {t("definition.conclusion")}
           </p>
         </div>
       </section>
 
       {/* Participants */}
       <section id="teilnehmer" className="mx-auto max-w-4xl py-16 scroll-mt-16">
-        <h2 className="mb-3 text-2xl font-bold">Wer ist dabei?</h2>
+        <h2 className="mb-3 text-2xl font-bold">
+          {t("participantsSection.title")}
+        </h2>
         <p className="mb-8 text-muted-foreground">
-          Die Kreislaufwirtschaft ist breiter, als man denkt. Hier sind die
-          Hauptakteure:
+          {t("participantsSection.intro")}
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
-          {PARTICIPANTS.map((p) => (
-            <div key={p.name} className="rounded-xl border bg-card p-6">
-              <div className="flex items-start justify-between gap-2 mb-2">
-                <h3 className="font-semibold">{p.name}</h3>
-                {p.href && (
-                  <Link
-                    href={p.href}
-                    className="shrink-0 text-xs font-medium text-primary hover:underline"
-                  >
-                    Mehr →
-                  </Link>
-                )}
+          {participants.map((p) => {
+            const href = hrefById[p.id] ?? null;
+            return (
+              <div key={p.id} className="rounded-xl border bg-card p-6">
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <h3 className="font-semibold">{p.name}</h3>
+                  {href && (
+                    <Link
+                      href={href}
+                      className="shrink-0 text-xs font-medium text-primary hover:underline"
+                    >
+                      {t("participantsSection.more")}
+                    </Link>
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+                  {p.description}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  <span className="font-medium">
+                    {t("participantsSection.typicalGoods")}
+                  </span>{" "}
+                  {p.examples}
+                </p>
               </div>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-                {p.description}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                <span className="font-medium">Typische Waren:</span>{" "}
-                {p.examples}
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
@@ -120,13 +139,14 @@ export default function CircularEconomyPage() {
         id="geschaeftsmodelle"
         className="mx-auto max-w-4xl py-8 scroll-mt-16"
       >
-        <h2 className="mb-3 text-2xl font-bold">Die Geschäftsmodelle</h2>
+        <h2 className="mb-3 text-2xl font-bold">
+          {t("businessModelsSection.title")}
+        </h2>
         <p className="mb-8 text-muted-foreground">
-          Nicht alle Kreislaufbetriebe funktionieren gleich. Die Unterschiede im
-          Geschäftsmodell bestimmen, welche Software-Anforderungen entstehen.
+          {t("businessModelsSection.intro")}
         </p>
         <div className="space-y-4">
-          {BUSINESS_MODELS.map((m) => (
+          {businessModels.map((m) => (
             <div
               key={m.name}
               className="rounded-xl border bg-card overflow-hidden"
@@ -143,7 +163,7 @@ export default function CircularEconomyPage() {
                 </div>
                 <div className="px-6 py-4 bg-muted/30">
                   <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">
-                    Buchhaltungslogik
+                    {t("businessModelsSection.accountingHeader")}
                   </p>
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     {m.accounting}
@@ -161,14 +181,13 @@ export default function CircularEconomyPage() {
         className="mx-auto max-w-4xl py-16 scroll-mt-16"
       >
         <h2 className="mb-3 text-2xl font-bold">
-          Was die Kreislaufwirtschaft fundamental anders macht
+          {t("dimensionsSection.title")}
         </h2>
         <p className="mb-8 text-muted-foreground">
-          Diese sechs Dimensionen erklären, warum Standard-ERPs strukturell
-          scheitern — und warum eine eigene Lösung nötig ist.
+          {t("dimensionsSection.intro")}
         </p>
         <div className="space-y-4">
-          {DIMENSIONS.map((d, i) => (
+          {dimensions.map((d, i) => (
             <div
               key={d.title}
               className="rounded-xl border bg-card overflow-hidden"
@@ -182,7 +201,7 @@ export default function CircularEconomyPage() {
               <div className="grid sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x">
                 <div className="px-6 py-4">
                   <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Linearwirtschaft
+                    {t("dimensionsSection.headerLinear")}
                   </p>
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     {d.linear}
@@ -190,7 +209,7 @@ export default function CircularEconomyPage() {
                 </div>
                 <div className="px-6 py-4 bg-primary/5">
                   <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-primary/70">
-                    Kreislaufwirtschaft
+                    {t("dimensionsSection.headerCircular")}
                   </p>
                   <p className="text-sm leading-relaxed">{d.circular}</p>
                 </div>
@@ -208,17 +227,16 @@ export default function CircularEconomyPage() {
             className="group rounded-xl border bg-card p-6 hover:shadow-md transition-shadow"
           >
             <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">
-              Nächste Frage
+              {t("bridges.whyKivvi.label")}
             </p>
             <h3 className="font-bold text-lg mb-2 group-hover:text-primary transition-colors">
-              Warum braucht die Kreislaufwirtschaft ein eigenes ERP?
+              {t("bridges.whyKivvi.title")}
             </h3>
             <p className="text-sm text-muted-foreground">
-              8 Dimensionen, in denen Standard-Software strukturell scheitert —
-              und wie Kivvi antwortet.
+              {t("bridges.whyKivvi.description")}
             </p>
             <div className="mt-4 flex items-center gap-1 text-sm font-medium text-primary">
-              Warum Kivvi <ArrowRight className="h-3 w-3" />
+              {t("bridges.whyKivvi.cta")} <ArrowRight className="h-3 w-3" />
             </div>
           </Link>
           <Link
@@ -226,17 +244,16 @@ export default function CircularEconomyPage() {
             className="group rounded-xl border bg-card p-6 hover:shadow-md transition-shadow"
           >
             <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">
-              In der Praxis
+              {t("bridges.howItWorks.label")}
             </p>
             <h3 className="font-bold text-lg mb-2 group-hover:text-primary transition-colors">
-              Wie funktioniert Kivvi im Alltag?
+              {t("bridges.howItWorks.title")}
             </h3>
             <p className="text-sm text-muted-foreground">
-              Die drei Phasen — Intake, Bewertung & Reparatur, Verkauf & Impact
-              — im Detail.
+              {t("bridges.howItWorks.description")}
             </p>
             <div className="mt-4 flex items-center gap-1 text-sm font-medium text-primary">
-              Wie es funktioniert <ArrowRight className="h-3 w-3" />
+              {t("bridges.howItWorks.cta")} <ArrowRight className="h-3 w-3" />
             </div>
           </Link>
         </div>
