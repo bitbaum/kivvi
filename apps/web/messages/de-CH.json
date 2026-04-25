@@ -2188,7 +2188,105 @@
     "navAllArticles": "Alle Artikel ansehen",
     "navAllArticlesShort": "Alle Artikel",
     "menuOpen": "Menü öffnen",
-    "menuClose": "Menü schliessen"
+    "menuClose": "Menü schliessen",
+    "pricing": {
+      "hero": {
+        "label": "Preise",
+        "title": "Open Source. Für immer kostenlos.",
+        "description": "Kivvi ist MIT-lizenziert und kann ohne Einschränkungen selbst gehostet werden. Oder überlassen Sie den Betrieb uns."
+      },
+      "tiers": {
+        "opensource": {
+          "name": "Open Source",
+          "price": "Kostenlos",
+          "priceSub": "für immer",
+          "tagline": "Ideal für technisch versierte Teams und Pilotprojekte",
+          "bullets": [
+            "Self-hosted auf Ihrem eigenen Server",
+            "Vollständiger Funktionsumfang, keine Einschränkungen",
+            "MIT-Lizenz",
+            "Community-Support via GitHub"
+          ],
+          "ctaLabel": "Auf GitHub ansehen"
+        },
+        "cloud": {
+          "name": "Cloud",
+          "price": "CHF 49",
+          "priceSub": "pro Monat",
+          "badge": "Empfohlen",
+          "tagline": "Ideal für Betriebe ohne eigene IT-Infrastruktur",
+          "bullets": [
+            "Gehostet von revamp-it, Daten in der Schweiz",
+            "Automatische Updates, Backups und Monitoring",
+            "E-Mail-Support innerhalb von 48 Stunden",
+            "30 Tage kostenlos testen, keine Kreditkarte nötig"
+          ],
+          "ctaLabel": "Kostenlos testen"
+        },
+        "enterprise": {
+          "name": "Enterprise / On-Premise",
+          "price": "Auf Anfrage",
+          "tagline": "Ideal für grössere Organisationen oder spezifische Compliance-Anforderungen",
+          "bullets": [
+            "Deployment in Ihrem eigenen Rechenzentrum oder Private Cloud",
+            "Individuelle Integrationen und massgeschneiderter SLA",
+            "Prioritätssupport",
+            "DSGVO- und nDSG-Konformitätsdokumentation"
+          ],
+          "ctaLabel": "Kontakt aufnehmen"
+        }
+      },
+      "comparison": {
+        "title": "Funktionsvergleich",
+        "columnFeature": "Funktion",
+        "columnOpensource": "Open Source",
+        "columnCloud": "Cloud",
+        "columnEnterprise": "Enterprise",
+        "features": {
+          "allFeatures": "Alle ERP-Funktionen",
+          "unlimitedUsers": "Unbegrenzte Benutzer",
+          "qrInvoices": "QR-Rechnungen",
+          "backups": "Automatische Backups",
+          "updates": "Updates",
+          "emailSupport": "E-Mail-Support",
+          "sla": "SLA",
+          "dataInSwitzerland": "Daten in der Schweiz"
+        },
+        "values": {
+          "selfManaged": "Selbst verwaltet",
+          "included": "Inklusive",
+          "manual": "Manuell",
+          "automatic": "Automatisch",
+          "community": "Community",
+          "priority": "Priorität",
+          "byChoice": "Nach Wahl",
+          "h48": "48h"
+        }
+      },
+      "faq": {
+        "title": "Häufige Fragen",
+        "items": [
+          {
+            "question": "Sind alle Features im kostenlosen Plan enthalten?",
+            "answer": "Ja, Kivvi ist vollständig Open Source unter der MIT-Lizenz. Alle Funktionen — QR-Rechnungen, Einzelartikel-Tracking, Reparaturworkflows, Buchhaltung, Impact-Berichte — sind im Self-Hosted-Plan enthalten. Es gibt keine Feature-Beschränkungen."
+          },
+          {
+            "question": "Kann ich von Self-Hosting zu Cloud wechseln?",
+            "answer": "Ja, wir unterstützen die Migration von einer selbst gehosteten Instanz zu unserer Cloud. Schreiben Sie uns und wir begleiten den Umzug Ihrer Daten."
+          },
+          {
+            "question": "Gibt es einen kostenlosen Test der Cloud-Version?",
+            "answer": "Ja, die Cloud-Version kann 30 Tage lang kostenlos getestet werden. Keine Kreditkarte erforderlich, kein automatisches Abo."
+          },
+          {
+            "question": "Welche Zahlungsmethoden akzeptiert ihr?",
+            "answer": "Wir akzeptieren TWINT, Kreditkarte sowie Banküberweisung (QR-Rechnung)."
+          }
+        ]
+      },
+      "ctaTitle": "Fragen zu Hosting oder Enterprise?",
+      "ctaDescription": "Schreiben Sie uns — wir helfen Ihnen, die richtige Option für Ihren Betrieb zu finden."
+    }
   },
   "bulkActions": {
     "selected": "ausgewählt",

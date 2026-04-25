@@ -2188,7 +2188,105 @@
     "navAllArticles": "See all articles",
     "navAllArticlesShort": "All articles",
     "menuOpen": "Open menu",
-    "menuClose": "Close menu"
+    "menuClose": "Close menu",
+    "pricing": {
+      "hero": {
+        "label": "Pricing",
+        "title": "Open source. Free forever.",
+        "description": "Kivvi is MIT-licensed and can be self-hosted without limits. Or let us run it for you."
+      },
+      "tiers": {
+        "opensource": {
+          "name": "Open Source",
+          "price": "Free",
+          "priceSub": "forever",
+          "tagline": "Ideal for technically capable teams and pilot projects",
+          "bullets": [
+            "Self-hosted on your own server",
+            "Full feature set, no restrictions",
+            "MIT license",
+            "Community support via GitHub"
+          ],
+          "ctaLabel": "View on GitHub"
+        },
+        "cloud": {
+          "name": "Cloud",
+          "price": "CHF 49",
+          "priceSub": "per month",
+          "badge": "Recommended",
+          "tagline": "Ideal for businesses without their own IT infrastructure",
+          "bullets": [
+            "Hosted by revamp-it, data in Switzerland",
+            "Automatic updates, backups and monitoring",
+            "Email support within 48 hours",
+            "30-day free trial, no credit card required"
+          ],
+          "ctaLabel": "Try free"
+        },
+        "enterprise": {
+          "name": "Enterprise / On-Premise",
+          "price": "On request",
+          "tagline": "Ideal for larger organisations or specific compliance requirements",
+          "bullets": [
+            "Deployment in your own data centre or private cloud",
+            "Custom integrations and tailored SLA",
+            "Priority support",
+            "GDPR and Swiss FADP compliance documentation"
+          ],
+          "ctaLabel": "Get in touch"
+        }
+      },
+      "comparison": {
+        "title": "Feature comparison",
+        "columnFeature": "Feature",
+        "columnOpensource": "Open Source",
+        "columnCloud": "Cloud",
+        "columnEnterprise": "Enterprise",
+        "features": {
+          "allFeatures": "All ERP features",
+          "unlimitedUsers": "Unlimited users",
+          "qrInvoices": "QR invoices",
+          "backups": "Automatic backups",
+          "updates": "Updates",
+          "emailSupport": "Email support",
+          "sla": "SLA",
+          "dataInSwitzerland": "Data in Switzerland"
+        },
+        "values": {
+          "selfManaged": "Self-managed",
+          "included": "Included",
+          "manual": "Manual",
+          "automatic": "Automatic",
+          "community": "Community",
+          "priority": "Priority",
+          "byChoice": "Your choice",
+          "h48": "48h"
+        }
+      },
+      "faq": {
+        "title": "Frequently asked questions",
+        "items": [
+          {
+            "question": "Are all features included in the free plan?",
+            "answer": "Yes, Kivvi is fully open source under the MIT license. All features — QR invoices, per-item tracking, repair workflows, accounting, impact reports — are included in the self-hosted plan. There are no feature restrictions."
+          },
+          {
+            "question": "Can I switch from self-hosting to cloud?",
+            "answer": "Yes, we support migration from a self-hosted instance to our cloud. Reach out and we'll help move your data."
+          },
+          {
+            "question": "Is there a free trial of the cloud version?",
+            "answer": "Yes, the cloud version can be tried free for 30 days. No credit card required, no automatic subscription."
+          },
+          {
+            "question": "What payment methods do you accept?",
+            "answer": "We accept TWINT, credit card, and bank transfer (QR invoice)."
+          }
+        ]
+      },
+      "ctaTitle": "Questions about hosting or enterprise?",
+      "ctaDescription": "Reach out — we'll help you find the right option for your business."
+    }
   },
   "bulkActions": {
     "selected": "selected",
