@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Code2, Cloud, Server, ArrowRight } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 
 function DeploymentCard({
@@ -48,37 +49,36 @@ function DeploymentCard({
   );
 }
 
-export function DeploymentOptionsSection() {
+export async function DeploymentOptionsSection() {
+  const t = await getTranslations("landing.deployment");
   return (
     <section className="mx-auto max-w-4xl py-8">
-      <h2 className="mb-8 text-center text-2xl font-bold">
-        Wie Sie Kivvi nutzen
-      </h2>
+      <h2 className="mb-8 text-center text-2xl font-bold">{t("title")}</h2>
       <div className="grid gap-4 sm:grid-cols-3">
         <DeploymentCard
           icon={<Code2 className="h-5 w-5" />}
-          title="Open Source"
-          subtitle="Selbst hosten"
-          description="MIT-Lizenz. Sie kontrollieren alles. Kein Vendor Lock-in. Für technische Teams oder mit IT-Support."
+          title={t("opensource.title")}
+          subtitle={t("opensource.subtitle")}
+          description={t("opensource.description")}
           href="https://github.com/g-but/kivvi"
-          cta="GitHub ansehen"
+          cta={t("opensource.cta")}
           external
         />
         <DeploymentCard
           icon={<Cloud className="h-5 w-5" />}
-          title="Cloud"
-          subtitle="Verwaltet · Demnächst"
-          description="Wir betreiben, Sie nutzen. Keine Infrastruktur, keine Updates. Ideal für Betriebe ohne IT-Ressourcen."
+          title={t("cloud.title")}
+          subtitle={t("cloud.subtitle")}
+          description={t("cloud.description")}
           href="/contact"
-          cta="Warteliste"
+          cta={t("cloud.cta")}
         />
         <DeploymentCard
           icon={<Server className="h-5 w-5" />}
-          title="On-Premise"
-          subtitle="Mit Support"
-          description="Ihre Infrastruktur, unser Support. Installation, Konfiguration und laufende Betreuung durch uns."
+          title={t("onpremise.title")}
+          subtitle={t("onpremise.subtitle")}
+          description={t("onpremise.description")}
           href="/contact"
-          cta="Kontakt aufnehmen"
+          cta={t("onpremise.cta")}
         />
       </div>
     </section>

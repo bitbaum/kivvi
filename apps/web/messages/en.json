@@ -2802,6 +2802,38 @@
       },
       "ctaTitle": "Demo for vintage shops",
       "ctaDescription": "Show us your business — we'll show you how Kivvi maps it."
+    },
+    "aiAutopilot": {
+      "title": "Your business on autopilot",
+      "subtitle": "AI-assisted input for everyday work",
+      "exampleLabel": "You type: ",
+      "exampleInput": "\"50 ThinkPad T14 from a UBS donation, condition fair\"",
+      "exampleAction": "→ 50 items recorded · donation receipt generated · QR labels ready to print",
+      "feature1": "Natural-language entry: type what's happening — Kivvi handles the rest",
+      "feature2": "Bulk intake: hundreds of items recorded in minutes, not hours",
+      "feature3": "Automatic descriptions and categorisation",
+      "feature4": "Smart price suggestions based on condition and market"
+    },
+    "deployment": {
+      "title": "How you run Kivvi",
+      "opensource": {
+        "title": "Open Source",
+        "subtitle": "Self-hosted",
+        "description": "MIT license. You control everything. No vendor lock-in. For technical teams or with IT support.",
+        "cta": "View on GitHub"
+      },
+      "cloud": {
+        "title": "Cloud",
+        "subtitle": "Managed · Coming soon",
+        "description": "We operate, you use. No infrastructure, no updates. Ideal for businesses without IT resources.",
+        "cta": "Waitlist"
+      },
+      "onpremise": {
+        "title": "On-Premise",
+        "subtitle": "With support",
+        "description": "Your infrastructure, our support. Installation, configuration, and ongoing care by us.",
+        "cta": "Get in touch"
+      }
     }
   },
   "bulkActions": {

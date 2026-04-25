@@ -2802,6 +2802,38 @@
       },
       "ctaTitle": "Demo für Vintage-Shops",
       "ctaDescription": "Zeigen Sie uns Ihren Betrieb — wir zeigen Ihnen, wie Kivvi ihn abbildet."
+    },
+    "aiAutopilot": {
+      "title": "Ihr Betrieb auf Autopilot",
+      "subtitle": "KI-gestützte Eingabe für den Alltag",
+      "exampleLabel": "Sie tippen: ",
+      "exampleInput": "«50 ThinkPad T14 aus UBS-Spende, Zustand mittel»",
+      "exampleAction": "→ 50 Artikel erfasst · Spendenquittung generiert · QR-Etiketten druckbereit",
+      "feature1": "Natürlichsprachige Erfassung: Tippen, was passiert — Kivvi erledigt den Rest",
+      "feature2": "Bulk-Intake: Hunderte Artikel in Minuten erfassen, nicht Stunden",
+      "feature3": "Automatische Beschreibungen und Kategorisierung",
+      "feature4": "Intelligente Preisvorschläge basierend auf Zustand und Markt"
+    },
+    "deployment": {
+      "title": "Wie Sie Kivvi nutzen",
+      "opensource": {
+        "title": "Open Source",
+        "subtitle": "Selbst hosten",
+        "description": "MIT-Lizenz. Sie kontrollieren alles. Kein Vendor Lock-in. Für technische Teams oder mit IT-Support.",
+        "cta": "GitHub ansehen"
+      },
+      "cloud": {
+        "title": "Cloud",
+        "subtitle": "Verwaltet · Demnächst",
+        "description": "Wir betreiben, Sie nutzen. Keine Infrastruktur, keine Updates. Ideal für Betriebe ohne IT-Ressourcen.",
+        "cta": "Warteliste"
+      },
+      "onpremise": {
+        "title": "On-Premise",
+        "subtitle": "Mit Support",
+        "description": "Ihre Infrastruktur, unser Support. Installation, Konfiguration und laufende Betreuung durch uns.",
+        "cta": "Kontakt aufnehmen"
+      }
     }
   },
   "bulkActions": {

@@ -2802,6 +2802,38 @@
       },
       "ctaTitle": "Démo pour boutiques vintage",
       "ctaDescription": "Montrez-nous votre activité — nous vous montrons comment Kivvi la modélise."
+    },
+    "aiAutopilot": {
+      "title": "Votre activité en pilote automatique",
+      "subtitle": "Saisie assistée par IA pour le quotidien",
+      "exampleLabel": "Vous tapez : ",
+      "exampleInput": "« 50 ThinkPad T14 d'un don UBS, état moyen »",
+      "exampleAction": "→ 50 articles enregistrés · reçu de don généré · étiquettes QR prêtes à imprimer",
+      "feature1": "Saisie en langage naturel : tapez ce qui se passe — Kivvi fait le reste",
+      "feature2": "Réception en masse : des centaines d'articles en minutes, pas en heures",
+      "feature3": "Descriptions et catégorisation automatiques",
+      "feature4": "Suggestions de prix intelligentes selon l'état et le marché"
+    },
+    "deployment": {
+      "title": "Comment utiliser Kivvi",
+      "opensource": {
+        "title": "Open Source",
+        "subtitle": "Auto-hébergé",
+        "description": "Licence MIT. Vous contrôlez tout. Pas de verrouillage fournisseur. Pour équipes techniques ou avec support IT.",
+        "cta": "Voir sur GitHub"
+      },
+      "cloud": {
+        "title": "Cloud",
+        "subtitle": "Géré · Bientôt disponible",
+        "description": "Nous exploitons, vous utilisez. Pas d'infrastructure, pas de mises à jour. Idéal pour les entreprises sans ressources IT.",
+        "cta": "Liste d'attente"
+      },
+      "onpremise": {
+        "title": "On-Premise",
+        "subtitle": "Avec support",
+        "description": "Votre infrastructure, notre support. Installation, configuration et accompagnement continu par nos soins.",
+        "cta": "Nous contacter"
+      }
     }
   },
   "bulkActions": {

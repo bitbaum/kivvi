@@ -1,4 +1,5 @@
 import { PackageOpen, ClipboardCheck, BarChart3 } from "lucide-react";
+import { getTranslations } from "next-intl/server";
 
 const SCENARIO_COLORS = {
   blue: "border-l-info bg-info/5",
@@ -35,31 +36,32 @@ function ScenarioCard({
   );
 }
 
-export function ScenariosSection() {
+export async function ScenariosSection() {
+  const t = await getTranslations("landing");
   return (
     <section className="mx-auto max-w-4xl py-16">
       <h2 className="mb-12 text-center text-3xl font-bold">
-        Ein ganz normaler Tag
+        {t("scenarioTitle")}
       </h2>
       <div className="space-y-12">
         <ScenarioCard
-          time="Dienstag, 9 Uhr"
-          title="Wareneingang"
-          text="Eine Firma liefert 50 ausgemusterte Laptops. Sie tippen '50 Lenovo ThinkPad' und drücken Enter. 50 Artikel erfasst, QR-Etiketten druckbereit, Spendenquittung generiert."
+          time={t("scenario1Time")}
+          title={t("scenario1Title")}
+          text={t("scenario1Text")}
           icon={<PackageOpen className="h-5 w-5" />}
           color="blue"
         />
         <ScenarioCard
-          time="Mittwoch, 14 Uhr"
-          title="Prüfung & Reparatur"
-          text="Freiwillige Maria öffnet Laptop #23. Akku: 78%. Bildschirm: Kratzer. Zustand: Mittel. Neue Batterie: CHF 40. In 30 Sekunden erfasst — Reparaturkosten fliessen direkt in die Margenberechnung."
+          time={t("scenario2Time")}
+          title={t("scenario2Title")}
+          text={t("scenario2Text")}
           icon={<ClipboardCheck className="h-5 w-5" />}
           color="amber"
         />
         <ScenarioCard
-          time="Freitag, 16 Uhr"
-          title="Verkauf & Impact"
-          text="Kunde kommt rein. CHF 80 statt CHF 135 — Richtpreis, angepasst an sein Budget. QR scannen. Fertig. Dashboard zeigt: CHF 30 Marge, 25 kg Elektroschrott vermieden."
+          time={t("scenario3Time")}
+          title={t("scenario3Title")}
+          text={t("scenario3Text")}
           icon={<BarChart3 className="h-5 w-5" />}
           color="green"
         />
