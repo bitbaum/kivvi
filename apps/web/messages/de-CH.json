@@ -3428,6 +3428,47 @@
         "suggestLink": "Schreib uns."
       }
     },
+    "knowledge": {
+      "hero": {
+        "title": "Wissen für Kreislaufbetriebe",
+        "description": "Praxiswissen zu Betrieb, Compliance und Impact — entwickelt aus echter Erfahrung. Nicht Theorie, sondern konkrete Antworten auf konkrete Fragen."
+      },
+      "card": {
+        "read": "Lesen",
+        "comingSoon": "Bald verfügbar"
+      },
+      "crossLinks": {
+        "circularEconomy": {
+          "label": "Überblick",
+          "title": "Die Kreislaufwirtschaft verstehen",
+          "description": "Wer ist dabei? Welche Geschäftsmodelle gibt es?"
+        },
+        "whyKivvi": {
+          "label": "Das Argument",
+          "title": "Warum ein eigenes ERP?",
+          "description": "8 Dimensionen, in denen Standard-Software scheitert."
+        },
+        "howItWorks": {
+          "label": "In der Praxis",
+          "title": "Wie Kivvi funktioniert",
+          "description": "Intake, Bewertung, Reparatur, Verkauf, Impact."
+        }
+      },
+      "askQuestion": {
+        "title": "Eine Frage, die noch fehlt?",
+        "description": "Schreiben Sie uns — wir antworten und dokumentieren die Antwort für alle.",
+        "cta": "Frage stellen"
+      },
+      "article": {
+        "backLink": "Wissensdatenbank",
+        "readTimeSuffix": "Lesezeit",
+        "tocHeader": "Inhalt",
+        "nextArticleLabel": "Nächster Artikel",
+        "footerCtaTitle": "Mehr aus der Wissensdatenbank",
+        "footerCtaDescription": "Weitere Artikel zu Betrieb, Compliance und Impact in der Kreislaufwirtschaft.",
+        "footerCtaButton": "Alle Artikel ansehen →"
+      }
+    },
     "datenschutz": {
       "title": "Datenschutzerklärung",
       "validity": "Gültig ab 1. Januar 2025 · Gemäss Schweizer Datenschutzgesetz (nDSG)",

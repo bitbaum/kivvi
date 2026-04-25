@@ -3428,6 +3428,47 @@
         "suggestLink": "Écrivez-nous."
       }
     },
+    "knowledge": {
+      "hero": {
+        "title": "Savoir pour entreprises circulaires",
+        "description": "Connaissances pratiques sur l'exploitation, la conformité et l'impact — issues d'une vraie expérience. Pas de théorie, des réponses concrètes à des questions concrètes."
+      },
+      "card": {
+        "read": "Lire",
+        "comingSoon": "Bientôt disponible"
+      },
+      "crossLinks": {
+        "circularEconomy": {
+          "label": "Vue d'ensemble",
+          "title": "Comprendre l'économie circulaire",
+          "description": "Qui en fait partie ? Quels modèles d'affaires existent ?"
+        },
+        "whyKivvi": {
+          "label": "L'argument",
+          "title": "Pourquoi un ERP dédié ?",
+          "description": "8 dimensions où le logiciel standard échoue."
+        },
+        "howItWorks": {
+          "label": "En pratique",
+          "title": "Comment fonctionne Kivvi",
+          "description": "Réception, évaluation, réparation, vente, impact."
+        }
+      },
+      "askQuestion": {
+        "title": "Une question manquante ?",
+        "description": "Contactez-nous — nous répondrons et documenterons la réponse pour tout le monde.",
+        "cta": "Poser une question"
+      },
+      "article": {
+        "backLink": "Base de connaissances",
+        "readTimeSuffix": "de lecture",
+        "tocHeader": "Sommaire",
+        "nextArticleLabel": "Article suivant",
+        "footerCtaTitle": "Plus de la base de connaissances",
+        "footerCtaDescription": "Plus d'articles sur l'exploitation, la conformité et l'impact dans l'économie circulaire.",
+        "footerCtaButton": "Voir tous les articles →"
+      }
+    },
     "datenschutz": {
       "title": "Politique de confidentialité",
       "validity": "En vigueur depuis le 1er janvier 2025 · Conforme à la loi suisse sur la protection des données (nLPD)",

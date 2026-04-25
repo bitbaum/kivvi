@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, BookOpen } from "lucide-react";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { getAllArticles } from "@/lib/content/knowledge";
 import { Button } from "@/components/ui/button";
 import { buildPageMeta } from "@/lib/config/site";
@@ -25,7 +26,8 @@ const TAG_COLORS: Record<string, string> = {
   Kundentypen: "bg-tag-rose/10 text-tag-rose",
 };
 
-export default function KnowledgePage() {
+export default async function KnowledgePage() {
+  const t = await getTranslations("landing.knowledge");
   const articles = getAllArticles();
 
   return (
@@ -38,13 +40,9 @@ export default function KnowledgePage() {
           </div>
         </div>
         <h1 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl">
-          Wissen für Kreislaufbetriebe
+          {t("hero.title")}
         </h1>
-        <p className="text-xl text-muted-foreground">
-          Praxiswissen zu Betrieb, Compliance und Impact — entwickelt aus echter
-          Erfahrung. Nicht Theorie, sondern konkrete Antworten auf konkrete
-          Fragen.
-        </p>
+        <p className="text-xl text-muted-foreground">{t("hero.description")}</p>
       </section>
 
       {/* Articles */}
@@ -74,7 +72,7 @@ export default function KnowledgePage() {
                   {article.excerpt}
                 </p>
                 <div className="mt-4 flex items-center gap-1 text-sm font-medium text-primary">
-                  Lesen <ArrowRight className="h-3 w-3" />
+                  {t("card.read")} <ArrowRight className="h-3 w-3" />
                 </div>
               </Link>
             ) : (
@@ -99,7 +97,7 @@ export default function KnowledgePage() {
                   {article.excerpt}
                 </p>
                 <div className="mt-4 text-xs text-muted-foreground">
-                  Bald verfügbar
+                  {t("card.comingSoon")}
                 </div>
               </div>
             ),
@@ -114,36 +112,42 @@ export default function KnowledgePage() {
             href="/circular-economy"
             className="group rounded-xl border bg-card p-5 hover:shadow-md transition-shadow"
           >
-            <p className="text-xs text-muted-foreground mb-1">Überblick</p>
+            <p className="text-xs text-muted-foreground mb-1">
+              {t("crossLinks.circularEconomy.label")}
+            </p>
             <h3 className="font-semibold group-hover:text-primary transition-colors">
-              Die Kreislaufwirtschaft verstehen
+              {t("crossLinks.circularEconomy.title")}
             </h3>
             <p className="mt-1 text-xs text-muted-foreground">
-              Wer ist dabei? Welche Geschäftsmodelle gibt es?
+              {t("crossLinks.circularEconomy.description")}
             </p>
           </Link>
           <Link
             href="/why-kivvi"
             className="group rounded-xl border bg-card p-5 hover:shadow-md transition-shadow"
           >
-            <p className="text-xs text-muted-foreground mb-1">Das Argument</p>
+            <p className="text-xs text-muted-foreground mb-1">
+              {t("crossLinks.whyKivvi.label")}
+            </p>
             <h3 className="font-semibold group-hover:text-primary transition-colors">
-              Warum ein eigenes ERP?
+              {t("crossLinks.whyKivvi.title")}
             </h3>
             <p className="mt-1 text-xs text-muted-foreground">
-              8 Dimensionen, in denen Standard-Software scheitert.
+              {t("crossLinks.whyKivvi.description")}
             </p>
           </Link>
           <Link
             href="/how-it-works"
             className="group rounded-xl border bg-card p-5 hover:shadow-md transition-shadow"
           >
-            <p className="text-xs text-muted-foreground mb-1">In der Praxis</p>
+            <p className="text-xs text-muted-foreground mb-1">
+              {t("crossLinks.howItWorks.label")}
+            </p>
             <h3 className="font-semibold group-hover:text-primary transition-colors">
-              Wie Kivvi funktioniert
+              {t("crossLinks.howItWorks.title")}
             </h3>
             <p className="mt-1 text-xs text-muted-foreground">
-              Intake, Bewertung, Reparatur, Verkauf, Impact.
+              {t("crossLinks.howItWorks.description")}
             </p>
           </Link>
         </div>
@@ -151,14 +155,13 @@ export default function KnowledgePage() {
 
       {/* Contact */}
       <section className="mx-auto max-w-2xl py-16 text-center">
-        <h2 className="mb-4 text-2xl font-bold">Eine Frage, die noch fehlt?</h2>
+        <h2 className="mb-4 text-2xl font-bold">{t("askQuestion.title")}</h2>
         <p className="mb-8 text-muted-foreground">
-          Schreiben Sie uns — wir antworten und dokumentieren die Antwort für
-          alle.
+          {t("askQuestion.description")}
         </p>
         <Button asChild size="lg">
           <Link href="/contact">
-            Frage stellen
+            {t("askQuestion.cta")}
             <ArrowRight className="h-4 w-4" />
           </Link>
         </Button>

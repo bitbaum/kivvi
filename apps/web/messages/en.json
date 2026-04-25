@@ -3428,6 +3428,47 @@
         "suggestLink": "Write to us."
       }
     },
+    "knowledge": {
+      "hero": {
+        "title": "Knowledge for circular businesses",
+        "description": "Practical knowledge about operations, compliance, and impact — developed from real-world experience. Not theory, but concrete answers to concrete questions."
+      },
+      "card": {
+        "read": "Read",
+        "comingSoon": "Coming soon"
+      },
+      "crossLinks": {
+        "circularEconomy": {
+          "label": "Overview",
+          "title": "Understand the circular economy",
+          "description": "Who's involved? What business models exist?"
+        },
+        "whyKivvi": {
+          "label": "The argument",
+          "title": "Why a dedicated ERP?",
+          "description": "8 dimensions where standard software fails."
+        },
+        "howItWorks": {
+          "label": "In practice",
+          "title": "How Kivvi works",
+          "description": "Intake, grading, repair, sale, impact."
+        }
+      },
+      "askQuestion": {
+        "title": "A question we haven't covered?",
+        "description": "Reach out — we'll answer and document the answer for everyone.",
+        "cta": "Ask a question"
+      },
+      "article": {
+        "backLink": "Knowledge base",
+        "readTimeSuffix": "read",
+        "tocHeader": "Contents",
+        "nextArticleLabel": "Next article",
+        "footerCtaTitle": "More from the knowledge base",
+        "footerCtaDescription": "More articles on operations, compliance, and impact in the circular economy.",
+        "footerCtaButton": "See all articles →"
+      }
+    },
     "datenschutz": {
       "title": "Privacy policy",
       "validity": "Effective from 1 January 2025 · In accordance with the Swiss Federal Act on Data Protection (FADP)",

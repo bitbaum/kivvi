@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, BookOpen } from "lucide-react";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { getArticle, getAllArticles } from "@/lib/content/knowledge";
 import { Button } from "@/components/ui/button";
 import { buildPageMeta } from "@/lib/config/site";
@@ -45,6 +46,7 @@ export default async function KnowledgeArticlePage({
   const article = await getArticle(slug);
   if (!article) notFound();
 
+  const t = await getTranslations("landing.knowledge.article");
   const { meta, html, sections } = article;
   const allArticles = getAllArticles();
   const currentIndex = allArticles.findIndex((a) => a.slug === slug);
@@ -60,7 +62,7 @@ export default async function KnowledgeArticlePage({
           className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
-          Wissensdatenbank
+          {t("backLink")}
         </Link>
 
         {/* Header */}
@@ -70,7 +72,7 @@ export default async function KnowledgeArticlePage({
               {meta.tag}
             </span>
             <span className="text-xs text-muted-foreground">
-              {meta.readTime} Lesezeit
+              {meta.readTime} {t("readTimeSuffix")}
             </span>
           </div>
           <h1 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
@@ -85,7 +87,7 @@ export default async function KnowledgeArticlePage({
         {sections.length > 0 && (
           <nav className="mb-10 rounded-xl border bg-card p-5">
             <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Inhalt
+              {t("tocHeader")}
             </p>
             <ol className="space-y-1.5">
               {sections.map((section, i) => {
@@ -134,7 +136,7 @@ export default async function KnowledgeArticlePage({
         {nextMeta && (
           <div className="mt-12">
             <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Nächster Artikel
+              {t("nextArticleLabel")}
             </p>
             <Link
               href={`/knowledge/${nextMeta.slug}`}
@@ -160,16 +162,13 @@ export default async function KnowledgeArticlePage({
         <div className="mt-6 rounded-xl border bg-card p-6">
           <div className="flex items-center gap-3 mb-2">
             <BookOpen className="h-5 w-5 text-primary" />
-            <span className="font-semibold">Mehr aus der Wissensdatenbank</span>
+            <span className="font-semibold">{t("footerCtaTitle")}</span>
           </div>
           <p className="text-sm text-muted-foreground mb-4">
-            Weitere Artikel zu Betrieb, Compliance und Impact in der
-            Kreislaufwirtschaft.
+            {t("footerCtaDescription")}
           </p>
           <Button asChild variant="link" className="px-0">
-            <Link href="/knowledge">
-              Alle Artikel ansehen →
-            </Link>
+            <Link href="/knowledge">{t("footerCtaButton")}</Link>
           </Button>
         </div>
       </div>
