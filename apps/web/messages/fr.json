@@ -3123,6 +3123,82 @@
         "ctaContact": "Nous contacter",
         "ctaCircularEconomy": "Comprendre l'économie circulaire"
       }
+    },
+    "impressum": {
+      "title": "Mentions légales",
+      "providerHeader": "Fournisseur",
+      "providerName": "revamp-it Genossenschaft",
+      "providerStreet": "Hardstrasse 41",
+      "providerCity": "8004 Zürich",
+      "providerCountry": "Suisse",
+      "contactHeader": "Contact",
+      "emailLabel": "E-mail :",
+      "responsibleHeader": "Responsable du contenu",
+      "responsibleText": "revamp-it Genossenschaft, Zürich",
+      "sourceCodeHeader": "Code source",
+      "sourceCodeText": "Kivvi est open source (licence MIT).",
+      "disclaimerHeader": "Clause de non-responsabilité",
+      "disclaimerText": "Le contenu de ce site web a été préparé avec le plus grand soin. revamp-it ne donne aucune garantie quant à l'exactitude, l'exhaustivité ou l'actualité du contenu. En tant que prestataire de services, nous sommes responsables de nos propres contenus. Pour les liens externes, nous déclinons toute responsabilité ; celle-ci incombe au prestataire respectif."
+    },
+    "datenschutz": {
+      "title": "Politique de confidentialité",
+      "validity": "En vigueur depuis le 1er janvier 2025 · Conforme à la loi suisse sur la protection des données (nLPD)",
+      "section1": {
+        "title": "1. Responsable du traitement",
+        "address": "revamp-it Genossenschaft, Zürich, Suisse",
+        "emailLabel": "E-mail :"
+      },
+      "section2": {
+        "title": "2. Quelles données nous collectons",
+        "accountLabel": "Données de compte :",
+        "accountText": "Lors de l'inscription nous collectons une adresse e-mail, le nom de l'entreprise et un mot de passe (stocké sous forme de hachage).",
+        "usageLabel": "Données d'utilisation :",
+        "usageText": "L'application stocke les données commerciales que vous saisissez (contacts, produits, documents) — uniquement pour fournir le service.",
+        "logsLabel": "Données de journalisation techniques :",
+        "logsText": "Les journaux côté serveur (adresse IP, horodatage, URL appelées) sont conservés au maximum 30 jours et utilisés uniquement pour le diagnostic d'erreurs."
+      },
+      "section3": {
+        "title": "3. Finalité du traitement",
+        "purposes": [
+          "Mise à disposition et exploitation de l'application Kivvi",
+          "Authentification et contrôle d'accès",
+          "Résolution d'erreurs et sécurité",
+          "Réponse aux demandes de support"
+        ],
+        "noAdvertising": "Nous n'utilisons pas vos données à des fins publicitaires et ne les transmettons pas à des tiers."
+      },
+      "section4": {
+        "title": "4. Lieu de stockage et hébergement",
+        "text": "Toutes les données sont stockées sur des serveurs en Suisse ou dans l'UE. Pour les installations en auto-hébergement, le choix du lieu de stockage relève de l'exploitant de l'instance."
+      },
+      "section5": {
+        "title": "5. Durée de conservation",
+        "text": "Les données de compte sont conservées tant que le compte est actif. Après suppression du compte, les données personnelles sont effacées dans les 30 jours, sauf obligations légales de conservation (par ex. obligation comptable selon CO 958f : 10 ans)."
+      },
+      "section6": {
+        "title": "6. Vos droits",
+        "intro": "Selon la nLPD, vous avez le droit de :",
+        "rights": [
+          "Obtenir des informations sur les données vous concernant",
+          "Faire rectifier des données inexactes",
+          "Faire supprimer vos données",
+          "Faire restreindre le traitement",
+          "Portabilité des données (export en CSV)"
+        ],
+        "exercise": "Pour exercer ces droits, veuillez contacter :"
+      },
+      "section7": {
+        "title": "7. Cookies",
+        "text": "Kivvi utilise uniquement des cookies fonctionnels pour l'authentification (cookie de session). Aucun cookie de suivi, d'analyse ou publicitaire n'est utilisé."
+      },
+      "section8": {
+        "title": "8. Modifications de cette politique",
+        "text": "Nous nous réservons le droit d'adapter cette politique de confidentialité si nécessaire. La version actuelle est toujours disponible sur cette page. Les utilisateurs enregistrés sont informés par e-mail des modifications substantielles."
+      },
+      "section9": {
+        "title": "9. Contact",
+        "text": "Pour toute question relative à la protection des données :"
+      }
     }
   },
   "bulkActions": {

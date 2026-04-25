@@ -3123,6 +3123,82 @@
         "ctaContact": "Kontakt aufnehmen",
         "ctaCircularEconomy": "Kreislaufwirtschaft verstehen"
       }
+    },
+    "impressum": {
+      "title": "Impressum",
+      "providerHeader": "Anbieter",
+      "providerName": "revamp-it Genossenschaft",
+      "providerStreet": "Hardstrasse 41",
+      "providerCity": "8004 Zürich",
+      "providerCountry": "Schweiz",
+      "contactHeader": "Kontakt",
+      "emailLabel": "E-Mail:",
+      "responsibleHeader": "Verantwortlich für den Inhalt",
+      "responsibleText": "revamp-it Genossenschaft, Zürich",
+      "sourceCodeHeader": "Quellcode",
+      "sourceCodeText": "Kivvi ist Open Source (MIT-Lizenz).",
+      "disclaimerHeader": "Haftungsausschluss",
+      "disclaimerText": "Die Inhalte dieser Website wurden mit grösster Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte übernimmt revamp-it keine Gewähr. Als Diensteanbieter sind wir für eigene Inhalte verantwortlich. Für externe Links übernehmen wir keine Haftung; die Verantwortung liegt beim jeweiligen Anbieter."
+    },
+    "datenschutz": {
+      "title": "Datenschutzerklärung",
+      "validity": "Gültig ab 1. Januar 2025 · Gemäss Schweizer Datenschutzgesetz (nDSG)",
+      "section1": {
+        "title": "1. Verantwortliche Stelle",
+        "address": "revamp-it Genossenschaft, Zürich, Schweiz",
+        "emailLabel": "E-Mail:"
+      },
+      "section2": {
+        "title": "2. Welche Daten wir erheben",
+        "accountLabel": "Kontodaten:",
+        "accountText": "Bei der Registrierung erheben wir E-Mail-Adresse, Firmenname und ein Passwort (gespeichert als Hashwert).",
+        "usageLabel": "Nutzungsdaten:",
+        "usageText": "Die Applikation speichert die von Ihnen eingegebenen Geschäftsdaten (Kontakte, Produkte, Dokumente) — ausschliesslich zur Bereitstellung des Dienstes.",
+        "logsLabel": "Technische Logdaten:",
+        "logsText": "Serverseitige Logs (IP-Adresse, Zeitstempel, aufgerufene URLs) werden für maximal 30 Tage aufbewahrt und ausschliesslich zur Fehlerdiagnose verwendet."
+      },
+      "section3": {
+        "title": "3. Zweck der Datenbearbeitung",
+        "purposes": [
+          "Bereitstellung und Betrieb der Kivvi-Applikation",
+          "Authentifizierung und Zugriffskontrolle",
+          "Fehlerbehebung und Sicherheit",
+          "Beantwortung von Support-Anfragen"
+        ],
+        "noAdvertising": "Wir verwenden Ihre Daten nicht für Werbezwecke und geben sie nicht an Dritte weiter."
+      },
+      "section4": {
+        "title": "4. Speicherort und Hosting",
+        "text": "Alle Daten werden auf Servern in der Schweiz oder der EU gespeichert. Bei Self-Hosting-Installationen obliegt die Wahl des Speicherorts dem Betreiber der Instanz."
+      },
+      "section5": {
+        "title": "5. Aufbewahrungsdauer",
+        "text": "Kontodaten werden aufbewahrt, solange das Konto aktiv ist. Nach Löschung des Kontos werden personenbezogene Daten innerhalb von 30 Tagen gelöscht, soweit keine gesetzlichen Aufbewahrungspflichten bestehen (z.B. Buchführungspflicht nach OR 958f: 10 Jahre)."
+      },
+      "section6": {
+        "title": "6. Ihre Rechte",
+        "intro": "Gemäss nDSG haben Sie das Recht auf:",
+        "rights": [
+          "Auskunft über die zu Ihrer Person gespeicherten Daten",
+          "Berichtigung unrichtiger Daten",
+          "Löschung Ihrer Daten",
+          "Einschränkung der Bearbeitung",
+          "Datenübertragbarkeit (Export als CSV)"
+        ],
+        "exercise": "Zur Ausübung dieser Rechte wenden Sie sich an:"
+      },
+      "section7": {
+        "title": "7. Cookies",
+        "text": "Kivvi verwendet ausschliesslich funktionale Cookies für die Authentifizierung (Session-Cookie). Es werden keine Tracking-Cookies, Analyse-Cookies oder Werbe-Cookies eingesetzt."
+      },
+      "section8": {
+        "title": "8. Änderungen dieser Erklärung",
+        "text": "Wir behalten uns vor, diese Datenschutzerklärung bei Bedarf anzupassen. Die jeweils aktuelle Version ist auf dieser Seite abrufbar. Bei wesentlichen Änderungen werden registrierte Nutzer per E-Mail informiert."
+      },
+      "section9": {
+        "title": "9. Kontakt",
+        "text": "Bei Fragen zum Datenschutz:"
+      }
     }
   },
   "bulkActions": {

@@ -3123,6 +3123,82 @@
         "ctaContact": "Get in touch",
         "ctaCircularEconomy": "Understand the circular economy"
       }
+    },
+    "impressum": {
+      "title": "Imprint",
+      "providerHeader": "Provider",
+      "providerName": "revamp-it Genossenschaft",
+      "providerStreet": "Hardstrasse 41",
+      "providerCity": "8004 Zürich",
+      "providerCountry": "Switzerland",
+      "contactHeader": "Contact",
+      "emailLabel": "Email:",
+      "responsibleHeader": "Responsible for content",
+      "responsibleText": "revamp-it Genossenschaft, Zürich",
+      "sourceCodeHeader": "Source code",
+      "sourceCodeText": "Kivvi is open source (MIT license).",
+      "disclaimerHeader": "Disclaimer",
+      "disclaimerText": "The content on this website was prepared with the greatest care. revamp-it makes no guarantees regarding the accuracy, completeness, or timeliness of the content. As a service provider we are responsible for our own content. For external links we accept no liability; responsibility lies with the respective provider."
+    },
+    "datenschutz": {
+      "title": "Privacy policy",
+      "validity": "Effective from 1 January 2025 · In accordance with the Swiss Federal Act on Data Protection (FADP)",
+      "section1": {
+        "title": "1. Data controller",
+        "address": "revamp-it Genossenschaft, Zürich, Switzerland",
+        "emailLabel": "Email:"
+      },
+      "section2": {
+        "title": "2. What data we collect",
+        "accountLabel": "Account data:",
+        "accountText": "On registration we collect email address, company name, and a password (stored as a hash).",
+        "usageLabel": "Usage data:",
+        "usageText": "The application stores the business data you enter (contacts, products, documents) — solely to provide the service.",
+        "logsLabel": "Technical log data:",
+        "logsText": "Server-side logs (IP address, timestamps, requested URLs) are kept for a maximum of 30 days and used solely for fault diagnosis."
+      },
+      "section3": {
+        "title": "3. Purpose of data processing",
+        "purposes": [
+          "Provision and operation of the Kivvi application",
+          "Authentication and access control",
+          "Troubleshooting and security",
+          "Responding to support enquiries"
+        ],
+        "noAdvertising": "We do not use your data for advertising and do not share it with third parties."
+      },
+      "section4": {
+        "title": "4. Storage location and hosting",
+        "text": "All data is stored on servers in Switzerland or the EU. For self-hosted installations, the choice of storage location lies with the operator of that instance."
+      },
+      "section5": {
+        "title": "5. Retention period",
+        "text": "Account data is retained for as long as the account is active. After account deletion, personal data is removed within 30 days, unless statutory retention obligations apply (e.g. Swiss accounting obligation under OR 958f: 10 years)."
+      },
+      "section6": {
+        "title": "6. Your rights",
+        "intro": "Under the FADP you have the right to:",
+        "rights": [
+          "Information about the data stored about you",
+          "Correction of inaccurate data",
+          "Deletion of your data",
+          "Restriction of processing",
+          "Data portability (export as CSV)"
+        ],
+        "exercise": "To exercise these rights please contact:"
+      },
+      "section7": {
+        "title": "7. Cookies",
+        "text": "Kivvi uses functional cookies only for authentication (session cookie). No tracking cookies, analytics cookies, or advertising cookies are used."
+      },
+      "section8": {
+        "title": "8. Changes to this policy",
+        "text": "We reserve the right to adjust this privacy policy as needed. The current version is always available on this page. Registered users will be informed by email of substantial changes."
+      },
+      "section9": {
+        "title": "9. Contact",
+        "text": "For questions about data protection:"
+      }
     }
   },
   "bulkActions": {

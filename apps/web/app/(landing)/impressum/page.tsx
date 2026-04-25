@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { CONTACT_EMAIL, buildPageMeta } from "@/lib/config/site";
 
 export const metadata: Metadata = {
@@ -10,33 +11,34 @@ export const metadata: Metadata = {
   ),
 };
 
-export default function ImpressumPage() {
+export default async function ImpressumPage() {
+  const t = await getTranslations("landing.impressum");
   return (
     <section className="mx-auto max-w-2xl py-16">
-      <h1 className="mb-8 text-3xl font-bold">Impressum</h1>
+      <h1 className="mb-8 text-3xl font-bold">{t("title")}</h1>
 
       <div className="space-y-8 text-sm text-muted-foreground leading-relaxed">
         <div>
           <h2 className="mb-2 text-base font-semibold text-foreground">
-            Anbieter
+            {t("providerHeader")}
           </h2>
           <p>
-            revamp-it Genossenschaft
+            {t("providerName")}
             <br />
-            Hardstrasse 41
+            {t("providerStreet")}
             <br />
-            8004 Zürich
+            {t("providerCity")}
             <br />
-            Schweiz
+            {t("providerCountry")}
           </p>
         </div>
 
         <div>
           <h2 className="mb-2 text-base font-semibold text-foreground">
-            Kontakt
+            {t("contactHeader")}
           </h2>
           <p>
-            E-Mail:{" "}
+            {t("emailLabel")}{" "}
             <a
               href={`mailto:${CONTACT_EMAIL}`}
               className="text-foreground hover:underline"
@@ -48,17 +50,17 @@ export default function ImpressumPage() {
 
         <div>
           <h2 className="mb-2 text-base font-semibold text-foreground">
-            Verantwortlich für den Inhalt
+            {t("responsibleHeader")}
           </h2>
-          <p>revamp-it Genossenschaft, Zürich</p>
+          <p>{t("responsibleText")}</p>
         </div>
 
         <div>
           <h2 className="mb-2 text-base font-semibold text-foreground">
-            Quellcode
+            {t("sourceCodeHeader")}
           </h2>
           <p>
-            Kivvi ist Open Source (MIT-Lizenz).{" "}
+            {t("sourceCodeText")}{" "}
             <a
               href="https://github.com/g-but/kivvi"
               target="_blank"
@@ -72,15 +74,9 @@ export default function ImpressumPage() {
 
         <div>
           <h2 className="mb-2 text-base font-semibold text-foreground">
-            Haftungsausschluss
+            {t("disclaimerHeader")}
           </h2>
-          <p>
-            Die Inhalte dieser Website wurden mit grösster Sorgfalt erstellt.
-            Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte
-            übernimmt revamp-it keine Gewähr. Als Diensteanbieter sind wir für
-            eigene Inhalte verantwortlich. Für externe Links übernehmen wir
-            keine Haftung; die Verantwortung liegt beim jeweiligen Anbieter.
-          </p>
+          <p>{t("disclaimerText")}</p>
         </div>
       </div>
     </section>

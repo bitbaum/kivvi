@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 import { CONTACT_EMAIL, buildPageMeta } from "@/lib/config/site";
 
 export const metadata: Metadata = {
@@ -11,152 +12,124 @@ export const metadata: Metadata = {
   ),
 };
 
-export default function DatenschutzPage() {
+function MailLink() {
+  return (
+    <a
+      href={`mailto:${CONTACT_EMAIL}`}
+      className="text-foreground hover:underline"
+    >
+      {CONTACT_EMAIL}
+    </a>
+  );
+}
+
+export default async function DatenschutzPage() {
+  const t = await getTranslations("landing.datenschutz");
+  const purposes = t.raw("section3.purposes") as string[];
+  const rights = t.raw("section6.rights") as string[];
+
   return (
     <section className="mx-auto max-w-2xl py-16">
-      <h1 className="mb-2 text-3xl font-bold">Datenschutzerklärung</h1>
-      <p className="mb-10 text-sm text-muted-foreground">
-        Gültig ab 1. Januar 2025 · Gemäss Schweizer Datenschutzgesetz (nDSG)
-      </p>
+      <h1 className="mb-2 text-3xl font-bold">{t("title")}</h1>
+      <p className="mb-10 text-sm text-muted-foreground">{t("validity")}</p>
 
       <div className="space-y-8 text-sm text-muted-foreground leading-relaxed">
         <div>
           <h2 className="mb-2 text-base font-semibold text-foreground">
-            1. Verantwortliche Stelle
+            {t("section1.title")}
           </h2>
           <p>
-            revamp-it Genossenschaft, Zürich, Schweiz
+            {t("section1.address")}
             <br />
-            E-Mail:{" "}
-            <a
-              href={`mailto:${CONTACT_EMAIL}`}
-              className="text-foreground hover:underline"
-            >
-              {CONTACT_EMAIL}
-            </a>
+            {t("section1.emailLabel")} <MailLink />
           </p>
         </div>
 
         <div>
           <h2 className="mb-2 text-base font-semibold text-foreground">
-            2. Welche Daten wir erheben
+            {t("section2.title")}
           </h2>
           <p className="mb-3">
-            <strong className="text-foreground">Kontodaten:</strong> Bei der
-            Registrierung erheben wir E-Mail-Adresse, Firmenname und ein
-            Passwort (gespeichert als Hashwert).
+            <strong className="text-foreground">
+              {t("section2.accountLabel")}
+            </strong>{" "}
+            {t("section2.accountText")}
           </p>
           <p className="mb-3">
-            <strong className="text-foreground">Nutzungsdaten:</strong> Die
-            Applikation speichert die von Ihnen eingegebenen Geschäftsdaten
-            (Kontakte, Produkte, Dokumente) — ausschliesslich zur Bereitstellung
-            des Dienstes.
+            <strong className="text-foreground">
+              {t("section2.usageLabel")}
+            </strong>{" "}
+            {t("section2.usageText")}
           </p>
           <p>
-            <strong className="text-foreground">Technische Logdaten:</strong>{" "}
-            Serverseitige Logs (IP-Adresse, Zeitstempel, aufgerufene URLs)
-            werden für maximal 30 Tage aufbewahrt und ausschliesslich zur
-            Fehlerdiagnose verwendet.
+            <strong className="text-foreground">
+              {t("section2.logsLabel")}
+            </strong>{" "}
+            {t("section2.logsText")}
           </p>
         </div>
 
         <div>
           <h2 className="mb-2 text-base font-semibold text-foreground">
-            3. Zweck der Datenbearbeitung
+            {t("section3.title")}
           </h2>
           <ul className="space-y-1 list-disc list-inside">
-            <li>Bereitstellung und Betrieb der Kivvi-Applikation</li>
-            <li>Authentifizierung und Zugriffskontrolle</li>
-            <li>Fehlerbehebung und Sicherheit</li>
-            <li>Beantwortung von Support-Anfragen</li>
+            {purposes.map((p) => (
+              <li key={p}>{p}</li>
+            ))}
           </ul>
-          <p className="mt-3">
-            Wir verwenden Ihre Daten nicht für Werbezwecke und geben sie nicht
-            an Dritte weiter.
-          </p>
+          <p className="mt-3">{t("section3.noAdvertising")}</p>
         </div>
 
         <div>
           <h2 className="mb-2 text-base font-semibold text-foreground">
-            4. Speicherort und Hosting
+            {t("section4.title")}
           </h2>
-          <p>
-            Alle Daten werden auf Servern in der Schweiz oder der EU
-            gespeichert. Bei Self-Hosting-Installationen obliegt die Wahl des
-            Speicherorts dem Betreiber der Instanz.
-          </p>
+          <p>{t("section4.text")}</p>
         </div>
 
         <div>
           <h2 className="mb-2 text-base font-semibold text-foreground">
-            5. Aufbewahrungsdauer
+            {t("section5.title")}
           </h2>
-          <p>
-            Kontodaten werden aufbewahrt, solange das Konto aktiv ist. Nach
-            Löschung des Kontos werden personenbezogene Daten innerhalb von 30
-            Tagen gelöscht, soweit keine gesetzlichen Aufbewahrungspflichten
-            bestehen (z.B. Buchführungspflicht nach OR 958f: 10 Jahre).
-          </p>
+          <p>{t("section5.text")}</p>
         </div>
 
         <div>
           <h2 className="mb-2 text-base font-semibold text-foreground">
-            6. Ihre Rechte
+            {t("section6.title")}
           </h2>
-          <p className="mb-3">Gemäss nDSG haben Sie das Recht auf:</p>
+          <p className="mb-3">{t("section6.intro")}</p>
           <ul className="space-y-1 list-disc list-inside">
-            <li>Auskunft über die zu Ihrer Person gespeicherten Daten</li>
-            <li>Berichtigung unrichtiger Daten</li>
-            <li>Löschung Ihrer Daten</li>
-            <li>Einschränkung der Bearbeitung</li>
-            <li>Datenübertragbarkeit (Export als CSV)</li>
+            {rights.map((r) => (
+              <li key={r}>{r}</li>
+            ))}
           </ul>
           <p className="mt-3">
-            Zur Ausübung dieser Rechte wenden Sie sich an:{" "}
-            <a
-              href={`mailto:${CONTACT_EMAIL}`}
-              className="text-foreground hover:underline"
-            >
-              {CONTACT_EMAIL}
-            </a>
+            {t("section6.exercise")} <MailLink />
           </p>
         </div>
 
         <div>
           <h2 className="mb-2 text-base font-semibold text-foreground">
-            7. Cookies
+            {t("section7.title")}
           </h2>
-          <p>
-            Kivvi verwendet ausschliesslich funktionale Cookies für die
-            Authentifizierung (Session-Cookie). Es werden keine
-            Tracking-Cookies, Analyse-Cookies oder Werbe-Cookies eingesetzt.
-          </p>
+          <p>{t("section7.text")}</p>
         </div>
 
         <div>
           <h2 className="mb-2 text-base font-semibold text-foreground">
-            8. Änderungen dieser Erklärung
+            {t("section8.title")}
           </h2>
-          <p>
-            Wir behalten uns vor, diese Datenschutzerklärung bei Bedarf
-            anzupassen. Die jeweils aktuelle Version ist auf dieser Seite
-            abrufbar. Bei wesentlichen Änderungen werden registrierte Nutzer per
-            E-Mail informiert.
-          </p>
+          <p>{t("section8.text")}</p>
         </div>
 
         <div>
           <h2 className="mb-2 text-base font-semibold text-foreground">
-            9. Kontakt
+            {t("section9.title")}
           </h2>
           <p>
-            Bei Fragen zum Datenschutz:{" "}
-            <a
-              href={`mailto:${CONTACT_EMAIL}`}
-              className="text-foreground hover:underline"
-            >
-              {CONTACT_EMAIL}
-            </a>
+            {t("section9.text")} <MailLink />
           </p>
         </div>
       </div>
