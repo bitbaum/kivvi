@@ -58,7 +58,7 @@ export function EditLineItemsTable({
                 />
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
                   <div>
-                    <label className="block text-xs text-muted-foreground">
+                    <label className="block text-sm text-muted-foreground">
                       {t("quantity")}
                     </label>
                     <FormInput
@@ -72,7 +72,7 @@ export function EditLineItemsTable({
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-muted-foreground">
+                    <label className="block text-sm text-muted-foreground">
                       {t("unitPrice")}
                     </label>
                     <FormInput
@@ -86,7 +86,7 @@ export function EditLineItemsTable({
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-muted-foreground">
+                    <label className="block text-sm text-muted-foreground">
                       {t("discount")} %
                     </label>
                     <FormInput
@@ -100,7 +100,7 @@ export function EditLineItemsTable({
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-muted-foreground">
+                    <label className="block text-sm text-muted-foreground">
                       {t("vatPercent")}
                     </label>
                     <FormSelect
@@ -118,7 +118,7 @@ export function EditLineItemsTable({
                     </FormSelect>
                   </div>
                   <div>
-                    <label className="block text-xs text-muted-foreground">
+                    <label className="block text-sm text-muted-foreground">
                       {tc("total")}
                     </label>
                     <p className="mt-1 rounded-lg border bg-muted/50 px-3 py-2 text-sm font-medium">

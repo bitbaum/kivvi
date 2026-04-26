@@ -93,7 +93,7 @@ export function RepairSection({
         <form onSubmit={handleRecord} className="space-y-3">
           <div className="grid gap-3 sm:grid-cols-3">
             <div>
-              <label className="mb-1 block text-xs font-medium text-muted-foreground">
+              <label className="mb-1 block text-sm font-medium text-muted-foreground">
                 {ti("costField")} *
               </label>
               <FormInput
@@ -105,7 +105,7 @@ export function RepairSection({
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-muted-foreground">
+              <label className="mb-1 block text-sm font-medium text-muted-foreground">
                 {ti("hours")}
               </label>
               <FormInput
@@ -116,7 +116,7 @@ export function RepairSection({
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-muted-foreground">
+              <label className="mb-1 block text-sm font-medium text-muted-foreground">
                 {ti("note")}
               </label>
               <FormInput

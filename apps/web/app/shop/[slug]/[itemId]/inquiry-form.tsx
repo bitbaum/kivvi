@@ -72,7 +72,7 @@ export function ShopInquiryForm({
       <h3 className="font-semibold">{t("title")}</h3>
 
       <div>
-        <label className="mb-1 block text-xs font-medium text-muted-foreground">
+        <label className="mb-1 block text-sm font-medium text-muted-foreground">
           {tCommon("name")} *
         </label>
         <input
@@ -86,7 +86,7 @@ export function ShopInquiryForm({
       </div>
 
       <div>
-        <label className="mb-1 block text-xs font-medium text-muted-foreground">
+        <label className="mb-1 block text-sm font-medium text-muted-foreground">
           {tCommon("email")} *
         </label>
         <input
@@ -100,7 +100,7 @@ export function ShopInquiryForm({
       </div>
 
       <div>
-        <label className="mb-1 block text-xs font-medium text-muted-foreground">
+        <label className="mb-1 block text-sm font-medium text-muted-foreground">
           {t("messageLabel")}
         </label>
         <textarea

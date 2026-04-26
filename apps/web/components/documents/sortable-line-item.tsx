@@ -102,7 +102,7 @@ export function SortableLineItem({
             className={`grid grid-cols-2 gap-3 ${hideFinancials ? "sm:grid-cols-1" : "sm:grid-cols-5"}`}
           >
             <div>
-              <label className="block text-xs text-muted-foreground">
+              <label className="block text-sm text-muted-foreground">
                 {t("quantity")}
               </label>
               <FormInput
@@ -139,7 +139,7 @@ export function SortableLineItem({
             {!hideFinancials && (
               <>
                 <div>
-                  <label className="block text-xs text-muted-foreground">
+                  <label className="block text-sm text-muted-foreground">
                     {priceLabel || t("unitPrice")}
                   </label>
                   <FormInput
@@ -159,7 +159,7 @@ export function SortableLineItem({
                   )}
                 </div>
                 <div>
-                  <label className="block text-xs text-muted-foreground">
+                  <label className="block text-sm text-muted-foreground">
                     {t("discount")} %
                   </label>
                   <FormInput
@@ -175,7 +175,7 @@ export function SortableLineItem({
                   />
                 </div>
                 <div>
-                  <label className="block text-xs text-muted-foreground">
+                  <label className="block text-sm text-muted-foreground">
                     {t("vatRate")} %
                   </label>
                   <FormSelect
@@ -193,7 +193,7 @@ export function SortableLineItem({
                   </FormSelect>
                 </div>
                 <div>
-                  <label className="block text-xs text-muted-foreground">
+                  <label className="block text-sm text-muted-foreground">
                     {tc("total")}
                   </label>
                   <div className="mt-1 rounded-lg border bg-muted px-3 py-2 text-sm font-medium">

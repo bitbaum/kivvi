@@ -113,7 +113,7 @@ export default function NewJournalEntryPage() {
                     <div className="flex-1 space-y-3">
                       {/* Account picker */}
                       <div className="relative">
-                        <label className="block text-xs text-muted-foreground">
+                        <label className="block text-sm text-muted-foreground">
                           {t("account")}
                         </label>
                         <div className="relative mt-1">
@@ -130,7 +130,7 @@ export default function NewJournalEntryPage() {
 
                       <div className="grid grid-cols-3 gap-3">
                         <div>
-                          <label className="block text-xs text-muted-foreground">
+                          <label className="block text-sm text-muted-foreground">
                             {t("debit")}
                           </label>
                           <FormInput
@@ -149,7 +149,7 @@ export default function NewJournalEntryPage() {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs text-muted-foreground">
+                          <label className="block text-sm text-muted-foreground">
                             {t("credit")}
                           </label>
                           <FormInput
@@ -168,7 +168,7 @@ export default function NewJournalEntryPage() {
                           />
                         </div>
                         <div>
-                          <label className="block text-xs text-muted-foreground">
+                          <label className="block text-sm text-muted-foreground">
                             {tc("description")}
                           </label>
                           <FormInput

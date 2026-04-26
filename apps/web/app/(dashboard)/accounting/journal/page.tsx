@@ -139,7 +139,7 @@ export default async function JournalPage({ searchParams }: PageProps) {
           <input type="hidden" name="sourceType" value={sourceType} />
         )}
         <div>
-          <label className="block text-xs text-muted-foreground mb-1">
+          <label className="block text-sm text-muted-foreground mb-1">
             {tc("date")}
           </label>
           <input
@@ -150,7 +150,7 @@ export default async function JournalPage({ searchParams }: PageProps) {
           />
         </div>
         <div>
-          <label className="block text-xs text-muted-foreground mb-1">
+          <label className="block text-sm text-muted-foreground mb-1">
             {tc("date")}
           </label>
           <input

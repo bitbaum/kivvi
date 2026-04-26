@@ -126,7 +126,7 @@ export function RepairPartsSection({
         >
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <label className="mb-1 block text-xs font-medium">
+              <label className="mb-1 block text-sm font-medium">
                 {t("repairPartDescription")}
                 <span className="text-destructive ml-0.5">*</span>
               </label>
@@ -148,7 +148,7 @@ export function RepairPartsSection({
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium">
+              <label className="mb-1 block text-sm font-medium">
                 {t("repairPartQuantity")}
               </label>
               <input
@@ -162,7 +162,7 @@ export function RepairPartsSection({
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium">
+              <label className="mb-1 block text-sm font-medium">
                 {t("repairPartUnitCost")}
                 <span className="text-destructive ml-0.5">*</span>
               </label>
@@ -178,7 +178,7 @@ export function RepairPartsSection({
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="mb-1 block text-xs font-medium">
+              <label className="mb-1 block text-sm font-medium">
                 {t("repairPartNotes")}
               </label>
               <input

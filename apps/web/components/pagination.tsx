@@ -1,5 +1,5 @@
-import Link from 'next/link';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PaginationProps {
   page: number;
@@ -32,9 +32,9 @@ export function Pagination({
     <div className="flex items-center justify-between border-t px-6 py-4">
       <p className="text-sm text-muted-foreground">
         {labels.showing
-          .replace('{from}', String(from))
-          .replace('{to}', String(to))
-          .replace('{total}', String(total))}
+          .replace("{from}", String(from))
+          .replace("{to}", String(to))
+          .replace("{total}", String(total))}
       </p>
       <div className="flex items-center gap-2">
         {page > 1 ? (
@@ -46,7 +46,10 @@ export function Pagination({
             {labels.previous}
           </Link>
         ) : (
-          <span className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border px-3 py-2 text-sm text-muted-foreground opacity-50">
+          <span
+            aria-disabled="true"
+            className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border border-border/40 px-3 py-2 text-sm text-muted-foreground/50 cursor-not-allowed"
+          >
             <ChevronLeft className="h-4 w-4" />
             {labels.previous}
           </span>
@@ -54,8 +57,8 @@ export function Pagination({
 
         <span className="text-sm text-muted-foreground">
           {labels.pageOf
-            .replace('{page}', String(page))
-            .replace('{totalPages}', String(totalPages))}
+            .replace("{page}", String(page))
+            .replace("{totalPages}", String(totalPages))}
         </span>
 
         {page < totalPages ? (
@@ -67,7 +70,10 @@ export function Pagination({
             <ChevronRight className="h-4 w-4" />
           </Link>
         ) : (
-          <span className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border px-3 py-2 text-sm text-muted-foreground opacity-50">
+          <span
+            aria-disabled="true"
+            className="inline-flex min-h-[44px] items-center gap-1 rounded-lg border border-border/40 px-3 py-2 text-sm text-muted-foreground/50 cursor-not-allowed"
+          >
             {labels.next}
             <ChevronRight className="h-4 w-4" />
           </span>

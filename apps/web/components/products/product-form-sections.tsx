@@ -197,7 +197,7 @@ export function ProductFormPricingSection({ product, isEdit }: SectionProps) {
           </p>
           <div className="mt-3 grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+              <label className="mb-1.5 block text-sm font-medium text-muted-foreground">
                 {t("minPrice")}
               </label>
               <FormInput
@@ -210,7 +210,7 @@ export function ProductFormPricingSection({ product, isEdit }: SectionProps) {
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+              <label className="mb-1.5 block text-sm font-medium text-muted-foreground">
                 {t("maxPrice")}
               </label>
               <FormInput
