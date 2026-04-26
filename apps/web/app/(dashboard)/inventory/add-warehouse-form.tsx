@@ -65,10 +65,14 @@ export function AddWarehouseForm() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">
+            <label
+              htmlFor="warehouse-name"
+              className="block text-sm font-medium mb-1"
+            >
               {t("warehouseName")} <span className="text-destructive">*</span>
             </label>
             <FormInput
+              id="warehouse-name"
               name="name"
               type="text"
               required
@@ -77,10 +81,14 @@ export function AddWarehouseForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">
+            <label
+              htmlFor="warehouse-address"
+              className="block text-sm font-medium mb-1"
+            >
               {t("location")}
             </label>
             <FormInput
+              id="warehouse-address"
               name="address"
               type="text"
               placeholder={t("locationPlaceholder")}
@@ -100,7 +108,9 @@ export function AddWarehouseForm() {
           </div>
 
           {error && (
-            <p className="text-sm text-destructive">{error}</p>
+            <p role="alert" className="text-sm text-destructive">
+              {error}
+            </p>
           )}
 
           <div className="flex gap-2 pt-2">

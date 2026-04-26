@@ -127,8 +127,11 @@ export function AddMovementForm({ warehouseId }: { warehouseId: string }) {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Product Picker */}
           <div className="relative">
-            <label className="mb-1 block text-sm font-medium">
-              Product <span className="text-destructive">*</span>
+            <label
+              htmlFor="add-movement-product-search"
+              className="mb-1 block text-sm font-medium"
+            >
+              {t("product")} <span className="text-destructive">*</span>
             </label>
             {selectedProduct ? (
               <div className="flex items-center justify-between rounded-lg border bg-background px-3 py-2">
@@ -155,6 +158,7 @@ export function AddMovementForm({ warehouseId }: { warehouseId: string }) {
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <FormInput
+                    id="add-movement-product-search"
                     type="text"
                     value={productSearch}
                     onChange={(e) => {
@@ -204,11 +208,14 @@ export function AddMovementForm({ warehouseId }: { warehouseId: string }) {
 
           {/* Movement Type */}
           <div>
-            <label className="mb-1 block text-sm font-medium">
+            <label
+              htmlFor="add-movement-type"
+              className="mb-1 block text-sm font-medium"
+            >
               {t("movementType")} <span className="text-destructive">*</span>
             </label>
-            <FormSelect name="type" required>
-              <option value="">Select type...</option>
+            <FormSelect id="add-movement-type" name="type" required>
+              <option value="">{tc("pleaseSelect")}</option>
               {movementTypeOptions.map((mt) => (
                 <option key={mt.value} value={mt.value}>
                   {mt.label}
@@ -219,10 +226,14 @@ export function AddMovementForm({ warehouseId }: { warehouseId: string }) {
 
           {/* Quantity */}
           <div>
-            <label className="mb-1 block text-sm font-medium">
-              Quantity <span className="text-destructive">*</span>
+            <label
+              htmlFor="add-movement-quantity"
+              className="mb-1 block text-sm font-medium"
+            >
+              {t("quantity")} <span className="text-destructive">*</span>
             </label>
             <FormInput
+              id="add-movement-quantity"
               name="quantity"
               type="number"
               required
@@ -237,10 +248,14 @@ export function AddMovementForm({ warehouseId }: { warehouseId: string }) {
 
           {/* Reference */}
           <div>
-            <label className="mb-1 block text-sm font-medium">
+            <label
+              htmlFor="add-movement-reference"
+              className="mb-1 block text-sm font-medium"
+            >
               {t("reference")}
             </label>
             <FormInput
+              id="add-movement-reference"
               name="reference"
               type="text"
               placeholder={t("placeholders.movementReference")}

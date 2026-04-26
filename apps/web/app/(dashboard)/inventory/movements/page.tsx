@@ -73,9 +73,9 @@ export default async function MovementsPage({ searchParams }: PageProps) {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         {/* Warehouse filter */}
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-muted-foreground">
+          <span className="text-sm font-medium text-muted-foreground">
             {t("warehouses")}:
-          </label>
+          </span>
           <div className="flex items-center gap-1 rounded-lg border bg-card p-1">
             <FilterLink
               href={buildFilterUrl({ type: typeFilter })}
@@ -95,9 +95,9 @@ export default async function MovementsPage({ searchParams }: PageProps) {
 
         {/* Type filter */}
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-muted-foreground">
+          <span className="text-sm font-medium text-muted-foreground">
             {tc("type")}:
-          </label>
+          </span>
           <div className="flex items-center gap-1 rounded-lg border bg-card p-1">
             <FilterLink
               href={buildFilterUrl({ warehouseId: warehouseFilter })}

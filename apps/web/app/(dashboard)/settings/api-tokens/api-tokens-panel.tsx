@@ -138,10 +138,14 @@ export function ApiTokensPanel({ initialTokens }: { initialTokens: Token[] }) {
         <div className="rounded-xl border bg-card p-6">
           <div className="flex items-end gap-3">
             <div className="flex-1">
-              <label className="mb-1.5 block text-sm font-medium">
+              <label
+                htmlFor="new-token-name"
+                className="mb-1.5 block text-sm font-medium"
+              >
                 {t("tokenName")}
               </label>
               <input
+                id="new-token-name"
                 type="text"
                 value={newTokenName}
                 onChange={(e) => setNewTokenName(e.target.value)}

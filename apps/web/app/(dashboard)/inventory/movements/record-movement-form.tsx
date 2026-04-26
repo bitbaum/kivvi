@@ -136,8 +136,11 @@ export function RecordMovementForm({
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Product Picker */}
           <div className="relative">
-            <label className="mb-1 block text-sm font-medium">
-              Product <span className="text-destructive">*</span>
+            <label
+              htmlFor="movement-product-search"
+              className="mb-1 block text-sm font-medium"
+            >
+              {t("product")} <span className="text-destructive">*</span>
             </label>
             {selectedProduct ? (
               <div className="flex items-center justify-between rounded-lg border bg-background px-3 py-2">
@@ -163,6 +166,7 @@ export function RecordMovementForm({
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <FormInput
+                    id="movement-product-search"
                     type="text"
                     value={productSearch}
                     onChange={(e) => {
@@ -212,11 +216,14 @@ export function RecordMovementForm({
 
           {/* Warehouse */}
           <div>
-            <label className="mb-1 block text-sm font-medium">
+            <label
+              htmlFor="movement-warehouse"
+              className="mb-1 block text-sm font-medium"
+            >
               {t("warehouses")} <span className="text-destructive">*</span>
             </label>
-            <FormSelect name="warehouseId" required>
-              <option value="">Select warehouse...</option>
+            <FormSelect id="movement-warehouse" name="warehouseId" required>
+              <option value="">{tc("pleaseSelect")}</option>
               {warehouses.map((wh) => (
                 <option key={wh.id} value={wh.id}>
                   {wh.name}
@@ -227,11 +234,14 @@ export function RecordMovementForm({
 
           {/* Movement Type */}
           <div>
-            <label className="mb-1 block text-sm font-medium">
+            <label
+              htmlFor="movement-type"
+              className="mb-1 block text-sm font-medium"
+            >
               {t("movementType")} <span className="text-destructive">*</span>
             </label>
-            <FormSelect name="type" required>
-              <option value="">Select type...</option>
+            <FormSelect id="movement-type" name="type" required>
+              <option value="">{tc("pleaseSelect")}</option>
               {movementTypeOptions.map((mt) => (
                 <option key={mt.value} value={mt.value}>
                   {mt.label}
@@ -242,10 +252,14 @@ export function RecordMovementForm({
 
           {/* Quantity */}
           <div>
-            <label className="mb-1 block text-sm font-medium">
-              Quantity <span className="text-destructive">*</span>
+            <label
+              htmlFor="movement-quantity"
+              className="mb-1 block text-sm font-medium"
+            >
+              {t("quantity")} <span className="text-destructive">*</span>
             </label>
             <FormInput
+              id="movement-quantity"
               name="quantity"
               type="number"
               required
@@ -260,17 +274,25 @@ export function RecordMovementForm({
 
           {/* Reference */}
           <div>
-            <label className="mb-1 block text-sm font-medium">
+            <label
+              htmlFor="movement-reference"
+              className="mb-1 block text-sm font-medium"
+            >
               {t("reference")}
             </label>
             <FormInput
+              id="movement-reference"
               name="reference"
               type="text"
               placeholder={t("placeholders.movementReference")}
             />
           </div>
 
-          {error && <p className="text-sm text-destructive">{error}</p>}
+          {error && (
+            <p role="alert" className="text-sm text-destructive">
+              {error}
+            </p>
+          )}
 
           <div className="flex gap-2 pt-2">
             <Button type="submit" disabled={isPending} className="flex-1">

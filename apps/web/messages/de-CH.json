@@ -152,7 +152,8 @@
       "journal": "Buchung"
     },
     "fileTooLarge": "Datei zu gross. Max {maxKB} KB.",
-    "removeImage": "Bild entfernen"
+    "removeImage": "Bild entfernen",
+    "pleaseSelect": "Bitte wählen…"
   },
   "nav": {
     "home": "Start",

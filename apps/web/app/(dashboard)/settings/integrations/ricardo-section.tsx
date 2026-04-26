@@ -77,10 +77,14 @@ export function RicardoSection({ hasApiKey }: Props) {
 
       <div className="mt-4 space-y-3">
         <div>
-          <label className="mb-1.5 block text-sm font-medium">
+          <label
+            htmlFor="ricardo-api-key"
+            className="mb-1.5 block text-sm font-medium"
+          >
             {t("apiKey")}
           </label>
           <input
+            id="ricardo-api-key"
             type="password"
             value={apiKey}
             onChange={(e) => setApiKey(e.target.value)}

@@ -152,7 +152,8 @@
       "journal": "Écriture"
     },
     "fileTooLarge": "Fichier trop grand. Max {maxKB} Ko.",
-    "removeImage": "Supprimer l'image"
+    "removeImage": "Supprimer l'image",
+    "pleaseSelect": "Veuillez choisir…"
   },
   "nav": {
     "home": "Accueil",
