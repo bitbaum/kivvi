@@ -179,7 +179,7 @@ export default async function JournalPage({ searchParams }: PageProps) {
             href={buildFilterUrl({ search, sourceType })}
             className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
-            Clear dates
+            {tc("clear")}
           </Link>
         )}
       </form>

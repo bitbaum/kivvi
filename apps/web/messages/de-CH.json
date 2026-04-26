@@ -1869,7 +1869,8 @@
       "eventItemStatusChanged": "Artikel-Status geändert",
       "eventDocumentCreated": "Dokument erstellt",
       "eventDocumentStatusChanged": "Dokument-Status geändert",
-      "eventPaymentReceived": "Zahlung eingegangen"
+      "eventPaymentReceived": "Zahlung eingegangen",
+      "events": "Ereignisse"
     },
     "integrations": {
       "title": "Integrationen",
@@ -2091,6 +2092,7 @@
     "freeModelSelected": "Gratis-Modell ausgewählt",
     "paidModel": "Kostenpflichtiges Modell — API-Schlüssel erforderlich",
     "selectModel": "Modell wählen",
+    "aiModel": "KI-Modell",
     "free": "Gratis",
     "freeModelsRateLimit": "Gratis-Modelle haben Ratenlimits. Lokale Modelle benötigen Ollama.",
     "suggestions": {

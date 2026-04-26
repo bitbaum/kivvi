@@ -29,6 +29,7 @@ export interface ContactTableTranslations {
   typeLabels: Record<string, string>;
   bulkLabels: Record<string, string>;
   quickActionLabels: {
+    ariaLabel: string;
     createInvoice: string;
     createQuote: string;
     createOrder: string;

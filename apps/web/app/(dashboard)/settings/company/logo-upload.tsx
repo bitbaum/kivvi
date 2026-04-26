@@ -78,7 +78,7 @@ export function LogoUpload({ initialLogoBase64, onError }: LogoUploadProps) {
               /* eslint-disable-next-line @next/next/no-img-element -- base64 data URI, next/image optimization not applicable */
               <img
                 src={logoPreview}
-                alt="Company logo"
+                alt={t("logo")}
                 className="max-h-20 max-w-40 object-contain"
               />
             ) : (

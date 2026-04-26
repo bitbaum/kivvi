@@ -143,6 +143,7 @@ export default async function ContactsPage({
   const typeLabels = getContactTypeLabels(t);
 
   const quickActionLabels = {
+    ariaLabel: tc("actions"),
     createInvoice: t("createInvoice"),
     createQuote: t("createQuote"),
     createOrder: t("createOrder"),

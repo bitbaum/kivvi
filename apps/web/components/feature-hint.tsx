@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { X, Sparkles } from "lucide-react";
 
 interface FeatureHintProps {
@@ -24,6 +25,7 @@ export function FeatureHint({
   actionLabel,
   onAction,
 }: FeatureHintProps) {
+  const tAria = useTranslations("common.aria");
   const [dismissed, setDismissed] = useState(true); // Start hidden to avoid flash
 
   useEffect(() => {
@@ -53,7 +55,7 @@ export function FeatureHint({
       <button
         onClick={handleDismiss}
         className="shrink-0 rounded-md p-1 text-muted-foreground hover:bg-muted"
-        aria-label="Dismiss"
+        aria-label={tAria("dismiss")}
       >
         <X className="h-3.5 w-3.5" />
       </button>

@@ -293,7 +293,9 @@ export function WebhooksPanel({ initialEndpoints }: Props) {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium">Events</label>
+            <label className="mb-2 block text-sm font-medium">
+              {t("events")}
+            </label>
             <div className="grid gap-2 sm:grid-cols-2">
               {WEBHOOK_EVENT_VALUES.map((ev) => (
                 <label

@@ -1869,7 +1869,8 @@
       "eventItemStatusChanged": "Item status changed",
       "eventDocumentCreated": "Document created",
       "eventDocumentStatusChanged": "Document status changed",
-      "eventPaymentReceived": "Payment received"
+      "eventPaymentReceived": "Payment received",
+      "events": "Events"
     },
     "integrations": {
       "title": "Integrations",
@@ -2091,6 +2092,7 @@
     "freeModelSelected": "Free model selected",
     "paidModel": "Paid model - API key required",
     "selectModel": "Select model",
+    "aiModel": "AI Model",
     "free": "Free",
     "freeModelsRateLimit": "Free models have rate limits. Local models require Ollama running.",
     "suggestions": {

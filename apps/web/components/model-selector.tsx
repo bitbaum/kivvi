@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import {
   ChevronDown,
   Cpu,
@@ -52,6 +53,7 @@ export function ModelSelector({
   disabled = false,
   fallbackLabel,
 }: ModelSelectorProps) {
+  const t = useTranslations("chat");
   const [isOpen, setIsOpen] = useState(false);
 
   // Find selected model info
@@ -98,11 +100,11 @@ export function ModelSelector({
         <span className="max-w-[120px] truncate">
           {selected?.name ||
             fallbackLabel ||
-            (models.length === 0 ? "AI Model" : "Select model")}
+            (models.length === 0 ? t("aiModel") : t("selectModel"))}
         </span>
         {selected?.isFree && (
           <span className="rounded bg-success/50/20 px-1.5 py-0.5 text-xs font-medium text-success">
-            Free
+            {t("free")}
           </span>
         )}
         <ChevronDown
@@ -138,7 +140,7 @@ export function ModelSelector({
                           <span className="truncate">{model.name}</span>
                           {model.isFree && (
                             <span className="rounded bg-success/50/20 px-1.5 py-0.5 text-xs font-medium text-success">
-                              Free
+                              {t("free")}
                             </span>
                           )}
                         </div>
@@ -154,7 +156,7 @@ export function ModelSelector({
           </div>
           <div className="border-t p-2">
             <p className="text-xs text-muted-foreground">
-              Free models have rate limits. Local models require Ollama running.
+              {t("freeModelsRateLimit")}
             </p>
           </div>
         </div>

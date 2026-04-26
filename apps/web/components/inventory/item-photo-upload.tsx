@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { ImageUpload } from "@/components/ui/image-upload";
 import {
   uploadItemPhotoAction,
@@ -15,13 +16,14 @@ export function ItemPhotoUpload({
   itemId,
   initialPhotoBase64,
 }: ItemPhotoUploadProps) {
+  const t = useTranslations("inventory");
   return (
     <ImageUpload
       currentImage={initialPhotoBase64}
       onUpload={(formData) => uploadItemPhotoAction(itemId, formData)}
       onRemove={() => removeItemPhotoAction(itemId)}
       fieldName="photo"
-      alt="Item photo"
+      alt={t("photo")}
     />
   );
 }
