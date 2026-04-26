@@ -20,22 +20,23 @@ import { ScenariosSection } from "./landing-scenarios-section";
 import { DeploymentOptionsSection } from "./landing-deployment-section";
 import { AIAutopilotSection } from "./landing-ai-section";
 
-const SOFTWARE_LD = {
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  name: "Kivvi",
-  applicationCategory: "BusinessApplication",
-  operatingSystem: "Web",
-  description:
-    "Das Betriebssystem der Kreislaufwirtschaft — Open-Source-ERP für Brockenhäuser, IT-Refurbisher, Repair Cafés und Vintage-Shops",
-  offers: { "@type": "Offer", price: "0", priceCurrency: "CHF" },
-  creator: {
-    "@type": "Organization",
-    name: "revamp-it",
-    url: "https://revamp-it.ch",
-  },
-  license: "https://opensource.org/licenses/MIT",
-};
+function buildSoftwareLd(description: string) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "Kivvi",
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web",
+    description,
+    offers: { "@type": "Offer", price: "0", priceCurrency: "CHF" },
+    creator: {
+      "@type": "Organization",
+      name: "revamp-it",
+      url: "https://revamp-it.ch",
+    },
+    license: "https://opensource.org/licenses/MIT",
+  };
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("landing.metadata");
@@ -52,11 +53,13 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function Home() {
   const t = await getTranslations("landing");
   const tVerticals = await getTranslations("landing.verticals");
+  const tMeta = await getTranslations("landing.metadata");
+  const softwareLd = buildSoftwareLd(tMeta("description"));
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(SOFTWARE_LD) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareLd) }}
       />
       {/* ============================================================ */}
       {/* HERO                                                         */}
