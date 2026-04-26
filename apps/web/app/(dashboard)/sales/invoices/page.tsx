@@ -1,11 +1,6 @@
 import { Download } from "lucide-react";
-import { getSessionOrRedirect } from "@/lib/session";
-import { listDocuments } from "@kivvi/core";
-import { db } from "@/lib/db";
-import { DOCUMENT_TYPES, DEFAULT_PAGE_SIZE } from "@/lib/config/document-types";
-import { DocumentList } from "@/components/documents/document-list";
-import type { DocumentStatus } from "@kivvi/database";
 import { getTranslations } from "next-intl/server";
+import { renderDocumentListPage } from "@/lib/render-document-list-page";
 
 interface PageProps {
   searchParams: Promise<{
@@ -16,38 +11,18 @@ interface PageProps {
 }
 
 export default async function InvoicesPage({ searchParams }: PageProps) {
-  const session = await getSessionOrRedirect();
   const tc = await getTranslations("common");
-  const params = await searchParams;
-  const page = parseInt(params.page || "1", 10);
-  const status = params.status as DocumentStatus | undefined;
-  const search = params.search;
-
-  const result = await listDocuments(db, session.user.companyId, {
-    type: "invoice",
-    status,
-    search,
-    page,
-    pageSize: DEFAULT_PAGE_SIZE,
+  return renderDocumentListPage("invoice", await searchParams, {
     sortBy: "issueDate",
     sortOrder: "desc",
+    headerActions: (
+      <a
+        href="/api/export/invoices"
+        className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2 text-sm font-medium hover:bg-accent transition-colors"
+      >
+        <Download className="h-4 w-4" />
+        {tc("exportCsv")}
+      </a>
+    ),
   });
-
-  return (
-    <DocumentList
-      config={DOCUMENT_TYPES.invoice}
-      result={result}
-      search={search}
-      status={status}
-      headerActions={
-        <a
-          href="/api/export/invoices"
-          className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2 text-sm font-medium hover:bg-accent transition-colors"
-        >
-          <Download className="h-4 w-4" />
-          {tc("exportCsv")}
-        </a>
-      }
-    />
-  );
 }

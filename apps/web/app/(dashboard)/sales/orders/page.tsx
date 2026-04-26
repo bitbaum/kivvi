@@ -1,33 +1,9 @@
-import { getSessionOrRedirect } from "@/lib/session";
-import { listDocuments } from "@kivvi/core";
-import { db } from "@/lib/db";
-import { DOCUMENT_TYPES, DEFAULT_PAGE_SIZE } from "@/lib/config/document-types";
-import { DocumentList } from "@/components/documents/document-list";
-import type { DocumentStatus } from "@kivvi/database";
+import { renderDocumentListPage } from "@/lib/render-document-list-page";
 
 interface PageProps {
   searchParams: Promise<{ search?: string; status?: string; page?: string }>;
 }
 
 export default async function OrdersPage({ searchParams }: PageProps) {
-  const session = await getSessionOrRedirect();
-  const params = await searchParams;
-  const config = DOCUMENT_TYPES.order;
-
-  const result = await listDocuments(db, session.user.companyId, {
-    type: "order",
-    status: params.status as DocumentStatus | undefined,
-    search: params.search,
-    page: parseInt(params.page || "1", 10),
-    pageSize: DEFAULT_PAGE_SIZE,
-  });
-
-  return (
-    <DocumentList
-      config={config}
-      result={result}
-      search={params.search}
-      status={params.status}
-    />
-  );
+  return renderDocumentListPage("order", await searchParams);
 }
