@@ -14,6 +14,24 @@ import { detectOverdueInvoices } from "./dunning";
 // TYPES
 // ============================================================================
 
+export interface AlertDraftBreakdown {
+  type: string;
+  count: number;
+  total: string;
+}
+
+export interface AlertLowStockProduct {
+  id: string;
+  name: string;
+  articleNumber: string | null;
+  stockQuantity: string | null;
+  minStock: number | null;
+}
+
+export type DashboardAlertMetadata =
+  | { breakdown: AlertDraftBreakdown[] }
+  | { products: AlertLowStockProduct[] };
+
 export interface DashboardAlert {
   id: string;
   type:
@@ -31,7 +49,7 @@ export interface DashboardAlert {
   count?: number;
   amount?: number;
   linkTo: string;
-  metadata?: Record<string, any>;
+  metadata?: DashboardAlertMetadata;
 }
 
 // ============================================================================
