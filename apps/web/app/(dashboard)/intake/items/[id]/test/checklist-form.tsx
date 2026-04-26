@@ -180,25 +180,37 @@ export function ChecklistForm({
 
       {/* Condition selector */}
       <div className="rounded-xl border bg-card p-4">
-        <label className="mb-2 block text-sm font-medium">
+        <span
+          id="checklist-condition-label"
+          className="mb-2 block text-sm font-medium"
+        >
           {tc("condition")}
-        </label>
-        <div className="flex flex-wrap gap-2">
-          {ITEM_CONDITION_VALUES.filter((c) => c !== "untested").map((c) => (
-            <button
-              key={c}
-              type="button"
-              onClick={() => setSelectedCondition(c)}
-              className={cn(
-                "rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors",
-                selectedCondition === c
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border bg-background hover:bg-muted",
-              )}
-            >
-              {tc(getConditionLabelKey(c))}
-            </button>
-          ))}
+        </span>
+        <div
+          role="radiogroup"
+          aria-labelledby="checklist-condition-label"
+          className="flex flex-wrap gap-2"
+        >
+          {ITEM_CONDITION_VALUES.filter((c) => c !== "untested").map((c) => {
+            const isSelected = selectedCondition === c;
+            return (
+              <button
+                key={c}
+                type="button"
+                role="radio"
+                aria-checked={isSelected}
+                onClick={() => setSelectedCondition(c)}
+                className={cn(
+                  "rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors",
+                  isSelected
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-background hover:bg-muted",
+                )}
+              >
+                {tc(getConditionLabelKey(c))}
+              </button>
+            );
+          })}
         </div>
         {!hasCondition && (
           <p className="mt-1.5 text-xs text-muted-foreground">

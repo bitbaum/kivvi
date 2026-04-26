@@ -116,11 +116,15 @@ export function RecurringConfigForm({
           </p>
         </div>
         <div className="p-6">
-          <label className="block text-sm font-medium mb-2">
+          <label
+            htmlFor="recurring-orderId"
+            className="block text-sm font-medium mb-2"
+          >
             {t("recurring.baseOrder")}{" "}
             <span className="text-destructive">*</span>
           </label>
           <FormSelect
+            id="recurring-orderId"
             name="orderId"
             required
             defaultValue={initialData?.orderId}
@@ -148,11 +152,15 @@ export function RecurringConfigForm({
         </div>
         <div className="grid gap-6 p-6 sm:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium mb-2">
+            <label
+              htmlFor="recurring-periodicity"
+              className="block text-sm font-medium mb-2"
+            >
               {t("recurring.periodicity.label")}{" "}
               <span className="text-destructive">*</span>
             </label>
             <FormSelect
+              id="recurring-periodicity"
               name="periodicity"
               required
               defaultValue={initialData?.periodicity || "monthly"}
@@ -170,11 +178,15 @@ export function RecurringConfigForm({
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">
+            <label
+              htmlFor="recurring-startDate"
+              className="block text-sm font-medium mb-2"
+            >
               {t("recurring.startDate")}{" "}
               <span className="text-destructive">*</span>
             </label>
             <FormInput
+              id="recurring-startDate"
               type="date"
               name="startDate"
               required
@@ -183,10 +195,14 @@ export function RecurringConfigForm({
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">
+            <label
+              htmlFor="recurring-endDate"
+              className="block text-sm font-medium mb-2"
+            >
               {t("recurring.endDate")}
             </label>
             <FormInput
+              id="recurring-endDate"
               type="date"
               name="endDate"
               defaultValue={initialData?.endDate || ""}
@@ -197,10 +213,14 @@ export function RecurringConfigForm({
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">
+            <label
+              htmlFor="recurring-autoExtensionMonths"
+              className="block text-sm font-medium mb-2"
+            >
               {t("recurring.autoExtension")}
             </label>
             <FormInput
+              id="recurring-autoExtensionMonths"
               type="number"
               name="autoExtensionMonths"
               min="1"
