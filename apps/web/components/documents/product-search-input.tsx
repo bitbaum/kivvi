@@ -41,6 +41,8 @@ interface ProductSearchInputProps {
   /** Called when a product or inventory item is selected from the dropdown */
   onProductSelect: (product: ProductResult) => void;
   placeholder?: string;
+  /** id attribute on the underlying input — pair with htmlFor on a sibling label */
+  inputId?: string;
   "data-item-id"?: string;
   "data-field"?: string;
 }
@@ -50,6 +52,7 @@ export function ProductSearchInput({
   onChange,
   onProductSelect,
   placeholder,
+  inputId,
   ...dataAttrs
 }: ProductSearchInputProps) {
   const t = useTranslations("inventory");
@@ -139,6 +142,7 @@ export function ProductSearchInput({
   return (
     <div className="relative" ref={dropdownRef}>
       <FormInput
+        id={inputId}
         type="text"
         value={value}
         onChange={handleChange}

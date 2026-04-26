@@ -126,11 +126,15 @@ export function RepairPartsSection({
         >
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="sm:col-span-2">
-              <label className="mb-1 block text-sm font-medium">
+              <label
+                htmlFor="repair-part-description"
+                className="mb-1 block text-sm font-medium"
+              >
                 {t("repairPartDescription")}
                 <span className="text-destructive ml-0.5">*</span>
               </label>
               <ProductSearchInput
+                inputId="repair-part-description"
                 value={description}
                 onChange={(val) => {
                   setDescription(val);
@@ -148,10 +152,14 @@ export function RepairPartsSection({
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium">
+              <label
+                htmlFor="repair-part-quantity"
+                className="mb-1 block text-sm font-medium"
+              >
                 {t("repairPartQuantity")}
               </label>
               <input
+                id="repair-part-quantity"
                 type="number"
                 step="0.0001"
                 min="0.0001"
@@ -162,11 +170,15 @@ export function RepairPartsSection({
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium">
+              <label
+                htmlFor="repair-part-unit-cost"
+                className="mb-1 block text-sm font-medium"
+              >
                 {t("repairPartUnitCost")}
                 <span className="text-destructive ml-0.5">*</span>
               </label>
               <input
+                id="repair-part-unit-cost"
                 type="number"
                 step="0.01"
                 min="0"
@@ -178,10 +190,14 @@ export function RepairPartsSection({
               />
             </div>
             <div className="sm:col-span-2">
-              <label className="mb-1 block text-sm font-medium">
+              <label
+                htmlFor="repair-part-notes"
+                className="mb-1 block text-sm font-medium"
+              >
                 {t("repairPartNotes")}
               </label>
               <input
+                id="repair-part-notes"
                 type="text"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}

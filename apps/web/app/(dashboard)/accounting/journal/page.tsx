@@ -139,10 +139,14 @@ export default async function JournalPage({ searchParams }: PageProps) {
           <input type="hidden" name="sourceType" value={sourceType} />
         )}
         <div>
-          <label className="block text-sm text-muted-foreground mb-1">
-            {tc("date")}
+          <label
+            htmlFor="journal-dateFrom"
+            className="block text-sm text-muted-foreground mb-1"
+          >
+            {tc("from")}
           </label>
           <input
+            id="journal-dateFrom"
             type="date"
             name="dateFrom"
             defaultValue={dateFrom}
@@ -150,10 +154,14 @@ export default async function JournalPage({ searchParams }: PageProps) {
           />
         </div>
         <div>
-          <label className="block text-sm text-muted-foreground mb-1">
-            {tc("date")}
+          <label
+            htmlFor="journal-dateTo"
+            className="block text-sm text-muted-foreground mb-1"
+          >
+            {tc("to")}
           </label>
           <input
+            id="journal-dateTo"
             type="date"
             name="dateTo"
             defaultValue={dateTo}
