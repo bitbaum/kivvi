@@ -58,10 +58,14 @@ export function EditLineItemsTable({
                 />
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
                   <div>
-                    <label className="block text-sm text-muted-foreground">
+                    <label
+                      htmlFor={`edit-quantity-${item.id}`}
+                      className="block text-sm text-muted-foreground"
+                    >
                       {t("quantity")}
                     </label>
                     <FormInput
+                      id={`edit-quantity-${item.id}`}
                       type="number"
                       step="0.01"
                       value={item.quantity}
@@ -72,10 +76,14 @@ export function EditLineItemsTable({
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-muted-foreground">
+                    <label
+                      htmlFor={`edit-unitPrice-${item.id}`}
+                      className="block text-sm text-muted-foreground"
+                    >
                       {t("unitPrice")}
                     </label>
                     <FormInput
+                      id={`edit-unitPrice-${item.id}`}
                       type="number"
                       step="0.01"
                       value={item.unitPrice}
@@ -86,10 +94,14 @@ export function EditLineItemsTable({
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-muted-foreground">
+                    <label
+                      htmlFor={`edit-discount-${item.id}`}
+                      className="block text-sm text-muted-foreground"
+                    >
                       {t("discount")} %
                     </label>
                     <FormInput
+                      id={`edit-discount-${item.id}`}
                       type="number"
                       step="0.1"
                       value={item.discount}
@@ -100,10 +112,14 @@ export function EditLineItemsTable({
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-muted-foreground">
+                    <label
+                      htmlFor={`edit-vatRate-${item.id}`}
+                      className="block text-sm text-muted-foreground"
+                    >
                       {t("vatPercent")}
                     </label>
                     <FormSelect
+                      id={`edit-vatRate-${item.id}`}
                       value={item.vatRate}
                       onChange={(e) =>
                         onUpdateItem(item.id, "vatRate", e.target.value)

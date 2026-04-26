@@ -93,10 +93,14 @@ export function RepairSection({
         <form onSubmit={handleRecord} className="space-y-3">
           <div className="grid gap-3 sm:grid-cols-3">
             <div>
-              <label className="mb-1 block text-sm font-medium text-muted-foreground">
+              <label
+                htmlFor="repair-cost"
+                className="mb-1 block text-sm font-medium text-muted-foreground"
+              >
                 {ti("costField")} *
               </label>
               <FormInput
+                id="repair-cost"
                 type="text"
                 value={cost}
                 onChange={(e) => setCost(e.target.value)}
@@ -105,10 +109,14 @@ export function RepairSection({
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-muted-foreground">
+              <label
+                htmlFor="repair-hours"
+                className="mb-1 block text-sm font-medium text-muted-foreground"
+              >
                 {ti("hours")}
               </label>
               <FormInput
+                id="repair-hours"
                 type="text"
                 value={hours}
                 onChange={(e) => setHours(e.target.value)}
@@ -116,10 +124,14 @@ export function RepairSection({
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-muted-foreground">
+              <label
+                htmlFor="repair-note"
+                className="mb-1 block text-sm font-medium text-muted-foreground"
+              >
                 {ti("note")}
               </label>
               <FormInput
+                id="repair-note"
                 type="text"
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
@@ -128,7 +140,9 @@ export function RepairSection({
             </div>
           </div>
           {repairError && (
-            <p className="text-xs text-destructive">{repairError}</p>
+            <p role="alert" className="text-sm text-destructive">
+              {repairError}
+            </p>
           )}
           <div className="flex justify-end">
             <Button type="submit" disabled={isRecording || !cost}>

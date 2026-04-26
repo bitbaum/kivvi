@@ -102,10 +102,14 @@ export function SortableLineItem({
             className={`grid grid-cols-2 gap-3 ${hideFinancials ? "sm:grid-cols-1" : "sm:grid-cols-5"}`}
           >
             <div>
-              <label className="block text-sm text-muted-foreground">
+              <label
+                htmlFor={`quantity-${item.id}`}
+                className="block text-sm text-muted-foreground"
+              >
                 {t("quantity")}
               </label>
               <FormInput
+                id={`quantity-${item.id}`}
                 type="number"
                 step="0.01"
                 value={item.quantity}
@@ -139,10 +143,14 @@ export function SortableLineItem({
             {!hideFinancials && (
               <>
                 <div>
-                  <label className="block text-sm text-muted-foreground">
+                  <label
+                    htmlFor={`unitPrice-${item.id}`}
+                    className="block text-sm text-muted-foreground"
+                  >
                     {priceLabel || t("unitPrice")}
                   </label>
                   <FormInput
+                    id={`unitPrice-${item.id}`}
                     type="number"
                     step="0.01"
                     value={item.unitPrice}
@@ -159,10 +167,14 @@ export function SortableLineItem({
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm text-muted-foreground">
+                  <label
+                    htmlFor={`discount-${item.id}`}
+                    className="block text-sm text-muted-foreground"
+                  >
                     {t("discount")} %
                   </label>
                   <FormInput
+                    id={`discount-${item.id}`}
                     type="number"
                     step="0.01"
                     min="0"
@@ -175,10 +187,14 @@ export function SortableLineItem({
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-muted-foreground">
+                  <label
+                    htmlFor={`vatRate-${item.id}`}
+                    className="block text-sm text-muted-foreground"
+                  >
                     {t("vatRate")} %
                   </label>
                   <FormSelect
+                    id={`vatRate-${item.id}`}
                     value={item.vatRate}
                     onChange={(e) =>
                       updateItem(item.id, "vatRate", e.target.value)

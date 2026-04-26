@@ -130,10 +130,14 @@ export default function NewJournalEntryPage() {
 
                       <div className="grid grid-cols-3 gap-3">
                         <div>
-                          <label className="block text-sm text-muted-foreground">
+                          <label
+                            htmlFor={`debit-${line.id}`}
+                            className="block text-sm text-muted-foreground"
+                          >
                             {t("debit")}
                           </label>
                           <FormInput
+                            id={`debit-${line.id}`}
                             type="number"
                             step="0.01"
                             min="0"
@@ -149,10 +153,14 @@ export default function NewJournalEntryPage() {
                           />
                         </div>
                         <div>
-                          <label className="block text-sm text-muted-foreground">
+                          <label
+                            htmlFor={`credit-${line.id}`}
+                            className="block text-sm text-muted-foreground"
+                          >
                             {t("credit")}
                           </label>
                           <FormInput
+                            id={`credit-${line.id}`}
                             type="number"
                             step="0.01"
                             min="0"
@@ -168,10 +176,14 @@ export default function NewJournalEntryPage() {
                           />
                         </div>
                         <div>
-                          <label className="block text-sm text-muted-foreground">
+                          <label
+                            htmlFor={`description-${line.id}`}
+                            className="block text-sm text-muted-foreground"
+                          >
                             {tc("description")}
                           </label>
                           <FormInput
+                            id={`description-${line.id}`}
                             type="text"
                             value={line.description}
                             onChange={(e) =>
