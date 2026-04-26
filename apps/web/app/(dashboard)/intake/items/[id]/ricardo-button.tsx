@@ -98,7 +98,11 @@ export function RicardoButton({
           {isExpired ? t("republish") : t("publish")}
         </button>
       )}
-      {error && <p className="text-xs text-destructive">{error}</p>}
+      {error && (
+        <p role="alert" className="text-sm text-destructive">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

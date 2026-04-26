@@ -241,7 +241,12 @@ export function WaitlistForm() {
         {t("submit")}
       </button>
       {error && (
-        <p className="w-full text-xs text-destructive sm:col-span-2">{error}</p>
+        <p
+          role="alert"
+          className="w-full text-sm text-destructive sm:col-span-2"
+        >
+          {error}
+        </p>
       )}
     </form>
   );

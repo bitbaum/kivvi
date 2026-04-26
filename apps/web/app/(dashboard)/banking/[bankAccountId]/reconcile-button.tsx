@@ -98,7 +98,10 @@ export function ReconcileButton({
   function handleReconcile(documentId: string) {
     setError(null);
     startTransition(async () => {
-      const res = await reconcileTransactionAction({ transactionId, documentId });
+      const res = await reconcileTransactionAction({
+        transactionId,
+        documentId,
+      });
       if (res.success) {
         setIsOpen(false);
         setSearch("");
@@ -134,7 +137,9 @@ export function ReconcileButton({
           {isPending ? "..." : t("unlink")}
         </button>
         {error && (
-          <p className="mt-1 text-xs text-destructive">{error}</p>
+          <p role="alert" className="mt-1 text-sm text-destructive">
+            {error}
+          </p>
         )}
       </div>
     );
@@ -216,7 +221,9 @@ export function ReconcileButton({
 
           {error && (
             <div className="border-t p-2">
-              <p className="text-xs text-destructive">{error}</p>
+              <p role="alert" className="text-sm text-destructive">
+                {error}
+              </p>
             </div>
           )}
         </div>

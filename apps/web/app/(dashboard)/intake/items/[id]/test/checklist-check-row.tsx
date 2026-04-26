@@ -156,8 +156,11 @@ export function CheckRow({ check, state, onChange, tl, tc }: CheckRowProps) {
 
       {/* Fail suggestion */}
       {state.result === "fail" && check.failSuggestsStatus && (
-        <div className="mt-2 flex items-center gap-1.5 text-xs text-destructive">
-          <AlertTriangle className="h-3 w-3" />
+        <div
+          role="alert"
+          className="mt-2 flex items-center gap-1.5 text-sm text-destructive"
+        >
+          <AlertTriangle className="h-3.5 w-3.5" />
           {tl("failSuggestion").replace("{status}", check.failSuggestsStatus)}
         </div>
       )}
