@@ -16,7 +16,7 @@ import { db } from "@/lib/db";
 import { getWarehouse, getStockLevelsByWarehouse } from "@kivvi/core";
 import { cn, isValidUUID } from "@/lib/utils";
 import { getTranslations } from "next-intl/server";
-import { AddMovementForm } from "./add-movement-form";
+import { MovementForm } from "@/components/inventory/movement-form";
 
 interface PageProps {
   params: Promise<{ warehouseId: string }>;
@@ -84,7 +84,7 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
               )}
             </div>
           </div>
-          <AddMovementForm warehouseId={warehouseId} />
+          <MovementForm warehouseId={warehouseId} />
         </div>
       </div>
 

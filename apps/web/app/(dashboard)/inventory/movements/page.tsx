@@ -8,7 +8,7 @@ import { listStockMovements, listWarehouses } from "@kivvi/core";
 import { formatDate, cn } from "@/lib/utils";
 import { getTranslations } from "next-intl/server";
 import { getMovementTypeLabels } from "@/lib/config/inventory";
-import { RecordMovementForm } from "./record-movement-form";
+import { MovementForm } from "@/components/inventory/movement-form";
 
 const TYPE_STYLES: Record<string, string> = {
   purchase: "bg-success/10 text-success",
@@ -65,7 +65,7 @@ export default async function MovementsPage({ searchParams }: PageProps) {
             <h1 className="text-3xl font-bold">{t("stockMovements")}</h1>
             <p className="text-muted-foreground">{t("subtitle")}</p>
           </div>
-          <RecordMovementForm warehouses={warehouses} />
+          <MovementForm warehouses={warehouses} />
         </div>
       </div>
 

@@ -22,11 +22,22 @@ interface Product {
   sku: string | null;
 }
 
-export function RecordMovementForm({
-  warehouses,
-}: {
-  warehouses: Warehouse[];
-}) {
+/**
+ * Single shared component for "record a stock movement" — used in two places:
+ *   - /inventory/movements (no fixed warehouse → renders the warehouse picker)
+ *   - /inventory/[warehouseId] (warehouse fixed by route → no picker)
+ *
+ * Pass `warehouseId` to lock the form to that warehouse. Pass `warehouses`
+ * (and omit warehouseId) to let the user choose. Exactly one of the two must
+ * be provided.
+ */
+export type MovementFormProps =
+  | { warehouseId: string; warehouses?: never }
+  | { warehouseId?: never; warehouses: Warehouse[] };
+
+export function MovementForm(props: MovementFormProps) {
+  const fixedWarehouseId = props.warehouseId;
+  const warehouses = props.warehouseId ? null : props.warehouses;
   const router = useRouter();
   const t = useTranslations("inventory");
   const tc = useTranslations("common");
@@ -78,9 +89,12 @@ export function RecordMovementForm({
     }
 
     const formData = new FormData(e.currentTarget);
+    const warehouseId =
+      fixedWarehouseId ?? (formData.get("warehouseId") as string);
+
     const input = {
       productId: selectedProduct.id,
-      warehouseId: formData.get("warehouseId") as string,
+      warehouseId,
       type: formData.get("type") as string,
       quantity: formData.get("quantity") as string,
       reference: (formData.get("reference") as string) || undefined,
@@ -150,16 +164,17 @@ export function RecordMovementForm({
                     {selectedProduct.articleNumber || selectedProduct.sku || ""}
                   </p>
                 </div>
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="icon-sm"
                   onClick={() => {
                     setSelectedProduct(null);
                     setProductSearch("");
                   }}
-                  className="rounded p-0.5 hover:bg-muted"
                 >
                   <X className="h-3.5 w-3.5" />
-                </button>
+                </Button>
               </div>
             ) : (
               <>
@@ -214,23 +229,25 @@ export function RecordMovementForm({
             )}
           </div>
 
-          {/* Warehouse */}
-          <div>
-            <label
-              htmlFor="movement-warehouse"
-              className="mb-1 block text-sm font-medium"
-            >
-              {t("warehouses")} <span className="text-destructive">*</span>
-            </label>
-            <FormSelect id="movement-warehouse" name="warehouseId" required>
-              <option value="">{tc("pleaseSelect")}</option>
-              {warehouses.map((wh) => (
-                <option key={wh.id} value={wh.id}>
-                  {wh.name}
-                </option>
-              ))}
-            </FormSelect>
-          </div>
+          {/* Warehouse selector — only when no fixed warehouseId */}
+          {warehouses && (
+            <div>
+              <label
+                htmlFor="movement-warehouse"
+                className="mb-1 block text-sm font-medium"
+              >
+                {t("warehouses")} <span className="text-destructive">*</span>
+              </label>
+              <FormSelect id="movement-warehouse" name="warehouseId" required>
+                <option value="">{tc("pleaseSelect")}</option>
+                {warehouses.map((wh) => (
+                  <option key={wh.id} value={wh.id}>
+                    {wh.name}
+                  </option>
+                ))}
+              </FormSelect>
+            </div>
+          )}
 
           {/* Movement Type */}
           <div>
