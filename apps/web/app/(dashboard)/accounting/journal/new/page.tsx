@@ -56,10 +56,14 @@ export default function NewJournalEntryPage() {
           <div className="rounded-xl border bg-card p-6 space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium">
+                <label
+                  htmlFor="journal-entry-date"
+                  className="block text-sm font-medium"
+                >
                   {tc("date")}
                 </label>
                 <FormInput
+                  id="journal-entry-date"
                   type="date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
@@ -67,10 +71,14 @@ export default function NewJournalEntryPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium">
+                <label
+                  htmlFor="journal-entry-reference"
+                  className="block text-sm font-medium"
+                >
                   {t("reference")}
                 </label>
                 <FormInput
+                  id="journal-entry-reference"
                   type="text"
                   value={reference}
                   onChange={(e) => setReference(e.target.value)}
@@ -80,10 +88,14 @@ export default function NewJournalEntryPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium">
+              <label
+                htmlFor="journal-entry-description"
+                className="block text-sm font-medium"
+              >
                 {tc("description")}
               </label>
               <FormInput
+                id="journal-entry-description"
                 type="text"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}

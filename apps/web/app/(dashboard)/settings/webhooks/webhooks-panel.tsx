@@ -209,8 +209,14 @@ export function WebhooksPanel({ initialEndpoints }: Props) {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block text-sm font-medium">Name</label>
+              <label
+                htmlFor="webhook-name"
+                className="mb-1 block text-sm font-medium"
+              >
+                Name
+              </label>
               <input
+                id="webhook-name"
                 type="text"
                 value={formState.name}
                 onChange={(e) =>
@@ -222,8 +228,14 @@ export function WebhooksPanel({ initialEndpoints }: Props) {
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium">URL</label>
+              <label
+                htmlFor="webhook-url"
+                className="mb-1 block text-sm font-medium"
+              >
+                URL
+              </label>
               <input
+                id="webhook-url"
                 type="url"
                 value={formState.url}
                 onChange={(e) =>
@@ -236,10 +248,16 @@ export function WebhooksPanel({ initialEndpoints }: Props) {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium">Secret</label>
+            <label
+              htmlFor="webhook-secret"
+              className="mb-1 block text-sm font-medium"
+            >
+              Secret
+            </label>
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <input
+                  id="webhook-secret"
                   type={showSecret ? "text" : "password"}
                   value={formState.secret}
                   onChange={(e) =>
