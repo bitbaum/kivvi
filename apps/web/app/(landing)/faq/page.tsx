@@ -1,20 +1,22 @@
 import Link from "next/link";
 import { ArrowRight, HelpCircle } from "lucide-react";
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { buildPageMeta } from "@/lib/config/site";
 import { buildOrganizationLd, buildFaqPageLd, type FaqGroup } from "./faq-data";
 
-export const metadata: Metadata = {
-  title: "FAQ — Häufige Fragen zu Kivvi",
-  description:
-    "Antworten auf die häufigsten Fragen zu Kivvi: Kosten, Self-Hosting, Unterschied zu Bexio und Kivitendo, Kreislaufwirtschaft, QR-Rechnungen, Datenschutz und mehr.",
-  ...buildPageMeta(
-    "FAQ — Häufige Fragen zu Kivvi",
-    "Antworten auf die häufigsten Fragen zu Kivvi: Kosten, Self-Hosting, Unterschied zu Bexio und Kivitendo, Kreislaufwirtschaft, QR-Rechnungen, Datenschutz und mehr.",
-  ),
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("landing.faq.metadata");
+  const locale = await getLocale();
+  const title = t("title");
+  const description = t("description");
+  return {
+    title,
+    description,
+    ...buildPageMeta(title, description, locale),
+  };
+}
 
 export default async function FaqPage() {
   const t = await getTranslations("landing.faq");

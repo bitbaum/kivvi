@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Monitor } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { SeeAlsoSection } from "@/components/landing/see-also-section";
 import { PainList } from "@/components/landing/pain-list";
 import { SolutionList } from "@/components/landing/solution-list";
@@ -8,15 +8,17 @@ import { LandingCtaSection } from "@/components/landing/landing-cta-section";
 import { buildPageMeta } from "@/lib/config/site";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Kivvi für IT-Refurbisher & Computer-Recycler",
-  description:
-    "Einzelartikel-Tracking, Reparaturkosten pro Gerät, echte Marge — und CSV-Migration aus Kivitendo. Das ERP für IT-Refurbisher.",
-  ...buildPageMeta(
-    "Kivvi für IT-Refurbisher & Computer-Recycler",
-    "Einzelartikel-Tracking, Reparaturkosten pro Gerät, echte Marge — und CSV-Migration aus Kivitendo. Das ERP für IT-Refurbisher.",
-  ),
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("landing.forItRefurbishers.metadata");
+  const locale = await getLocale();
+  const title = t("title");
+  const description = t("description");
+  return {
+    title,
+    description,
+    ...buildPageMeta(title, description, locale),
+  };
+}
 
 export default async function ForItRefurbishersPage() {
   const t = await getTranslations("landing.forItRefurbishers");

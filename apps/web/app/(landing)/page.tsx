@@ -10,7 +10,7 @@ import {
   ClipboardCheck,
 } from "lucide-react";
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { VERTICALS, buildPageMeta } from "@/lib/config/site";
 import { PainList } from "@/components/landing/pain-list";
 import { LandingCtaSection } from "@/components/landing/landing-cta-section";
@@ -37,15 +37,17 @@ const SOFTWARE_LD = {
   license: "https://opensource.org/licenses/MIT",
 };
 
-export const metadata: Metadata = {
-  title: "Kivvi — Das Betriebssystem der Kreislaufwirtschaft",
-  description:
-    "Kivvi ist das Open-Source-ERP für Brockenhäuser, IT-Refurbisher, Repair Cafés und Vintage-Shops. Einzelartikel-Tracking, KI-Schnelleingabe, Schweizer QR-Rechnungen — das Betriebssystem für Kreislaufbetriebe.",
-  ...buildPageMeta(
-    "Kivvi — Das Betriebssystem der Kreislaufwirtschaft",
-    "Kivvi ist das Open-Source-ERP für Brockenhäuser, IT-Refurbisher, Repair Cafés und Vintage-Shops. Einzelartikel-Tracking, KI-Schnelleingabe, Schweizer QR-Rechnungen — das Betriebssystem für Kreislaufbetriebe.",
-  ),
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("landing.metadata");
+  const locale = await getLocale();
+  const title = t("title");
+  const description = t("description");
+  return {
+    title,
+    description,
+    ...buildPageMeta(title, description, locale),
+  };
+}
 
 export default async function Home() {
   const t = await getTranslations("landing");

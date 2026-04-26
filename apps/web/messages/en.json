@@ -2285,7 +2285,11 @@
         ]
       },
       "ctaTitle": "Questions about hosting or enterprise?",
-      "ctaDescription": "Reach out — we'll help you find the right option for your business."
+      "ctaDescription": "Reach out — we'll help you find the right option for your business.",
+      "metadata": {
+        "title": "Pricing — Kivvi ERP",
+        "description": "Kivvi is fully open source and free to self-host. Or use our managed cloud for CHF 49/month — hosted in Switzerland, operated by revamp-it."
+      }
     },
     "faq": {
       "hero": {
@@ -2455,7 +2459,11 @@
         "linkHowItWorks": "How it works →",
         "linkKnowledge": "Knowledge base →"
       },
-      "organizationDescription": "IT refurbisher and developer of Kivvi ERP"
+      "organizationDescription": "IT refurbisher and developer of Kivvi ERP",
+      "metadata": {
+        "title": "FAQ — Frequently asked questions about Kivvi",
+        "description": "Answers to the most common questions about Kivvi: cost, self-hosting, the difference vs. Bexio and Kivitendo, circular economy, QR invoices, data protection, and more."
+      }
     },
     "contact": {
       "title": "Request a demo",
@@ -2500,6 +2508,10 @@
         "emailPlaceholder": "you@email.com",
         "submit": "Join waitlist",
         "successMessage": "You're on the waitlist. We'll be in touch!"
+      },
+      "metadata": {
+        "title": "Request a demo — Kivvi ERP",
+        "description": "Request a demo or get started directly. Kivvi is the open-source ERP for thrift stores, IT refurbishers, repair cafés, and vintage shops — Swiss-native, MIT-licensed."
       }
     },
     "howItWorks": {
@@ -2579,7 +2591,11 @@
         ]
       },
       "ctaTitle": "Ready for your business?",
-      "ctaDescription": "Reach out or sign up directly — the first demo is free."
+      "ctaDescription": "Reach out or sign up directly — the first demo is free.",
+      "metadata": {
+        "title": "How Kivvi works — Three phases, one system",
+        "description": "Intake, grading & repair, sale & impact — Kivvi accompanies every item from donation to sale. Per-item tracking for circular businesses."
+      }
     },
     "seeAlso": {
       "title": "Also interesting"
@@ -2619,7 +2635,11 @@
         "stat3Label": "Data in your hands"
       },
       "ctaTitle": "Demo for thrift stores",
-      "ctaDescription": "We'll show you how Kivvi works in your thrift store — free and no commitment."
+      "ctaDescription": "We'll show you how Kivvi works in your thrift store — free and no commitment.",
+      "metadata": {
+        "title": "Kivvi for thrift stores & social department stores",
+        "description": "Donation receipts at the press of a button, donor management, impact evidence for grant applications — CHF 0 license cost."
+      }
     },
     "verticals": {
       "it-refurbishers": {
@@ -2716,7 +2736,11 @@
         "stat3Label": "Open source"
       },
       "ctaTitle": "Demo for IT refurbishers",
-      "ctaDescription": "Show us your current workflow — we'll show you how Kivvi maps it."
+      "ctaDescription": "Show us your current workflow — we'll show you how Kivvi maps it.",
+      "metadata": {
+        "title": "Kivvi for IT refurbishers & computer recyclers",
+        "description": "Per-item tracking, repair costs per device, real margins — and CSV migration from Kivitendo. The ERP for IT refurbishers."
+      }
     },
     "forRepairCafes": {
       "hero": {
@@ -2758,7 +2782,11 @@
         "step3Desc": "QR invoice or confirmation (for volunteer repair), impact recorded"
       },
       "ctaTitle": "Demo for repair cafés",
-      "ctaDescription": "Free and no commitment — we'll show you how Kivvi digitises your repair operation."
+      "ctaDescription": "Free and no commitment — we'll show you how Kivvi digitises your repair operation.",
+      "metadata": {
+        "title": "Kivvi for repair cafés & workshops",
+        "description": "Per-device repair log, hours tracking, impact evidence for grant applications — for repair cafés and workshops."
+      }
     },
     "forVintage": {
       "hero": {
@@ -2801,7 +2829,11 @@
         }
       },
       "ctaTitle": "Demo for vintage shops",
-      "ctaDescription": "Show us your business — we'll show you how Kivvi maps it."
+      "ctaDescription": "Show us your business — we'll show you how Kivvi maps it.",
+      "metadata": {
+        "title": "Kivvi for vintage shops & clothing exchanges",
+        "description": "Per-item tracking, consignment settlement, condition grading for clothing — without Excel."
+      }
     },
     "aiAutopilot": {
       "title": "Your business on autopilot",
@@ -2912,6 +2944,10 @@
         "description": "Request a demo or just try it — the first setup takes 10 minutes.",
         "linkHowItWorks": "How it works →",
         "linkCircularEconomy": "Understand the circular economy →"
+      },
+      "metadata": {
+        "title": "Why Kivvi — ERP for circular businesses",
+        "description": "8 dimensions where standard ERPs structurally fail circular businesses — and how Kivvi as the operating system for the circular economy answers."
       }
     },
     "circularEconomy": {
@@ -3086,6 +3122,10 @@
           "description": "The three phases — intake, grading & repair, sale & impact — in detail.",
           "cta": "How it works"
         }
+      },
+      "metadata": {
+        "title": "Understand the circular economy — Kivvi",
+        "description": "Who are the participants in the circular economy? What business models exist? What makes it fundamentally different from the linear economy?"
       }
     },
     "about": {
@@ -3122,6 +3162,10 @@
         "paragraph3": "Community contributors are welcome. If you work in a circular business and have ideas to make Kivvi better — we listen.",
         "ctaContact": "Get in touch",
         "ctaCircularEconomy": "Understand the circular economy"
+      },
+      "metadata": {
+        "title": "About Kivvi — The operating system for the global circular economy",
+        "description": "Kivvi is the open-source ERP for circular businesses worldwide — developed from real operations, built for thrift stores, IT refurbishers, repair cafés, and vintage shops."
       }
     },
     "impressum": {
@@ -3138,7 +3182,11 @@
       "sourceCodeHeader": "Source code",
       "sourceCodeText": "Kivvi is open source (MIT license).",
       "disclaimerHeader": "Disclaimer",
-      "disclaimerText": "The content on this website was prepared with the greatest care. revamp-it makes no guarantees regarding the accuracy, completeness, or timeliness of the content. As a service provider we are responsible for our own content. For external links we accept no liability; responsibility lies with the respective provider."
+      "disclaimerText": "The content on this website was prepared with the greatest care. revamp-it makes no guarantees regarding the accuracy, completeness, or timeliness of the content. As a service provider we are responsible for our own content. For external links we accept no liability; responsibility lies with the respective provider.",
+      "metadata": {
+        "title": "Imprint — Kivvi",
+        "description": "Provider information for Kivvi as required by Swiss imprint law."
+      }
     },
     "roadmap": {
       "hero": {
@@ -3426,6 +3474,10 @@
         "openSourceLink": "Contributions welcome.",
         "suggestText": "Missing something on this list?",
         "suggestLink": "Write to us."
+      },
+      "metadata": {
+        "title": "Roadmap & comparison — Kivvi",
+        "description": "Why existing ERPs fail the circular economy, what Kivvi does today, and what's next."
       }
     },
     "knowledge": {
@@ -3467,6 +3519,11 @@
         "footerCtaTitle": "More from the knowledge base",
         "footerCtaDescription": "More articles on operations, compliance, and impact in the circular economy.",
         "footerCtaButton": "See all articles →"
+      },
+      "metadata": {
+        "title": "Knowledge for circular businesses — Kivvi knowledge base",
+        "description": "Practical knowledge on condition grading, impact measurement, donation receipts, and QR invoices — developed from running one of Switzerland's largest IT refurbishers.",
+        "knowledgeBaseSuffix": "Kivvi knowledge base"
       }
     },
     "datenschutz": {
@@ -3527,7 +3584,15 @@
       "section9": {
         "title": "9. Contact",
         "text": "For questions about data protection:"
+      },
+      "metadata": {
+        "title": "Privacy policy — Kivvi",
+        "description": "Kivvi's privacy policy in accordance with the Swiss Federal Act on Data Protection (FADP)."
       }
+    },
+    "metadata": {
+      "title": "Kivvi — The operating system for the circular economy",
+      "description": "Kivvi is the open-source ERP for thrift stores, IT refurbishers, repair cafés, and vintage shops. Per-item tracking, AI quick entry, Swiss QR invoices — the operating system for circular businesses."
     }
   },
   "bulkActions": {

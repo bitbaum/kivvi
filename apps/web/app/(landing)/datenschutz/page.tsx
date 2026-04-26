@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { CONTACT_EMAIL, buildPageMeta } from "@/lib/config/site";
 
-export const metadata: Metadata = {
-  title: "Datenschutzerklärung — Kivvi",
-  description:
-    "Datenschutzerklärung von Kivvi gemäss Schweizer Datenschutzgesetz (nDSG).",
-  ...buildPageMeta(
-    "Datenschutzerklärung — Kivvi",
-    "Datenschutzerklärung von Kivvi gemäss Schweizer Datenschutzgesetz (nDSG).",
-  ),
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("landing.datenschutz.metadata");
+  const locale = await getLocale();
+  const title = t("title");
+  const description = t("description");
+  return {
+    title,
+    description,
+    ...buildPageMeta(title, description, locale),
+  };
+}
 
 function MailLink() {
   return (

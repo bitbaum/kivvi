@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { CONTACT_EMAIL, buildPageMeta } from "@/lib/config/site";
 
-export const metadata: Metadata = {
-  title: "Impressum — Kivvi",
-  description: "Angaben zum Anbieter von Kivvi gemäss Impressumspflicht.",
-  ...buildPageMeta(
-    "Impressum — Kivvi",
-    "Angaben zum Anbieter von Kivvi gemäss Impressumspflicht.",
-  ),
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("landing.impressum.metadata");
+  const locale = await getLocale();
+  const title = t("title");
+  const description = t("description");
+  return {
+    title,
+    description,
+    ...buildPageMeta(title, description, locale),
+  };
+}
 
 export default async function ImpressumPage() {
   const t = await getTranslations("landing.impressum");

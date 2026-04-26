@@ -1,5 +1,5 @@
 import { Shirt } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { SeeAlsoSection } from "@/components/landing/see-also-section";
 import { PainList } from "@/components/landing/pain-list";
 import { SolutionList } from "@/components/landing/solution-list";
@@ -11,15 +11,17 @@ import {
 } from "@/lib/config/site";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Kivvi für Vintage-Shops & Kleiderbörsen",
-  description:
-    "Einzelartikel-Tracking, Kommissions-Abrechnung, Zustandsbewertung für Kleidung — ohne Excel.",
-  ...buildPageMeta(
-    "Kivvi für Vintage-Shops & Kleiderbörsen",
-    "Einzelartikel-Tracking, Kommissions-Abrechnung, Zustandsbewertung für Kleidung — ohne Excel.",
-  ),
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("landing.forVintage.metadata");
+  const locale = await getLocale();
+  const title = t("title");
+  const description = t("description");
+  return {
+    title,
+    description,
+    ...buildPageMeta(title, description, locale),
+  };
+}
 
 // Text colors matching CONDITION_GRADES order (green/blue/amber/orange/red).
 const CLOTHING_TEXT_COLORS = [

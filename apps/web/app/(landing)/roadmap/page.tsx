@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Check, Minus, X, Heart, ArrowRight, ExternalLink } from "lucide-react";
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { buildPageMeta } from "@/lib/config/site";
 import {
   COMPETITOR_KEYS,
@@ -13,15 +13,17 @@ import {
   type Support,
 } from "./roadmap-data";
 
-export const metadata: Metadata = {
-  title: "Roadmap & Vergleich — Kivvi",
-  description:
-    "Warum bestehende ERPs für die Kreislaufwirtschaft scheitern, was Kivvi heute kann, und was als Nächstes kommt.",
-  ...buildPageMeta(
-    "Roadmap & Vergleich — Kivvi",
-    "Warum bestehende ERPs für die Kreislaufwirtschaft scheitern, was Kivvi heute kann, und was als Nächstes kommt.",
-  ),
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("landing.roadmap.metadata");
+  const locale = await getLocale();
+  const title = t("title");
+  const description = t("description");
+  return {
+    title,
+    description,
+    ...buildPageMeta(title, description, locale),
+  };
+}
 
 interface Competitor {
   key: CompetitorKey;

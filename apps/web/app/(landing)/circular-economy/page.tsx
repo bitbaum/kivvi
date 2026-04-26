@@ -1,19 +1,21 @@
 import Link from "next/link";
 import { ArrowRight, Recycle } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { buildPageMeta } from "@/lib/config/site";
 import type { Metadata } from "next";
 import { PARTICIPANT_HREFS } from "./circular-economy-data";
 
-export const metadata: Metadata = {
-  title: "Kreislaufwirtschaft verstehen — Kivvi",
-  description:
-    "Wer sind die Teilnehmer der Kreislaufwirtschaft? Welche Geschäftsmodelle gibt es? Was macht sie fundamentell anders als die Linearwirtschaft?",
-  ...buildPageMeta(
-    "Kreislaufwirtschaft verstehen — Kivvi",
-    "Wer sind die Teilnehmer der Kreislaufwirtschaft? Welche Geschäftsmodelle gibt es? Was macht sie fundamentell anders als die Linearwirtschaft?",
-  ),
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("landing.circularEconomy.metadata");
+  const locale = await getLocale();
+  const title = t("title");
+  const description = t("description");
+  return {
+    title,
+    description,
+    ...buildPageMeta(title, description, locale),
+  };
+}
 
 interface Participant {
   id: string;

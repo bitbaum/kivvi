@@ -1,5 +1,5 @@
 import { Wrench } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { SeeAlsoSection } from "@/components/landing/see-also-section";
 import { PainList } from "@/components/landing/pain-list";
 import { SolutionList } from "@/components/landing/solution-list";
@@ -7,15 +7,17 @@ import { LandingCtaSection } from "@/components/landing/landing-cta-section";
 import { buildPageMeta } from "@/lib/config/site";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Kivvi für Repair Cafés & Werkstätten",
-  description:
-    "Reparaturprotokoll pro Gerät, Stunden-Tracking, Impact-Nachweis für Förderanträge — für Repair Cafés und Werkstätten.",
-  ...buildPageMeta(
-    "Kivvi für Repair Cafés & Werkstätten",
-    "Reparaturprotokoll pro Gerät, Stunden-Tracking, Impact-Nachweis für Förderanträge — für Repair Cafés und Werkstätten.",
-  ),
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("landing.forRepairCafes.metadata");
+  const locale = await getLocale();
+  const title = t("title");
+  const description = t("description");
+  return {
+    title,
+    description,
+    ...buildPageMeta(title, description, locale),
+  };
+}
 
 export default async function ForRepairCafesPage() {
   const t = await getTranslations("landing.forRepairCafes");

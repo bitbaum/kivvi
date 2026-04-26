@@ -1,5 +1,5 @@
 import { ShoppingBag } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { SeeAlsoSection } from "@/components/landing/see-also-section";
 import { PainList } from "@/components/landing/pain-list";
 import { SolutionList } from "@/components/landing/solution-list";
@@ -7,15 +7,17 @@ import { LandingCtaSection } from "@/components/landing/landing-cta-section";
 import { buildPageMeta } from "@/lib/config/site";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Kivvi für Brockenhäuser & Sozialkaufhäuser",
-  description:
-    "Spendenquittungen auf Knopfdruck, Donormanagement, Impact-Nachweis für Förderanträge — CHF 0 Lizenzkosten.",
-  ...buildPageMeta(
-    "Kivvi für Brockenhäuser & Sozialkaufhäuser",
-    "Spendenquittungen auf Knopfdruck, Donormanagement, Impact-Nachweis für Förderanträge — CHF 0 Lizenzkosten.",
-  ),
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("landing.forBrockenhaeuser.metadata");
+  const locale = await getLocale();
+  const title = t("title");
+  const description = t("description");
+  return {
+    title,
+    description,
+    ...buildPageMeta(title, description, locale),
+  };
+}
 
 export default async function ForBrockenhaeuserPage() {
   const t = await getTranslations("landing.forBrockenhaeuser");

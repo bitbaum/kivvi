@@ -1,19 +1,21 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { buildPageMeta } from "@/lib/config/site";
 
-export const metadata: Metadata = {
-  title: "Warum Kivvi — ERP für Kreislaufbetriebe",
-  description:
-    "8 Dimensionen, in denen Standard-ERPs für Kreislaufbetriebe strukturell scheitern — und wie Kivvi als Betriebssystem für die Kreislaufwirtschaft antwortet.",
-  ...buildPageMeta(
-    "Warum Kivvi — ERP für Kreislaufbetriebe",
-    "8 Dimensionen, in denen Standard-ERPs für Kreislaufbetriebe strukturell scheitern — und wie Kivvi als Betriebssystem für die Kreislaufwirtschaft antwortet.",
-  ),
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("landing.whyKivvi.metadata");
+  const locale = await getLocale();
+  const title = t("title");
+  const description = t("description");
+  return {
+    title,
+    description,
+    ...buildPageMeta(title, description, locale),
+  };
+}
 
 interface Dimension {
   title: string;

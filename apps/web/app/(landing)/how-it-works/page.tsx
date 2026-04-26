@@ -1,5 +1,5 @@
 import { PackageOpen, Wrench, ShoppingCart } from "lucide-react";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { LandingCtaSection } from "@/components/landing/landing-cta-section";
 import {
   CONDITION_GRADES,
@@ -8,15 +8,17 @@ import {
 } from "@/lib/config/site";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Wie Kivvi funktioniert — Drei Phasen, ein System",
-  description:
-    "Wareneingang, Bewertung & Reparatur, Verkauf & Impact — Kivvi begleitet jeden Artikel von der Spende bis zum Verkauf. Einzelartikel-Tracking für Kreislaufbetriebe.",
-  ...buildPageMeta(
-    "Wie Kivvi funktioniert — Drei Phasen, ein System",
-    "Wareneingang, Bewertung & Reparatur, Verkauf & Impact — Kivvi begleitet jeden Artikel von der Spende bis zum Verkauf. Einzelartikel-Tracking für Kreislaufbetriebe.",
-  ),
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("landing.howItWorks.metadata");
+  const locale = await getLocale();
+  const title = t("title");
+  const description = t("description");
+  return {
+    title,
+    description,
+    ...buildPageMeta(title, description, locale),
+  };
+}
 
 interface Feature {
   title: string;

@@ -1,19 +1,21 @@
 import Link from "next/link";
 import { ArrowRight, Github, Recycle, Heart, Code2, Leaf } from "lucide-react";
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Button } from "@/components/ui/button";
 import { buildPageMeta } from "@/lib/config/site";
 
-export const metadata: Metadata = {
-  title: "Über Kivvi — Das Betriebssystem der globalen Kreislaufwirtschaft",
-  description:
-    "Kivvi ist das Open-Source-ERP für Kreislaufbetriebe weltweit — entwickelt aus echtem Betrieb, gebaut für Brockenhäuser, IT-Refurbisher, Repair Cafés und Vintage-Shops.",
-  ...buildPageMeta(
-    "Über Kivvi — Das Betriebssystem der globalen Kreislaufwirtschaft",
-    "Kivvi ist das Open-Source-ERP für Kreislaufbetriebe weltweit — entwickelt aus echtem Betrieb, gebaut für Brockenhäuser, IT-Refurbisher, Repair Cafés und Vintage-Shops.",
-  ),
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("landing.about.metadata");
+  const locale = await getLocale();
+  const title = t("title");
+  const description = t("description");
+  return {
+    title,
+    description,
+    ...buildPageMeta(title, description, locale),
+  };
+}
 
 export default async function AboutPage() {
   const t = await getTranslations("landing.about");

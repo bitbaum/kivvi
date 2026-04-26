@@ -1,6 +1,6 @@
 import { Check, Minus } from "lucide-react";
 import Link from "next/link";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { LandingCtaSection } from "@/components/landing/landing-cta-section";
 import { buildPageMeta } from "@/lib/config/site";
 import type { Metadata } from "next";
@@ -11,15 +11,17 @@ import {
   type FeatureValue,
 } from "./pricing-data";
 
-export const metadata: Metadata = {
-  title: "Preise — Kivvi ERP",
-  description:
-    "Kivvi ist vollständig Open Source und kostenlos selbst hostbar. Oder nutzen Sie unsere Managed Cloud für CHF 49/Monat — gehostet in der Schweiz, betrieben von revamp-it.",
-  ...buildPageMeta(
-    "Preise — Kivvi ERP",
-    "Kivvi ist vollständig Open Source und kostenlos selbst hostbar. Oder nutzen Sie unsere Managed Cloud für CHF 49/Monat — gehostet in der Schweiz, betrieben von revamp-it.",
-  ),
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("landing.pricing.metadata");
+  const locale = await getLocale();
+  const title = t("title");
+  const description = t("description");
+  return {
+    title,
+    description,
+    ...buildPageMeta(title, description, locale),
+  };
+}
 
 export default async function PricingPage() {
   const t = await getTranslations("landing.pricing");

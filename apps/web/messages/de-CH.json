@@ -2285,7 +2285,11 @@
         ]
       },
       "ctaTitle": "Fragen zu Hosting oder Enterprise?",
-      "ctaDescription": "Schreiben Sie uns — wir helfen Ihnen, die richtige Option für Ihren Betrieb zu finden."
+      "ctaDescription": "Schreiben Sie uns — wir helfen Ihnen, die richtige Option für Ihren Betrieb zu finden.",
+      "metadata": {
+        "title": "Preise — Kivvi ERP",
+        "description": "Kivvi ist vollständig Open Source und kostenlos selbst hostbar. Oder nutzen Sie unsere Managed Cloud für CHF 49/Monat — gehostet in der Schweiz, betrieben von revamp-it."
+      }
     },
     "faq": {
       "hero": {
@@ -2455,7 +2459,11 @@
         "linkHowItWorks": "Wie es funktioniert →",
         "linkKnowledge": "Wissensdatenbank →"
       },
-      "organizationDescription": "IT-Refurbisher und Entwickler von Kivvi ERP"
+      "organizationDescription": "IT-Refurbisher und Entwickler von Kivvi ERP",
+      "metadata": {
+        "title": "FAQ — Häufige Fragen zu Kivvi",
+        "description": "Antworten auf die häufigsten Fragen zu Kivvi: Kosten, Self-Hosting, Unterschied zu Bexio und Kivitendo, Kreislaufwirtschaft, QR-Rechnungen, Datenschutz und mehr."
+      }
     },
     "contact": {
       "title": "Demo anfragen",
@@ -2500,6 +2508,10 @@
         "emailPlaceholder": "ihre@email.ch",
         "submit": "Auf Warteliste",
         "successMessage": "Sie sind auf der Warteliste. Wir melden uns!"
+      },
+      "metadata": {
+        "title": "Demo anfragen — Kivvi ERP",
+        "description": "Demo anfragen oder direkt loslegen. Kivvi ist das Open-Source-ERP für Brockenhäuser, IT-Refurbisher, Repair Cafés und Vintage-Shops — Swiss-native, MIT-Lizenz."
       }
     },
     "howItWorks": {
@@ -2579,7 +2591,11 @@
         ]
       },
       "ctaTitle": "Bereit für Ihren Betrieb?",
-      "ctaDescription": "Schreiben Sie uns oder registrieren Sie sich direkt — die erste Demo ist kostenlos."
+      "ctaDescription": "Schreiben Sie uns oder registrieren Sie sich direkt — die erste Demo ist kostenlos.",
+      "metadata": {
+        "title": "Wie Kivvi funktioniert — Drei Phasen, ein System",
+        "description": "Wareneingang, Bewertung & Reparatur, Verkauf & Impact — Kivvi begleitet jeden Artikel von der Spende bis zum Verkauf. Einzelartikel-Tracking für Kreislaufbetriebe."
+      }
     },
     "seeAlso": {
       "title": "Auch interessant"
@@ -2619,7 +2635,11 @@
         "stat3Label": "Daten in Ihrer Hand"
       },
       "ctaTitle": "Demo für Brockenhäuser",
-      "ctaDescription": "Wir zeigen Ihnen, wie Kivvi in Ihrer Brockenstube funktioniert — kostenlos und unverbindlich."
+      "ctaDescription": "Wir zeigen Ihnen, wie Kivvi in Ihrer Brockenstube funktioniert — kostenlos und unverbindlich.",
+      "metadata": {
+        "title": "Kivvi für Brockenhäuser & Sozialkaufhäuser",
+        "description": "Spendenquittungen auf Knopfdruck, Donormanagement, Impact-Nachweis für Förderanträge — CHF 0 Lizenzkosten."
+      }
     },
     "verticals": {
       "it-refurbishers": {
@@ -2716,7 +2736,11 @@
         "stat3Label": "Open Source"
       },
       "ctaTitle": "Demo für IT-Refurbisher",
-      "ctaDescription": "Zeigen Sie uns Ihren heutigen Ablauf — wir zeigen Ihnen, wie Kivvi ihn abbildet."
+      "ctaDescription": "Zeigen Sie uns Ihren heutigen Ablauf — wir zeigen Ihnen, wie Kivvi ihn abbildet.",
+      "metadata": {
+        "title": "Kivvi für IT-Refurbisher & Computer-Recycler",
+        "description": "Einzelartikel-Tracking, Reparaturkosten pro Gerät, echte Marge — und CSV-Migration aus Kivitendo. Das ERP für IT-Refurbisher."
+      }
     },
     "forRepairCafes": {
       "hero": {
@@ -2758,7 +2782,11 @@
         "step3Desc": "QR-Rechnung oder Bestätigung (bei ehrenamtlicher Reparatur), Impact erfasst"
       },
       "ctaTitle": "Demo für Repair Cafés",
-      "ctaDescription": "Kostenlos und unverbindlich — wir zeigen Ihnen, wie Kivvi Ihren Reparaturbetrieb digital macht."
+      "ctaDescription": "Kostenlos und unverbindlich — wir zeigen Ihnen, wie Kivvi Ihren Reparaturbetrieb digital macht.",
+      "metadata": {
+        "title": "Kivvi für Repair Cafés & Werkstätten",
+        "description": "Reparaturprotokoll pro Gerät, Stunden-Tracking, Impact-Nachweis für Förderanträge — für Repair Cafés und Werkstätten."
+      }
     },
     "forVintage": {
       "hero": {
@@ -2801,7 +2829,11 @@
         }
       },
       "ctaTitle": "Demo für Vintage-Shops",
-      "ctaDescription": "Zeigen Sie uns Ihren Betrieb — wir zeigen Ihnen, wie Kivvi ihn abbildet."
+      "ctaDescription": "Zeigen Sie uns Ihren Betrieb — wir zeigen Ihnen, wie Kivvi ihn abbildet.",
+      "metadata": {
+        "title": "Kivvi für Vintage-Shops & Kleiderbörsen",
+        "description": "Einzelartikel-Tracking, Kommissions-Abrechnung, Zustandsbewertung für Kleidung — ohne Excel."
+      }
     },
     "aiAutopilot": {
       "title": "Ihr Betrieb auf Autopilot",
@@ -2912,6 +2944,10 @@
         "description": "Demo anfragen oder direkt ausprobieren — die erste Einrichtung dauert 10 Minuten.",
         "linkHowItWorks": "Wie es funktioniert →",
         "linkCircularEconomy": "Kreislaufwirtschaft verstehen →"
+      },
+      "metadata": {
+        "title": "Warum Kivvi — ERP für Kreislaufbetriebe",
+        "description": "8 Dimensionen, in denen Standard-ERPs für Kreislaufbetriebe strukturell scheitern — und wie Kivvi als Betriebssystem für die Kreislaufwirtschaft antwortet."
       }
     },
     "circularEconomy": {
@@ -3086,6 +3122,10 @@
           "description": "Die drei Phasen — Intake, Bewertung & Reparatur, Verkauf & Impact — im Detail.",
           "cta": "Wie es funktioniert"
         }
+      },
+      "metadata": {
+        "title": "Kreislaufwirtschaft verstehen — Kivvi",
+        "description": "Wer sind die Teilnehmer der Kreislaufwirtschaft? Welche Geschäftsmodelle gibt es? Was macht sie fundamentell anders als die Linearwirtschaft?"
       }
     },
     "about": {
@@ -3122,6 +3162,10 @@
         "paragraph3": "Beitragende aus der Community sind willkommen. Wer in einem Kreislaufbetrieb arbeitet und Ideen hat, was Kivvi besser machen kann — wir hören zu.",
         "ctaContact": "Kontakt aufnehmen",
         "ctaCircularEconomy": "Kreislaufwirtschaft verstehen"
+      },
+      "metadata": {
+        "title": "Über Kivvi — Das Betriebssystem der globalen Kreislaufwirtschaft",
+        "description": "Kivvi ist das Open-Source-ERP für Kreislaufbetriebe weltweit — entwickelt aus echtem Betrieb, gebaut für Brockenhäuser, IT-Refurbisher, Repair Cafés und Vintage-Shops."
       }
     },
     "impressum": {
@@ -3138,7 +3182,11 @@
       "sourceCodeHeader": "Quellcode",
       "sourceCodeText": "Kivvi ist Open Source (MIT-Lizenz).",
       "disclaimerHeader": "Haftungsausschluss",
-      "disclaimerText": "Die Inhalte dieser Website wurden mit grösster Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte übernimmt revamp-it keine Gewähr. Als Diensteanbieter sind wir für eigene Inhalte verantwortlich. Für externe Links übernehmen wir keine Haftung; die Verantwortung liegt beim jeweiligen Anbieter."
+      "disclaimerText": "Die Inhalte dieser Website wurden mit grösster Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte übernimmt revamp-it keine Gewähr. Als Diensteanbieter sind wir für eigene Inhalte verantwortlich. Für externe Links übernehmen wir keine Haftung; die Verantwortung liegt beim jeweiligen Anbieter.",
+      "metadata": {
+        "title": "Impressum — Kivvi",
+        "description": "Angaben zum Anbieter von Kivvi gemäss Impressumspflicht."
+      }
     },
     "roadmap": {
       "hero": {
@@ -3426,6 +3474,10 @@
         "openSourceLink": "Mitwirken willkommen.",
         "suggestText": "Fehlt dir etwas auf dieser Liste?",
         "suggestLink": "Schreib uns."
+      },
+      "metadata": {
+        "title": "Roadmap & Vergleich — Kivvi",
+        "description": "Warum bestehende ERPs für die Kreislaufwirtschaft scheitern, was Kivvi heute kann, und was als Nächstes kommt."
       }
     },
     "knowledge": {
@@ -3467,6 +3519,11 @@
         "footerCtaTitle": "Mehr aus der Wissensdatenbank",
         "footerCtaDescription": "Weitere Artikel zu Betrieb, Compliance und Impact in der Kreislaufwirtschaft.",
         "footerCtaButton": "Alle Artikel ansehen →"
+      },
+      "metadata": {
+        "title": "Wissen für Kreislaufbetriebe — Kivvi Knowledge Base",
+        "description": "Praxiswissen zu Zustandsbewertung, Impact-Messung, Spendenquittungen und QR-Rechnungen — entwickelt aus dem Betrieb eines der grössten IT-Refurbisher der Schweiz.",
+        "knowledgeBaseSuffix": "Kivvi Wissensdatenbank"
       }
     },
     "datenschutz": {
@@ -3527,7 +3584,15 @@
       "section9": {
         "title": "9. Kontakt",
         "text": "Bei Fragen zum Datenschutz:"
+      },
+      "metadata": {
+        "title": "Datenschutzerklärung — Kivvi",
+        "description": "Datenschutzerklärung von Kivvi gemäss Schweizer Datenschutzgesetz (nDSG)."
       }
+    },
+    "metadata": {
+      "title": "Kivvi — Das Betriebssystem der Kreislaufwirtschaft",
+      "description": "Kivvi ist das Open-Source-ERP für Brockenhäuser, IT-Refurbisher, Repair Cafés und Vintage-Shops. Einzelartikel-Tracking, KI-Schnelleingabe, Schweizer QR-Rechnungen — das Betriebssystem für Kreislaufbetriebe."
     }
   },
   "bulkActions": {

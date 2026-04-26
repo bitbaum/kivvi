@@ -68,24 +68,40 @@ export const CONDITION_GRADE_LABEL_KEY: Record<ConditionGradeId, string> = {
 // METADATA HELPERS
 // ============================================================================
 
+/** next-intl locale → og:locale mapping. Falls back to de_CH. */
+const OG_LOCALE_BY_NEXTINTL: Record<string, string> = {
+  "de-CH": "de_CH",
+  en: "en_US",
+  fr: "fr_CH",
+};
+
 /**
  * Generates consistent openGraph + twitter metadata for landing pages.
- * Spread this into your page's `metadata` export alongside title/description.
  *
- * Usage:
- *   export const metadata: Metadata = {
- *     title: "...",
- *     description: "...",
- *     ...buildPageMeta("...", "..."),
- *   };
+ * Usage in a Next.js page (server component):
+ *   export async function generateMetadata(): Promise<Metadata> {
+ *     const t = await getTranslations("landing.<page>.metadata");
+ *     const locale = await getLocale();
+ *     const title = t("title");
+ *     const description = t("description");
+ *     return {
+ *       title,
+ *       description,
+ *       ...buildPageMeta(title, description, locale),
+ *     };
+ *   }
  */
-export function buildPageMeta(title: string, description: string) {
+export function buildPageMeta(
+  title: string,
+  description: string,
+  locale: string = "de-CH",
+) {
   return {
     openGraph: {
       title,
       description,
       type: "website" as const,
-      locale: "de_CH",
+      locale: OG_LOCALE_BY_NEXTINTL[locale] ?? "de_CH",
       siteName: "Kivvi",
       images: [
         {

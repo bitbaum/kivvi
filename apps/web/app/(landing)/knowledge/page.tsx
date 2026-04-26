@@ -1,20 +1,22 @@
 import Link from "next/link";
 import { ArrowRight, BookOpen } from "lucide-react";
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { getAllArticles } from "@/lib/content/knowledge";
 import { Button } from "@/components/ui/button";
 import { buildPageMeta } from "@/lib/config/site";
 
-export const metadata: Metadata = {
-  title: "Wissen für Kreislaufbetriebe — Kivvi Knowledge Base",
-  description:
-    "Praxiswissen zu Zustandsbewertung, Impact-Messung, Spendenquittungen und QR-Rechnungen — entwickelt aus dem Betrieb eines der grössten IT-Refurbisher der Schweiz.",
-  ...buildPageMeta(
-    "Wissen für Kreislaufbetriebe — Kivvi Knowledge Base",
-    "Praxiswissen zu Zustandsbewertung, Impact-Messung, Spendenquittungen und QR-Rechnungen — entwickelt aus dem Betrieb eines der grössten IT-Refurbisher der Schweiz.",
-  ),
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("landing.knowledge.metadata");
+  const locale = await getLocale();
+  const title = t("title");
+  const description = t("description");
+  return {
+    title,
+    description,
+    ...buildPageMeta(title, description, locale),
+  };
+}
 
 // Tag → colour mapping. Add new tags here when needed.
 const TAG_COLORS: Record<string, string> = {

@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, BookOpen } from "lucide-react";
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { getArticle, getAllArticles } from "@/lib/content/knowledge";
 import { Button } from "@/components/ui/button";
 import { buildPageMeta } from "@/lib/config/site";
@@ -28,12 +28,14 @@ export async function generateMetadata({
   const { slug } = await params;
   const article = await getArticle(slug);
   if (!article) return {};
-  const title = `${article.meta.title} — Kivvi Wissensdatenbank`;
+  const t = await getTranslations("landing.knowledge.metadata");
+  const locale = await getLocale();
+  const title = `${article.meta.title} — ${t("knowledgeBaseSuffix")}`;
   const description = article.meta.lead;
   return {
     title,
     description,
-    ...buildPageMeta(title, description),
+    ...buildPageMeta(title, description, locale),
   };
 }
 

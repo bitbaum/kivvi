@@ -1,18 +1,20 @@
 import { CheckCircle } from "lucide-react";
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { buildPageMeta } from "@/lib/config/site";
 import { ContactForm } from "./_contact-form";
 
-export const metadata: Metadata = {
-  title: "Demo anfragen — Kivvi ERP",
-  description:
-    "Demo anfragen oder direkt loslegen. Kivvi ist das Open-Source-ERP für Brockenhäuser, IT-Refurbisher, Repair Cafés und Vintage-Shops — Swiss-native, MIT-Lizenz.",
-  ...buildPageMeta(
-    "Demo anfragen — Kivvi ERP",
-    "Demo anfragen oder direkt loslegen. Kivvi ist das Open-Source-ERP für Brockenhäuser, IT-Refurbisher, Repair Cafés und Vintage-Shops — Swiss-native, MIT-Lizenz.",
-  ),
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("landing.contact.metadata");
+  const locale = await getLocale();
+  const title = t("title");
+  const description = t("description");
+  return {
+    title,
+    description,
+    ...buildPageMeta(title, description, locale),
+  };
+}
 
 export default async function ContactPage() {
   const t = await getTranslations("landing.contact");
