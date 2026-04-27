@@ -6,11 +6,17 @@ import {
   buildPasswordResetEmailHtml,
   buildInvitationEmailSubject,
   buildInvitationEmailHtml,
+  buildWelcomeEmailHtml,
+  buildDonationReceiptEmailHtml,
+  buildPaymentConfirmationEmailHtml,
 } from "../domain/email";
 import type {
   InvoiceEmailData,
   PasswordResetEmailData,
   InvitationEmailData,
+  WelcomeEmailData,
+  DonationReceiptEmailData,
+  PaymentConfirmationEmailData,
 } from "../domain/email";
 
 // ============================================================================
@@ -333,5 +339,131 @@ describe("buildInvitationEmailHtml", () => {
     const html = buildInvitationEmailHtml(invitationData);
     expect(html).toContain("<!DOCTYPE html>");
     expect(html).toContain("</html>");
+  });
+});
+
+// ============================================================================
+// XSS ESCAPING — verify user-controlled fields never inject raw HTML
+// ============================================================================
+
+const XSS = '<script>alert("xss")</script>';
+const XSS_SAFE = "&lt;script&gt;";
+
+describe("XSS escaping in email builders", () => {
+  it("buildInvoiceEmailHtml escapes malicious companyName", () => {
+    const html = buildInvoiceEmailHtml(
+      makeInvoiceEmailData({ companyName: XSS }),
+    );
+    expect(html).not.toContain("<script>");
+    expect(html).toContain(XSS_SAFE);
+  });
+
+  it("buildInvoiceEmailHtml escapes malicious recipientName", () => {
+    const html = buildInvoiceEmailHtml(
+      makeInvoiceEmailData({ recipientName: XSS }),
+    );
+    expect(html).not.toContain("<script>");
+    expect(html).toContain(XSS_SAFE);
+  });
+
+  it("buildPasswordResetEmailHtml escapes malicious companyName", () => {
+    const data: PasswordResetEmailData = {
+      recipientEmail: "a@b.ch",
+      recipientName: "Hans",
+      resetUrl: "https://kivvi.ch/reset?token=abc",
+      companyName: XSS,
+    };
+    const html = buildPasswordResetEmailHtml(data);
+    expect(html).not.toContain("<script>");
+    expect(html).toContain(XSS_SAFE);
+  });
+
+  it("buildPasswordResetEmailHtml escapes malicious recipientName", () => {
+    const data: PasswordResetEmailData = {
+      recipientEmail: "a@b.ch",
+      recipientName: XSS,
+      resetUrl: "https://kivvi.ch/reset?token=abc",
+    };
+    const html = buildPasswordResetEmailHtml(data);
+    expect(html).not.toContain("<script>");
+    expect(html).toContain(XSS_SAFE);
+  });
+
+  it("buildInvitationEmailHtml escapes malicious inviterName", () => {
+    const data: InvitationEmailData = {
+      inviterName: XSS,
+      companyName: "Safe AG",
+      acceptUrl: "https://kivvi.ch/accept",
+      role: "member",
+    };
+    const html = buildInvitationEmailHtml(data);
+    expect(html).not.toContain("<script>");
+    expect(html).toContain(XSS_SAFE);
+  });
+
+  it("buildInvitationEmailHtml escapes malicious companyName", () => {
+    const data: InvitationEmailData = {
+      inviterName: "Alice",
+      companyName: XSS,
+      acceptUrl: "https://kivvi.ch/accept",
+      role: "member",
+    };
+    const html = buildInvitationEmailHtml(data);
+    expect(html).not.toContain("<script>");
+    expect(html).toContain(XSS_SAFE);
+  });
+
+  it("buildWelcomeEmailHtml escapes malicious userName", () => {
+    const data: WelcomeEmailData = {
+      userName: XSS,
+      userEmail: "a@b.ch",
+      companyName: "Safe AG",
+      loginUrl: "https://kivvi.ch",
+    };
+    const html = buildWelcomeEmailHtml(data);
+    expect(html).not.toContain("<script>");
+    expect(html).toContain(XSS_SAFE);
+  });
+
+  it("buildWelcomeEmailHtml escapes malicious companyName", () => {
+    const data: WelcomeEmailData = {
+      userName: "Alice",
+      userEmail: "a@b.ch",
+      companyName: XSS,
+      loginUrl: "https://kivvi.ch",
+    };
+    const html = buildWelcomeEmailHtml(data);
+    expect(html).not.toContain("<script>");
+    expect(html).toContain(XSS_SAFE);
+  });
+
+  it("buildDonationReceiptEmailHtml escapes malicious recipientName", () => {
+    const data: DonationReceiptEmailData = {
+      recipientEmail: "a@b.ch",
+      recipientName: XSS,
+      companyName: "Safe AG",
+      receiptNumber: "SPQ-2026-00001",
+      itemCount: 3,
+      currency: "CHF",
+      date: "2026-04-27",
+    };
+    const html = buildDonationReceiptEmailHtml(data);
+    expect(html).not.toContain("<script>");
+    expect(html).toContain(XSS_SAFE);
+  });
+
+  it("buildPaymentConfirmationEmailHtml escapes malicious companyName", () => {
+    const data: PaymentConfirmationEmailData = {
+      recipientEmail: "a@b.ch",
+      recipientName: "Hans",
+      companyName: XSS,
+      documentNumber: "RE-2026-00001",
+      amount: "100.00",
+      currency: "CHF",
+      paymentDate: "2026-04-27",
+    };
+    const html = buildPaymentConfirmationEmailHtml(data);
+    expect(html).not.toContain("<script>");
+    expect(html).toContain(XSS_SAFE);
   });
 });
