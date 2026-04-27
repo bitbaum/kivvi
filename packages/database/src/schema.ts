@@ -25,7 +25,9 @@ import {
   INTAKE_SOURCE_VALUES,
   ITEM_CONDITION_VALUES,
   ITEM_STATUS_VALUES,
+  WEBHOOK_EVENT_VALUES,
   type AiProviderValue,
+  type WebhookEvent,
 } from "./enums";
 
 // Re-export enums for consumer convenience (client-safe, no DB deps)
@@ -1140,16 +1142,6 @@ export const contactSubmissions = pgTable(
 // ============================================================================
 
 /** Webhook events Kivvi can fire */
-export const WEBHOOK_EVENT_VALUES = [
-  "inventory_item.created",
-  "inventory_item.updated",
-  "inventory_item.status_changed",
-  "document.created",
-  "document.status_changed",
-  "payment.received",
-] as const;
-export type WebhookEvent = (typeof WEBHOOK_EVENT_VALUES)[number];
-
 /** A configured endpoint per company — where to POST events */
 export const webhookEndpoints = pgTable(
   "webhook_endpoints",

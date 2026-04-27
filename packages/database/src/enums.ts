@@ -144,3 +144,13 @@ export const AI_PROVIDER_LABELS: Record<AiProviderValue, string> = {
   ollama: "Ollama (Local)",
   xai: "xAI (Grok)",
 };
+
+export const WEBHOOK_EVENT_VALUES = [
+  "inventory_item.created",
+  "inventory_item.updated",
+  "inventory_item.status_changed",
+  "document.created",
+  "document.status_changed",
+  "payment.received",
+] as const;
+export type WebhookEvent = (typeof WEBHOOK_EVENT_VALUES)[number];

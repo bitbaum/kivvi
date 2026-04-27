@@ -14,7 +14,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "next-intl";
-import { WEBHOOK_EVENT_VALUES } from "@kivvi/database";
+// enums.ts has zero drizzle/postgres deps — safe to import in a client component
+import { WEBHOOK_EVENT_VALUES } from "@kivvi/database/src/enums";
 import type { WebhookEndpoint, WebhookEvent } from "@kivvi/database";
 import {
   createWebhookEndpointAction,
