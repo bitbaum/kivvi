@@ -43,6 +43,7 @@ type ImportMode = "choice" | "import";
 
 export function StepDataImport({ onComplete }: StepDataImportProps) {
   const t = useTranslations("onboarding");
+  const tc = useTranslations("common");
   const [mode, setMode] = useState<ImportMode>("choice");
   const [pendingImports, setPendingImports] = useState<
     Map<string, PendingImport>
@@ -58,7 +59,7 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
     if (result.success) {
       onComplete();
     } else {
-      setError(result.error || "Failed");
+      setError(result.error || tc("error"));
       setIsCompleting(false);
     }
   };
@@ -69,7 +70,7 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
     if (result.success) {
       onComplete();
     } else {
-      setError(result.error || "Failed");
+      setError(result.error || tc("error"));
       setIsCompleting(false);
     }
   };
@@ -200,7 +201,7 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
                 skipped: result.data?.skipped,
                 errors: result.success
                   ? result.data?.errors
-                  : [result.error || "Failed"],
+                  : [result.error || tc("error")],
               }
             : s,
         ),
@@ -216,7 +217,7 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
     if (result.success) {
       onComplete();
     } else {
-      setError(result.error || "Failed");
+      setError(result.error || tc("error"));
       setIsCompleting(false);
     }
   };

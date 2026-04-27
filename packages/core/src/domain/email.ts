@@ -2,14 +2,7 @@
 // EMAIL TEMPLATES — Domain logic for email generation
 // ============================================================================
 
-function e(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#x27;");
-}
+import { escapeHtml as e } from "../utils/html";
 
 export interface InvoiceEmailData {
   recipientEmail: string;

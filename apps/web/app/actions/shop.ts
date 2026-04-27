@@ -5,18 +5,10 @@ import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { companies, users } from "@kivvi/database";
 import { getPublicCompanyBySlug } from "@kivvi/core/src/domain/shop";
+import { escapeHtml } from "@kivvi/core/src/utils/html";
 import { getTransporter, getFromEmail } from "@/lib/email/transporter";
 import { isEmailConfigured } from "@/lib/config/email";
 import type { ActionResult } from "./utils";
-
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#x27;");
-}
 
 const sendShopInquirySchema = z.object({
   companyId: z.string().uuid(),

@@ -1,15 +1,7 @@
 "use server";
 
 import { z } from "zod";
-
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#x27;");
-}
+import { escapeHtml } from "@kivvi/core/src/utils/html";
 import { db } from "@/lib/db";
 import { contactSubmissions } from "@kivvi/database";
 import { type ActionResult, safeErrorMessage } from "./utils";
