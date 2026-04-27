@@ -95,7 +95,7 @@ export default async function JournalEntryDetailPage({ params }: PageProps) {
             </p>
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">{tc("date")}</p>
+            <p className="text-sm text-muted-foreground">{tc("createdAt")}</p>
             <p className="font-medium">{formatDate(entry.createdAt)}</p>
           </div>
         </div>
@@ -106,7 +106,7 @@ export default async function JournalEntryDetailPage({ params }: PageProps) {
         <div className="border-b px-6 py-4">
           <h2 className="font-semibold flex items-center gap-2">
             <BookOpen className="h-4 w-4" />
-            Journal Lines
+            {t("journalLines")}
           </h2>
         </div>
         <div className="overflow-x-auto">
