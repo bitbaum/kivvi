@@ -3784,13 +3784,7 @@
     "backToOptions": "Retour",
     "errorInvalidToken": "Jeton invalide.",
     "errorInvitationNotFound": "Invitation introuvable.",
-    "errorInvalidCompanyId": "Identifiant d'entreprise invalide.",
-    "roles": {
-      "owner": "Propriétaire",
-      "admin": "Administrateur",
-      "member": "Membre",
-      "viewer": "Observateur"
-    }
+    "errorInvalidCompanyId": "Identifiant d'entreprise invalide."
   },
   "errors": {
     "unexpected": "Une erreur est survenue",

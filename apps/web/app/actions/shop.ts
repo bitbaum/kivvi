@@ -10,6 +10,7 @@ import { getTransporter, getFromEmail } from "@/lib/email/transporter";
 import { isEmailConfigured } from "@/lib/config/email";
 import type { ActionResult } from "./utils";
 import { getTranslations } from "next-intl/server";
+import { logger } from "@/lib/logger";
 
 const sendShopInquirySchema = z.object({
   companyId: z.string().uuid(),
@@ -107,7 +108,7 @@ export async function sendShopInquiryAction(
 
     return { success: true };
   } catch (error) {
-    console.error("sendShopInquiryAction error:", error);
+    logger.error("sendShopInquiryAction error", error);
     return { success: false, error: t("errorSendFailed") };
   }
 }

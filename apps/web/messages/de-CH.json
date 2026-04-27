@@ -3784,13 +3784,7 @@
     "backToOptions": "Zurück",
     "errorInvalidToken": "Ungültiger Token.",
     "errorInvitationNotFound": "Einladung nicht gefunden.",
-    "errorInvalidCompanyId": "Ungültige Unternehmens-ID.",
-    "roles": {
-      "owner": "Inhaber",
-      "admin": "Administrator",
-      "member": "Mitglied",
-      "viewer": "Betrachter"
-    }
+    "errorInvalidCompanyId": "Ungültige Unternehmens-ID."
   },
   "errors": {
     "unexpected": "Etwas ist schiefgelaufen",

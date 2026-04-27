@@ -40,7 +40,7 @@ export async function inviteMemberAction(
 ): Promise<ActionResult<{ id: string; token: string }>> {
   try {
     const { companyId, userId } = await requireRole("admin");
-    const t = await getTranslations("team");
+    const tc = await getTranslations("common");
 
     const parsed = z
       .object({
@@ -85,10 +85,10 @@ export async function inviteMemberAction(
           acceptUrl,
           role:
             {
-              owner: t("roles.owner"),
-              admin: t("roles.admin"),
-              member: t("roles.member"),
-              viewer: t("roles.viewer"),
+              owner: tc("roleLabel.owner"),
+              admin: tc("roleLabel.admin"),
+              member: tc("roleLabel.member"),
+              viewer: tc("roleLabel.viewer"),
             }[parsed.data.role] ?? parsed.data.role,
         };
 
