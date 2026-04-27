@@ -13,7 +13,7 @@ export function SendReceiptButton({ intakeId }: Props) {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const ti = useTranslations("intake");
+  const ti = useTranslations("inventory");
 
   async function handleSend() {
     setSending(true);
