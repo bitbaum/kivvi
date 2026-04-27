@@ -6,6 +6,7 @@ import { z } from "zod";
 import {
   createWebhookEndpoint,
   listWebhookEndpoints,
+  listWebhookDeliveries,
   updateWebhookEndpoint,
   deleteWebhookEndpoint,
 } from "@kivvi/core/src/domain/webhooks";
@@ -125,6 +126,21 @@ export async function deleteWebhookEndpointAction(
     return {
       success: false,
       error: safeErrorMessage(error, "Failed to delete webhook endpoint"),
+    };
+  }
+}
+
+export async function listWebhookDeliveriesAction(
+  endpointId: string,
+): Promise<ActionResult<Awaited<ReturnType<typeof listWebhookDeliveries>>>> {
+  try {
+    const { companyId } = await requireRole("admin");
+    const deliveries = await listWebhookDeliveries(db, companyId, endpointId);
+    return { success: true, data: deliveries };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to load deliveries"),
     };
   }
 }

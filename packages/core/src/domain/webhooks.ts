@@ -13,7 +13,7 @@
  */
 
 import { createHmac } from "crypto";
-import { eq, and, lte, isNotNull } from "drizzle-orm";
+import { eq, and, lte, isNotNull, desc } from "drizzle-orm";
 import { webhookEndpoints, webhookDeliveries } from "@kivvi/database";
 import type { Database, WebhookEvent } from "@kivvi/database";
 import { logger } from "../logger";
@@ -213,6 +213,39 @@ export async function listWebhookEndpoints(db: Database, companyId: string) {
     .select()
     .from(webhookEndpoints)
     .where(eq(webhookEndpoints.companyId, companyId));
+}
+
+/**
+ * List recent deliveries for one endpoint.
+ * Joins with webhookEndpoints to verify the endpoint belongs to companyId
+ * before returning any data.
+ */
+export async function listWebhookDeliveries(
+  db: Database,
+  companyId: string,
+  endpointId: string,
+  limit = 50,
+) {
+  // Verify ownership first
+  const [ep] = await db
+    .select({ id: webhookEndpoints.id })
+    .from(webhookEndpoints)
+    .where(
+      and(
+        eq(webhookEndpoints.id, endpointId),
+        eq(webhookEndpoints.companyId, companyId),
+      ),
+    )
+    .limit(1);
+
+  if (!ep) throw new Error("Webhook endpoint not found");
+
+  return db
+    .select()
+    .from(webhookDeliveries)
+    .where(eq(webhookDeliveries.endpointId, endpointId))
+    .orderBy(desc(webhookDeliveries.createdAt))
+    .limit(limit);
 }
 
 export async function createWebhookEndpoint(

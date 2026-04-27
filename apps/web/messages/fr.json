@@ -1870,7 +1870,17 @@
       "eventDocumentCreated": "Document créé",
       "eventDocumentStatusChanged": "Statut du document modifié",
       "eventPaymentReceived": "Paiement reçu",
-      "events": "Événements"
+      "events": "Événements",
+      "deliveryLog": {
+        "title": "Journal de livraison",
+        "refresh": "Actualiser",
+        "loading": "Chargement des livraisons…",
+        "empty": "Aucune livraison pour l'instant",
+        "noResponse": "Aucune réponse",
+        "attempts": "Tentatives",
+        "deliveredAt": "Livré le",
+        "nextRetry": "Prochain essai"
+      }
     },
     "integrations": {
       "title": "Intégrations",

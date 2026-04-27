@@ -1870,7 +1870,17 @@
       "eventDocumentCreated": "Dokument erstellt",
       "eventDocumentStatusChanged": "Dokument-Status geändert",
       "eventPaymentReceived": "Zahlung eingegangen",
-      "events": "Ereignisse"
+      "events": "Ereignisse",
+      "deliveryLog": {
+        "title": "Zustellungsprotokoll",
+        "refresh": "Aktualisieren",
+        "loading": "Zustellungen werden geladen…",
+        "empty": "Noch keine Zustellungen",
+        "noResponse": "Keine Antwort",
+        "attempts": "Versuche",
+        "deliveredAt": "Zugestellt",
+        "nextRetry": "Nächster Versuch"
+      }
     },
     "integrations": {
       "title": "Integrationen",

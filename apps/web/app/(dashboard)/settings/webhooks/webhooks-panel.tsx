@@ -22,6 +22,7 @@ import {
   deleteWebhookEndpointAction,
   toggleWebhookEndpointAction,
 } from "@/app/actions/webhooks";
+import { WebhookDeliveryLog } from "./webhook-delivery-log";
 
 function generateSecret(): string {
   const bytes = new Uint8Array(24);
@@ -182,6 +183,7 @@ export function WebhooksPanel({ initialEndpoints }: Props) {
                   </Button>
                 </div>
               </div>
+              <WebhookDeliveryLog endpointId={ep.id} />
             </div>
           ))}
         </div>
