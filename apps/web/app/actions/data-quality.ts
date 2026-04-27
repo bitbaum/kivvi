@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { documents, contacts, contactAddresses } from "@kivvi/database";
 import { eq, and } from "drizzle-orm";
 import { type ActionResult, requireRole, safeErrorMessage } from "./utils";
+import { getTranslations } from "next-intl/server";
 import {
   getDataQualityReport,
   type DataQualityReport,
@@ -41,16 +42,19 @@ export async function mergeContactsAction(
 ): Promise<ActionResult<{ documentsReassigned: number }>> {
   try {
     const { companyId } = await requireRole("admin");
+    const t = await getTranslations("dataQuality");
 
     if (primaryId === duplicateId) {
-      return { success: false, error: "Cannot merge a contact with itself" };
+      return { success: false, error: t("errorCannotMergeSelf") };
     }
 
     // Verify both contacts belong to this company
     const [primary] = await db
       .select({ id: contacts.id })
       .from(contacts)
-      .where(and(eq(contacts.id, primaryId), eq(contacts.companyId, companyId)));
+      .where(
+        and(eq(contacts.id, primaryId), eq(contacts.companyId, companyId)),
+      );
 
     const [duplicate] = await db
       .select({ id: contacts.id })
@@ -59,9 +63,9 @@ export async function mergeContactsAction(
         and(eq(contacts.id, duplicateId), eq(contacts.companyId, companyId)),
       );
 
-    if (!primary) return { success: false, error: "Primary contact not found" };
+    if (!primary) return { success: false, error: t("errorPrimaryNotFound") };
     if (!duplicate)
-      return { success: false, error: "Duplicate contact not found" };
+      return { success: false, error: t("errorDuplicateNotFound") };
 
     const result = await db.transaction(async (tx) => {
       // Reassign all documents
@@ -122,9 +126,7 @@ export async function cancelZeroTotalDocumentsAction(
         const r = await tx
           .update(documents)
           .set({ status: "cancelled", updatedAt: new Date() })
-          .where(
-            and(eq(documents.id, id), eq(documents.companyId, companyId)),
-          )
+          .where(and(eq(documents.id, id), eq(documents.companyId, companyId)))
           .returning({ id: documents.id });
         results.push(...r);
       }

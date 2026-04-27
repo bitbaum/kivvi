@@ -3,6 +3,7 @@
 import Decimal from "decimal.js";
 import { db } from "@/lib/db";
 import { getSession, safeErrorMessage } from "./utils";
+import { getTranslations } from "next-intl/server";
 import {
   getProfitAndLoss,
   getBalanceSheet,
@@ -29,6 +30,7 @@ export async function exportReportAction(
 ): Promise<ActionResult<{ csvData: string; filename: string }>> {
   try {
     const { companyId } = await getSession();
+    const t = await getTranslations("reports");
 
     let csvData: string;
     let filename: string;
@@ -78,7 +80,7 @@ export async function exportReportAction(
 
       case "balance-sheet": {
         if (!params.asOfDate) {
-          return { success: false, error: "As of date is required" };
+          return { success: false, error: t("errorAsOfDateRequired") };
         }
 
         const report = await getBalanceSheet(db, companyId, params.asOfDate);
@@ -174,7 +176,7 @@ export async function exportReportAction(
 
       case "aging": {
         if (!params.asOfDate) {
-          return { success: false, error: "As of date is required" };
+          return { success: false, error: t("errorAsOfDateRequired") };
         }
 
         const report = await getAgingReport(db, companyId, params.asOfDate);
@@ -227,7 +229,7 @@ export async function exportReportAction(
       }
 
       default:
-        return { success: false, error: "Invalid report type" };
+        return { success: false, error: t("errorInvalidReportType") };
     }
 
     return {

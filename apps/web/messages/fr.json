@@ -1317,7 +1317,10 @@
     "posSaleComplete": "Vente finalisée",
     "posInvoiceNumber": "Facture {number}",
     "posViewInvoice": "Voir la facture",
-    "posNewSale": "Nouvelle vente"
+    "posNewSale": "Nouvelle vente",
+    "errorNoFileProvided": "Aucun fichier fourni.",
+    "errorFileTooLarge": "Fichier trop volumineux. Maximum 500 Ko.",
+    "errorItemNotFound": "Article introuvable."
   },
   "checklist": {
     "categoryLaptop": "Ordinateur portable",
@@ -1475,7 +1478,9 @@
     "categoryItems": "Lignes",
     "categoryShare": "Part",
     "uncategorized": "Sans catégorie",
-    "noCategoryData": "Aucune donnée par catégorie pour cette période."
+    "noCategoryData": "Aucune donnée par catégorie pour cette période.",
+    "errorAsOfDateRequired": "La date de référence est requise.",
+    "errorInvalidReportType": "Type de rapport invalide."
   },
   "dunning": {
     "title": "Relances",
@@ -1661,7 +1666,12 @@
       "upgrade": "Mettre à niveau",
       "manageSubscription": "Gérer l'abonnement",
       "upgradeError": "Échec de la mise à niveau. Veuillez réessayer.",
-      "manageError": "Échec de l'ouverture du portail de facturation. Veuillez réessayer."
+      "manageError": "Échec de l'ouverture du portail de facturation. Veuillez réessayer.",
+      "errorCompanyNotFound": "Entreprise introuvable.",
+      "errorStripePriceNotConfigured": "Prix Stripe non configuré.",
+      "errorCheckoutSession": "Échec de la création de la session de paiement.",
+      "errorNoBillingAccount": "Aucun compte de facturation trouvé.",
+      "errorBillingPortal": "Échec de l'ouverture du portail de facturation."
     },
     "dataTools": "Outils de données",
     "repairImport": {
@@ -3770,7 +3780,10 @@
     "joiningCompanyNoOwn": "Vous rejoignez {company} — aucune entreprise propre nécessaire.",
     "fullName": "Nom complet",
     "password": "Mot de passe",
-    "backToOptions": "Retour"
+    "backToOptions": "Retour",
+    "errorInvalidToken": "Jeton invalide.",
+    "errorInvitationNotFound": "Invitation introuvable.",
+    "errorInvalidCompanyId": "Identifiant d'entreprise invalide."
   },
   "errors": {
     "unexpected": "Une erreur est survenue",
@@ -3835,6 +3848,9 @@
     "groupNoContact": "Aucun contact assigné",
     "groupNoItems": "Aucune ligne de position",
     "groupStaleDrafts": "Anciens brouillons (>90 jours)",
-    "cancelLabel": "Annuler"
+    "cancelLabel": "Annuler",
+    "errorCannotMergeSelf": "Impossible de fusionner un contact avec lui-même.",
+    "errorPrimaryNotFound": "Contact principal introuvable.",
+    "errorDuplicateNotFound": "Contact doublon introuvable."
   }
 }

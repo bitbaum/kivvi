@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { requireRole, safeErrorMessage } from "./utils";
 import type { ActionResult } from "./utils";
 import { createAction } from "./action-factory";
+import { getTranslations } from "next-intl/server";
 import {
   createInvitation,
   revokeInvitation,
@@ -160,15 +161,16 @@ export const acceptInvitationAction = createAction<
 export async function getInvitationDetailsAction(
   token: unknown,
 ): Promise<ActionResult<InvitationWithCompany>> {
+  const t = await getTranslations("team");
   try {
     const parsed = z.string().min(1).safeParse(token);
     if (!parsed.success) {
-      return { success: false, error: "Invalid token" };
+      return { success: false, error: t("errorInvalidToken") };
     }
 
     const invitation = await getInvitationByToken(db, parsed.data);
     if (!invitation) {
-      return { success: false, error: "Invitation not found" };
+      return { success: false, error: t("errorInvitationNotFound") };
     }
 
     return { success: true, data: invitation };

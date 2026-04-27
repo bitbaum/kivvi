@@ -1317,7 +1317,10 @@
     "posSaleComplete": "Verkauf abgeschlossen",
     "posInvoiceNumber": "Rechnung {number}",
     "posViewInvoice": "Rechnung anzeigen",
-    "posNewSale": "Neuer Verkauf"
+    "posNewSale": "Neuer Verkauf",
+    "errorNoFileProvided": "Keine Datei angegeben.",
+    "errorFileTooLarge": "Datei zu gross. Maximum 500 KB.",
+    "errorItemNotFound": "Artikel nicht gefunden."
   },
   "checklist": {
     "categoryLaptop": "Laptop",
@@ -1475,7 +1478,9 @@
     "categoryItems": "Positionen",
     "categoryShare": "Anteil",
     "uncategorized": "Ohne Kategorie",
-    "noCategoryData": "Keine Kategoriedaten für diesen Zeitraum."
+    "noCategoryData": "Keine Kategoriedaten für diesen Zeitraum.",
+    "errorAsOfDateRequired": "Stichtag ist erforderlich.",
+    "errorInvalidReportType": "Ungültiger Berichtstyp."
   },
   "dunning": {
     "title": "Mahnwesen",
@@ -1661,7 +1666,12 @@
       "upgrade": "Plan upgraden",
       "manageSubscription": "Abonnement verwalten",
       "upgradeError": "Upgrade konnte nicht gestartet werden. Bitte versuchen Sie es erneut.",
-      "manageError": "Abrechnungsportal konnte nicht geöffnet werden. Bitte versuchen Sie es erneut."
+      "manageError": "Abrechnungsportal konnte nicht geöffnet werden. Bitte versuchen Sie es erneut.",
+      "errorCompanyNotFound": "Unternehmen nicht gefunden.",
+      "errorStripePriceNotConfigured": "Stripe-Preis nicht konfiguriert.",
+      "errorCheckoutSession": "Checkout-Sitzung konnte nicht erstellt werden.",
+      "errorNoBillingAccount": "Kein Abrechnungskonto gefunden.",
+      "errorBillingPortal": "Abrechnungsportal konnte nicht geöffnet werden."
     },
     "dataTools": "Datenwerkzeuge",
     "repairImport": {
@@ -3770,7 +3780,10 @@
     "joiningCompanyNoOwn": "Sie treten {company} bei — kein eigener Betrieb nötig.",
     "fullName": "Vollständiger Name",
     "password": "Passwort",
-    "backToOptions": "Zurück"
+    "backToOptions": "Zurück",
+    "errorInvalidToken": "Ungültiger Token.",
+    "errorInvitationNotFound": "Einladung nicht gefunden.",
+    "errorInvalidCompanyId": "Ungültige Unternehmens-ID."
   },
   "errors": {
     "unexpected": "Etwas ist schiefgelaufen",
@@ -3835,6 +3848,9 @@
     "groupNoContact": "Kein Kontakt zugewiesen",
     "groupNoItems": "Keine Positionen",
     "groupStaleDrafts": "Alte Entwürfe (>90 Tage)",
-    "cancelLabel": "Stornieren"
+    "cancelLabel": "Stornieren",
+    "errorCannotMergeSelf": "Ein Kontakt kann nicht mit sich selbst zusammengeführt werden.",
+    "errorPrimaryNotFound": "Primärkontakt nicht gefunden.",
+    "errorDuplicateNotFound": "Duplikatkontakt nicht gefunden."
   }
 }

@@ -36,6 +36,7 @@ import {
 } from "./utils";
 import { revalidatePath } from "next/cache";
 import { dispatchWebhookEvent } from "@kivvi/core/src/domain/webhooks";
+import { getTranslations } from "next-intl/server";
 
 export async function createInventoryItemAction(
   input: unknown,
@@ -219,12 +220,13 @@ export async function uploadItemPhotoAction(
   itemId: string,
   formData: FormData,
 ): Promise<ActionResult> {
+  const t = await getTranslations("inventory");
   try {
     const { companyId } = await requireRole("member");
 
     const file = formData.get("photo") as File | null;
     if (!file || file.size === 0) {
-      return { success: false, error: "No file provided" };
+      return { success: false, error: t("errorNoFileProvided") };
     }
 
     if (!ALLOWED_PHOTO_TYPES.includes(file.type)) {
@@ -235,7 +237,7 @@ export async function uploadItemPhotoAction(
     }
 
     if (file.size > MAX_PHOTO_SIZE) {
-      return { success: false, error: "File too large. Maximum 500KB." };
+      return { success: false, error: t("errorFileTooLarge") };
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
@@ -261,7 +263,7 @@ export async function uploadItemPhotoAction(
       .returning({ id: inventoryItemsTable.id });
 
     if (result.length === 0) {
-      return { success: false, error: "Item not found" };
+      return { success: false, error: t("errorItemNotFound") };
     }
 
     revalidatePath(`/intake/items/${itemId}`);
@@ -538,10 +540,11 @@ export async function listInventoryItemsAction(options?: {
 export async function getInventoryItemAction(
   itemId: string,
 ): Promise<ActionResult<Awaited<ReturnType<typeof getInventoryItem>>>> {
+  const t = await getTranslations("inventory");
   try {
     const { companyId } = await requireRole("member");
     const item = await getInventoryItem(db, companyId, itemId);
-    if (!item) return { success: false, error: "Item not found" };
+    if (!item) return { success: false, error: t("errorItemNotFound") };
     return { success: true, data: item };
   } catch (error) {
     return {

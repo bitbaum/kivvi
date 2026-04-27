@@ -21,6 +21,7 @@ import type {
 import { MEMBERSHIP_ROLES } from "@kivvi/database";
 import type { MembershipRole } from "@kivvi/database";
 import { createAction } from "./action-factory";
+import { getTranslations } from "next-intl/server";
 
 // ============================================================================
 // ACTIONS
@@ -52,9 +53,10 @@ export async function switchCompanyAction(
 ): Promise<ActionResult<{ companyId: string; companyName: string }>> {
   try {
     const { userId } = await getSession();
+    const t = await getTranslations("team");
     const parsed = switchCompanySchema.shape.companyId.safeParse(companyId);
     if (!parsed.success) {
-      return { success: false, error: "Invalid company ID" };
+      return { success: false, error: t("errorInvalidCompanyId") };
     }
 
     const result = await switchCompany(db, userId, parsed.data);
@@ -109,7 +111,10 @@ export const updateMemberRoleAction = createAction<
   { userId: unknown; role: unknown },
   void
 >({
-  handler: async ({ userId, role }, { companyId, userId: currentUserId, db }) => {
+  handler: async (
+    { userId, role },
+    { companyId, userId: currentUserId, db },
+  ) => {
     const parsedUserId = z.string().uuid().safeParse(userId);
     const parsedRole = z.enum(MEMBERSHIP_ROLES).safeParse(role);
     if (!parsedUserId.success) throw new Error("Invalid user ID");

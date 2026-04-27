@@ -1317,7 +1317,10 @@
     "posSaleComplete": "Sale complete",
     "posInvoiceNumber": "Invoice {number}",
     "posViewInvoice": "View invoice",
-    "posNewSale": "New sale"
+    "posNewSale": "New sale",
+    "errorNoFileProvided": "No file provided.",
+    "errorFileTooLarge": "File too large. Maximum 500 KB.",
+    "errorItemNotFound": "Item not found."
   },
   "checklist": {
     "categoryLaptop": "Laptop",
@@ -1475,7 +1478,9 @@
     "categoryItems": "Line Items",
     "categoryShare": "Share",
     "uncategorized": "Uncategorized",
-    "noCategoryData": "No category data for this period."
+    "noCategoryData": "No category data for this period.",
+    "errorAsOfDateRequired": "As of date is required.",
+    "errorInvalidReportType": "Invalid report type."
   },
   "dunning": {
     "title": "Dunning",
@@ -1661,7 +1666,12 @@
       "upgrade": "Upgrade Plan",
       "manageSubscription": "Manage Subscription",
       "upgradeError": "Failed to start upgrade. Please try again.",
-      "manageError": "Failed to open billing portal. Please try again."
+      "manageError": "Failed to open billing portal. Please try again.",
+      "errorCompanyNotFound": "Company not found.",
+      "errorStripePriceNotConfigured": "Stripe price not configured.",
+      "errorCheckoutSession": "Failed to create checkout session.",
+      "errorNoBillingAccount": "No billing account found.",
+      "errorBillingPortal": "Failed to open billing portal."
     },
     "dataTools": "Data Tools",
     "repairImport": {
@@ -3770,7 +3780,10 @@
     "joiningCompanyNoOwn": "You are joining {company} — no company of your own needed.",
     "fullName": "Full name",
     "password": "Password",
-    "backToOptions": "Back"
+    "backToOptions": "Back",
+    "errorInvalidToken": "Invalid token.",
+    "errorInvitationNotFound": "Invitation not found.",
+    "errorInvalidCompanyId": "Invalid company ID."
   },
   "errors": {
     "unexpected": "Something went wrong",
@@ -3835,6 +3848,9 @@
     "groupNoContact": "No contact assigned",
     "groupNoItems": "No line items",
     "groupStaleDrafts": "Old drafts (>90 days)",
-    "cancelLabel": "Cancel"
+    "cancelLabel": "Cancel",
+    "errorCannotMergeSelf": "Cannot merge a contact with itself.",
+    "errorPrimaryNotFound": "Primary contact not found.",
+    "errorDuplicateNotFound": "Duplicate contact not found."
   }
 }
