@@ -99,6 +99,8 @@ export async function updateInventoryItemAction(
     }).catch(() => {});
 
     revalidatePath("/intake");
+    revalidatePath(`/intake/items/${itemId}`);
+    revalidatePath("/intake/items");
     return { success: true, data: { id: item.id } };
   } catch (error) {
     return {
@@ -139,6 +141,8 @@ export async function updateItemStatusAction(
     }).catch(() => {});
 
     revalidatePath("/intake");
+    revalidatePath(`/intake/items/${itemId}`);
+    revalidatePath("/intake/repair-queue");
     return { success: true, data: { id: item.id, status: item.status } };
   } catch (error) {
     return {
@@ -167,6 +171,7 @@ export async function updateItemConditionAction(
     });
 
     revalidatePath("/intake");
+    revalidatePath(`/intake/items/${itemId}`);
     return { success: true, data: { id: item.id, condition: item.condition } };
   } catch (error) {
     return {

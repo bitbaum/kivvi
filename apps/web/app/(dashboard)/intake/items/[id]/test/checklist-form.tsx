@@ -147,9 +147,7 @@ export function ChecklistForm({
       {/* Progress */}
       <div className="flex items-center justify-between text-sm text-muted-foreground">
         <span>
-          {tc("checklistProgress")
-            .replace("{done}", String(completedCount))
-            .replace("{total}", String(totalCount))}
+          {tc("checklistProgress", { done: completedCount, total: totalCount })}
         </span>
         <span className="text-xs">
           {Math.round((completedCount / totalCount) * 100)}%
