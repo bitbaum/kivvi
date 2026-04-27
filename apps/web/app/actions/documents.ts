@@ -83,7 +83,7 @@ export async function createDocumentAction(
       type: doc.type,
       status: doc.status,
       contactId: doc.contactId,
-      total: doc.totalGross,
+      total: doc.total,
     }).catch(() => {});
 
     revalidateDocumentPaths(doc.type, doc.id);
