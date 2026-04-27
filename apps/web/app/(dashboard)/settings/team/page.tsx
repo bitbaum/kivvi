@@ -271,7 +271,7 @@ export default function TeamPage() {
                         e.target.value as MembershipRole,
                       )
                     }
-                    className="rounded-lg border bg-background px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-ring"
+                    className="rounded-lg border bg-background px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                   >
                     <option value="owner">{tc("roleLabel.owner")}</option>
                     <option value="admin">{tc("roleLabel.admin")}</option>

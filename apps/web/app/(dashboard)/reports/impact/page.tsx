@@ -198,7 +198,7 @@ export default async function ImpactReportPage() {
                 ? tr("impactCo2FactorsCustom")
                 : tr("impactCo2FactorsDefault")}
             </p>
-            <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-4 text-xs">
+            <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-4">
               {Object.entries({ ...CO2_FACTORS_KG, ...co2FactorsKg }).map(
                 ([cat, kg]) => (
                   <div

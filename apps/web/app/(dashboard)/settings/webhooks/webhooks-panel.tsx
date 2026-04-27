@@ -190,7 +190,15 @@ export function WebhooksPanel({ initialEndpoints }: Props) {
       {endpoints.length === 0 && !showForm && (
         <div className="rounded-xl border bg-card p-10 text-center text-muted-foreground">
           <Globe className="mx-auto mb-3 h-8 w-8 opacity-40" />
-          <p className="text-sm">{t("emptyState")}</p>
+          <p className="mb-4 text-sm">{t("emptyState")}</p>
+          <Button
+            variant="outline"
+            onClick={() => setShowForm(true)}
+            className="gap-2"
+          >
+            <Plus className="h-4 w-4" />
+            {t("addEndpoint")}
+          </Button>
         </div>
       )}
 
