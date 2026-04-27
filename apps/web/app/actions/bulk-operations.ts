@@ -34,6 +34,7 @@ import {
   safeErrorMessage,
 } from "./utils";
 import { revalidateDocumentPaths } from "./utils/revalidate-documents";
+import { getTranslations } from "next-intl/server";
 
 // ============================================================================
 // TYPES
@@ -152,6 +153,7 @@ function parseInput<T>(
 export async function bulkConvertDocumentsAction(
   input: unknown,
 ): Promise<ActionResult<BulkOperationResult<{ id: string; number: string }>>> {
+  const t = await getTranslations("bulkActions");
   try {
     const { companyId, userId } = await requireRole("member");
     const data = parseInput(bulkConvertSchema, input);
@@ -170,12 +172,12 @@ export async function bulkConvertDocumentsAction(
         return { id: newDoc.id, number: newDoc.number };
       },
       () => revalidateDocumentPaths(data.targetType),
-      "Failed to convert document",
+      t("errorConvertDocument"),
     );
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to bulk convert documents"),
+      error: safeErrorMessage(error, t("errorBulkConvert")),
     };
   }
 }
@@ -188,6 +190,7 @@ export async function bulkSendDunningAction(
     BulkOperationResult<{ dunningDocId: string; dunningNumber: string }>
   >
 > {
+  const t = await getTranslations("bulkActions");
   try {
     const { companyId, userId } = await requireRole("member");
     const data = parseInput(bulkSendDunningSchema, input);
@@ -211,12 +214,12 @@ export async function bulkSendDunningAction(
         revalidateDocumentPaths("invoice");
         revalidateDocumentPaths("dunning");
       },
-      "Failed to create dunning",
+      t("errorCreateDunning"),
     );
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to bulk send dunning notices"),
+      error: safeErrorMessage(error, t("errorBulkSendDunning")),
     };
   }
 }
@@ -225,6 +228,7 @@ export async function bulkSendDunningAction(
 export async function bulkExtendQuoteValidityAction(
   input: unknown,
 ): Promise<ActionResult<BulkOperationResult<{ newDueDate: string }>>> {
+  const t = await getTranslations("bulkActions");
   try {
     const { companyId } = await requireRole("member");
     const data = parseInput(bulkExtendQuoteValiditySchema, input);
@@ -235,12 +239,12 @@ export async function bulkExtendQuoteValidityAction(
       async (quoteId) =>
         extendQuoteValidity(db, companyId, quoteId, data.extensionDays),
       () => revalidateDocumentPaths("quote"),
-      "Failed to extend quote validity",
+      t("errorExtendQuoteValidity"),
     );
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to bulk extend quote validity"),
+      error: safeErrorMessage(error, t("errorBulkExtendValidity")),
     };
   }
 }
@@ -253,6 +257,7 @@ export async function bulkMatchTransactionsAction(
     BulkOperationResult<{ documentId: string; documentNumber: string }>
   >
 > {
+  const t = await getTranslations("bulkActions");
   try {
     const { companyId } = await requireRole("member");
     const data = parseInput(bulkMatchTransactionsSchema, input);
@@ -270,12 +275,12 @@ export async function bulkMatchTransactionsAction(
         revalidatePath("/banking");
         revalidateDocumentPaths("invoice");
       },
-      "Failed to match transaction",
+      t("errorMatchTransaction"),
     );
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to bulk match transactions"),
+      error: safeErrorMessage(error, t("errorBulkMatchTransactions")),
     };
   }
 }
@@ -284,6 +289,7 @@ export async function bulkMatchTransactionsAction(
 export async function bulkStatusChangeAction(
   input: unknown,
 ): Promise<ActionResult<BulkOperationResult>> {
+  const t = await getTranslations("bulkActions");
   try {
     const { companyId } = await requireRole("member");
     const schema = bulkDocumentIdsSchema.extend({
@@ -304,12 +310,12 @@ export async function bulkStatusChangeAction(
         return undefined;
       },
       () => revalidatePath("/"),
-      "Failed to update status",
+      t("errorUpdateStatus"),
     );
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to bulk update status"),
+      error: safeErrorMessage(error, t("errorBulkUpdateStatus")),
     };
   }
 }
@@ -318,6 +324,7 @@ export async function bulkStatusChangeAction(
 export async function bulkMarkPaidAction(
   input: unknown,
 ): Promise<ActionResult<BulkOperationResult>> {
+  const t = await getTranslations("bulkActions");
   try {
     const { companyId } = await requireRole("member");
     const schema = bulkDocumentIdsSchema.extend({
@@ -345,12 +352,12 @@ export async function bulkMarkPaidAction(
         return undefined;
       },
       () => revalidatePath("/"),
-      "Failed to record payment",
+      t("errorRecordPayment"),
     );
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to bulk mark as paid"),
+      error: safeErrorMessage(error, t("errorBulkMarkPaid")),
     };
   }
 }
@@ -359,6 +366,7 @@ export async function bulkMarkPaidAction(
 export async function bulkDeleteDocumentsAction(
   input: unknown,
 ): Promise<ActionResult<BulkOperationResult>> {
+  const t = await getTranslations("bulkActions");
   try {
     const { companyId } = await requireRole("member");
     const data = parseInput(bulkDocumentIdsSchema, input);
@@ -371,12 +379,12 @@ export async function bulkDeleteDocumentsAction(
         return undefined;
       },
       () => revalidatePath("/"),
-      "Failed to delete document",
+      t("errorDeleteDocument"),
     );
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to bulk delete documents"),
+      error: safeErrorMessage(error, t("errorBulkDeleteDocuments")),
     };
   }
 }
@@ -385,6 +393,7 @@ export async function bulkDeleteDocumentsAction(
 export async function bulkDeleteContactsAction(
   input: unknown,
 ): Promise<ActionResult<BulkOperationResult>> {
+  const t = await getTranslations("bulkActions");
   try {
     const { companyId } = await requireRole("member");
     const data = parseInput(bulkContactIdsSchema, input);
@@ -397,12 +406,12 @@ export async function bulkDeleteContactsAction(
         return undefined;
       },
       () => revalidatePath("/contacts"),
-      "Failed to delete contact",
+      t("errorDeleteContact"),
     );
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to bulk delete contacts"),
+      error: safeErrorMessage(error, t("errorBulkDeleteContacts")),
     };
   }
 }
@@ -411,6 +420,7 @@ export async function bulkDeleteContactsAction(
 export async function bulkDeleteProductsAction(
   input: unknown,
 ): Promise<ActionResult<BulkOperationResult>> {
+  const t = await getTranslations("bulkActions");
   try {
     const { companyId } = await requireRole("member");
     const data = parseInput(bulkProductIdsSchema, input);
@@ -423,12 +433,12 @@ export async function bulkDeleteProductsAction(
         return undefined;
       },
       () => revalidatePath("/products"),
-      "Failed to delete product",
+      t("errorDeleteProduct"),
     );
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to bulk delete products"),
+      error: safeErrorMessage(error, t("errorBulkDeleteProducts")),
     };
   }
 }
@@ -437,6 +447,7 @@ export async function bulkDeleteProductsAction(
 export async function bulkDeactivateContactsAction(
   input: unknown,
 ): Promise<ActionResult<BulkOperationResult>> {
+  const t = await getTranslations("bulkActions");
   try {
     const { companyId } = await requireRole("member");
     const data = parseInput(bulkContactIdsSchema, input);
@@ -449,12 +460,12 @@ export async function bulkDeactivateContactsAction(
         return undefined;
       },
       () => revalidatePath("/contacts"),
-      "Failed to deactivate contact",
+      t("errorDeactivateContact"),
     );
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to bulk deactivate contacts"),
+      error: safeErrorMessage(error, t("errorBulkDeactivateContacts")),
     };
   }
 }
@@ -463,6 +474,7 @@ export async function bulkDeactivateContactsAction(
 export async function bulkDeactivateProductsAction(
   input: unknown,
 ): Promise<ActionResult<BulkOperationResult>> {
+  const t = await getTranslations("bulkActions");
   try {
     const { companyId } = await requireRole("member");
     const data = parseInput(bulkProductIdsSchema, input);
@@ -475,12 +487,12 @@ export async function bulkDeactivateProductsAction(
         return undefined;
       },
       () => revalidatePath("/products"),
-      "Failed to deactivate product",
+      t("errorDeactivateProduct"),
     );
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to bulk deactivate products"),
+      error: safeErrorMessage(error, t("errorBulkDeactivateProducts")),
     };
   }
 }
