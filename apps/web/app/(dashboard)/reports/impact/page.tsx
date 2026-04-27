@@ -85,7 +85,7 @@ export default async function ImpactReportPage() {
               icon={<Leaf className="h-5 w-5" />}
               label={t("co2Avoided")}
               value={`${co2Tonnes} t`}
-              sub={`${co2Kg.toLocaleString()} kg total`}
+              sub={`${co2Kg.toLocaleString()} kg ${tc("total")}`}
               color="text-success"
             />
             <SummaryCard
