@@ -1,6 +1,7 @@
 "use server";
 
 import { type ActionResult, requireRole, safeErrorMessage } from "./utils";
+import { getTranslations } from "next-intl/server";
 import {
   callAIProvider,
   isAIConfigured,
@@ -97,9 +98,10 @@ export async function extractItemsFromTextAction(
 ): Promise<ActionResult<ExtractionResult>> {
   try {
     await requireRole("member");
+    const t = await getTranslations("ai");
 
     if (!text.trim()) {
-      return { success: false, error: "Text is required" };
+      return { success: false, error: t("errorTextRequired") };
     }
 
     if (!isAIConfigured()) {
@@ -169,9 +171,10 @@ export async function extractContactFromTextAction(
 ): Promise<ActionResult<ExtractedContact>> {
   try {
     await requireRole("member");
+    const t = await getTranslations("ai");
 
     if (!text.trim()) {
-      return { success: false, error: "Text is required" };
+      return { success: false, error: t("errorTextRequired") };
     }
 
     if (!isAIConfigured()) {

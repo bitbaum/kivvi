@@ -2140,7 +2140,8 @@
       "de": "Allemagne",
       "at": "Autriche",
       "li": "Liechtenstein"
-    }
+    },
+    "errorCompanyNotFound": "Entreprise introuvable."
   },
   "chat": {
     "title": "Assistant IA",
@@ -3852,5 +3853,8 @@
     "errorCannotMergeSelf": "Impossible de fusionner un contact avec lui-même.",
     "errorPrimaryNotFound": "Contact principal introuvable.",
     "errorDuplicateNotFound": "Contact doublon introuvable."
+  },
+  "ai": {
+    "errorTextRequired": "Le texte est requis."
   }
 }

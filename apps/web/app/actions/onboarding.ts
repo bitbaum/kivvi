@@ -8,6 +8,7 @@ import { eq, and } from "drizzle-orm";
 import Decimal from "decimal.js";
 import { z } from "zod";
 import { type ActionResult, getSession, safeErrorMessage } from "./utils";
+import { getTranslations } from "next-intl/server";
 import {
   initializeCompany,
   completeOnboarding,
@@ -421,8 +422,9 @@ export async function getCompanyDetailsAction(): Promise<
       .from(companies)
       .where(eq(companies.id, companyId));
 
+    const t = await getTranslations("onboarding");
     if (!company) {
-      return { success: false, error: "Company not found" };
+      return { success: false, error: t("errorCompanyNotFound") };
     }
 
     return {

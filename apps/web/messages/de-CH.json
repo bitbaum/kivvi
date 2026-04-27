@@ -2140,7 +2140,8 @@
       "de": "Deutschland",
       "at": "Österreich",
       "li": "Liechtenstein"
-    }
+    },
+    "errorCompanyNotFound": "Unternehmen nicht gefunden."
   },
   "chat": {
     "title": "KI-Assistent",
@@ -3852,5 +3853,8 @@
     "errorCannotMergeSelf": "Ein Kontakt kann nicht mit sich selbst zusammengeführt werden.",
     "errorPrimaryNotFound": "Primärkontakt nicht gefunden.",
     "errorDuplicateNotFound": "Duplikatkontakt nicht gefunden."
+  },
+  "ai": {
+    "errorTextRequired": "Text ist erforderlich."
   }
 }

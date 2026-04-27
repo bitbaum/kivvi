@@ -2140,7 +2140,8 @@
       "de": "Germany",
       "at": "Austria",
       "li": "Liechtenstein"
-    }
+    },
+    "errorCompanyNotFound": "Company not found."
   },
   "chat": {
     "title": "AI Assistant",
@@ -3852,5 +3853,8 @@
     "errorCannotMergeSelf": "Cannot merge a contact with itself.",
     "errorPrimaryNotFound": "Primary contact not found.",
     "errorDuplicateNotFound": "Duplicate contact not found."
+  },
+  "ai": {
+    "errorTextRequired": "Text is required."
   }
 }
