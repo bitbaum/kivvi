@@ -39,6 +39,7 @@ import { revalidateDocumentPaths } from "./utils/revalidate-documents";
 import { getTransporter, getFromEmail } from "@/lib/email/transporter";
 import { isEmailConfigured } from "@/lib/config/email";
 import { logger } from "@/lib/logger";
+import { dispatchWebhookEvent } from "@kivvi/core/src/domain/webhooks";
 
 // ============================================================================
 // VALIDATION SCHEMAS FOR UNVALIDATED PARAMS
@@ -75,6 +76,15 @@ export async function createDocumentAction(
     }
 
     const doc = await createDocument(db, companyId, userId, parsed.data);
+
+    dispatchWebhookEvent(db, companyId, "document.created", {
+      id: doc.id,
+      number: doc.number,
+      type: doc.type,
+      status: doc.status,
+      contactId: doc.contactId,
+      total: doc.totalGross,
+    }).catch(() => {});
 
     revalidateDocumentPaths(doc.type, doc.id);
     return { success: true, data: { id: doc.id, number: doc.number } };
@@ -148,6 +158,14 @@ export async function updateDocumentStatusAction(
       parsed.data.newStatus as DocumentStatus,
     );
 
+    dispatchWebhookEvent(db, companyId, "document.status_changed", {
+      id: doc.id,
+      number: doc.number,
+      type: doc.type,
+      status: doc.status,
+      contactId: doc.contactId,
+    }).catch(() => {});
+
     revalidateDocumentPaths(doc.type, doc.id);
     return { success: true, data: { id: doc.id, status: doc.status } };
   } catch (error) {
@@ -219,6 +237,14 @@ export async function recordPaymentAction(
         );
       }
     }
+
+    dispatchWebhookEvent(db, companyId, "payment.received", {
+      paymentId: payment.id,
+      documentId,
+      amount: parsed.data.amount,
+      method: parsed.data.method ?? "bank_transfer",
+      date: parsed.data.date,
+    }).catch(() => {});
 
     revalidateDocumentPaths("invoice", documentId);
     return { success: true, data: { id: payment.id } };

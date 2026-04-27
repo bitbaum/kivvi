@@ -88,6 +88,16 @@ export async function updateInventoryItemAction(
       return updateInventoryItem(tx, companyId, itemId, parsed.data);
     });
 
+    dispatchWebhookEvent(db, companyId, "inventory_item.updated", {
+      id: item.id,
+      itemNumber: item.itemNumber,
+      description: item.description,
+      condition: item.condition,
+      status: item.status,
+      warehouseId: item.warehouseId,
+      askingPrice: item.askingPrice,
+    }).catch(() => {});
+
     revalidatePath("/intake");
     return { success: true, data: { id: item.id } };
   } catch (error) {
