@@ -1,13 +1,22 @@
 "use server";
 
 import { z } from "zod";
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { companies, users } from "@kivvi/database";
 import { getPublicCompanyBySlug } from "@kivvi/core/src/domain/shop";
 import { getTransporter, getFromEmail } from "@/lib/email/transporter";
 import { isEmailConfigured } from "@/lib/config/email";
 import type { ActionResult } from "./utils";
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;");
+}
 
 const sendShopInquirySchema = z.object({
   companyId: z.string().uuid(),
@@ -63,33 +72,40 @@ export async function sendShopInquiryAction(
     const companyName = companyRow?.name ?? "Ihr Shop";
     const itemUrl = `${process.env.NEXTAUTH_URL ?? ""}/shop/${slug}/${itemId}`;
 
+    const safeName = escapeHtml(senderName);
+    const safeEmail = escapeHtml(senderEmail);
+    const safeItem = escapeHtml(itemDescription);
+    const safeMessage = message
+      ? escapeHtml(message).replace(/\n/g, "<br>")
+      : null;
+
     const transporter = getTransporter();
     await transporter.sendMail({
       from: getFromEmail(),
       to: admin.email,
-      replyTo: `"${senderName}" <${senderEmail}>`,
-      subject: `Neue Anfrage: ${itemDescription}`,
+      replyTo: `"${safeName}" <${safeEmail}>`,
+      subject: `Neue Anfrage: ${safeItem}`,
       html: `
         <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #111;">Neue Shop-Anfrage</h2>
           <p>Sie haben eine neue Anfrage für einen Artikel in Ihrem Shop erhalten.</p>
 
           <div style="background: #f5f5f5; border-radius: 8px; padding: 16px; margin: 16px 0;">
-            <p style="margin: 0 0 8px;"><strong>Artikel:</strong> ${itemDescription}</p>
+            <p style="margin: 0 0 8px;"><strong>Artikel:</strong> ${safeItem}</p>
             <p style="margin: 0;">
               <a href="${itemUrl}" style="color: #6366f1;">Artikel ansehen →</a>
             </p>
           </div>
 
           <div style="background: #f5f5f5; border-radius: 8px; padding: 16px; margin: 16px 0;">
-            <p style="margin: 0 0 8px;"><strong>Von:</strong> ${senderName}</p>
-            <p style="margin: 0 0 8px;"><strong>E-Mail:</strong> <a href="mailto:${senderEmail}">${senderEmail}</a></p>
-            ${message ? `<p style="margin: 8px 0 0;"><strong>Nachricht:</strong><br>${message.replace(/\n/g, "<br>")}</p>` : ""}
+            <p style="margin: 0 0 8px;"><strong>Von:</strong> ${safeName}</p>
+            <p style="margin: 0 0 8px;"><strong>E-Mail:</strong> <a href="mailto:${safeEmail}">${safeEmail}</a></p>
+            ${safeMessage ? `<p style="margin: 8px 0 0;"><strong>Nachricht:</strong><br>${safeMessage}</p>` : ""}
           </div>
 
           <p style="color: #888; font-size: 12px;">
-            Diese Anfrage wurde über den öffentlichen Shop von ${companyName} gesendet.
-            Antworten Sie direkt auf diese E-Mail, um ${senderName} zu kontaktieren.
+            Diese Anfrage wurde über den öffentlichen Shop von ${escapeHtml(companyName)} gesendet.
+            Antworten Sie direkt auf diese E-Mail, um ${safeName} zu kontaktieren.
           </p>
         </div>
       `,

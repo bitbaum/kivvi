@@ -1,6 +1,15 @@
 "use server";
 
 import { z } from "zod";
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;");
+}
 import { db } from "@/lib/db";
 import { contactSubmissions } from "@kivvi/database";
 import { type ActionResult, safeErrorMessage } from "./utils";
@@ -75,26 +84,28 @@ export async function submitContactFormAction(
         const transporter = getTransporter();
         const from = getFromEmail();
 
-        const betriebstypLabel = betriebstyp ?? "—";
+        const safeName = escapeHtml(name);
+        const safeEmail = escapeHtml(email);
+        const betriebstypLabel = escapeHtml(betriebstyp ?? "—");
         const organisationLine = organisation
-          ? `<tr><td><strong>Organisation:</strong></td><td>${organisation}</td></tr>`
+          ? `<tr><td><strong>Organisation:</strong></td><td>${escapeHtml(organisation)}</td></tr>`
           : "";
         const messageLine = message
-          ? `<tr><td><strong>Nachricht:</strong></td><td>${message.replace(/\n/g, "<br>")}</td></tr>`
+          ? `<tr><td><strong>Nachricht:</strong></td><td>${escapeHtml(message).replace(/\n/g, "<br>")}</td></tr>`
           : "";
 
         await transporter.sendMail({
           from,
           to: CONTACT_EMAIL,
-          subject: `Neue Kontaktanfrage von ${name}`,
+          subject: `Neue Kontaktanfrage von ${safeName}`,
           html: `
             <h2>Neue Kontaktanfrage</h2>
             <table cellpadding="6" cellspacing="0">
-              <tr><td><strong>Name:</strong></td><td>${name}</td></tr>
-              <tr><td><strong>E-Mail:</strong></td><td>${email}</td></tr>
+              <tr><td><strong>Name:</strong></td><td>${safeName}</td></tr>
+              <tr><td><strong>E-Mail:</strong></td><td>${safeEmail}</td></tr>
               ${organisationLine}
               <tr><td><strong>Betriebstyp:</strong></td><td>${betriebstypLabel}</td></tr>
-              <tr><td><strong>Typ:</strong></td><td>${type}</td></tr>
+              <tr><td><strong>Typ:</strong></td><td>${escapeHtml(type)}</td></tr>
               ${messageLine}
             </table>
           `,
