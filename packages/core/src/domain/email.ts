@@ -2,6 +2,15 @@
 // EMAIL TEMPLATES — Domain logic for email generation
 // ============================================================================
 
+function e(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#x27;");
+}
+
 export interface InvoiceEmailData {
   recipientEmail: string;
   recipientName: string;
@@ -70,7 +79,7 @@ function getDocumentBody(data: InvoiceEmailData): {
     ] || data.documentType;
   const formattedTotal = formatAmountSwiss(data.total, data.currency);
 
-  const greeting = `Guten Tag ${data.recipientName}`;
+  const greeting = `Guten Tag ${e(data.recipientName)}`;
 
   let body: string;
   switch (data.documentType) {
@@ -144,7 +153,7 @@ export function buildPasswordResetEmailSubject(
 export function buildPasswordResetEmailHtml(
   data: PasswordResetEmailData,
 ): string {
-  const companyName = data.companyName || "Kivvi";
+  const companyName = e(data.companyName || "Kivvi");
 
   return `<!DOCTYPE html>
 <html lang="de">
@@ -170,7 +179,7 @@ export function buildPasswordResetEmailHtml(
           <tr>
             <td style="padding: 32px 40px;">
               <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.6; color: #3f3f46;">
-                Guten Tag ${data.recipientName}
+                Guten Tag ${e(data.recipientName)}
               </p>
               <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.6; color: #3f3f46;">
                 Sie haben eine Anfrage zum Zurücksetzen Ihres Passworts gestellt. Klicken Sie auf den untenstehenden Button, um Ihr Passwort zurückzusetzen.
@@ -255,10 +264,10 @@ export function buildInvitationEmailHtml(data: InvitationEmailData): string {
                 Guten Tag
               </p>
               <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.6; color: #3f3f46;">
-                ${data.inviterName} hat Sie eingeladen, <strong>${data.companyName}</strong> auf Kivvi beizutreten.
+                ${e(data.inviterName)} hat Sie eingeladen, <strong>${e(data.companyName)}</strong> auf Kivvi beizutreten.
               </p>
               <p style="margin: 0 0 20px; font-size: 14px; line-height: 1.6; color: #71717a;">
-                Rolle: <strong>${data.role}</strong>
+                Rolle: <strong>${e(data.role)}</strong>
               </p>
               <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 24px 0;">
                 <tr>
@@ -323,6 +332,8 @@ export function buildPaymentConfirmationEmailHtml(
 ): string {
   const formattedAmount = formatAmountSwiss(data.amount, data.currency);
   const formattedDate = formatDateSwiss(data.paymentDate);
+  const safeCompanyName = e(data.companyName);
+  const safeRecipientName = e(data.recipientName);
 
   return `<!DOCTYPE html>
 <html lang="de">
@@ -340,7 +351,7 @@ export function buildPaymentConfirmationEmailHtml(
           <tr>
             <td style="padding: 32px 40px 24px; border-bottom: 1px solid #e4e4e7;">
               <h1 style="margin: 0; font-size: 20px; font-weight: 600; color: #18181b;">
-                ${data.companyName}
+                ${safeCompanyName}
               </h1>
             </td>
           </tr>
@@ -348,7 +359,7 @@ export function buildPaymentConfirmationEmailHtml(
           <tr>
             <td style="padding: 32px 40px;">
               <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.6; color: #3f3f46;">
-                Guten Tag ${data.recipientName}
+                Guten Tag ${safeRecipientName}
               </p>
               <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.6; color: #3f3f46;">
                 Wir bestätigen den Eingang Ihrer Zahlung über <strong>${formattedAmount}</strong> für Rechnung <strong>${data.documentNumber}</strong> vom <strong>${formattedDate}</strong>.
@@ -358,7 +369,7 @@ export function buildPaymentConfirmationEmailHtml(
               </p>
               <p style="margin: 0 0 8px; font-size: 15px; line-height: 1.6; color: #3f3f46;">
                 Freundliche Grüsse<br>
-                ${data.companyName}
+                ${safeCompanyName}
               </p>
             </td>
           </tr>
@@ -366,7 +377,7 @@ export function buildPaymentConfirmationEmailHtml(
           <tr>
             <td style="padding: 24px 40px; background-color: #fafafa; border-top: 1px solid #e4e4e7;">
               <p style="margin: 0; font-size: 12px; color: #a1a1aa; line-height: 1.5;">
-                Diese E-Mail wurde automatisch von ${data.companyName} versendet.
+                Diese E-Mail wurde automatisch von ${safeCompanyName} versendet.
               </p>${
                 data.plan !== "premium"
                   ? `
@@ -411,6 +422,8 @@ export function buildDonationReceiptEmailHtml(
   data: DonationReceiptEmailData,
 ): string {
   const formattedDate = formatDateSwiss(data.date);
+  const safeCompanyName = e(data.companyName);
+  const safeRecipientName = e(data.recipientName);
   const valueText =
     data.estimatedValue && Number(data.estimatedValue) > 0
       ? ` im geschätzten Wert von <strong>${formatAmountSwiss(data.estimatedValue, data.currency)}</strong>`
@@ -432,7 +445,7 @@ export function buildDonationReceiptEmailHtml(
           <tr>
             <td style="padding: 32px 40px 24px; border-bottom: 1px solid #e4e4e7;">
               <h1 style="margin: 0; font-size: 20px; font-weight: 600; color: #18181b;">
-                ${data.companyName}
+                ${safeCompanyName}
               </h1>
             </td>
           </tr>
@@ -440,7 +453,7 @@ export function buildDonationReceiptEmailHtml(
           <tr>
             <td style="padding: 32px 40px;">
               <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.6; color: #3f3f46;">
-                Guten Tag ${data.recipientName}
+                Guten Tag ${safeRecipientName}
               </p>
               <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.6; color: #3f3f46;">
                 Herzlichen Dank für Ihre Spende vom <strong>${formattedDate}</strong>. Wir haben <strong>${data.itemCount} ${data.itemCount === 1 ? "Artikel" : "Artikel"}</strong>${valueText} erhalten.
@@ -450,7 +463,7 @@ export function buildDonationReceiptEmailHtml(
               </p>
               <p style="margin: 0 0 8px; font-size: 15px; line-height: 1.6; color: #3f3f46;">
                 Freundliche Grüsse<br>
-                ${data.companyName}
+                ${safeCompanyName}
               </p>
             </td>
           </tr>
@@ -458,7 +471,7 @@ export function buildDonationReceiptEmailHtml(
           <tr>
             <td style="padding: 24px 40px; background-color: #fafafa; border-top: 1px solid #e4e4e7;">
               <p style="margin: 0; font-size: 12px; color: #a1a1aa; line-height: 1.5;">
-                Diese E-Mail wurde automatisch von ${data.companyName} versendet.
+                Diese E-Mail wurde automatisch von ${safeCompanyName} versendet.
               </p>${
                 data.plan !== "premium"
                   ? `
@@ -483,6 +496,7 @@ export function buildDonationReceiptEmailHtml(
 
 export function buildInvoiceEmailHtml(data: InvoiceEmailData): string {
   const { greeting, body, closing } = getDocumentBody(data);
+  const safeCompanyName = e(data.companyName);
 
   return `<!DOCTYPE html>
 <html lang="de">
@@ -500,7 +514,7 @@ export function buildInvoiceEmailHtml(data: InvoiceEmailData): string {
           <tr>
             <td style="padding: 32px 40px 24px; border-bottom: 1px solid #e4e4e7;">
               <h1 style="margin: 0; font-size: 20px; font-weight: 600; color: #18181b;">
-                ${data.companyName}
+                ${safeCompanyName}
               </h1>
             </td>
           </tr>
@@ -515,7 +529,7 @@ export function buildInvoiceEmailHtml(data: InvoiceEmailData): string {
               </p>
               <p style="margin: 0 0 8px; font-size: 15px; line-height: 1.6; color: #3f3f46;">
                 ${closing}<br>
-                ${data.companyName}
+                ${safeCompanyName}
               </p>
             </td>
           </tr>
@@ -523,7 +537,7 @@ export function buildInvoiceEmailHtml(data: InvoiceEmailData): string {
           <tr>
             <td style="padding: 24px 40px; background-color: #fafafa; border-top: 1px solid #e4e4e7;">
               <p style="margin: 0; font-size: 12px; color: #a1a1aa; line-height: 1.5;">
-                Diese E-Mail wurde automatisch von ${data.companyName} versendet.
+                Diese E-Mail wurde automatisch von ${safeCompanyName} versendet.
               </p>${
                 data.plan !== "premium"
                   ? `
@@ -558,6 +572,9 @@ export function buildWelcomeEmailSubject(data: WelcomeEmailData): string {
 }
 
 export function buildWelcomeEmailHtml(data: WelcomeEmailData): string {
+  const safeUserName = e(data.userName);
+  const safeCompanyName = e(data.companyName);
+  const safeUserEmail = e(data.userEmail);
   return `<!DOCTYPE html>
 <html lang="de">
 <head>
@@ -578,9 +595,9 @@ export function buildWelcomeEmailHtml(data: WelcomeEmailData): string {
           </tr>
           <tr>
             <td style="padding: 36px 40px 24px;">
-              <p style="margin: 0 0 16px; font-size: 16px; font-weight: 600; color: #18181b;">Hallo ${data.userName}!</p>
+              <p style="margin: 0 0 16px; font-size: 16px; font-weight: 600; color: #18181b;">Hallo ${safeUserName}!</p>
               <p style="margin: 0 0 16px; font-size: 15px; line-height: 1.6; color: #3f3f46;">
-                Willkommen bei Kivvi! Dein Konto für <strong>${data.companyName}</strong> wurde erfolgreich erstellt.
+                Willkommen bei Kivvi! Dein Konto für <strong>${safeCompanyName}</strong> wurde erfolgreich erstellt.
               </p>
               <p style="margin: 0 0 24px; font-size: 15px; line-height: 1.6; color: #3f3f46;">
                 Mit Kivvi kannst du Rechnungen, Kontakte, Lagerbestand und mehr verwalten — alles auf Schweizer Standards ausgerichtet.
@@ -614,7 +631,7 @@ export function buildWelcomeEmailHtml(data: WelcomeEmailData): string {
           <tr>
             <td style="padding: 24px 40px; background-color: #fafafa; border-top: 1px solid #e4e4e7;">
               <p style="margin: 0; font-size: 12px; color: #a1a1aa; line-height: 1.5;">
-                Diese E-Mail wurde automatisch versendet, weil sich jemand mit dieser Adresse (${data.userEmail}) bei Kivvi registriert hat.
+                Diese E-Mail wurde automatisch versendet, weil sich jemand mit dieser Adresse (${safeUserEmail}) bei Kivvi registriert hat.
               </p>
               <p style="margin: 8px 0 0; font-size: 11px; color: #a1a1aa;">
                 <a href="https://kivvi.ch" style="color: #2563eb; text-decoration: none;">kivvi.ch</a>
