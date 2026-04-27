@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useState, useCallback, useRef } from 'react';
-import { useLocale } from 'next-intl';
-import { logger } from '@/lib/logger';
+import { useState, useCallback, useRef } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { logger } from "@/lib/logger";
 
 export interface ChatMessage {
   id: string;
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   timestamp: Date;
   isStreaming?: boolean;
@@ -36,8 +36,9 @@ interface UseChatReturn {
 
 export function useChat(options: UseChatOptions = {}): UseChatReturn {
   const locale = useLocale();
+  const t = useTranslations("ai");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -48,12 +49,12 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
       if (!messageContent || isLoading) return;
 
       // Clear input immediately
-      setInput('');
+      setInput("");
 
       // Add user message
       const userMessage: ChatMessage = {
         id: crypto.randomUUID(),
-        role: 'user',
+        role: "user",
         content: messageContent,
         timestamp: new Date(),
       };
@@ -65,8 +66,8 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
       const assistantId = crypto.randomUUID();
       const assistantMessage: ChatMessage = {
         id: assistantId,
-        role: 'assistant',
-        content: '',
+        role: "assistant",
+        content: "",
         timestamp: new Date(),
         isStreaming: true,
         toolResults: [],
@@ -78,10 +79,10 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
       abortControllerRef.current = new AbortController();
 
       try {
-        const response = await fetch('/api/chat', {
-          method: 'POST',
+        const response = await fetch("/api/chat", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             message: messageContent,
@@ -95,39 +96,39 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to send message');
+          throw new Error(errorData.error || "Failed to send message");
         }
 
         const reader = response.body?.getReader();
         if (!reader) {
-          throw new Error('No response body');
+          throw new Error("No response body");
         }
 
         const decoder = new TextDecoder();
-        let accumulatedContent = '';
+        let accumulatedContent = "";
 
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
 
           const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split('\n');
+          const lines = chunk.split("\n");
 
           for (const line of lines) {
-            if (line.startsWith('data: ')) {
+            if (line.startsWith("data: ")) {
               try {
                 const data = JSON.parse(line.slice(6));
 
-                if (data.type === 'text' && data.content) {
+                if (data.type === "text" && data.content) {
                   accumulatedContent += data.content;
                   setMessages((prev) =>
                     prev.map((m) =>
                       m.id === assistantId
                         ? { ...m, content: accumulatedContent }
-                        : m
-                    )
+                        : m,
+                    ),
                   );
-                } else if (data.type === 'tool_result') {
+                } else if (data.type === "tool_result") {
                   setMessages((prev) =>
                     prev.map((m) =>
                       m.id === assistantId
@@ -138,64 +139,64 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
                               { tool: data.tool, result: data.result },
                             ],
                           }
-                        : m
-                    )
+                        : m,
+                    ),
                   );
-                } else if (data.type === 'done') {
+                } else if (data.type === "done") {
                   if (data.conversationId) {
                     setConversationId(data.conversationId);
                   }
                   // Mark message as done streaming
                   setMessages((prev) =>
                     prev.map((m) =>
-                      m.id === assistantId
-                        ? { ...m, isStreaming: false }
-                        : m
-                    )
+                      m.id === assistantId ? { ...m, isStreaming: false } : m,
+                    ),
                   );
                   // Call onFinish callback
                   const finalMessage = {
                     id: assistantId,
-                    role: 'assistant' as const,
+                    role: "assistant" as const,
                     content: accumulatedContent,
                     timestamp: new Date(),
                     isStreaming: false,
                   };
                   options.onFinish?.(finalMessage);
-                } else if (data.type === 'error') {
+                } else if (data.type === "error") {
                   throw new Error(data.error);
                 }
               } catch (parseError) {
                 // Ignore parse errors for incomplete JSON
                 if (line.length > 6) {
-                  logger.warn('Failed to parse SSE data', line);
+                  logger.warn("Failed to parse SSE data", line);
                 }
               }
             }
           }
         }
       } catch (error) {
-        if (error instanceof Error && error.name === 'AbortError') {
+        if (error instanceof Error && error.name === "AbortError") {
           // Request was cancelled, clean up
-          setMessages((prev) =>
-            prev.filter((m) => m.id !== assistantId)
-          );
+          setMessages((prev) => prev.filter((m) => m.id !== assistantId));
         } else {
-          logger.warn('Chat error', error);
+          logger.warn("Chat error", error);
           // Show actionable error for provider issues, generic for others
-          const errorMsg = error instanceof Error ? error.message : '';
-          const isProviderError = errorMsg.includes('No AI provider available');
-          const isApiKeyError = errorMsg.includes('API key invalid') || errorMsg.includes('Invalid API Key');
-          const isUnreachable = errorMsg.includes('not reachable') || errorMsg.includes('unreachable');
+          const errorMsg = error instanceof Error ? error.message : "";
+          const isProviderError = errorMsg.includes("No AI provider available");
+          const isApiKeyError =
+            errorMsg.includes("API key invalid") ||
+            errorMsg.includes("Invalid API Key");
+          const isUnreachable =
+            errorMsg.includes("not reachable") ||
+            errorMsg.includes("unreachable");
           let displayError: string;
           if (isProviderError) {
-            displayError = 'Kein AI-Anbieter verfügbar. Bitte konfigurieren Sie einen gültigen API-Schlüssel in den Einstellungen (Groq, Anthropic, OpenRouter oder xAI).';
+            displayError = t("errorNoProvider");
           } else if (isApiKeyError) {
-            displayError = 'Der API-Schlüssel ist ungültig oder abgelaufen. Bitte aktualisieren Sie ihn in der .env.local Datei.';
+            displayError = t("errorApiKeyInvalid");
           } else if (isUnreachable) {
-            displayError = 'Der AI-Server ist nicht erreichbar. Bitte prüfen Sie die Verbindung.';
+            displayError = t("errorUnreachable");
           } else {
-            displayError = 'Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.';
+            displayError = t("errorGeneric");
           }
           // Update assistant message to show error
           setMessages((prev) =>
@@ -206,17 +207,19 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
                     content: displayError,
                     isStreaming: false,
                   }
-                : m
-            )
+                : m,
+            ),
           );
-          options.onError?.(error instanceof Error ? error : new Error('Unknown error'));
+          options.onError?.(
+            error instanceof Error ? error : new Error("Unknown error"),
+          );
         }
       } finally {
         setIsLoading(false);
         abortControllerRef.current = null;
       }
     },
-    [input, isLoading, conversationId, options]
+    [input, isLoading, conversationId, options],
   );
 
   const clearMessages = useCallback(() => {
@@ -227,32 +230,46 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
     setIsLoading(false);
   }, []);
 
-  const loadConversation = useCallback(async (id: string) => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`/api/chat?conversationId=${id}`);
-      if (!response.ok) {
-        throw new Error('Failed to load conversation');
-      }
+  const loadConversation = useCallback(
+    async (id: string) => {
+      setIsLoading(true);
+      try {
+        const response = await fetch(`/api/chat?conversationId=${id}`);
+        if (!response.ok) {
+          throw new Error("Failed to load conversation");
+        }
 
-      const data = await response.json();
-      setConversationId(id);
-      setMessages(
-        data.messages.map((m: { id: string; role: string; content: string; createdAt: string }) => ({
-          id: m.id,
-          role: m.role,
-          content: m.content || '',
-          timestamp: new Date(m.createdAt),
-          isStreaming: false,
-        }))
-      );
-    } catch (error) {
-      logger.warn('Failed to load conversation', error);
-      options.onError?.(error instanceof Error ? error : new Error('Failed to load conversation'));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [options]);
+        const data = await response.json();
+        setConversationId(id);
+        setMessages(
+          data.messages.map(
+            (m: {
+              id: string;
+              role: string;
+              content: string;
+              createdAt: string;
+            }) => ({
+              id: m.id,
+              role: m.role,
+              content: m.content || "",
+              timestamp: new Date(m.createdAt),
+              isStreaming: false,
+            }),
+          ),
+        );
+      } catch (error) {
+        logger.warn("Failed to load conversation", error);
+        options.onError?.(
+          error instanceof Error
+            ? error
+            : new Error("Failed to load conversation"),
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [options],
+  );
 
   return {
     messages,

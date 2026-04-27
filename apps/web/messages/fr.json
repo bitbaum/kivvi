@@ -3796,7 +3796,8 @@
     "unexpected": "Une erreur est survenue",
     "unexpectedDescription": "Une erreur inattendue s'est produite. Veuillez réessayer ou contacter le support si le problème persiste.",
     "errorId": "ID de l'erreur",
-    "retry": "Réessayer"
+    "retry": "Réessayer",
+    "unknownError": "Une erreur s'est produite."
   },
   "join": {
     "title": "Compte prêt — aucune organisation",
@@ -3861,6 +3862,10 @@
     "errorDuplicateNotFound": "Contact doublon introuvable."
   },
   "ai": {
-    "errorTextRequired": "Le texte est requis."
+    "errorTextRequired": "Le texte est requis.",
+    "errorNoProvider": "Aucun fournisseur d'IA disponible. Veuillez configurer une clé API valide dans les paramètres (Anthropic, OpenAI, OpenRouter ou Ollama).",
+    "errorApiKeyInvalid": "La clé API est invalide ou expirée. Veuillez la mettre à jour dans votre fichier .env.local.",
+    "errorUnreachable": "Le serveur d'IA est inaccessible. Veuillez vérifier la connexion.",
+    "errorGeneric": "Une erreur s'est produite. Veuillez réessayer."
   }
 }

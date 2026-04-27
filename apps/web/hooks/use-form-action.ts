@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import type { ActionResult } from "@/app/actions/utils";
 
 interface UseFormActionOptions<T> {
@@ -12,6 +13,7 @@ export function useFormAction<T>(
   action: (...args: unknown[]) => Promise<ActionResult<T>>,
   options: UseFormActionOptions<T> = {},
 ) {
+  const t = useTranslations("errors");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
@@ -24,7 +26,7 @@ export function useFormAction<T>(
     if (result.success) {
       options.onSuccess?.(result.data as T);
     } else {
-      const msg = result.error ?? "Ein Fehler ist aufgetreten";
+      const msg = result.error ?? t("unknownError");
       setError(msg);
       setFieldErrors(result.fieldErrors ?? {});
       options.onError?.(msg);

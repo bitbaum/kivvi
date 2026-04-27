@@ -3796,7 +3796,8 @@
     "unexpected": "Something went wrong",
     "unexpectedDescription": "An unexpected error occurred. Please try again or contact support if the problem persists.",
     "errorId": "Error ID",
-    "retry": "Try again"
+    "retry": "Try again",
+    "unknownError": "An error occurred."
   },
   "join": {
     "title": "Account ready — no organisation yet",
@@ -3861,6 +3862,10 @@
     "errorDuplicateNotFound": "Duplicate contact not found."
   },
   "ai": {
-    "errorTextRequired": "Text is required."
+    "errorTextRequired": "Text is required.",
+    "errorNoProvider": "No AI provider available. Please configure a valid API key in Settings (Anthropic, OpenAI, OpenRouter, or Ollama).",
+    "errorApiKeyInvalid": "The API key is invalid or expired. Please update it in your .env.local file.",
+    "errorUnreachable": "The AI server is unreachable. Please check the connection.",
+    "errorGeneric": "An error occurred. Please try again."
   }
 }

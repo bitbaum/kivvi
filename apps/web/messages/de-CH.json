@@ -3796,7 +3796,8 @@
     "unexpected": "Etwas ist schiefgelaufen",
     "unexpectedDescription": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut oder kontaktieren Sie den Support, wenn das Problem weiterhin besteht.",
     "errorId": "Fehler-ID",
-    "retry": "Erneut versuchen"
+    "retry": "Erneut versuchen",
+    "unknownError": "Ein Fehler ist aufgetreten."
   },
   "join": {
     "title": "Konto bereit — noch kein Betrieb",
@@ -3861,6 +3862,10 @@
     "errorDuplicateNotFound": "Duplikatkontakt nicht gefunden."
   },
   "ai": {
-    "errorTextRequired": "Text ist erforderlich."
+    "errorTextRequired": "Text ist erforderlich.",
+    "errorNoProvider": "Kein AI-Anbieter verfügbar. Bitte konfigurieren Sie einen gültigen API-Schlüssel in den Einstellungen (Anthropic, OpenAI, OpenRouter oder Ollama).",
+    "errorApiKeyInvalid": "Der API-Schlüssel ist ungültig oder abgelaufen. Bitte aktualisieren Sie ihn in der .env.local Datei.",
+    "errorUnreachable": "Der AI-Server ist nicht erreichbar. Bitte prüfen Sie die Verbindung.",
+    "errorGeneric": "Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
   }
 }
