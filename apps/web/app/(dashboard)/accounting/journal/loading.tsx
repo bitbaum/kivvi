@@ -1,4 +1,4 @@
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {
   return (
@@ -6,7 +6,7 @@ export default function Loading() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <Skeleton className="h-9 w-32" />
+          <Skeleton className="h-10 w-32" />
           <Skeleton className="mt-2 h-4 w-56" />
         </div>
         <div className="flex items-center gap-2">
@@ -25,13 +25,13 @@ export default function Loading() {
       <div className="flex flex-wrap items-end gap-3">
         <div>
           <Skeleton className="mb-1 h-3 w-10" />
-          <Skeleton className="h-9 w-36 rounded-lg" />
+          <Skeleton className="h-10 w-36 rounded-lg" />
         </div>
         <div>
           <Skeleton className="mb-1 h-3 w-10" />
-          <Skeleton className="h-9 w-36 rounded-lg" />
+          <Skeleton className="h-10 w-36 rounded-lg" />
         </div>
-        <Skeleton className="h-9 w-16 rounded-lg" />
+        <Skeleton className="h-10 w-16 rounded-lg" />
       </div>
 
       {/* Table */}
@@ -47,7 +47,10 @@ export default function Loading() {
         {/* Table rows */}
         <div className="divide-y">
           {[...Array(8)].map((_, i) => (
-            <div key={i} className="flex flex-col gap-1 p-4 sm:grid sm:grid-cols-[auto_1fr_2fr_auto_auto] sm:items-center sm:gap-4">
+            <div
+              key={i}
+              className="flex flex-col gap-1 p-4 sm:grid sm:grid-cols-[auto_1fr_2fr_auto_auto] sm:items-center sm:gap-4"
+            >
               <Skeleton className="h-4 w-20" />
               <Skeleton className="h-4 w-24 font-mono" />
               <Skeleton className="h-4 w-full max-w-xs" />

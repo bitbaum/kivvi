@@ -1,11 +1,11 @@
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {
   return (
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <Skeleton className="h-9 w-40" />
+        <Skeleton className="h-10 w-40" />
         <Skeleton className="mt-2 h-4 w-72" />
       </div>
 
@@ -37,7 +37,10 @@ export default function Loading() {
         </div>
         {/* Table rows */}
         {[...Array(6)].map((_, i) => (
-          <div key={i} className="flex items-center gap-4 border-b px-6 py-4 last:border-b-0">
+          <div
+            key={i}
+            className="flex items-center gap-4 border-b px-6 py-4 last:border-b-0"
+          >
             <Skeleton className="h-4 w-6" />
             <Skeleton className="h-4 w-32" />
             <Skeleton className="h-4 w-40 flex-1" />

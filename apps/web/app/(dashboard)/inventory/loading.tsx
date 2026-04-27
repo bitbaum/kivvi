@@ -1,4 +1,4 @@
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {
   return (
@@ -6,7 +6,7 @@ export default function Loading() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <Skeleton className="h-9 w-32" />
+          <Skeleton className="h-10 w-32" />
           <Skeleton className="mt-2 h-4 w-64" />
         </div>
         <div className="flex items-center gap-2">
@@ -43,7 +43,7 @@ export default function Loading() {
             <div key={i} className="rounded-xl border bg-card p-6">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <Skeleton className="h-9 w-9 rounded-lg" />
+                  <Skeleton className="h-10 w-9 rounded-lg" />
                   <div>
                     <Skeleton className="h-5 w-28" />
                     <Skeleton className="mt-1 h-3 w-36" />

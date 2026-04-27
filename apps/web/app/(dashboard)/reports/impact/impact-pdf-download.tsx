@@ -41,7 +41,7 @@ export function ImpactPdfDownload() {
       <select
         value={year}
         onChange={(e) => setYear(e.target.value)}
-        className="h-9 rounded-lg border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+        className="h-10 rounded-lg border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
         aria-label={tr("impactReportYear")}
       >
         <option value="">{tr("impactAllPeriods")}</option>

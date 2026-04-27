@@ -1,4 +1,4 @@
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {
   return (
@@ -6,7 +6,7 @@ export default function Loading() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <Skeleton className="h-9 w-36" />
+          <Skeleton className="h-10 w-36" />
           <Skeleton className="mt-2 h-4 w-56" />
         </div>
         <Skeleton className="h-10 w-36 rounded-lg" />
@@ -28,12 +28,24 @@ export default function Loading() {
           <table className="w-full">
             <thead>
               <tr className="border-b">
-                <th className="px-4 py-3"><Skeleton className="h-3 w-12" /></th>
-                <th className="px-4 py-3"><Skeleton className="h-3 w-12" /></th>
-                <th className="px-4 py-3"><Skeleton className="h-3 w-12" /></th>
-                <th className="px-4 py-3 text-right"><Skeleton className="ml-auto h-3 w-14" /></th>
-                <th className="px-4 py-3"><Skeleton className="h-3 w-16" /></th>
-                <th className="px-4 py-3"><Skeleton className="h-3 w-16" /></th>
+                <th className="px-4 py-3">
+                  <Skeleton className="h-3 w-12" />
+                </th>
+                <th className="px-4 py-3">
+                  <Skeleton className="h-3 w-12" />
+                </th>
+                <th className="px-4 py-3">
+                  <Skeleton className="h-3 w-12" />
+                </th>
+                <th className="px-4 py-3 text-right">
+                  <Skeleton className="ml-auto h-3 w-14" />
+                </th>
+                <th className="px-4 py-3">
+                  <Skeleton className="h-3 w-16" />
+                </th>
+                <th className="px-4 py-3">
+                  <Skeleton className="h-3 w-16" />
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -43,11 +55,21 @@ export default function Loading() {
                     <Skeleton className="h-4 w-36" />
                     {i % 3 === 0 && <Skeleton className="mt-1 h-3 w-48" />}
                   </td>
-                  <td className="px-4 py-3"><Skeleton className="h-4 w-28" /></td>
-                  <td className="px-4 py-3"><Skeleton className="h-5 w-16 rounded-full" /></td>
-                  <td className="px-4 py-3 text-right"><Skeleton className="ml-auto h-4 w-20" /></td>
-                  <td className="px-4 py-3"><Skeleton className="h-4 w-20" /></td>
-                  <td className="px-4 py-3"><Skeleton className="h-4 w-20" /></td>
+                  <td className="px-4 py-3">
+                    <Skeleton className="h-4 w-28" />
+                  </td>
+                  <td className="px-4 py-3">
+                    <Skeleton className="h-5 w-16 rounded-full" />
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <Skeleton className="ml-auto h-4 w-20" />
+                  </td>
+                  <td className="px-4 py-3">
+                    <Skeleton className="h-4 w-20" />
+                  </td>
+                  <td className="px-4 py-3">
+                    <Skeleton className="h-4 w-20" />
+                  </td>
                 </tr>
               ))}
             </tbody>

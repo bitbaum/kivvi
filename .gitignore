@@ -54,3 +54,4 @@ kivitendo-export/generated/
 # Screenshots (dev artifacts)
 /*.png
 .playwright-mcp/
+build-output.txt

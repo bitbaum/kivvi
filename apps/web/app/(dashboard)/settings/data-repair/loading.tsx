@@ -1,10 +1,10 @@
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {
   return (
     <div className="space-y-6">
       <div>
-        <Skeleton className="h-9 w-40" />
+        <Skeleton className="h-10 w-40" />
         <Skeleton className="mt-2 h-4 w-72" />
       </div>
       <div className="space-y-4">
