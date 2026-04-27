@@ -2577,6 +2577,8 @@
         "submit": "Demander une démo",
         "successTitle": "Merci !",
         "successMessage": "Nous vous recontacterons sous 2 jours ouvrés.",
+        "nameMinLength": "Le nom doit comporter au moins 2 caractères",
+        "emailInvalid": "Adresse e-mail invalide",
         "genericError": "Une erreur inconnue est survenue."
       },
       "waitlist": {

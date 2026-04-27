@@ -2577,6 +2577,8 @@
         "submit": "Request demo",
         "successTitle": "Thank you!",
         "successMessage": "We'll get back to you within 2 working days.",
+        "nameMinLength": "Name must be at least 2 characters",
+        "emailInvalid": "Invalid email address",
         "genericError": "An unknown error occurred."
       },
       "waitlist": {

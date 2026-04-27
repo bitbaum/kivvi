@@ -2577,6 +2577,8 @@
         "submit": "Demo anfragen",
         "successTitle": "Danke!",
         "successMessage": "Wir melden uns innerhalb von 2 Werktagen.",
+        "nameMinLength": "Name muss mindestens 2 Zeichen lang sein",
+        "emailInvalid": "Ungültige E-Mail-Adresse",
         "genericError": "Ein unbekannter Fehler ist aufgetreten."
       },
       "waitlist": {

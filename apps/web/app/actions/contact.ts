@@ -9,35 +9,21 @@ import { logger } from "@/lib/logger";
 import { isEmailConfigured } from "@/lib/config/email";
 import { getTransporter, getFromEmail } from "@/lib/email/transporter";
 import { CONTACT_EMAIL } from "@/lib/config/site";
+import { getTranslations } from "next-intl/server";
 
-// ============================================================================
-// VALIDATION
-// ============================================================================
-
-const contactFormSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  organisation: z.string().optional(),
-  betriebstyp: z
-    .enum([
-      "it_refurbisher",
-      "brockenshaus",
-      "repair_cafe",
-      "vintage_shop",
-      "other",
-    ])
-    .optional(),
-  message: z
-    .string()
-    .max(2000, "Message must be at most 2000 characters")
-    .optional(),
-  type: z
-    .enum(["demo_request", "waitlist", "general"])
-    .optional()
-    .default("demo_request"),
-});
-
-export type ContactFormInput = z.infer<typeof contactFormSchema>;
+export type ContactFormInput = {
+  name: string;
+  email: string;
+  organisation?: string;
+  betriebstyp?:
+    | "it_refurbisher"
+    | "brockenshaus"
+    | "repair_cafe"
+    | "vintage_shop"
+    | "other";
+  message?: string;
+  type?: "demo_request" | "waitlist" | "general";
+};
 
 // ============================================================================
 // SERVER ACTION
@@ -46,7 +32,27 @@ export type ContactFormInput = z.infer<typeof contactFormSchema>;
 export async function submitContactFormAction(
   input: unknown,
 ): Promise<ActionResult<{ id: string }>> {
+  const t = await getTranslations("landing.contact.form");
   try {
+    const contactFormSchema = z.object({
+      name: z.string().min(2, t("nameMinLength")),
+      email: z.string().email(t("emailInvalid")),
+      organisation: z.string().optional(),
+      betriebstyp: z
+        .enum([
+          "it_refurbisher",
+          "brockenshaus",
+          "repair_cafe",
+          "vintage_shop",
+          "other",
+        ])
+        .optional(),
+      message: z.string().max(2000).optional(),
+      type: z
+        .enum(["demo_request", "waitlist", "general"])
+        .optional()
+        .default("demo_request"),
+    });
     // Validate input
     const parsed = contactFormSchema.safeParse(input);
     if (!parsed.success) {
