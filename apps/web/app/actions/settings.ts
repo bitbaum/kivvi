@@ -277,22 +277,29 @@ export const updateProfileAction = createAction<
 // CHANGE PASSWORD
 // ============================================================================
 
-const changePasswordSchema = z
-  .object({
-    currentPassword: z.string().min(1, "Current password is required"),
-    newPassword: z.string().min(8, "Password must be at least 8 characters"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-  });
-
-export const changePasswordAction = createAction<unknown, void>({
-  handler: async (input, { userId, db }) => {
-    const parsed = changePasswordSchema.safeParse(input);
-    if (!parsed.success)
-      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+export async function changePasswordAction(
+  input: unknown,
+): Promise<ActionResult<void>> {
+  const t = await getTranslations("settings.profile");
+  try {
+    const { userId } = await getSession();
+    const schema = z
+      .object({
+        currentPassword: z.string().min(1, t("currentPasswordRequired")),
+        newPassword: z.string().min(8, t("passwordMinLength")),
+        confirmPassword: z.string(),
+      })
+      .refine((data) => data.newPassword === data.confirmPassword, {
+        message: t("passwordMismatch"),
+        path: ["confirmPassword"],
+      });
+    const parsed = schema.safeParse(input);
+    if (!parsed.success) {
+      return {
+        success: false,
+        error: parsed.error.errors[0]?.message || "Validation failed",
+      };
+    }
 
     const [user] = await db
       .select({ passwordHash: users.passwordHash })
@@ -305,17 +312,25 @@ export const changePasswordAction = createAction<unknown, void>({
       parsed.data.currentPassword,
       user.passwordHash,
     );
-    if (!isValid) throw new Error("Current password is incorrect");
+    if (!isValid) {
+      return { success: false, error: t("currentPasswordIncorrect") };
+    }
 
     const newHash = await bcrypt.hash(parsed.data.newPassword, 12);
     await db
       .update(users)
       .set({ passwordHash: newHash, updatedAt: new Date() })
       .where(eq(users.id, userId));
-  },
-  revalidate: ["/settings"],
-  errorMessage: "Failed to change password",
-});
+
+    revalidatePath("/settings");
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to change password"),
+    };
+  }
+}
 
 // ============================================================================
 // USER AVATAR

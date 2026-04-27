@@ -28,15 +28,12 @@ import { logger } from "@/lib/logger";
 // VALIDATION SCHEMAS
 // ============================================================================
 
-export const registerSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  // Optional: omit when registering to join an existing organisation
-  companyName: createCompanySchema.shape.companyName.optional(),
-});
-
-export type RegisterInput = z.infer<typeof registerSchema>;
+export type RegisterInput = {
+  name: string;
+  email: string;
+  password: string;
+  companyName?: string;
+};
 
 export interface RegisterResult {
   userId: string;
@@ -56,8 +53,14 @@ export interface RegisterResult {
 export async function registerAction(
   input: unknown,
 ): Promise<ActionResult<RegisterResult>> {
+  const t = await getTranslations("auth");
   try {
-    // Validate input
+    const registerSchema = z.object({
+      name: z.string().min(2, t("nameMinLength")),
+      email: z.string().email(t("emailInvalid")),
+      password: z.string().min(8, t("passwordMinLength")),
+      companyName: createCompanySchema.shape.companyName.optional(),
+    });
     const parsed = registerSchema.safeParse(input);
     if (!parsed.success) {
       return {
@@ -76,7 +79,7 @@ export async function registerAction(
     if (existingUser) {
       return {
         success: false,
-        error: "An account with this email already exists",
+        error: t("errorEmailAlreadyExists"),
       };
     }
 
@@ -150,16 +153,10 @@ export async function registerAction(
   } catch {
     return {
       success: false,
-      error: "Failed to create account",
+      error: t("errorCreateAccount"),
     };
   }
 }
-
-const joinSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-});
 
 /**
  * Register a new user by accepting an invitation — no company created.
@@ -172,6 +169,11 @@ export async function registerAndAcceptInviteAction(
 ): Promise<ActionResult<RegisterResult>> {
   const t = await getTranslations("auth");
   try {
+    const joinSchema = z.object({
+      name: z.string().min(2, t("nameMinLength")),
+      email: z.string().email(t("emailInvalid")),
+      password: z.string().min(8, t("passwordMinLength")),
+    });
     const parsed = joinSchema.safeParse(input);
     if (!parsed.success) {
       return {
