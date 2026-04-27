@@ -41,6 +41,7 @@ import { getTranslations } from "next-intl/server";
 export async function createInventoryItemAction(
   input: unknown,
 ): Promise<ActionResult<{ id: string; itemNumber: string }>> {
+  const t = await getTranslations("inventory");
   try {
     const { companyId } = await requireRole("member");
     const parsed = createInventoryItemSchema.safeParse(input);
@@ -70,7 +71,7 @@ export async function createInventoryItemAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to create inventory item"),
+      error: safeErrorMessage(error, t("errorFailedToCreate")),
     };
   }
 }
@@ -79,6 +80,7 @@ export async function updateInventoryItemAction(
   itemId: string,
   input: unknown,
 ): Promise<ActionResult<{ id: string }>> {
+  const t = await getTranslations("inventory");
   try {
     const { companyId } = await requireRole("member");
     const parsed = updateInventoryItemSchema.safeParse(input);
@@ -106,7 +108,7 @@ export async function updateInventoryItemAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to update inventory item"),
+      error: safeErrorMessage(error, t("errorFailedToUpdate")),
     };
   }
 }
@@ -119,6 +121,7 @@ export async function updateItemStatusAction(
   itemId: string,
   input: unknown,
 ): Promise<ActionResult<{ id: string; status: string }>> {
+  const t = await getTranslations("inventory");
   try {
     const { companyId, userId } = await requireRole("member");
     const parsed = updateStatusSchema.safeParse(input);
@@ -148,7 +151,7 @@ export async function updateItemStatusAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to update status"),
+      error: safeErrorMessage(error, t("errorFailedToUpdateStatus")),
     };
   }
 }
@@ -161,6 +164,7 @@ export async function updateItemConditionAction(
   itemId: string,
   input: unknown,
 ): Promise<ActionResult<{ id: string; condition: string }>> {
+  const t = await getTranslations("inventory");
   try {
     const { companyId } = await requireRole("member");
     const parsed = updateConditionSchema.safeParse(input);
@@ -177,7 +181,7 @@ export async function updateItemConditionAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to update condition"),
+      error: safeErrorMessage(error, t("errorFailedToUpdateCondition")),
     };
   }
 }
@@ -190,6 +194,7 @@ const bulkStatusSchema = z.object({
 export async function bulkUpdateItemStatusAction(
   input: unknown,
 ): Promise<ActionResult<{ succeeded: number; failed: number }>> {
+  const t = await getTranslations("inventory");
   try {
     const { companyId } = await requireRole("member");
     const parsed = bulkStatusSchema.safeParse(input);
@@ -208,7 +213,7 @@ export async function bulkUpdateItemStatusAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to update items"),
+      error: safeErrorMessage(error, t("errorFailedToUpdateItems")),
     };
   }
 }
@@ -272,7 +277,7 @@ export async function uploadItemPhotoAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to upload photo"),
+      error: safeErrorMessage(error, t("errorFailedToUploadPhoto")),
     };
   }
 }
@@ -280,6 +285,7 @@ export async function uploadItemPhotoAction(
 export async function removeItemPhotoAction(
   itemId: string,
 ): Promise<ActionResult> {
+  const t = await getTranslations("inventory");
   try {
     const { companyId } = await requireRole("member");
     const { inventoryItems: inventoryItemsTable } =
@@ -306,7 +312,7 @@ export async function removeItemPhotoAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to remove photo"),
+      error: safeErrorMessage(error, t("errorFailedToRemovePhoto")),
     };
   }
 }
@@ -325,6 +331,7 @@ export async function recordRepairAction(
   itemId: string,
   input: unknown,
 ): Promise<ActionResult<{ id: string; repairCost: string | null }>> {
+  const t = await getTranslations("inventory");
   try {
     const { companyId } = await requireRole("member");
     const parsed = recordRepairSchema.safeParse(input);
@@ -347,7 +354,7 @@ export async function recordRepairAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to record repair"),
+      error: safeErrorMessage(error, t("errorFailedToRecordRepair")),
     };
   }
 }
@@ -356,6 +363,7 @@ export async function addRepairPartAction(
   itemId: string,
   input: unknown,
 ): Promise<ActionResult<{ id: string }>> {
+  const t = await getTranslations("inventory");
   try {
     const { companyId, userId } = await requireRole("member");
     const parsed = addRepairPartSchema.safeParse(input);
@@ -371,7 +379,7 @@ export async function addRepairPartAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to add repair part"),
+      error: safeErrorMessage(error, t("errorFailedToAddRepairPart")),
     };
   }
 }
@@ -380,6 +388,7 @@ export async function removeRepairPartAction(
   partId: string,
   itemId: string,
 ): Promise<ActionResult<void>> {
+  const t = await getTranslations("inventory");
   try {
     const { companyId } = await requireRole("member");
     await db.transaction(async (tx) => {
@@ -390,7 +399,7 @@ export async function removeRepairPartAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to remove repair part"),
+      error: safeErrorMessage(error, t("errorFailedToRemoveRepairPart")),
     };
   }
 }
@@ -403,6 +412,7 @@ const bulkConditionSchema = z.object({
 export async function bulkUpdateItemConditionAction(
   input: unknown,
 ): Promise<ActionResult<{ succeeded: number; failed: number }>> {
+  const t = await getTranslations("inventory");
   try {
     const { companyId } = await requireRole("member");
     const parsed = bulkConditionSchema.safeParse(input);
@@ -426,7 +436,7 @@ export async function bulkUpdateItemConditionAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to update items"),
+      error: safeErrorMessage(error, t("errorFailedToUpdateItems")),
     };
   }
 }
@@ -439,6 +449,7 @@ const bulkPriceSchema = z.object({
 export async function bulkUpdateItemAskingPriceAction(
   input: unknown,
 ): Promise<ActionResult<{ succeeded: number; failed: number }>> {
+  const t = await getTranslations("inventory");
   try {
     const { companyId } = await requireRole("member");
     const parsed = bulkPriceSchema.safeParse(input);
@@ -464,7 +475,7 @@ export async function bulkUpdateItemAskingPriceAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to update prices"),
+      error: safeErrorMessage(error, t("errorFailedToUpdatePrices")),
     };
   }
 }
@@ -477,6 +488,7 @@ export async function assignItemTechnicianAction(
   itemId: string,
   input: unknown,
 ): Promise<ActionResult<{ id: string }>> {
+  const t = await getTranslations("inventory");
   try {
     const { companyId } = await requireRole("member");
     const parsed = assignTechnicianSchema.safeParse(input);
@@ -495,7 +507,7 @@ export async function assignItemTechnicianAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to assign technician"),
+      error: safeErrorMessage(error, t("errorFailedToAssignTechnician")),
     };
   }
 }
@@ -503,6 +515,7 @@ export async function assignItemTechnicianAction(
 export async function deleteInventoryItemAction(
   itemId: string,
 ): Promise<ActionResult<void>> {
+  const t = await getTranslations("inventory");
   try {
     const { companyId } = await requireRole("member");
     await deleteInventoryItem(db, companyId, itemId);
@@ -511,7 +524,7 @@ export async function deleteInventoryItemAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to delete item"),
+      error: safeErrorMessage(error, t("errorFailedToDelete")),
     };
   }
 }
@@ -525,6 +538,7 @@ export async function listInventoryItemsAction(options?: {
   page?: number;
   pageSize?: number;
 }): Promise<ActionResult<Awaited<ReturnType<typeof listInventoryItems>>>> {
+  const t = await getTranslations("inventory");
   try {
     const { companyId } = await requireRole("member");
     const result = await listInventoryItems(db, companyId, options);
@@ -532,7 +546,7 @@ export async function listInventoryItemsAction(options?: {
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to list items"),
+      error: safeErrorMessage(error, t("errorFailedToList")),
     };
   }
 }
@@ -549,7 +563,7 @@ export async function getInventoryItemAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to get item"),
+      error: safeErrorMessage(error, t("errorFailedToGet")),
     };
   }
 }
@@ -576,6 +590,7 @@ export async function recordChecklistAction(
   itemId: string,
   input: unknown,
 ): Promise<ActionResult<{ id: string }>> {
+  const t = await getTranslations("inventory");
   try {
     const { companyId, userId } = await requireRole("member");
     const parsed = checklistSchema.safeParse(input);
@@ -595,7 +610,7 @@ export async function recordChecklistAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to record checklist"),
+      error: safeErrorMessage(error, t("errorFailedToRecordChecklist")),
     };
   }
 }
@@ -615,6 +630,7 @@ export async function recordDataErasureAction(
   itemId: string,
   input: unknown,
 ): Promise<ActionResult<{ id: string }>> {
+  const t = await getTranslations("inventory");
   try {
     const { companyId, userId } = await requireRole("member");
     const parsed = dataErasureSchema.safeParse(input);
@@ -633,7 +649,7 @@ export async function recordDataErasureAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to record erasure"),
+      error: safeErrorMessage(error, t("errorFailedToRecordErasure")),
     };
   }
 }
