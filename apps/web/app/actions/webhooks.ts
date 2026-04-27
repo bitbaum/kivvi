@@ -13,15 +13,22 @@ import {
 import { WEBHOOK_EVENT_VALUES } from "@kivvi/database";
 import type { WebhookEvent } from "@kivvi/database";
 import { type ActionResult, requireRole, safeErrorMessage } from "./utils";
+import { getTranslations } from "next-intl/server";
 
-const endpointSchema = z.object({
-  name: z.string().min(1).max(100),
-  url: z.string().url("Ungültige URL"),
-  secret: z.string().min(16, "Secret muss mindestens 16 Zeichen lang sein"),
-  events: z
-    .array(z.enum(WEBHOOK_EVENT_VALUES))
-    .min(1, "Mindestens ein Event auswählen"),
-});
+type WebhookT = Awaited<
+  ReturnType<typeof getTranslations<"settings.webhooks">>
+>;
+
+function makeEndpointSchema(t: WebhookT) {
+  return z.object({
+    name: z.string().min(1).max(100),
+    url: z.string().url(t("errorInvalidUrl")),
+    secret: z.string().min(16, t("errorSecretTooShort")),
+    events: z
+      .array(z.enum(WEBHOOK_EVENT_VALUES))
+      .min(1, t("errorNoEventsSelected")),
+  });
+}
 
 export async function listWebhookEndpointsAction(): Promise<
   ActionResult<Awaited<ReturnType<typeof listWebhookEndpoints>>>
@@ -41,13 +48,14 @@ export async function listWebhookEndpointsAction(): Promise<
 export async function createWebhookEndpointAction(
   input: unknown,
 ): Promise<ActionResult<{ id: string }>> {
+  const t = await getTranslations("settings.webhooks");
   try {
     const { companyId } = await requireRole("admin");
-    const parsed = endpointSchema.safeParse(input);
+    const parsed = makeEndpointSchema(t).safeParse(input);
     if (!parsed.success) {
       return {
         success: false,
-        error: parsed.error.errors[0]?.message || "Ungültige Eingabe",
+        error: parsed.error.errors[0]?.message || t("errorInvalidInput"),
       };
     }
 
@@ -63,7 +71,7 @@ export async function createWebhookEndpointAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to create webhook endpoint"),
+      error: safeErrorMessage(error, t("createError")),
     };
   }
 }
@@ -72,13 +80,14 @@ export async function updateWebhookEndpointAction(
   endpointId: string,
   input: unknown,
 ): Promise<ActionResult<void>> {
+  const t = await getTranslations("settings.webhooks");
   try {
     const { companyId } = await requireRole("admin");
-    const parsed = endpointSchema.partial().safeParse(input);
+    const parsed = makeEndpointSchema(t).partial().safeParse(input);
     if (!parsed.success) {
       return {
         success: false,
-        error: parsed.error.errors[0]?.message || "Ungültige Eingabe",
+        error: parsed.error.errors[0]?.message || t("errorInvalidInput"),
       };
     }
 

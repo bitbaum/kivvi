@@ -1913,7 +1913,11 @@
         "attempts": "Versuche",
         "deliveredAt": "Zugestellt",
         "nextRetry": "Nächster Versuch"
-      }
+      },
+      "errorInvalidUrl": "Ungültige URL.",
+      "errorSecretTooShort": "Secret muss mindestens 16 Zeichen lang sein.",
+      "errorNoEventsSelected": "Mindestens ein Event auswählen.",
+      "errorInvalidInput": "Ungültige Eingabe."
     },
     "integrations": {
       "title": "Integrationen",

@@ -1913,7 +1913,11 @@
         "attempts": "Tentatives",
         "deliveredAt": "Livré le",
         "nextRetry": "Prochain essai"
-      }
+      },
+      "errorInvalidUrl": "URL invalide.",
+      "errorSecretTooShort": "Le secret doit comporter au moins 16 caractères.",
+      "errorNoEventsSelected": "Sélectionnez au moins un événement.",
+      "errorInvalidInput": "Saisie invalide."
     },
     "integrations": {
       "title": "Intégrations",
