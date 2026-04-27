@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { eq, and } from "drizzle-orm";
+import { getTranslations } from "next-intl/server";
 import { db } from "@/lib/db";
 import { inventoryItems, companies } from "@kivvi/database";
 import type { CompanySettings } from "@kivvi/database";
@@ -58,6 +59,7 @@ export async function updateRicardoApiKeyAction(
 export async function testRicardoConnectionAction(): Promise<
   ActionResult<void>
 > {
+  const t = await getTranslations("ricardo");
   try {
     const { companyId } = await requireRole("admin");
 
@@ -68,10 +70,7 @@ export async function testRicardoConnectionAction(): Promise<
 
     const apiKey = (row?.settings as CompanySettings)?.ricardoApiKey;
     if (!apiKey) {
-      return {
-        success: false,
-        error: "Kein Ricardo API-Schlüssel konfiguriert.",
-      };
+      return { success: false, error: t("errorNoApiKey") };
     }
 
     const result = await testConnection(apiKey);
@@ -82,7 +81,7 @@ export async function testRicardoConnectionAction(): Promise<
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Connection test failed."),
+      error: safeErrorMessage(error, t("publishError")),
     };
   }
 }
@@ -94,6 +93,7 @@ export async function testRicardoConnectionAction(): Promise<
 export async function publishToRicardoAction(
   itemId: string,
 ): Promise<ActionResult<{ listingUrl: string }>> {
+  const t = await getTranslations("ricardo");
   try {
     const { companyId } = await requireRole("member");
 
@@ -105,11 +105,7 @@ export async function publishToRicardoAction(
 
     const apiKey = (companyRow?.settings as CompanySettings)?.ricardoApiKey;
     if (!apiKey) {
-      return {
-        success: false,
-        error:
-          "Kein Ricardo API-Schlüssel. Bitte zuerst in den Einstellungen konfigurieren.",
-      };
+      return { success: false, error: t("errorNoApiKeySetup") };
     }
 
     // Fetch item — only sellable items can be listed
@@ -123,23 +119,15 @@ export async function publishToRicardoAction(
         ),
       );
 
-    if (!item) return { success: false, error: "Artikel nicht gefunden." };
+    if (!item) return { success: false, error: t("errorItemNotFound") };
 
     const sellableStatuses = ["ready_for_sale", "listed"];
     if (!sellableStatuses.includes(item.status)) {
-      return {
-        success: false,
-        error:
-          "Nur Artikel mit Status 'Verkaufsbereit' oder 'Gelistet' können auf Ricardo publiziert werden.",
-      };
+      return { success: false, error: t("errorStatusInvalid") };
     }
 
     if (!item.askingPrice || parseFloat(item.askingPrice) <= 0) {
-      return {
-        success: false,
-        error:
-          "Der Artikel benötigt einen Verkaufspreis, um auf Ricardo publiziert zu werden.",
-      };
+      return { success: false, error: t("errorNeedsPrice") };
     }
 
     // Build payload and publish
@@ -172,7 +160,7 @@ export async function publishToRicardoAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Fehler beim Publizieren auf Ricardo."),
+      error: safeErrorMessage(error, t("publishError")),
     };
   }
 }
@@ -180,6 +168,7 @@ export async function publishToRicardoAction(
 export async function unpublishFromRicardoAction(
   itemId: string,
 ): Promise<ActionResult<void>> {
+  const t = await getTranslations("ricardo");
   try {
     const { companyId } = await requireRole("member");
 
@@ -203,7 +192,7 @@ export async function unpublishFromRicardoAction(
         ),
       );
 
-    if (!item) return { success: false, error: "Artikel nicht gefunden." };
+    if (!item) return { success: false, error: t("errorItemNotFound") };
 
     if (apiKey && item.externalListingId) {
       try {
@@ -226,7 +215,7 @@ export async function unpublishFromRicardoAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Fehler beim Entfernen von Ricardo."),
+      error: safeErrorMessage(error, t("unpublishError")),
     };
   }
 }

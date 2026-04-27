@@ -1911,7 +1911,12 @@
     "removeListing": "Remove from Ricardo",
     "sold": "Sold on Ricardo",
     "publishError": "Failed to publish.",
-    "unpublishError": "Failed to remove."
+    "unpublishError": "Failed to remove.",
+    "errorNoApiKey": "No Ricardo API key configured.",
+    "errorNoApiKeySetup": "No Ricardo API key. Please configure it first in settings.",
+    "errorItemNotFound": "Item not found.",
+    "errorStatusInvalid": "Only items with status 'Ready for Sale' or 'Listed' can be published on Ricardo.",
+    "errorNeedsPrice": "The item needs a selling price to be published on Ricardo."
   },
   "shop": {
     "itemsAvailable": "{count, plural, =1 {1 item} other {# items}} available",

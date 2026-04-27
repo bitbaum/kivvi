@@ -1911,7 +1911,12 @@
     "removeListing": "Retirer de Ricardo",
     "sold": "Vendu sur Ricardo",
     "publishError": "Échec de la publication.",
-    "unpublishError": "Échec du retrait."
+    "unpublishError": "Échec du retrait.",
+    "errorNoApiKey": "Aucune clé API Ricardo configurée.",
+    "errorNoApiKeySetup": "Pas de clé API Ricardo. Veuillez d'abord la configurer dans les paramètres.",
+    "errorItemNotFound": "Article introuvable.",
+    "errorStatusInvalid": "Seuls les articles au statut 'Prêt à vendre' ou 'Listé' peuvent être publiés sur Ricardo.",
+    "errorNeedsPrice": "L'article nécessite un prix de vente pour être publié sur Ricardo."
   },
   "shop": {
     "itemsAvailable": "{count, plural, =1 {1 article} other {# articles}} disponible{count, plural, =1 {} other {s}}",
