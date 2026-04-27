@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { listInventoryItems, searchProducts } from "@kivvi/core";
 import { type ActionResult, requireRole, safeErrorMessage } from "./utils";
+import { getTranslations } from "next-intl/server";
 import { DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
 import { SELLABLE_ITEM_STATUSES } from "@/lib/config/inventory-items";
 
@@ -39,6 +40,7 @@ export interface SellableResult {
 export async function searchSellablesAction(
   query: string,
 ): Promise<ActionResult<SellableResult[]>> {
+  const t = await getTranslations("sellables");
   try {
     const { companyId } = await requireRole("member");
 
@@ -123,7 +125,7 @@ export async function searchSellablesAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to search sellables"),
+      error: safeErrorMessage(error, t("errorSearchFailed")),
     };
   }
 }

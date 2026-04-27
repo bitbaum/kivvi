@@ -33,6 +33,7 @@ import { getTranslations } from "next-intl/server";
 export async function getMyMembershipsAction(): Promise<
   ActionResult<MembershipInfo[]>
 > {
+  const t = await getTranslations("team");
   try {
     const { userId } = await getSession();
     const data = await getUserMemberships(db, userId);
@@ -40,7 +41,7 @@ export async function getMyMembershipsAction(): Promise<
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to load memberships"),
+      error: safeErrorMessage(error, t("errorLoadMemberships")),
     };
   }
 }
@@ -51,9 +52,9 @@ export async function getMyMembershipsAction(): Promise<
 export async function switchCompanyAction(
   companyId: unknown,
 ): Promise<ActionResult<{ companyId: string; companyName: string }>> {
+  const t = await getTranslations("team");
   try {
     const { userId } = await getSession();
-    const t = await getTranslations("team");
     const parsed = switchCompanySchema.shape.companyId.safeParse(companyId);
     if (!parsed.success) {
       return { success: false, error: t("errorInvalidCompanyId") };
@@ -67,7 +68,7 @@ export async function switchCompanyAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to switch company"),
+      error: safeErrorMessage(error, t("errorSwitchCompany")),
     };
   }
 }
@@ -78,6 +79,7 @@ export async function switchCompanyAction(
 export async function getTeamMembersAction(): Promise<
   ActionResult<CompanyMember[]>
 > {
+  const t = await getTranslations("team");
   try {
     const { companyId } = await getSession();
     const data = await getCompanyMembers(db, companyId);
@@ -85,7 +87,7 @@ export async function getTeamMembersAction(): Promise<
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to load team members"),
+      error: safeErrorMessage(error, t("errorLoadTeamMembers")),
     };
   }
 }

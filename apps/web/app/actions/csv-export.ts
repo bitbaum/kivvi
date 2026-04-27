@@ -9,6 +9,7 @@ import {
 } from "@kivvi/core";
 import type { DocumentType, DocumentStatus } from "@kivvi/database";
 import { type ActionResult, requireRole, safeErrorMessage } from "./utils";
+import { getTranslations } from "next-intl/server";
 import { buildCsv, formatDateCsv } from "@/lib/csv-utils";
 
 interface CsvExportResult {
@@ -25,6 +26,7 @@ export async function exportContactsCsvAction(filters?: {
   search?: string;
   type?: string;
 }): Promise<ActionResult<CsvExportResult>> {
+  const t = await getTranslations("csvExport");
   try {
     const { companyId } = await requireRole("member");
     const result = await listContacts(db, companyId, {
@@ -73,7 +75,10 @@ export async function exportContactsCsvAction(filters?: {
       },
     };
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, "Export failed") };
+    return {
+      success: false,
+      error: safeErrorMessage(error, t("errorExportFailed")),
+    };
   }
 }
 
@@ -84,6 +89,7 @@ export async function exportContactsCsvAction(filters?: {
 export async function exportProductsCsvAction(filters?: {
   search?: string;
 }): Promise<ActionResult<CsvExportResult>> {
+  const t = await getTranslations("csvExport");
   try {
     const { companyId } = await requireRole("member");
     const result = await listProducts(db, companyId, {
@@ -127,7 +133,10 @@ export async function exportProductsCsvAction(filters?: {
       },
     };
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, "Export failed") };
+    return {
+      success: false,
+      error: safeErrorMessage(error, t("errorExportFailed")),
+    };
   }
 }
 
@@ -140,6 +149,7 @@ export async function exportDocumentsCsvAction(filters?: {
   status?: string;
   search?: string;
 }): Promise<ActionResult<CsvExportResult>> {
+  const t = await getTranslations("csvExport");
   try {
     const { companyId } = await requireRole("member");
     const result = await listDocuments(db, companyId, {
@@ -188,7 +198,10 @@ export async function exportDocumentsCsvAction(filters?: {
       },
     };
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, "Export failed") };
+    return {
+      success: false,
+      error: safeErrorMessage(error, t("errorExportFailed")),
+    };
   }
 }
 
@@ -203,6 +216,7 @@ export async function exportInventoryItemsCsvAction(filters?: {
   assignedToUserId?: string;
   warehouseId?: string;
 }): Promise<ActionResult<CsvExportResult>> {
+  const t = await getTranslations("csvExport");
   try {
     const { companyId } = await requireRole("member");
     const result = await listInventoryItems(db, companyId, {
@@ -272,6 +286,9 @@ export async function exportInventoryItemsCsvAction(filters?: {
       },
     };
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, "Export failed") };
+    return {
+      success: false,
+      error: safeErrorMessage(error, t("errorExportFailed")),
+    };
   }
 }

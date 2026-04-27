@@ -1509,7 +1509,8 @@
     "uncategorized": "Sans catégorie",
     "noCategoryData": "Aucune donnée par catégorie pour cette période.",
     "errorAsOfDateRequired": "La date de référence est requise.",
-    "errorInvalidReportType": "Type de rapport invalide."
+    "errorInvalidReportType": "Type de rapport invalide.",
+    "errorExportFailed": "Échec de l'exportation"
   },
   "dunning": {
     "title": "Relances",
@@ -1574,7 +1575,8 @@
     "descriptionPlaceholder": "Description du projet...",
     "placeholders": {
       "projectName": "p.ex. Refonte du site web"
-    }
+    },
+    "errorFailedToUpdate": "Impossible de mettre à jour le projet"
   },
   "settings": {
     "title": "Paramètres",
@@ -1870,7 +1872,12 @@
       "qualityTitle": "Qualité des données",
       "qualityDesc": "Doublons, champs manquants et valeurs incohérentes — après les migrations et en continu.",
       "migrationTitle": "Corrections de migration",
-      "migrationDesc": "Séquences de numérotation, statuts de factures historiques et écritures comptables manquantes."
+      "migrationDesc": "Séquences de numérotation, statuts de factures historiques et écritures comptables manquantes.",
+      "errorRepairSequences": "Impossible de réparer les séquences de numérotation",
+      "errorRepairStatuses": "Impossible de réparer les statuts de factures",
+      "errorGenerateEntries": "Impossible de générer les écritures comptables",
+      "errorRepairPaidDates": "Impossible de réparer les dates de paiement",
+      "errorGetStatus": "Impossible d'obtenir le statut de réparation"
     },
     "apiTokens": {
       "title": "Clés API",
@@ -1948,7 +1955,12 @@
       "errorInvalidUrl": "URL invalide.",
       "errorSecretTooShort": "Le secret doit comporter au moins 16 caractères.",
       "errorNoEventsSelected": "Sélectionnez au moins un événement.",
-      "errorInvalidInput": "Saisie invalide."
+      "errorInvalidInput": "Saisie invalide.",
+      "listError": "Impossible de charger les points de terminaison webhook",
+      "updateError": "Impossible de mettre à jour le point de terminaison webhook",
+      "toggleError": "Impossible de basculer le point de terminaison webhook",
+      "deleteError": "Impossible de supprimer le point de terminaison webhook",
+      "deliveriesError": "Impossible de charger les livraisons"
     },
     "integrations": {
       "title": "Intégrations",
@@ -3848,7 +3860,10 @@
     "errorInvitationNotFound": "Invitation introuvable.",
     "errorInvalidCompanyId": "Identifiant d'entreprise invalide.",
     "fallbackTeamMember": "Un membre de l'équipe",
-    "emailInvalid": "Adresse e-mail invalide"
+    "emailInvalid": "Adresse e-mail invalide",
+    "errorLoadMemberships": "Impossible de charger les adhésions",
+    "errorSwitchCompany": "Impossible de changer d'entreprise",
+    "errorLoadTeamMembers": "Impossible de charger les membres de l'équipe"
   },
   "errors": {
     "unexpected": "Une erreur est survenue",
@@ -3917,13 +3932,29 @@
     "cancelLabel": "Annuler",
     "errorCannotMergeSelf": "Impossible de fusionner un contact avec lui-même.",
     "errorPrimaryNotFound": "Contact principal introuvable.",
-    "errorDuplicateNotFound": "Contact doublon introuvable."
+    "errorDuplicateNotFound": "Contact doublon introuvable.",
+    "errorRunChecks": "Impossible d'exécuter les vérifications de qualité",
+    "errorMergeContacts": "Impossible de fusionner les contacts",
+    "errorCancelDocuments": "Impossible d'annuler les documents",
+    "errorCancelStaleDrafts": "Impossible d'annuler les brouillons obsolètes",
+    "errorReactivateContact": "Impossible de réactiver le contact"
   },
   "ai": {
     "errorTextRequired": "Le texte est requis.",
     "errorNoProvider": "Aucun fournisseur d'IA disponible. Veuillez configurer une clé API valide dans les paramètres (Anthropic, OpenAI, OpenRouter ou Ollama).",
     "errorApiKeyInvalid": "La clé API est invalide ou expirée. Veuillez la mettre à jour dans votre fichier .env.local.",
     "errorUnreachable": "Le serveur d'IA est inaccessible. Veuillez vérifier la connexion.",
-    "errorGeneric": "Une erreur s'est produite. Veuillez réessayer."
+    "errorGeneric": "Une erreur s'est produite. Veuillez réessayer.",
+    "errorExtractItems": "Impossible d'extraire les articles",
+    "errorExtractContact": "Impossible d'extraire les données du contact"
+  },
+  "csvExport": {
+    "errorExportFailed": "Échec de l'exportation"
+  },
+  "sellables": {
+    "errorSearchFailed": "Recherche échouée"
+  },
+  "bulkImport": {
+    "errorImportFailed": "Importation échouée"
   }
 }

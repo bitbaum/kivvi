@@ -33,6 +33,7 @@ function makeEndpointSchema(t: WebhookT) {
 export async function listWebhookEndpointsAction(): Promise<
   ActionResult<Awaited<ReturnType<typeof listWebhookEndpoints>>>
 > {
+  const t = await getTranslations("settings.webhooks");
   try {
     const { companyId } = await requireRole("admin");
     const endpoints = await listWebhookEndpoints(db, companyId);
@@ -40,7 +41,7 @@ export async function listWebhookEndpointsAction(): Promise<
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to list webhook endpoints"),
+      error: safeErrorMessage(error, t("listError")),
     };
   }
 }
@@ -101,7 +102,7 @@ export async function updateWebhookEndpointAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to update webhook endpoint"),
+      error: safeErrorMessage(error, t("updateError")),
     };
   }
 }
@@ -110,6 +111,7 @@ export async function toggleWebhookEndpointAction(
   endpointId: string,
   isActive: boolean,
 ): Promise<ActionResult<void>> {
+  const t = await getTranslations("settings.webhooks");
   try {
     const { companyId } = await requireRole("admin");
     await updateWebhookEndpoint(db, companyId, endpointId, { isActive });
@@ -118,7 +120,7 @@ export async function toggleWebhookEndpointAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to toggle webhook endpoint"),
+      error: safeErrorMessage(error, t("toggleError")),
     };
   }
 }
@@ -126,6 +128,7 @@ export async function toggleWebhookEndpointAction(
 export async function deleteWebhookEndpointAction(
   endpointId: string,
 ): Promise<ActionResult<void>> {
+  const t = await getTranslations("settings.webhooks");
   try {
     const { companyId } = await requireRole("admin");
     await deleteWebhookEndpoint(db, companyId, endpointId);
@@ -134,7 +137,7 @@ export async function deleteWebhookEndpointAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to delete webhook endpoint"),
+      error: safeErrorMessage(error, t("deleteError")),
     };
   }
 }
@@ -142,6 +145,7 @@ export async function deleteWebhookEndpointAction(
 export async function listWebhookDeliveriesAction(
   endpointId: string,
 ): Promise<ActionResult<Awaited<ReturnType<typeof listWebhookDeliveries>>>> {
+  const t = await getTranslations("settings.webhooks");
   try {
     const { companyId } = await requireRole("admin");
     const deliveries = await listWebhookDeliveries(db, companyId, endpointId);
@@ -149,7 +153,7 @@ export async function listWebhookDeliveriesAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to load deliveries"),
+      error: safeErrorMessage(error, t("deliveriesError")),
     };
   }
 }

@@ -28,9 +28,9 @@ export interface ExportReportParams {
 export async function exportReportAction(
   params: ExportReportParams,
 ): Promise<ActionResult<{ csvData: string; filename: string }>> {
+  const t = await getTranslations("reports");
   try {
     const { companyId } = await getSession();
-    const t = await getTranslations("reports");
 
     let csvData: string;
     let filename: string;
@@ -239,7 +239,7 @@ export async function exportReportAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to export report"),
+      error: safeErrorMessage(error, t("errorExportFailed")),
     };
   }
 }

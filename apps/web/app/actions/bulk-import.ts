@@ -26,6 +26,7 @@ import {
   requireRole,
   safeErrorMessage,
 } from "./utils";
+import { getTranslations } from "next-intl/server";
 import { sql, eq } from "drizzle-orm";
 
 // ============================================================================
@@ -108,6 +109,7 @@ function parseAmount(value: string | null | undefined): string {
 export async function bulkImportAction(
   input: BulkImportInput,
 ): Promise<ActionResult<BulkImportResult>> {
+  const t = await getTranslations("bulkImport");
   try {
     const { companyId, userId } = await requireRole("member");
 
@@ -459,7 +461,7 @@ export async function bulkImportAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to import data"),
+      error: safeErrorMessage(error, t("errorImportFailed")),
     };
   }
 }

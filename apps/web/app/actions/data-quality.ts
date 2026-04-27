@@ -18,6 +18,7 @@ import {
 export async function getDataQualityReportAction(): Promise<
   ActionResult<DataQualityReport>
 > {
+  const t = await getTranslations("dataQuality");
   try {
     const { companyId } = await requireRole("member");
     const report = await getDataQualityReport(db, companyId);
@@ -25,7 +26,7 @@ export async function getDataQualityReportAction(): Promise<
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to run data quality checks"),
+      error: safeErrorMessage(error, t("errorRunChecks")),
     };
   }
 }
@@ -40,9 +41,9 @@ export async function mergeContactsAction(
   primaryId: string,
   duplicateId: string,
 ): Promise<ActionResult<{ documentsReassigned: number }>> {
+  const t = await getTranslations("dataQuality");
   try {
     const { companyId } = await requireRole("admin");
-    const t = await getTranslations("dataQuality");
 
     if (primaryId === duplicateId) {
       return { success: false, error: t("errorCannotMergeSelf") };
@@ -101,7 +102,7 @@ export async function mergeContactsAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to merge contacts"),
+      error: safeErrorMessage(error, t("errorMergeContacts")),
     };
   }
 }
@@ -115,6 +116,7 @@ export async function mergeContactsAction(
 export async function cancelZeroTotalDocumentsAction(
   ids: string[],
 ): Promise<ActionResult<{ cancelled: number }>> {
+  const t = await getTranslations("dataQuality");
   try {
     const { companyId } = await requireRole("admin");
 
@@ -138,7 +140,7 @@ export async function cancelZeroTotalDocumentsAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to cancel documents"),
+      error: safeErrorMessage(error, t("errorCancelDocuments")),
     };
   }
 }
@@ -150,6 +152,7 @@ export async function cancelZeroTotalDocumentsAction(
 export async function cancelStaleDraftsAction(
   ids: string[],
 ): Promise<ActionResult<{ cancelled: number }>> {
+  const t = await getTranslations("dataQuality");
   try {
     const { companyId } = await requireRole("admin");
 
@@ -179,7 +182,7 @@ export async function cancelStaleDraftsAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to cancel stale drafts"),
+      error: safeErrorMessage(error, t("errorCancelStaleDrafts")),
     };
   }
 }
@@ -191,6 +194,7 @@ export async function cancelStaleDraftsAction(
 export async function reactivateContactAction(
   contactId: string,
 ): Promise<ActionResult<void>> {
+  const t = await getTranslations("dataQuality");
   try {
     const { companyId } = await requireRole("admin");
 
@@ -207,7 +211,7 @@ export async function reactivateContactAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to reactivate contact"),
+      error: safeErrorMessage(error, t("errorReactivateContact")),
     };
   }
 }

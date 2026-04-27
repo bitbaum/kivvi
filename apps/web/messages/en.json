@@ -1509,7 +1509,8 @@
     "uncategorized": "Uncategorized",
     "noCategoryData": "No category data for this period.",
     "errorAsOfDateRequired": "As of date is required.",
-    "errorInvalidReportType": "Invalid report type."
+    "errorInvalidReportType": "Invalid report type.",
+    "errorExportFailed": "Export failed"
   },
   "dunning": {
     "title": "Dunning",
@@ -1574,7 +1575,8 @@
     "descriptionPlaceholder": "Project description...",
     "placeholders": {
       "projectName": "e.g. Website Redesign"
-    }
+    },
+    "errorFailedToUpdate": "Failed to update project"
   },
   "settings": {
     "title": "Settings",
@@ -1870,7 +1872,12 @@
       "qualityTitle": "Data Quality",
       "qualityDesc": "Duplicates, missing fields, and inconsistent values — after migrations and ongoing.",
       "migrationTitle": "Migration Corrections",
-      "migrationDesc": "Number sequences, historical invoice statuses, and missing journal entries."
+      "migrationDesc": "Number sequences, historical invoice statuses, and missing journal entries.",
+      "errorRepairSequences": "Failed to repair number sequences",
+      "errorRepairStatuses": "Failed to repair invoice statuses",
+      "errorGenerateEntries": "Failed to generate journal entries",
+      "errorRepairPaidDates": "Failed to repair paid dates",
+      "errorGetStatus": "Failed to get repair status"
     },
     "apiTokens": {
       "title": "API Keys",
@@ -1948,7 +1955,12 @@
       "errorInvalidUrl": "Invalid URL.",
       "errorSecretTooShort": "Secret must be at least 16 characters.",
       "errorNoEventsSelected": "Select at least one event.",
-      "errorInvalidInput": "Invalid input."
+      "errorInvalidInput": "Invalid input.",
+      "listError": "Failed to list webhook endpoints",
+      "updateError": "Failed to update webhook endpoint",
+      "toggleError": "Failed to toggle webhook endpoint",
+      "deleteError": "Failed to delete webhook endpoint",
+      "deliveriesError": "Failed to load deliveries"
     },
     "integrations": {
       "title": "Integrations",
@@ -3848,7 +3860,10 @@
     "errorInvitationNotFound": "Invitation not found.",
     "errorInvalidCompanyId": "Invalid company ID.",
     "fallbackTeamMember": "A team member",
-    "emailInvalid": "Invalid email address"
+    "emailInvalid": "Invalid email address",
+    "errorLoadMemberships": "Failed to load memberships",
+    "errorSwitchCompany": "Failed to switch company",
+    "errorLoadTeamMembers": "Failed to load team members"
   },
   "errors": {
     "unexpected": "Something went wrong",
@@ -3917,13 +3932,29 @@
     "cancelLabel": "Cancel",
     "errorCannotMergeSelf": "Cannot merge a contact with itself.",
     "errorPrimaryNotFound": "Primary contact not found.",
-    "errorDuplicateNotFound": "Duplicate contact not found."
+    "errorDuplicateNotFound": "Duplicate contact not found.",
+    "errorRunChecks": "Failed to run data quality checks",
+    "errorMergeContacts": "Failed to merge contacts",
+    "errorCancelDocuments": "Failed to cancel documents",
+    "errorCancelStaleDrafts": "Failed to cancel stale drafts",
+    "errorReactivateContact": "Failed to reactivate contact"
   },
   "ai": {
     "errorTextRequired": "Text is required.",
     "errorNoProvider": "No AI provider available. Please configure a valid API key in Settings (Anthropic, OpenAI, OpenRouter, or Ollama).",
     "errorApiKeyInvalid": "The API key is invalid or expired. Please update it in your .env.local file.",
     "errorUnreachable": "The AI server is unreachable. Please check the connection.",
-    "errorGeneric": "An error occurred. Please try again."
+    "errorGeneric": "An error occurred. Please try again.",
+    "errorExtractItems": "Failed to extract items",
+    "errorExtractContact": "Failed to extract contact data"
+  },
+  "csvExport": {
+    "errorExportFailed": "Export failed"
+  },
+  "sellables": {
+    "errorSearchFailed": "Failed to search sellables"
+  },
+  "bulkImport": {
+    "errorImportFailed": "Failed to import data"
   }
 }

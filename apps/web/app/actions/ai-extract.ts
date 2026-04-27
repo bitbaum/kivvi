@@ -96,9 +96,9 @@ interface ExtractionResult {
 export async function extractItemsFromTextAction(
   text: string,
 ): Promise<ActionResult<ExtractionResult>> {
+  const t = await getTranslations("ai");
   try {
     await requireRole("member");
-    const t = await getTranslations("ai");
 
     if (!text.trim()) {
       return { success: false, error: t("errorTextRequired") };
@@ -152,7 +152,7 @@ export async function extractItemsFromTextAction(
     } catch {
       return {
         success: false,
-        error: safeErrorMessage(error, "Failed to extract items"),
+        error: safeErrorMessage(error, t("errorExtractItems")),
       };
     }
   }
@@ -169,9 +169,9 @@ export async function extractItemsFromTextAction(
 export async function extractContactFromTextAction(
   text: string,
 ): Promise<ActionResult<ExtractedContact>> {
+  const t = await getTranslations("ai");
   try {
     await requireRole("member");
-    const t = await getTranslations("ai");
 
     if (!text.trim()) {
       return { success: false, error: t("errorTextRequired") };
@@ -189,7 +189,7 @@ export async function extractContactFromTextAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to extract contact data"),
+      error: safeErrorMessage(error, t("errorExtractContact")),
     };
   }
 }

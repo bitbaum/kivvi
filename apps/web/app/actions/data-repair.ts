@@ -23,6 +23,7 @@ import {
   createInvoiceSentJournalEntry,
   createPurchaseInvoiceJournalEntry,
 } from "@kivvi/core";
+import { getTranslations } from "next-intl/server";
 
 // ============================================================================
 // TASK #16: REPAIR NUMBER SEQUENCES
@@ -35,6 +36,7 @@ import {
 export async function repairNumberSequencesAction(): Promise<
   ActionResult<{ updated: Record<string, number> }>
 > {
+  const t = await getTranslations("settings.dataRepair");
   try {
     const { companyId } = await requireRole("admin");
     const updated: Record<string, number> = {};
@@ -197,7 +199,7 @@ export async function repairNumberSequencesAction(): Promise<
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to repair number sequences"),
+      error: safeErrorMessage(error, t("errorRepairSequences")),
     };
   }
 }
@@ -216,6 +218,7 @@ export async function repairInvoiceStatusesAction(
 ): Promise<
   ActionResult<{ updatedInvoices: number; updatedPurchaseInvoices: number }>
 > {
+  const t = await getTranslations("settings.dataRepair");
   try {
     const { companyId } = await requireRole("admin");
     const cutoff = cutoffDate ? new Date(cutoffDate) : new Date("2026-01-01");
@@ -265,7 +268,7 @@ export async function repairInvoiceStatusesAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to repair invoice statuses"),
+      error: safeErrorMessage(error, t("errorRepairStatuses")),
     };
   }
 }
@@ -286,6 +289,7 @@ export async function generateMissingJournalEntriesAction(): Promise<
     errors: string[];
   }>
 > {
+  const t = await getTranslations("settings.dataRepair");
   try {
     const { companyId } = await requireRole("admin");
 
@@ -421,7 +425,7 @@ export async function generateMissingJournalEntriesAction(): Promise<
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to generate journal entries"),
+      error: safeErrorMessage(error, t("errorGenerateEntries")),
     };
   }
 }
@@ -437,6 +441,7 @@ export async function generateMissingJournalEntriesAction(): Promise<
 export async function repairPaidDatesAction(): Promise<
   ActionResult<{ updated: number }>
 > {
+  const t = await getTranslations("settings.dataRepair");
   try {
     const { companyId } = await requireRole("admin");
 
@@ -460,7 +465,7 @@ export async function repairPaidDatesAction(): Promise<
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to repair paid dates"),
+      error: safeErrorMessage(error, t("errorRepairPaidDates")),
     };
   }
 }
@@ -483,6 +488,7 @@ export async function getDataRepairStatusAction(): Promise<
     paidInvoicesWithoutPaidDate: number;
   }>
 > {
+  const t = await getTranslations("settings.dataRepair");
   try {
     const { companyId } = await getSession();
 
@@ -589,7 +595,7 @@ export async function getDataRepairStatusAction(): Promise<
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to get repair status"),
+      error: safeErrorMessage(error, t("errorGetStatus")),
     };
   }
 }

@@ -1509,7 +1509,8 @@
     "uncategorized": "Ohne Kategorie",
     "noCategoryData": "Keine Kategoriedaten für diesen Zeitraum.",
     "errorAsOfDateRequired": "Stichtag ist erforderlich.",
-    "errorInvalidReportType": "Ungültiger Berichtstyp."
+    "errorInvalidReportType": "Ungültiger Berichtstyp.",
+    "errorExportFailed": "Export fehlgeschlagen"
   },
   "dunning": {
     "title": "Mahnwesen",
@@ -1574,7 +1575,8 @@
     "descriptionPlaceholder": "Projektbeschreibung...",
     "placeholders": {
       "projectName": "z.B. Website Redesign"
-    }
+    },
+    "errorFailedToUpdate": "Projekt konnte nicht aktualisiert werden"
   },
   "settings": {
     "title": "Einstellungen",
@@ -1870,7 +1872,12 @@
       "qualityTitle": "Datenqualität",
       "qualityDesc": "Duplikate, fehlende Felder und inkonsistente Werte — nach Migrationen und laufend.",
       "migrationTitle": "Migrations-Korrekturen",
-      "migrationDesc": "Nummernkreise, historische Rechnungsstatus und fehlende Buchungssätze."
+      "migrationDesc": "Nummernkreise, historische Rechnungsstatus und fehlende Buchungssätze.",
+      "errorRepairSequences": "Nummernkreise konnten nicht repariert werden",
+      "errorRepairStatuses": "Rechnungsstatus konnten nicht repariert werden",
+      "errorGenerateEntries": "Buchungssätze konnten nicht generiert werden",
+      "errorRepairPaidDates": "Zahlungsdaten konnten nicht repariert werden",
+      "errorGetStatus": "Reparaturstatus konnte nicht abgerufen werden"
     },
     "apiTokens": {
       "title": "API-Schlüssel",
@@ -1948,7 +1955,12 @@
       "errorInvalidUrl": "Ungültige URL.",
       "errorSecretTooShort": "Secret muss mindestens 16 Zeichen lang sein.",
       "errorNoEventsSelected": "Mindestens ein Event auswählen.",
-      "errorInvalidInput": "Ungültige Eingabe."
+      "errorInvalidInput": "Ungültige Eingabe.",
+      "listError": "Webhook-Endpunkte konnten nicht geladen werden",
+      "updateError": "Webhook-Endpunkt konnte nicht aktualisiert werden",
+      "toggleError": "Webhook-Endpunkt konnte nicht umgeschaltet werden",
+      "deleteError": "Webhook-Endpunkt konnte nicht gelöscht werden",
+      "deliveriesError": "Lieferungen konnten nicht geladen werden"
     },
     "integrations": {
       "title": "Integrationen",
@@ -3848,7 +3860,10 @@
     "errorInvitationNotFound": "Einladung nicht gefunden.",
     "errorInvalidCompanyId": "Ungültige Unternehmens-ID.",
     "fallbackTeamMember": "Ein Teammitglied",
-    "emailInvalid": "Ungültige E-Mail-Adresse"
+    "emailInvalid": "Ungültige E-Mail-Adresse",
+    "errorLoadMemberships": "Mitgliedschaften konnten nicht geladen werden",
+    "errorSwitchCompany": "Unternehmenswechsel fehlgeschlagen",
+    "errorLoadTeamMembers": "Teammitglieder konnten nicht geladen werden"
   },
   "errors": {
     "unexpected": "Etwas ist schiefgelaufen",
@@ -3917,13 +3932,29 @@
     "cancelLabel": "Stornieren",
     "errorCannotMergeSelf": "Ein Kontakt kann nicht mit sich selbst zusammengeführt werden.",
     "errorPrimaryNotFound": "Primärkontakt nicht gefunden.",
-    "errorDuplicateNotFound": "Duplikatkontakt nicht gefunden."
+    "errorDuplicateNotFound": "Duplikatkontakt nicht gefunden.",
+    "errorRunChecks": "Datenqualitätsprüfung fehlgeschlagen",
+    "errorMergeContacts": "Kontakte konnten nicht zusammengeführt werden",
+    "errorCancelDocuments": "Dokumente konnten nicht storniert werden",
+    "errorCancelStaleDrafts": "Veraltete Entwürfe konnten nicht storniert werden",
+    "errorReactivateContact": "Kontakt konnte nicht reaktiviert werden"
   },
   "ai": {
     "errorTextRequired": "Text ist erforderlich.",
     "errorNoProvider": "Kein AI-Anbieter verfügbar. Bitte konfigurieren Sie einen gültigen API-Schlüssel in den Einstellungen (Anthropic, OpenAI, OpenRouter oder Ollama).",
     "errorApiKeyInvalid": "Der API-Schlüssel ist ungültig oder abgelaufen. Bitte aktualisieren Sie ihn in der .env.local Datei.",
     "errorUnreachable": "Der AI-Server ist nicht erreichbar. Bitte prüfen Sie die Verbindung.",
-    "errorGeneric": "Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut."
+    "errorGeneric": "Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+    "errorExtractItems": "Artikel konnten nicht extrahiert werden",
+    "errorExtractContact": "Kontaktdaten konnten nicht extrahiert werden"
+  },
+  "csvExport": {
+    "errorExportFailed": "Export fehlgeschlagen"
+  },
+  "sellables": {
+    "errorSearchFailed": "Suche fehlgeschlagen"
+  },
+  "bulkImport": {
+    "errorImportFailed": "Import fehlgeschlagen"
   }
 }

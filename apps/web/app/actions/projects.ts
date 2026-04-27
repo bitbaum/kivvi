@@ -15,6 +15,7 @@ import {
   safeErrorMessage,
 } from "./utils";
 import { createAction } from "./action-factory";
+import { getTranslations } from "next-intl/server";
 
 export const createProjectAction = createAction<unknown, unknown>({
   handler: async (input, { companyId, db }) => {
@@ -32,6 +33,7 @@ export async function updateProjectAction(
   projectId: string,
   input: unknown,
 ): Promise<ActionResult> {
+  const t = await getTranslations("projects");
   try {
     const { companyId } = await requireRole("member");
     const parsed = updateProjectSchema.safeParse(input);
@@ -48,7 +50,7 @@ export async function updateProjectAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to update project"),
+      error: safeErrorMessage(error, t("errorFailedToUpdate")),
     };
   }
 }
