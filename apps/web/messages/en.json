@@ -372,6 +372,7 @@
     "errorInvalidTargetType": "Invalid target document type.",
     "errorIntakeIdRequired": "Intake ID is required.",
     "errorNotAnIntake": "Document is not an intake.",
+    "emailInvalid": "Invalid email address",
     "errorEmailCouldNotBeSent": "Email could not be sent.",
     "errorReceiptCouldNotBeSent": "Receipt email could not be sent.",
     "errorFailedToCreate": "Failed to create document.",
@@ -1873,7 +1874,8 @@
       "endpoints": "Available Endpoints",
       "endpointContacts": "GET/POST /api/v1/contacts",
       "endpointDocuments": "GET/POST /api/v1/documents",
-      "endpointProducts": "GET/POST /api/v1/products"
+      "endpointProducts": "GET/POST /api/v1/products",
+      "nameRequired": "Name is required"
     },
     "team": {
       "title": "Team",
@@ -2148,7 +2150,8 @@
       "at": "Austria",
       "li": "Liechtenstein"
     },
-    "errorCompanyNotFound": "Company not found."
+    "errorCompanyNotFound": "Company not found.",
+    "companyNameRequired": "Company name is required"
   },
   "chat": {
     "title": "AI Assistant",
@@ -3792,7 +3795,8 @@
     "errorInvalidToken": "Invalid token.",
     "errorInvitationNotFound": "Invitation not found.",
     "errorInvalidCompanyId": "Invalid company ID.",
-    "fallbackTeamMember": "A team member"
+    "fallbackTeamMember": "A team member",
+    "emailInvalid": "Invalid email address"
   },
   "errors": {
     "unexpected": "Something went wrong",

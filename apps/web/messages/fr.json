@@ -372,6 +372,7 @@
     "errorInvalidTargetType": "Type de document cible invalide.",
     "errorIntakeIdRequired": "L'identifiant de réception est requis.",
     "errorNotAnIntake": "Le document n'est pas une réception.",
+    "emailInvalid": "Adresse e-mail invalide",
     "errorEmailCouldNotBeSent": "L'e-mail n'a pas pu être envoyé.",
     "errorReceiptCouldNotBeSent": "L'e-mail de reçu n'a pas pu être envoyé.",
     "errorFailedToCreate": "Échec de la création du document.",
@@ -1873,7 +1874,8 @@
       "endpoints": "Points d’accès disponibles",
       "endpointContacts": "GET/POST /api/v1/contacts",
       "endpointDocuments": "GET/POST /api/v1/documents",
-      "endpointProducts": "GET/POST /api/v1/products"
+      "endpointProducts": "GET/POST /api/v1/products",
+      "nameRequired": "Le nom est requis"
     },
     "team": {
       "title": "Équipe",
@@ -2148,7 +2150,8 @@
       "at": "Autriche",
       "li": "Liechtenstein"
     },
-    "errorCompanyNotFound": "Entreprise introuvable."
+    "errorCompanyNotFound": "Entreprise introuvable.",
+    "companyNameRequired": "Le nom de l'entreprise est requis"
   },
   "chat": {
     "title": "Assistant IA",
@@ -3792,7 +3795,8 @@
     "errorInvalidToken": "Jeton invalide.",
     "errorInvitationNotFound": "Invitation introuvable.",
     "errorInvalidCompanyId": "Identifiant d'entreprise invalide.",
-    "fallbackTeamMember": "Un membre de l'équipe"
+    "fallbackTeamMember": "Un membre de l'équipe",
+    "emailInvalid": "Adresse e-mail invalide"
   },
   "errors": {
     "unexpected": "Une erreur est survenue",

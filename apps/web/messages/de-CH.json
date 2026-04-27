@@ -372,6 +372,7 @@
     "errorInvalidTargetType": "Ungültiger Ziel-Dokumenttyp.",
     "errorIntakeIdRequired": "Intake-ID ist erforderlich.",
     "errorNotAnIntake": "Dokument ist keine Annahme.",
+    "emailInvalid": "Ungültige E-Mail-Adresse",
     "errorEmailCouldNotBeSent": "E-Mail konnte nicht gesendet werden.",
     "errorReceiptCouldNotBeSent": "Quittungs-E-Mail konnte nicht gesendet werden.",
     "errorFailedToCreate": "Fehler beim Erstellen des Dokuments.",
@@ -1873,7 +1874,8 @@
       "endpoints": "Verfügbare Endpunkte",
       "endpointContacts": "GET/POST /api/v1/contacts",
       "endpointDocuments": "GET/POST /api/v1/documents",
-      "endpointProducts": "GET/POST /api/v1/products"
+      "endpointProducts": "GET/POST /api/v1/products",
+      "nameRequired": "Name ist erforderlich"
     },
     "team": {
       "title": "Team",
@@ -2148,7 +2150,8 @@
       "at": "Österreich",
       "li": "Liechtenstein"
     },
-    "errorCompanyNotFound": "Unternehmen nicht gefunden."
+    "errorCompanyNotFound": "Unternehmen nicht gefunden.",
+    "companyNameRequired": "Unternehmensname ist erforderlich"
   },
   "chat": {
     "title": "KI-Assistent",
@@ -3792,7 +3795,8 @@
     "errorInvalidToken": "Ungültiger Token.",
     "errorInvitationNotFound": "Einladung nicht gefunden.",
     "errorInvalidCompanyId": "Ungültige Unternehmens-ID.",
-    "fallbackTeamMember": "Ein Teammitglied"
+    "fallbackTeamMember": "Ein Teammitglied",
+    "emailInvalid": "Ungültige E-Mail-Adresse"
   },
   "errors": {
     "unexpected": "Etwas ist schiefgelaufen",

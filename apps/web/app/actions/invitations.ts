@@ -45,7 +45,7 @@ export async function inviteMemberAction(
 
     const parsed = z
       .object({
-        email: z.string().email("Invalid email address"),
+        email: z.string().email(t("emailInvalid")),
         role: z.enum(INVITABLE_ROLES).default("member"),
       })
       .safeParse(input);

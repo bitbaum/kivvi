@@ -36,16 +36,6 @@ import { DEFAULT_VAT_RATE } from "@kivvi/core/src/config/vat-rates";
 // SCHEMAS
 // ============================================================================
 
-const companyInfoSchema = z.object({
-  name: z.string().min(1, "Company name is required").max(200),
-  legalName: z.string().max(200).optional().nullable(),
-  address: z.string().max(500).optional().nullable(),
-  postalCode: z.string().max(20).optional().nullable(),
-  city: z.string().max(100).optional().nullable(),
-  country: z.string().max(2).optional().default("CH"),
-  vatNumber: z.string().max(50).optional().nullable(),
-});
-
 const businessConfigSchema = z.object({
   defaultVatRate: z.coerce.number().min(0).max(100),
   defaultPaymentTermsDays: z.number().int().min(0).max(365).default(30),
@@ -60,8 +50,18 @@ const businessConfigSchema = z.object({
 export async function updateCompanyInfoAction(
   input: unknown,
 ): Promise<ActionResult> {
+  const t = await getTranslations("onboarding");
   try {
     const { companyId } = await getSession();
+    const companyInfoSchema = z.object({
+      name: z.string().min(1, t("companyNameRequired")).max(200),
+      legalName: z.string().max(200).optional().nullable(),
+      address: z.string().max(500).optional().nullable(),
+      postalCode: z.string().max(20).optional().nullable(),
+      city: z.string().max(100).optional().nullable(),
+      country: z.string().max(2).optional().default("CH"),
+      vatNumber: z.string().max(50).optional().nullable(),
+    });
     const parsed = companyInfoSchema.safeParse(input);
     if (!parsed.success) {
       return {

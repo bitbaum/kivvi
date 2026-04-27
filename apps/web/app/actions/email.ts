@@ -45,12 +45,6 @@ import { getTranslations } from "next-intl/server";
 // VALIDATION
 // ============================================================================
 
-const sendEmailSchema = z.object({
-  documentId: z.string().uuid(),
-  recipientEmail: z.string().email("Invalid email address"),
-  ccSender: z.boolean().optional(),
-});
-
 // ============================================================================
 // SERVER ACTION
 // ============================================================================
@@ -65,6 +59,11 @@ export async function sendDocumentEmailAction(
     const { companyId, userId } = await requireRole("member");
 
     // Validate inputs
+    const sendEmailSchema = z.object({
+      documentId: z.string().uuid(),
+      recipientEmail: z.string().email(t("emailInvalid")),
+      ccSender: z.boolean().optional(),
+    });
     const parsed = sendEmailSchema.safeParse({
       documentId,
       recipientEmail,

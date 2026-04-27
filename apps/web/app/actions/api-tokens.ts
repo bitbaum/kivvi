@@ -5,18 +5,10 @@ import { db } from "@/lib/db";
 import { apiTokens } from "@kivvi/database";
 import { eq, and } from "drizzle-orm";
 import { z } from "zod";
-import {
-  type ActionResult,
-  getSession,
-  requireRole,
-  safeErrorMessage,
-} from "./utils";
+import { type ActionResult, requireRole, safeErrorMessage } from "./utils";
 import { createAction } from "./action-factory";
 import { generateApiToken } from "@/lib/api-auth";
-
-const createTokenSchema = z.object({
-  name: z.string().min(1, "Name is required").max(100),
-});
+import { getTranslations } from "next-intl/server";
 
 /**
  * Create a new API token. Returns the raw token ONCE — it cannot be retrieved later.
@@ -24,8 +16,12 @@ const createTokenSchema = z.object({
 export async function createApiTokenAction(
   input: unknown,
 ): Promise<ActionResult<{ id: string; rawToken: string; prefix: string }>> {
+  const t = await getTranslations("settings.apiTokens");
   try {
     const { companyId, userId } = await requireRole("admin");
+    const createTokenSchema = z.object({
+      name: z.string().min(1, t("nameRequired")).max(100),
+    });
     const parsed = createTokenSchema.safeParse(input);
     if (!parsed.success) {
       return {
