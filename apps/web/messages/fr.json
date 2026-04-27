@@ -1662,7 +1662,8 @@
       "avatar": "Photo de profil",
       "uploadAvatar": "Télécharger une photo",
       "removeAvatar": "Supprimer la photo",
-      "avatarHint": "PNG, JPEG ou SVG · Max 500Ko"
+      "avatarHint": "PNG, JPEG ou SVG · Max 500Ko",
+      "errorChangePasswordFailed": "Échec du changement de mot de passe"
     },
     "sequences": {
       "title": "Séquences de numérotation",
@@ -1910,7 +1911,8 @@
       "endpointContacts": "GET/POST /api/v1/contacts",
       "endpointDocuments": "GET/POST /api/v1/documents",
       "endpointProducts": "GET/POST /api/v1/products",
-      "nameRequired": "Le nom est requis"
+      "nameRequired": "Le nom est requis",
+      "errorCreateFailed": "Échec de la création du jeton API"
     },
     "team": {
       "title": "Équipe",
@@ -1977,7 +1979,8 @@
         "saved": "Enregistré",
         "testConnection": "Tester la connexion",
         "testing": "Test en cours…"
-      }
+      },
+      "errorSaveApiKey": "Échec de l'enregistrement de la clé API"
     },
     "errorNoFileProvided": "Aucun fichier fourni.",
     "errorFileTooLarge": "Fichier trop volumineux. Maximum 500 Ko.",
@@ -2191,7 +2194,17 @@
       "li": "Liechtenstein"
     },
     "errorCompanyNotFound": "Entreprise introuvable.",
-    "companyNameRequired": "Le nom de l'entreprise est requis"
+    "companyNameRequired": "Le nom de l'entreprise est requis",
+    "errorUpdateCompanyInfo": "Échec de la mise à jour des informations de l'entreprise",
+    "errorInitializeCompany": "Échec de l'initialisation de l'entreprise",
+    "errorImportFailed": "Échec de l'importation",
+    "errorCompleteOnboarding": "Échec de la finalisation de l'intégration",
+    "errorSeedSampleData": "Échec de la création des données d'exemple",
+    "errorClearSampleData": "Échec de la suppression des données d'exemple",
+    "errorGetState": "Échec de la récupération de l'état d'intégration",
+    "errorGetCompanyDetails": "Échec de la récupération des détails de l'entreprise",
+    "errorProductImport": "Échec de l'importation des produits",
+    "errorRepairLineItems": "Échec de la réparation des lignes"
   },
   "chat": {
     "title": "Assistant IA",
@@ -2619,7 +2632,8 @@
         "successMessage": "Nous vous recontacterons sous 2 jours ouvrés.",
         "nameMinLength": "Le nom doit comporter au moins 2 caractères",
         "emailInvalid": "Adresse e-mail invalide",
-        "genericError": "Une erreur inconnue est survenue."
+        "genericError": "Une erreur inconnue est survenue.",
+        "errorSubmitFailed": "Échec de l'envoi du formulaire de contact"
       },
       "waitlist": {
         "emailPlaceholder": "vous@email.ch",
@@ -3863,7 +3877,9 @@
     "emailInvalid": "Adresse e-mail invalide",
     "errorLoadMemberships": "Impossible de charger les adhésions",
     "errorSwitchCompany": "Impossible de changer d'entreprise",
-    "errorLoadTeamMembers": "Impossible de charger les membres de l'équipe"
+    "errorLoadTeamMembers": "Impossible de charger les membres de l'équipe",
+    "errorSendInvitation": "Impossible d'envoyer l'invitation",
+    "errorLoadInvitation": "Impossible de charger l'invitation"
   },
   "errors": {
     "unexpected": "Une erreur est survenue",

@@ -1662,7 +1662,8 @@
       "avatar": "Profile Picture",
       "uploadAvatar": "Upload picture",
       "removeAvatar": "Remove picture",
-      "avatarHint": "PNG, JPEG or SVG · Max 500KB"
+      "avatarHint": "PNG, JPEG or SVG · Max 500KB",
+      "errorChangePasswordFailed": "Failed to change password"
     },
     "sequences": {
       "title": "Number Sequences",
@@ -1910,7 +1911,8 @@
       "endpointContacts": "GET/POST /api/v1/contacts",
       "endpointDocuments": "GET/POST /api/v1/documents",
       "endpointProducts": "GET/POST /api/v1/products",
-      "nameRequired": "Name is required"
+      "nameRequired": "Name is required",
+      "errorCreateFailed": "Failed to create API token"
     },
     "team": {
       "title": "Team",
@@ -1977,7 +1979,8 @@
         "saved": "Saved",
         "testConnection": "Test connection",
         "testing": "Testing…"
-      }
+      },
+      "errorSaveApiKey": "Failed to save API key"
     },
     "errorNoFileProvided": "No file provided.",
     "errorFileTooLarge": "File too large. Maximum 500 KB.",
@@ -2191,7 +2194,17 @@
       "li": "Liechtenstein"
     },
     "errorCompanyNotFound": "Company not found.",
-    "companyNameRequired": "Company name is required"
+    "companyNameRequired": "Company name is required",
+    "errorUpdateCompanyInfo": "Failed to update company info",
+    "errorInitializeCompany": "Failed to initialize company",
+    "errorImportFailed": "Import failed",
+    "errorCompleteOnboarding": "Failed to complete onboarding",
+    "errorSeedSampleData": "Failed to seed sample data",
+    "errorClearSampleData": "Failed to clear sample data",
+    "errorGetState": "Failed to get onboarding state",
+    "errorGetCompanyDetails": "Failed to get company details",
+    "errorProductImport": "Product import failed",
+    "errorRepairLineItems": "Failed to repair line items"
   },
   "chat": {
     "title": "AI Assistant",
@@ -2619,7 +2632,8 @@
         "successMessage": "We'll get back to you within 2 working days.",
         "nameMinLength": "Name must be at least 2 characters",
         "emailInvalid": "Invalid email address",
-        "genericError": "An unknown error occurred."
+        "genericError": "An unknown error occurred.",
+        "errorSubmitFailed": "Failed to submit contact form"
       },
       "waitlist": {
         "emailPlaceholder": "you@email.com",
@@ -3863,7 +3877,9 @@
     "emailInvalid": "Invalid email address",
     "errorLoadMemberships": "Failed to load memberships",
     "errorSwitchCompany": "Failed to switch company",
-    "errorLoadTeamMembers": "Failed to load team members"
+    "errorLoadTeamMembers": "Failed to load team members",
+    "errorSendInvitation": "Failed to send invitation",
+    "errorLoadInvitation": "Failed to load invitation"
   },
   "errors": {
     "unexpected": "Something went wrong",

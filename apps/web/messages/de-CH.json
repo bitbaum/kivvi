@@ -1662,7 +1662,8 @@
       "avatar": "Profilbild",
       "uploadAvatar": "Bild hochladen",
       "removeAvatar": "Bild entfernen",
-      "avatarHint": "PNG, JPEG oder SVG · Max 500KB"
+      "avatarHint": "PNG, JPEG oder SVG · Max 500KB",
+      "errorChangePasswordFailed": "Passwort konnte nicht geändert werden"
     },
     "sequences": {
       "title": "Nummernkreise",
@@ -1910,7 +1911,8 @@
       "endpointContacts": "GET/POST /api/v1/contacts",
       "endpointDocuments": "GET/POST /api/v1/documents",
       "endpointProducts": "GET/POST /api/v1/products",
-      "nameRequired": "Name ist erforderlich"
+      "nameRequired": "Name ist erforderlich",
+      "errorCreateFailed": "API-Token konnte nicht erstellt werden"
     },
     "team": {
       "title": "Team",
@@ -1977,7 +1979,8 @@
         "saved": "Gespeichert",
         "testConnection": "Verbindung testen",
         "testing": "Testen…"
-      }
+      },
+      "errorSaveApiKey": "API-Schlüssel konnte nicht gespeichert werden"
     },
     "errorNoFileProvided": "Keine Datei angegeben.",
     "errorFileTooLarge": "Datei zu gross. Maximum 500 KB.",
@@ -2191,7 +2194,17 @@
       "li": "Liechtenstein"
     },
     "errorCompanyNotFound": "Unternehmen nicht gefunden.",
-    "companyNameRequired": "Unternehmensname ist erforderlich"
+    "companyNameRequired": "Unternehmensname ist erforderlich",
+    "errorUpdateCompanyInfo": "Unternehmensinformationen konnten nicht aktualisiert werden",
+    "errorInitializeCompany": "Unternehmen konnte nicht initialisiert werden",
+    "errorImportFailed": "Import fehlgeschlagen",
+    "errorCompleteOnboarding": "Onboarding konnte nicht abgeschlossen werden",
+    "errorSeedSampleData": "Beispieldaten konnten nicht erstellt werden",
+    "errorClearSampleData": "Beispieldaten konnten nicht gelöscht werden",
+    "errorGetState": "Onboarding-Status konnte nicht abgerufen werden",
+    "errorGetCompanyDetails": "Unternehmensdetails konnten nicht abgerufen werden",
+    "errorProductImport": "Produktimport fehlgeschlagen",
+    "errorRepairLineItems": "Positionen konnten nicht repariert werden"
   },
   "chat": {
     "title": "KI-Assistent",
@@ -2619,7 +2632,8 @@
         "successMessage": "Wir melden uns innerhalb von 2 Werktagen.",
         "nameMinLength": "Name muss mindestens 2 Zeichen lang sein",
         "emailInvalid": "Ungültige E-Mail-Adresse",
-        "genericError": "Ein unbekannter Fehler ist aufgetreten."
+        "genericError": "Ein unbekannter Fehler ist aufgetreten.",
+        "errorSubmitFailed": "Kontaktformular konnte nicht übermittelt werden"
       },
       "waitlist": {
         "emailPlaceholder": "ihre@email.ch",
@@ -3863,7 +3877,9 @@
     "emailInvalid": "Ungültige E-Mail-Adresse",
     "errorLoadMemberships": "Mitgliedschaften konnten nicht geladen werden",
     "errorSwitchCompany": "Unternehmenswechsel fehlgeschlagen",
-    "errorLoadTeamMembers": "Teammitglieder konnten nicht geladen werden"
+    "errorLoadTeamMembers": "Teammitglieder konnten nicht geladen werden",
+    "errorSendInvitation": "Einladung konnte nicht gesendet werden",
+    "errorLoadInvitation": "Einladung konnte nicht geladen werden"
   },
   "errors": {
     "unexpected": "Etwas ist schiefgelaufen",

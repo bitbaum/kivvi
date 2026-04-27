@@ -21,6 +21,7 @@ import { requireRole, safeErrorMessage, type ActionResult } from "./utils";
 export async function updateRicardoApiKeyAction(
   apiKey: string | null,
 ): Promise<ActionResult<void>> {
+  const t = await getTranslations("settings.integrations");
   try {
     const { companyId } = await requireRole("admin");
 
@@ -51,7 +52,7 @@ export async function updateRicardoApiKeyAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to save Ricardo API key."),
+      error: safeErrorMessage(error, t("errorSaveApiKey")),
     };
   }
 }

@@ -90,7 +90,7 @@ export async function updateCompanyInfoAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to update company info"),
+      error: safeErrorMessage(error, t("errorUpdateCompanyInfo")),
     };
   }
 }
@@ -104,6 +104,7 @@ export async function initializeCompanyAction(
 ): Promise<
   ActionResult<{ accountsCreated: number; sequencesCreated: number }>
 > {
+  const t = await getTranslations("onboarding");
   try {
     const { companyId } = await getSession();
     const parsed = businessConfigSchema.safeParse(input);
@@ -133,7 +134,7 @@ export async function initializeCompanyAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to initialize company"),
+      error: safeErrorMessage(error, t("errorInitializeCompany")),
     };
   }
 }
@@ -158,6 +159,7 @@ export async function executeImportAction(
 ): Promise<
   ActionResult<{ inserted: number; skipped: number; errors: string[] }>
 > {
+  const t = await getTranslations("onboarding");
   try {
     const { companyId, userId } = await getSession();
 
@@ -304,7 +306,10 @@ export async function executeImportAction(
 
     return { success: true, data: result };
   } catch (error) {
-    return { success: false, error: safeErrorMessage(error, "Import failed") };
+    return {
+      success: false,
+      error: safeErrorMessage(error, t("errorImportFailed")),
+    };
   }
 }
 
@@ -313,6 +318,7 @@ export async function executeImportAction(
 // ============================================================================
 
 export async function completeOnboardingAction(): Promise<ActionResult> {
+  const t = await getTranslations("onboarding");
   try {
     const { companyId } = await getSession();
 
@@ -326,7 +332,7 @@ export async function completeOnboardingAction(): Promise<ActionResult> {
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to complete onboarding"),
+      error: safeErrorMessage(error, t("errorCompleteOnboarding")),
     };
   }
 }
@@ -336,6 +342,7 @@ export async function completeOnboardingAction(): Promise<ActionResult> {
 // ============================================================================
 
 export async function seedSampleDataAction(): Promise<ActionResult> {
+  const t = await getTranslations("onboarding");
   try {
     const { companyId, userId } = await getSession();
     await seedSampleData(db, companyId, userId);
@@ -345,12 +352,13 @@ export async function seedSampleDataAction(): Promise<ActionResult> {
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to seed sample data"),
+      error: safeErrorMessage(error, t("errorSeedSampleData")),
     };
   }
 }
 
 export async function clearSampleDataAction(): Promise<ActionResult> {
+  const t = await getTranslations("onboarding");
   try {
     const { companyId } = await getSession();
     await clearSampleData(db, companyId);
@@ -359,7 +367,7 @@ export async function clearSampleDataAction(): Promise<ActionResult> {
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to clear sample data"),
+      error: safeErrorMessage(error, t("errorClearSampleData")),
     };
   }
 }
@@ -375,6 +383,7 @@ export async function getOnboardingStateAction(): Promise<
     companyName: string | null;
   }>
 > {
+  const t = await getTranslations("onboarding");
   try {
     const { companyId } = await getSession();
     const state = await getOnboardingState(db, companyId);
@@ -394,7 +403,7 @@ export async function getOnboardingStateAction(): Promise<
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to get onboarding state"),
+      error: safeErrorMessage(error, t("errorGetState")),
     };
   }
 }
@@ -414,6 +423,7 @@ export async function getCompanyDetailsAction(): Promise<
     settings: CompanySettings;
   }>
 > {
+  const t = await getTranslations("onboarding");
   try {
     const { companyId } = await getSession();
 
@@ -422,7 +432,6 @@ export async function getCompanyDetailsAction(): Promise<
       .from(companies)
       .where(eq(companies.id, companyId));
 
-    const t = await getTranslations("onboarding");
     if (!company) {
       return { success: false, error: t("errorCompanyNotFound") };
     }
@@ -443,7 +452,7 @@ export async function getCompanyDetailsAction(): Promise<
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to get company details"),
+      error: safeErrorMessage(error, t("errorGetCompanyDetails")),
     };
   }
 }
@@ -457,6 +466,7 @@ export async function importProductsFromCsvAction(
 ): Promise<
   ActionResult<{ inserted: number; skipped: number; errors: string[] }>
 > {
+  const t = await getTranslations("onboarding");
   try {
     const { companyId } = await getSession();
 
@@ -494,7 +504,7 @@ export async function importProductsFromCsvAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Product import failed"),
+      error: safeErrorMessage(error, t("errorProductImport")),
     };
   }
 }
@@ -516,6 +526,7 @@ export async function repairDocumentLineItemsAction(
     }>
   >,
 ): Promise<ActionResult<{ updated: number; skipped: number }>> {
+  const t = await getTranslations("onboarding");
   try {
     const { companyId } = await getSession();
 
@@ -600,7 +611,7 @@ export async function repairDocumentLineItemsAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to repair line items"),
+      error: safeErrorMessage(error, t("errorRepairLineItems")),
     };
   }
 }

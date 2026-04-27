@@ -38,10 +38,10 @@ import { isEmailConfigured } from "@/lib/config/email";
 export async function inviteMemberAction(
   input: unknown,
 ): Promise<ActionResult<{ id: string; token: string }>> {
+  const t = await getTranslations("team");
+  const tc = await getTranslations("common");
   try {
     const { companyId, userId } = await requireRole("admin");
-    const t = await getTranslations("team");
-    const tc = await getTranslations("common");
 
     const parsed = z
       .object({
@@ -113,7 +113,7 @@ export async function inviteMemberAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to send invitation"),
+      error: safeErrorMessage(error, t("errorSendInvitation")),
     };
   }
 }
@@ -178,7 +178,7 @@ export async function getInvitationDetailsAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to load invitation"),
+      error: safeErrorMessage(error, t("errorLoadInvitation")),
     };
   }
 }

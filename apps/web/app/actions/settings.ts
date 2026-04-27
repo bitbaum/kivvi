@@ -327,7 +327,7 @@ export async function changePasswordAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to change password"),
+      error: safeErrorMessage(error, t("errorChangePasswordFailed")),
     };
   }
 }

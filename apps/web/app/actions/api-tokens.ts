@@ -51,7 +51,7 @@ export async function createApiTokenAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to create API token"),
+      error: safeErrorMessage(error, t("errorCreateFailed")),
     };
   }
 }

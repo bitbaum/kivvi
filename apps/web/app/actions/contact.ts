@@ -120,7 +120,7 @@ export async function submitContactFormAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to submit contact form"),
+      error: safeErrorMessage(error, t("errorSubmitFailed")),
     };
   }
 }
