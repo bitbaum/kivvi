@@ -3784,7 +3784,8 @@
     "backToOptions": "Retour",
     "errorInvalidToken": "Jeton invalide.",
     "errorInvitationNotFound": "Invitation introuvable.",
-    "errorInvalidCompanyId": "Identifiant d'entreprise invalide."
+    "errorInvalidCompanyId": "Identifiant d'entreprise invalide.",
+    "fallbackTeamMember": "Un membre de l'équipe"
   },
   "errors": {
     "unexpected": "Une erreur est survenue",

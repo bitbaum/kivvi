@@ -3784,7 +3784,8 @@
     "backToOptions": "Back",
     "errorInvalidToken": "Invalid token.",
     "errorInvitationNotFound": "Invitation not found.",
-    "errorInvalidCompanyId": "Invalid company ID."
+    "errorInvalidCompanyId": "Invalid company ID.",
+    "fallbackTeamMember": "A team member"
   },
   "errors": {
     "unexpected": "Something went wrong",

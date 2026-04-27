@@ -40,6 +40,7 @@ export async function inviteMemberAction(
 ): Promise<ActionResult<{ id: string; token: string }>> {
   try {
     const { companyId, userId } = await requireRole("admin");
+    const t = await getTranslations("team");
     const tc = await getTranslations("common");
 
     const parsed = z
@@ -80,8 +81,8 @@ export async function inviteMemberAction(
         const acceptUrl = `${baseUrl}/invite/${invitation.token}`;
 
         const emailData = {
-          inviterName: inviter?.name || "Ein Teammitglied",
-          companyName: company?.name || "Unbekannt",
+          inviterName: inviter?.name || t("fallbackTeamMember"),
+          companyName: company?.name || tc("unknown"),
           acceptUrl,
           role:
             {

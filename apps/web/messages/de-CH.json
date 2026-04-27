@@ -3784,7 +3784,8 @@
     "backToOptions": "Zurück",
     "errorInvalidToken": "Ungültiger Token.",
     "errorInvitationNotFound": "Einladung nicht gefunden.",
-    "errorInvalidCompanyId": "Ungültige Unternehmens-ID."
+    "errorInvalidCompanyId": "Ungültige Unternehmens-ID.",
+    "fallbackTeamMember": "Ein Teammitglied"
   },
   "errors": {
     "unexpected": "Etwas ist schiefgelaufen",
