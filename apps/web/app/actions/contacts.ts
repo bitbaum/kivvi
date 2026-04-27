@@ -23,6 +23,7 @@ import {
   formatZodError,
 } from "./utils";
 import { parseFormData } from "./parse-form-data";
+import { getTranslations } from "next-intl/server";
 
 // ============================================================================
 // SERVER ACTIONS
@@ -31,6 +32,7 @@ import { parseFormData } from "./parse-form-data";
 export async function createContactAction(
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
+  const t = await getTranslations("contacts");
   try {
     const { companyId } = await requireRole("member");
     const raw = parseFormData(formData);
@@ -73,7 +75,7 @@ export async function createContactAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to create contact"),
+      error: safeErrorMessage(error, t("errorFailedToCreate")),
     };
   }
 }
@@ -82,6 +84,7 @@ export async function updateContactAction(
   id: string,
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
+  const t = await getTranslations("contacts");
   try {
     const { companyId } = await requireRole("member");
     const raw = parseFormData(formData);
@@ -125,12 +128,13 @@ export async function updateContactAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to update contact"),
+      error: safeErrorMessage(error, t("errorFailedToUpdate")),
     };
   }
 }
 
 export async function deleteContactAction(id: string): Promise<ActionResult> {
+  const t = await getTranslations("contacts");
   try {
     const { companyId } = await requireRole("member");
 
@@ -141,7 +145,7 @@ export async function deleteContactAction(id: string): Promise<ActionResult> {
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to delete contact"),
+      error: safeErrorMessage(error, t("errorFailedToDelete")),
     };
   }
 }
@@ -149,6 +153,7 @@ export async function deleteContactAction(id: string): Promise<ActionResult> {
 export async function searchContactsAction(
   query: string,
 ): Promise<ActionResult<Awaited<ReturnType<typeof searchContacts>>>> {
+  const t = await getTranslations("contacts");
   try {
     const { companyId } = await getSession();
     const results = await searchContacts(db, companyId, query);
@@ -156,7 +161,7 @@ export async function searchContactsAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Search failed"),
+      error: safeErrorMessage(error, t("errorSearchFailed")),
     };
   }
 }
@@ -169,6 +174,7 @@ export async function createContactAddressAction(
   contactId: string,
   input: unknown,
 ): Promise<ActionResult<{ id: string }>> {
+  const t = await getTranslations("contacts");
   try {
     const { companyId } = await requireRole("member");
     const parsed = createAddressSchema.safeParse(input);
@@ -189,7 +195,7 @@ export async function createContactAddressAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to create address"),
+      error: safeErrorMessage(error, t("errorFailedToCreateAddress")),
     };
   }
 }
@@ -199,6 +205,7 @@ export async function updateContactAddressAction(
   addressId: string,
   input: unknown,
 ): Promise<ActionResult<{ id: string }>> {
+  const t = await getTranslations("contacts");
   try {
     const { companyId } = await requireRole("member");
     const parsed = updateAddressSchema.safeParse(input);
@@ -220,7 +227,7 @@ export async function updateContactAddressAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to update address"),
+      error: safeErrorMessage(error, t("errorFailedToUpdateAddress")),
     };
   }
 }
@@ -229,6 +236,7 @@ export async function deleteContactAddressAction(
   contactId: string,
   addressId: string,
 ): Promise<ActionResult> {
+  const t = await getTranslations("contacts");
   try {
     const { companyId } = await requireRole("member");
 
@@ -239,7 +247,7 @@ export async function deleteContactAddressAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to delete address"),
+      error: safeErrorMessage(error, t("errorFailedToDeleteAddress")),
     };
   }
 }

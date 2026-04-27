@@ -781,7 +781,14 @@
     "donatedItemsTitle": "Donated Items",
     "donatedItemsAndMore": "+ {count} more",
     "viewAllDonatedItems": "View all {count} items",
-    "donatedItemsEmpty": "No items donated by this contact yet."
+    "donatedItemsEmpty": "No items donated by this contact yet.",
+    "errorFailedToCreate": "Failed to create contact",
+    "errorFailedToUpdate": "Failed to update contact",
+    "errorFailedToDelete": "Failed to delete contact",
+    "errorSearchFailed": "Search failed",
+    "errorFailedToCreateAddress": "Failed to create address",
+    "errorFailedToUpdateAddress": "Failed to update address",
+    "errorFailedToDeleteAddress": "Failed to delete address"
   },
   "products": {
     "title": "Products",
@@ -857,7 +864,11 @@
     "placeholders": {
       "articleNumber": "e.g. WIDGET-001",
       "ean": "e.g. 7610000000001"
-    }
+    },
+    "errorFailedToCreate": "Failed to create product",
+    "errorFailedToUpdate": "Failed to update product",
+    "errorFailedToDelete": "Failed to delete product",
+    "errorSearchFailed": "Search failed"
   },
   "documentsHub": {
     "title": "Documents",

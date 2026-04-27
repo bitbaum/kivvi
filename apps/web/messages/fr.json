@@ -781,7 +781,14 @@
     "donatedItemsTitle": "Articles donnés",
     "donatedItemsAndMore": "+ {count} de plus",
     "viewAllDonatedItems": "Voir les {count} articles",
-    "donatedItemsEmpty": "Aucun article donné par ce contact pour l'instant."
+    "donatedItemsEmpty": "Aucun article donné par ce contact pour l'instant.",
+    "errorFailedToCreate": "Impossible de créer le contact",
+    "errorFailedToUpdate": "Impossible de mettre à jour le contact",
+    "errorFailedToDelete": "Impossible de supprimer le contact",
+    "errorSearchFailed": "Échec de la recherche",
+    "errorFailedToCreateAddress": "Impossible de créer l'adresse",
+    "errorFailedToUpdateAddress": "Impossible de mettre à jour l'adresse",
+    "errorFailedToDeleteAddress": "Impossible de supprimer l'adresse"
   },
   "products": {
     "title": "Produits",
@@ -857,7 +864,11 @@
     "placeholders": {
       "articleNumber": "p.ex. WIDGET-001",
       "ean": "p.ex. 7610000000001"
-    }
+    },
+    "errorFailedToCreate": "Impossible de créer le produit",
+    "errorFailedToUpdate": "Impossible de mettre à jour le produit",
+    "errorFailedToDelete": "Impossible de supprimer le produit",
+    "errorSearchFailed": "Échec de la recherche"
   },
   "documentsHub": {
     "title": "Documents",

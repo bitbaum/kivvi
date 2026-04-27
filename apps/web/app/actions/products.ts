@@ -18,6 +18,7 @@ import {
   formatZodError,
 } from "./utils";
 import { parseFormData } from "./parse-form-data";
+import { getTranslations } from "next-intl/server";
 
 /**
  * Convert raw form data to product-specific input with correct types.
@@ -54,6 +55,7 @@ function parseProductFormData(formData: FormData) {
 export async function createProductAction(
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
+  const t = await getTranslations("products");
   try {
     const { companyId } = await requireRole("member");
 
@@ -73,7 +75,7 @@ export async function createProductAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to create product"),
+      error: safeErrorMessage(error, t("errorFailedToCreate")),
     };
   }
 }
@@ -82,6 +84,7 @@ export async function updateProductAction(
   productId: string,
   formData: FormData,
 ): Promise<ActionResult<{ id: string }>> {
+  const t = await getTranslations("products");
   try {
     const { companyId } = await requireRole("member");
 
@@ -102,7 +105,7 @@ export async function updateProductAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to update product"),
+      error: safeErrorMessage(error, t("errorFailedToUpdate")),
     };
   }
 }
@@ -110,6 +113,7 @@ export async function updateProductAction(
 export async function deleteProductAction(
   productId: string,
 ): Promise<ActionResult<{ id: string }>> {
+  const t = await getTranslations("products");
   try {
     const { companyId } = await requireRole("member");
 
@@ -122,7 +126,7 @@ export async function deleteProductAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to delete product"),
+      error: safeErrorMessage(error, t("errorFailedToDelete")),
     };
   }
 }
@@ -130,6 +134,7 @@ export async function deleteProductAction(
 export async function searchProductsAction(
   query: string,
 ): Promise<ActionResult<Awaited<ReturnType<typeof searchProducts>>>> {
+  const t = await getTranslations("products");
   try {
     const { companyId } = await getSession();
     const results = await searchProducts(db, companyId, query);
@@ -137,7 +142,7 @@ export async function searchProductsAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Search failed"),
+      error: safeErrorMessage(error, t("errorSearchFailed")),
     };
   }
 }

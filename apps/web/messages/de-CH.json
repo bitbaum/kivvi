@@ -781,7 +781,14 @@
     "setAsDefault": "Als Standard setzen",
     "addressType_billing": "Rechnung",
     "addressType_shipping": "Lieferung",
-    "addressType_other": "Andere"
+    "addressType_other": "Andere",
+    "errorFailedToCreate": "Kontakt konnte nicht erstellt werden",
+    "errorFailedToUpdate": "Kontakt konnte nicht aktualisiert werden",
+    "errorFailedToDelete": "Kontakt konnte nicht gelöscht werden",
+    "errorSearchFailed": "Suche fehlgeschlagen",
+    "errorFailedToCreateAddress": "Adresse konnte nicht erstellt werden",
+    "errorFailedToUpdateAddress": "Adresse konnte nicht aktualisiert werden",
+    "errorFailedToDeleteAddress": "Adresse konnte nicht gelöscht werden"
   },
   "products": {
     "title": "Produkte",
@@ -857,7 +864,11 @@
     "placeholders": {
       "articleNumber": "z.B. WIDGET-001",
       "ean": "z.B. 7610000000001"
-    }
+    },
+    "errorFailedToCreate": "Produkt konnte nicht erstellt werden",
+    "errorFailedToUpdate": "Produkt konnte nicht aktualisiert werden",
+    "errorFailedToDelete": "Produkt konnte nicht gelöscht werden",
+    "errorSearchFailed": "Suche fehlgeschlagen"
   },
   "documentsHub": {
     "title": "Dokumente",
