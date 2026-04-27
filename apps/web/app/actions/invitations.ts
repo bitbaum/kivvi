@@ -28,13 +28,6 @@ import {
 import { getTransporter, getFromEmail } from "@/lib/email/transporter";
 import { isEmailConfigured } from "@/lib/config/email";
 
-const ROLE_LABELS: Record<string, string> = {
-  owner: "Owner",
-  admin: "Admin",
-  member: "Mitglied",
-  viewer: "Betrachter",
-};
-
 // ============================================================================
 // ACTIONS
 // ============================================================================
@@ -47,6 +40,7 @@ export async function inviteMemberAction(
 ): Promise<ActionResult<{ id: string; token: string }>> {
   try {
     const { companyId, userId } = await requireRole("admin");
+    const t = await getTranslations("team");
 
     const parsed = z
       .object({
@@ -89,7 +83,13 @@ export async function inviteMemberAction(
           inviterName: inviter?.name || "Ein Teammitglied",
           companyName: company?.name || "Unbekannt",
           acceptUrl,
-          role: ROLE_LABELS[parsed.data.role] || parsed.data.role,
+          role:
+            {
+              owner: t("roles.owner"),
+              admin: t("roles.admin"),
+              member: t("roles.member"),
+              viewer: t("roles.viewer"),
+            }[parsed.data.role] ?? parsed.data.role,
         };
 
         const transporter = getTransporter();
