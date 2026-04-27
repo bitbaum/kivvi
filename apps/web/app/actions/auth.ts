@@ -19,6 +19,7 @@ import {
 } from "@kivvi/core/src/domain/email";
 import type { ActionResult } from "./utils";
 import { safeErrorMessage } from "./utils";
+import { getTranslations } from "next-intl/server";
 import { getTransporter, getFromEmail } from "@/lib/email/transporter";
 import { isEmailConfigured } from "@/lib/config/email";
 import { logger } from "@/lib/logger";
@@ -169,6 +170,7 @@ export async function registerAndAcceptInviteAction(
   inviteToken: string,
   input: unknown,
 ): Promise<ActionResult<RegisterResult>> {
+  const t = await getTranslations("auth");
   try {
     const parsed = joinSchema.safeParse(input);
     if (!parsed.success) {
@@ -183,16 +185,13 @@ export async function registerAndAcceptInviteAction(
     // Pre-validate invite before creating the user
     const invitation = await getInvitationByToken(db, inviteToken);
     if (!invitation || invitation.status !== "pending") {
-      return { success: false, error: "Invitation not found or already used" };
+      return { success: false, error: t("errorInvitationNotFound") };
     }
     if (new Date(invitation.expiresAt) < new Date()) {
-      return { success: false, error: "This invitation has expired" };
+      return { success: false, error: t("errorInvitationExpired") };
     }
     if (email.toLowerCase() !== invitation.email.toLowerCase()) {
-      return {
-        success: false,
-        error: "Please use the email address this invitation was sent to",
-      };
+      return { success: false, error: t("errorInvitationEmailMismatch") };
     }
 
     // Check email not already taken
@@ -200,10 +199,7 @@ export async function registerAndAcceptInviteAction(
       where: eq(users.email, email.toLowerCase()),
     });
     if (existingUser) {
-      return {
-        success: false,
-        error: "An account with this email already exists",
-      };
+      return { success: false, error: t("errorEmailAlreadyExists") };
     }
 
     // Create user (no companyId yet)
@@ -227,7 +223,7 @@ export async function registerAndAcceptInviteAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to create account"),
+      error: safeErrorMessage(error, t("errorCreateAccount")),
     };
   }
 }

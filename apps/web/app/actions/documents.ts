@@ -40,6 +40,7 @@ import { getTransporter, getFromEmail } from "@/lib/email/transporter";
 import { isEmailConfigured } from "@/lib/config/email";
 import { logger } from "@/lib/logger";
 import { dispatchWebhookEvent } from "@kivvi/core/src/domain/webhooks";
+import { getTranslations } from "next-intl/server";
 
 // ============================================================================
 // VALIDATION SCHEMAS FOR UNVALIDATED PARAMS
@@ -67,6 +68,7 @@ const convertSchema = z.object({
 export async function createDocumentAction(
   input: unknown,
 ): Promise<ActionResult<{ id: string; number: string }>> {
+  const t = await getTranslations("documents");
   try {
     const { companyId, userId } = await requireRole("member");
 
@@ -91,7 +93,7 @@ export async function createDocumentAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to create document"),
+      error: safeErrorMessage(error, t("errorFailedToCreate")),
     };
   }
 }
@@ -100,6 +102,7 @@ export async function updateDocumentAction(
   documentId: string,
   input: unknown,
 ): Promise<ActionResult<{ id: string }>> {
+  const t = await getTranslations("documents");
   try {
     const { companyId } = await requireRole("member");
 
@@ -115,7 +118,7 @@ export async function updateDocumentAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to update document"),
+      error: safeErrorMessage(error, t("errorFailedToUpdate")),
     };
   }
 }
@@ -123,6 +126,7 @@ export async function updateDocumentAction(
 export async function deleteDocumentAction(
   documentId: string,
 ): Promise<ActionResult> {
+  const t = await getTranslations("documents");
   try {
     const { companyId } = await requireRole("member");
 
@@ -133,7 +137,7 @@ export async function deleteDocumentAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to delete document"),
+      error: safeErrorMessage(error, t("errorFailedToDelete")),
     };
   }
 }
@@ -142,13 +146,14 @@ export async function updateDocumentStatusAction(
   documentId: string,
   newStatus: DocumentStatus,
 ): Promise<ActionResult<{ id: string; status: string }>> {
+  const t = await getTranslations("documents");
   try {
     const { companyId } = await requireRole("member");
 
     // Validate the status parameter
     const parsed = updateStatusSchema.safeParse({ newStatus });
     if (!parsed.success) {
-      return { success: false, error: "Invalid status value" };
+      return { success: false, error: t("errorInvalidStatus") };
     }
 
     const doc = await updateDocumentStatus(
@@ -171,7 +176,7 @@ export async function updateDocumentStatusAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to update status"),
+      error: safeErrorMessage(error, t("errorFailedToUpdateStatus")),
     };
   }
 }
@@ -185,6 +190,7 @@ export async function recordPaymentAction(
     reference?: string;
   },
 ): Promise<ActionResult<{ id: string }>> {
+  const t = await getTranslations("documents");
   try {
     const { companyId } = await requireRole("member");
 
@@ -251,7 +257,7 @@ export async function recordPaymentAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to record payment"),
+      error: safeErrorMessage(error, t("errorFailedToRecordPayment")),
     };
   }
 }
@@ -260,13 +266,14 @@ export async function convertDocumentAction(
   sourceDocumentId: string,
   targetType: DocumentType,
 ): Promise<ActionResult<{ id: string; number: string }>> {
+  const t = await getTranslations("documents");
   try {
     const { companyId, userId } = await requireRole("member");
 
     // Validate the target type
     const parsed = convertSchema.safeParse({ targetType });
     if (!parsed.success) {
-      return { success: false, error: "Invalid target document type" };
+      return { success: false, error: t("errorInvalidTargetType") };
     }
 
     const doc = await convertDocument(
@@ -282,7 +289,7 @@ export async function convertDocumentAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to convert document"),
+      error: safeErrorMessage(error, t("errorFailedToConvert")),
     };
   }
 }
@@ -290,6 +297,7 @@ export async function convertDocumentAction(
 export async function duplicateDocumentAction(
   sourceDocumentId: string,
 ): Promise<ActionResult<{ id: string; number: string; type: string }>> {
+  const t = await getTranslations("documents");
   try {
     const { companyId, userId } = await requireRole("member");
 
@@ -308,7 +316,7 @@ export async function duplicateDocumentAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to duplicate document"),
+      error: safeErrorMessage(error, t("errorFailedToDuplicate")),
     };
   }
 }

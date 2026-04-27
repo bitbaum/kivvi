@@ -24,6 +24,7 @@ import {
   safeErrorMessage,
 } from "./utils";
 import { createAction } from "./action-factory";
+import { getTranslations } from "next-intl/server";
 
 // ============================================================================
 // BANK ACCOUNTS
@@ -64,11 +65,12 @@ export async function importTransactionsAction(
   bankAccountId: string,
   transactions: unknown[],
 ): Promise<ActionResult<{ imported: number; skippedDuplicates: number }>> {
+  const t = await getTranslations("banking");
   try {
     const { companyId } = await requireRole("member");
     const parsed = z.array(importTransactionSchema).safeParse(transactions);
     if (!parsed.success) {
-      return { success: false, error: "Invalid transaction data" };
+      return { success: false, error: t("errorInvalidTransactionData") };
     }
     const result = await db.transaction(async (tx) => {
       return importTransactions(tx, companyId, bankAccountId, parsed.data);
@@ -78,7 +80,7 @@ export async function importTransactionsAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to import transactions"),
+      error: safeErrorMessage(error, t("errorImportTransactions")),
     };
   }
 }
@@ -109,13 +111,14 @@ export async function parseCamtAction(
   bankAccountId: string,
   xmlContent: string,
 ): Promise<ActionResult<CamtPreview>> {
+  const t = await getTranslations("banking");
   try {
     const { companyId } = await getSession();
     const statement = parseCamtXml(xmlContent);
 
     const bankAccount = await getBankAccount(db, companyId, bankAccountId);
     if (!bankAccount)
-      return { success: false, error: "Bank account not found" };
+      return { success: false, error: t("errorAccountNotFound") };
 
     let ibanMatch = true;
     if (statement.accountIban && bankAccount.iban) {
@@ -157,7 +160,7 @@ export async function parseCamtAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to parse CAMT file"),
+      error: safeErrorMessage(error, t("errorParseCamt")),
     };
   }
 }
@@ -172,6 +175,7 @@ export async function importCamtAction(
     totalEntries: number;
   }>
 > {
+  const t = await getTranslations("banking");
   try {
     const { companyId } = await requireRole("member");
     const result = await db.transaction(async (tx) => {
@@ -182,7 +186,7 @@ export async function importCamtAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to import CAMT statement"),
+      error: safeErrorMessage(error, t("errorImportCamt")),
     };
   }
 }

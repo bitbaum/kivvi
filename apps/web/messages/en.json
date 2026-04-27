@@ -366,7 +366,21 @@
     "failedToCreate": "Failed to create {type}",
     "emailLog": "Email log",
     "lastEmailedTo": "Sent to {email}",
-    "ccSender": "Send me a copy"
+    "ccSender": "Send me a copy",
+    "errorNotFound": "Document not found.",
+    "errorInvalidStatus": "Invalid status value.",
+    "errorInvalidTargetType": "Invalid target document type.",
+    "errorIntakeIdRequired": "Intake ID is required.",
+    "errorNotAnIntake": "Document is not an intake.",
+    "errorEmailCouldNotBeSent": "Email could not be sent.",
+    "errorReceiptCouldNotBeSent": "Receipt email could not be sent.",
+    "errorFailedToCreate": "Failed to create document.",
+    "errorFailedToUpdate": "Failed to update document.",
+    "errorFailedToDelete": "Failed to delete document.",
+    "errorFailedToUpdateStatus": "Failed to update status.",
+    "errorFailedToRecordPayment": "Failed to record payment.",
+    "errorFailedToConvert": "Failed to convert document.",
+    "errorFailedToDuplicate": "Failed to duplicate document."
   },
   "dashboard": {
     "title": "Dashboard",
@@ -1023,7 +1037,12 @@
     "openingBalance": "Opening Balance",
     "closingBalance": "Closing Balance",
     "camtParseError": "Failed to parse CAMT file. Ensure it is a valid camt.053 or camt.054 XML file.",
-    "statementInfo": "{type} | IBAN: {iban} | {count, plural, one {# entry} other {# entries}}"
+    "statementInfo": "{type} | IBAN: {iban} | {count, plural, one {# entry} other {# entries}}",
+    "errorInvalidTransactionData": "Invalid transaction data.",
+    "errorAccountNotFound": "Bank account not found.",
+    "errorImportTransactions": "Failed to import transactions.",
+    "errorParseCamt": "Failed to parse CAMT file.",
+    "errorImportCamt": "Failed to import CAMT statement."
   },
   "inventory": {
     "title": "Inventory",
@@ -1902,7 +1921,13 @@
         "testConnection": "Test connection",
         "testing": "Testing…"
       }
-    }
+    },
+    "errorNoFileProvided": "No file provided.",
+    "errorFileTooLarge": "File too large. Maximum 500 KB.",
+    "errorUploadLogo": "Failed to upload logo.",
+    "errorUploadAvatar": "Failed to upload avatar.",
+    "errorSaveShopUrl": "Failed to save shop URL.",
+    "errorUpdateCo2Factors": "Failed to update CO₂ factors."
   },
   "ricardo": {
     "publish": "Publish to Ricardo",
@@ -1941,6 +1966,8 @@
       "emailPlaceholder": "max@example.com",
       "messageLabel": "Message (optional)",
       "messagePlaceholder": "Questions or comments…",
+      "errorInvalidInput": "Invalid input.",
+      "errorSendFailed": "Failed to send the inquiry.",
       "sendError": "Failed to send.",
       "sentTitle": "Inquiry sent!",
       "sentMessage": "{companyName} will get back to you."
@@ -2006,7 +2033,12 @@
     "joinHint": "You'll be invited by your organisation. Register here, then click the invite link your admin sends you — you'll join automatically.",
     "errorTitle": "An error occurred",
     "errorDescription": "Please try again or return to the sign in page.",
-    "tryAgain": "Try again"
+    "tryAgain": "Try again",
+    "errorInvitationNotFound": "Invitation not found or already used.",
+    "errorInvitationExpired": "This invitation has expired.",
+    "errorInvitationEmailMismatch": "Please use the email address this invitation was sent to.",
+    "errorEmailAlreadyExists": "An account with this email already exists.",
+    "errorCreateAccount": "Failed to create account."
   },
   "onboarding": {
     "welcome": "Welcome to Kivvi",

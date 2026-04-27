@@ -16,6 +16,7 @@ import {
   safeErrorMessage,
 } from "./utils";
 import { createAction } from "./action-factory";
+import { getTranslations } from "next-intl/server";
 
 // ============================================================================
 // COMPANY SETTINGS
@@ -120,6 +121,7 @@ export const updateCompanyAction = createAction<unknown, unknown>({
 export async function updateCompanySlugAction(
   slug: string | null,
 ): Promise<ActionResult<{ slug: string | null }>> {
+  const t = await getTranslations("settings");
   try {
     const { companyId } = await requireRole("admin");
 
@@ -152,7 +154,7 @@ export async function updateCompanySlugAction(
     }
     return {
       success: false,
-      error: safeErrorMessage(error, "Fehler beim Speichern der Shop-URL."),
+      error: safeErrorMessage(error, t("errorSaveShopUrl")),
     };
   }
 }
@@ -161,18 +163,19 @@ export async function updateCompanySlugAction(
 // COMPANY LOGO
 // ============================================================================
 
-const MAX_LOGO_SIZE = 500 * 1024; // 500KB
+const MAX_IMAGE_SIZE = 500 * 1024; // 500 KB
 const ALLOWED_LOGO_TYPES = ["image/png", "image/jpeg", "image/svg+xml"];
 
 export async function uploadLogoAction(
   formData: FormData,
 ): Promise<ActionResult> {
+  const t = await getTranslations("settings");
   try {
     const { companyId } = await requireRole("admin");
 
     const file = formData.get("logo") as File | null;
     if (!file || file.size === 0) {
-      return { success: false, error: "No file provided" };
+      return { success: false, error: t("errorNoFileProvided") };
     }
 
     if (!ALLOWED_LOGO_TYPES.includes(file.type)) {
@@ -182,8 +185,8 @@ export async function uploadLogoAction(
       };
     }
 
-    if (file.size > MAX_LOGO_SIZE) {
-      return { success: false, error: "File too large. Maximum 500KB." };
+    if (file.size > MAX_IMAGE_SIZE) {
+      return { success: false, error: t("errorFileTooLarge") };
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
@@ -213,7 +216,7 @@ export async function uploadLogoAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to upload logo"),
+      error: safeErrorMessage(error, t("errorUploadLogo")),
     };
   }
 }
@@ -331,18 +334,19 @@ export async function getUserAvatarAction(): Promise<string | null> {
   }
 }
 
-const MAX_AVATAR_SIZE = 500 * 1024; // 500KB
+const MAX_AVATAR_SIZE = MAX_IMAGE_SIZE;
 const ALLOWED_AVATAR_TYPES = ["image/png", "image/jpeg", "image/svg+xml"];
 
 export async function uploadAvatarAction(
   formData: FormData,
 ): Promise<ActionResult> {
+  const t = await getTranslations("settings");
   try {
     const { userId } = await getSession();
 
     const file = formData.get("avatar") as File | null;
     if (!file || file.size === 0) {
-      return { success: false, error: "No file provided" };
+      return { success: false, error: t("errorNoFileProvided") };
     }
 
     if (!ALLOWED_AVATAR_TYPES.includes(file.type)) {
@@ -353,7 +357,7 @@ export async function uploadAvatarAction(
     }
 
     if (file.size > MAX_AVATAR_SIZE) {
-      return { success: false, error: "File too large. Maximum 500KB." };
+      return { success: false, error: t("errorFileTooLarge") };
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
@@ -369,7 +373,7 @@ export async function uploadAvatarAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to upload avatar"),
+      error: safeErrorMessage(error, t("errorUploadAvatar")),
     };
   }
 }
@@ -432,6 +436,7 @@ export const updateNumberSequenceAction = createAction<
 export async function updateCo2FactorsAction(
   factors: Record<string, number>,
 ): Promise<ActionResult<void>> {
+  const t = await getTranslations("settings");
   try {
     const { companyId } = await requireRole("admin");
 
@@ -456,7 +461,7 @@ export async function updateCo2FactorsAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to update CO₂ factors"),
+      error: safeErrorMessage(error, t("errorUpdateCo2Factors")),
     };
   }
 }

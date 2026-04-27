@@ -366,7 +366,21 @@
     "failedToCreate": "Échec de la création du {type}",
     "emailLog": "Journal des e-mails",
     "lastEmailedTo": "Envoyé à {email}",
-    "ccSender": "M'envoyer une copie"
+    "ccSender": "M'envoyer une copie",
+    "errorNotFound": "Document introuvable.",
+    "errorInvalidStatus": "Valeur de statut invalide.",
+    "errorInvalidTargetType": "Type de document cible invalide.",
+    "errorIntakeIdRequired": "L'identifiant de réception est requis.",
+    "errorNotAnIntake": "Le document n'est pas une réception.",
+    "errorEmailCouldNotBeSent": "L'e-mail n'a pas pu être envoyé.",
+    "errorReceiptCouldNotBeSent": "L'e-mail de reçu n'a pas pu être envoyé.",
+    "errorFailedToCreate": "Échec de la création du document.",
+    "errorFailedToUpdate": "Échec de la mise à jour du document.",
+    "errorFailedToDelete": "Échec de la suppression du document.",
+    "errorFailedToUpdateStatus": "Échec de la mise à jour du statut.",
+    "errorFailedToRecordPayment": "Échec de l'enregistrement du paiement.",
+    "errorFailedToConvert": "Échec de la conversion du document.",
+    "errorFailedToDuplicate": "Échec de la duplication du document."
   },
   "dashboard": {
     "title": "Tableau de bord",
@@ -1023,7 +1037,12 @@
     "openingBalance": "Solde d'ouverture",
     "closingBalance": "Solde de clôture",
     "camtParseError": "Impossible de lire le fichier CAMT. Vérifiez qu'il s'agit d'un fichier XML camt.053 ou camt.054 valide.",
-    "statementInfo": "{type} | IBAN : {iban} | {count, plural, one {# écriture} other {# écritures}}"
+    "statementInfo": "{type} | IBAN : {iban} | {count, plural, one {# écriture} other {# écritures}}",
+    "errorInvalidTransactionData": "Données de transaction invalides.",
+    "errorAccountNotFound": "Compte bancaire introuvable.",
+    "errorImportTransactions": "Échec de l'importation des transactions.",
+    "errorParseCamt": "Échec de l'analyse du fichier CAMT.",
+    "errorImportCamt": "Échec de l'importation du relevé CAMT."
   },
   "inventory": {
     "title": "Inventaire",
@@ -1902,7 +1921,13 @@
         "testConnection": "Tester la connexion",
         "testing": "Test en cours…"
       }
-    }
+    },
+    "errorNoFileProvided": "Aucun fichier fourni.",
+    "errorFileTooLarge": "Fichier trop volumineux. Maximum 500 Ko.",
+    "errorUploadLogo": "Échec du téléversement du logo.",
+    "errorUploadAvatar": "Échec du téléversement de l'avatar.",
+    "errorSaveShopUrl": "Échec de l'enregistrement de l'URL de la boutique.",
+    "errorUpdateCo2Factors": "Échec de la mise à jour des facteurs CO₂."
   },
   "ricardo": {
     "publish": "Publier sur Ricardo",
@@ -1941,6 +1966,8 @@
       "emailPlaceholder": "marie@exemple.ch",
       "messageLabel": "Message (optionnel)",
       "messagePlaceholder": "Questions ou remarques…",
+      "errorInvalidInput": "Saisie invalide.",
+      "errorSendFailed": "Échec de l'envoi de la demande.",
       "sendError": "Échec de l'envoi.",
       "sentTitle": "Demande envoyée !",
       "sentMessage": "{companyName} va vous contacter."
@@ -2006,7 +2033,12 @@
     "joinHint": "Votre organisation vous enverra une invitation. Inscrivez-vous ici, puis cliquez sur le lien d'invitation que votre administrateur vous envoie — vous rejoindrez automatiquement.",
     "errorTitle": "Une erreur s'est produite",
     "errorDescription": "Veuillez réessayer ou retourner à la page de connexion.",
-    "tryAgain": "Réessayer"
+    "tryAgain": "Réessayer",
+    "errorInvitationNotFound": "Invitation introuvable ou déjà utilisée.",
+    "errorInvitationExpired": "Cette invitation a expiré.",
+    "errorInvitationEmailMismatch": "Veuillez utiliser l'adresse e-mail à laquelle cette invitation a été envoyée.",
+    "errorEmailAlreadyExists": "Un compte avec cette adresse e-mail existe déjà.",
+    "errorCreateAccount": "Impossible de créer le compte."
   },
   "onboarding": {
     "welcome": "Bienvenue sur Kivvi",

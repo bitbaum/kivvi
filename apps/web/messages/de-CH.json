@@ -366,7 +366,21 @@
     "failedToCreate": "Fehler beim Erstellen von {type}",
     "emailLog": "E-Mail-Verlauf",
     "lastEmailedTo": "Gesendet an {email}",
-    "ccSender": "Kopie an mich senden"
+    "ccSender": "Kopie an mich senden",
+    "errorNotFound": "Dokument nicht gefunden.",
+    "errorInvalidStatus": "Ungültiger Statuswert.",
+    "errorInvalidTargetType": "Ungültiger Ziel-Dokumenttyp.",
+    "errorIntakeIdRequired": "Intake-ID ist erforderlich.",
+    "errorNotAnIntake": "Dokument ist keine Annahme.",
+    "errorEmailCouldNotBeSent": "E-Mail konnte nicht gesendet werden.",
+    "errorReceiptCouldNotBeSent": "Quittungs-E-Mail konnte nicht gesendet werden.",
+    "errorFailedToCreate": "Fehler beim Erstellen des Dokuments.",
+    "errorFailedToUpdate": "Fehler beim Aktualisieren des Dokuments.",
+    "errorFailedToDelete": "Fehler beim Löschen des Dokuments.",
+    "errorFailedToUpdateStatus": "Fehler beim Aktualisieren des Status.",
+    "errorFailedToRecordPayment": "Fehler beim Erfassen der Zahlung.",
+    "errorFailedToConvert": "Fehler beim Konvertieren des Dokuments.",
+    "errorFailedToDuplicate": "Fehler beim Duplizieren des Dokuments."
   },
   "dashboard": {
     "title": "Übersicht",
@@ -1023,7 +1037,12 @@
     "openingBalance": "Anfangssaldo",
     "closingBalance": "Schlusssaldo",
     "camtParseError": "CAMT-Datei konnte nicht gelesen werden. Stellen Sie sicher, dass es sich um eine gültige camt.053 oder camt.054 XML-Datei handelt.",
-    "statementInfo": "{type} | IBAN: {iban} | {count, plural, one {# Buchung} other {# Buchungen}}"
+    "statementInfo": "{type} | IBAN: {iban} | {count, plural, one {# Buchung} other {# Buchungen}}",
+    "errorInvalidTransactionData": "Ungültige Transaktionsdaten.",
+    "errorAccountNotFound": "Bankkonto nicht gefunden.",
+    "errorImportTransactions": "Fehler beim Importieren der Transaktionen.",
+    "errorParseCamt": "Fehler beim Parsen der CAMT-Datei.",
+    "errorImportCamt": "Fehler beim Importieren des CAMT-Kontoauszugs."
   },
   "inventory": {
     "title": "Lager",
@@ -1902,7 +1921,13 @@
         "testConnection": "Verbindung testen",
         "testing": "Testen…"
       }
-    }
+    },
+    "errorNoFileProvided": "Keine Datei angegeben.",
+    "errorFileTooLarge": "Datei zu gross. Maximum 500 KB.",
+    "errorUploadLogo": "Fehler beim Hochladen des Logos.",
+    "errorUploadAvatar": "Fehler beim Hochladen des Profilbilds.",
+    "errorSaveShopUrl": "Fehler beim Speichern der Shop-URL.",
+    "errorUpdateCo2Factors": "Fehler beim Aktualisieren der CO₂-Faktoren."
   },
   "ricardo": {
     "publish": "Auf Ricardo publizieren",
@@ -1941,6 +1966,8 @@
       "emailPlaceholder": "max@beispiel.ch",
       "messageLabel": "Nachricht (optional)",
       "messagePlaceholder": "Fragen oder Anmerkungen…",
+      "errorInvalidInput": "Ungültige Eingabe.",
+      "errorSendFailed": "Fehler beim Senden der Anfrage.",
       "sendError": "Fehler beim Senden.",
       "sentTitle": "Anfrage gesendet!",
       "sentMessage": "{companyName} wird sich bei Ihnen melden."
@@ -2006,7 +2033,12 @@
     "joinHint": "Sie werden von Ihrem Betrieb eingeladen. Registrieren Sie sich hier und klicken Sie danach auf den Einladungslink — Sie treten dem Betrieb automatisch bei.",
     "errorTitle": "Ein Fehler ist aufgetreten",
     "errorDescription": "Bitte versuchen Sie es erneut oder kehren Sie zur Anmeldeseite zurück.",
-    "tryAgain": "Erneut versuchen"
+    "tryAgain": "Erneut versuchen",
+    "errorInvitationNotFound": "Einladung nicht gefunden oder bereits verwendet.",
+    "errorInvitationExpired": "Diese Einladung ist abgelaufen.",
+    "errorInvitationEmailMismatch": "Bitte verwenden Sie die E-Mail-Adresse, an die diese Einladung gesendet wurde.",
+    "errorEmailAlreadyExists": "Ein Konto mit dieser E-Mail-Adresse existiert bereits.",
+    "errorCreateAccount": "Konto konnte nicht erstellt werden."
   },
   "onboarding": {
     "welcome": "Willkommen bei Kivvi",

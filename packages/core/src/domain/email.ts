@@ -180,7 +180,7 @@ export function buildPasswordResetEmailHtml(
               <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 24px 0;">
                 <tr>
                   <td style="border-radius: 6px; background-color: #2563eb;">
-                    <a href="${data.resetUrl}" target="_blank" style="display: inline-block; padding: 12px 24px; font-size: 15px; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 500;">
+                    <a href="${e(data.resetUrl)}" target="_blank" style="display: inline-block; padding: 12px 24px; font-size: 15px; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 500;">
                       Passwort zurücksetzen
                     </a>
                   </td>
@@ -191,7 +191,7 @@ export function buildPasswordResetEmailHtml(
               </p>
               <p style="margin: 20px 0; font-size: 13px; line-height: 1.6; color: #a1a1aa;">
                 Falls der Button nicht funktioniert, kopieren Sie diesen Link in Ihren Browser:<br>
-                <a href="${data.resetUrl}" style="color: #2563eb; word-break: break-all;">${data.resetUrl}</a>
+                <a href="${e(data.resetUrl)}" style="color: #2563eb; word-break: break-all;">${e(data.resetUrl)}</a>
               </p>
             </td>
           </tr>
@@ -265,7 +265,7 @@ export function buildInvitationEmailHtml(data: InvitationEmailData): string {
               <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 24px 0;">
                 <tr>
                   <td style="border-radius: 6px; background-color: #2563eb;">
-                    <a href="${data.acceptUrl}" target="_blank" style="display: inline-block; padding: 12px 24px; font-size: 15px; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 500;">
+                    <a href="${e(data.acceptUrl)}" target="_blank" style="display: inline-block; padding: 12px 24px; font-size: 15px; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 500;">
                       Einladung annehmen
                     </a>
                   </td>
@@ -276,7 +276,7 @@ export function buildInvitationEmailHtml(data: InvitationEmailData): string {
               </p>
               <p style="margin: 20px 0; font-size: 13px; line-height: 1.6; color: #a1a1aa;">
                 Falls der Button nicht funktioniert, kopieren Sie diesen Link in Ihren Browser:<br>
-                <a href="${data.acceptUrl}" style="color: #2563eb; word-break: break-all;">${data.acceptUrl}</a>
+                <a href="${e(data.acceptUrl)}" style="color: #2563eb; word-break: break-all;">${e(data.acceptUrl)}</a>
               </p>
             </td>
           </tr>
@@ -598,7 +598,7 @@ export function buildWelcomeEmailHtml(data: WelcomeEmailData): string {
               <table role="presentation" cellpadding="0" cellspacing="0">
                 <tr>
                   <td style="border-radius: 8px; background-color: #16a34a;">
-                    <a href="${data.loginUrl}" style="display: inline-block; padding: 14px 28px; font-size: 15px; font-weight: 600; color: #ffffff; text-decoration: none; border-radius: 8px;">Zu Kivvi →</a>
+                    <a href="${e(data.loginUrl)}" style="display: inline-block; padding: 14px 28px; font-size: 15px; font-weight: 600; color: #ffffff; text-decoration: none; border-radius: 8px;">Zu Kivvi →</a>
                   </td>
                 </tr>
               </table>

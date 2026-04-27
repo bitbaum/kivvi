@@ -39,6 +39,7 @@ import {
 import { revalidatePath } from "next/cache";
 import { getTransporter, getFromEmail } from "@/lib/email/transporter";
 import { isEmailConfigured } from "@/lib/config/email";
+import { getTranslations } from "next-intl/server";
 
 // ============================================================================
 // VALIDATION
@@ -59,6 +60,7 @@ export async function sendDocumentEmailAction(
   recipientEmail: string,
   ccSender?: boolean,
 ): Promise<ActionResult<{ messageId: string }>> {
+  const t = await getTranslations("documents");
   try {
     const { companyId, userId } = await requireRole("member");
 
@@ -75,7 +77,7 @@ export async function sendDocumentEmailAction(
 
     // Fetch document with tenant isolation
     const doc = await getDocument(db, companyId, parsed.data.documentId);
-    if (!doc) return { success: false, error: "Document not found" };
+    if (!doc) return { success: false, error: t("errorNotFound") };
 
     // Check email configuration
     if (!isEmailConfigured()) {
@@ -173,7 +175,7 @@ export async function sendDocumentEmailAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Email could not be sent"),
+      error: safeErrorMessage(error, t("errorEmailCouldNotBeSent")),
     };
   }
 }
@@ -185,16 +187,17 @@ export async function sendDocumentEmailAction(
 export async function sendDonationReceiptEmailAction(
   intakeId: string,
 ): Promise<ActionResult<{ messageId: string }>> {
+  const t = await getTranslations("documents");
   try {
     const { companyId } = await requireRole("member");
 
-    if (!intakeId) return { success: false, error: "Intake ID is required" };
+    if (!intakeId) return { success: false, error: t("errorIntakeIdRequired") };
 
     // Fetch intake document with tenant isolation
     const doc = await getDocument(db, companyId, intakeId);
-    if (!doc) return { success: false, error: "Document not found" };
+    if (!doc) return { success: false, error: t("errorNotFound") };
     if (doc.type !== "intake")
-      return { success: false, error: "Document is not an intake" };
+      return { success: false, error: t("errorNotAnIntake") };
     if (doc.intakeSource !== "donation")
       return {
         success: false,
@@ -325,7 +328,7 @@ export async function sendDonationReceiptEmailAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Receipt email could not be sent"),
+      error: safeErrorMessage(error, t("errorReceiptCouldNotBeSent")),
     };
   }
 }

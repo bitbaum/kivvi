@@ -9,6 +9,7 @@ import { escapeHtml } from "@kivvi/core/src/utils/html";
 import { getTransporter, getFromEmail } from "@/lib/email/transporter";
 import { isEmailConfigured } from "@/lib/config/email";
 import type { ActionResult } from "./utils";
+import { getTranslations } from "next-intl/server";
 
 const sendShopInquirySchema = z.object({
   companyId: z.string().uuid(),
@@ -23,10 +24,11 @@ const sendShopInquirySchema = z.object({
 export async function sendShopInquiryAction(
   input: unknown,
 ): Promise<ActionResult<void>> {
+  const t = await getTranslations("shop.inquiry");
   try {
     const parsed = sendShopInquirySchema.safeParse(input);
     if (!parsed.success) {
-      return { success: false, error: "Ungültige Eingabe." };
+      return { success: false, error: t("errorInvalidInput") };
     }
 
     const {
@@ -106,6 +108,6 @@ export async function sendShopInquiryAction(
     return { success: true };
   } catch (error) {
     console.error("sendShopInquiryAction error:", error);
-    return { success: false, error: "Fehler beim Senden der Anfrage." };
+    return { success: false, error: t("errorSendFailed") };
   }
 }
