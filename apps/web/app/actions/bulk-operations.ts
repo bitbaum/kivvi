@@ -267,7 +267,7 @@ export async function bulkMatchTransactionsAction(
       data.transactionIds,
       async (txnId) => {
         const match = await matchTransactionToDocument(db, companyId, txnId);
-        if (!match) throw new Error("No matching invoice found");
+        if (!match) throw new Error("no_match_found");
         await reconcileTransaction(db, companyId, txnId, match.documentId);
         return match;
       },
@@ -338,7 +338,7 @@ export async function bulkMarkPaidAction(
       data.documentIds,
       async (docId) => {
         const doc = await getDocument(db, companyId, docId);
-        if (!doc) throw new Error("Document not found");
+        if (!doc) throw new Error("document_not_found");
 
         const outstanding = calculateOutstandingAmount(doc);
         if (outstanding.lte(0)) return undefined; // Already fully paid
