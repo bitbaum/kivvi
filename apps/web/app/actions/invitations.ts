@@ -1,9 +1,8 @@
 "use server";
 
 import { z } from "zod";
-import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
-import { requireRole, safeErrorMessage } from "./utils";
+import { safeErrorMessage } from "./utils";
 import type { ActionResult } from "./utils";
 import { createAction } from "./action-factory";
 import { getTranslations } from "next-intl/server";
@@ -35,13 +34,13 @@ import { isEmailConfigured } from "@/lib/config/email";
 /**
  * Invite a member by email to the current company.
  */
-export async function inviteMemberAction(
-  input: unknown,
-): Promise<ActionResult<{ id: string; token: string }>> {
-  const t = await getTranslations("team");
-  const tc = await getTranslations("common");
-  try {
-    const { companyId, userId } = await requireRole("admin");
+export const inviteMemberAction = createAction<
+  unknown,
+  { id: string; token: string }
+>({
+  handler: async (input, { companyId, userId, db }) => {
+    const t = await getTranslations("team");
+    const tc = await getTranslations("common");
 
     const parsed = z
       .object({
@@ -51,10 +50,9 @@ export async function inviteMemberAction(
       .safeParse(input);
 
     if (!parsed.success) {
-      return {
-        success: false,
-        error: parsed.error.errors[0]?.message || "Validation failed",
-      };
+      throw new Error(
+        parsed.error.errors[0]?.message || t("errorSendInvitation"),
+      );
     }
 
     const invitation = await createInvitation(
@@ -105,18 +103,13 @@ export async function inviteMemberAction(
       }
     }
 
-    revalidatePath("/settings/team");
-    return {
-      success: true,
-      data: { id: invitation.id, token: invitation.token },
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorSendInvitation")),
-    };
-  }
-}
+    return { id: invitation.id, token: invitation.token };
+  },
+  revalidate: ["/settings/team"],
+  errorMessage: () =>
+    getTranslations("team").then((t) => t("errorSendInvitation")),
+  minRole: "admin",
+});
 
 /**
  * Revoke a pending invitation.

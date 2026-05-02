@@ -1,11 +1,8 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import { db } from "@/lib/db";
 import { apiTokens } from "@kivvi/database";
 import { eq, and } from "drizzle-orm";
 import { z } from "zod";
-import { type ActionResult, requireRole, safeErrorMessage } from "./utils";
 import { createAction } from "./action-factory";
 import { generateApiToken } from "@/lib/api-auth";
 import { getTranslations } from "next-intl/server";
@@ -13,21 +10,20 @@ import { getTranslations } from "next-intl/server";
 /**
  * Create a new API token. Returns the raw token ONCE — it cannot be retrieved later.
  */
-export async function createApiTokenAction(
-  input: unknown,
-): Promise<ActionResult<{ id: string; rawToken: string; prefix: string }>> {
-  const t = await getTranslations("settings.apiTokens");
-  try {
-    const { companyId, userId } = await requireRole("admin");
+export const createApiTokenAction = createAction<
+  unknown,
+  { id: string; rawToken: string; prefix: string }
+>({
+  handler: async (input, { companyId, userId, db }) => {
+    const t = await getTranslations("settings.apiTokens");
     const createTokenSchema = z.object({
       name: z.string().min(1, t("nameRequired")).max(100),
     });
     const parsed = createTokenSchema.safeParse(input);
     if (!parsed.success) {
-      return {
-        success: false,
-        error: parsed.error.errors[0]?.message || "Invalid input",
-      };
+      throw new Error(
+        parsed.error.errors[0]?.message || t("errorCreateFailed"),
+      );
     }
 
     const { rawToken, tokenHash, tokenPrefix } = generateApiToken();
@@ -43,18 +39,13 @@ export async function createApiTokenAction(
       })
       .returning({ id: apiTokens.id });
 
-    revalidatePath("/settings");
-    return {
-      success: true,
-      data: { id: token.id, rawToken, prefix: tokenPrefix },
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorCreateFailed")),
-    };
-  }
-}
+    return { id: token.id, rawToken, prefix: tokenPrefix };
+  },
+  revalidate: ["/settings"],
+  errorMessage: () =>
+    getTranslations("settings.apiTokens").then((t) => t("errorCreateFailed")),
+  minRole: "admin",
+});
 
 type ApiTokenListItem = {
   id: string;
