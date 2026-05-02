@@ -10,6 +10,7 @@ import {
   ITEM_CONDITION_VALUES,
 } from "@kivvi/database/src/enums";
 import { ITEM_STATUS_TRANSITIONS } from "@kivvi/core/src/config/item-transitions";
+import { SELLABLE_ITEM_STATUSES } from "@kivvi/core/src/config/item-status-sets";
 
 // Derive union types from the authoritative enum arrays
 type ItemStatusValue = (typeof ITEM_STATUS_VALUES)[number];
@@ -163,15 +164,8 @@ export const ITEM_CONDITION_CONFIG: Record<
 // SELLABLE STATUSES — items that can appear on an invoice
 // ============================================================================
 
-/**
- * Item statuses that allow an item to be added to an invoice.
- * SSOT: update here if the business allows selling items in other states.
- */
-export const SELLABLE_ITEM_STATUSES = [
-  "ready_for_sale",
-  "listed",
-  "reserved",
-] as const;
+// Re-export from core SSOT so UI consumers don't need to know the source path.
+export { SELLABLE_ITEM_STATUSES } from "@kivvi/core/src/config/item-status-sets";
 
 // ============================================================================
 // HELPERS

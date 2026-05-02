@@ -4,7 +4,6 @@ import Decimal from "decimal.js";
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { Wrench, Plus, Trash2, X } from "lucide-react";
-import Decimal from "decimal.js";
 import { CardSection } from "@/components/card-section";
 import {
   addRepairPartAction,

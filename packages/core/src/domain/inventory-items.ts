@@ -19,6 +19,7 @@ import {
   ITEM_STATUS_VALUES,
 } from "@kivvi/database/src/enums";
 import { ITEM_STATUS_TRANSITIONS } from "../config/item-transitions";
+import { SELLABLE_ITEM_STATUSES } from "../config/item-status-sets";
 import {
   getChecklistTemplate,
   areBlockingChecksPassed,
@@ -330,8 +331,7 @@ export async function sellInventoryItem(
   if (!current) throw new Error("Inventory item not found");
 
   // Item must be in a sellable state
-  const sellableStatuses = ["ready_for_sale", "listed", "reserved"];
-  if (!sellableStatuses.includes(current.status)) {
+  if (!(SELLABLE_ITEM_STATUSES as readonly string[]).includes(current.status)) {
     throw new Error(
       `Cannot sell item in status "${current.status}". Must be ready_for_sale, listed, or reserved.`,
     );
