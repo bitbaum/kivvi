@@ -1,25 +1,20 @@
 "use client";
 
-import { useState, useEffect, useTransition, useRef } from "react";
+import { useState, useTransition, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, X, Search, Loader2 } from "lucide-react";
+import { Plus, X, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { createStockMovementAction } from "@/app/actions/inventory";
 import { MOVEMENT_TYPES } from "@/lib/config/inventory";
 import { FormInput, FormSelect } from "@/components/ui/form-field";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
 import { Button } from "@/components/ui/button";
+import { MovementProductPicker } from "./product-picker";
+import type { Product } from "./product-picker";
 
 interface Warehouse {
   id: string;
   name: string;
-}
-
-interface Product {
-  id: string;
-  name: string;
-  articleNumber: string | null;
-  sku: string | null;
 }
 
 /**
@@ -44,6 +39,7 @@ export function MovementForm(props: MovementFormProps) {
   const [isPending, startTransition] = useTransition();
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   useFocusTrap(modalRef, isOpen);
 
@@ -51,33 +47,6 @@ export function MovementForm(props: MovementFormProps) {
     value: mt,
     label: t(mt),
   }));
-
-  // Product picker state
-  const [products, setProducts] = useState<Product[]>([]);
-  const [productsLoading, setProductsLoading] = useState(false);
-  const [productSearch, setProductSearch] = useState("");
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [showProductDropdown, setShowProductDropdown] = useState(false);
-
-  useEffect(() => {
-    if (isOpen && products.length === 0) {
-      setProductsLoading(true);
-      fetch("/api/products")
-        .then((res) => res.json())
-        .then((data) => setProducts(data))
-        .catch(() => setError(tc("error")))
-        .finally(() => setProductsLoading(false));
-    }
-  }, [isOpen, products.length, tc]);
-
-  const filteredProducts = products.filter((p) => {
-    const q = productSearch.toLowerCase();
-    return (
-      p.name.toLowerCase().includes(q) ||
-      (p.articleNumber && p.articleNumber.toLowerCase().includes(q)) ||
-      (p.sku && p.sku.toLowerCase().includes(q))
-    );
-  });
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -110,7 +79,6 @@ export function MovementForm(props: MovementFormProps) {
       if (result.success) {
         setIsOpen(false);
         setSelectedProduct(null);
-        setProductSearch("");
         router.refresh();
       } else {
         setError(result.error || tc("error"));
@@ -122,7 +90,6 @@ export function MovementForm(props: MovementFormProps) {
     setIsOpen(false);
     setError(null);
     setSelectedProduct(null);
-    setProductSearch("");
   }
 
   if (!isOpen) {
@@ -148,88 +115,13 @@ export function MovementForm(props: MovementFormProps) {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Product Picker */}
-          <div className="relative">
-            <label
-              htmlFor="movement-product-search"
-              className="mb-1 block text-sm font-medium"
-            >
-              {t("product")} <span className="text-destructive">*</span>
-            </label>
-            {selectedProduct ? (
-              <div className="flex items-center justify-between rounded-lg border bg-background px-3 py-2">
-                <div>
-                  <p className="text-sm font-medium">{selectedProduct.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {selectedProduct.articleNumber || selectedProduct.sku || ""}
-                  </p>
-                </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  onClick={() => {
-                    setSelectedProduct(null);
-                    setProductSearch("");
-                  }}
-                >
-                  <X className="h-3.5 w-3.5" />
-                </Button>
-              </div>
-            ) : (
-              <>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <FormInput
-                    id="movement-product-search"
-                    type="text"
-                    value={productSearch}
-                    onChange={(e) => {
-                      setProductSearch(e.target.value);
-                      setShowProductDropdown(true);
-                    }}
-                    onFocus={() => setShowProductDropdown(true)}
-                    placeholder={
-                      productsLoading
-                        ? `${tc("loading")}...`
-                        : `${tc("search")}...`
-                    }
-                    className="pl-9 pr-3"
-                    disabled={productsLoading}
-                  />
-                </div>
-                {showProductDropdown && !productsLoading && (
-                  <div className="absolute left-0 right-0 z-10 mt-1 max-h-48 overflow-y-auto rounded-lg border bg-card shadow-lg">
-                    {filteredProducts.length === 0 ? (
-                      <p className="p-3 text-center text-sm text-muted-foreground">
-                        {tc("noResults")}
-                      </p>
-                    ) : (
-                      filteredProducts.slice(0, 20).map((product) => (
-                        <button
-                          key={product.id}
-                          type="button"
-                          onClick={() => {
-                            setSelectedProduct(product);
-                            setShowProductDropdown(false);
-                            setProductSearch("");
-                          }}
-                          className="flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
-                        >
-                          <span className="font-medium">{product.name}</span>
-                          <span className="ml-2 text-xs text-muted-foreground">
-                            {product.articleNumber || ""}
-                          </span>
-                        </button>
-                      ))
-                    )}
-                  </div>
-                )}
-              </>
-            )}
-          </div>
+          <MovementProductPicker
+            isFormOpen={isOpen}
+            selectedProduct={selectedProduct}
+            onSelect={setSelectedProduct}
+            onError={setError}
+          />
 
-          {/* Warehouse selector — only when no fixed warehouseId */}
           {warehouses && (
             <div>
               <label
@@ -249,7 +141,6 @@ export function MovementForm(props: MovementFormProps) {
             </div>
           )}
 
-          {/* Movement Type */}
           <div>
             <label
               htmlFor="movement-type"
@@ -267,7 +158,6 @@ export function MovementForm(props: MovementFormProps) {
             </FormSelect>
           </div>
 
-          {/* Quantity */}
           <div>
             <label
               htmlFor="movement-quantity"
@@ -289,7 +179,6 @@ export function MovementForm(props: MovementFormProps) {
             </p>
           </div>
 
-          {/* Reference */}
           <div>
             <label
               htmlFor="movement-reference"
