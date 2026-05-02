@@ -4,7 +4,7 @@
  *
  * Imported by:
  * - packages/core/src/domain/inventory-items.ts (sell/gate validation)
- * - packages/core/src/domain/impact.ts (in-stock count)
+ * - packages/core/src/domain/impact.ts (in-stock + disposed counts)
  * - apps/web/lib/config/inventory-items.ts (UI filtering, re-exports)
  * - apps/web/app/actions/sellables.ts (sellable item queries)
  */
@@ -25,3 +25,6 @@ export const PIPELINE_ITEM_STATUSES = [
   "listed",
   "reserved",
 ] as const;
+
+/** Terminal statuses for items that have left inventory via a positive outcome. */
+export const DISPOSED_ITEM_STATUSES = ["sold", "donated"] as const;

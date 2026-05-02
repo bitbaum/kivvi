@@ -1323,21 +1323,18 @@ export async function getDocumentSummary(
   const baseFilters = [eq(documents.companyId, companyId)];
   if (type) baseFilters.push(eq(documents.type, type));
 
-  const openStatuses = [...OPEN_STATUSES] as DocumentStatus[];
-  const nonTerminalStatuses = [...NON_TERMINAL_STATUSES] as DocumentStatus[];
-
   const [row] = await db
     .select({
       totalCount: count(),
       openAmount: sum(
         sql`CASE WHEN ${documents.status} IN (${sql.join(
-          openStatuses.map((s) => sql`${s}`),
+          OPEN_STATUSES.map((s) => sql`${s}`),
           sql`, `,
         )}) THEN ${documents.total} ELSE 0 END`,
       ),
       overdueCount: count(
         sql`CASE WHEN ${documents.status} IN (${sql.join(
-          nonTerminalStatuses.map((s) => sql`${s}`),
+          NON_TERMINAL_STATUSES.map((s) => sql`${s}`),
           sql`, `,
         )}) AND ${documents.dueDate} < NOW() THEN 1 END`,
       ),

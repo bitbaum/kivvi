@@ -3,6 +3,7 @@ import { eq, and, sql, gte, lte, inArray } from "drizzle-orm";
 import { documents, contacts, products, bankAccounts } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
 import { getFinancialSummary } from "./documents";
+import { OPEN_STATUSES } from "../config/document-constants";
 
 // ============================================================================
 // TYPES
@@ -120,12 +121,7 @@ export async function getDashboardStats(
         and(
           eq(documents.companyId, companyId),
           eq(documents.type, "invoice"),
-          inArray(documents.status, [
-            "sent",
-            "confirmed",
-            "delivered",
-            "partially_paid",
-          ]),
+          inArray(documents.status, [...OPEN_STATUSES]),
           lte(documents.issueDate, endOfLastMonth),
         ),
       ),

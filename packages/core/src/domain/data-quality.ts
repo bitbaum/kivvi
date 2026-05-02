@@ -238,8 +238,6 @@ export async function findContactIssues(
   }
 
   // 3. Inactive contacts with open documents
-  const openStatuses = [...ACTIVE_STATUSES] as DocumentStatusValue[];
-
   const inactiveWithOpenDocs = await db
     .select({
       id: contacts.id,
@@ -252,7 +250,7 @@ export async function findContactIssues(
       documents,
       and(
         eq(documents.contactId, contacts.id),
-        inArray(documents.status, openStatuses),
+        inArray(documents.status, [...ACTIVE_STATUSES]),
       ),
     )
     .where(and(eq(contacts.companyId, companyId), eq(contacts.isActive, false)))

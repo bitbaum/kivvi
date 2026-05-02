@@ -24,7 +24,10 @@ import { eq, and, gte, lte, count, inArray, sql } from "drizzle-orm";
 import { inventoryItems, contacts } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
 import { getCo2Factor, CO2_DEFAULT_KG } from "../config/co2-factors";
-import { PIPELINE_ITEM_STATUSES } from "../config/item-status-sets";
+import {
+  PIPELINE_ITEM_STATUSES,
+  DISPOSED_ITEM_STATUSES,
+} from "../config/item-status-sets";
 
 // Default CO2 savings per item when category is unknown (kg)
 // Re-exported from co2-factors SSOT so callers don't need to import from two places.
@@ -138,7 +141,10 @@ export async function getImpactMetrics(
       .select({ category: inventoryItems.category, count: count() })
       .from(inventoryItems)
       .where(
-        and(...conditions, inArray(inventoryItems.status, ["sold", "donated"])),
+        and(
+          ...conditions,
+          inArray(inventoryItems.status, [...DISPOSED_ITEM_STATUSES]),
+        ),
       )
       .groupBy(inventoryItems.category),
     // Items recycled (total only — no CO2 credit for recycling)
@@ -201,7 +207,10 @@ export async function getMonthlyBreakdown(
       })
       .from(inventoryItems)
       .where(
-        and(...conditions, inArray(inventoryItems.status, ["sold", "donated"])),
+        and(
+          ...conditions,
+          inArray(inventoryItems.status, [...DISPOSED_ITEM_STATUSES]),
+        ),
       )
       .groupBy(sql`to_char(${inventoryItems.createdAt}, 'YYYY-MM')`)
       .orderBy(sql`to_char(${inventoryItems.createdAt}, 'YYYY-MM')`),
@@ -271,7 +280,10 @@ export async function getTopDonors(
       })
       .from(inventoryItems)
       .where(
-        and(...conditions, inArray(inventoryItems.status, ["sold", "donated"])),
+        and(
+          ...conditions,
+          inArray(inventoryItems.status, [...DISPOSED_ITEM_STATUSES]),
+        ),
       )
       .groupBy(inventoryItems.donorContactId),
   ]);
