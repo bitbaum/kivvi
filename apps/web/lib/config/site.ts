@@ -1,3 +1,4 @@
+import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
 export const SITE_URL = "https://kivvi.ch";
 export const CONTACT_EMAIL = "info@revamp-it.ch";
 
@@ -70,7 +71,7 @@ export const CONDITION_GRADE_LABEL_KEY: Record<ConditionGradeId, string> = {
 
 /** next-intl locale → og:locale mapping. Falls back to de_CH. */
 const OG_LOCALE_BY_NEXTINTL: Record<string, string> = {
-  "de-CH": "de_CH",
+  [DEFAULT_LOCALE]: "de_CH",
   en: "en_US",
   fr: "fr_CH",
 };
@@ -94,7 +95,7 @@ const OG_LOCALE_BY_NEXTINTL: Record<string, string> = {
 export function buildPageMeta(
   title: string,
   description: string,
-  locale: string = "de-CH",
+  locale: string = DEFAULT_LOCALE,
 ) {
   return {
     openGraph: {

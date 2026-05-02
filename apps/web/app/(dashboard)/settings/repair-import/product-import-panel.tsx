@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import Papa from "papaparse";
 import { useTranslations } from "next-intl";
 import { formatCurrency } from "@/lib/utils";
+import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
 import {
   cleanHeaders,
   applyMapping,
@@ -234,7 +235,7 @@ function Stat({ label, value }: { label: string; value: number }) {
     <div className="rounded-lg border bg-muted/30 p-3">
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className="mt-1 text-lg font-semibold">
-        {value.toLocaleString("de-CH")}
+        {value.toLocaleString(DEFAULT_LOCALE)}
       </p>
     </div>
   );

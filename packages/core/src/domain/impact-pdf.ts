@@ -17,6 +17,7 @@ import type {
   DestinationBreakdown,
 } from "./impact";
 import { CO2_TREE_KG_PER_YEAR, CO2_CAR_KG_PER_KM } from "../config/co2-factors";
+import { DEFAULT_LOCALE } from "../config/locale";
 
 export interface ImpactPdfData {
   companyName: string;
@@ -94,22 +95,22 @@ export function generateImpactPdf(data: ImpactPdfData): Promise<Buffer> {
 
     const kpis = [
       {
-        value: metrics.itemsReused.toLocaleString("de-CH"),
+        value: metrics.itemsReused.toLocaleString(DEFAULT_LOCALE),
         label: "Artikel wiederverwendet",
         sub: `${metrics.reuseRatePercent}% Wiederverwendungsrate`,
       },
       {
         value: `${co2Tonnes} t`,
         label: "CO₂ vermieden",
-        sub: `${co2Kg.toLocaleString("de-CH")} kg gesamt`,
+        sub: `${co2Kg.toLocaleString(DEFAULT_LOCALE)} kg gesamt`,
       },
       {
-        value: metrics.wasteDiverted.toLocaleString("de-CH"),
+        value: metrics.wasteDiverted.toLocaleString(DEFAULT_LOCALE),
         label: "Artikel aus Abfall gerettet",
         sub: `inkl. ${metrics.itemsRecycled} recycelt`,
       },
       {
-        value: metrics.itemsProcessed.toLocaleString("de-CH"),
+        value: metrics.itemsProcessed.toLocaleString(DEFAULT_LOCALE),
         label: "Artikel verarbeitet",
         sub: "seit Betriebsbeginn",
       },
@@ -168,11 +169,11 @@ export function generateImpactPdf(data: ImpactPdfData): Promise<Buffer> {
 
       const equivalents = [
         {
-          value: treesEquiv.toLocaleString("de-CH"),
+          value: treesEquiv.toLocaleString(DEFAULT_LOCALE),
           label: "Bäume (1 Jahr CO₂-Bindung)",
         },
         {
-          value: carKmEquiv.toLocaleString("de-CH"),
+          value: carKmEquiv.toLocaleString(DEFAULT_LOCALE),
           label: "Autokilometer vermieden",
         },
         { value: `${co2Tonnes} t`, label: "CO₂-Äquivalente total" },
@@ -260,9 +261,9 @@ export function generateImpactPdf(data: ImpactPdfData): Promise<Buffer> {
         doc.fontSize(9).fillColor("#111827").font("Helvetica");
         const row = [
           catLabel,
-          cat.itemCount.toLocaleString("de-CH"),
+          cat.itemCount.toLocaleString(DEFAULT_LOCALE),
           `${cat.co2KgFactor}`,
-          catCo2.toLocaleString("de-CH"),
+          catCo2.toLocaleString(DEFAULT_LOCALE),
           `${pct}%`,
         ];
         row.forEach((cell, i) => {
@@ -311,13 +312,13 @@ export function generateImpactPdf(data: ImpactPdfData): Promise<Buffer> {
           label: "Artikel wiederverwendet",
           curr: metrics.itemsReused,
           prev: prev.itemsReused,
-          fmt: (n: number) => n.toLocaleString("de-CH"),
+          fmt: (n: number) => n.toLocaleString(DEFAULT_LOCALE),
         },
         {
           label: "CO₂ vermieden (kg)",
           curr: currCo2Kg,
           prev: prevCo2Kg,
-          fmt: (n: number) => n.toLocaleString("de-CH"),
+          fmt: (n: number) => n.toLocaleString(DEFAULT_LOCALE),
         },
         {
           label: "Wiederverwendungsrate",
@@ -411,9 +412,14 @@ export function generateImpactPdf(data: ImpactPdfData): Promise<Buffer> {
           .fontSize(20)
           .fillColor(d.color)
           .font("Helvetica-Bold")
-          .text(d.count.toLocaleString("de-CH"), x + 10, destStartY + 8, {
-            width: destColW - 20,
-          });
+          .text(
+            d.count.toLocaleString(DEFAULT_LOCALE),
+            x + 10,
+            destStartY + 8,
+            {
+              width: destColW - 20,
+            },
+          );
 
         doc
           .fontSize(8)
@@ -480,14 +486,17 @@ export function generateImpactPdf(data: ImpactPdfData): Promise<Buffer> {
           Number(year),
           Number(month) - 1,
           1,
-        ).toLocaleDateString("de-CH", { month: "long", year: "numeric" });
+        ).toLocaleDateString(DEFAULT_LOCALE, {
+          month: "long",
+          year: "numeric",
+        });
 
         xPos = 56;
         doc.fontSize(9).fillColor("#111827").font("Helvetica");
         const row = [
           monthLabel,
-          m.processed.toLocaleString("de-CH"),
-          m.reused.toLocaleString("de-CH"),
+          m.processed.toLocaleString(DEFAULT_LOCALE),
+          m.reused.toLocaleString(DEFAULT_LOCALE),
           `${m.reuseRatePercent}%`,
         ];
         row.forEach((cell, i) => {
@@ -544,8 +553,8 @@ export function generateImpactPdf(data: ImpactPdfData): Promise<Buffer> {
         doc.fontSize(9).fillColor("#111827").font("Helvetica");
         const row = [
           donor.donorName,
-          donor.itemsDonated.toLocaleString("de-CH"),
-          `${donor.itemsReused.toLocaleString("de-CH")} (${reuseRate}%)`,
+          donor.itemsDonated.toLocaleString(DEFAULT_LOCALE),
+          `${donor.itemsReused.toLocaleString(DEFAULT_LOCALE)} (${reuseRate}%)`,
         ];
         row.forEach((cell, i) => {
           const align = i >= 1 ? "right" : "left";
@@ -569,7 +578,7 @@ export function generateImpactPdf(data: ImpactPdfData): Promise<Buffer> {
       .stroke();
 
     const generatedDate = new Date(data.generatedAt).toLocaleDateString(
-      "de-CH",
+      DEFAULT_LOCALE,
       { day: "2-digit", month: "2-digit", year: "numeric" },
     );
 

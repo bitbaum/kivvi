@@ -10,6 +10,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
 import { Button } from "@/components/ui/button";
 import { listWebhookDeliveriesAction } from "@/app/actions/webhooks";
 
@@ -65,7 +66,7 @@ function DeliveryRow({ delivery }: { delivery: Delivery }) {
           )}
         </span>
         <span className="shrink-0 text-xs text-muted-foreground tabular-nums w-32 text-right">
-          {new Date(delivery.createdAt).toLocaleString("de-CH", {
+          {new Date(delivery.createdAt).toLocaleString(DEFAULT_LOCALE, {
             month: "short",
             day: "numeric",
             hour: "2-digit",
@@ -89,13 +90,13 @@ function DeliveryRow({ delivery }: { delivery: Delivery }) {
             {delivery.deliveredAt && (
               <span>
                 {t("deliveredAt")}:{" "}
-                {new Date(delivery.deliveredAt).toLocaleString("de-CH")}
+                {new Date(delivery.deliveredAt).toLocaleString(DEFAULT_LOCALE)}
               </span>
             )}
             {isPendingRetry && delivery.nextRetryAt && (
               <span>
                 {t("nextRetry")}:{" "}
-                {new Date(delivery.nextRetryAt).toLocaleString("de-CH")}
+                {new Date(delivery.nextRetryAt).toLocaleString(DEFAULT_LOCALE)}
               </span>
             )}
           </div>

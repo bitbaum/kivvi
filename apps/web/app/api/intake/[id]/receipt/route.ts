@@ -8,6 +8,7 @@ import type { CompanySettings } from "@kivvi/database";
 import { and, eq } from "drizzle-orm";
 import Decimal from "decimal.js";
 import { logger } from "@/lib/logger";
+import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
 
 export async function GET(
   _request: NextRequest,
@@ -88,8 +89,8 @@ export async function GET(
 
     // Format date
     const date = doc.issueDate
-      ? new Date(doc.issueDate).toLocaleDateString("de-CH")
-      : new Date().toLocaleDateString("de-CH");
+      ? new Date(doc.issueDate).toLocaleDateString(DEFAULT_LOCALE)
+      : new Date().toLocaleDateString(DEFAULT_LOCALE);
 
     // Generate PDF
     const pdfBuffer = await generateDonationReceiptPdf({

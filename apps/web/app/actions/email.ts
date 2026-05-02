@@ -21,6 +21,7 @@ import {
   generateDonationReceiptPdf,
 } from "@kivvi/core/src/domain/pdf-generation";
 import { buildInvoicePdfData } from "@/lib/pdf/build-pdf-data";
+import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
 import {
   buildInvoiceEmailHtml,
   buildInvoiceEmailSubject,
@@ -271,8 +272,8 @@ export async function sendDonationReceiptEmailAction(
 
     // Format date
     const date = doc.issueDate
-      ? new Date(doc.issueDate).toLocaleDateString("de-CH")
-      : new Date().toLocaleDateString("de-CH");
+      ? new Date(doc.issueDate).toLocaleDateString(DEFAULT_LOCALE)
+      : new Date().toLocaleDateString(DEFAULT_LOCALE);
 
     // Generate PDF
     const pdfBuffer = await generateDonationReceiptPdf({

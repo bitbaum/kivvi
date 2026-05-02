@@ -12,6 +12,7 @@
  */
 
 import PDFDocument from "pdfkit";
+import { DEFAULT_LOCALE } from "../config/locale";
 
 export interface ErasureCertificateData {
   // Issuing organization
@@ -69,12 +70,12 @@ export function generateErasureCertificate(
     const GREEN = "#15803d";
     const DARK = "#111827";
 
-    const erasureDate = data.dataErasuredAt.toLocaleDateString("de-CH", {
+    const erasureDate = data.dataErasuredAt.toLocaleDateString(DEFAULT_LOCALE, {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
     });
-    const generatedDate = data.generatedAt.toLocaleDateString("de-CH", {
+    const generatedDate = data.generatedAt.toLocaleDateString(DEFAULT_LOCALE, {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
