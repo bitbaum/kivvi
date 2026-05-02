@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { Loader2, Upload, Trash2, ImageIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
+import { MAX_UPLOAD_SIZE_BYTES } from "@/lib/config/uploads";
 
 /**
  * Shared image upload component — SSOT for all base64 image upload/display.
@@ -47,7 +48,7 @@ export function ImageUpload({
   onRemove,
   fieldName = "photo",
   accept = "image/png,image/jpeg,image/webp",
-  maxSize = 500 * 1024,
+  maxSize = MAX_UPLOAD_SIZE_BYTES,
   size = "lg",
   className,
   alt = "Image",

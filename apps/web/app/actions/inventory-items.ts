@@ -37,6 +37,7 @@ import {
 import { revalidatePath } from "next/cache";
 import { dispatchWebhookEvent } from "@kivvi/core/src/domain/webhooks";
 import { getTranslations } from "next-intl/server";
+import { MAX_UPLOAD_SIZE_BYTES } from "@/lib/config/uploads";
 
 export async function createInventoryItemAction(
   input: unknown,
@@ -218,7 +219,7 @@ export async function bulkUpdateItemStatusAction(
   }
 }
 
-const MAX_PHOTO_SIZE = 500 * 1024; // 500KB
+const MAX_PHOTO_SIZE = MAX_UPLOAD_SIZE_BYTES;
 const ALLOWED_PHOTO_TYPES = ["image/png", "image/jpeg", "image/webp"];
 
 export async function uploadItemPhotoAction(

@@ -17,6 +17,7 @@ import {
 } from "./utils";
 import { createAction } from "./action-factory";
 import { getTranslations } from "next-intl/server";
+import { MAX_UPLOAD_SIZE_BYTES } from "@/lib/config/uploads";
 
 // ============================================================================
 // COMPANY SETTINGS
@@ -164,7 +165,7 @@ export async function updateCompanySlugAction(
 // COMPANY LOGO
 // ============================================================================
 
-const MAX_IMAGE_SIZE = 500 * 1024; // 500 KB
+const MAX_IMAGE_SIZE = MAX_UPLOAD_SIZE_BYTES;
 const ALLOWED_LOGO_TYPES = ["image/png", "image/jpeg", "image/svg+xml"];
 
 export async function uploadLogoAction(
