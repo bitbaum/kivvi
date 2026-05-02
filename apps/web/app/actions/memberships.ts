@@ -69,7 +69,7 @@ export const getTeamMembersAction = createAction<void, CompanyMember[]>({
 export const removeMemberAction = createAction<unknown, void>({
   handler: async (userId, { companyId, userId: currentUserId, db }) => {
     const parsed = z.string().uuid().safeParse(userId);
-    if (!parsed.success) throw new Error("Invalid user ID");
+    if (!parsed.success) throw new Error("bad_user_id");
     await removeMember(db, companyId, parsed.data, currentUserId);
   },
   revalidate: ["/settings/team"],
@@ -90,8 +90,8 @@ export const updateMemberRoleAction = createAction<
   ) => {
     const parsedUserId = z.string().uuid().safeParse(userId);
     const parsedRole = z.enum(MEMBERSHIP_ROLES).safeParse(role);
-    if (!parsedUserId.success) throw new Error("Invalid user ID");
-    if (!parsedRole.success) throw new Error("Invalid role");
+    if (!parsedUserId.success) throw new Error("bad_user_id");
+    if (!parsedRole.success) throw new Error("bad_role");
     await updateMemberRole(
       db,
       companyId,

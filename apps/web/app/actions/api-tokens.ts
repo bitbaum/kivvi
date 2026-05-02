@@ -92,7 +92,7 @@ export const revokeApiTokenAction = createAction<string, void>({
       .set({ isActive: false })
       .where(and(eq(apiTokens.id, tokenId), eq(apiTokens.companyId, companyId)))
       .returning({ id: apiTokens.id });
-    if (!updated) throw new Error("Token not found");
+    if (!updated) throw new Error("token_not_found");
   },
 });
 
@@ -109,6 +109,6 @@ export const deleteApiTokenAction = createAction<string, void>({
       .delete(apiTokens)
       .where(and(eq(apiTokens.id, tokenId), eq(apiTokens.companyId, companyId)))
       .returning({ id: apiTokens.id });
-    if (!deleted) throw new Error("Token not found");
+    if (!deleted) throw new Error("token_not_found");
   },
 });

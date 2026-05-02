@@ -390,7 +390,7 @@ export const getCompanyDetailsAction = createAction<
       .select()
       .from(companies)
       .where(eq(companies.id, companyId));
-    if (!company) throw new Error("not found");
+    if (!company) throw new Error("company_not_found");
     return {
       name: company.name,
       legalName: company.legalName,

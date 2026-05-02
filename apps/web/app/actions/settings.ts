@@ -310,7 +310,7 @@ export async function changePasswordAction(
       .from(users)
       .where(eq(users.id, userId));
 
-    if (!user?.passwordHash) throw new Error("Invalid account state");
+    if (!user?.passwordHash) throw new Error("account_state_error");
 
     const isValid = await bcrypt.compare(
       parsed.data.currentPassword,
@@ -438,7 +438,7 @@ export const updateNumberSequenceAction = createAction<
         ),
       )
       .returning();
-    if (!seq) throw new Error("Sequence not found");
+    if (!seq) throw new Error("sequence_not_found");
     return seq;
   },
   revalidate: ["/settings"],

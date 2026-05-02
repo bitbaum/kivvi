@@ -120,7 +120,7 @@ export const revokeInvitationAction = createAction<unknown, void>({
   errorMessage: () => getTranslations("team").then((t) => t("revokeFailed")),
   handler: async (invitationId, { companyId, db }) => {
     const parsed = z.string().uuid().safeParse(invitationId);
-    if (!parsed.success) throw new Error("Invalid invitation ID");
+    if (!parsed.success) throw new Error("bad_invitation_id");
     await revokeInvitation(db, companyId, parsed.data);
   },
 });
@@ -145,7 +145,7 @@ export const acceptInvitationAction = createAction<
   errorMessage: () => getTranslations("team").then((t) => t("acceptFailed")),
   handler: async (token, { userId, db }) => {
     const parsed = z.string().min(1).safeParse(token);
-    if (!parsed.success) throw new Error("Invalid token");
+    if (!parsed.success) throw new Error("bad_token");
     return acceptInvitation(db, parsed.data, userId);
   },
 });
