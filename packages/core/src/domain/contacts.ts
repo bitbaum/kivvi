@@ -8,6 +8,7 @@ import {
   ADDRESS_TYPE_VALUES,
 } from "@kivvi/database/src/enums";
 import { getNextNumber } from "./number-sequences";
+import { DEFAULT_PAYMENT_TERMS_DAYS } from "../config/document-constants";
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -317,7 +318,8 @@ export async function createContact(
       vatNumber: cleanedInput.vatNumber as string | null,
       iban: cleanedInput.iban as string | null,
       bic: cleanedInput.bic as string | null,
-      paymentTermsDays: (cleanedInput.paymentTermsDays as number) ?? 30,
+      paymentTermsDays:
+        (cleanedInput.paymentTermsDays as number) ?? DEFAULT_PAYMENT_TERMS_DAYS,
       creditLimit: cleanedInput.creditLimit as string | null,
       language: (cleanedInput.language as string) || "de",
       notes: cleanedInput.notes as string | null,

@@ -21,6 +21,7 @@ import { warehouses, companies } from "@kivvi/database";
 import type { CompanySettings } from "@kivvi/database";
 import { eq } from "drizzle-orm";
 import { DEFAULT_VAT_RATE } from "../config/vat-rates";
+import { DEFAULT_PAYMENT_TERMS_DAYS } from "../config/document-constants";
 
 /**
  * Seed the given company with sample data.
@@ -60,7 +61,7 @@ export async function seedSampleData(
       city: "Zürich",
       postalCode: "8001",
       country: "CH",
-      paymentTermsDays: 30,
+      paymentTermsDays: DEFAULT_PAYMENT_TERMS_DAYS,
     }),
     createContact(db, companyId, {
       type: "customer",
@@ -80,7 +81,7 @@ export async function seedSampleData(
       city: "Zürich",
       postalCode: "8005",
       country: "CH",
-      paymentTermsDays: 30,
+      paymentTermsDays: DEFAULT_PAYMENT_TERMS_DAYS,
     }),
   ]);
 

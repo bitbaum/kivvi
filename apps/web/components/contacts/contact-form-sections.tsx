@@ -10,6 +10,7 @@ import {
   FormSelect,
   FormTextarea,
 } from "@/components/ui/form-field";
+import { DEFAULT_PAYMENT_TERMS_DAYS } from "@/lib/config/document-types";
 import { Button } from "@/components/ui/button";
 
 interface SectionProps {
@@ -340,7 +341,9 @@ export function ContactFormAdvancedSections({
                   name="paymentTermsDays"
                   min={0}
                   max={365}
-                  defaultValue={contact?.paymentTermsDays ?? 30}
+                  defaultValue={
+                    contact?.paymentTermsDays ?? DEFAULT_PAYMENT_TERMS_DAYS
+                  }
                 />
               </div>
               <div>

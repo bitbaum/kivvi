@@ -1,5 +1,6 @@
 import type { DocumentType, DocumentStatus } from "@kivvi/database";
 import { VALID_CONVERSIONS } from "@kivvi/core/src/domain/document-conversions";
+export { DEFAULT_PAYMENT_TERMS_DAYS } from "@kivvi/core/src/config/document-constants";
 
 // ============================================================================
 // DOCUMENT TYPE CONFIG — SSOT for all document type behavior
@@ -108,9 +109,6 @@ export const STATUS = {
   DUNNING_2: "dunning_2" as DocumentStatus,
   DUNNING_3: "dunning_3" as DocumentStatus,
 } as const;
-
-/** Default payment terms for new documents (in days) */
-export const DEFAULT_PAYMENT_TERMS_DAYS = 30;
 
 /** Default page size for list views */
 export const DEFAULT_PAGE_SIZE = 25;

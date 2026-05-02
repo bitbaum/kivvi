@@ -5,6 +5,9 @@
  * Client-safe: no DB or server dependencies.
  */
 
+/** Default payment terms when none specified (30 days is Swiss SME standard) */
+export const DEFAULT_PAYMENT_TERMS_DAYS = 30;
+
 /** Document types that can have payments recorded */
 export const PAYABLE_DOCUMENT_TYPES = ["invoice", "purchase_invoice"] as const;
 
