@@ -1374,7 +1374,8 @@
     "errorCreateStockMovement": "Impossible de créer le mouvement de stock",
     "errorTransferStock": "Impossible de transférer le stock",
     "errorCreateSerialNumber": "Impossible de créer le numéro de série",
-    "errorUpdateSerialNumber": "Impossible de mettre à jour le numéro de série"
+    "errorUpdateSerialNumber": "Impossible de mettre à jour le numéro de série",
+    "errorInvalidFileType": "Type de fichier invalide. Utilisez PNG, JPEG ou WebP."
   },
   "checklist": {
     "categoryLaptop": "Ordinateur portable",
@@ -2025,7 +2026,9 @@
     "errorRemoveLogo": "Impossible de supprimer le logo",
     "errorUpdateProfile": "Impossible de mettre à jour le profil",
     "errorRemoveAvatar": "Impossible de supprimer l'avatar",
-    "errorUpdateSequence": "Impossible de mettre à jour la séquence de numéros"
+    "errorUpdateSequence": "Impossible de mettre à jour la séquence de numéros",
+    "errorInvalidFileType": "Type de fichier invalide. Utilisez PNG, JPEG ou SVG.",
+    "errorSlugTaken": "Ce nom de boutique est déjà pris."
   },
   "ricardo": {
     "publish": "Publier sur Ricardo",

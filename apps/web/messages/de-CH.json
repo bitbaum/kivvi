@@ -1374,7 +1374,8 @@
     "errorCreateStockMovement": "Lagerbewegung konnte nicht erstellt werden",
     "errorTransferStock": "Lagerumbuchung konnte nicht durchgeführt werden",
     "errorCreateSerialNumber": "Seriennummer konnte nicht erstellt werden",
-    "errorUpdateSerialNumber": "Seriennummer konnte nicht aktualisiert werden"
+    "errorUpdateSerialNumber": "Seriennummer konnte nicht aktualisiert werden",
+    "errorInvalidFileType": "Ungültiger Dateityp. Bitte PNG, JPEG oder WebP verwenden."
   },
   "checklist": {
     "categoryLaptop": "Laptop",
@@ -2025,7 +2026,9 @@
     "errorRemoveLogo": "Logo konnte nicht entfernt werden",
     "errorUpdateProfile": "Profil konnte nicht aktualisiert werden",
     "errorRemoveAvatar": "Avatar konnte nicht entfernt werden",
-    "errorUpdateSequence": "Nummernkreis konnte nicht aktualisiert werden"
+    "errorUpdateSequence": "Nummernkreis konnte nicht aktualisiert werden",
+    "errorInvalidFileType": "Ungültiger Dateityp. Bitte PNG, JPEG oder SVG verwenden.",
+    "errorSlugTaken": "Dieser Shop-Name ist bereits vergeben."
   },
   "ricardo": {
     "publish": "Auf Ricardo publizieren",

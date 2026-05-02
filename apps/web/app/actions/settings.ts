@@ -154,7 +154,7 @@ export async function updateCompanySlugAction(
     if (error instanceof Error && error.message.includes("unique")) {
       return {
         success: false,
-        error: "Dieser Shop-Name ist bereits vergeben.",
+        error: t("errorSlugTaken"),
       };
     }
     return {
@@ -184,10 +184,7 @@ export async function uploadLogoAction(
     }
 
     if (!ALLOWED_LOGO_TYPES.includes(file.type)) {
-      return {
-        success: false,
-        error: "Invalid file type. Use PNG, JPEG, or SVG.",
-      };
+      return { success: false, error: t("errorInvalidFileType") };
     }
 
     if (file.size > MAX_IMAGE_SIZE) {
@@ -372,10 +369,7 @@ export async function uploadAvatarAction(
     }
 
     if (!ALLOWED_AVATAR_TYPES.includes(file.type)) {
-      return {
-        success: false,
-        error: "Invalid file type. Use PNG, JPEG, or SVG.",
-      };
+      return { success: false, error: t("errorInvalidFileType") };
     }
 
     if (file.size > MAX_AVATAR_SIZE) {

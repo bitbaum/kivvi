@@ -1374,7 +1374,8 @@
     "errorCreateStockMovement": "Failed to create stock movement",
     "errorTransferStock": "Failed to transfer stock",
     "errorCreateSerialNumber": "Failed to create serial number",
-    "errorUpdateSerialNumber": "Failed to update serial number"
+    "errorUpdateSerialNumber": "Failed to update serial number",
+    "errorInvalidFileType": "Invalid file type. Use PNG, JPEG, or WebP."
   },
   "checklist": {
     "categoryLaptop": "Laptop",
@@ -2025,7 +2026,9 @@
     "errorRemoveLogo": "Failed to remove logo",
     "errorUpdateProfile": "Failed to update profile",
     "errorRemoveAvatar": "Failed to remove avatar",
-    "errorUpdateSequence": "Failed to update number sequence"
+    "errorUpdateSequence": "Failed to update number sequence",
+    "errorInvalidFileType": "Invalid file type. Use PNG, JPEG, or SVG.",
+    "errorSlugTaken": "This shop name is already taken."
   },
   "ricardo": {
     "publish": "Publish to Ricardo",

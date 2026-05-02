@@ -236,10 +236,7 @@ export async function uploadItemPhotoAction(
     }
 
     if (!ALLOWED_PHOTO_TYPES.includes(file.type)) {
-      return {
-        success: false,
-        error: "Invalid file type. Use PNG, JPEG, or WebP.",
-      };
+      return { success: false, error: t("errorInvalidFileType") };
     }
 
     if (file.size > MAX_PHOTO_SIZE) {
