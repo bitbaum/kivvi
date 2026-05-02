@@ -12,6 +12,7 @@ import {
   sql,
   count,
   sum,
+  inArray,
 } from "drizzle-orm";
 import {
   documents,
@@ -1257,7 +1258,7 @@ export async function getFinancialSummary(
       and(
         eq(documents.companyId, companyId),
         eq(documents.type, "invoice"),
-        sql`${documents.status} IN ('sent', 'confirmed', 'delivered', 'partially_paid')`,
+        inArray(documents.status, [...OPEN_STATUSES]),
         sinceDate ? gte(documents.issueDate, sinceDate) : undefined,
       ),
     );

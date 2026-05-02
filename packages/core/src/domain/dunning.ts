@@ -11,6 +11,7 @@ import {
 } from "@kivvi/database";
 import type { Database, DocumentStatus } from "@kivvi/database";
 import { getNextNumber } from "./number-sequences";
+import { NON_TERMINAL_STATUSES } from "../config/document-constants";
 import { logger } from "../logger";
 
 // ============================================================================
@@ -76,7 +77,7 @@ export async function detectOverdueInvoices(
     where: and(
       eq(documents.companyId, companyId),
       eq(documents.type, "invoice"),
-      sql`${documents.status} IN ('sent', 'confirmed', 'delivered', 'partially_paid', 'overdue', 'dunning_1', 'dunning_2', 'dunning_3')`,
+      inArray(documents.status, [...NON_TERMINAL_STATUSES]),
       lt(documents.dueDate, now),
     ),
     with: {
