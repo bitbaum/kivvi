@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Package, Wrench } from "lucide-react";
 import { cn, formatCurrency } from "@/lib/utils";
 import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
+import { DEFAULT_UNIT } from "@/lib/config/products";
 import { StatusBadge } from "@/components/status-badge";
 import { UNIT_ABBREVIATIONS } from "@/lib/config/units";
 import type {
@@ -119,7 +120,7 @@ export function ProductTableRow({
           product.currency || DEFAULT_CURRENCY,
         )}
         <span className="ml-1 text-xs text-muted-foreground">
-          /{UNIT_ABBREVIATIONS[product.unit || "piece"] || product.unit}
+          /{UNIT_ABBREVIATIONS[product.unit || DEFAULT_UNIT] || product.unit}
         </span>
       </td>
       <td className="hidden whitespace-nowrap px-4 py-3 text-right text-sm lg:table-cell">

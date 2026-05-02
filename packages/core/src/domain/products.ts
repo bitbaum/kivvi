@@ -3,7 +3,11 @@ import { eq, and, or, ilike, desc, asc, count } from "drizzle-orm";
 import { products, manufacturers, productGroups } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
 import { DEFAULT_CURRENCY } from "../config/locale";
-import { PRODUCT_TYPE_VALUES, UNIT_TYPE_VALUES } from "../config/product";
+import {
+  PRODUCT_TYPE_VALUES,
+  UNIT_TYPE_VALUES,
+  DEFAULT_UNIT,
+} from "../config/product";
 import { getNextNumber } from "./number-sequences";
 import type { PaginatedResult } from "./contacts";
 
@@ -27,7 +31,7 @@ export const createProductSchema = z.object({
     .nullable(),
   currency: z.string().default(DEFAULT_CURRENCY),
   vatRate: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid VAT rate"),
-  unit: z.enum(UNIT_TYPE_VALUES).default("piece"),
+  unit: z.enum(UNIT_TYPE_VALUES).default(DEFAULT_UNIT),
   weight: z
     .string()
     .regex(/^\d+(\.\d{1,3})?$/, "Invalid weight")

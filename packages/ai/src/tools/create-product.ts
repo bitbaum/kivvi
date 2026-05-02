@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { Tool, ExecutionContext, ToolResult } from "../types";
 import { getDb } from "./utils";
 import { DEFAULT_VAT_RATE } from "@kivvi/core/src/config/vat-rates";
+import { UNIT_TYPE_VALUES, DEFAULT_UNIT } from "@kivvi/core/src/config/product";
 
 const createProductSchema = z.object({
   name: z.string().min(1).describe("Product or service name"),
@@ -20,8 +21,8 @@ const createProductSchema = z.object({
       "VAT rate as percentage (8.1 for standard Swiss VAT, 2.6 for reduced, 0 for exempt)",
     ),
   unit: z
-    .enum(["piece", "hour", "kg", "m", "m2", "m3", "liter"])
-    .default("piece")
+    .enum(UNIT_TYPE_VALUES)
+    .default(DEFAULT_UNIT)
     .describe("Unit of measure (piece, hour, kg, m, m2, m3, liter)"),
   description: z.string().optional().describe("Detailed product description"),
   notes: z

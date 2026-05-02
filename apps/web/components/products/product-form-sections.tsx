@@ -3,7 +3,11 @@
 import { useTranslations } from "next-intl";
 import type { Product } from "@kivvi/database";
 import { SWISS_VAT_RATES, DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
-import { PRODUCT_TYPES, UNIT_VALUES } from "@/lib/config/products";
+import {
+  PRODUCT_TYPES,
+  UNIT_VALUES,
+  DEFAULT_UNIT,
+} from "@/lib/config/products";
 import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 import {
   FormInput,
@@ -259,7 +263,7 @@ export function ProductFormPricingSection({ product, isEdit }: SectionProps) {
             <FormSelect
               id="unit"
               name="unit"
-              defaultValue={product?.unit || "piece"}
+              defaultValue={product?.unit || DEFAULT_UNIT}
             >
               {unitOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>

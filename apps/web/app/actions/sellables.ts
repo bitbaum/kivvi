@@ -5,6 +5,7 @@ import { listInventoryItems, searchProducts } from "@kivvi/core";
 import { type ActionResult, requireRole, safeErrorMessage } from "./utils";
 import { getTranslations } from "next-intl/server";
 import { DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
+import { DEFAULT_UNIT } from "@/lib/config/products";
 import { SELLABLE_ITEM_STATUSES } from "@/lib/config/inventory-items";
 
 /**
@@ -69,7 +70,7 @@ export async function searchSellablesAction(
         name: item.description,
         price: item.askingPrice || item.estimatedValue || null,
         vatRate: DEFAULT_VAT_RATE,
-        unit: "piece",
+        unit: DEFAULT_UNIT,
         stockQuantity: "1",
         condition: item.condition,
         productId: item.productId,
@@ -97,7 +98,7 @@ export async function searchSellablesAction(
         name: item.description,
         price: item.askingPrice || item.estimatedValue || null,
         vatRate: DEFAULT_VAT_RATE,
-        unit: "piece",
+        unit: DEFAULT_UNIT,
         stockQuantity: "1",
         condition: item.condition,
         productId: item.productId,

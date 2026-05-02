@@ -19,6 +19,7 @@ import {
 } from "./utils";
 import { parseFormData } from "./parse-form-data";
 import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
+import { DEFAULT_UNIT } from "@/lib/config/products";
 import { getTranslations } from "next-intl/server";
 
 /**
@@ -38,7 +39,7 @@ function parseProductFormData(formData: FormData) {
     purchasePrice: raw.purchasePrice,
     currency: raw.currency ?? DEFAULT_CURRENCY,
     vatRate: raw.vatRate ?? "0",
-    unit: raw.unit ?? "piece",
+    unit: raw.unit ?? DEFAULT_UNIT,
     weight: raw.weight,
     width: raw.width,
     height: raw.height,

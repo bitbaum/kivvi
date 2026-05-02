@@ -4,7 +4,7 @@ import Decimal from "decimal.js";
 import { formatCurrency } from "@/lib/utils";
 import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 import { SWISS_VAT_RATES, DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
-import { getProductTypeLabels } from "@/lib/config/products";
+import { getProductTypeLabels, DEFAULT_UNIT } from "@/lib/config/products";
 import type { getProduct } from "@kivvi/core";
 
 type Product = NonNullable<Awaited<ReturnType<typeof getProduct>>>;
@@ -63,7 +63,7 @@ export async function ProductDetailMain({ product }: ProductDetailMainProps) {
             <div>
               <dt className="text-sm text-muted-foreground">{t("unit")}</dt>
               <dd className="mt-1 font-medium">
-                {UNIT_LABELS[product.unit || "piece"] || product.unit}
+                {UNIT_LABELS[product.unit || DEFAULT_UNIT] || product.unit}
               </dd>
             </div>
             {product.manufacturer && (

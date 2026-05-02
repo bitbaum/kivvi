@@ -28,6 +28,7 @@ import {
 } from "./utils";
 import { getTranslations } from "next-intl/server";
 import { DEFAULT_COUNTRY } from "@kivvi/core/src/config/locale";
+import { DEFAULT_UNIT } from "@/lib/config/products";
 import { sql, eq } from "drizzle-orm";
 
 // ============================================================================
@@ -310,7 +311,7 @@ export async function bulkImportAction(
             description: row["Bemerkung"] || null,
             unitPrice: parseAmount(row["Verkaufspreis"]),
             purchasePrice: parseAmount(row["Einkaufspreis"]) || null,
-            unit: row["Einheit"] || "piece",
+            unit: row["Einheit"] || DEFAULT_UNIT,
             weight: row["Gewicht"] || null,
             minStock: row["Mindestlagerbestand"] || null,
             productGroup: row["Warengruppe"] || null,

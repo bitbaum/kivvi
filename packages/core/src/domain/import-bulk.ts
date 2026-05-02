@@ -17,6 +17,7 @@ import {
 } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
 import { DEFAULT_VAT_RATE } from "../config/vat-rates";
+import { DEFAULT_UNIT } from "../config/product";
 import { IMPORTABLE_DOCUMENT_TYPES } from "./number-sequences";
 import type { ParsedLineItem } from "./import-mappings";
 
@@ -351,7 +352,7 @@ export async function bulkInsertProducts(
         ean: row.ean || null,
         unitPrice: row.unitPrice || "0",
         purchasePrice: row.purchasePrice || null,
-        unit: row.unit || "piece",
+        unit: row.unit || DEFAULT_UNIT,
         vatRate: DEFAULT_VAT_RATE,
         weight: row.weight || null,
         minStock: row.minStock ? parseInt(row.minStock, 10) || null : null,

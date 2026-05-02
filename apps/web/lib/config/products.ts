@@ -5,7 +5,10 @@
 import {
   PRODUCT_TYPE_VALUES,
   UNIT_TYPE_VALUES,
+  DEFAULT_UNIT,
 } from "@kivvi/core/src/config/product";
+
+export { DEFAULT_UNIT };
 
 /** Product types */
 export const PRODUCT_TYPES = PRODUCT_TYPE_VALUES;

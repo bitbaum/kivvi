@@ -21,3 +21,5 @@ export const UNIT_TYPE_VALUES = [
   "liter",
 ] as const;
 export type UnitTypeValue = (typeof UNIT_TYPE_VALUES)[number];
+
+export const DEFAULT_UNIT: UnitTypeValue = "piece";
