@@ -1,5 +1,6 @@
 "use client";
 
+import Decimal from "decimal.js";
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { Wrench, Plus, Trash2, X } from "lucide-react";
@@ -145,7 +146,7 @@ export function RepairPartsSection({
                   setDescription(product.name);
                   setProductId(product.productId ?? product.id ?? null);
                   if (product.unitPrice && product.unitPrice !== "0") {
-                    setUnitCost(parseFloat(product.unitPrice).toFixed(2));
+                    setUnitCost(new Decimal(product.unitPrice).toFixed(2));
                   }
                 }}
                 placeholder={t("repairPartDescriptionPlaceholder")}
