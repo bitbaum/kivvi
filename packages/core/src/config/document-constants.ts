@@ -50,3 +50,10 @@ export const NON_TERMINAL_STATUSES = [
  * that still have open documents).
  */
 export const ACTIVE_STATUSES = ["draft", ...NON_TERMINAL_STATUSES] as const;
+
+/**
+ * Statuses for documents that have been formally issued (sent to counterparty)
+ * and not cancelled. Includes paid. Used for financial reports that need
+ * all posted transactions (VAT report, P&L, aging report).
+ */
+export const ISSUED_STATUSES = [...NON_TERMINAL_STATUSES, "paid"] as const;

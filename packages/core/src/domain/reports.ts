@@ -1,5 +1,9 @@
 import Decimal from "decimal.js";
-import { eq, and, sql, gte, lte, desc, asc } from "drizzle-orm";
+import { eq, and, sql, gte, lte, desc, asc, inArray } from "drizzle-orm";
+import {
+  NON_TERMINAL_STATUSES,
+  ISSUED_STATUSES,
+} from "../config/document-constants";
 import {
   accounts,
   journalEntries,
@@ -417,7 +421,7 @@ export async function getVatReport(
       and(
         eq(documents.companyId, companyId),
         sql`${documents.type} IN ('invoice', 'credit_note')`,
-        sql`${documents.status} NOT IN ('draft', 'cancelled')`,
+        inArray(documents.status, [...ISSUED_STATUSES]),
         gte(documents.issueDate, sql`${startDate}::timestamp`),
         lte(documents.issueDate, sql`${endDate}::timestamp`),
       ),
@@ -445,7 +449,7 @@ export async function getVatReport(
       and(
         eq(documents.companyId, companyId),
         eq(documents.type, "purchase_invoice"),
-        sql`${documents.status} NOT IN ('draft', 'cancelled')`,
+        inArray(documents.status, [...ISSUED_STATUSES]),
         gte(documents.issueDate, sql`${startDate}::timestamp`),
         lte(documents.issueDate, sql`${endDate}::timestamp`),
       ),
@@ -520,7 +524,7 @@ export async function getAgingReport(
       and(
         eq(documents.companyId, companyId),
         eq(documents.type, "invoice"),
-        sql`${documents.status} NOT IN ('draft', 'cancelled', 'paid')`,
+        inArray(documents.status, [...NON_TERMINAL_STATUSES]),
         sinceDate ? gte(documents.issueDate, sinceDate) : undefined,
       ),
     );
@@ -686,7 +690,7 @@ export async function getSalesReport(
       and(
         eq(documents.companyId, companyId),
         eq(documents.type, "invoice"),
-        sql`${documents.status} NOT IN ('draft', 'cancelled')`,
+        inArray(documents.status, [...ISSUED_STATUSES]),
         gte(documents.issueDate, sql`${startDate}::timestamp`),
         lte(documents.issueDate, sql`${endDate}::timestamp`),
       ),
@@ -706,7 +710,7 @@ export async function getSalesReport(
       and(
         eq(documents.companyId, companyId),
         eq(documents.type, "credit_note"),
-        sql`${documents.status} NOT IN ('draft', 'cancelled')`,
+        inArray(documents.status, [...ISSUED_STATUSES]),
         gte(documents.issueDate, sql`${startDate}::timestamp`),
         lte(documents.issueDate, sql`${endDate}::timestamp`),
       ),
@@ -729,7 +733,7 @@ export async function getSalesReport(
       and(
         eq(documents.companyId, companyId),
         eq(documents.type, "invoice"),
-        sql`${documents.status} NOT IN ('draft', 'cancelled')`,
+        inArray(documents.status, [...ISSUED_STATUSES]),
         gte(documents.issueDate, sql`${startDate}::timestamp`),
         lte(documents.issueDate, sql`${endDate}::timestamp`),
       ),

@@ -332,7 +332,7 @@ export async function listDocuments(
   if (status === "overdue") {
     // Dynamic overdue: past due date AND not paid/cancelled/draft
     conditions.push(
-      sql`${documents.status} NOT IN ('paid', 'cancelled', 'draft')`,
+      inArray(documents.status, [...NON_TERMINAL_STATUSES]),
       sql`${documents.dueDate} IS NOT NULL AND ${documents.dueDate} < NOW()`,
     );
   } else if (status) {
@@ -1274,7 +1274,7 @@ export async function getFinancialSummary(
       and(
         eq(documents.companyId, companyId),
         eq(documents.type, "invoice"),
-        sql`${documents.status} NOT IN ('paid', 'cancelled', 'draft')`,
+        inArray(documents.status, [...NON_TERMINAL_STATUSES]),
         sql`${documents.dueDate} IS NOT NULL AND ${documents.dueDate} < NOW()`,
         sinceDate ? gte(documents.issueDate, sinceDate) : undefined,
       ),
