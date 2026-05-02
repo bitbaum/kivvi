@@ -90,6 +90,19 @@ export function apiInternalError(): NextResponse {
 }
 
 /**
+ * Formats a Zod validation error as a 400 API response.
+ * @param error - The ZodError from a failed safeParse
+ * @param context - "query parameters" or "body" (default: "parameters")
+ */
+export function apiZodError(
+  error: z.ZodError,
+  context: string = "parameters",
+): NextResponse {
+  const details = error.issues.map((i) => `${i.path}: ${i.message}`).join(", ");
+  return apiError(`Invalid ${context}: ${details}`);
+}
+
+/**
  * Standard API success response.
  */
 export function apiSuccess<T>(

@@ -6,6 +6,7 @@ import {
   apiError,
   apiInternalError,
   apiSuccess,
+  apiZodError,
   paginationQueryFields,
 } from "@/lib/api-handler";
 import {
@@ -36,10 +37,7 @@ export async function GET(request: NextRequest) {
     const raw = Object.fromEntries(url.searchParams.entries());
     const parsed = querySchema.safeParse(raw);
     if (!parsed.success) {
-      return apiError(
-        `Invalid query parameters: ${parsed.error.issues.map((i) => `${i.path}: ${i.message}`).join(", ")}`,
-        400,
-      );
+      return apiZodError(parsed.error, "query parameters");
     }
 
     const { page, pageSize, ...filters } = parsed.data;
@@ -68,10 +66,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const parsed = createInventoryItemSchema.safeParse(body);
     if (!parsed.success) {
-      return apiError(
-        `Invalid body: ${parsed.error.issues.map((i) => `${i.path}: ${i.message}`).join(", ")}`,
-        400,
-      );
+      return apiZodError(parsed.error, "body");
     }
 
     const item = await createInventoryItem(db, ctx.companyId, parsed.data);

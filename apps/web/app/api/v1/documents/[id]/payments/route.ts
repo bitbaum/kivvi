@@ -1,7 +1,12 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { authenticateApi, apiError, apiSuccess } from "@/lib/api-handler";
+import {
+  authenticateApi,
+  apiError,
+  apiSuccess,
+  apiZodError,
+} from "@/lib/api-handler";
 import { recordPayment } from "@kivvi/core";
 import { PAYMENT_METHOD_VALUES } from "@kivvi/database/src/enums";
 
@@ -35,10 +40,7 @@ export async function POST(
 
     const parsed = recordPaymentSchema.safeParse(body);
     if (!parsed.success) {
-      return apiError(
-        `Invalid body: ${parsed.error.issues.map((i) => `${i.path}: ${i.message}`).join(", ")}`,
-        400,
-      );
+      return apiZodError(parsed.error, "body");
     }
 
     const payment = await recordPayment(db, ctx.companyId, id, parsed.data);

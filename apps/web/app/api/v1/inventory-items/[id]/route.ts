@@ -6,6 +6,7 @@ import {
   apiError,
   apiInternalError,
   apiSuccess,
+  apiZodError,
 } from "@/lib/api-handler";
 import {
   getInventoryItem,
@@ -48,10 +49,7 @@ export async function PATCH(
     const body = await request.json();
     const parsed = patchSchema.safeParse(body);
     if (!parsed.success) {
-      return apiError(
-        `Invalid body: ${parsed.error.issues.map((i) => `${i.path}: ${i.message}`).join(", ")}`,
-        400,
-      );
+      return apiZodError(parsed.error, "body");
     }
 
     const { status, ...fields } = parsed.data;
