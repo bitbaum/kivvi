@@ -1,3 +1,4 @@
+import Decimal from "decimal.js";
 import { useState } from "react";
 import { TESTABLE_STATUSES } from "@/lib/config/inventory-items";
 import type {
@@ -95,7 +96,7 @@ export function useChecklistState({
   const completions = buildCompletions();
   const { passed: blockingOk } = areBlockingChecksPassed(template, completions);
   const hasCondition = !!selectedCondition && selectedCondition !== "untested";
-  const hasPriceSet = !!askingPrice && parseFloat(askingPrice) > 0;
+  const hasPriceSet = !!askingPrice && new Decimal(askingPrice).gt(0);
 
   const failedBlockingSuggestions = template.checks
     .filter(

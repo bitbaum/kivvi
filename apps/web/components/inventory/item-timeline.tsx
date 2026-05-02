@@ -5,6 +5,7 @@ import {
   ShoppingCart,
   ShieldCheck,
 } from "lucide-react";
+import Decimal from "decimal.js";
 import { formatDate, formatCurrency } from "@/lib/utils";
 
 interface RepairEntry {
@@ -89,7 +90,7 @@ export function ItemTimeline({
 }: ItemTimelineProps) {
   const repairs = repairLog ? parseRepairLog(repairLog) : [];
   const isSold = status === "sold" || !!soldPrice;
-  const totalCost = repairCost ? parseFloat(repairCost) : 0;
+  const totalCost = new Decimal(repairCost ?? "0");
 
   const events = [
     {
@@ -180,7 +181,7 @@ export function ItemTimeline({
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {labels.condition}: {event.conditionLabel}
-                  {totalCost > 0 &&
+                  {totalCost.gt(0) &&
                     ` · ${formatCurrency(totalCost.toFixed(2))} ${labels.invested}`}
                 </p>
               </>

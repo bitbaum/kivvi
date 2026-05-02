@@ -7,6 +7,7 @@ import { CreditCard, AlertTriangle, Loader2 } from "lucide-react";
 import { recordPaymentAction } from "@/app/actions/documents";
 import { FormInput, FormSelect } from "@/components/ui/form-field";
 import { Button } from "@/components/ui/button";
+import Decimal from "decimal.js";
 import { formatCurrency } from "@/lib/utils";
 import type { PaymentMethodValue } from "@kivvi/database/src/enums";
 
@@ -35,7 +36,7 @@ export function PaymentForm({
     }
   }, [isOpen]);
 
-  const isOverpayment = parseFloat(amount || "0") > parseFloat(outstanding);
+  const isOverpayment = new Decimal(amount || "0").gt(outstanding);
 
   if (!isOpen) {
     return (

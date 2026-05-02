@@ -1,3 +1,4 @@
+import Decimal from "decimal.js";
 import { z } from "zod";
 import { eq, and } from "drizzle-orm";
 import type { Tool, ExecutionContext, ToolResult } from "../types";
@@ -121,8 +122,8 @@ export const getItemDetailsTool: Tool = {
               ? `${currency} ${parseFloat(item.estimatedValue).toFixed(2)}`
               : null,
             repairCost:
-              item.repairCost && parseFloat(item.repairCost) > 0
-                ? `${currency} ${parseFloat(item.repairCost).toFixed(2)}`
+              item.repairCost && new Decimal(item.repairCost).gt(0)
+                ? `${currency} ${new Decimal(item.repairCost).toDecimalPlaces(2)}`
                 : null,
             effectiveCost: item.effectiveCost
               ? `${currency} ${parseFloat(item.effectiveCost).toFixed(2)}`
@@ -139,22 +140,24 @@ export const getItemDetailsTool: Tool = {
           },
           repair: {
             labourCost:
-              item.repairCost && parseFloat(item.repairCost) > 0
-                ? `${currency} ${parseFloat(item.repairCost).toFixed(2)}`
+              item.repairCost && new Decimal(item.repairCost).gt(0)
+                ? `${currency} ${new Decimal(item.repairCost).toDecimalPlaces(2)}`
                 : null,
-            totalHours: item.repairHours ? parseFloat(item.repairHours) : null,
+            totalHours: item.repairHours
+              ? new Decimal(item.repairHours).toNumber()
+              : null,
             logEntries: repairLines,
             parts: repairParts.map((p) => ({
               id: p.id,
               description: p.description,
-              quantity: parseFloat(p.quantity),
-              unitCost: `${currency} ${parseFloat(p.unitCost).toFixed(2)}`,
-              lineTotal: `${currency} ${(parseFloat(p.quantity) * parseFloat(p.unitCost)).toFixed(2)}`,
+              quantity: new Decimal(p.quantity).toNumber(),
+              unitCost: `${currency} ${new Decimal(p.unitCost).toDecimalPlaces(2)}`,
+              lineTotal: `${currency} ${new Decimal(p.quantity).times(p.unitCost).toDecimalPlaces(2)}`,
               notes: p.notes ?? null,
             })),
             partsTotal:
               repairParts.length > 0
-                ? `${currency} ${repairParts.reduce((sum, p) => sum + parseFloat(p.quantity) * parseFloat(p.unitCost), 0).toFixed(2)}`
+                ? `${currency} ${repairParts.reduce((sum, p) => sum.plus(new Decimal(p.quantity).times(p.unitCost)), new Decimal(0)).toDecimalPlaces(2)}`
                 : null,
           },
           dataErasure: {

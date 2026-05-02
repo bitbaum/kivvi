@@ -39,7 +39,7 @@ export async function ItemPricingCard({
     }
   }, new Decimal(0));
   const hasPartsTotal = partsTotal.greaterThan(0);
-  const hasRepairCost = !!item.repairCost && parseFloat(item.repairCost) > 0;
+  const hasRepairCost = !!item.repairCost && new Decimal(item.repairCost).gt(0);
   const showEffectiveCost =
     !!item.effectiveCost && (hasPartsTotal || hasRepairCost);
 

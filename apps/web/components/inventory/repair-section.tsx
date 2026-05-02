@@ -1,5 +1,6 @@
 "use client";
 
+import Decimal from "decimal.js";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -36,8 +37,8 @@ export function RepairSection({
   const [isRecording, setIsRecording] = useState(false);
   const [repairError, setRepairError] = useState<string | null>(null);
 
-  const totalCost = currentCost ? parseFloat(currentCost) : 0;
-  const totalHours = currentHours ? parseFloat(currentHours) : 0;
+  const totalCost = new Decimal(currentCost ?? "0");
+  const totalHours = new Decimal(currentHours ?? "0");
 
   async function handleRecord(e: React.FormEvent) {
     e.preventDefault();
@@ -52,10 +53,13 @@ export function RepairSection({
     });
 
     if (result.success) {
-      const newCost = (totalCost + parseFloat(cost)).toFixed(2);
-      const newHours = (totalHours + parseFloat(hours || "0")).toFixed(2);
+      const newCost = totalCost.plus(cost).toDecimalPlaces(2).toString();
+      const newHours = totalHours
+        .plus(hours || "0")
+        .toDecimalPlaces(2)
+        .toString();
       const date = new Date().toISOString().split("T")[0];
-      const entry = `${date} — ${parseFloat(cost).toFixed(2)}${hours ? ` / ${hours}h` : ""}${note ? `: ${note}` : ""}`;
+      const entry = `${date} — ${new Decimal(cost).toDecimalPlaces(2)}${hours ? ` / ${hours}h` : ""}${note ? `: ${note}` : ""}`;
       const newLog = currentLog ? `${currentLog}\n${entry}` : entry;
       onRecorded({
         repairCost: newCost,
@@ -77,10 +81,10 @@ export function RepairSection({
     <div className="rounded-xl border bg-card">
       <div className="border-b px-6 py-4">
         <h2 className="font-semibold">{ti("repairLog")}</h2>
-        {totalCost > 0 && (
+        {totalCost.gt(0) && (
           <p className="mt-1 text-xs text-muted-foreground">
             {tc("total")}: {formatCurrency(totalCost.toFixed(2))}
-            {totalHours > 0 && ` · ${totalHours}h`}
+            {totalHours.gt(0) && ` · ${totalHours}h`}
           </p>
         )}
       </div>

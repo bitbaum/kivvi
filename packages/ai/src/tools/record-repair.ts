@@ -1,3 +1,4 @@
+import Decimal from "decimal.js";
 import { z } from "zod";
 import { eq, and } from "drizzle-orm";
 import type { Tool, ExecutionContext, ToolResult } from "../types";
@@ -123,8 +124,8 @@ Examples:
         note: params.note,
       });
 
-      const prevCost = parseFloat(currentRepairCost ?? "0");
-      const newTotalCost = parseFloat(updated.repairCost ?? "0");
+      const prevCost = new Decimal(currentRepairCost ?? "0");
+      const newTotalCost = new Decimal(updated.repairCost ?? "0");
       const currency = context.defaultCurrency ?? "CHF";
 
       const hoursNote =
@@ -135,7 +136,7 @@ Examples:
 
       return {
         success: true,
-        message: `Recorded ${currency} ${params.cost.toFixed(2)}${hoursNote} repair on ${itemNumber}${workNote}. Total repair cost: ${currency} ${newTotalCost.toFixed(2)} (was ${currency} ${prevCost.toFixed(2)}).`,
+        message: `Recorded ${currency} ${params.cost.toFixed(2)}${hoursNote} repair on ${itemNumber}${workNote}. Total repair cost: ${currency} ${newTotalCost.toDecimalPlaces(2)} (was ${currency} ${prevCost.toDecimalPlaces(2)}).`,
         data: {
           itemId,
           itemNumber,
