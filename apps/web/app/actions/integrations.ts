@@ -15,17 +15,15 @@ import {
   testConnection,
 } from "@/lib/ricardo-client";
 import { requireRole, safeErrorMessage, type ActionResult } from "./utils";
+import { createAction } from "./action-factory";
 
 // ============================================================================
 // RICARDO SETTINGS
 // ============================================================================
 
-export async function updateRicardoApiKeyAction(
-  apiKey: string | null,
-): Promise<ActionResult<void>> {
-  const t = await getTranslations("settings.integrations");
-  try {
-    const { companyId } = await requireRole("admin");
+export const updateRicardoApiKeyAction = createAction<string | null, void>({
+  handler: async (apiKey, { companyId, db }) => {
+    if (apiKey === "••••••••") return;
 
     const [existing] = await db
       .select({ settings: companies.settings })
@@ -33,11 +31,6 @@ export async function updateRicardoApiKeyAction(
       .where(eq(companies.id, companyId));
 
     const current = (existing?.settings as CompanySettings) ?? {};
-
-    // Only update if not the mask placeholder
-    if (apiKey === "••••••••") {
-      return { success: true };
-    }
 
     const updatedSettings: CompanySettings = {
       ...current,
@@ -48,16 +41,12 @@ export async function updateRicardoApiKeyAction(
       .update(companies)
       .set({ settings: updatedSettings, updatedAt: new Date() })
       .where(eq(companies.id, companyId));
-
-    revalidatePath("/settings/integrations");
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorSaveApiKey")),
-    };
-  }
-}
+  },
+  revalidate: ["/settings/integrations"],
+  errorMessage: () =>
+    getTranslations("settings.integrations").then((t) => t("errorSaveApiKey")),
+  minRole: "admin",
+});
 
 export async function testRicardoConnectionAction(): Promise<
   ActionResult<void>

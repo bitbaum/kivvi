@@ -451,13 +451,11 @@ export const updateNumberSequenceAction = createAction<
 // CO2 IMPACT FACTORS
 // ============================================================================
 
-export async function updateCo2FactorsAction(
-  factors: Record<string, number>,
-): Promise<ActionResult<void>> {
-  const t = await getTranslations("settings");
-  try {
-    const { companyId } = await requireRole("admin");
-
+export const updateCo2FactorsAction = createAction<
+  Record<string, number>,
+  void
+>({
+  handler: async (factors, { companyId, db }) => {
     const [existing] = await db
       .select({ settings: companies.settings })
       .from(companies)
@@ -472,14 +470,9 @@ export async function updateCo2FactorsAction(
         updatedAt: new Date(),
       })
       .where(eq(companies.id, companyId));
-
-    revalidatePath("/settings");
-    revalidatePath("/reports/impact");
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorUpdateCo2Factors")),
-    };
-  }
-}
+  },
+  revalidate: ["/settings", "/reports/impact"],
+  errorMessage: () =>
+    getTranslations("settings").then((t) => t("errorUpdateCo2Factors")),
+  minRole: "admin",
+});
