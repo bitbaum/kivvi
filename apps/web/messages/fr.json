@@ -382,7 +382,9 @@
     "errorFailedToUpdateStatus": "Échec de la mise à jour du statut.",
     "errorFailedToRecordPayment": "Échec de l'enregistrement du paiement.",
     "errorFailedToConvert": "Échec de la conversion du document.",
-    "errorFailedToDuplicate": "Échec de la duplication du document."
+    "errorFailedToDuplicate": "Échec de la duplication du document.",
+    "errorReceiptDonationOnly": "Le reçu est uniquement disponible pour les dons.",
+    "errorReceiptConfirmFirst": "Confirmez la réception avant d'envoyer le reçu."
   },
   "dashboard": {
     "title": "Tableau de bord",
@@ -1536,7 +1538,8 @@
     "noCategoryData": "Aucune donnée par catégorie pour cette période.",
     "errorAsOfDateRequired": "La date de référence est requise.",
     "errorInvalidReportType": "Type de rapport invalide.",
-    "errorExportFailed": "Échec de l'exportation"
+    "errorExportFailed": "Échec de l'exportation",
+    "errorDateRangeRequired": "Les dates de début et de fin sont requises."
   },
   "dunning": {
     "title": "Relances",

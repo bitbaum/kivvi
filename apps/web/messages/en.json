@@ -382,7 +382,9 @@
     "errorFailedToUpdateStatus": "Failed to update status.",
     "errorFailedToRecordPayment": "Failed to record payment.",
     "errorFailedToConvert": "Failed to convert document.",
-    "errorFailedToDuplicate": "Failed to duplicate document."
+    "errorFailedToDuplicate": "Failed to duplicate document.",
+    "errorReceiptDonationOnly": "Receipt only available for donation intakes.",
+    "errorReceiptConfirmFirst": "Confirm the intake before sending the receipt."
   },
   "dashboard": {
     "title": "Dashboard",
@@ -1536,7 +1538,8 @@
     "noCategoryData": "No category data for this period.",
     "errorAsOfDateRequired": "As of date is required.",
     "errorInvalidReportType": "Invalid report type.",
-    "errorExportFailed": "Export failed"
+    "errorExportFailed": "Export failed",
+    "errorDateRangeRequired": "Start date and end date are required."
   },
   "dunning": {
     "title": "Dunning",

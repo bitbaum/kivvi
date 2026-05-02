@@ -40,7 +40,7 @@ export async function exportReportAction(
         if (!params.startDate || !params.endDate) {
           return {
             success: false,
-            error: "Start date and end date are required",
+            error: t("errorDateRangeRequired"),
           };
         }
 
@@ -122,7 +122,7 @@ export async function exportReportAction(
         if (!params.startDate || !params.endDate) {
           return {
             success: false,
-            error: "Start date and end date are required",
+            error: t("errorDateRangeRequired"),
           };
         }
 
@@ -204,7 +204,7 @@ export async function exportReportAction(
         if (!params.startDate || !params.endDate) {
           return {
             success: false,
-            error: "Start date and end date are required",
+            error: t("errorDateRangeRequired"),
           };
         }
 

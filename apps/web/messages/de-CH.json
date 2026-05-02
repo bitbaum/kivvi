@@ -382,7 +382,9 @@
     "errorFailedToUpdateStatus": "Fehler beim Aktualisieren des Status.",
     "errorFailedToRecordPayment": "Fehler beim Erfassen der Zahlung.",
     "errorFailedToConvert": "Fehler beim Konvertieren des Dokuments.",
-    "errorFailedToDuplicate": "Fehler beim Duplizieren des Dokuments."
+    "errorFailedToDuplicate": "Fehler beim Duplizieren des Dokuments.",
+    "errorReceiptDonationOnly": "Quittung ist nur für Spendenannahmen verfügbar.",
+    "errorReceiptConfirmFirst": "Bitte bestätigen Sie die Annahme, bevor Sie die Quittung senden."
   },
   "dashboard": {
     "title": "Übersicht",
@@ -1536,7 +1538,8 @@
     "noCategoryData": "Keine Kategoriedaten für diesen Zeitraum.",
     "errorAsOfDateRequired": "Stichtag ist erforderlich.",
     "errorInvalidReportType": "Ungültiger Berichtstyp.",
-    "errorExportFailed": "Export fehlgeschlagen"
+    "errorExportFailed": "Export fehlgeschlagen",
+    "errorDateRangeRequired": "Start- und Enddatum sind erforderlich."
   },
   "dunning": {
     "title": "Mahnwesen",

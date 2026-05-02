@@ -202,15 +202,9 @@ export async function sendDonationReceiptEmailAction(
     if (doc.type !== "intake")
       return { success: false, error: t("errorNotAnIntake") };
     if (doc.intakeSource !== "donation")
-      return {
-        success: false,
-        error: "Receipt only available for donation intakes",
-      };
+      return { success: false, error: t("errorReceiptDonationOnly") };
     if (doc.status === "draft")
-      return {
-        success: false,
-        error: "Confirm the intake before sending the receipt",
-      };
+      return { success: false, error: t("errorReceiptConfirmFirst") };
 
     // Resolve donor contact
     const donorId = doc.donorId || doc.contactId;
