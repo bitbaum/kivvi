@@ -354,7 +354,7 @@ export async function getUserAvatarAction(): Promise<string | null> {
 }
 
 const MAX_AVATAR_SIZE = MAX_IMAGE_SIZE;
-const ALLOWED_AVATAR_TYPES = ["image/png", "image/jpeg", "image/svg+xml"];
+const ALLOWED_AVATAR_TYPES = ALLOWED_LOGO_TYPES;
 
 export async function uploadAvatarAction(
   formData: FormData,
