@@ -1,13 +1,17 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { authenticateApi, apiError, apiSuccess } from "@/lib/api-handler";
+import {
+  authenticateApi,
+  apiError,
+  apiSuccess,
+  paginationQueryFields,
+} from "@/lib/api-handler";
 import { listProducts, createProduct, createProductSchema } from "@kivvi/core";
 import { PRODUCT_TYPE_VALUES } from "@kivvi/database/src/enums";
 
 const querySchema = z.object({
-  page: z.coerce.number().int().positive().default(1),
-  pageSize: z.coerce.number().int().positive().max(200).default(50),
+  ...paginationQueryFields,
   search: z.string().optional(),
   type: z.enum(PRODUCT_TYPE_VALUES).optional(),
 });

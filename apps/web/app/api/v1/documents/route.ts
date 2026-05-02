@@ -1,7 +1,12 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { authenticateApi, apiError, apiSuccess } from "@/lib/api-handler";
+import {
+  authenticateApi,
+  apiError,
+  apiSuccess,
+  paginationQueryFields,
+} from "@/lib/api-handler";
 import {
   listDocuments,
   createDocument,
@@ -14,8 +19,7 @@ import {
 } from "@kivvi/database/src/schema";
 
 const querySchema = z.object({
-  page: z.coerce.number().int().positive().default(1),
-  pageSize: z.coerce.number().int().positive().max(200).default(50),
+  ...paginationQueryFields,
   type: z.enum(documentTypeEnum.enumValues).optional(),
   status: z.enum(documentStatusEnum.enumValues).optional(),
   search: z.string().optional(),
@@ -58,7 +62,6 @@ export async function GET(request: NextRequest) {
     return apiError("Internal server error", 500);
   }
 }
-
 
 export async function POST(request: NextRequest) {
   try {

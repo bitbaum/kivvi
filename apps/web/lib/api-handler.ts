@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import type { MembershipRole } from "@kivvi/database";
 import { auth } from "./auth";
 import { extractBearerToken, validateApiToken } from "./api-auth";
@@ -92,3 +93,12 @@ export function apiSuccess<T>(
 ): NextResponse {
   return NextResponse.json({ success: true, data, ...(meta ? { meta } : {}) });
 }
+
+/**
+ * Shared pagination fields for v1 API query schemas.
+ * Spread into route-specific z.object() to add page/pageSize params.
+ */
+export const paginationQueryFields = {
+  page: z.coerce.number().int().positive().default(1),
+  pageSize: z.coerce.number().int().positive().max(200).default(50),
+};

@@ -1,7 +1,12 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { authenticateApi, apiError, apiSuccess } from "@/lib/api-handler";
+import {
+  authenticateApi,
+  apiError,
+  apiSuccess,
+  paginationQueryFields,
+} from "@/lib/api-handler";
 import {
   listInventoryItems,
   createInventoryItem,
@@ -9,7 +14,7 @@ import {
 } from "@kivvi/core/src/domain/inventory-items";
 
 const querySchema = z.object({
-  page: z.coerce.number().int().positive().default(1),
+  ...paginationQueryFields,
   pageSize: z.coerce.number().int().positive().max(200).default(25),
   status: z.string().optional(),
   condition: z.string().optional(),
