@@ -9,12 +9,10 @@ import {
   updateRecurringConfigAction,
 } from "@/app/actions/recurring-invoices";
 import { cn } from "@/lib/utils";
-import {
-  FormInput,
-  FormSelect,
-  FormTextarea,
-} from "@/components/ui/form-field";
 import { EmailRecipientsSection } from "./email-recipients-section";
+import { BaseOrderSection } from "./_components/base-order-section";
+import { ScheduleSection } from "./_components/schedule-section";
+import { NotesSection } from "./_components/notes-section";
 
 interface RecurringConfigFormProps {
   orderOptions: Array<{
@@ -107,178 +105,26 @@ export function RecurringConfigForm({
         </div>
       )}
 
-      {/* Base Order */}
-      <section className="rounded-xl border bg-card">
-        <div className="border-b px-6 py-4">
-          <h2 className="font-semibold">{t("recurring.baseOrderSection")}</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            {t("recurring.baseOrderDesc")}
-          </p>
-        </div>
-        <div className="p-6">
-          <label
-            htmlFor="recurring-orderId"
-            className="block text-sm font-medium mb-2"
-          >
-            {t("recurring.baseOrder")}{" "}
-            <span className="text-destructive">*</span>
-          </label>
-          <FormSelect
-            id="recurring-orderId"
-            name="orderId"
-            required
-            defaultValue={initialData?.orderId}
-            disabled={isEditing}
-          >
-            <option value="">{t("recurring.selectOrder")}</option>
-            {orderOptions.map((order) => (
-              <option key={order.id} value={order.id}>
-                {order.number} - {order.contactName}
-              </option>
-            ))}
-          </FormSelect>
-          {isEditing && (
-            <p className="text-xs text-muted-foreground mt-2">
-              {t("recurring.cannotChangeOrder")}
-            </p>
-          )}
-        </div>
-      </section>
+      <BaseOrderSection
+        orderOptions={orderOptions}
+        defaultOrderId={initialData?.orderId}
+        isEditing={isEditing}
+      />
 
-      {/* Schedule */}
-      <section className="rounded-xl border bg-card">
-        <div className="border-b px-6 py-4">
-          <h2 className="font-semibold">{t("recurring.scheduleSection")}</h2>
-        </div>
-        <div className="grid gap-6 p-6 sm:grid-cols-2">
-          <div>
-            <label
-              htmlFor="recurring-periodicity"
-              className="block text-sm font-medium mb-2"
-            >
-              {t("recurring.periodicity.label")}{" "}
-              <span className="text-destructive">*</span>
-            </label>
-            <FormSelect
-              id="recurring-periodicity"
-              name="periodicity"
-              required
-              defaultValue={initialData?.periodicity || "monthly"}
-            >
-              <option value="monthly">
-                {t("recurring.periodicity.monthly")}
-              </option>
-              <option value="quarterly">
-                {t("recurring.periodicity.quarterly")}
-              </option>
-              <option value="annual">
-                {t("recurring.periodicity.annual")}
-              </option>
-            </FormSelect>
-          </div>
-
-          <div>
-            <label
-              htmlFor="recurring-startDate"
-              className="block text-sm font-medium mb-2"
-            >
-              {t("recurring.startDate")}{" "}
-              <span className="text-destructive">*</span>
-            </label>
-            <FormInput
-              id="recurring-startDate"
-              type="date"
-              name="startDate"
-              required
-              defaultValue={initialData?.startDate}
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="recurring-endDate"
-              className="block text-sm font-medium mb-2"
-            >
-              {t("recurring.endDate")}
-            </label>
-            <FormInput
-              id="recurring-endDate"
-              type="date"
-              name="endDate"
-              defaultValue={initialData?.endDate || ""}
-            />
-            <p className="text-xs text-muted-foreground mt-1">
-              {t("recurring.endDateDesc")}
-            </p>
-          </div>
-
-          <div>
-            <label
-              htmlFor="recurring-autoExtensionMonths"
-              className="block text-sm font-medium mb-2"
-            >
-              {t("recurring.autoExtension")}
-            </label>
-            <FormInput
-              id="recurring-autoExtensionMonths"
-              type="number"
-              name="autoExtensionMonths"
-              min="1"
-              max="60"
-              defaultValue={initialData?.autoExtensionMonths || ""}
-              placeholder={t("recurring.autoExtensionPlaceholder")}
-            />
-            <p className="text-xs text-muted-foreground mt-1">
-              {t("recurring.autoExtensionDesc")}
-            </p>
-          </div>
-        </div>
-      </section>
+      <ScheduleSection
+        defaultPeriodicity={initialData?.periodicity}
+        defaultStartDate={initialData?.startDate}
+        defaultEndDate={initialData?.endDate}
+        defaultAutoExtensionMonths={initialData?.autoExtensionMonths}
+      />
 
       <EmailRecipientsSection
         initialRecipients={initialData?.emailRecipients || []}
         onChange={setEmailRecipients}
       />
 
-      {/* Notes */}
-      <section className="rounded-xl border bg-card">
-        <div className="border-b px-6 py-4">
-          <h2 className="font-semibold">{t("recurring.notesSection")}</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            {t("recurring.notesDesc")}
-          </p>
-        </div>
-        <div className="p-6">
-          <FormTextarea
-            name="notes"
-            rows={4}
-            defaultValue={initialData?.notes || ""}
-            placeholder={t("recurring.notesPlaceholder")}
-          />
-          <div className="mt-2 space-y-1 text-xs text-muted-foreground">
-            <p>{t("recurring.variablesDesc")}</p>
-            <ul className="list-disc list-inside space-y-1 ml-2">
-              <li>
-                {"<%period_start_date%>"} - {t("recurring.var.periodStart")}
-              </li>
-              <li>
-                {"<%period_end_date%>"} - {t("recurring.var.periodEnd")}
-              </li>
-              <li>
-                {"<%current_month%>"} - {t("recurring.var.currentMonth")}
-              </li>
-              <li>
-                {"<%current_year%>"} - {t("recurring.var.currentYear")}
-              </li>
-              <li>
-                {"<%current_quarter%>"} - {t("recurring.var.currentQuarter")}
-              </li>
-            </ul>
-          </div>
-        </div>
-      </section>
+      <NotesSection defaultNotes={initialData?.notes} />
 
-      {/* Actions */}
       <div className="flex gap-3">
         <button
           type="submit"
