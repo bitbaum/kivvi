@@ -2,7 +2,7 @@ import { z } from "zod";
 import Decimal from "decimal.js";
 import { DEFAULT_CURRENCY } from "../config/locale";
 import { NON_TERMINAL_STATUSES } from "../config/document-constants";
-import { eq, and, asc, desc, sql } from "drizzle-orm";
+import { eq, and, asc, desc, sql, inArray } from "drizzle-orm";
 import {
   bankAccounts,
   bankTransactions,
@@ -582,10 +582,7 @@ export async function autoMatchTransactions(
       and(
         eq(documents.companyId, companyId),
         eq(documents.type, "invoice"),
-        sql`${documents.status} IN (${sql.join(
-          NON_TERMINAL_STATUSES.map((s) => sql`${s}`),
-          sql`, `,
-        )})`,
+        inArray(documents.status, [...NON_TERMINAL_STATUSES]),
       ),
     );
 
