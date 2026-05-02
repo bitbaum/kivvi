@@ -81,15 +81,8 @@ const _statusConfig = {
 export const ITEM_STATUS_CONFIG: Record<string, ItemStatusConfig | undefined> =
   _statusConfig;
 
-/** Active pipeline statuses — items that are in-progress, not yet sold/disposed */
-export const PIPELINE_STATUSES = [
-  "intake",
-  "testing",
-  "repair",
-  "ready_for_sale",
-  "listed",
-  "reserved",
-] as const satisfies readonly (typeof ITEM_STATUS_VALUES)[number][];
+// Re-export from core SSOT — same set as PIPELINE_ITEM_STATUSES.
+export { PIPELINE_ITEM_STATUSES as PIPELINE_STATUSES } from "@kivvi/core/src/config/item-status-sets";
 
 /** Statuses that allow a checklist/condition test to be run on the item */
 export const TESTABLE_STATUSES = [

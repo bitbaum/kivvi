@@ -4,12 +4,23 @@
  *
  * Imported by:
  * - packages/core/src/domain/inventory-items.ts (sell/gate validation)
- * - apps/web/lib/config/inventory-items.ts (UI filtering)
+ * - packages/core/src/domain/impact.ts (in-stock count)
+ * - apps/web/lib/config/inventory-items.ts (UI filtering, re-exports)
  * - apps/web/app/actions/sellables.ts (sellable item queries)
  */
 
 /** Item statuses that allow an item to be added to an invoice or POS sale. */
 export const SELLABLE_ITEM_STATUSES = [
+  "ready_for_sale",
+  "listed",
+  "reserved",
+] as const;
+
+/** Active pipeline statuses — items still in-progress, not yet sold/disposed. */
+export const PIPELINE_ITEM_STATUSES = [
+  "intake",
+  "testing",
+  "repair",
   "ready_for_sale",
   "listed",
   "reserved",

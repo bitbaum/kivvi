@@ -24,6 +24,7 @@ import { eq, and, gte, lte, count, inArray, sql } from "drizzle-orm";
 import { inventoryItems, contacts } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
 import { getCo2Factor, CO2_DEFAULT_KG } from "../config/co2-factors";
+import { PIPELINE_ITEM_STATUSES } from "../config/item-status-sets";
 
 // Default CO2 savings per item when category is unknown (kg)
 // Re-exported from co2-factors SSOT so callers don't need to import from two places.
@@ -319,16 +320,8 @@ export async function getDestinationBreakdown(
 
   const byStatus = new Map(rows.map((r) => [r.status, r.count]));
 
-  const inStockStatuses = [
-    "intake",
-    "testing",
-    "repair",
-    "ready_for_sale",
-    "listed",
-    "reserved",
-  ] as const;
-  const inStock = inStockStatuses.reduce(
-    (sum, s) => sum + (byStatus.get(s) || 0),
+  const inStock = PIPELINE_ITEM_STATUSES.reduce(
+    (sum, s) => sum + (byStatus.get(s as never) || 0),
     0,
   );
 
