@@ -20,6 +20,7 @@ import { createInventoryItem, updateItemStatus } from "./inventory-items";
 import { warehouses, companies } from "@kivvi/database";
 import type { CompanySettings } from "@kivvi/database";
 import { eq } from "drizzle-orm";
+import { DEFAULT_VAT_RATE } from "../config/vat-rates";
 
 /**
  * Seed the given company with sample data.
@@ -90,7 +91,7 @@ export async function seedSampleData(
       name: "Refurbished Laptop (Beispiel)",
       type: "product",
       unitPrice: "150.00",
-      vatRate: "8.1",
+      vatRate: DEFAULT_VAT_RATE,
       unit: "piece",
       currency: "CHF",
       serialNumberTracking: false,
@@ -101,7 +102,7 @@ export async function seedSampleData(
       name: "Refurbished Monitor (Beispiel)",
       type: "product",
       unitPrice: "75.00",
-      vatRate: "8.1",
+      vatRate: DEFAULT_VAT_RATE,
       unit: "piece",
       currency: "CHF",
       serialNumberTracking: false,
@@ -112,7 +113,7 @@ export async function seedSampleData(
       name: "Refurbished Desktop PC (Beispiel)",
       type: "product",
       unitPrice: "200.00",
-      vatRate: "8.1",
+      vatRate: DEFAULT_VAT_RATE,
       unit: "piece",
       currency: "CHF",
       serialNumberTracking: false,
@@ -145,7 +146,7 @@ export async function seedSampleData(
         quantity: "2",
         unitPrice: "150.00",
         discount: "0",
-        vatRate: "8.1",
+        vatRate: DEFAULT_VAT_RATE,
       },
       {
         productId: monitor.id,
@@ -154,7 +155,7 @@ export async function seedSampleData(
         quantity: "2",
         unitPrice: "75.00",
         discount: "0",
-        vatRate: "8.1",
+        vatRate: DEFAULT_VAT_RATE,
       },
     ],
     notes: "Beispielrechnung — kann gelöscht werden",
@@ -175,7 +176,7 @@ export async function seedSampleData(
         quantity: "1",
         unitPrice: "200.00",
         discount: "0",
-        vatRate: "8.1",
+        vatRate: DEFAULT_VAT_RATE,
       },
     ],
     notes: "Beispielrechnung — kann gelöscht werden",
@@ -196,7 +197,7 @@ export async function seedSampleData(
         quantity: "1",
         unitPrice: "150.00",
         discount: "0",
-        vatRate: "8.1",
+        vatRate: DEFAULT_VAT_RATE,
       },
     ],
     notes: "Beispielrechnung (überfällig) — kann gelöscht werden",
