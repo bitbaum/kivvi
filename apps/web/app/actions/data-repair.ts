@@ -10,7 +10,7 @@ import {
   contacts,
   products,
 } from "@kivvi/database";
-import { eq, and, sql, lt, ne, isNull } from "drizzle-orm";
+import { eq, and, sql, lt, inArray, isNull } from "drizzle-orm";
 import Decimal from "decimal.js";
 import {
   type ActionResult,
@@ -18,6 +18,10 @@ import {
   requireRole,
   safeErrorMessage,
 } from "./utils";
+import {
+  PAYABLE_DOCUMENT_TYPES,
+  ISSUED_STATUSES,
+} from "@kivvi/core/src/config/document-constants";
 import {
   updateSequencesAfterImport,
   IMPORTABLE_DOCUMENT_TYPES,
@@ -319,8 +323,7 @@ export async function generateMissingJournalEntriesAction(): Promise<
         and(
           eq(documents.companyId, companyId),
           eq(documents.type, "invoice"),
-          ne(documents.status, "draft"),
-          ne(documents.status, "cancelled"),
+          inArray(documents.status, [...ISSUED_STATUSES]),
         ),
       );
 
@@ -374,8 +377,7 @@ export async function generateMissingJournalEntriesAction(): Promise<
         and(
           eq(documents.companyId, companyId),
           eq(documents.type, "purchase_invoice"),
-          ne(documents.status, "draft"),
-          ne(documents.status, "cancelled"),
+          inArray(documents.status, [...ISSUED_STATUSES]),
         ),
       );
 
@@ -565,9 +567,8 @@ export async function getDataRepairStatusAction(): Promise<
       .where(
         and(
           eq(documents.companyId, companyId),
-          sql`${documents.type} IN ('invoice', 'purchase_invoice')`,
-          ne(documents.status, "draft"),
-          ne(documents.status, "cancelled"),
+          inArray(documents.type, [...PAYABLE_DOCUMENT_TYPES]),
+          inArray(documents.status, [...ISSUED_STATUSES]),
         ),
       );
 
