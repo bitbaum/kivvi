@@ -5,12 +5,6 @@
  * Client-safe: no DB or server dependencies.
  */
 
-/** Document types that generate journal entries when sent */
-export const JOURNAL_ENTRY_ON_SENT_TYPES = ["invoice", "credit_note"] as const;
-
-/** Document types that generate journal entries when confirmed */
-export const JOURNAL_ENTRY_ON_CONFIRMED_TYPES = ["purchase_invoice"] as const;
-
 /** Document types that can have payments recorded */
 export const PAYABLE_DOCUMENT_TYPES = ["invoice", "purchase_invoice"] as const;
 

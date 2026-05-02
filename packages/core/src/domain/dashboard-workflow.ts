@@ -187,7 +187,7 @@ export async function getWorkflowSuggestions(
     where: and(
       eq(documents.companyId, companyId),
       eq(documents.type, "invoice"),
-      inArray(documents.status, ["overdue"]),
+      eq(documents.status, "overdue"),
       sql`${documents.dueDate} < NOW() - INTERVAL '7 days'`,
       gte(documents.dueDate, ninetyDaysAgo),
     ),
