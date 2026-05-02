@@ -84,6 +84,11 @@ export function apiError(message: string, status: number = 400): NextResponse {
   return NextResponse.json({ success: false, error: message }, { status });
 }
 
+/** Shorthand for 500 Internal Server Error responses. */
+export function apiInternalError(): NextResponse {
+  return apiError("Internal server error", 500);
+}
+
 /**
  * Standard API success response.
  */

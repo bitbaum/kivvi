@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import {
   authenticateApi,
   apiError,
+  apiInternalError,
   apiSuccess,
   paginationQueryFields,
 } from "@/lib/api-handler";
@@ -59,7 +60,7 @@ export async function GET(request: NextRequest) {
       totalPages: result.totalPages,
     });
   } catch {
-    return apiError("Internal server error", 500);
+    return apiInternalError();
   }
 }
 

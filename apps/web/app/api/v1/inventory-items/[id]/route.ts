@@ -1,7 +1,12 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { authenticateApi, apiError, apiSuccess } from "@/lib/api-handler";
+import {
+  authenticateApi,
+  apiError,
+  apiInternalError,
+  apiSuccess,
+} from "@/lib/api-handler";
 import {
   getInventoryItem,
   updateInventoryItem,
@@ -28,7 +33,7 @@ export async function GET(
 
     return apiSuccess(item);
   } catch {
-    return apiError("Internal server error", 500);
+    return apiInternalError();
   }
 }
 

@@ -1,6 +1,11 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
-import { authenticateApi, apiError, apiSuccess } from "@/lib/api-handler";
+import {
+  authenticateApi,
+  apiError,
+  apiInternalError,
+  apiSuccess,
+} from "@/lib/api-handler";
 import {
   getDocument,
   updateDocument,
@@ -22,7 +27,7 @@ export async function GET(
 
     return apiSuccess(doc);
   } catch {
-    return apiError("Internal server error", 500);
+    return apiInternalError();
   }
 }
 
