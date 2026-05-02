@@ -1,6 +1,5 @@
 "use server";
 
-import { db } from "@/lib/db";
 import {
   createAccount,
   updateAccount,
