@@ -34,6 +34,7 @@ import {
   safeErrorMessage,
   formatZodError,
 } from "./utils";
+import { createAction } from "./action-factory";
 import { revalidatePath } from "next/cache";
 import { dispatchWebhookEvent } from "@kivvi/core/src/domain/webhooks";
 import { getTranslations } from "next-intl/server";
@@ -510,22 +511,15 @@ export async function assignItemTechnicianAction(
   }
 }
 
-export async function deleteInventoryItemAction(
-  itemId: string,
-): Promise<ActionResult<void>> {
-  const t = await getTranslations("inventory");
-  try {
-    const { companyId } = await requireRole("member");
+export const deleteInventoryItemAction = createAction<string, void>({
+  handler: async (itemId, { companyId, db }) => {
     await deleteInventoryItem(db, companyId, itemId);
-    revalidatePath("/intake");
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorFailedToDelete")),
-    };
-  }
-}
+  },
+  revalidate: ["/intake"],
+  errorMessage: () =>
+    getTranslations("inventory").then((t) => t("errorFailedToDelete")),
+  minRole: "member",
+});
 
 export async function listInventoryItemsAction(options?: {
   status?: string;

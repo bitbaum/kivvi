@@ -8,6 +8,7 @@ import { eq, and } from "drizzle-orm";
 import Decimal from "decimal.js";
 import { z } from "zod";
 import { type ActionResult, getSession, safeErrorMessage } from "./utils";
+import { createAction } from "./action-factory";
 import { getTranslations } from "next-intl/server";
 import {
   initializeCompany,
@@ -315,102 +316,65 @@ export async function executeImportAction(
 // COMPLETE ONBOARDING
 // ============================================================================
 
-export async function completeOnboardingAction(): Promise<ActionResult> {
-  const t = await getTranslations("onboarding");
-  try {
-    const { companyId } = await getSession();
-
+export const completeOnboardingAction = createAction<void, void>({
+  handler: async (_input, { companyId, db }) => {
     await completeOnboarding(db, companyId);
-
-    // Update sequences to avoid collisions with imported data
     await updateSequencesAfterImport(db, companyId);
-
-    revalidatePath("/");
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorCompleteOnboarding")),
-    };
-  }
-}
+  },
+  revalidate: ["/"],
+  errorMessage: () =>
+    getTranslations("onboarding").then((t) => t("errorCompleteOnboarding")),
+});
 
 // ============================================================================
 // SAMPLE DATA SEEDING
 // ============================================================================
 
-export async function seedSampleDataAction(): Promise<ActionResult> {
-  const t = await getTranslations("onboarding");
-  try {
-    const { companyId, userId } = await getSession();
+export const seedSampleDataAction = createAction<void, void>({
+  handler: async (_input, { companyId, userId, db }) => {
     await seedSampleData(db, companyId, userId);
     await completeOnboarding(db, companyId);
-    revalidatePath("/");
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorSeedSampleData")),
-    };
-  }
-}
+  },
+  revalidate: ["/"],
+  errorMessage: () =>
+    getTranslations("onboarding").then((t) => t("errorSeedSampleData")),
+});
 
-export async function clearSampleDataAction(): Promise<ActionResult> {
-  const t = await getTranslations("onboarding");
-  try {
-    const { companyId } = await getSession();
+export const clearSampleDataAction = createAction<void, void>({
+  handler: async (_input, { companyId, db }) => {
     await clearSampleData(db, companyId);
-    revalidatePath("/");
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorClearSampleData")),
-    };
-  }
-}
+  },
+  revalidate: ["/"],
+  errorMessage: () =>
+    getTranslations("onboarding").then((t) => t("errorClearSampleData")),
+});
 
 // ============================================================================
 // GET ONBOARDING STATE (for step routing)
 // ============================================================================
 
-export async function getOnboardingStateAction(): Promise<
-  ActionResult<{
-    step: number;
-    completedAt: string | null;
-    companyName: string | null;
-  }>
-> {
-  const t = await getTranslations("onboarding");
-  try {
-    const { companyId } = await getSession();
+export const getOnboardingStateAction = createAction<
+  void,
+  { step: number; completedAt: string | null; companyName: string | null }
+>({
+  handler: async (_input, { companyId, db }) => {
     const state = await getOnboardingState(db, companyId);
-
     const [company] = await db
-      .select({ name: companies.name, settings: companies.settings })
+      .select({ name: companies.name })
       .from(companies)
       .where(eq(companies.id, companyId));
-
-    return {
-      success: true,
-      data: {
-        ...state,
-        companyName: company?.name ?? null,
-      },
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorGetState")),
-    };
-  }
-}
+    return { ...state, companyName: company?.name ?? null };
+  },
+  errorMessage: () =>
+    getTranslations("onboarding").then((t) => t("errorGetState")),
+});
 
 /**
  * Get company details for pre-filling the onboarding form.
  */
-export async function getCompanyDetailsAction(): Promise<
-  ActionResult<{
+export const getCompanyDetailsAction = createAction<
+  void,
+  {
     name: string;
     legalName: string | null;
     address: string | null;
@@ -419,41 +383,28 @@ export async function getCompanyDetailsAction(): Promise<
     country: string;
     vatNumber: string | null;
     settings: CompanySettings;
-  }>
-> {
-  const t = await getTranslations("onboarding");
-  try {
-    const { companyId } = await getSession();
-
+  }
+>({
+  handler: async (_input, { companyId, db }) => {
     const [company] = await db
       .select()
       .from(companies)
       .where(eq(companies.id, companyId));
-
-    if (!company) {
-      return { success: false, error: t("errorCompanyNotFound") };
-    }
-
+    if (!company) throw new Error("not found");
     return {
-      success: true,
-      data: {
-        name: company.name,
-        legalName: company.legalName,
-        address: company.address,
-        postalCode: company.postalCode,
-        city: company.city,
-        country: company.country ?? DEFAULT_COUNTRY,
-        vatNumber: company.vatNumber,
-        settings: (company.settings as CompanySettings) || {},
-      },
+      name: company.name,
+      legalName: company.legalName,
+      address: company.address,
+      postalCode: company.postalCode,
+      city: company.city,
+      country: company.country ?? DEFAULT_COUNTRY,
+      vatNumber: company.vatNumber,
+      settings: (company.settings as CompanySettings) || {},
     };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorGetCompanyDetails")),
-    };
-  }
-}
+  },
+  errorMessage: () =>
+    getTranslations("onboarding").then((t) => t("errorGetCompanyDetails")),
+});
 
 // ============================================================================
 // IMPORT: Products from kivitendo CSV
