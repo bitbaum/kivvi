@@ -2248,7 +2248,8 @@
     "errorGetState": "Échec de la récupération de l'état d'intégration",
     "errorGetCompanyDetails": "Échec de la récupération des détails de l'entreprise",
     "errorProductImport": "Échec de l'importation des produits",
-    "errorRepairLineItems": "Échec de la réparation des lignes"
+    "errorRepairLineItems": "Échec de la réparation des lignes",
+    "errorNoWarehouseFound": "Aucun entrepôt trouvé. Veuillez d'abord compléter l'étape 2."
   },
   "chat": {
     "title": "Assistant IA",

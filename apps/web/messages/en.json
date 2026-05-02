@@ -2248,7 +2248,8 @@
     "errorGetState": "Failed to get onboarding state",
     "errorGetCompanyDetails": "Failed to get company details",
     "errorProductImport": "Product import failed",
-    "errorRepairLineItems": "Failed to repair line items"
+    "errorRepairLineItems": "Failed to repair line items",
+    "errorNoWarehouseFound": "No warehouse found. Complete step 2 first."
   },
   "chat": {
     "title": "AI Assistant",

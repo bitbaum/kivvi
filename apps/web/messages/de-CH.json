@@ -2248,7 +2248,8 @@
     "errorGetState": "Onboarding-Status konnte nicht abgerufen werden",
     "errorGetCompanyDetails": "Unternehmensdetails konnten nicht abgerufen werden",
     "errorProductImport": "Produktimport fehlgeschlagen",
-    "errorRepairLineItems": "Positionen konnten nicht repariert werden"
+    "errorRepairLineItems": "Positionen konnten nicht repariert werden",
+    "errorNoWarehouseFound": "Kein Lager gefunden. Bitte zuerst Schritt 2 abschliessen."
   },
   "chat": {
     "title": "KI-Assistent",

@@ -285,10 +285,7 @@ export async function executeImportAction(
           .where(eq(warehouses.companyId, companyId));
 
         if (!warehouse) {
-          return {
-            success: false,
-            error: "No warehouse found. Complete step 2 first.",
-          };
+          return { success: false, error: t("errorNoWarehouseFound") };
         }
 
         const productLookup = await buildProductLookup(db, companyId);
