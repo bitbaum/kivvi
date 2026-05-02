@@ -33,3 +33,6 @@ export const PIPELINE_ITEM_STATUSES = [
 
 /** Terminal statuses for items that have left inventory via a positive outcome. */
 export const DISPOSED_ITEM_STATUSES = ["sold", "donated"] as const;
+
+/** All statuses where the item has permanently left inventory (positive or recycled). */
+export const TERMINAL_ITEM_STATUSES = ["sold", "donated", "recycled"] as const;

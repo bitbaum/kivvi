@@ -10,9 +10,10 @@
  */
 
 import Decimal from "decimal.js";
-import { eq, and, sql, gte, count, ne } from "drizzle-orm";
+import { eq, and, sql, gte, count, notInArray } from "drizzle-orm";
 import { inventoryItems } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
+import { TERMINAL_ITEM_STATUSES } from "../config/item-status-sets";
 
 // ============================================================================
 // TYPES
@@ -93,9 +94,7 @@ export async function getInventoryDashboard(
       .where(
         and(
           eq(inventoryItems.companyId, companyId),
-          ne(inventoryItems.status, "sold"),
-          ne(inventoryItems.status, "recycled"),
-          ne(inventoryItems.status, "donated"),
+          notInArray(inventoryItems.status, [...TERMINAL_ITEM_STATUSES]),
         ),
       )
       .groupBy(inventoryItems.condition),
@@ -110,9 +109,7 @@ export async function getInventoryDashboard(
       .where(
         and(
           eq(inventoryItems.companyId, companyId),
-          ne(inventoryItems.status, "sold"),
-          ne(inventoryItems.status, "recycled"),
-          ne(inventoryItems.status, "donated"),
+          notInArray(inventoryItems.status, [...TERMINAL_ITEM_STATUSES]),
         ),
       ),
 
