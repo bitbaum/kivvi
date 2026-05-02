@@ -8,7 +8,10 @@ import type { CompanySettings } from "@kivvi/database";
 import { eq } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
 import { DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
-import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
+import {
+  DEFAULT_CURRENCY,
+  DEFAULT_COUNTRY,
+} from "@kivvi/core/src/config/locale";
 import { CompanyForm } from "./company-form";
 import { Co2FactorsSection } from "./co2-factors-section";
 import { ShopUrlSection } from "./shop-url-section";
@@ -52,7 +55,7 @@ export default async function CompanySettingsPage() {
           address: company.address || "",
           city: company.city || "",
           postalCode: company.postalCode || "",
-          country: company.country || "CH",
+          country: company.country || DEFAULT_COUNTRY,
           currency: company.currency || DEFAULT_CURRENCY,
           iban: settings.bankAccount?.iban || "",
           bankName: settings.bankAccount?.bankName || "",

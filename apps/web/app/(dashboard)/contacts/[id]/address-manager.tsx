@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { DEFAULT_COUNTRY } from "@kivvi/core/src/config/locale";
 import {
   createContactAddressAction,
   updateContactAddressAction,
@@ -41,7 +42,7 @@ export function AddressManager({ contactId, addresses }: AddressManagerProps) {
       address: (formData.get("address") as string) || null,
       city: (formData.get("city") as string) || null,
       postalCode: (formData.get("postalCode") as string) || null,
-      country: (formData.get("country") as string) || "CH",
+      country: (formData.get("country") as string) || DEFAULT_COUNTRY,
       isDefault: formData.get("isDefault") === "on",
     };
 
@@ -255,7 +256,7 @@ export function AddressManager({ contactId, addresses }: AddressManagerProps) {
               <FormInput
                 id="addr-country"
                 name="country"
-                defaultValue={editingAddr?.country || "CH"}
+                defaultValue={editingAddr?.country || DEFAULT_COUNTRY}
                 maxLength={2}
               />
             </div>

@@ -3,7 +3,7 @@ import Decimal from "decimal.js";
 import { SwissQRBill } from "swissqrbill/pdf";
 import type { Data as QRBillData } from "swissqrbill/types";
 import { logger } from "../logger";
-import { DEFAULT_CURRENCY } from "../config/locale";
+import { DEFAULT_CURRENCY, DEFAULT_COUNTRY } from "../config/locale";
 
 // ============================================================================
 // TYPES
@@ -254,7 +254,7 @@ export async function generateInvoicePdf(
         MARGIN_LEFT,
       );
     }
-    if (data.contactCountry && data.contactCountry !== "CH") {
+    if (data.contactCountry && data.contactCountry !== DEFAULT_COUNTRY) {
       doc.text(data.contactCountry, MARGIN_LEFT);
     }
 
@@ -460,7 +460,7 @@ export async function generateInvoicePdf(
           address: data.companyAddress,
           zip: data.companyPostalCode,
           city: data.companyCity,
-          country: data.companyCountry || "CH",
+          country: data.companyCountry || DEFAULT_COUNTRY,
           account: data.companyIban,
         },
         currency: DEFAULT_CURRENCY,
@@ -474,7 +474,7 @@ export async function generateInvoicePdf(
           address: data.contactAddress || "",
           zip: data.contactPostalCode,
           city: data.contactCity,
-          country: data.contactCountry || "CH",
+          country: data.contactCountry || DEFAULT_COUNTRY,
         };
       }
 
@@ -653,7 +653,7 @@ export async function generateDeliveryNotePdf(
         MARGIN_LEFT,
       );
     }
-    if (data.contactCountry && data.contactCountry !== "CH") {
+    if (data.contactCountry && data.contactCountry !== DEFAULT_COUNTRY) {
       doc.text(data.contactCountry, MARGIN_LEFT);
     }
 
@@ -904,7 +904,7 @@ export async function generateQuotePdf(data: QuotePdfData): Promise<Buffer> {
         MARGIN_LEFT,
       );
     }
-    if (data.contactCountry && data.contactCountry !== "CH") {
+    if (data.contactCountry && data.contactCountry !== DEFAULT_COUNTRY) {
       doc.text(data.contactCountry, MARGIN_LEFT);
     }
 

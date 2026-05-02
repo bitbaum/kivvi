@@ -1,6 +1,7 @@
 import type { InvoicePdfData } from "@kivvi/core/src/domain/pdf-generation";
 import type { CompanySettings } from "@kivvi/database";
 import { DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
+import { DEFAULT_COUNTRY } from "@kivvi/core/src/config/locale";
 
 /**
  * Build InvoicePdfData from a document + company record.
@@ -60,7 +61,7 @@ export function buildInvoicePdfData(
     companyAddress: company.address || "",
     companyCity: company.city || "",
     companyPostalCode: company.postalCode || "",
-    companyCountry: company.country || "CH",
+    companyCountry: company.country || DEFAULT_COUNTRY,
     companyVatNumber: company.vatNumber || undefined,
     companyIban: settings.bankAccount?.iban || undefined,
     companyLogoBase64: settings.logoBase64 || undefined,

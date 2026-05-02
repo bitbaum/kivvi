@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Package, MapPin } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { DEFAULT_COUNTRY } from "@kivvi/core/src/config/locale";
 import { createDb } from "@kivvi/database";
 import {
   getPublicCompanyBySlug,
@@ -53,7 +54,7 @@ export default async function ShopPage({ params, searchParams }: PageProps) {
                 <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
                   <MapPin className="h-3.5 w-3.5" />
                   {company.city}
-                  {company.country && company.country !== "CH"
+                  {company.country && company.country !== DEFAULT_COUNTRY
                     ? `, ${company.country}`
                     : ""}
                 </p>

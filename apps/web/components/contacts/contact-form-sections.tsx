@@ -11,6 +11,7 @@ import {
   FormTextarea,
 } from "@/components/ui/form-field";
 import { DEFAULT_PAYMENT_TERMS_DAYS } from "@/lib/config/document-types";
+import { DEFAULT_COUNTRY } from "@kivvi/core/src/config/locale";
 import { Button } from "@/components/ui/button";
 
 interface SectionProps {
@@ -234,7 +235,7 @@ export function ContactFormAddressSection({ contact, isEdit }: SectionProps) {
           <FormSelect
             id="country"
             name="country"
-            defaultValue={contact?.country || "CH"}
+            defaultValue={contact?.country || DEFAULT_COUNTRY}
           >
             {COUNTRY_OPTIONS.map((c) => (
               <option key={c} value={c}>

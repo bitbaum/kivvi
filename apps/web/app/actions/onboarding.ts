@@ -31,6 +31,7 @@ import {
   clearSampleData,
 } from "@kivvi/core/src/domain/sample-data";
 import { DEFAULT_VAT_RATE } from "@kivvi/core/src/config/vat-rates";
+import { DEFAULT_COUNTRY } from "@kivvi/core/src/config/locale";
 
 // ============================================================================
 // SCHEMAS
@@ -59,7 +60,7 @@ export async function updateCompanyInfoAction(
       address: z.string().max(500).optional().nullable(),
       postalCode: z.string().max(20).optional().nullable(),
       city: z.string().max(100).optional().nullable(),
-      country: z.string().max(2).optional().default("CH"),
+      country: z.string().max(2).optional().default(DEFAULT_COUNTRY),
       vatNumber: z.string().max(50).optional().nullable(),
     });
     const parsed = companyInfoSchema.safeParse(input);
@@ -444,7 +445,7 @@ export async function getCompanyDetailsAction(): Promise<
         address: company.address,
         postalCode: company.postalCode,
         city: company.city,
-        country: company.country ?? "CH",
+        country: company.country ?? DEFAULT_COUNTRY,
         vatNumber: company.vatNumber,
         settings: (company.settings as CompanySettings) || {},
       },

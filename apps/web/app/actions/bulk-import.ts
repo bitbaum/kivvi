@@ -27,6 +27,7 @@ import {
   safeErrorMessage,
 } from "./utils";
 import { getTranslations } from "next-intl/server";
+import { DEFAULT_COUNTRY } from "@kivvi/core/src/config/locale";
 import { sql, eq } from "drizzle-orm";
 
 // ============================================================================
@@ -211,7 +212,7 @@ export async function bulkImportAction(
               street: row["Straße"] || null,
               city: row["Stadt"] || null,
               postalCode: row["PLZ"] || null,
-              country: row["Land"] || "CH",
+              country: row["Land"] || DEFAULT_COUNTRY,
               vatNumber: row["USt-IdNr."] || null,
             }),
           );
@@ -249,7 +250,7 @@ export async function bulkImportAction(
               street: row["Straße"] || null,
               city: row["Stadt"] || null,
               postalCode: row["PLZ"] || null,
-              country: row["Land"] || "CH",
+              country: row["Land"] || DEFAULT_COUNTRY,
               vatNumber: row["USt-IdNr."] || null,
             }),
           );

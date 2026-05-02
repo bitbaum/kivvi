@@ -8,7 +8,10 @@ import { AI_PROVIDER_VALUES } from "@kivvi/database/src/enums";
 import { eq, and } from "drizzle-orm";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
-import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
+import {
+  DEFAULT_CURRENCY,
+  DEFAULT_COUNTRY,
+} from "@kivvi/core/src/config/locale";
 import {
   type ActionResult,
   getSession,
@@ -30,7 +33,7 @@ const updateCompanySchema = z.object({
   address: z.string().max(500).optional().nullable(),
   city: z.string().max(100).optional().nullable(),
   postalCode: z.string().max(20).optional().nullable(),
-  country: z.string().max(2).optional().default("CH"),
+  country: z.string().max(2).optional().default(DEFAULT_COUNTRY),
   currency: z.string().max(3).optional().default(DEFAULT_CURRENCY),
   // Settings JSONB fields
   iban: z.string().max(34).optional().nullable(),

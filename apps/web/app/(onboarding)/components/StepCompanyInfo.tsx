@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Loader2, Building2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { DEFAULT_COUNTRY } from "@kivvi/core/src/config/locale";
 import { updateCompanyInfoAction } from "@/app/actions/onboarding";
 
 export interface CompanyData {
@@ -33,7 +34,7 @@ export function StepCompanyInfo({
     address: companyData?.address || "",
     postalCode: companyData?.postalCode || "",
     city: companyData?.city || "",
-    country: companyData?.country || "CH",
+    country: companyData?.country || DEFAULT_COUNTRY,
     vatNumber: companyData?.vatNumber || "",
   });
   const [isLoading, setIsLoading] = useState(false);
