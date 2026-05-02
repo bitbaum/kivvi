@@ -17,11 +17,11 @@ import {
 } from "@kivvi/core";
 import {
   type ActionResult,
-  getSession,
   requireRole,
   safeErrorMessage,
   formatZodError,
 } from "./utils";
+import { createAction } from "./action-factory";
 import { parseFormData } from "./parse-form-data";
 import { getTranslations } from "next-intl/server";
 
@@ -133,38 +133,25 @@ export async function updateContactAction(
   }
 }
 
-export async function deleteContactAction(id: string): Promise<ActionResult> {
-  const t = await getTranslations("contacts");
-  try {
-    const { companyId } = await requireRole("member");
-
+export const deleteContactAction = createAction<string, void>({
+  handler: async (id, { companyId, db }) => {
     await deleteContact(db, companyId, id);
+  },
+  revalidate: ["/contacts"],
+  errorMessage: () =>
+    getTranslations("contacts").then((t) => t("errorFailedToDelete")),
+  minRole: "member",
+});
 
-    revalidatePath("/contacts");
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorFailedToDelete")),
-    };
-  }
-}
-
-export async function searchContactsAction(
-  query: string,
-): Promise<ActionResult<Awaited<ReturnType<typeof searchContacts>>>> {
-  const t = await getTranslations("contacts");
-  try {
-    const { companyId } = await getSession();
-    const results = await searchContacts(db, companyId, query);
-    return { success: true, data: results };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorSearchFailed")),
-    };
-  }
-}
+export const searchContactsAction = createAction<
+  string,
+  Awaited<ReturnType<typeof searchContacts>>
+>({
+  handler: async (query, { companyId, db }) =>
+    searchContacts(db, companyId, query),
+  errorMessage: () =>
+    getTranslations("contacts").then((t) => t("errorSearchFailed")),
+});
 
 // ============================================================================
 // CONTACT ADDRESS ACTIONS

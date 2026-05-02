@@ -12,11 +12,11 @@ import {
 } from "@kivvi/core";
 import {
   type ActionResult,
-  getSession,
   requireRole,
   safeErrorMessage,
   formatZodError,
 } from "./utils";
+import { createAction } from "./action-factory";
 import { parseFormData } from "./parse-form-data";
 import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 import { DEFAULT_UNIT } from "@/lib/config/products";
@@ -112,39 +112,23 @@ export async function updateProductAction(
   }
 }
 
-export async function deleteProductAction(
-  productId: string,
-): Promise<ActionResult<{ id: string }>> {
-  const t = await getTranslations("products");
-  try {
-    const { companyId } = await requireRole("member");
-
+export const deleteProductAction = createAction<string, { id: string }>({
+  handler: async (productId, { companyId, db }) => {
     const product = await deleteProduct(db, companyId, productId);
+    return { id: product.id };
+  },
+  revalidate: ["/products", "/products/[id]"],
+  errorMessage: () =>
+    getTranslations("products").then((t) => t("errorFailedToDelete")),
+  minRole: "member",
+});
 
-    revalidatePath("/products");
-    revalidatePath(`/products/${productId}`);
-
-    return { success: true, data: { id: product.id } };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorFailedToDelete")),
-    };
-  }
-}
-
-export async function searchProductsAction(
-  query: string,
-): Promise<ActionResult<Awaited<ReturnType<typeof searchProducts>>>> {
-  const t = await getTranslations("products");
-  try {
-    const { companyId } = await getSession();
-    const results = await searchProducts(db, companyId, query);
-    return { success: true, data: results };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorSearchFailed")),
-    };
-  }
-}
+export const searchProductsAction = createAction<
+  string,
+  Awaited<ReturnType<typeof searchProducts>>
+>({
+  handler: async (query, { companyId, db }) =>
+    searchProducts(db, companyId, query),
+  errorMessage: () =>
+    getTranslations("products").then((t) => t("errorSearchFailed")),
+});
