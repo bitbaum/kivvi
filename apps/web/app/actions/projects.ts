@@ -25,7 +25,8 @@ export const createProjectAction = createAction<unknown, unknown>({
     return createProject(db, companyId, parsed.data);
   },
   revalidate: ["/projects"],
-  errorMessage: "Failed to create project",
+  errorMessage: () =>
+    getTranslations("projects").then((t) => t("errorFailedToCreate")),
   minRole: "member",
 });
 

@@ -15,6 +15,7 @@ import {
   createSerialNumberSchema,
 } from "@kivvi/core";
 import { createAction } from "./action-factory";
+import { getTranslations } from "next-intl/server";
 
 // ============================================================================
 // WAREHOUSES
@@ -28,7 +29,8 @@ export const createWarehouseAction = createAction<unknown, unknown>({
     return createWarehouse(db, companyId, parsed.data);
   },
   revalidate: ["/inventory"],
-  errorMessage: "Failed to create warehouse",
+  errorMessage: () =>
+    getTranslations("inventory").then((t) => t("errorCreateWarehouse")),
   minRole: "member",
 });
 
@@ -43,7 +45,8 @@ export const updateWarehouseAction = createAction<
     return updateWarehouse(db, companyId, warehouseId, parsed.data);
   },
   revalidate: ["/inventory"],
-  errorMessage: "Failed to update warehouse",
+  errorMessage: () =>
+    getTranslations("inventory").then((t) => t("errorUpdateWarehouse")),
   minRole: "member",
 });
 
@@ -52,7 +55,8 @@ export const deleteWarehouseAction = createAction<string, void>({
     await deleteWarehouse(db, companyId, warehouseId);
   },
   revalidate: ["/inventory"],
-  errorMessage: "Failed to delete warehouse",
+  errorMessage: () =>
+    getTranslations("inventory").then((t) => t("errorDeleteWarehouse")),
   minRole: "admin",
 });
 
@@ -68,7 +72,8 @@ export const createStockMovementAction = createAction<unknown, unknown>({
     return createStockMovement(db, companyId, parsed.data);
   },
   revalidate: ["/inventory"],
-  errorMessage: "Failed to create stock movement",
+  errorMessage: () =>
+    getTranslations("inventory").then((t) => t("errorCreateStockMovement")),
   minRole: "member",
 });
 
@@ -80,7 +85,8 @@ export const transferStockAction = createAction<unknown, unknown>({
     return transferStock(db, companyId, parsed.data);
   },
   revalidate: ["/inventory"],
-  errorMessage: "Failed to transfer stock",
+  errorMessage: () =>
+    getTranslations("inventory").then((t) => t("errorTransferStock")),
   minRole: "member",
 });
 
@@ -96,7 +102,8 @@ export const createSerialNumberAction = createAction<unknown, unknown>({
     return createSerialNumber(db, companyId, parsed.data);
   },
   revalidate: ["/inventory"],
-  errorMessage: "Failed to create serial number",
+  errorMessage: () =>
+    getTranslations("inventory").then((t) => t("errorCreateSerialNumber")),
   minRole: "member",
 });
 
@@ -108,10 +115,20 @@ export const updateSerialNumberStatusAction = createAction<
   },
   unknown
 >({
-  handler: async ({ serialNumberId, status, soldToContactId }, { companyId, db }) => {
-    return updateSerialNumberStatus(db, companyId, serialNumberId, status, soldToContactId);
+  handler: async (
+    { serialNumberId, status, soldToContactId },
+    { companyId, db },
+  ) => {
+    return updateSerialNumberStatus(
+      db,
+      companyId,
+      serialNumberId,
+      status,
+      soldToContactId,
+    );
   },
   revalidate: ["/inventory"],
-  errorMessage: "Failed to update serial number",
+  errorMessage: () =>
+    getTranslations("inventory").then((t) => t("errorUpdateSerialNumber")),
   minRole: "member",
 });

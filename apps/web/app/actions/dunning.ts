@@ -2,6 +2,7 @@
 
 import { createDunning } from "@kivvi/core";
 import { createAction } from "./action-factory";
+import { getTranslations } from "next-intl/server";
 
 export const createDunningAction = createAction<
   string,
@@ -17,6 +18,7 @@ export const createDunningAction = createAction<
     return { id: dunningDoc.id, number: dunningDoc.number, newLevel };
   },
   revalidate: ["/sales/dunning", "/sales/invoices", "/dashboard"],
-  errorMessage: "Failed to create dunning",
+  errorMessage: () =>
+    getTranslations("dunning").then((t) => t("errorCreateDunning")),
   minRole: "member",
 });

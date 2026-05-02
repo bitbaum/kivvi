@@ -102,7 +102,7 @@ export const removeMemberAction = createAction<unknown, void>({
     await removeMember(db, companyId, parsed.data, currentUserId);
   },
   revalidate: ["/settings/team"],
-  errorMessage: "Failed to remove member",
+  errorMessage: () => getTranslations("team").then((t) => t("removeFailed")),
   minRole: "admin",
 });
 
@@ -130,7 +130,8 @@ export const updateMemberRoleAction = createAction<
     );
   },
   revalidate: ["/settings/team"],
-  errorMessage: "Failed to update role",
+  errorMessage: () =>
+    getTranslations("team").then((t) => t("roleChangeFailed")),
   minRole: "admin",
 });
 
@@ -148,5 +149,6 @@ export const createCompanyAction = createAction<
       throw new Error(parsed.error.errors[0]?.message || "Validation failed");
     return createCompanyForUser(db, userId, parsed.data.companyName);
   },
-  errorMessage: "Failed to create company",
+  errorMessage: () =>
+    getTranslations("team").then((t) => t("errorCreateCompany")),
 });

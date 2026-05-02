@@ -9,12 +9,9 @@ import {
   createRecurringConfigSchema,
   updateRecurringConfigSchema,
 } from "@kivvi/core";
-import {
-  type ActionResult,
-  requireRole,
-  safeErrorMessage,
-} from "./utils";
+import { type ActionResult, requireRole, safeErrorMessage } from "./utils";
 import { createAction } from "./action-factory";
+import { getTranslations } from "next-intl/server";
 
 // ============================================================================
 // SERVER ACTIONS
@@ -34,7 +31,8 @@ export const createRecurringConfigAction = createAction<
     return { id: config.id };
   },
   revalidate: ["/settings/recurring-invoices"],
-  errorMessage: "Failed to create recurring invoice config",
+  errorMessage: () =>
+    getTranslations("settings.recurring").then((t) => t("errorCreateFailed")),
   minRole: "member",
 });
 
@@ -80,7 +78,8 @@ export const deleteRecurringConfigAction = createAction<string, void>({
     await deleteRecurringConfig(db, companyId, configId);
   },
   revalidate: ["/settings/recurring-invoices"],
-  errorMessage: "Failed to delete recurring invoice config",
+  errorMessage: () =>
+    getTranslations("settings.recurring").then((t) => t("errorDeleteFailed")),
   minRole: "member",
 });
 
@@ -92,6 +91,7 @@ export const toggleRecurringConfigAction = createAction<
     await updateRecurringConfig(db, companyId, configId, { isActive });
   },
   revalidate: ["/settings/recurring-invoices"],
-  errorMessage: "Failed to toggle recurring invoice config",
+  errorMessage: () =>
+    getTranslations("settings.recurring").then((t) => t("errorToggleFailed")),
   minRole: "member",
 });

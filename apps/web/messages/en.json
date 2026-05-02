@@ -156,7 +156,8 @@
     },
     "fileTooLarge": "File too large. Max {maxKB} KB.",
     "removeImage": "Remove image",
-    "pleaseSelect": "Please select…"
+    "pleaseSelect": "Please select…",
+    "errorSearchFailed": "Search failed"
   },
   "nav": {
     "home": "Home",
@@ -658,7 +659,10 @@
       "clearButton": "Delete sample data",
       "clearing": "Deleting…",
       "close": "Close"
-    }
+    },
+    "errorLoadPreferences": "Failed to load dashboard preferences",
+    "errorSavePreferences": "Failed to save dashboard preferences",
+    "errorResetPreferences": "Failed to reset dashboard preferences"
   },
   "footer": {
     "product": "Product",
@@ -988,7 +992,16 @@
     "descriptionRequired": "Description is required",
     "minTwoLines": "At least 2 lines with accounts and amounts are required",
     "mustBalance": "Debits must equal credits",
-    "manualEntryNote": "Entry will be created as a manual journal entry."
+    "manualEntryNote": "Entry will be created as a manual journal entry.",
+    "errorCreateAccount": "Failed to create account",
+    "errorUpdateAccount": "Failed to update account",
+    "errorToggleAccount": "Failed to toggle account",
+    "errorSeedAccounts": "Failed to seed accounts",
+    "errorCreateJournalEntry": "Failed to create journal entry",
+    "errorDeleteJournalEntry": "Failed to delete journal entry",
+    "errorCreateFiscalYear": "Failed to create fiscal year",
+    "errorClosePeriod": "Failed to close period",
+    "errorCloseFiscalYear": "Failed to close fiscal year"
   },
   "banking": {
     "title": "Banking",
@@ -1054,7 +1067,12 @@
     "errorAccountNotFound": "Bank account not found.",
     "errorImportTransactions": "Failed to import transactions.",
     "errorParseCamt": "Failed to parse CAMT file.",
-    "errorImportCamt": "Failed to import CAMT statement."
+    "errorImportCamt": "Failed to import CAMT statement.",
+    "errorCreateAccount": "Failed to create bank account",
+    "errorUpdateAccount": "Failed to update bank account",
+    "errorReconcile": "Failed to reconcile transaction",
+    "errorUnreconcile": "Failed to unreconcile transaction",
+    "errorAutoMatch": "Failed to auto-match transactions"
   },
   "inventory": {
     "title": "Inventory",
@@ -1349,7 +1367,14 @@
     "errorFailedToList": "Failed to list items",
     "errorFailedToGet": "Failed to get item",
     "errorFailedToRecordChecklist": "Failed to record checklist",
-    "errorFailedToRecordErasure": "Failed to record erasure"
+    "errorFailedToRecordErasure": "Failed to record erasure",
+    "errorCreateWarehouse": "Failed to create warehouse",
+    "errorUpdateWarehouse": "Failed to update warehouse",
+    "errorDeleteWarehouse": "Failed to delete warehouse",
+    "errorCreateStockMovement": "Failed to create stock movement",
+    "errorTransferStock": "Failed to transfer stock",
+    "errorCreateSerialNumber": "Failed to create serial number",
+    "errorUpdateSerialNumber": "Failed to update serial number"
   },
   "checklist": {
     "categoryLaptop": "Laptop",
@@ -1531,7 +1556,8 @@
     "sending": "Sending...",
     "maxLevel": "Max level",
     "escalated": "escalated",
-    "firstReminderSent": "1st reminder sent"
+    "firstReminderSent": "1st reminder sent",
+    "errorCreateDunning": "Failed to create dunning"
   },
   "projects": {
     "title": "Projects",
@@ -1576,7 +1602,8 @@
     "placeholders": {
       "projectName": "e.g. Website Redesign"
     },
-    "errorFailedToUpdate": "Failed to update project"
+    "errorFailedToUpdate": "Failed to update project",
+    "errorFailedToCreate": "Failed to create project"
   },
   "settings": {
     "title": "Settings",
@@ -1803,7 +1830,10 @@
         "currentYear": "Current year",
         "currentQuarter": "Current quarter (Q1-Q4)"
       },
-      "status": "Status"
+      "status": "Status",
+      "errorCreateFailed": "Failed to create recurring invoice",
+      "errorDeleteFailed": "Failed to delete recurring invoice",
+      "errorToggleFailed": "Failed to toggle recurring invoice"
     },
     "currencies": {
       "chf": "CHF - Swiss Franc",
@@ -1912,7 +1942,10 @@
       "endpointDocuments": "GET/POST /api/v1/documents",
       "endpointProducts": "GET/POST /api/v1/products",
       "nameRequired": "Name is required",
-      "errorCreateFailed": "Failed to create API token"
+      "errorCreateFailed": "Failed to create API token",
+      "errorListFailed": "Failed to list API tokens",
+      "errorRevokeFailed": "Failed to revoke API token",
+      "errorDeleteFailed": "Failed to delete API token"
     },
     "team": {
       "title": "Team",
@@ -1987,7 +2020,12 @@
     "errorUploadLogo": "Failed to upload logo.",
     "errorUploadAvatar": "Failed to upload avatar.",
     "errorSaveShopUrl": "Failed to save shop URL.",
-    "errorUpdateCo2Factors": "Failed to update CO₂ factors."
+    "errorUpdateCo2Factors": "Failed to update CO₂ factors.",
+    "errorUpdateCompany": "Failed to update company settings",
+    "errorRemoveLogo": "Failed to remove logo",
+    "errorUpdateProfile": "Failed to update profile",
+    "errorRemoveAvatar": "Failed to remove avatar",
+    "errorUpdateSequence": "Failed to update number sequence"
   },
   "ricardo": {
     "publish": "Publish to Ricardo",
@@ -3879,7 +3917,8 @@
     "errorSwitchCompany": "Failed to switch company",
     "errorLoadTeamMembers": "Failed to load team members",
     "errorSendInvitation": "Failed to send invitation",
-    "errorLoadInvitation": "Failed to load invitation"
+    "errorLoadInvitation": "Failed to load invitation",
+    "errorCreateCompany": "Failed to create company"
   },
   "errors": {
     "unexpected": "Something went wrong",

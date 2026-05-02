@@ -124,7 +124,7 @@ export async function inviteMemberAction(
 export const revokeInvitationAction = createAction<unknown, void>({
   minRole: "admin",
   revalidate: ["/settings/team"],
-  errorMessage: "Failed to revoke invitation",
+  errorMessage: () => getTranslations("team").then((t) => t("revokeFailed")),
   handler: async (invitationId, { companyId, db }) => {
     const parsed = z.string().uuid().safeParse(invitationId);
     if (!parsed.success) throw new Error("Invalid invitation ID");
@@ -136,7 +136,8 @@ export const revokeInvitationAction = createAction<unknown, void>({
  * List pending invitations for the current company.
  */
 export const getInvitationsAction = createAction<void, PendingInvitation[]>({
-  errorMessage: "Failed to load invitations",
+  errorMessage: () =>
+    getTranslations("team").then((t) => t("errorLoadInvitation")),
   handler: async (_input, { companyId, db }) =>
     getCompanyInvitations(db, companyId),
 });
@@ -148,7 +149,7 @@ export const acceptInvitationAction = createAction<
   unknown,
   { companyId: string; companyName: string }
 >({
-  errorMessage: "Failed to accept invitation",
+  errorMessage: () => getTranslations("team").then((t) => t("acceptFailed")),
   handler: async (token, { userId, db }) => {
     const parsed = z.string().min(1).safeParse(token);
     if (!parsed.success) throw new Error("Invalid token");

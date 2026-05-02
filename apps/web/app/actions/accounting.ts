@@ -17,6 +17,7 @@ import {
   createFiscalYearSchema,
 } from "@kivvi/core";
 import { createAction } from "./action-factory";
+import { getTranslations } from "next-intl/server";
 
 // ============================================================================
 // CHART OF ACCOUNTS
@@ -30,7 +31,8 @@ export const createAccountAction = createAction<unknown, unknown>({
     return createAccount(db, companyId, parsed.data);
   },
   revalidate: ["/accounting"],
-  errorMessage: "Failed to create account",
+  errorMessage: () =>
+    getTranslations("accounting").then((t) => t("errorCreateAccount")),
   minRole: "member",
 });
 
@@ -45,7 +47,8 @@ export const updateAccountAction = createAction<
     return updateAccount(db, companyId, accountId, parsed.data);
   },
   revalidate: ["/accounting"],
-  errorMessage: "Failed to update account",
+  errorMessage: () =>
+    getTranslations("accounting").then((t) => t("errorUpdateAccount")),
   minRole: "member",
 });
 
@@ -54,7 +57,8 @@ export const toggleAccountAction = createAction<string, unknown>({
     return toggleAccount(db, companyId, accountId);
   },
   revalidate: ["/accounting"],
-  errorMessage: "Failed to toggle account",
+  errorMessage: () =>
+    getTranslations("accounting").then((t) => t("errorToggleAccount")),
   minRole: "member",
 });
 
@@ -64,7 +68,8 @@ export const seedChartOfAccountsAction = createAction<void, { count: number }>({
     return { count };
   },
   revalidate: ["/accounting"],
-  errorMessage: "Failed to seed accounts",
+  errorMessage: () =>
+    getTranslations("accounting").then((t) => t("errorSeedAccounts")),
   minRole: "admin",
 });
 
@@ -80,7 +85,8 @@ export const createJournalEntryAction = createAction<unknown, unknown>({
     return createJournalEntry(db, companyId, userId, parsed.data);
   },
   revalidate: ["/accounting/journal"],
-  errorMessage: "Failed to create journal entry",
+  errorMessage: () =>
+    getTranslations("accounting").then((t) => t("errorCreateJournalEntry")),
   minRole: "member",
 });
 
@@ -89,7 +95,8 @@ export const deleteJournalEntryAction = createAction<string, void>({
     await deleteJournalEntry(db, companyId, entryId);
   },
   revalidate: ["/accounting/journal"],
-  errorMessage: "Failed to delete journal entry",
+  errorMessage: () =>
+    getTranslations("accounting").then((t) => t("errorDeleteJournalEntry")),
   minRole: "member",
 });
 
@@ -105,7 +112,8 @@ export const createFiscalYearAction = createAction<unknown, unknown>({
     return createFiscalYear(db, companyId, parsed.data);
   },
   revalidate: ["/accounting/fiscal-years"],
-  errorMessage: "Failed to create fiscal year",
+  errorMessage: () =>
+    getTranslations("accounting").then((t) => t("errorCreateFiscalYear")),
   minRole: "admin",
 });
 
@@ -114,7 +122,8 @@ export const closeFiscalPeriodAction = createAction<string, unknown>({
     return closeFiscalPeriod(db, companyId, periodId);
   },
   revalidate: ["/accounting/fiscal-years"],
-  errorMessage: "Failed to close period",
+  errorMessage: () =>
+    getTranslations("accounting").then((t) => t("errorClosePeriod")),
   minRole: "admin",
 });
 
@@ -123,6 +132,7 @@ export const closeFiscalYearAction = createAction<string, unknown>({
     return closeFiscalYear(db, companyId, yearId, userId);
   },
   revalidate: ["/accounting/fiscal-years"],
-  errorMessage: "Failed to close fiscal year",
+  errorMessage: () =>
+    getTranslations("accounting").then((t) => t("errorCloseFiscalYear")),
   minRole: "admin",
 });

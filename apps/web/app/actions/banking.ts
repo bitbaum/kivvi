@@ -38,7 +38,8 @@ export const createBankAccountAction = createAction<unknown, unknown>({
     return createBankAccount(db, companyId, parsed.data);
   },
   revalidate: ["/banking"],
-  errorMessage: "Failed to create bank account",
+  errorMessage: () =>
+    getTranslations("banking").then((t) => t("errorCreateAccount")),
   minRole: "member",
 });
 
@@ -53,7 +54,8 @@ export const updateBankAccountAction = createAction<
     return updateBankAccount(db, companyId, bankAccountId, parsed.data);
   },
   revalidate: ["/banking"],
-  errorMessage: "Failed to update bank account",
+  errorMessage: () =>
+    getTranslations("banking").then((t) => t("errorUpdateAccount")),
   minRole: "member",
 });
 
@@ -199,7 +201,8 @@ export const reconcileTransactionAction = createAction<
     return reconcileTransaction(db, companyId, transactionId, documentId);
   },
   revalidate: ["/banking"],
-  errorMessage: "Failed to reconcile transaction",
+  errorMessage: () =>
+    getTranslations("banking").then((t) => t("errorReconcile")),
   minRole: "member",
 });
 
@@ -208,7 +211,8 @@ export const unreconcileTransactionAction = createAction<string, unknown>({
     return unreconcileTransaction(db, companyId, transactionId);
   },
   revalidate: ["/banking"],
-  errorMessage: "Failed to unreconcile transaction",
+  errorMessage: () =>
+    getTranslations("banking").then((t) => t("errorUnreconcile")),
   minRole: "member",
 });
 
@@ -220,6 +224,7 @@ export const autoMatchTransactionsAction = createAction<
     return autoMatchTransactions(db, companyId, bankAccountId);
   },
   revalidate: ["/banking"],
-  errorMessage: "Failed to auto-match",
+  errorMessage: () =>
+    getTranslations("banking").then((t) => t("errorAutoMatch")),
   minRole: "member",
 });

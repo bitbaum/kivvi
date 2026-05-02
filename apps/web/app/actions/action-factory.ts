@@ -28,10 +28,14 @@ interface ActionContext {
 export function createAction<TInput, TResult>(opts: {
   handler: (input: TInput, ctx: ActionContext) => Promise<TResult>;
   revalidate?: string[];
-  errorMessage: string;
+  errorMessage: string | (() => Promise<string>);
   minRole?: MembershipRole;
 }): (input: TInput) => Promise<ActionResult<TResult>> {
   return async (input: TInput): Promise<ActionResult<TResult>> => {
+    const fallback =
+      typeof opts.errorMessage === "function"
+        ? await opts.errorMessage()
+        : opts.errorMessage;
     try {
       const { companyId, userId } = opts.minRole
         ? await requireRole(opts.minRole)
@@ -48,7 +52,7 @@ export function createAction<TInput, TResult>(opts: {
     } catch (error) {
       return {
         success: false,
-        error: safeErrorMessage(error, opts.errorMessage),
+        error: safeErrorMessage(error, fallback),
       };
     }
   };

@@ -156,7 +156,8 @@
     },
     "fileTooLarge": "Fichier trop grand. Max {maxKB} Ko.",
     "removeImage": "Supprimer l'image",
-    "pleaseSelect": "Veuillez choisir…"
+    "pleaseSelect": "Veuillez choisir…",
+    "errorSearchFailed": "Recherche échouée"
   },
   "nav": {
     "home": "Accueil",
@@ -658,7 +659,10 @@
       "clearButton": "Supprimer les données d’exemple",
       "clearing": "Suppression…",
       "close": "Fermer"
-    }
+    },
+    "errorLoadPreferences": "Impossible de charger les préférences du tableau de bord",
+    "errorSavePreferences": "Impossible d'enregistrer les préférences du tableau de bord",
+    "errorResetPreferences": "Impossible de réinitialiser les préférences du tableau de bord"
   },
   "footer": {
     "product": "Produit",
@@ -988,7 +992,16 @@
     "descriptionRequired": "La description est requise",
     "minTwoLines": "Au moins 2 lignes avec des comptes et des montants sont requises",
     "mustBalance": "Les débits doivent être égaux aux crédits",
-    "manualEntryNote": "L'écriture sera créée comme écriture manuelle."
+    "manualEntryNote": "L'écriture sera créée comme écriture manuelle.",
+    "errorCreateAccount": "Impossible de créer le compte",
+    "errorUpdateAccount": "Impossible de mettre à jour le compte",
+    "errorToggleAccount": "Impossible de modifier l'état du compte",
+    "errorSeedAccounts": "Impossible d'initialiser le plan comptable",
+    "errorCreateJournalEntry": "Impossible de créer l'écriture comptable",
+    "errorDeleteJournalEntry": "Impossible de supprimer l'écriture comptable",
+    "errorCreateFiscalYear": "Impossible de créer l'exercice fiscal",
+    "errorClosePeriod": "Impossible de clôturer la période",
+    "errorCloseFiscalYear": "Impossible de clôturer l'exercice fiscal"
   },
   "banking": {
     "title": "Banque",
@@ -1054,7 +1067,12 @@
     "errorAccountNotFound": "Compte bancaire introuvable.",
     "errorImportTransactions": "Échec de l'importation des transactions.",
     "errorParseCamt": "Échec de l'analyse du fichier CAMT.",
-    "errorImportCamt": "Échec de l'importation du relevé CAMT."
+    "errorImportCamt": "Échec de l'importation du relevé CAMT.",
+    "errorCreateAccount": "Impossible de créer le compte bancaire",
+    "errorUpdateAccount": "Impossible de mettre à jour le compte bancaire",
+    "errorReconcile": "Impossible de rapprocher la transaction",
+    "errorUnreconcile": "Impossible d'annuler le rapprochement",
+    "errorAutoMatch": "Correspondance automatique échouée"
   },
   "inventory": {
     "title": "Inventaire",
@@ -1349,7 +1367,14 @@
     "errorFailedToList": "Impossible de charger les articles",
     "errorFailedToGet": "Impossible de charger l'article",
     "errorFailedToRecordChecklist": "Impossible d'enregistrer la liste de contrôle",
-    "errorFailedToRecordErasure": "Impossible d'enregistrer l'effacement des données"
+    "errorFailedToRecordErasure": "Impossible d'enregistrer l'effacement des données",
+    "errorCreateWarehouse": "Impossible de créer l'entrepôt",
+    "errorUpdateWarehouse": "Impossible de mettre à jour l'entrepôt",
+    "errorDeleteWarehouse": "Impossible de supprimer l'entrepôt",
+    "errorCreateStockMovement": "Impossible de créer le mouvement de stock",
+    "errorTransferStock": "Impossible de transférer le stock",
+    "errorCreateSerialNumber": "Impossible de créer le numéro de série",
+    "errorUpdateSerialNumber": "Impossible de mettre à jour le numéro de série"
   },
   "checklist": {
     "categoryLaptop": "Ordinateur portable",
@@ -1531,7 +1556,8 @@
     "sending": "Envoi...",
     "maxLevel": "Niveau max.",
     "escalated": "escaladé",
-    "firstReminderSent": "1er rappel envoyé"
+    "firstReminderSent": "1er rappel envoyé",
+    "errorCreateDunning": "Impossible de créer la relance"
   },
   "projects": {
     "title": "Projets",
@@ -1576,7 +1602,8 @@
     "placeholders": {
       "projectName": "p.ex. Refonte du site web"
     },
-    "errorFailedToUpdate": "Impossible de mettre à jour le projet"
+    "errorFailedToUpdate": "Impossible de mettre à jour le projet",
+    "errorFailedToCreate": "Impossible de créer le projet"
   },
   "settings": {
     "title": "Paramètres",
@@ -1803,7 +1830,10 @@
         "currentYear": "Année actuelle",
         "currentQuarter": "Trimestre actuel (Q1-Q4)"
       },
-      "status": "Statut"
+      "status": "Statut",
+      "errorCreateFailed": "Impossible de créer la facture récurrente",
+      "errorDeleteFailed": "Impossible de supprimer la facture récurrente",
+      "errorToggleFailed": "Impossible de modifier l'état de la facture récurrente"
     },
     "currencies": {
       "chf": "CHF - Franc suisse",
@@ -1912,7 +1942,10 @@
       "endpointDocuments": "GET/POST /api/v1/documents",
       "endpointProducts": "GET/POST /api/v1/products",
       "nameRequired": "Le nom est requis",
-      "errorCreateFailed": "Échec de la création du jeton API"
+      "errorCreateFailed": "Échec de la création du jeton API",
+      "errorListFailed": "Impossible de lister les clés API",
+      "errorRevokeFailed": "Impossible de révoquer la clé API",
+      "errorDeleteFailed": "Impossible de supprimer la clé API"
     },
     "team": {
       "title": "Équipe",
@@ -1987,7 +2020,12 @@
     "errorUploadLogo": "Échec du téléversement du logo.",
     "errorUploadAvatar": "Échec du téléversement de l'avatar.",
     "errorSaveShopUrl": "Échec de l'enregistrement de l'URL de la boutique.",
-    "errorUpdateCo2Factors": "Échec de la mise à jour des facteurs CO₂."
+    "errorUpdateCo2Factors": "Échec de la mise à jour des facteurs CO₂.",
+    "errorUpdateCompany": "Impossible de mettre à jour les paramètres de l'entreprise",
+    "errorRemoveLogo": "Impossible de supprimer le logo",
+    "errorUpdateProfile": "Impossible de mettre à jour le profil",
+    "errorRemoveAvatar": "Impossible de supprimer l'avatar",
+    "errorUpdateSequence": "Impossible de mettre à jour la séquence de numéros"
   },
   "ricardo": {
     "publish": "Publier sur Ricardo",
@@ -3879,7 +3917,8 @@
     "errorSwitchCompany": "Impossible de changer d'entreprise",
     "errorLoadTeamMembers": "Impossible de charger les membres de l'équipe",
     "errorSendInvitation": "Impossible d'envoyer l'invitation",
-    "errorLoadInvitation": "Impossible de charger l'invitation"
+    "errorLoadInvitation": "Impossible de charger l'invitation",
+    "errorCreateCompany": "Impossible de créer l'entreprise"
   },
   "errors": {
     "unexpected": "Une erreur est survenue",

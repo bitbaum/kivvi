@@ -1,12 +1,25 @@
-'use server';
+"use server";
 
-import { searchContacts, searchProducts, listDocuments } from '@kivvi/core';
-import { createAction } from './action-factory';
+import { searchContacts, searchProducts, listDocuments } from "@kivvi/core";
+import { createAction } from "./action-factory";
+import { getTranslations } from "next-intl/server";
 
 export interface GlobalSearchResults {
-  contacts: { id: string; name: string; contactNumber: string | null; email: string | null; type: string }[];
+  contacts: {
+    id: string;
+    name: string;
+    contactNumber: string | null;
+    email: string | null;
+    type: string;
+  }[];
   products: { id: string; name: string; articleNumber: string | null }[];
-  documents: { id: string; number: string | null; type: string; status: string; contactName: string | null }[];
+  documents: {
+    id: string;
+    number: string | null;
+    type: string;
+    status: string;
+    contactName: string | null;
+  }[];
 }
 
 export const globalSearchAction = createAction<string, GlobalSearchResults>({
@@ -43,5 +56,6 @@ export const globalSearchAction = createAction<string, GlobalSearchResults>({
       })),
     };
   },
-  errorMessage: 'Search failed',
+  errorMessage: () =>
+    getTranslations("common").then((t) => t("errorSearchFailed")),
 });

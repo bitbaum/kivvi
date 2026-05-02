@@ -70,7 +70,8 @@ type ApiTokenListItem = {
  * List all API tokens for the current company. Does NOT return the token itself.
  */
 export const listApiTokensAction = createAction<void, ApiTokenListItem[]>({
-  errorMessage: "Failed to list API tokens",
+  errorMessage: () =>
+    getTranslations("settings.apiTokens").then((t) => t("errorListFailed")),
   handler: async (_input, { companyId, db }) =>
     db
       .select({
@@ -92,7 +93,8 @@ export const listApiTokensAction = createAction<void, ApiTokenListItem[]>({
 export const revokeApiTokenAction = createAction<string, void>({
   minRole: "admin",
   revalidate: ["/settings"],
-  errorMessage: "Failed to revoke API token",
+  errorMessage: () =>
+    getTranslations("settings.apiTokens").then((t) => t("errorRevokeFailed")),
   handler: async (tokenId, { companyId, db }) => {
     const [updated] = await db
       .update(apiTokens)
@@ -109,7 +111,8 @@ export const revokeApiTokenAction = createAction<string, void>({
 export const deleteApiTokenAction = createAction<string, void>({
   minRole: "admin",
   revalidate: ["/settings"],
-  errorMessage: "Failed to delete API token",
+  errorMessage: () =>
+    getTranslations("settings.apiTokens").then((t) => t("errorDeleteFailed")),
   handler: async (tokenId, { companyId, db }) => {
     const [deleted] = await db
       .delete(apiTokens)

@@ -156,7 +156,8 @@
     },
     "fileTooLarge": "Datei zu gross. Max {maxKB} KB.",
     "removeImage": "Bild entfernen",
-    "pleaseSelect": "Bitte wählen…"
+    "pleaseSelect": "Bitte wählen…",
+    "errorSearchFailed": "Suche fehlgeschlagen"
   },
   "nav": {
     "home": "Start",
@@ -658,7 +659,10 @@
       "clearButton": "Beispieldaten löschen",
       "clearing": "Wird gelöscht…",
       "close": "Schliessen"
-    }
+    },
+    "errorLoadPreferences": "Dashboard-Einstellungen konnten nicht geladen werden",
+    "errorSavePreferences": "Dashboard-Einstellungen konnten nicht gespeichert werden",
+    "errorResetPreferences": "Dashboard-Einstellungen konnten nicht zurückgesetzt werden"
   },
   "footer": {
     "product": "Produkt",
@@ -988,7 +992,16 @@
     "descriptionRequired": "Beschreibung ist erforderlich",
     "minTwoLines": "Mindestens 2 Zeilen mit Konten und Beträgen sind erforderlich",
     "mustBalance": "Soll und Haben müssen ausgeglichen sein",
-    "manualEntryNote": "Buchung wird als manuelle Journalbuchung erstellt."
+    "manualEntryNote": "Buchung wird als manuelle Journalbuchung erstellt.",
+    "errorCreateAccount": "Konto konnte nicht erstellt werden",
+    "errorUpdateAccount": "Konto konnte nicht aktualisiert werden",
+    "errorToggleAccount": "Konto konnte nicht umgeschaltet werden",
+    "errorSeedAccounts": "Kontenrahmen konnte nicht initialisiert werden",
+    "errorCreateJournalEntry": "Buchungssatz konnte nicht erstellt werden",
+    "errorDeleteJournalEntry": "Buchungssatz konnte nicht gelöscht werden",
+    "errorCreateFiscalYear": "Geschäftsjahr konnte nicht erstellt werden",
+    "errorClosePeriod": "Periode konnte nicht abgeschlossen werden",
+    "errorCloseFiscalYear": "Geschäftsjahr konnte nicht abgeschlossen werden"
   },
   "banking": {
     "title": "Banking",
@@ -1054,7 +1067,12 @@
     "errorAccountNotFound": "Bankkonto nicht gefunden.",
     "errorImportTransactions": "Fehler beim Importieren der Transaktionen.",
     "errorParseCamt": "Fehler beim Parsen der CAMT-Datei.",
-    "errorImportCamt": "Fehler beim Importieren des CAMT-Kontoauszugs."
+    "errorImportCamt": "Fehler beim Importieren des CAMT-Kontoauszugs.",
+    "errorCreateAccount": "Bankkonto konnte nicht erstellt werden",
+    "errorUpdateAccount": "Bankkonto konnte nicht aktualisiert werden",
+    "errorReconcile": "Transaktion konnte nicht abgeglichen werden",
+    "errorUnreconcile": "Transaktionsabgleich konnte nicht rückgängig gemacht werden",
+    "errorAutoMatch": "Automatischer Abgleich fehlgeschlagen"
   },
   "inventory": {
     "title": "Lager",
@@ -1349,7 +1367,14 @@
     "errorFailedToList": "Artikel konnten nicht geladen werden",
     "errorFailedToGet": "Artikel konnte nicht geladen werden",
     "errorFailedToRecordChecklist": "Checkliste konnte nicht gespeichert werden",
-    "errorFailedToRecordErasure": "Datenlöschung konnte nicht erfasst werden"
+    "errorFailedToRecordErasure": "Datenlöschung konnte nicht erfasst werden",
+    "errorCreateWarehouse": "Lager konnte nicht erstellt werden",
+    "errorUpdateWarehouse": "Lager konnte nicht aktualisiert werden",
+    "errorDeleteWarehouse": "Lager konnte nicht gelöscht werden",
+    "errorCreateStockMovement": "Lagerbewegung konnte nicht erstellt werden",
+    "errorTransferStock": "Lagerumbuchung konnte nicht durchgeführt werden",
+    "errorCreateSerialNumber": "Seriennummer konnte nicht erstellt werden",
+    "errorUpdateSerialNumber": "Seriennummer konnte nicht aktualisiert werden"
   },
   "checklist": {
     "categoryLaptop": "Laptop",
@@ -1531,7 +1556,8 @@
     "sending": "Senden...",
     "maxLevel": "Max. Stufe",
     "escalated": "eskaliert",
-    "firstReminderSent": "1. Mahnung versendet"
+    "firstReminderSent": "1. Mahnung versendet",
+    "errorCreateDunning": "Mahnung konnte nicht erstellt werden"
   },
   "projects": {
     "title": "Projekte",
@@ -1576,7 +1602,8 @@
     "placeholders": {
       "projectName": "z.B. Website Redesign"
     },
-    "errorFailedToUpdate": "Projekt konnte nicht aktualisiert werden"
+    "errorFailedToUpdate": "Projekt konnte nicht aktualisiert werden",
+    "errorFailedToCreate": "Projekt konnte nicht erstellt werden"
   },
   "settings": {
     "title": "Einstellungen",
@@ -1803,7 +1830,10 @@
         "currentMonth": "Aktueller Monat (Name)",
         "currentYear": "Aktuelles Jahr",
         "currentQuarter": "Aktuelles Quartal (Q1-Q4)"
-      }
+      },
+      "errorCreateFailed": "Wiederkehrende Rechnung konnte nicht erstellt werden",
+      "errorDeleteFailed": "Wiederkehrende Rechnung konnte nicht gelöscht werden",
+      "errorToggleFailed": "Wiederkehrende Rechnung konnte nicht geändert werden"
     },
     "currencies": {
       "chf": "CHF - Schweizer Franken",
@@ -1912,7 +1942,10 @@
       "endpointDocuments": "GET/POST /api/v1/documents",
       "endpointProducts": "GET/POST /api/v1/products",
       "nameRequired": "Name ist erforderlich",
-      "errorCreateFailed": "API-Token konnte nicht erstellt werden"
+      "errorCreateFailed": "API-Token konnte nicht erstellt werden",
+      "errorListFailed": "API-Schlüssel konnten nicht geladen werden",
+      "errorRevokeFailed": "API-Schlüssel konnte nicht widerrufen werden",
+      "errorDeleteFailed": "API-Schlüssel konnte nicht gelöscht werden"
     },
     "team": {
       "title": "Team",
@@ -1987,7 +2020,12 @@
     "errorUploadLogo": "Fehler beim Hochladen des Logos.",
     "errorUploadAvatar": "Fehler beim Hochladen des Profilbilds.",
     "errorSaveShopUrl": "Fehler beim Speichern der Shop-URL.",
-    "errorUpdateCo2Factors": "Fehler beim Aktualisieren der CO₂-Faktoren."
+    "errorUpdateCo2Factors": "Fehler beim Aktualisieren der CO₂-Faktoren.",
+    "errorUpdateCompany": "Unternehmenseinstellungen konnten nicht aktualisiert werden",
+    "errorRemoveLogo": "Logo konnte nicht entfernt werden",
+    "errorUpdateProfile": "Profil konnte nicht aktualisiert werden",
+    "errorRemoveAvatar": "Avatar konnte nicht entfernt werden",
+    "errorUpdateSequence": "Nummernkreis konnte nicht aktualisiert werden"
   },
   "ricardo": {
     "publish": "Auf Ricardo publizieren",
@@ -3879,7 +3917,8 @@
     "errorSwitchCompany": "Unternehmenswechsel fehlgeschlagen",
     "errorLoadTeamMembers": "Teammitglieder konnten nicht geladen werden",
     "errorSendInvitation": "Einladung konnte nicht gesendet werden",
-    "errorLoadInvitation": "Einladung konnte nicht geladen werden"
+    "errorLoadInvitation": "Einladung konnte nicht geladen werden",
+    "errorCreateCompany": "Unternehmen konnte nicht erstellt werden"
   },
   "errors": {
     "unexpected": "Etwas ist schiefgelaufen",

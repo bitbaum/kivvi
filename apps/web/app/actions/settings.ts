@@ -110,7 +110,8 @@ export const updateCompanyAction = createAction<unknown, unknown>({
     return company;
   },
   revalidate: ["/settings"],
-  errorMessage: "Failed to update company settings",
+  errorMessage: () =>
+    getTranslations("settings").then((t) => t("errorUpdateCompany")),
   minRole: "admin",
 });
 
@@ -237,7 +238,8 @@ export const removeLogoAction = createAction<void, void>({
       .where(eq(companies.id, companyId));
   },
   revalidate: ["/settings"],
-  errorMessage: "Failed to remove logo",
+  errorMessage: () =>
+    getTranslations("settings").then((t) => t("errorRemoveLogo")),
   minRole: "admin",
 });
 
@@ -270,7 +272,8 @@ export const updateProfileAction = createAction<
     return { id: user.id, name: user.name, email: user.email };
   },
   revalidate: ["/settings"],
-  errorMessage: "Failed to update profile",
+  errorMessage: () =>
+    getTranslations("settings").then((t) => t("errorUpdateProfile")),
 });
 
 // ============================================================================
@@ -401,7 +404,8 @@ export const removeAvatarAction = createAction<void, void>({
       .where(eq(users.id, userId));
   },
   revalidate: ["/settings"],
-  errorMessage: "Failed to remove avatar",
+  errorMessage: () =>
+    getTranslations("settings").then((t) => t("errorRemoveAvatar")),
 });
 
 // ============================================================================
@@ -440,7 +444,8 @@ export const updateNumberSequenceAction = createAction<
     return seq;
   },
   revalidate: ["/settings"],
-  errorMessage: "Failed to update number sequence",
+  errorMessage: () =>
+    getTranslations("settings").then((t) => t("errorUpdateSequence")),
   minRole: "admin",
 });
 
