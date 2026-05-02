@@ -749,17 +749,7 @@ async function handleJournalEntries(
     newStatus === "cancelled" &&
     (PAYABLE_DOCUMENT_TYPES as readonly string[]).includes(doc.type)
   ) {
-    const journalCreatedStatuses = [
-      "sent",
-      "confirmed",
-      "delivered",
-      "overdue",
-      "partially_paid",
-    ];
-    if (
-      journalCreatedStatuses.includes(doc.status) ||
-      doc.status?.startsWith("dunning_")
-    ) {
+    if ((NON_TERMINAL_STATUSES as readonly string[]).includes(doc.status)) {
       await createCancellationReversalJournalEntry(tx, companyId, doc);
     }
   }
