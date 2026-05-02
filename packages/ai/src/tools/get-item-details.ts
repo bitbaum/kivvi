@@ -119,23 +119,23 @@ export const getItemDetailsTool: Tool = {
           },
           pricing: {
             acquisitionCost: item.estimatedValue
-              ? `${currency} ${parseFloat(item.estimatedValue).toFixed(2)}`
+              ? `${currency} ${new Decimal(item.estimatedValue).toDecimalPlaces(2)}`
               : null,
             repairCost:
               item.repairCost && new Decimal(item.repairCost).gt(0)
                 ? `${currency} ${new Decimal(item.repairCost).toDecimalPlaces(2)}`
                 : null,
             effectiveCost: item.effectiveCost
-              ? `${currency} ${parseFloat(item.effectiveCost).toFixed(2)}`
+              ? `${currency} ${new Decimal(item.effectiveCost).toDecimalPlaces(2)}`
               : null,
             askingPrice: item.askingPrice
-              ? `${currency} ${parseFloat(item.askingPrice).toFixed(2)}`
+              ? `${currency} ${new Decimal(item.askingPrice).toDecimalPlaces(2)}`
               : null,
             minPrice: item.minPrice
-              ? `${currency} ${parseFloat(item.minPrice).toFixed(2)}`
+              ? `${currency} ${new Decimal(item.minPrice).toDecimalPlaces(2)}`
               : null,
             soldPrice: item.soldPrice
-              ? `${currency} ${parseFloat(item.soldPrice).toFixed(2)}`
+              ? `${currency} ${new Decimal(item.soldPrice).toDecimalPlaces(2)}`
               : null,
           },
           repair: {

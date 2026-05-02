@@ -136,7 +136,7 @@ Examples:
           description: params.description,
           quantity,
           unitCost: params.unit_cost,
-          lineTotal: parseFloat(lineTotal),
+          lineTotal: new Decimal(lineTotal).toNumber(),
           notes: params.notes ?? null,
         },
         actions: [
