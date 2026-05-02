@@ -1,9 +1,6 @@
 "use server";
 
 import { z } from "zod";
-import { db } from "@/lib/db";
-import { getSession, safeErrorMessage } from "./utils";
-import type { ActionResult } from "./utils";
 import {
   getUserMemberships,
   getCompanyMembers,
@@ -30,67 +27,41 @@ import { getTranslations } from "next-intl/server";
 /**
  * Get all companies the current user belongs to (for company switcher).
  */
-export async function getMyMembershipsAction(): Promise<
-  ActionResult<MembershipInfo[]>
-> {
-  const t = await getTranslations("team");
-  try {
-    const { userId } = await getSession();
-    const data = await getUserMemberships(db, userId);
-    return { success: true, data };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorLoadMemberships")),
-    };
-  }
-}
+export const getMyMembershipsAction = createAction<void, MembershipInfo[]>({
+  handler: async (_input, { userId, db }) => getUserMemberships(db, userId),
+  errorMessage: () =>
+    getTranslations("team").then((t) => t("errorLoadMemberships")),
+});
 
 /**
  * Switch the user's active company. Updates users.companyId and refreshes JWT.
  */
-export async function switchCompanyAction(
-  companyId: unknown,
-): Promise<ActionResult<{ companyId: string; companyName: string }>> {
-  const t = await getTranslations("team");
-  try {
-    const { userId } = await getSession();
-    const parsed = switchCompanySchema.shape.companyId.safeParse(companyId);
+export const switchCompanyAction = createAction<
+  unknown,
+  { companyId: string; companyName: string }
+>({
+  handler: async (targetCompanyId, { userId, db }) => {
+    const parsed =
+      switchCompanySchema.shape.companyId.safeParse(targetCompanyId);
     if (!parsed.success) {
-      return { success: false, error: t("errorInvalidCompanyId") };
+      const t = await getTranslations("team");
+      throw new Error(t("errorInvalidCompanyId"));
     }
-
-    const result = await switchCompany(db, userId, parsed.data);
-    return {
-      success: true,
-      data: { companyId: result.companyId, companyName: result.companyName },
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorSwitchCompany")),
-    };
-  }
-}
+    return switchCompany(db, userId, parsed.data);
+  },
+  errorMessage: () =>
+    getTranslations("team").then((t) => t("errorSwitchCompany")),
+});
 
 /**
  * Get all members of the current company (for team management page).
  */
-export async function getTeamMembersAction(): Promise<
-  ActionResult<CompanyMember[]>
-> {
-  const t = await getTranslations("team");
-  try {
-    const { companyId } = await getSession();
-    const data = await getCompanyMembers(db, companyId);
-    return { success: true, data };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorLoadTeamMembers")),
-    };
-  }
-}
+export const getTeamMembersAction = createAction<void, CompanyMember[]>({
+  handler: async (_input, { companyId, db }) =>
+    getCompanyMembers(db, companyId),
+  errorMessage: () =>
+    getTranslations("team").then((t) => t("errorLoadTeamMembers")),
+});
 
 /**
  * Remove a member from the current company.

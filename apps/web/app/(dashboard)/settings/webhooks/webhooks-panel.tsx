@@ -88,7 +88,10 @@ export function WebhooksPanel({ initialEndpoints }: Props) {
   }
 
   async function handleToggle(id: string, current: boolean) {
-    const result = await toggleWebhookEndpointAction(id, !current);
+    const result = await toggleWebhookEndpointAction({
+      endpointId: id,
+      isActive: !current,
+    });
     if (result.success) {
       setEndpoints((prev) =>
         prev.map((ep) => (ep.id === id ? { ...ep, isActive: !current } : ep)),

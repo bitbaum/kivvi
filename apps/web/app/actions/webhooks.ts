@@ -1,7 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import { db } from "@/lib/db";
 import { z } from "zod";
 import {
   createWebhookEndpoint,
@@ -12,14 +10,11 @@ import {
 } from "@kivvi/core/src/domain/webhooks";
 import { WEBHOOK_EVENT_VALUES } from "@kivvi/database";
 import type { WebhookEvent } from "@kivvi/database";
-import { type ActionResult, requireRole, safeErrorMessage } from "./utils";
+import { createAction } from "./action-factory";
 import { getTranslations } from "next-intl/server";
 
-type WebhookT = Awaited<
-  ReturnType<typeof getTranslations<"settings.webhooks">>
->;
-
-function makeEndpointSchema(t: WebhookT) {
+async function getEndpointSchema() {
+  const t = await getTranslations("settings.webhooks");
   return z.object({
     name: z.string().min(1).max(100),
     url: z.string().url(t("errorInvalidUrl")),
@@ -30,130 +25,94 @@ function makeEndpointSchema(t: WebhookT) {
   });
 }
 
-export async function listWebhookEndpointsAction(): Promise<
-  ActionResult<Awaited<ReturnType<typeof listWebhookEndpoints>>>
-> {
-  const t = await getTranslations("settings.webhooks");
-  try {
-    const { companyId } = await requireRole("admin");
-    const endpoints = await listWebhookEndpoints(db, companyId);
-    return { success: true, data: endpoints };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("listError")),
-    };
-  }
-}
+export const listWebhookEndpointsAction = createAction<
+  void,
+  Awaited<ReturnType<typeof listWebhookEndpoints>>
+>({
+  handler: async (_input, { companyId, db }) =>
+    listWebhookEndpoints(db, companyId),
+  errorMessage: () =>
+    getTranslations("settings.webhooks").then((t) => t("listError")),
+  minRole: "admin",
+});
 
-export async function createWebhookEndpointAction(
-  input: unknown,
-): Promise<ActionResult<{ id: string }>> {
-  const t = await getTranslations("settings.webhooks");
-  try {
-    const { companyId } = await requireRole("admin");
-    const parsed = makeEndpointSchema(t).safeParse(input);
-    if (!parsed.success) {
-      return {
-        success: false,
-        error: parsed.error.errors[0]?.message || t("errorInvalidInput"),
-      };
-    }
-
+export const createWebhookEndpointAction = createAction<
+  unknown,
+  { id: string }
+>({
+  handler: async (input, { companyId, db }) => {
+    const t = await getTranslations("settings.webhooks");
+    const parsed = (await getEndpointSchema()).safeParse(input);
+    if (!parsed.success)
+      throw new Error(
+        parsed.error.errors[0]?.message || t("errorInvalidInput"),
+      );
     const endpoint = await createWebhookEndpoint(db, companyId, {
       name: parsed.data.name,
       url: parsed.data.url,
       secret: parsed.data.secret,
       events: parsed.data.events as WebhookEvent[],
     });
+    return { id: endpoint.id };
+  },
+  revalidate: ["/settings/webhooks"],
+  errorMessage: () =>
+    getTranslations("settings.webhooks").then((t) => t("createError")),
+  minRole: "admin",
+});
 
-    revalidatePath("/settings/webhooks");
-    return { success: true, data: { id: endpoint.id } };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("createError")),
-    };
-  }
-}
-
-export async function updateWebhookEndpointAction(
-  endpointId: string,
-  input: unknown,
-): Promise<ActionResult<void>> {
-  const t = await getTranslations("settings.webhooks");
-  try {
-    const { companyId } = await requireRole("admin");
-    const parsed = makeEndpointSchema(t).partial().safeParse(input);
-    if (!parsed.success) {
-      return {
-        success: false,
-        error: parsed.error.errors[0]?.message || t("errorInvalidInput"),
-      };
-    }
-
+export const updateWebhookEndpointAction = createAction<
+  { endpointId: string; input: unknown },
+  void
+>({
+  handler: async ({ endpointId, input }, { companyId, db }) => {
+    const t = await getTranslations("settings.webhooks");
+    const parsed = (await getEndpointSchema()).partial().safeParse(input);
+    if (!parsed.success)
+      throw new Error(
+        parsed.error.errors[0]?.message || t("errorInvalidInput"),
+      );
     await updateWebhookEndpoint(db, companyId, endpointId, {
       ...parsed.data,
       events: parsed.data.events as WebhookEvent[] | undefined,
     });
+  },
+  revalidate: ["/settings/webhooks"],
+  errorMessage: () =>
+    getTranslations("settings.webhooks").then((t) => t("updateError")),
+  minRole: "admin",
+});
 
-    revalidatePath("/settings/webhooks");
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("updateError")),
-    };
-  }
-}
-
-export async function toggleWebhookEndpointAction(
-  endpointId: string,
-  isActive: boolean,
-): Promise<ActionResult<void>> {
-  const t = await getTranslations("settings.webhooks");
-  try {
-    const { companyId } = await requireRole("admin");
+export const toggleWebhookEndpointAction = createAction<
+  { endpointId: string; isActive: boolean },
+  void
+>({
+  handler: async ({ endpointId, isActive }, { companyId, db }) => {
     await updateWebhookEndpoint(db, companyId, endpointId, { isActive });
-    revalidatePath("/settings/webhooks");
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("toggleError")),
-    };
-  }
-}
+  },
+  revalidate: ["/settings/webhooks"],
+  errorMessage: () =>
+    getTranslations("settings.webhooks").then((t) => t("toggleError")),
+  minRole: "admin",
+});
 
-export async function deleteWebhookEndpointAction(
-  endpointId: string,
-): Promise<ActionResult<void>> {
-  const t = await getTranslations("settings.webhooks");
-  try {
-    const { companyId } = await requireRole("admin");
+export const deleteWebhookEndpointAction = createAction<string, void>({
+  handler: async (endpointId, { companyId, db }) => {
     await deleteWebhookEndpoint(db, companyId, endpointId);
-    revalidatePath("/settings/webhooks");
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("deleteError")),
-    };
-  }
-}
+  },
+  revalidate: ["/settings/webhooks"],
+  errorMessage: () =>
+    getTranslations("settings.webhooks").then((t) => t("deleteError")),
+  minRole: "admin",
+});
 
-export async function listWebhookDeliveriesAction(
-  endpointId: string,
-): Promise<ActionResult<Awaited<ReturnType<typeof listWebhookDeliveries>>>> {
-  const t = await getTranslations("settings.webhooks");
-  try {
-    const { companyId } = await requireRole("admin");
-    const deliveries = await listWebhookDeliveries(db, companyId, endpointId);
-    return { success: true, data: deliveries };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("deliveriesError")),
-    };
-  }
-}
+export const listWebhookDeliveriesAction = createAction<
+  string,
+  Awaited<ReturnType<typeof listWebhookDeliveries>>
+>({
+  handler: async (endpointId, { companyId, db }) =>
+    listWebhookDeliveries(db, companyId, endpointId),
+  errorMessage: () =>
+    getTranslations("settings.webhooks").then((t) => t("deliveriesError")),
+  minRole: "admin",
+});
