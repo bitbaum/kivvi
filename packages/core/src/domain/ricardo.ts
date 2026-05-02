@@ -1,3 +1,5 @@
+import Decimal from "decimal.js";
+
 /**
  * Ricardo.ch marketplace domain functions (pure, no HTTP).
  *
@@ -84,8 +86,10 @@ export function buildRicardoListingPayload(item: {
   category?: string | null;
   notes?: string | null;
 }): RicardoListingPayload {
-  const priceChf = parseFloat(item.askingPrice ?? "0");
-  const priceCents = Math.round(priceChf * 100);
+  const priceCents = new Decimal(item.askingPrice ?? "0")
+    .times(100)
+    .round()
+    .toNumber();
 
   // Strip data-URI prefix for API upload
   let imageBase64: string | undefined;
