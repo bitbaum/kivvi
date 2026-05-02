@@ -5,6 +5,7 @@ import { Loader2, Settings, Check } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { initializeCompanyAction } from "@/app/actions/onboarding";
 import { SWISS_VAT_RATES, DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
+import { DEFAULT_PAYMENT_TERMS_DAYS } from "@/lib/config/document-types";
 
 interface StepBusinessConfigProps {
   onComplete: () => void;
@@ -18,7 +19,7 @@ export function StepBusinessConfig({
   const t = useTranslations("onboarding");
   const tc = useTranslations("common");
   const [vatRate, setVatRate] = useState(DEFAULT_VAT_RATE);
-  const [paymentTerms, setPaymentTerms] = useState(30);
+  const [paymentTerms, setPaymentTerms] = useState(DEFAULT_PAYMENT_TERMS_DAYS);
   const [bankIban, setBankIban] = useState("");
   const [bankName, setBankName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -151,7 +152,11 @@ export function StepBusinessConfig({
             min={0}
             max={365}
             value={paymentTerms}
-            onChange={(e) => setPaymentTerms(parseInt(e.target.value) || 30)}
+            onChange={(e) =>
+              setPaymentTerms(
+                parseInt(e.target.value) || DEFAULT_PAYMENT_TERMS_DAYS,
+              )
+            }
             className="w-full max-w-xs rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
           />
           <p className="mt-1 text-xs text-muted-foreground">

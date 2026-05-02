@@ -12,6 +12,7 @@ import {
   DEFAULT_CURRENCY,
   DEFAULT_COUNTRY,
 } from "@kivvi/core/src/config/locale";
+import { DEFAULT_PAYMENT_TERMS_DAYS } from "@/lib/config/document-types";
 import { CompanyForm } from "./company-form";
 import { Co2FactorsSection } from "./co2-factors-section";
 import { ShopUrlSection } from "./shop-url-section";
@@ -62,7 +63,8 @@ export default async function CompanySettingsPage() {
           defaultVatRate:
             settings.defaultVatRate?.toString() || DEFAULT_VAT_RATE,
           defaultPaymentTermsDays:
-            settings.defaultPaymentTermsDays?.toString() || "30",
+            settings.defaultPaymentTermsDays?.toString() ||
+            String(DEFAULT_PAYMENT_TERMS_DAYS),
           defaultDocumentFooter: settings.defaultDocumentFooter || "",
           logoBase64: settings.logoBase64 || null,
           aiProvider: settings.aiProvider || "",
