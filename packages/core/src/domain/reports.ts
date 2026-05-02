@@ -13,6 +13,13 @@ import {
 import type { Database } from "@kivvi/database";
 
 // ============================================================================
+// CONSTANTS
+// ============================================================================
+
+/** Sentinel returned by getSalesReport when a document item has no product group. */
+export const UNCATEGORIZED_GROUP = "Uncategorized";
+
+// ============================================================================
 // PURE HELPERS (no DB access — testable without database)
 // ============================================================================
 
@@ -710,7 +717,7 @@ export async function getSalesReport(
   // Revenue by product category (documentItems → products → productGroups)
   const categoryRows = await db
     .select({
-      groupName: sql<string>`COALESCE(${productGroups.name}, 'Uncategorized')`,
+      groupName: sql<string>`COALESCE(${productGroups.name}, ${UNCATEGORIZED_GROUP})`,
       revenue: sql<string>`COALESCE(SUM(CAST(${documentItems.total} AS DECIMAL)), 0)`,
       itemCount: sql<number>`COUNT(*)::int`,
     })

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, BarChart3, LayoutGrid, TrendingUp } from "lucide-react";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
-import { getSalesReport } from "@kivvi/core";
+import { getSalesReport, UNCATEGORIZED_GROUP } from "@kivvi/core";
 import { formatCurrency } from "@/lib/utils";
 import { DateRangeForm } from "../date-range-form";
 import { ExportButton } from "../export-button";
@@ -210,7 +210,7 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
                     {report.byCategory.map((row) => (
                       <tr key={row.groupName} className="hover:bg-muted/50">
                         <td className="px-4 py-3 font-medium md:px-6">
-                          {row.groupName === "Uncategorized"
+                          {row.groupName === UNCATEGORIZED_GROUP
                             ? t("uncategorized")
                             : row.groupName}
                         </td>

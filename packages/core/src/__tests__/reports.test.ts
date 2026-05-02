@@ -8,6 +8,7 @@ import {
   mergeSalesRows,
   computeSalesTotals,
   computeCategoryPercentages,
+  UNCATEGORIZED_GROUP,
 } from "../domain/reports";
 
 // ============================================================================
@@ -496,7 +497,7 @@ describe("computeCategoryPercentages", () => {
 
   it("handles single-category scenario (100%)", () => {
     const raw = [
-      { groupName: "Uncategorized", revenue: "750.00", itemCount: 5 },
+      { groupName: UNCATEGORIZED_GROUP, revenue: "750.00", itemCount: 5 },
     ];
 
     const result = computeCategoryPercentages(raw, "750.00");
