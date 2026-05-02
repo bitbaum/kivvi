@@ -8,6 +8,7 @@ import { db } from "@/lib/db";
 import { inventoryItems, companies } from "@kivvi/database";
 import type { CompanySettings } from "@kivvi/database";
 import { buildRicardoListingPayload } from "@kivvi/core/src/domain/ricardo";
+import { PUBLIC_ITEM_STATUSES } from "@kivvi/core/src/config/item-status-sets";
 import {
   publishListing,
   deleteListing,
@@ -123,8 +124,7 @@ export async function publishToRicardoAction(
 
     if (!item) return { success: false, error: t("errorItemNotFound") };
 
-    const sellableStatuses = ["ready_for_sale", "listed"];
-    if (!sellableStatuses.includes(item.status)) {
+    if (!(PUBLIC_ITEM_STATUSES as readonly string[]).includes(item.status)) {
       return { success: false, error: t("errorStatusInvalid") };
     }
 

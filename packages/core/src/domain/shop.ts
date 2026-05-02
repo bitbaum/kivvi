@@ -2,6 +2,7 @@ import { z } from "zod";
 import { eq, and, gte, lte, ilike, inArray, count } from "drizzle-orm";
 import { companies, inventoryItems } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
+import { PUBLIC_ITEM_STATUSES } from "../config/item-status-sets";
 
 // ============================================================================
 // PUBLIC SHOP DOMAIN
@@ -9,7 +10,7 @@ import type { Database } from "@kivvi/database";
 // No authentication required; tenant isolation via slug→companyId lookup.
 // ============================================================================
 
-export const PUBLIC_ITEM_STATUSES = ["ready_for_sale", "listed"] as const;
+export { PUBLIC_ITEM_STATUSES };
 
 export interface PublicCompany {
   id: string;
