@@ -21,11 +21,9 @@ import {
 import {
   PAYABLE_DOCUMENT_TYPES,
   ISSUED_STATUSES,
-} from "@kivvi/core/src/config/document-constants";
-import {
-  updateSequencesAfterImport,
   IMPORTABLE_DOCUMENT_TYPES,
-} from "@kivvi/core";
+} from "@kivvi/core/src/config/document-constants";
+import { updateSequencesAfterImport } from "@kivvi/core";
 import {
   createInvoiceSentJournalEntry,
   createPurchaseInvoiceJournalEntry,

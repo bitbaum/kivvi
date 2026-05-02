@@ -1,21 +1,9 @@
 import { eq, and, sql } from "drizzle-orm";
 import { numberSequences } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
+import { IMPORTABLE_DOCUMENT_TYPES } from "../config/document-constants";
 
-/**
- * Document types that are imported from external systems (e.g. kivitendo CSV).
- * Used by import-bulk to sync number sequences after data import.
- * Excludes dunning, order_confirmation, and intake — not present in kivitendo exports.
- */
-export const IMPORTABLE_DOCUMENT_TYPES = [
-  "invoice",
-  "quote",
-  "order",
-  "delivery_note",
-  "purchase_invoice",
-  "purchase_order",
-  "credit_note",
-] as const;
+export { IMPORTABLE_DOCUMENT_TYPES };
 
 // Default sequence configs per type
 const SEQUENCE_DEFAULTS: Record<string, { prefix: string; format: string }> = {

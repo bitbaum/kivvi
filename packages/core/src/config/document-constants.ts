@@ -11,6 +11,21 @@ export const DEFAULT_PAYMENT_TERMS_DAYS = 30;
 /** Document types that can have payments recorded */
 export const PAYABLE_DOCUMENT_TYPES = ["invoice", "purchase_invoice"] as const;
 
+/**
+ * Document types present in kivitendo CSV exports.
+ * Used by import-bulk to sync number sequences after data import.
+ * Excludes dunning, order_confirmation, and intake — not in kivitendo exports.
+ */
+export const IMPORTABLE_DOCUMENT_TYPES = [
+  "invoice",
+  "quote",
+  "order",
+  "delivery_note",
+  "purchase_invoice",
+  "purchase_order",
+  "credit_note",
+] as const;
+
 /** Document types that generate QR references */
 export const QR_REFERENCE_TYPES = ["invoice"] as const;
 
