@@ -30,11 +30,11 @@ import {
 } from "@kivvi/core/src/domain/email";
 import {
   type ActionResult,
-  getSession,
   requireRole,
   safeErrorMessage,
   formatZodError,
 } from "./utils";
+import { createAction } from "./action-factory";
 import { revalidateDocumentPaths } from "./utils/revalidate-documents";
 import { getTransporter, getFromEmail } from "@/lib/email/transporter";
 import { isEmailConfigured } from "@/lib/config/email";
@@ -123,24 +123,15 @@ export async function updateDocumentAction(
   }
 }
 
-export async function deleteDocumentAction(
-  documentId: string,
-): Promise<ActionResult> {
-  const t = await getTranslations("documents");
-  try {
-    const { companyId } = await requireRole("member");
-
+export const deleteDocumentAction = createAction<string, void>({
+  handler: async (documentId, { companyId, db }) => {
     const doc = await deleteDocument(db, companyId, documentId);
-
     revalidateDocumentPaths(doc.type);
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorFailedToDelete")),
-    };
-  }
-}
+  },
+  errorMessage: () =>
+    getTranslations("documents").then((t) => t("errorFailedToDelete")),
+  minRole: "member",
+});
 
 export async function updateDocumentStatusAction(
   documentId: string,
@@ -294,29 +285,21 @@ export async function convertDocumentAction(
   }
 }
 
-export async function duplicateDocumentAction(
-  sourceDocumentId: string,
-): Promise<ActionResult<{ id: string; number: string; type: string }>> {
-  const t = await getTranslations("documents");
-  try {
-    const { companyId, userId } = await requireRole("member");
-
+export const duplicateDocumentAction = createAction<
+  string,
+  { id: string; number: string; type: string }
+>({
+  handler: async (sourceDocumentId, { companyId, userId, db }) => {
     const doc = await duplicateDocument(
       db,
       companyId,
       userId,
       sourceDocumentId,
     );
-
     revalidateDocumentPaths(doc.type, doc.id);
-    return {
-      success: true,
-      data: { id: doc.id, number: doc.number, type: doc.type },
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorFailedToDuplicate")),
-    };
-  }
-}
+    return { id: doc.id, number: doc.number, type: doc.type };
+  },
+  errorMessage: () =>
+    getTranslations("documents").then((t) => t("errorFailedToDuplicate")),
+  minRole: "member",
+});
