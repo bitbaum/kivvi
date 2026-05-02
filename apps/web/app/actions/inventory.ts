@@ -20,7 +20,10 @@ import { getTranslations } from "next-intl/server";
 // WAREHOUSES
 // ============================================================================
 
-export const createWarehouseAction = createAction<unknown, unknown>({
+export const createWarehouseAction = createAction<
+  unknown,
+  Awaited<ReturnType<typeof createWarehouse>>
+>({
   handler: async (input, { companyId, db }) => {
     const parsed = createWarehouseSchema.safeParse(input);
     if (!parsed.success)
@@ -35,7 +38,7 @@ export const createWarehouseAction = createAction<unknown, unknown>({
 
 export const updateWarehouseAction = createAction<
   { warehouseId: string; input: unknown },
-  unknown
+  Awaited<ReturnType<typeof updateWarehouse>>
 >({
   handler: async ({ warehouseId, input }, { companyId, db }) => {
     const parsed = createWarehouseSchema.safeParse(input);
@@ -63,7 +66,10 @@ export const deleteWarehouseAction = createAction<string, void>({
 // STOCK MOVEMENTS
 // ============================================================================
 
-export const createStockMovementAction = createAction<unknown, unknown>({
+export const createStockMovementAction = createAction<
+  unknown,
+  Awaited<ReturnType<typeof createStockMovement>>
+>({
   handler: async (input, { companyId, db }) => {
     const parsed = createStockMovementSchema.safeParse(input);
     if (!parsed.success)
@@ -76,7 +82,10 @@ export const createStockMovementAction = createAction<unknown, unknown>({
   minRole: "member",
 });
 
-export const transferStockAction = createAction<unknown, unknown>({
+export const transferStockAction = createAction<
+  unknown,
+  Awaited<ReturnType<typeof transferStock>>
+>({
   handler: async (input, { companyId, db }) => {
     const parsed = transferStockSchema.safeParse(input);
     if (!parsed.success)
@@ -93,7 +102,10 @@ export const transferStockAction = createAction<unknown, unknown>({
 // SERIAL NUMBERS
 // ============================================================================
 
-export const createSerialNumberAction = createAction<unknown, unknown>({
+export const createSerialNumberAction = createAction<
+  unknown,
+  Awaited<ReturnType<typeof createSerialNumber>>
+>({
   handler: async (input, { companyId, db }) => {
     const parsed = createSerialNumberSchema.safeParse(input);
     if (!parsed.success)
@@ -112,7 +124,7 @@ export const updateSerialNumberStatusAction = createAction<
     status: "available" | "sold" | "reserved" | "defective";
     soldToContactId?: string;
   },
-  unknown
+  Awaited<ReturnType<typeof updateSerialNumberStatus>>
 >({
   handler: async (
     { serialNumberId, status, soldToContactId },

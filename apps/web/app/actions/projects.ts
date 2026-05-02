@@ -9,7 +9,10 @@ import {
 import { createAction } from "./action-factory";
 import { getTranslations } from "next-intl/server";
 
-export const createProjectAction = createAction<unknown, unknown>({
+export const createProjectAction = createAction<
+  unknown,
+  Awaited<ReturnType<typeof createProject>>
+>({
   handler: async (input, { companyId, db }) => {
     const parsed = createProjectSchema.safeParse(input);
     if (!parsed.success)
@@ -24,7 +27,7 @@ export const createProjectAction = createAction<unknown, unknown>({
 
 export const updateProjectAction = createAction<
   { projectId: string; input: unknown },
-  unknown
+  Awaited<ReturnType<typeof updateProject>>
 >({
   handler: async ({ projectId, input }, { companyId, db }) => {
     const parsed = updateProjectSchema.safeParse(input);

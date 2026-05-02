@@ -30,7 +30,10 @@ import { getTranslations } from "next-intl/server";
 // BANK ACCOUNTS
 // ============================================================================
 
-export const createBankAccountAction = createAction<unknown, unknown>({
+export const createBankAccountAction = createAction<
+  unknown,
+  Awaited<ReturnType<typeof createBankAccount>>
+>({
   handler: async (input, { companyId, db }) => {
     const parsed = createBankAccountSchema.safeParse(input);
     if (!parsed.success)
@@ -45,7 +48,7 @@ export const createBankAccountAction = createAction<unknown, unknown>({
 
 export const updateBankAccountAction = createAction<
   { bankAccountId: string; input: unknown },
-  unknown
+  Awaited<ReturnType<typeof updateBankAccount>>
 >({
   handler: async ({ bankAccountId, input }, { companyId, db }) => {
     const parsed = createBankAccountSchema.safeParse(input);
@@ -206,7 +209,10 @@ export const reconcileTransactionAction = createAction<
   minRole: "member",
 });
 
-export const unreconcileTransactionAction = createAction<string, unknown>({
+export const unreconcileTransactionAction = createAction<
+  string,
+  Awaited<ReturnType<typeof unreconcileTransaction>>
+>({
   handler: async (transactionId, { companyId, db }) => {
     return unreconcileTransaction(db, companyId, transactionId);
   },

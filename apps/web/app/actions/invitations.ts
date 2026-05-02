@@ -114,7 +114,7 @@ export const inviteMemberAction = createAction<
 /**
  * Revoke a pending invitation.
  */
-export const revokeInvitationAction = createAction<unknown, void>({
+export const revokeInvitationAction = createAction<string, void>({
   minRole: "admin",
   revalidate: ["/settings/team"],
   errorMessage: () => getTranslations("team").then((t) => t("revokeFailed")),

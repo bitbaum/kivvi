@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import { companies, users, numberSequences } from "@kivvi/database";
-import type { CompanySettings } from "@kivvi/database";
+import type { CompanySettings, Company } from "@kivvi/database";
 import { AI_PROVIDER_VALUES } from "@kivvi/database/src/enums";
 import { eq, and } from "drizzle-orm";
 import { z } from "zod";
@@ -54,7 +54,7 @@ const updateCompanySchema = z.object({
   aiApiKey: z.string().max(200).optional().nullable(),
 });
 
-export const updateCompanyAction = createAction<unknown, unknown>({
+export const updateCompanyAction = createAction<unknown, Company | undefined>({
   handler: async (input, { companyId, db }) => {
     const parsed = updateCompanySchema.safeParse(input);
     if (!parsed.success)

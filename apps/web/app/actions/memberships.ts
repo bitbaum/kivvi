@@ -66,7 +66,7 @@ export const getTeamMembersAction = createAction<void, CompanyMember[]>({
 /**
  * Remove a member from the current company.
  */
-export const removeMemberAction = createAction<unknown, void>({
+export const removeMemberAction = createAction<string, void>({
   handler: async (userId, { companyId, userId: currentUserId, db }) => {
     const parsed = z.string().uuid().safeParse(userId);
     if (!parsed.success) throw new Error("bad_user_id");

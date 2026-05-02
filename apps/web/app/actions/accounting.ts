@@ -22,7 +22,10 @@ import { getTranslations } from "next-intl/server";
 // CHART OF ACCOUNTS
 // ============================================================================
 
-export const createAccountAction = createAction<unknown, unknown>({
+export const createAccountAction = createAction<
+  unknown,
+  Awaited<ReturnType<typeof createAccount>>
+>({
   handler: async (input, { companyId, db }) => {
     const parsed = createAccountSchema.safeParse(input);
     if (!parsed.success)
@@ -37,7 +40,7 @@ export const createAccountAction = createAction<unknown, unknown>({
 
 export const updateAccountAction = createAction<
   { accountId: string; input: unknown },
-  unknown
+  Awaited<ReturnType<typeof updateAccount>>
 >({
   handler: async ({ accountId, input }, { companyId, db }) => {
     const parsed = updateAccountSchema.safeParse(input);
@@ -51,7 +54,10 @@ export const updateAccountAction = createAction<
   minRole: "member",
 });
 
-export const toggleAccountAction = createAction<string, unknown>({
+export const toggleAccountAction = createAction<
+  string,
+  Awaited<ReturnType<typeof toggleAccount>>
+>({
   handler: async (accountId, { companyId, db }) => {
     return toggleAccount(db, companyId, accountId);
   },
@@ -76,7 +82,10 @@ export const seedChartOfAccountsAction = createAction<void, { count: number }>({
 // JOURNAL ENTRIES
 // ============================================================================
 
-export const createJournalEntryAction = createAction<unknown, unknown>({
+export const createJournalEntryAction = createAction<
+  unknown,
+  Awaited<ReturnType<typeof createJournalEntry>>
+>({
   handler: async (input, { companyId, userId, db }) => {
     const parsed = createJournalEntrySchema.safeParse(input);
     if (!parsed.success)
@@ -103,7 +112,10 @@ export const deleteJournalEntryAction = createAction<string, void>({
 // FISCAL YEARS
 // ============================================================================
 
-export const createFiscalYearAction = createAction<unknown, unknown>({
+export const createFiscalYearAction = createAction<
+  unknown,
+  Awaited<ReturnType<typeof createFiscalYear>>
+>({
   handler: async (input, { companyId, db }) => {
     const parsed = createFiscalYearSchema.safeParse(input);
     if (!parsed.success)
@@ -116,7 +128,10 @@ export const createFiscalYearAction = createAction<unknown, unknown>({
   minRole: "admin",
 });
 
-export const closeFiscalPeriodAction = createAction<string, unknown>({
+export const closeFiscalPeriodAction = createAction<
+  string,
+  Awaited<ReturnType<typeof closeFiscalPeriod>>
+>({
   handler: async (periodId, { companyId, db }) => {
     return closeFiscalPeriod(db, companyId, periodId);
   },
@@ -126,7 +141,10 @@ export const closeFiscalPeriodAction = createAction<string, unknown>({
   minRole: "admin",
 });
 
-export const closeFiscalYearAction = createAction<string, unknown>({
+export const closeFiscalYearAction = createAction<
+  string,
+  Awaited<ReturnType<typeof closeFiscalYear>>
+>({
   handler: async (yearId, { companyId, userId, db }) => {
     return closeFiscalYear(db, companyId, yearId, userId);
   },
