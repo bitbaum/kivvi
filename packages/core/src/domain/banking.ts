@@ -1,6 +1,7 @@
 import { z } from "zod";
 import Decimal from "decimal.js";
 import { DEFAULT_CURRENCY } from "../config/locale";
+import { NON_TERMINAL_STATUSES } from "../config/document-constants";
 import { eq, and, asc, desc, sql } from "drizzle-orm";
 import {
   bankAccounts,
@@ -462,7 +463,10 @@ export async function matchTransactionToDocument(
   if (txn.bankAccount.companyId !== companyId) throw new Error("Unauthorized");
   if (txn.isReconciled) throw new Error("Transaction already reconciled");
 
-  const PAYABLE_STATUSES = sql`${documents.status} IN ('sent', 'confirmed', 'delivered', 'partially_paid', 'overdue', 'dunning_1', 'dunning_2', 'dunning_3')`;
+  const PAYABLE_STATUSES = sql`${documents.status} IN (${sql.join(
+    NON_TERMINAL_STATUSES.map((s) => sql`${s}`),
+    sql`, `,
+  )})`;
 
   // 1. QR reference match (check both reference and remittanceInfo fields)
   let matchedDoc = null;
@@ -571,16 +575,6 @@ export async function autoMatchTransactions(
     );
 
   // Get open invoices that can receive payments
-  const PAYABLE_STATUSES = [
-    "sent",
-    "confirmed",
-    "delivered",
-    "partially_paid",
-    "overdue",
-    "dunning_1",
-    "dunning_2",
-    "dunning_3",
-  ];
   const openInvoices = await db
     .select()
     .from(documents)
@@ -589,7 +583,7 @@ export async function autoMatchTransactions(
         eq(documents.companyId, companyId),
         eq(documents.type, "invoice"),
         sql`${documents.status} IN (${sql.join(
-          PAYABLE_STATUSES.map((s) => sql`${s}`),
+          NON_TERMINAL_STATUSES.map((s) => sql`${s}`),
           sql`, `,
         )})`,
       ),
@@ -688,7 +682,9 @@ export async function getReconciliationSummary(
     totalTransactions: stats.total,
     reconciled: stats.reconciled,
     unreconciled: stats.unreconciled,
-    totalUnreconciledAmount: new Decimal(stats.unreconciledAmount || "0").toNumber(),
+    totalUnreconciledAmount: new Decimal(
+      stats.unreconciledAmount || "0",
+    ).toNumber(),
   };
 }
 
