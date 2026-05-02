@@ -8,6 +8,7 @@ import { companies } from "@kivvi/database";
 import type { CompanySettings } from "@kivvi/database";
 import { getImpactMetrics } from "@kivvi/core/src/domain/impact";
 import { getChecklistTemplate } from "@kivvi/core/src/config/checklist-templates";
+import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
 
 export async function ImpactOverview() {
   const session = await getSessionOrRedirect();
@@ -31,7 +32,7 @@ export async function ImpactOverview() {
   const co2Display =
     co2Kg >= 1000
       ? `${(co2Kg / 1000).toFixed(1)} t`
-      : `${co2Kg.toLocaleString()} kg`;
+      : `${co2Kg.toLocaleString(DEFAULT_LOCALE)} kg`;
 
   const topCategories = metrics.co2ByCategory.slice(0, 3);
 

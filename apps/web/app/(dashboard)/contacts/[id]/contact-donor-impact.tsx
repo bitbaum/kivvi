@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { companies } from "@kivvi/database";
 import type { CompanySettings } from "@kivvi/database";
 import { getImpactMetrics } from "@kivvi/core/src/domain/impact";
+import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
 import { CardSection } from "@/components/card-section";
 
 interface ContactDonorImpactProps {
@@ -38,7 +39,7 @@ export async function ContactDonorImpact({
   const co2Display =
     co2Kg >= 1000
       ? `${(co2Kg / 1000).toFixed(1)} t`
-      : `${co2Kg.toLocaleString()} kg`;
+      : `${co2Kg.toLocaleString(DEFAULT_LOCALE)} kg`;
 
   return (
     <CardSection

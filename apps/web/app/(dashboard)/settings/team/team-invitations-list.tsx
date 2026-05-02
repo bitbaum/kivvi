@@ -2,8 +2,8 @@
 
 import { Mail, Clock, X } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
 import type { PendingInvitation } from "@kivvi/core/src/domain/invitations";
+import { formatDate } from "@/lib/utils";
 import { RoleBadge } from "./role-badge";
 
 interface TeamInvitationsListProps {
@@ -38,9 +38,7 @@ export function TeamInvitationsList({
               <p className="font-medium truncate">{invite.email}</p>
               <p className="text-sm text-muted-foreground">
                 {t("expiresOn", {
-                  date: new Date(invite.expiresAt).toLocaleDateString(
-                    DEFAULT_LOCALE,
-                  ),
+                  date: formatDate(invite.expiresAt),
                 })}
               </p>
             </div>

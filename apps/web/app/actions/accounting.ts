@@ -15,8 +15,8 @@ import {
   updateAccountSchema,
   createJournalEntrySchema,
   createFiscalYearSchema,
-  type Account,
 } from "@kivvi/core";
+import type { Account } from "@kivvi/database";
 import { createAction } from "./action-factory";
 import { getTranslations } from "next-intl/server";
 

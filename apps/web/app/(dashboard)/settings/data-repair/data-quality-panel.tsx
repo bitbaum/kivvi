@@ -31,7 +31,7 @@ export function DataQualityPanel({
   async function refresh() {
     setRefreshing(true);
     const result = await getDataQualityReportAction();
-    if (result.success) setReport(result.data!);
+    if (result.success && result.data) setReport(result.data);
     setRefreshing(false);
   }
 

@@ -50,7 +50,7 @@ export function useJournalEntryForm() {
   useEffect(() => {
     listAccountsAction({ isActive: true })
       .then((result) => {
-        if (result.success) setAccounts(result.data as Account[]);
+        if (result.success && result.data) setAccounts(result.data);
       })
       .catch(() => {
         // Silently fail — accounts will just be empty

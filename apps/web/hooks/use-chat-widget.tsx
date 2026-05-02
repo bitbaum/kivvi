@@ -62,7 +62,7 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     getAvailableModelsAction()
       .then((result) => {
-        if (result.success) setModels(result.data);
+        if (result.success && result.data) setModels(result.data);
       })
       .catch((err) => logger.warn("Failed to load models", err));
   }, []);

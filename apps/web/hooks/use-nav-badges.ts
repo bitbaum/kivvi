@@ -24,7 +24,7 @@ export function useNavBadges(): NavBadges {
     async function fetchBadges() {
       try {
         const result = await getNavBadgesAction();
-        if (!cancelled && result.success) setBadges(result.data);
+        if (!cancelled && result.success && result.data) setBadges(result.data);
       } catch {
         // Silently fail — badges are non-critical
       }

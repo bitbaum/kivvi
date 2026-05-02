@@ -16,6 +16,7 @@ import {
   CO2_CAR_KG_PER_KM,
 } from "@kivvi/core/src/config/co2-factors";
 import { ImpactPdfDownload } from "./impact-pdf-download";
+import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
 
 export const metadata: Metadata = {
   title: "Impact Report — Kivvi",
@@ -80,7 +81,7 @@ export default async function ImpactReportPage() {
             <SummaryCard
               icon={<Recycle className="h-5 w-5" />}
               label={t("itemsReused")}
-              value={metrics.itemsReused.toLocaleString()}
+              value={metrics.itemsReused.toLocaleString(DEFAULT_LOCALE)}
               sub={`${metrics.reuseRatePercent}% ${t("reuseRate")}`}
               color="text-success"
             />
@@ -88,20 +89,20 @@ export default async function ImpactReportPage() {
               icon={<Leaf className="h-5 w-5" />}
               label={t("co2Avoided")}
               value={`${co2Tonnes} t`}
-              sub={`${co2Kg.toLocaleString()} kg ${tc("total")}`}
+              sub={`${co2Kg.toLocaleString(DEFAULT_LOCALE)} kg ${tc("total")}`}
               color="text-success"
             />
             <SummaryCard
               icon={<Package className="h-5 w-5" />}
               label={tr("impactItemsProcessed")}
-              value={metrics.itemsProcessed.toLocaleString()}
+              value={metrics.itemsProcessed.toLocaleString(DEFAULT_LOCALE)}
               sub={`${metrics.wasteDiverted} ${t("divertedFromLandfill")}`}
               color="text-info"
             />
             <SummaryCard
               icon={<Recycle className="h-5 w-5" />}
               label={tr("impactItemsRecycled")}
-              value={metrics.itemsRecycled.toLocaleString()}
+              value={metrics.itemsRecycled.toLocaleString(DEFAULT_LOCALE)}
               sub={tr("impactMaterialCycle")}
               color="text-warning"
             />
@@ -113,21 +114,21 @@ export default async function ImpactReportPage() {
             <div className="grid gap-4 sm:grid-cols-3 text-sm">
               <div className="rounded-lg bg-success/5 p-4">
                 <div className="text-2xl font-bold text-success mb-1">
-                  {treesEquivalent.toLocaleString()}
+                  {treesEquivalent.toLocaleString(DEFAULT_LOCALE)}
                 </div>
                 <p className="text-muted-foreground">
                   {tr("impactTreesEquivalent", {
-                    count: treesEquivalent.toLocaleString(),
+                    count: treesEquivalent.toLocaleString(DEFAULT_LOCALE),
                   })}
                 </p>
               </div>
               <div className="rounded-lg bg-success/5 p-4">
                 <div className="text-2xl font-bold text-success mb-1">
-                  {carKmEquivalent.toLocaleString()}
+                  {carKmEquivalent.toLocaleString(DEFAULT_LOCALE)}
                 </div>
                 <p className="text-muted-foreground">
                   {tr("impactCarKmEquivalent", {
-                    count: carKmEquivalent.toLocaleString(),
+                    count: carKmEquivalent.toLocaleString(DEFAULT_LOCALE),
                   })}
                 </p>
               </div>
@@ -175,7 +176,7 @@ export default async function ImpactReportPage() {
                           <span className="font-medium tabular-nums">
                             {catCo2Kg >= 1000
                               ? `${(catCo2Kg / 1000).toFixed(1)} t`
-                              : `${catCo2Kg.toLocaleString()} kg`}
+                              : `${catCo2Kg.toLocaleString(DEFAULT_LOCALE)} kg`}
                           </span>
                         </div>
                       </div>
