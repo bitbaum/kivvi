@@ -9,6 +9,7 @@
  * All checks are tenant-scoped (companyId required).
  */
 
+import Decimal from "decimal.js";
 import { eq, and, sql, isNull, ne, lt, or, inArray } from "drizzle-orm";
 import {
   contacts,
@@ -317,11 +318,11 @@ export async function findDocumentIssues(
   const docsWithItemsSet = new Set(docsWithItems.map((r) => r.documentId));
 
   for (const doc of allDocs) {
-    const total = parseFloat(doc.total ?? "0");
+    const total = new Decimal(doc.total ?? "0");
 
     // Zero total on non-draft docs (excluding intake which legitimately has 0)
     if (
-      total === 0 &&
+      total.isZero() &&
       doc.status !== "draft" &&
       doc.type !== "intake" &&
       doc.type !== "delivery_note"
@@ -393,8 +394,8 @@ export async function findProductIssues(
     .where(and(eq(products.companyId, companyId), eq(products.isActive, true)));
 
   for (const p of allProducts) {
-    const price = parseFloat(p.unitPrice ?? "0");
-    if (price === 0 && !p.isPriceFlexible) {
+    const price = new Decimal(p.unitPrice ?? "0");
+    if (price.isZero() && !p.isPriceFlexible) {
       issues.push({
         id: p.id,
         name: p.name,
