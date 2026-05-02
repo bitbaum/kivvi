@@ -10,7 +10,11 @@ import { getTranslations } from "next-intl/server";
 import { getImpactMetrics } from "@kivvi/core/src/domain/impact";
 import { getChecklistTemplate } from "@kivvi/core/src/config/checklist-templates";
 import { PageHeader } from "@/components/page-header";
-import { CO2_FACTORS_KG } from "@kivvi/core/src/config/co2-factors";
+import {
+  CO2_FACTORS_KG,
+  CO2_TREE_KG_PER_YEAR,
+  CO2_CAR_KG_PER_KM,
+} from "@kivvi/core/src/config/co2-factors";
 import { ImpactPdfDownload } from "./impact-pdf-download";
 
 export const metadata: Metadata = {
@@ -40,9 +44,8 @@ export default async function ImpactReportPage() {
   const co2Kg = Number(metrics.co2AvoidedKg);
   const co2Tonnes = (co2Kg / 1000).toFixed(2);
 
-  // Equivalent comparisons for context
-  const treesEquivalent = Math.round(co2Kg / 21); // ~21 kg CO2/tree/year
-  const carKmEquivalent = Math.round(co2Kg / 0.21); // ~210g CO2/km
+  const treesEquivalent = Math.round(co2Kg / CO2_TREE_KG_PER_YEAR);
+  const carKmEquivalent = Math.round(co2Kg / CO2_CAR_KG_PER_KM);
 
   return (
     <div className="space-y-8">

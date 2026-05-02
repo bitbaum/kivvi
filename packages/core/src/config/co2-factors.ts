@@ -43,6 +43,10 @@ export const CO2_FACTORS_KG: Record<string, number> = {
 /** Default when category is unknown or null */
 export const CO2_DEFAULT_KG = 50;
 
+/** Equivalence factors for human-readable CO2 impact display */
+export const CO2_TREE_KG_PER_YEAR = 21; // kg CO2 absorbed by one tree per year
+export const CO2_CAR_KG_PER_KM = 0.21; // kg CO2 emitted per km driven (avg European car)
+
 /** Resolve CO2 factor for a given category, with company override support */
 export function getCo2Factor(
   category: string | null | undefined,

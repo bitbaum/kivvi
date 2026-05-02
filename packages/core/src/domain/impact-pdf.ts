@@ -16,6 +16,7 @@ import type {
   TopDonor,
   DestinationBreakdown,
 } from "./impact";
+import { CO2_TREE_KG_PER_YEAR, CO2_CAR_KG_PER_KM } from "../config/co2-factors";
 
 export interface ImpactPdfData {
   companyName: string;
@@ -88,8 +89,8 @@ export function generateImpactPdf(data: ImpactPdfData): Promise<Buffer> {
     const { metrics } = data;
     const co2Kg = Number(metrics.co2AvoidedKg);
     const co2Tonnes = (co2Kg / 1000).toFixed(2);
-    const treesEquiv = Math.round(co2Kg / 21);
-    const carKmEquiv = Math.round(co2Kg / 0.21);
+    const treesEquiv = Math.round(co2Kg / CO2_TREE_KG_PER_YEAR);
+    const carKmEquiv = Math.round(co2Kg / CO2_CAR_KG_PER_KM);
 
     const kpis = [
       {
