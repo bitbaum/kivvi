@@ -9,6 +9,7 @@ import {
   listJournalEntries,
 } from "@kivvi/core";
 import type { DocumentType } from "@kivvi/database";
+import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 
 export async function GET(
   request: NextRequest,
@@ -68,7 +69,7 @@ export async function GET(
         Unit: p.unit || "",
         Stock: p.stockQuantity || "",
         "Min Stock": p.minStock ?? "",
-        Currency: p.currency || "CHF",
+        Currency: p.currency || DEFAULT_CURRENCY,
       }));
       csvData = Papa.unparse(rows);
       filename = `products-${new Date().toISOString().split("T")[0]}.csv`;

@@ -18,6 +18,7 @@ import {
   formatZodError,
 } from "./utils";
 import { parseFormData } from "./parse-form-data";
+import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 import { getTranslations } from "next-intl/server";
 
 /**
@@ -35,7 +36,7 @@ function parseProductFormData(formData: FormData) {
     productGroupId: raw.productGroupId,
     unitPrice: raw.unitPrice ?? "0",
     purchasePrice: raw.purchasePrice,
-    currency: raw.currency ?? "CHF",
+    currency: raw.currency ?? DEFAULT_CURRENCY,
     vatRate: raw.vatRate ?? "0",
     unit: raw.unit ?? "piece",
     weight: raw.weight,

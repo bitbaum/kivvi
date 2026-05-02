@@ -3,6 +3,7 @@ import { eq, and } from "drizzle-orm";
 import Decimal from "decimal.js";
 import type { Tool, ExecutionContext, ToolResult } from "../types";
 import { getDb } from "./utils";
+import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 
 const recordRepairPartSchema = z.object({
   item_identifier: z
@@ -120,7 +121,7 @@ Examples:
         notes: params.notes ?? undefined,
       });
 
-      const currency = context.defaultCurrency ?? "CHF";
+      const currency = context.defaultCurrency ?? DEFAULT_CURRENCY;
       const lineTotal = new Decimal(quantity)
         .times(new Decimal(params.unit_cost))
         .toFixed(2);

@@ -19,6 +19,7 @@ import {
   calculateTrialBalanceTotals,
 } from "@kivvi/core";
 import { formatCurrency } from "@/lib/utils";
+import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 import { getTranslations } from "next-intl/server";
 import { StatCard, MiniStat } from "@/components/money/stat-cards";
 
@@ -194,7 +195,7 @@ export async function OverviewTab({ companyId }: { companyId: string }) {
                 <p className="text-sm font-semibold">
                   {formatCurrency(
                     account.balance || "0",
-                    account.currency || "CHF",
+                    account.currency || DEFAULT_CURRENCY,
                   )}
                 </p>
               </Link>

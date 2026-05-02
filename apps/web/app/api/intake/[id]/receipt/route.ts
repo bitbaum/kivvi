@@ -8,7 +8,10 @@ import type { CompanySettings } from "@kivvi/database";
 import { and, eq } from "drizzle-orm";
 import Decimal from "decimal.js";
 import { logger } from "@/lib/logger";
-import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
+import {
+  DEFAULT_LOCALE,
+  DEFAULT_CURRENCY,
+} from "@kivvi/core/src/config/locale";
 
 export async function GET(
   _request: NextRequest,
@@ -110,7 +113,7 @@ export async function GET(
         quantity: item.quantity || "1",
       })),
       estimatedTotalValue: estimatedTotal,
-      currency: doc.currency || "CHF",
+      currency: doc.currency || DEFAULT_CURRENCY,
     });
 
     return new NextResponse(new Uint8Array(pdfBuffer), {

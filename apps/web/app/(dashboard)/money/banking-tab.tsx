@@ -4,6 +4,7 @@ import { EmptyState } from "@/components/empty-state";
 import { db } from "@/lib/db";
 import { listBankAccounts, getBankTransactionsSummary } from "@kivvi/core";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 import { getTranslations } from "next-intl/server";
 import { AddAccountForm } from "../banking/add-account-form";
 
@@ -84,7 +85,7 @@ export async function BankingTab({ companyId }: { companyId: string }) {
                   <p className="text-lg font-semibold">
                     {formatCurrency(
                       account.balance || "0",
-                      account.currency || "CHF",
+                      account.currency || DEFAULT_CURRENCY,
                     )}
                   </p>
                 </div>

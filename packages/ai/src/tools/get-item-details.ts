@@ -3,6 +3,7 @@ import { z } from "zod";
 import { eq, and } from "drizzle-orm";
 import type { Tool, ExecutionContext, ToolResult } from "../types";
 import { getDb } from "./utils";
+import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 
 const getItemDetailsSchema = z.object({
   item_identifier: z
@@ -73,7 +74,7 @@ export const getItemDetailsTool: Tool = {
         };
       }
 
-      const currency = context.defaultCurrency ?? "CHF";
+      const currency = context.defaultCurrency ?? DEFAULT_CURRENCY;
 
       // Build repair summary from log
       const repairLines = item.repairLog

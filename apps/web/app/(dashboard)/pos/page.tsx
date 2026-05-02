@@ -23,6 +23,7 @@ import {
 import { formatCurrency } from "@/lib/utils";
 import Decimal from "decimal.js";
 import { DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
+import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 
 type PaymentMethod = "cash" | "card" | "twint";
 
@@ -144,7 +145,7 @@ export default function PosPage() {
       const docResult = await createDocumentAction({
         type: "invoice",
         contactId: null,
-        currency: "CHF",
+        currency: DEFAULT_CURRENCY,
         items: cart.map((item, i) => ({
           position: i,
           description: item.description,

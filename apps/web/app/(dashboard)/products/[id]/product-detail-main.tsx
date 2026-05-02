@@ -2,6 +2,7 @@ import { Info, Package, Wrench } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import Decimal from "decimal.js";
 import { formatCurrency } from "@/lib/utils";
+import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 import { SWISS_VAT_RATES, DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
 import { getProductTypeLabels } from "@/lib/config/products";
 import type { getProduct } from "@kivvi/core";
@@ -113,7 +114,7 @@ export async function ProductDetailMain({ product }: ProductDetailMainProps) {
               <dd className="mt-1 text-2xl font-bold">
                 {formatCurrency(
                   Number(product.unitPrice),
-                  product.currency || "CHF",
+                  product.currency || DEFAULT_CURRENCY,
                 )}
               </dd>
             </div>
@@ -125,7 +126,7 @@ export async function ProductDetailMain({ product }: ProductDetailMainProps) {
                 {product.purchasePrice
                   ? formatCurrency(
                       Number(product.purchasePrice),
-                      product.currency || "CHF",
+                      product.currency || DEFAULT_CURRENCY,
                     )
                   : "-"}
               </dd>
@@ -147,7 +148,9 @@ export async function ProductDetailMain({ product }: ProductDetailMainProps) {
               <dt className="text-sm text-muted-foreground">
                 {tc("currency")}
               </dt>
-              <dd className="mt-1 font-medium">{product.currency || "CHF"}</dd>
+              <dd className="mt-1 font-medium">
+                {product.currency || DEFAULT_CURRENCY}
+              </dd>
             </div>
           </dl>
         </div>

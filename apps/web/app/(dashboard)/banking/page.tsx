@@ -6,6 +6,7 @@ import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { listBankAccounts, getBankTransactionsSummary } from "@kivvi/core";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 import { AddAccountForm } from "./add-account-form";
 import { PageHeader } from "@/components/page-header";
 import { getTranslations } from "next-intl/server";
@@ -103,7 +104,7 @@ export default async function BankingPage() {
                   <p className="text-lg font-semibold">
                     {formatCurrency(
                       account.balance || "0",
-                      account.currency || "CHF",
+                      account.currency || DEFAULT_CURRENCY,
                     )}
                   </p>
                 </div>

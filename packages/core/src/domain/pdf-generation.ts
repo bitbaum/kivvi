@@ -463,7 +463,7 @@ export async function generateInvoicePdf(
           country: data.companyCountry || "CH",
           account: data.companyIban,
         },
-        currency: "CHF",
+        currency: DEFAULT_CURRENCY,
         amount: totalAmount,
       };
 

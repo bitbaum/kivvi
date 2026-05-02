@@ -3,6 +3,7 @@ import { eq, and, gte, lte, ilike, inArray, count } from "drizzle-orm";
 import { companies, inventoryItems } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
 import { PUBLIC_ITEM_STATUSES } from "../config/item-status-sets";
+import { DEFAULT_CURRENCY } from "../config/locale";
 
 // ============================================================================
 // PUBLIC SHOP DOMAIN
@@ -98,14 +99,14 @@ export async function getPublicItem(
     .limit(1);
 
   if (!row) return null;
-  return { ...row, currency: "CHF" };
+  return { ...row, currency: DEFAULT_CURRENCY };
 }
 
 export async function listPublicItems(
   db: Database,
   companyId: string,
   input: ListPublicItemsInput,
-  currency: string = "CHF",
+  currency: string = DEFAULT_CURRENCY,
 ): Promise<PublicItemsResult> {
   const parsed = listPublicItemsSchema.parse(input);
   const { page, pageSize } = parsed;

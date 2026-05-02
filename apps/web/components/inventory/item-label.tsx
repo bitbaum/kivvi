@@ -3,6 +3,7 @@
  * Designed for standard label sheets (Avery L7160: 63.5mm × 38.1mm, 21/page).
  * Server component — QR code generated server-side.
  */
+import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 
 interface ItemLabelProps {
   itemNumber: string;
@@ -29,7 +30,7 @@ export function ItemLabel({
   condition,
   qrDataUrl,
   askingPrice,
-  currency = "CHF",
+  currency = DEFAULT_CURRENCY,
 }: ItemLabelProps) {
   const priceText =
     askingPrice && Number(askingPrice) > 0

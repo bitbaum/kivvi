@@ -21,7 +21,10 @@ import {
   generateDonationReceiptPdf,
 } from "@kivvi/core/src/domain/pdf-generation";
 import { buildInvoicePdfData } from "@/lib/pdf/build-pdf-data";
-import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
+import {
+  DEFAULT_LOCALE,
+  DEFAULT_CURRENCY,
+} from "@kivvi/core/src/config/locale";
 import {
   buildInvoiceEmailHtml,
   buildInvoiceEmailSubject,
@@ -293,7 +296,7 @@ export async function sendDonationReceiptEmailAction(
         quantity: item.quantity || "1",
       })),
       estimatedTotalValue: estimatedValue,
-      currency: doc.currency || "CHF",
+      currency: doc.currency || DEFAULT_CURRENCY,
     });
 
     const emailData = {
@@ -303,7 +306,7 @@ export async function sendDonationReceiptEmailAction(
       receiptNumber: doc.number,
       itemCount: items.length,
       estimatedValue,
-      currency: doc.currency || "CHF",
+      currency: doc.currency || DEFAULT_CURRENCY,
       date,
       plan: plan as "free" | "premium",
     };

@@ -8,6 +8,7 @@ import {
   FileText,
 } from "lucide-react";
 import { getSessionOrRedirect } from "@/lib/session";
+import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 import { db } from "@/lib/db";
 import {
   getBankAccount,
@@ -108,7 +109,7 @@ export default async function BankAccountDetailPage({
             <p className="text-2xl font-bold">
               {formatCurrency(
                 account.balance || "0",
-                account.currency || "CHF",
+                account.currency || DEFAULT_CURRENCY,
               )}
             </p>
           </div>
@@ -138,7 +139,7 @@ export default async function BankAccountDetailPage({
           label={t("unreconciledAmount")}
           value={formatCurrency(
             summary.totalUnreconciledAmount,
-            account.currency || "CHF",
+            account.currency || DEFAULT_CURRENCY,
           )}
           icon={<CreditCard className="h-4 w-4 text-destructive" />}
           className="border-destructive/20"
@@ -196,7 +197,7 @@ export default async function BankAccountDetailPage({
 
       <BankTransactionsTable
         transactions={transactions}
-        currency={account.currency || "CHF"}
+        currency={account.currency || DEFAULT_CURRENCY}
         bankAccountId={bankAccountId}
         filter={filter}
         search={search}
