@@ -18,7 +18,10 @@ import {
   requireRole,
   safeErrorMessage,
 } from "./utils";
-import { updateSequencesAfterImport } from "@kivvi/core";
+import {
+  updateSequencesAfterImport,
+  IMPORTABLE_DOCUMENT_TYPES,
+} from "@kivvi/core";
 import {
   createInvoiceSentJournalEntry,
   createPurchaseInvoiceJournalEntry,
@@ -60,18 +63,10 @@ export async function repairNumberSequencesAction(): Promise<
 
     // Double-check: also do a raw numeric extraction for any formats
     // that the standard function might miss (e.g., kivitendo R2026082 format)
-    const docTypes = [
-      { seqType: "invoice", docType: "invoice" },
-      { seqType: "quote", docType: "quote" },
-      { seqType: "order", docType: "order" },
-      { seqType: "delivery_note", docType: "delivery_note" },
-      { seqType: "purchase_invoice", docType: "purchase_invoice" },
-      { seqType: "purchase_order", docType: "purchase_order" },
-      { seqType: "credit_note", docType: "credit_note" },
-      { seqType: "dunning", docType: "dunning" },
-    ] as const;
+    const docTypes = [...IMPORTABLE_DOCUMENT_TYPES, "dunning"] as const;
 
-    for (const { seqType, docType } of docTypes) {
+    for (const docType of docTypes) {
+      const seqType = docType;
       // Count existing docs to see if we need a higher sequence
       const [countResult] = await db
         .select({ count: sql<number>`COUNT(*)` })

@@ -17,6 +17,7 @@ import {
 } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
 import { DEFAULT_VAT_RATE } from "../config/vat-rates";
+import { IMPORTABLE_DOCUMENT_TYPES } from "./number-sequences";
 import type { ParsedLineItem } from "./import-mappings";
 
 // ============================================================================
@@ -921,17 +922,8 @@ export async function updateSequencesAfterImport(
   }
 
   // Update document sequences based on max document numbers
-  const docTypes = [
-    { seqType: "invoice", docType: "invoice" as const },
-    { seqType: "quote", docType: "quote" as const },
-    { seqType: "order", docType: "order" as const },
-    { seqType: "delivery_note", docType: "delivery_note" as const },
-    { seqType: "purchase_invoice", docType: "purchase_invoice" as const },
-    { seqType: "purchase_order", docType: "purchase_order" as const },
-    { seqType: "credit_note", docType: "credit_note" as const },
-  ];
-
-  for (const { seqType, docType } of docTypes) {
+  for (const docType of IMPORTABLE_DOCUMENT_TYPES) {
+    const seqType = docType;
     const [maxDoc] = await db
       .select({ max: sql<string>`MAX(${documents.number})` })
       .from(documents)
