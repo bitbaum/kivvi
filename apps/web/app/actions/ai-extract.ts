@@ -9,6 +9,7 @@ import {
 } from "@/lib/ai/call-provider";
 import type { CreateContactInput } from "@kivvi/core/src/domain/contacts";
 import { ITEM_CATEGORIES } from "@kivvi/core/src/config/checklist-templates";
+import { getAllModels, type ModelConfig } from "@kivvi/ai";
 
 // ============================================================================
 // TYPES — derived from domain schemas (SSOT)
@@ -242,4 +243,30 @@ function parseItemsSimple(text: string): ExtractedItem[] {
   }
 
   return items;
+}
+
+function getConfiguredProviders(): Set<string> {
+  const providers = new Set<string>();
+  if (process.env.GROQ_API_KEY) providers.add("groq");
+  if (process.env.XAI_API_KEY) providers.add("xai");
+  if (process.env.OPENROUTER_API_KEY) providers.add("openrouter");
+  if (process.env.ANTHROPIC_API_KEY) providers.add("anthropic");
+  if (process.env.OLLAMA_BASE_URL) providers.add("ollama");
+  return providers;
+}
+
+export async function getAvailableModelsAction(): Promise<
+  ActionResult<ModelConfig[]>
+> {
+  try {
+    await requireRole("member");
+    const configured = getConfiguredProviders();
+    const models = getAllModels().filter((m) => configured.has(m.providerId));
+    return { success: true, data: models };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, "Failed to load models"),
+    };
+  }
 }

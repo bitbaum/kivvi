@@ -26,13 +26,17 @@ interface Warehouse {
  * (and omit warehouseId) to let the user choose. Exactly one of the two must
  * be provided.
  */
-export type MovementFormProps =
+export type MovementFormProps = {
+  products: Product[];
+} & (
   | { warehouseId: string; warehouses?: never }
-  | { warehouseId?: never; warehouses: Warehouse[] };
+  | { warehouseId?: never; warehouses: Warehouse[] }
+);
 
 export function MovementForm(props: MovementFormProps) {
   const fixedWarehouseId = props.warehouseId;
   const warehouses = props.warehouseId ? null : props.warehouses;
+  const { products } = props;
   const router = useRouter();
   const t = useTranslations("inventory");
   const tc = useTranslations("common");
@@ -116,10 +120,9 @@ export function MovementForm(props: MovementFormProps) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <MovementProductPicker
-            isFormOpen={isOpen}
+            products={products}
             selectedProduct={selectedProduct}
             onSelect={setSelectedProduct}
-            onError={setError}
           />
 
           {warehouses && (

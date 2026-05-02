@@ -13,7 +13,11 @@ import {
 } from "lucide-react";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
-import { getWarehouse, getStockLevelsByWarehouse } from "@kivvi/core";
+import {
+  getWarehouse,
+  getStockLevelsByWarehouse,
+  listProducts,
+} from "@kivvi/core";
 import { cn, isValidUUID } from "@/lib/utils";
 import { getTranslations } from "next-intl/server";
 import { MovementForm } from "@/components/inventory/movement-form";
@@ -33,11 +37,15 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
   const warehouse = await getWarehouse(db, session.user.companyId, warehouseId);
   if (!warehouse) notFound();
 
-  const stockLevels = await getStockLevelsByWarehouse(
-    db,
-    session.user.companyId,
-    warehouseId,
-  );
+  const [stockLevels, productsResult] = await Promise.all([
+    getStockLevelsByWarehouse(db, session.user.companyId, warehouseId),
+    listProducts(db, session.user.companyId, {
+      isActive: true,
+      pageSize: 1000,
+      sortBy: "name",
+      sortOrder: "asc",
+    }),
+  ]);
 
   const totalProducts = stockLevels.length;
   const totalItems = stockLevels.reduce(
@@ -84,7 +92,10 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
               )}
             </div>
           </div>
-          <MovementForm warehouseId={warehouseId} />
+          <MovementForm
+            warehouseId={warehouseId}
+            products={productsResult.data}
+          />
         </div>
       </div>
 

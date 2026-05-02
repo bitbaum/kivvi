@@ -1,9 +1,12 @@
-import Decimal from 'decimal.js';
-import { useState, useEffect, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
-import { createJournalEntryAction } from '@/app/actions/accounting';
-import type { Account } from './account-picker';
+import Decimal from "decimal.js";
+import { useState, useEffect, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import {
+  createJournalEntryAction,
+  listAccountsAction,
+} from "@/app/actions/accounting";
+import type { Account } from "./account-picker";
 
 export interface JournalLineItem {
   id: string;
@@ -16,10 +19,10 @@ export interface JournalLineItem {
 function emptyLine(): JournalLineItem {
   return {
     id: crypto.randomUUID(),
-    accountId: '',
-    debit: '',
-    credit: '',
-    description: '',
+    accountId: "",
+    debit: "",
+    credit: "",
+    description: "",
   };
 }
 
@@ -27,35 +30,32 @@ export function useJournalEntryForm() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const t = useTranslations('accounting');
-  const tc = useTranslations('common');
+  const t = useTranslations("accounting");
+  const tc = useTranslations("common");
 
   // Accounts data
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [accountsLoading, setAccountsLoading] = useState(true);
 
   // Form state
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [reference, setReference] = useState('');
-  const [description, setDescription] = useState('');
-  const [lines, setLines] = useState<JournalLineItem[]>([emptyLine(), emptyLine()]);
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [reference, setReference] = useState("");
+  const [description, setDescription] = useState("");
+  const [lines, setLines] = useState<JournalLineItem[]>([
+    emptyLine(),
+    emptyLine(),
+  ]);
 
   // Fetch accounts on mount
   useEffect(() => {
-    async function fetchAccounts() {
-      try {
-        const res = await fetch('/api/accounts');
-        if (res.ok) {
-          const data = await res.json();
-          setAccounts(data);
-        }
-      } catch {
-        // Silently fail - accounts will just be empty
-      } finally {
-        setAccountsLoading(false);
-      }
-    }
-    fetchAccounts();
+    listAccountsAction({ isActive: true })
+      .then((result) => {
+        if (result.success) setAccounts(result.data as Account[]);
+      })
+      .catch(() => {
+        // Silently fail — accounts will just be empty
+      })
+      .finally(() => setAccountsLoading(false));
   }, []);
 
   // Line item management
@@ -66,18 +66,22 @@ export function useJournalEntryForm() {
     setLines(lines.filter((l) => l.id !== id));
   };
 
-  const updateLine = (id: string, field: keyof JournalLineItem, value: string) => {
+  const updateLine = (
+    id: string,
+    field: keyof JournalLineItem,
+    value: string,
+  ) => {
     setLines(lines.map((l) => (l.id === id ? { ...l, [field]: value } : l)));
   };
 
   // Totals
   const totalDebits = lines.reduce(
     (sum, l) => sum.plus(l.debit ? new Decimal(l.debit) : new Decimal(0)),
-    new Decimal(0)
+    new Decimal(0),
   );
   const totalCredits = lines.reduce(
     (sum, l) => sum.plus(l.credit ? new Decimal(l.credit) : new Decimal(0)),
-    new Decimal(0)
+    new Decimal(0),
   );
   const isBalanced = totalDebits.minus(totalCredits).abs().lessThan(0.005);
   const hasAmounts = totalDebits.greaterThan(0) || totalCredits.greaterThan(0);
@@ -87,18 +91,20 @@ export function useJournalEntryForm() {
     setError(null);
 
     if (!description.trim()) {
-      setError(t('descriptionRequired'));
+      setError(t("descriptionRequired"));
       return;
     }
 
-    const validLines = lines.filter((l) => l.accountId && (l.debit || l.credit));
+    const validLines = lines.filter(
+      (l) => l.accountId && (l.debit || l.credit),
+    );
     if (validLines.length < 2) {
-      setError(t('minTwoLines'));
+      setError(t("minTwoLines"));
       return;
     }
 
     if (!isBalanced) {
-      setError(t('mustBalance'));
+      setError(t("mustBalance"));
       return;
     }
 
@@ -116,9 +122,11 @@ export function useJournalEntryForm() {
       });
 
       if (result.success && result.data) {
-        router.push(`/accounting/journal/${(result.data as { id: string }).id}`);
+        router.push(
+          `/accounting/journal/${(result.data as { id: string }).id}`,
+        );
       } else {
-        setError(result.error || tc('error'));
+        setError(result.error || tc("error"));
       }
     });
   }

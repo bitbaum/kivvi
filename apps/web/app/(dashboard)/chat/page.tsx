@@ -10,6 +10,7 @@ import { ModelSelector, type ModelOption } from "@/components/model-selector";
 import { ChatMessages } from "@/components/chat-widget/ChatMessages";
 import { ChatInput } from "@/components/chat-widget/ChatInput";
 import { logger } from "@/lib/logger";
+import { getAvailableModelsAction } from "@/app/actions/ai-extract";
 
 export default function ChatPage() {
   const t = useTranslations("chat");
@@ -37,9 +38,10 @@ export default function ChatPage() {
 
   // Fetch available models
   useEffect(() => {
-    fetch("/api/models")
-      .then((res) => res.json())
-      .then((data) => setModels(data.models || []))
+    getAvailableModelsAction()
+      .then((result) => {
+        if (result.success) setModels(result.data);
+      })
       .catch((err) => logger.warn("Failed to load models", err));
   }, []);
 

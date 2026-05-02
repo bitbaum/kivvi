@@ -11,6 +11,7 @@ import {
   recordPayment,
   convertDocument,
   duplicateDocument,
+  listDocuments,
   createDocumentSchema,
   updateDocumentSchema,
   getDocument,
@@ -301,5 +302,41 @@ export const duplicateDocumentAction = createAction<
   },
   errorMessage: () =>
     getTranslations("documents").then((t) => t("errorFailedToDuplicate")),
+  minRole: "member",
+});
+
+export interface DocumentSearchResult {
+  id: string;
+  number: string | null;
+  type: string;
+  total: string | null;
+  status: string;
+  contact: { id: string; name: string } | null;
+}
+
+export const searchDocumentsAction = createAction<
+  { q: string; type?: string },
+  DocumentSearchResult[]
+>({
+  handler: async ({ q, type }, { companyId, db }) => {
+    if (q.length < 2) return [];
+    const result = await listDocuments(db, companyId, {
+      search: q,
+      type: type as "invoice" | "credit_note" | "purchase_invoice" | undefined,
+      pageSize: 20,
+      sortBy: "issueDate",
+      sortOrder: "desc",
+    });
+    return result.data.map((doc) => ({
+      id: doc.id,
+      number: doc.number,
+      type: doc.type,
+      total: doc.total,
+      status: doc.status,
+      contact: doc.contact || null,
+    }));
+  },
+  errorMessage: () =>
+    getTranslations("documents").then((t) => t("errorFailedToSearch")),
   minRole: "member",
 });

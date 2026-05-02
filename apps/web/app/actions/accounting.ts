@@ -10,10 +10,12 @@ import {
   closeFiscalPeriod,
   closeFiscalYear,
   seedChartOfAccounts,
+  listAccounts,
   createAccountSchema,
   updateAccountSchema,
   createJournalEntrySchema,
   createFiscalYearSchema,
+  type Account,
 } from "@kivvi/core";
 import { createAction } from "./action-factory";
 import { getTranslations } from "next-intl/server";
@@ -152,4 +154,14 @@ export const closeFiscalYearAction = createAction<
   errorMessage: () =>
     getTranslations("accounting").then((t) => t("errorCloseFiscalYear")),
   minRole: "admin",
+});
+
+export const listAccountsAction = createAction<
+  { isActive?: boolean } | void,
+  Account[]
+>({
+  handler: async (filters, { companyId, db }) =>
+    listAccounts(db, companyId, filters ?? { isActive: true }),
+  errorMessage: () =>
+    getTranslations("accounting").then((t) => t("errorLoadAccounts")),
 });

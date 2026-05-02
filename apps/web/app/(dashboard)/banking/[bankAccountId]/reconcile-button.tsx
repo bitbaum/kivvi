@@ -7,6 +7,7 @@ import {
   reconcileTransactionAction,
   unreconcileTransactionAction,
 } from "@/app/actions/banking";
+import { searchDocumentsAction } from "@/app/actions/documents";
 import { useTranslations } from "next-intl";
 
 interface MatchedDocument {
@@ -73,19 +74,16 @@ export function ReconcileButton({
     setIsSearching(true);
 
     const timer = setTimeout(async () => {
+      if (controller.signal.aborted) return;
       try {
-        const res = await fetch(
-          `/api/documents/search?q=${encodeURIComponent(search)}`,
-          { signal: controller.signal },
-        );
-        if (res.ok) {
-          const data = await res.json();
-          setResults(data.data || []);
+        const result = await searchDocumentsAction({ q: search });
+        if (!controller.signal.aborted && result.success) {
+          setResults(result.data);
         }
       } catch {
         // Aborted or failed - ignore
       } finally {
-        setIsSearching(false);
+        if (!controller.signal.aborted) setIsSearching(false);
       }
     }, 300);
 

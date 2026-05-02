@@ -384,7 +384,8 @@
     "errorFailedToConvert": "Fehler beim Konvertieren des Dokuments.",
     "errorFailedToDuplicate": "Fehler beim Duplizieren des Dokuments.",
     "errorReceiptDonationOnly": "Quittung ist nur für Spendenannahmen verfügbar.",
-    "errorReceiptConfirmFirst": "Bitte bestätigen Sie die Annahme, bevor Sie die Quittung senden."
+    "errorReceiptConfirmFirst": "Bitte bestätigen Sie die Annahme, bevor Sie die Quittung senden.",
+    "errorFailedToSearch": "Dokumente konnten nicht gesucht werden"
   },
   "dashboard": {
     "title": "Übersicht",
@@ -1003,7 +1004,8 @@
     "errorDeleteJournalEntry": "Buchungssatz konnte nicht gelöscht werden",
     "errorCreateFiscalYear": "Geschäftsjahr konnte nicht erstellt werden",
     "errorClosePeriod": "Periode konnte nicht abgeschlossen werden",
-    "errorCloseFiscalYear": "Geschäftsjahr konnte nicht abgeschlossen werden"
+    "errorCloseFiscalYear": "Geschäftsjahr konnte nicht abgeschlossen werden",
+    "errorLoadAccounts": "Konten konnten nicht geladen werden"
   },
   "banking": {
     "title": "Banking",

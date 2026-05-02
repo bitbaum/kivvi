@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { X, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { FormInput } from "@/components/ui/form-field";
@@ -14,35 +14,20 @@ export interface Product {
 }
 
 interface Props {
-  isFormOpen: boolean;
+  products: Product[];
   selectedProduct: Product | null;
   onSelect: (product: Product | null) => void;
-  onError: (msg: string) => void;
 }
 
 export function MovementProductPicker({
-  isFormOpen,
+  products,
   selectedProduct,
   onSelect,
-  onError,
 }: Props) {
   const t = useTranslations("inventory");
   const tc = useTranslations("common");
-  const [products, setProducts] = useState<Product[]>([]);
-  const [productsLoading, setProductsLoading] = useState(false);
   const [productSearch, setProductSearch] = useState("");
   const [showProductDropdown, setShowProductDropdown] = useState(false);
-
-  useEffect(() => {
-    if (isFormOpen && products.length === 0) {
-      setProductsLoading(true);
-      fetch("/api/products")
-        .then((res) => res.json())
-        .then((data) => setProducts(data))
-        .catch(() => onError(tc("error")))
-        .finally(() => setProductsLoading(false));
-    }
-  }, [isFormOpen, products.length, tc, onError]);
 
   const filteredProducts = products.filter((p) => {
     const q = productSearch.toLowerCase();
@@ -94,14 +79,11 @@ export function MovementProductPicker({
                 setShowProductDropdown(true);
               }}
               onFocus={() => setShowProductDropdown(true)}
-              placeholder={
-                productsLoading ? `${tc("loading")}...` : `${tc("search")}...`
-              }
+              placeholder={`${tc("search")}...`}
               className="pl-9 pr-3"
-              disabled={productsLoading}
             />
           </div>
-          {showProductDropdown && !productsLoading && (
+          {showProductDropdown && (
             <div className="absolute left-0 right-0 z-10 mt-1 max-h-48 overflow-y-auto rounded-lg border bg-card shadow-lg">
               {filteredProducts.length === 0 ? (
                 <p className="p-3 text-center text-sm text-muted-foreground">

@@ -384,7 +384,8 @@
     "errorFailedToConvert": "Échec de la conversion du document.",
     "errorFailedToDuplicate": "Échec de la duplication du document.",
     "errorReceiptDonationOnly": "Le reçu est uniquement disponible pour les dons.",
-    "errorReceiptConfirmFirst": "Confirmez la réception avant d'envoyer le reçu."
+    "errorReceiptConfirmFirst": "Confirmez la réception avant d'envoyer le reçu.",
+    "errorFailedToSearch": "Impossible de rechercher les documents"
   },
   "dashboard": {
     "title": "Tableau de bord",
@@ -1003,7 +1004,8 @@
     "errorDeleteJournalEntry": "Impossible de supprimer l'écriture comptable",
     "errorCreateFiscalYear": "Impossible de créer l'exercice fiscal",
     "errorClosePeriod": "Impossible de clôturer la période",
-    "errorCloseFiscalYear": "Impossible de clôturer l'exercice fiscal"
+    "errorCloseFiscalYear": "Impossible de clôturer l'exercice fiscal",
+    "errorLoadAccounts": "Impossible de charger les comptes"
   },
   "banking": {
     "title": "Banque",

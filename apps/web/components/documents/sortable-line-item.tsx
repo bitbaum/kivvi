@@ -213,7 +213,7 @@ export function SortableLineItem({
                     {tc("total")}
                   </label>
                   <div className="mt-1 rounded-lg border bg-muted px-3 py-2 text-sm font-medium">
-                    {calculateItemTotal(item).toFixed(2)}
+                    {formatCurrency(calculateItemTotal(item).toFixed(2))}
                   </div>
                 </div>
               </>

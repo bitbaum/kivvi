@@ -4,7 +4,7 @@ import { EmptyState } from "@/components/empty-state";
 import { Pagination } from "@/components/pagination";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
-import { listStockMovements, listWarehouses } from "@kivvi/core";
+import { listStockMovements, listWarehouses, listProducts } from "@kivvi/core";
 import { formatDate, cn } from "@/lib/utils";
 import { getTranslations } from "next-intl/server";
 import { getMovementTypeLabels } from "@/lib/config/inventory";
@@ -38,7 +38,7 @@ export default async function MovementsPage({ searchParams }: PageProps) {
   const typeFilter = params.type;
   const page = Math.max(1, parseInt(params.page || "1", 10));
 
-  const [movements, warehouses] = await Promise.all([
+  const [movements, warehouses, productsResult] = await Promise.all([
     listStockMovements(db, session.user.companyId, {
       warehouseId: warehouseFilter || undefined,
       type: typeFilter || undefined,
@@ -46,6 +46,12 @@ export default async function MovementsPage({ searchParams }: PageProps) {
       pageSize: 50,
     }),
     listWarehouses(db, session.user.companyId),
+    listProducts(db, session.user.companyId, {
+      isActive: true,
+      pageSize: 1000,
+      sortBy: "name",
+      sortOrder: "asc",
+    }),
   ]);
 
   return (
@@ -65,7 +71,10 @@ export default async function MovementsPage({ searchParams }: PageProps) {
             <h1 className="text-3xl font-bold">{t("stockMovements")}</h1>
             <p className="text-muted-foreground">{t("subtitle")}</p>
           </div>
-          <MovementForm warehouses={warehouses} />
+          <MovementForm
+            warehouses={warehouses}
+            products={productsResult.data}
+          />
         </div>
       </div>
 

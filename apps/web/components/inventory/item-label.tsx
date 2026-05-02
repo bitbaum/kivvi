@@ -4,6 +4,7 @@
  * Server component — QR code generated server-side.
  */
 import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
+import { formatCurrency } from "@/lib/utils";
 
 interface ItemLabelProps {
   itemNumber: string;
@@ -34,7 +35,7 @@ export function ItemLabel({
 }: ItemLabelProps) {
   const priceText =
     askingPrice && Number(askingPrice) > 0
-      ? `${currency} ${Number(askingPrice).toFixed(2)}`
+      ? formatCurrency(askingPrice, currency)
       : null;
   return (
     <div

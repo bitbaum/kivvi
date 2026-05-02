@@ -384,7 +384,8 @@
     "errorFailedToConvert": "Failed to convert document.",
     "errorFailedToDuplicate": "Failed to duplicate document.",
     "errorReceiptDonationOnly": "Receipt only available for donation intakes.",
-    "errorReceiptConfirmFirst": "Confirm the intake before sending the receipt."
+    "errorReceiptConfirmFirst": "Confirm the intake before sending the receipt.",
+    "errorFailedToSearch": "Failed to search documents"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -1003,7 +1004,8 @@
     "errorDeleteJournalEntry": "Failed to delete journal entry",
     "errorCreateFiscalYear": "Failed to create fiscal year",
     "errorClosePeriod": "Failed to close period",
-    "errorCloseFiscalYear": "Failed to close fiscal year"
+    "errorCloseFiscalYear": "Failed to close fiscal year",
+    "errorLoadAccounts": "Failed to load accounts"
   },
   "banking": {
     "title": "Banking",
