@@ -1837,7 +1837,8 @@
       "status": "Status",
       "errorCreateFailed": "Failed to create recurring invoice",
       "errorDeleteFailed": "Failed to delete recurring invoice",
-      "errorToggleFailed": "Failed to toggle recurring invoice"
+      "errorToggleFailed": "Failed to toggle recurring invoice",
+      "errorUpdateFailed": "Failed to update recurring invoice config"
     },
     "currencies": {
       "chf": "CHF - Swiss Franc",

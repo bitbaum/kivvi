@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { db } from "@/lib/db";
 import {
   createProject,
@@ -8,12 +7,6 @@ import {
   createProjectSchema,
   updateProjectSchema,
 } from "@kivvi/core";
-import {
-  type ActionResult,
-  getSession,
-  requireRole,
-  safeErrorMessage,
-} from "./utils";
 import { createAction } from "./action-factory";
 import { getTranslations } from "next-intl/server";
 
@@ -30,28 +23,18 @@ export const createProjectAction = createAction<unknown, unknown>({
   minRole: "member",
 });
 
-export async function updateProjectAction(
-  projectId: string,
-  input: unknown,
-): Promise<ActionResult> {
-  const t = await getTranslations("projects");
-  try {
-    const { companyId } = await requireRole("member");
+export const updateProjectAction = createAction<
+  { projectId: string; input: unknown },
+  unknown
+>({
+  handler: async ({ projectId, input }, { companyId, db }) => {
     const parsed = updateProjectSchema.safeParse(input);
-    if (!parsed.success) {
-      return {
-        success: false,
-        error: parsed.error.errors[0]?.message || "Invalid input",
-      };
-    }
-    const project = await updateProject(db, companyId, projectId, parsed.data);
-    revalidatePath("/projects");
-    revalidatePath(`/projects/${projectId}`);
-    return { success: true, data: project };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorFailedToUpdate")),
-    };
-  }
-}
+    if (!parsed.success)
+      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    return updateProject(db, companyId, projectId, parsed.data);
+  },
+  revalidate: ["/projects", "/projects/[id]"],
+  errorMessage: () =>
+    getTranslations("projects").then((t) => t("errorFailedToUpdate")),
+  minRole: "member",
+});

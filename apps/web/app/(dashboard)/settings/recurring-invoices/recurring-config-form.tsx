@@ -72,7 +72,7 @@ export function RecurringConfigForm({
       };
 
       const result = isEditing
-        ? await updateRecurringConfigAction(initialData.id, input)
+        ? await updateRecurringConfigAction({ configId: initialData.id, input })
         : await createRecurringConfigAction(input);
 
       if (result.success) {

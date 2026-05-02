@@ -1837,7 +1837,8 @@
       "status": "Statut",
       "errorCreateFailed": "Impossible de créer la facture récurrente",
       "errorDeleteFailed": "Impossible de supprimer la facture récurrente",
-      "errorToggleFailed": "Impossible de modifier l'état de la facture récurrente"
+      "errorToggleFailed": "Impossible de modifier l'état de la facture récurrente",
+      "errorUpdateFailed": "La configuration de la facture récurrente n'a pas pu être mise à jour"
     },
     "currencies": {
       "chf": "CHF - Franc suisse",

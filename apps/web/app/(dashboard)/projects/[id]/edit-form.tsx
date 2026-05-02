@@ -65,7 +65,7 @@ export function ProjectEditForm({
         endDate: (formData.get("endDate") as string) || undefined,
       };
 
-      const result = await updateProjectAction(projectId, input);
+      const result = await updateProjectAction({ projectId, input });
 
       if (result.success) {
         setSuccess(true);

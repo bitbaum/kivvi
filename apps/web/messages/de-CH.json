@@ -1837,7 +1837,8 @@
       },
       "errorCreateFailed": "Wiederkehrende Rechnung konnte nicht erstellt werden",
       "errorDeleteFailed": "Wiederkehrende Rechnung konnte nicht gelöscht werden",
-      "errorToggleFailed": "Wiederkehrende Rechnung konnte nicht geändert werden"
+      "errorToggleFailed": "Wiederkehrende Rechnung konnte nicht geändert werden",
+      "errorUpdateFailed": "Wiederkehrende Rechnung konnte nicht aktualisiert werden"
     },
     "currencies": {
       "chf": "CHF - Schweizer Franken",
