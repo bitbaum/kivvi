@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Decimal from "decimal.js";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
@@ -75,7 +76,7 @@ export function ItemEditForm({
   if (selectedStatus === "ready_for_sale") {
     if (selectedCondition === "untested")
       gateWarnings.push("conditionRequired");
-    if (!enteredAskingPrice || parseFloat(enteredAskingPrice) <= 0)
+    if (!enteredAskingPrice || new Decimal(enteredAskingPrice || "0").lte(0))
       gateWarnings.push("askingPriceRequired");
   }
 
@@ -163,7 +164,7 @@ export function ItemEditForm({
 
       {/* Repair log */}
       {((REPAIR_STATUSES as readonly string[]).includes(item.status) ||
-        (item.repairCost && parseFloat(item.repairCost) > 0)) && (
+        (item.repairCost && new Decimal(item.repairCost).gt(0))) && (
         <RepairSection
           itemId={item.id}
           currentCost={item.repairCost}

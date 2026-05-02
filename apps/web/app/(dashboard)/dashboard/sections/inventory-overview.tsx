@@ -1,3 +1,4 @@
+import Decimal from "decimal.js";
 import { PackageOpen, TrendingUp, Clock, Recycle } from "lucide-react";
 import { getSessionOrRedirect } from "@/lib/session";
 import { getTranslations } from "next-intl/server";
@@ -103,9 +104,9 @@ export async function InventoryOverview() {
                     {formatCurrency(item.soldPrice)}
                   </span>
                   <span
-                    className={`ml-2 text-xs ${parseFloat(item.margin) > 0 ? "text-success" : "text-destructive"}`}
+                    className={`ml-2 text-xs ${new Decimal(item.margin || "0").gt(0) ? "text-success" : "text-destructive"}`}
                   >
-                    {parseFloat(item.margin) > 0 ? "+" : ""}
+                    {new Decimal(item.margin || "0").gt(0) ? "+" : ""}
                     {formatCurrency(item.margin)}
                   </span>
                 </div>

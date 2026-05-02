@@ -1,3 +1,4 @@
+import Decimal from "decimal.js";
 import Link from "next/link";
 import { Wrench } from "lucide-react";
 import { getTranslations } from "next-intl/server";
@@ -121,7 +122,7 @@ export default async function RepairQueuePage() {
                           {ti("ageInRepair", { days })}
                         </span>
                         {item.effectiveCost &&
-                          parseFloat(item.effectiveCost) > 0 && (
+                          new Decimal(item.effectiveCost).gt(0) && (
                             <p className="text-xs text-muted-foreground">
                               {formatCurrency(item.effectiveCost)}
                             </p>
@@ -184,7 +185,7 @@ export default async function RepairQueuePage() {
                           {ti("ageInRepair", { days })}
                         </span>
                         {item.effectiveCost &&
-                          parseFloat(item.effectiveCost) > 0 && (
+                          new Decimal(item.effectiveCost).gt(0) && (
                             <p className="text-xs text-muted-foreground">
                               {formatCurrency(item.effectiveCost)}
                             </p>

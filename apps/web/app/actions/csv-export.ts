@@ -1,5 +1,6 @@
 "use server";
 
+import Decimal from "decimal.js";
 import { db } from "@/lib/db";
 import {
   listContacts,
@@ -265,7 +266,7 @@ export async function exportInventoryItemsCsvAction(filters?: {
       item.minPrice,
       item.soldPrice,
       item.repairCost,
-      item.partsTotal && parseFloat(item.partsTotal) > 0
+      item.partsTotal && new Decimal(item.partsTotal).gt(0)
         ? item.partsTotal
         : null,
       item.effectiveCost,

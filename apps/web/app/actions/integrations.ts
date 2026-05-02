@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { eq, and } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
+import Decimal from "decimal.js";
 import { db } from "@/lib/db";
 import { inventoryItems, companies } from "@kivvi/database";
 import type { CompanySettings } from "@kivvi/database";
@@ -127,7 +128,7 @@ export async function publishToRicardoAction(
       return { success: false, error: t("errorStatusInvalid") };
     }
 
-    if (!item.askingPrice || parseFloat(item.askingPrice) <= 0) {
+    if (!item.askingPrice || new Decimal(item.askingPrice).lte(0)) {
       return { success: false, error: t("errorNeedsPrice") };
     }
 
