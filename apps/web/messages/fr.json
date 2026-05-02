@@ -4011,7 +4011,8 @@
     "errorUnreachable": "Le serveur d'IA est inaccessible. Veuillez vérifier la connexion.",
     "errorGeneric": "Une erreur s'est produite. Veuillez réessayer.",
     "errorExtractItems": "Impossible d'extraire les articles",
-    "errorExtractContact": "Impossible d'extraire les données du contact"
+    "errorExtractContact": "Impossible d'extraire les données du contact",
+    "errorLoadModels": "Impossible de charger les modèles"
   },
   "csvExport": {
     "errorExportFailed": "Échec de l'exportation"

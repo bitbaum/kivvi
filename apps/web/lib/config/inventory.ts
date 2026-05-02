@@ -13,3 +13,11 @@ export function getMovementTypeLabels(
 ): Record<string, string> {
   return Object.fromEntries(MOVEMENT_TYPES.map((type) => [type, t(type)]));
 }
+
+export const MOVEMENT_TYPE_STYLES: Record<string, string> = {
+  purchase: "bg-success/10 text-success",
+  sale: "bg-info/10 text-info",
+  adjustment: "bg-neutral/10 text-neutral",
+  transfer: "bg-tag-purple/10 text-tag-purple",
+  return: "bg-warning/10 text-warning",
+};

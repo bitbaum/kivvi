@@ -4011,7 +4011,8 @@
     "errorUnreachable": "The AI server is unreachable. Please check the connection.",
     "errorGeneric": "An error occurred. Please try again.",
     "errorExtractItems": "Failed to extract items",
-    "errorExtractContact": "Failed to extract contact data"
+    "errorExtractContact": "Failed to extract contact data",
+    "errorLoadModels": "Failed to load models"
   },
   "csvExport": {
     "errorExportFailed": "Export failed"

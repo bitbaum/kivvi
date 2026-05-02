@@ -258,6 +258,7 @@ function getConfiguredProviders(): Set<string> {
 export async function getAvailableModelsAction(): Promise<
   ActionResult<ModelConfig[]>
 > {
+  const t = await getTranslations("ai");
   try {
     await requireRole("member");
     const configured = getConfiguredProviders();
@@ -266,7 +267,7 @@ export async function getAvailableModelsAction(): Promise<
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, "Failed to load models"),
+      error: safeErrorMessage(error, t("errorLoadModels")),
     };
   }
 }

@@ -7,16 +7,11 @@ import { db } from "@/lib/db";
 import { listStockMovements, listWarehouses, listProducts } from "@kivvi/core";
 import { formatDate, cn } from "@/lib/utils";
 import { getTranslations } from "next-intl/server";
-import { getMovementTypeLabels } from "@/lib/config/inventory";
+import {
+  getMovementTypeLabels,
+  MOVEMENT_MOVEMENT_TYPE_STYLES,
+} from "@/lib/config/inventory";
 import { MovementForm } from "@/components/inventory/movement-form";
-
-const TYPE_STYLES: Record<string, string> = {
-  purchase: "bg-success/10 text-success",
-  sale: "bg-info/10 text-info",
-  adjustment: "bg-neutral/10 text-neutral",
-  transfer: "bg-tag-purple/10 text-tag-purple",
-  return: "bg-warning/10 text-warning",
-};
 
 interface PageProps {
   searchParams: Promise<{
@@ -193,8 +188,8 @@ export default async function MovementsPage({ searchParams }: PageProps) {
                           <span
                             className={cn(
                               "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
-                              TYPE_STYLES[movement.type] ||
-                                TYPE_STYLES.adjustment,
+                              MOVEMENT_TYPE_STYLES[movement.type] ||
+                                MOVEMENT_TYPE_STYLES.adjustment,
                             )}
                           >
                             {TYPE_LABELS[movement.type] || movement.type}

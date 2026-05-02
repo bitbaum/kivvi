@@ -4,24 +4,7 @@ import { Mail, Clock, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
 import type { PendingInvitation } from "@kivvi/core/src/domain/invitations";
-import type { MembershipRole } from "@kivvi/database";
-
-const ROLE_COLORS: Record<MembershipRole, string> = {
-  owner: "bg-warning/10 text-warning",
-  admin: "bg-info/10 text-info",
-  member: "bg-neutral/10 text-neutral",
-  viewer: "bg-neutral/10 text-neutral",
-};
-
-function RoleBadge({ role, label }: { role: MembershipRole; label: string }) {
-  return (
-    <span
-      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${ROLE_COLORS[role]}`}
-    >
-      {label}
-    </span>
-  );
-}
+import { RoleBadge } from "./role-badge";
 
 interface TeamInvitationsListProps {
   invites: PendingInvitation[];
