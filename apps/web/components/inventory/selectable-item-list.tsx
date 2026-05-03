@@ -153,7 +153,9 @@ export function SelectableItemList({ items }: SelectableItemListProps) {
               const days = daysAgo(item.createdAt);
               const cls = pipelineAgeClass(days, item.status);
               return cls ? (
-                <span className={cn("text-xs tabular-nums", cls)}>{days}d</span>
+                <span className={cn("text-xs tabular-nums", cls)}>
+                  {t("ageDaysShort", { days })}
+                </span>
               ) : null;
             })()}
           </div>

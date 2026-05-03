@@ -109,7 +109,7 @@ async function HealthMetricsSection() {
     },
     {
       label: t("daysToPayment"),
-      value: `${metrics.avgDaysToPayment}d`,
+      value: t("ageDaysShort", { days: metrics.avgDaysToPayment }),
       icon: <Clock className="h-5 w-5" />,
       color: "text-warning",
       bgColor: "bg-warning/10",

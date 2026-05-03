@@ -32,13 +32,13 @@ export async function InventoryOverview() {
           icon={<TrendingUp className="h-5 w-5" />}
           label={ti("avgMargin")}
           value={`${data.averageMarginPercent}%`}
-          sub={`${formatCurrency(data.totalProfit)} profit`}
+          sub={`${formatCurrency(data.totalProfit)} ${ti("metricProfit")}`}
           positive={data.averageMarginPercent > 0}
         />
         <MetricCard
           icon={<Clock className="h-5 w-5" />}
           label={ti("avgDaysToSale")}
-          value={`${data.avgDaysToSale}d`}
+          value={ti("ageDaysShort", { days: data.avgDaysToSale })}
           sub={`${data.soldCount} / ${data.intakeCount}`}
         />
         <MetricCard
