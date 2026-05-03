@@ -25,7 +25,11 @@ import {
 } from "@/app/actions/invitations";
 import type { CompanyMember } from "@kivvi/core/src/domain/memberships";
 import type { PendingInvitation } from "@kivvi/core/src/domain/invitations";
-import type { MembershipRole } from "@kivvi/database";
+import {
+  type MembershipRole,
+  INVITABLE_ROLES,
+  MEMBERSHIP_ROLES,
+} from "@kivvi/database";
 import { useSession } from "next-auth/react";
 import { TeamInvitationsList } from "./team-invitations-list";
 import { RoleBadge } from "./role-badge";
@@ -192,9 +196,11 @@ export default function TeamPage() {
                 }
                 className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               >
-                <option value="member">{tc("roleLabel.member")}</option>
-                <option value="admin">{tc("roleLabel.admin")}</option>
-                <option value="viewer">{tc("roleLabel.viewer")}</option>
+                {INVITABLE_ROLES.map((role) => (
+                  <option key={role} value={role}>
+                    {tc(`roleLabel.${role}`)}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="flex gap-2">
@@ -257,10 +263,11 @@ export default function TeamPage() {
                     }
                     className="rounded-lg border bg-background px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                   >
-                    <option value="owner">{tc("roleLabel.owner")}</option>
-                    <option value="admin">{tc("roleLabel.admin")}</option>
-                    <option value="member">{tc("roleLabel.member")}</option>
-                    <option value="viewer">{tc("roleLabel.viewer")}</option>
+                    {MEMBERSHIP_ROLES.map((role) => (
+                      <option key={role} value={role}>
+                        {tc(`roleLabel.${role}`)}
+                      </option>
+                    ))}
                   </select>
                   <button
                     onClick={() =>

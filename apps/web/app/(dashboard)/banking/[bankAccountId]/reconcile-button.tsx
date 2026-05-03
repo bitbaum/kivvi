@@ -7,7 +7,10 @@ import {
   reconcileTransactionAction,
   unreconcileTransactionAction,
 } from "@/app/actions/banking";
-import { searchDocumentsAction } from "@/app/actions/documents";
+import {
+  searchDocumentsAction,
+  type DocumentSearchResult,
+} from "@/app/actions/documents";
 import { useTranslations } from "next-intl";
 
 interface MatchedDocument {
@@ -16,14 +19,6 @@ interface MatchedDocument {
   type: string;
   total: string;
   contactName: string | null;
-}
-
-interface SearchResult {
-  id: string;
-  number: string;
-  type: string;
-  total: string;
-  contact?: { name: string } | null;
 }
 
 export function ReconcileButton({
@@ -40,7 +35,7 @@ export function ReconcileButton({
   const [error, setError] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [results, setResults] = useState<SearchResult[]>([]);
+  const [results, setResults] = useState<DocumentSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const t = useTranslations("banking");
@@ -77,7 +72,7 @@ export function ReconcileButton({
       if (controller.signal.aborted) return;
       try {
         const result = await searchDocumentsAction({ q: search });
-        if (!controller.signal.aborted && result.success) {
+        if (!controller.signal.aborted && result.success && result.data) {
           setResults(result.data);
         }
       } catch {
@@ -196,7 +191,7 @@ export function ReconcileButton({
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-medium">
-                          {doc.number}
+                          {doc.number ?? "-"}
                         </span>
                         <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium uppercase">
                           {doc.type}
@@ -209,7 +204,7 @@ export function ReconcileButton({
                       )}
                     </div>
                     <span className="shrink-0 text-sm font-medium">
-                      {doc.total}
+                      {doc.total ?? "—"}
                     </span>
                   </button>
                 ))}

@@ -9,7 +9,7 @@ import { formatDate, cn } from "@/lib/utils";
 import { getTranslations } from "next-intl/server";
 import {
   getMovementTypeLabels,
-  MOVEMENT_MOVEMENT_TYPE_STYLES,
+  MOVEMENT_TYPE_STYLES,
 } from "@/lib/config/inventory";
 import { MovementForm } from "@/components/inventory/movement-form";
 
