@@ -236,6 +236,7 @@ export async function updateItemStatus(
   }
   // ────────────────────────────────────────────────────────────────────────
 
+  const now = new Date();
   const [updated] = await db
     .update(inventoryItems)
     .set({
@@ -243,7 +244,8 @@ export async function updateItemStatus(
       ...(signedOffChecklistData
         ? { checklistData: signedOffChecklistData }
         : {}),
-      updatedAt: new Date(),
+      updatedAt: now,
+      statusUpdatedAt: now,
     })
     .where(
       and(
@@ -337,13 +339,15 @@ export async function sellInventoryItem(
     );
   }
 
+  const now = new Date();
   const [updated] = await db
     .update(inventoryItems)
     .set({
       status: "sold",
       saleDocumentId: input.saleDocumentId,
       soldPrice: input.soldPrice,
-      updatedAt: new Date(),
+      updatedAt: now,
+      statusUpdatedAt: now,
     })
     .where(
       and(

@@ -411,3 +411,51 @@ export async function getCycleTimeMetrics(
     sampleSize: allDays.length,
   };
 }
+
+/** Current dwell time per pipeline status — how long items have been sitting in each stage */
+export interface StatusDwellEntry {
+  status: string;
+  count: number;
+  avgDays: number;
+  maxDays: number;
+}
+
+/**
+ * Returns average and max days currently-active pipeline items have been in their
+ * current status. Uses statusUpdatedAt (stamped on every status transition).
+ * Only includes PIPELINE statuses (intake/testing/repair/ready_for_sale/listed/reserved).
+ */
+export async function getStatusDwellMetrics(
+  db: Database,
+  companyId: string,
+): Promise<StatusDwellEntry[]> {
+  const rows = await db
+    .select({
+      status: inventoryItems.status,
+      count: count(),
+      avgDays: sql<number>`ROUND(AVG(EXTRACT(EPOCH FROM (NOW() - ${inventoryItems.statusUpdatedAt})) / 86400))`,
+      maxDays: sql<number>`ROUND(MAX(EXTRACT(EPOCH FROM (NOW() - ${inventoryItems.statusUpdatedAt})) / 86400))`,
+    })
+    .from(inventoryItems)
+    .where(
+      and(
+        eq(inventoryItems.companyId, companyId),
+        inArray(inventoryItems.status, [...PIPELINE_ITEM_STATUSES]),
+      ),
+    )
+    .groupBy(inventoryItems.status);
+
+  // Order by pipeline stage
+  const order = [...PIPELINE_ITEM_STATUSES];
+  return rows
+    .map((r) => ({
+      status: r.status,
+      count: r.count,
+      avgDays: Number(r.avgDays),
+      maxDays: Number(r.maxDays),
+    }))
+    .sort(
+      (a, b) =>
+        order.indexOf(a.status as never) - order.indexOf(b.status as never),
+    );
+}

@@ -862,6 +862,7 @@ export const inventoryItems = pgTable(
     externalListingStatus: text("external_listing_status"), // "active" | "sold" | "expired" | "removed"
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    statusUpdatedAt: timestamp("status_updated_at").defaultNow().notNull(),
   },
   (table) => ({
     companyIdIdx: index("inventory_items_company_id_idx").on(table.companyId),
