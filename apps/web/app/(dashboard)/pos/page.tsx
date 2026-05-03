@@ -57,7 +57,7 @@ export default function PosPage() {
         id: item.id,
         itemNumber: item.itemNumber,
         description: item.description,
-        askingPrice: item.askingPrice!,
+        askingPrice: item.askingPrice ?? "",
         condition: item.condition,
         photoBase64: item.photoBase64,
       },

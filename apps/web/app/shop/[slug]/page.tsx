@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Package, MapPin } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { DEFAULT_COUNTRY } from "@kivvi/core/src/config/locale";
-import { createDb } from "@kivvi/database";
+import { db } from "@/lib/db";
 import {
   getPublicCompanyBySlug,
   listPublicItems,
@@ -24,7 +24,6 @@ interface PageProps {
 }
 
 export default async function ShopPage({ params, searchParams }: PageProps) {
-  const db = createDb(process.env.DATABASE_URL!);
   const company = await getPublicCompanyBySlug(db, params.slug);
   if (!company) notFound();
 

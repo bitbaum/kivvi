@@ -149,12 +149,12 @@ export default async function JournalEntryDetailPage({ params }: PageProps) {
                   </td>
                   <td className="px-6 py-3 text-right font-medium">
                     {new Decimal(line.debit || "0").gt(0)
-                      ? formatCurrency(line.debit!)
+                      ? formatCurrency(line.debit ?? "0")
                       : ""}
                   </td>
                   <td className="px-6 py-3 text-right font-medium">
                     {new Decimal(line.credit || "0").gt(0)
-                      ? formatCurrency(line.credit!)
+                      ? formatCurrency(line.credit ?? "0")
                       : ""}
                   </td>
                 </tr>

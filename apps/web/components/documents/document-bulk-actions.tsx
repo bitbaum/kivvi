@@ -108,6 +108,11 @@ export function DocumentBulkActions({
       "bg-destructive text-destructive-foreground hover:bg-destructive/90",
   };
 
+  const markPaidAction = actions.find((a) => a.action === "mark_paid");
+  const extendValidityAction = actions.find(
+    (a) => a.action === "extend_validity",
+  );
+
   return (
     <>
       {actions.filter(isActionApplicable).map((action) => (
@@ -126,37 +131,33 @@ export function DocumentBulkActions({
       ))}
 
       {/* Payment date picker for mark_paid */}
-      {actions.some((a) => a.action === "mark_paid") &&
-        isActionApplicable(actions.find((a) => a.action === "mark_paid")!) && (
-          <div className="flex items-center gap-1">
-            <input
-              type="date"
-              value={paymentDate}
-              onChange={(e) => setPaymentDate(e.target.value)}
-              className="h-8 rounded-lg border bg-background px-2 text-sm"
-            />
-          </div>
-        )}
+      {markPaidAction && isActionApplicable(markPaidAction) && (
+        <div className="flex items-center gap-1">
+          <input
+            type="date"
+            value={paymentDate}
+            onChange={(e) => setPaymentDate(e.target.value)}
+            className="h-8 rounded-lg border bg-background px-2 text-sm"
+          />
+        </div>
+      )}
 
       {/* Extend validity input */}
-      {actions.some((a) => a.action === "extend_validity") &&
-        isActionApplicable(
-          actions.find((a) => a.action === "extend_validity")!,
-        ) && (
-          <div className="flex items-center gap-1">
-            <input
-              type="number"
-              min={1}
-              max={365}
-              value={extensionDays}
-              onChange={(e) => setExtensionDays(parseInt(e.target.value) || 30)}
-              className="w-16 rounded-lg border bg-background px-2 py-1.5 text-sm"
-            />
-            <span className="text-xs text-muted-foreground">
-              {labels.days || "days"}
-            </span>
-          </div>
-        )}
+      {extendValidityAction && isActionApplicable(extendValidityAction) && (
+        <div className="flex items-center gap-1">
+          <input
+            type="number"
+            min={1}
+            max={365}
+            value={extensionDays}
+            onChange={(e) => setExtensionDays(parseInt(e.target.value) || 30)}
+            className="w-16 rounded-lg border bg-background px-2 py-1.5 text-sm"
+          />
+          <span className="text-xs text-muted-foreground">
+            {labels.days || "days"}
+          </span>
+        </div>
+      )}
 
       {/* Confirmation dialog */}
       {confirmAction && (

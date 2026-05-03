@@ -100,10 +100,14 @@ export function useChecklistState({
 
   const failedBlockingSuggestions = template.checks
     .filter(
-      (c) =>
-        c.blocking && c.failSuggestsStatus && states[c.id]?.result === "fail",
+      (
+        c,
+      ): c is typeof c & {
+        failSuggestsStatus: NonNullable<typeof c.failSuggestsStatus>;
+      } =>
+        c.blocking && !!c.failSuggestsStatus && states[c.id]?.result === "fail",
     )
-    .map((c) => c.failSuggestsStatus!);
+    .map((c) => c.failSuggestsStatus);
 
   const completedCount = Object.values(states).filter(
     (s) => s.result !== null,

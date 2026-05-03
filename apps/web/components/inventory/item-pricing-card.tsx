@@ -64,7 +64,7 @@ export async function ItemPricingCard({
             <span className="text-muted-foreground">
               {hasPartsTotal ? ti("labourCostLabel") : ti("repairCostLabel")}
             </span>
-            <span>+{formatCurrency(item.repairCost!)}</span>
+            <span>+{formatCurrency(item.repairCost ?? "0")}</span>
           </div>
         )}
         {hasPartsTotal && (
@@ -81,7 +81,7 @@ export async function ItemPricingCard({
               {ti("effectiveCost")}
             </span>
             <span className="font-medium">
-              {formatCurrency(item.effectiveCost!)}
+              {formatCurrency(item.effectiveCost ?? "0")}
             </span>
           </div>
         )}

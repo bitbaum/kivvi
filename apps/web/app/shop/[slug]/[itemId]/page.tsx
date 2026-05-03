@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Package, Tag } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { createDb } from "@kivvi/database";
+import { db } from "@/lib/db";
 import {
   getPublicCompanyBySlug,
   getPublicItem,
@@ -21,7 +21,6 @@ interface PageProps {
 }
 
 export default async function ShopItemPage({ params }: PageProps) {
-  const db = createDb(process.env.DATABASE_URL!);
   const company = await getPublicCompanyBySlug(db, params.slug);
   if (!company) notFound();
 

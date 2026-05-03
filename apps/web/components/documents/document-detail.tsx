@@ -137,7 +137,7 @@ export async function DocumentDetail({ doc, config }: DocumentDetailProps) {
             </p>
             <p className="text-sm text-destructive/80">
               {t("overdueDetail", {
-                date: formatDate(doc.dueDate!),
+                date: doc.dueDate ? formatDate(doc.dueDate) : "",
                 amount: formatCurrency(outstanding),
               })}
             </p>
