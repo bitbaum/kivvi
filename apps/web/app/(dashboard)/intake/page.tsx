@@ -54,15 +54,19 @@ export default async function IntakePage({ searchParams }: PageProps) {
             <Zap className="h-4 w-4" />
             {ti("quickIntake")}
           </Link>
-          {repairCount > 0 && (
-            <Link
-              href="/intake/repair-queue"
-              className="inline-flex items-center gap-2 rounded-lg border border-warning/30 bg-warning/5 px-3 py-2 text-sm font-medium text-warning hover:bg-warning/10 transition-colors dark:hover:bg-warning/20"
-            >
-              <Wrench className="h-4 w-4" />
-              {repairCount} {ti("inRepair")}
-            </Link>
-          )}
+          <Link
+            href="/intake/repair-queue"
+            className={
+              repairCount > 0
+                ? "inline-flex items-center gap-2 rounded-lg border border-warning/30 bg-warning/5 px-3 py-2 text-sm font-medium text-warning hover:bg-warning/10 transition-colors dark:hover:bg-warning/20"
+                : "inline-flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent transition-colors"
+            }
+          >
+            <Wrench className="h-4 w-4" />
+            {repairCount > 0
+              ? `${repairCount} ${ti("inRepair")}`
+              : ti("repairQueue")}
+          </Link>
           <Link
             href="/intake/items"
             className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2 text-sm font-medium hover:bg-accent transition-colors"
