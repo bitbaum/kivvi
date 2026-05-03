@@ -40,12 +40,12 @@ export function WebhookCreateForm({ eventLabels, onCreated, onCancel }: Props) {
     setError(null);
     const result = await createWebhookEndpointAction(formState);
     setSaving(false);
-    if (!result.success) {
+    if (!result.success || !result.data) {
       setError(result.error ?? t("createError"));
       return;
     }
     onCreated({
-      id: result.data!.id,
+      id: result.data.id,
       companyId: "",
       name: formState.name,
       url: formState.url,

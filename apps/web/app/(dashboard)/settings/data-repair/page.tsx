@@ -44,7 +44,9 @@ export default async function DataRepairPage() {
           </p>
         </div>
         <DataQualityPanel
-          initialReport={qualityResult.success ? qualityResult.data! : null}
+          initialReport={
+            qualityResult.success ? (qualityResult.data ?? null) : null
+          }
         />
       </section>
 
@@ -59,7 +61,9 @@ export default async function DataRepairPage() {
           </p>
         </div>
         <DataRepairPanel
-          initialStatus={statusResult.success ? statusResult.data! : null}
+          initialStatus={
+            statusResult.success ? (statusResult.data ?? null) : null
+          }
         />
       </section>
     </div>

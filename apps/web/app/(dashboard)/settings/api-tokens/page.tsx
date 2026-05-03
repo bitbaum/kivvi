@@ -28,7 +28,7 @@ export default async function ApiTokensPage() {
       </div>
 
       <ApiTokensPanel
-        initialTokens={tokensResult.success ? tokensResult.data! : []}
+        initialTokens={tokensResult.success ? (tokensResult.data ?? []) : []}
       />
     </div>
   );

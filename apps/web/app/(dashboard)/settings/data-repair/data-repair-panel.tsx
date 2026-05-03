@@ -93,10 +93,11 @@ export function DataRepairPanel({
     setRepairingStatuses(true);
     const result = await repairInvoiceStatusesAction(cutoffDate);
     if (result.success && result.data) {
+      const data = result.data;
       toast.success(
         t("statusesRepaired", {
-          invoices: result.data.updatedInvoices,
-          purchases: result.data.updatedPurchaseInvoices,
+          invoices: data.updatedInvoices,
+          purchases: data.updatedPurchaseInvoices,
         }),
       );
       setStatus((prev) =>
@@ -104,10 +105,10 @@ export function DataRepairPanel({
           ? {
               ...prev,
               sentInvoicesBefore2026:
-                prev.sentInvoicesBefore2026 - result.data!.updatedInvoices,
+                prev.sentInvoicesBefore2026 - data.updatedInvoices,
               sentPurchaseInvoicesBefore2026:
                 prev.sentPurchaseInvoicesBefore2026 -
-                result.data!.updatedPurchaseInvoices,
+                data.updatedPurchaseInvoices,
             }
           : prev,
       );
@@ -121,16 +122,17 @@ export function DataRepairPanel({
     setGeneratingEntries(true);
     const result = await generateMissingJournalEntriesAction();
     if (result.success && result.data) {
+      const data = result.data;
       toast.success(
         t("entriesGenerated", {
-          invoices: result.data.invoiceEntries,
-          purchases: result.data.purchaseEntries,
-          skipped: result.data.skipped,
+          invoices: data.invoiceEntries,
+          purchases: data.purchaseEntries,
+          skipped: data.skipped,
         }),
       );
-      if (result.data.errors.length > 0) {
+      if (data.errors.length > 0) {
         toast.warning(t("errorsOccurred"), {
-          description: result.data.errors.slice(0, 3).join(", "),
+          description: data.errors.slice(0, 3).join(", "),
         });
       }
       setStatus((prev) =>
@@ -139,13 +141,13 @@ export function DataRepairPanel({
               ...prev,
               totalJournalEntries:
                 prev.totalJournalEntries +
-                result.data!.invoiceEntries +
-                result.data!.purchaseEntries,
+                data.invoiceEntries +
+                data.purchaseEntries,
               documentsWithoutJournalEntries: Math.max(
                 0,
                 prev.documentsWithoutJournalEntries -
-                  result.data!.invoiceEntries -
-                  result.data!.purchaseEntries,
+                  data.invoiceEntries -
+                  data.purchaseEntries,
               ),
             }
           : prev,

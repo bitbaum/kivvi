@@ -67,8 +67,8 @@ export function DocumentIssuesTable({
         ? cancelZeroTotalDocumentsAction
         : cancelStaleDraftsAction;
     const result = await fn(toCancel);
-    if (result.success) {
-      toast.success(tDQ("cancelSuccess", { count: result.data!.cancelled }));
+    if (result.success && result.data) {
+      toast.success(tDQ("cancelSuccess", { count: result.data.cancelled }));
       setSelected(new Set());
       onFixed();
     } else {

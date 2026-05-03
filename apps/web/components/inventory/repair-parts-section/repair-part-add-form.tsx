@@ -36,12 +36,12 @@ export function RepairPartAddForm({ itemId, onAdded, onClose }: Props) {
         unitCost,
         notes: notes || undefined,
       });
-      if (!result.success) {
+      if (!result.success || !result.data) {
         setError(result.error ?? tc("error"));
         return;
       }
       const optimistic: RepairPartWithProduct = {
-        id: result.data!.id,
+        id: result.data.id,
         companyId: "",
         inventoryItemId: itemId,
         productId: null,

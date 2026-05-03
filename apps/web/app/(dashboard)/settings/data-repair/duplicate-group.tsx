@@ -24,9 +24,9 @@ export function DuplicateGroup({
   async function handleMerge(duplicateId: string) {
     setMerging(true);
     const result = await mergeContactsAction(primaryId, duplicateId);
-    if (result.success) {
+    if (result.success && result.data) {
       toast.success(
-        tDQ("mergeSuccess", { count: result.data!.documentsReassigned }),
+        tDQ("mergeSuccess", { count: result.data.documentsReassigned }),
       );
       onMerged();
     } else {

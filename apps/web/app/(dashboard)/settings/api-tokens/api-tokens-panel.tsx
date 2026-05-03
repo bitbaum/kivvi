@@ -47,12 +47,13 @@ export function ApiTokensPanel({ initialTokens }: { initialTokens: Token[] }) {
 
     const result = await createApiTokenAction({ name: newTokenName.trim() });
     if (result.success && result.data) {
-      setCreatedToken(result.data.rawToken);
+      const data = result.data;
+      setCreatedToken(data.rawToken);
       setTokens((prev) => [
         {
-          id: result.data!.id,
+          id: data.id,
           name: newTokenName.trim(),
-          tokenPrefix: result.data!.prefix,
+          tokenPrefix: data.prefix,
           lastUsedAt: null,
           expiresAt: null,
           isActive: true,
