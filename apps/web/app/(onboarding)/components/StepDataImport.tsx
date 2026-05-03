@@ -184,7 +184,7 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
 
       const result = await executeImportAction(
         imp.entityType,
-        imp.mappedRows!,
+        imp.mappedRows ?? [],
         structuredItems,
       );
 

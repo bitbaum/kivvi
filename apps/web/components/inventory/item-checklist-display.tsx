@@ -54,9 +54,15 @@ export async function ItemChecklistDisplay({
       {/* Individual checks */}
       <div className="space-y-1">
         {template.checks
-          .filter((check) => completionMap.has(check.id))
-          .map((check) => {
-            const completion = completionMap.get(check.id)!;
+          .map((check) => ({ check, completion: completionMap.get(check.id) }))
+          .filter(
+            (
+              entry,
+            ): entry is typeof entry & {
+              completion: NonNullable<typeof entry.completion>;
+            } => !!entry.completion,
+          )
+          .map(({ check, completion }) => {
             return (
               <div
                 key={check.id}
