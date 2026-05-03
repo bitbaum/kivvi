@@ -30,7 +30,9 @@ import {
   buildDonationReceiptEmailSubject,
   buildPasswordResetEmailHtml,
   buildPasswordResetEmailSubject,
+  type DonationReceiptEmailStrings,
 } from "@kivvi/core/src/domain/email";
+import { escapeHtml } from "@kivvi/core/src/utils/html";
 import Decimal from "decimal.js";
 import {
   type ActionResult,
@@ -287,14 +289,50 @@ export async function sendDonationReceiptEmailAction(
       plan: plan as "free" | "premium",
     };
 
+    const currency = doc.currency || DEFAULT_CURRENCY;
+    const fmtAmount = estimatedValue
+      ? new Intl.NumberFormat("de-CH", {
+          style: "currency",
+          currency,
+        }).format(Number(estimatedValue))
+      : null;
+    const itemUnit =
+      items.length === 1
+        ? t("donationReceiptEmailItemSingular")
+        : t("donationReceiptEmailItemPlural");
+    const valueHtml = fmtAmount
+      ? ` ${t("donationReceiptEmailValuePrefix")} <strong>${fmtAmount}</strong>`
+      : "";
+
+    const emailStrings: DonationReceiptEmailStrings = {
+      subject: t("donationReceiptEmailSubject", {
+        receiptNumber: doc.number,
+        companyName,
+      }),
+      greeting: `${t("donationReceiptEmailGreeting")} ${escapeHtml(donor.name)}`,
+      bodyLine1: `${t("donationReceiptEmailThankYouPrefix")} <strong>${date}</strong>. ${t("donationReceiptEmailReceivedPrefix")} <strong>${items.length} ${itemUnit}</strong>${valueHtml} ${t("donationReceiptEmailReceivedSuffix")}.`,
+      bodyLine2: `${t("donationReceiptEmailReceiptRefPrefix")} <strong>${doc.number}</strong>, ${t("donationReceiptEmailReceiptRefSuffix")}`,
+      closing: t("donationReceiptEmailClosing"),
+      footerAuto: t("donationReceiptEmailFooterAuto", {
+        companyName: escapeHtml(companyName),
+      }),
+      footerBranding:
+        plan !== "premium"
+          ? t("donationReceiptEmailFooterBranding")
+          : undefined,
+      attachmentFilename: t("donationReceiptEmailFilename", {
+        receiptNumber: doc.number,
+      }),
+    };
+
     const info = await transporter.sendMail({
       from: `${companyName} <${getFromEmail()}>`,
       to: donor.email,
-      subject: buildDonationReceiptEmailSubject(emailData),
-      html: buildDonationReceiptEmailHtml(emailData),
+      subject: buildDonationReceiptEmailSubject(emailData, emailStrings),
+      html: buildDonationReceiptEmailHtml(emailData, emailStrings),
       attachments: [
         {
-          filename: `Spendenquittung-${doc.number}.pdf`,
+          filename: emailStrings.attachmentFilename,
           content: pdfBuffer,
           contentType: "application/pdf",
         },

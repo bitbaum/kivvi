@@ -388,7 +388,21 @@
     "errorNoDonorLinked": "Aucun donateur lié à cette réception. Veuillez d'abord ajouter un contact donateur.",
     "errorNoDonorEmail": "Le contact donateur n'a pas d'adresse e-mail. Veuillez en ajouter une avant l'envoi.",
     "errorEmailNotConfigured": "L'envoi d'e-mails n'est pas configuré. Veuillez définir EMAIL_USER et EMAIL_PASS dans les variables d'environnement.",
-    "errorFailedToSearch": "Impossible de rechercher les documents"
+    "errorFailedToSearch": "Impossible de rechercher les documents",
+    "donationReceiptEmailSubject": "Reçu de don {receiptNumber} - {companyName}",
+    "donationReceiptEmailGreeting": "Bonjour",
+    "donationReceiptEmailThankYouPrefix": "Merci pour votre don du",
+    "donationReceiptEmailReceivedPrefix": "Nous avons reçu",
+    "donationReceiptEmailItemSingular": "article",
+    "donationReceiptEmailItemPlural": "articles",
+    "donationReceiptEmailValuePrefix": "d'une valeur estimée à",
+    "donationReceiptEmailReceivedSuffix": "",
+    "donationReceiptEmailReceiptRefPrefix": "Vous trouverez en pièce jointe le reçu de don",
+    "donationReceiptEmailReceiptRefSuffix": "que vous pouvez utiliser pour votre déclaration fiscale (art. 33a LIFD).",
+    "donationReceiptEmailClosing": "Meilleures salutations",
+    "donationReceiptEmailFooterAuto": "Cet e-mail a été envoyé automatiquement par {companyName}.",
+    "donationReceiptEmailFooterBranding": "Envoyé avec Kivvi — ERP basé sur l'IA pour les entreprises suisses",
+    "donationReceiptEmailFilename": "RecuDeDon-{receiptNumber}.pdf"
   },
   "dashboard": {
     "title": "Tableau de bord",

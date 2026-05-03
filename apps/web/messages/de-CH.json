@@ -388,7 +388,21 @@
     "errorNoDonorLinked": "Kein Spender mit dieser Annahme verknüpft. Bitte zuerst einen Spenderkontakt hinzufügen.",
     "errorNoDonorEmail": "Der Spenderkontakt hat keine E-Mail-Adresse. Bitte zuerst eine hinterlegen.",
     "errorEmailNotConfigured": "E-Mail-Versand ist nicht konfiguriert. Bitte EMAIL_USER und EMAIL_PASS in den Umgebungsvariablen setzen.",
-    "errorFailedToSearch": "Dokumente konnten nicht gesucht werden"
+    "errorFailedToSearch": "Dokumente konnten nicht gesucht werden",
+    "donationReceiptEmailSubject": "Spendenquittung {receiptNumber} - {companyName}",
+    "donationReceiptEmailGreeting": "Guten Tag",
+    "donationReceiptEmailThankYouPrefix": "Herzlichen Dank für Ihre Spende vom",
+    "donationReceiptEmailReceivedPrefix": "Wir haben",
+    "donationReceiptEmailItemSingular": "Artikel",
+    "donationReceiptEmailItemPlural": "Artikel",
+    "donationReceiptEmailValuePrefix": "im geschätzten Wert von",
+    "donationReceiptEmailReceivedSuffix": "erhalten",
+    "donationReceiptEmailReceiptRefPrefix": "Im Anhang finden Sie die Spendenquittung",
+    "donationReceiptEmailReceiptRefSuffix": "die Sie für Ihre Steuererklärung verwenden können (Art. 33a DBG).",
+    "donationReceiptEmailClosing": "Freundliche Grüsse",
+    "donationReceiptEmailFooterAuto": "Diese E-Mail wurde automatisch von {companyName} versendet.",
+    "donationReceiptEmailFooterBranding": "Versendet mit Kivvi — KI-gestützte ERP-Software für Schweizer Unternehmen",
+    "donationReceiptEmailFilename": "Spendenquittung-{receiptNumber}.pdf"
   },
   "dashboard": {
     "title": "Übersicht",

@@ -388,7 +388,21 @@
     "errorNoDonorLinked": "No donor linked to this intake. Please add a donor contact first.",
     "errorNoDonorEmail": "The donor contact has no email address. Please add one before sending.",
     "errorEmailNotConfigured": "Email sending is not configured. Please set EMAIL_USER and EMAIL_PASS in the environment variables.",
-    "errorFailedToSearch": "Failed to search documents"
+    "errorFailedToSearch": "Failed to search documents",
+    "donationReceiptEmailSubject": "Donation Receipt {receiptNumber} - {companyName}",
+    "donationReceiptEmailGreeting": "Dear",
+    "donationReceiptEmailThankYouPrefix": "Thank you for your donation on",
+    "donationReceiptEmailReceivedPrefix": "We received",
+    "donationReceiptEmailItemSingular": "item",
+    "donationReceiptEmailItemPlural": "items",
+    "donationReceiptEmailValuePrefix": "with an estimated value of",
+    "donationReceiptEmailReceivedSuffix": "",
+    "donationReceiptEmailReceiptRefPrefix": "Attached please find donation receipt",
+    "donationReceiptEmailReceiptRefSuffix": "which you can use for your tax return (Art. 33a DBG).",
+    "donationReceiptEmailClosing": "Kind regards",
+    "donationReceiptEmailFooterAuto": "This email was automatically sent by {companyName}.",
+    "donationReceiptEmailFooterBranding": "Sent with Kivvi — AI-powered ERP for Swiss businesses",
+    "donationReceiptEmailFilename": "DonationReceipt-{receiptNumber}.pdf"
   },
   "dashboard": {
     "title": "Dashboard",

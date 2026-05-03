@@ -405,14 +405,34 @@ export interface DonationReceiptEmailData {
   plan?: "free" | "premium";
 }
 
+/**
+ * Pre-composed i18n strings for the donation receipt email.
+ * Resolved by the Server Action (which has next-intl access) and passed here.
+ * HTML fragments (greeting, bodyLine1, bodyLine2, footerAuto) must have all
+ * user-controlled values HTML-escaped by the caller before passing.
+ */
+export interface DonationReceiptEmailStrings {
+  subject: string;
+  greeting: string;
+  bodyLine1: string;
+  bodyLine2: string;
+  closing: string;
+  footerAuto: string;
+  footerBranding?: string;
+  attachmentFilename: string;
+}
+
 export function buildDonationReceiptEmailSubject(
   data: DonationReceiptEmailData,
+  strings?: DonationReceiptEmailStrings,
 ): string {
+  if (strings) return strings.subject;
   return `Spendenquittung ${data.receiptNumber} - ${data.companyName}`;
 }
 
 export function buildDonationReceiptEmailHtml(
   data: DonationReceiptEmailData,
+  strings?: DonationReceiptEmailStrings,
 ): string {
   const formattedDate = formatDateSwiss(data.date);
   const safeCompanyName = e(data.companyName);
@@ -422,12 +442,42 @@ export function buildDonationReceiptEmailHtml(
       ? ` im geschätzten Wert von <strong>${formatAmountSwiss(data.estimatedValue, data.currency)}</strong>`
       : "";
 
+  const title = strings
+    ? e(strings.subject)
+    : e(buildDonationReceiptEmailSubject(data));
+  const greeting = strings
+    ? strings.greeting
+    : `Guten Tag ${safeRecipientName}`;
+  const bodyLine1 = strings
+    ? strings.bodyLine1
+    : `Herzlichen Dank für Ihre Spende vom <strong>${formattedDate}</strong>. Wir haben <strong>${data.itemCount} ${data.itemCount === 1 ? "Artikel" : "Artikel"}</strong>${valueText} erhalten.`;
+  const bodyLine2 = strings
+    ? strings.bodyLine2
+    : `Im Anhang finden Sie die Spendenquittung <strong>${data.receiptNumber}</strong>, die Sie für Ihre Steuererklärung verwenden können (Art. 33a DBG).`;
+  const closing = strings ? e(strings.closing) : "Freundliche Grüsse";
+  const footerAuto = strings
+    ? strings.footerAuto
+    : `Diese E-Mail wurde automatisch von ${safeCompanyName} versendet.`;
+  const footerBrandingHtml = strings
+    ? strings.footerBranding
+      ? `
+              <p style="margin: 8px 0 0; font-size: 11px; color: #a1a1aa; line-height: 1.5;">
+                ${strings.footerBranding}
+              </p>`
+      : ""
+    : data.plan !== "premium"
+      ? `
+              <p style="margin: 8px 0 0; font-size: 11px; color: #a1a1aa; line-height: 1.5;">
+                Versendet mit <a href="https://kivvi.ch" style="color: #2563eb; text-decoration: none;">Kivvi</a> — KI-gestützte ERP-Software für Schweizer Unternehmen
+              </p>`
+      : "";
+
   return `<!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${e(buildDonationReceiptEmailSubject(data))}</title>
+  <title>${title}</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f4f4f5;">
@@ -446,16 +496,16 @@ export function buildDonationReceiptEmailHtml(
           <tr>
             <td style="padding: 32px 40px;">
               <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.6; color: #3f3f46;">
-                Guten Tag ${safeRecipientName}
+                ${greeting}
               </p>
               <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.6; color: #3f3f46;">
-                Herzlichen Dank für Ihre Spende vom <strong>${formattedDate}</strong>. Wir haben <strong>${data.itemCount} ${data.itemCount === 1 ? "Artikel" : "Artikel"}</strong>${valueText} erhalten.
+                ${bodyLine1}
               </p>
               <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.6; color: #3f3f46;">
-                Im Anhang finden Sie die Spendenquittung <strong>${data.receiptNumber}</strong>, die Sie für Ihre Steuererklärung verwenden können (Art. 33a DBG).
+                ${bodyLine2}
               </p>
               <p style="margin: 0 0 8px; font-size: 15px; line-height: 1.6; color: #3f3f46;">
-                Freundliche Grüsse<br>
+                ${closing}<br>
                 ${safeCompanyName}
               </p>
             </td>
@@ -464,15 +514,8 @@ export function buildDonationReceiptEmailHtml(
           <tr>
             <td style="padding: 24px 40px; background-color: #fafafa; border-top: 1px solid #e4e4e7;">
               <p style="margin: 0; font-size: 12px; color: #a1a1aa; line-height: 1.5;">
-                Diese E-Mail wurde automatisch von ${safeCompanyName} versendet.
-              </p>${
-                data.plan !== "premium"
-                  ? `
-              <p style="margin: 8px 0 0; font-size: 11px; color: #a1a1aa; line-height: 1.5;">
-                Versendet mit <a href="https://kivvi.ch" style="color: #2563eb; text-decoration: none;">Kivvi</a> — KI-gestützte ERP-Software für Schweizer Unternehmen
-              </p>`
-                  : ""
-              }
+                ${footerAuto}
+              </p>${footerBrandingHtml}
             </td>
           </tr>
         </table>
