@@ -1,11 +1,4 @@
-import {
-  ArrowLeft,
-  Leaf,
-  Recycle,
-  Package,
-  Users,
-  TrendingUp,
-} from "lucide-react";
+import { ArrowLeft, Leaf, Recycle, Package } from "lucide-react";
 import Link from "next/link";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
@@ -29,6 +22,9 @@ import {
 } from "@kivvi/core/src/config/co2-factors";
 import { ImpactPdfDownload } from "./impact-pdf-download";
 import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
+import { DestinationBreakdownSection } from "./destination-breakdown";
+import { MonthlyTrendSection } from "./monthly-trend";
+import { TopDonorsSection } from "./top-donors";
 
 export const metadata: Metadata = {
   title: "Impact Report — Kivvi",
@@ -44,7 +40,6 @@ export default async function ImpactReportPage() {
   const tck = await getTranslations("checklist");
   const companyId = session.user.companyId;
 
-  // Fetch company CO2 overrides
   const company = await db.query.companies.findFirst({
     where: eq(companies.id, companyId),
     columns: { settings: true, name: true },
@@ -62,13 +57,11 @@ export default async function ImpactReportPage() {
 
   const co2Kg = Number(metrics.co2AvoidedKg);
   const co2Tonnes = (co2Kg / 1000).toFixed(2);
-
   const treesEquivalent = Math.round(co2Kg / CO2_TREE_KG_PER_YEAR);
   const carKmEquivalent = Math.round(co2Kg / CO2_CAR_KG_PER_KM);
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <div className="flex items-center gap-4">
         <Link
           href="/reports"
@@ -129,113 +122,38 @@ export default async function ImpactReportPage() {
           {/* CO2 equivalents */}
           <div className="rounded-xl border bg-card p-6">
             <h2 className="mb-4 font-semibold">{tr("impactCo2Context")}</h2>
-            <div className="grid gap-4 sm:grid-cols-3 text-sm">
-              <div className="rounded-lg bg-success/5 p-4">
-                <div className="text-2xl font-bold text-success mb-1">
-                  {treesEquivalent.toLocaleString(DEFAULT_LOCALE)}
-                </div>
-                <p className="text-muted-foreground">
-                  {tr("impactTreesEquivalent", {
+            <div className="grid gap-4 text-sm sm:grid-cols-3">
+              {[
+                {
+                  value: treesEquivalent.toLocaleString(DEFAULT_LOCALE),
+                  label: tr("impactTreesEquivalent", {
                     count: treesEquivalent.toLocaleString(DEFAULT_LOCALE),
-                  })}
-                </p>
-              </div>
-              <div className="rounded-lg bg-success/5 p-4">
-                <div className="text-2xl font-bold text-success mb-1">
-                  {carKmEquivalent.toLocaleString(DEFAULT_LOCALE)}
-                </div>
-                <p className="text-muted-foreground">
-                  {tr("impactCarKmEquivalent", {
+                  }),
+                },
+                {
+                  value: carKmEquivalent.toLocaleString(DEFAULT_LOCALE),
+                  label: tr("impactCarKmEquivalent", {
                     count: carKmEquivalent.toLocaleString(DEFAULT_LOCALE),
-                  })}
-                </p>
-              </div>
-              <div className="rounded-lg bg-success/5 p-4">
-                <div className="text-2xl font-bold text-success mb-1">
-                  {co2Tonnes} t
+                  }),
+                },
+                {
+                  value: `${co2Tonnes} t`,
+                  label: tr("impactCo2TonnesAvoided", { tonnes: co2Tonnes }),
+                },
+              ].map((eq) => (
+                <div key={eq.label} className="rounded-lg bg-success/5 p-4">
+                  <div className="mb-1 text-2xl font-bold text-success">
+                    {eq.value}
+                  </div>
+                  <p className="text-muted-foreground">{eq.label}</p>
                 </div>
-                <p className="text-muted-foreground">
-                  {tr("impactCo2TonnesAvoided", { tonnes: co2Tonnes })}
-                </p>
-              </div>
+              ))}
             </div>
           </div>
 
-          {/* Destination breakdown */}
-          {(() => {
-            const total =
-              destinationBreakdown.sold +
-              destinationBreakdown.donated +
-              destinationBreakdown.recycled +
-              destinationBreakdown.inStock;
-            const pct = (n: number) =>
-              total > 0 ? Math.round((n / total) * 100) : 0;
-            const destinations = [
-              {
-                label: t("statusSold"),
-                value: destinationBreakdown.sold,
-                pct: pct(destinationBreakdown.sold),
-                color: "bg-success/20 text-success",
-                bar: "bg-success/60",
-              },
-              {
-                label: t("statusDonated"),
-                value: destinationBreakdown.donated,
-                pct: pct(destinationBreakdown.donated),
-                color: "bg-info/20 text-info",
-                bar: "bg-info/60",
-              },
-              {
-                label: t("statusRecycled"),
-                value: destinationBreakdown.recycled,
-                pct: pct(destinationBreakdown.recycled),
-                color: "bg-warning/20 text-warning",
-                bar: "bg-warning/60",
-              },
-              {
-                label: t("inStock"),
-                value: destinationBreakdown.inStock,
-                pct: pct(destinationBreakdown.inStock),
-                color: "bg-muted text-muted-foreground",
-                bar: "bg-muted-foreground/40",
-              },
-            ];
-            return (
-              <div className="rounded-xl border bg-card p-6">
-                <h2 className="mb-4 font-semibold">
-                  {tr("impactDestinationBreakdown")}
-                </h2>
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                  {destinations.map((d) => (
-                    <div
-                      key={d.label}
-                      className="rounded-lg border bg-card p-4"
-                    >
-                      <div className="text-2xl font-bold tabular-nums">
-                        {d.value.toLocaleString(DEFAULT_LOCALE)}
-                      </div>
-                      <div
-                        className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${d.color}`}
-                      >
-                        {d.label}
-                      </div>
-                      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
-                        <div
-                          className={`h-full rounded-full ${d.bar}`}
-                          style={{ width: `${d.pct}%` }}
-                        />
-                      </div>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {d.pct}%
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })()}
+          <DestinationBreakdownSection data={destinationBreakdown} />
 
-          {/* Category breakdown */}
+          {/* Category CO2 breakdown */}
           {metrics.co2ByCategory.length > 0 && (
             <div className="rounded-xl border bg-card p-6">
               <h2 className="mb-4 font-semibold">
@@ -285,120 +203,13 @@ export default async function ImpactReportPage() {
             </div>
           )}
 
-          {/* Monthly trend */}
-          {monthlyBreakdown.length > 0 && (
-            <div className="rounded-xl border bg-card p-6">
-              <h2 className="mb-4 flex items-center gap-2 font-semibold">
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                {tr("impactMonthlyTrend")}
-              </h2>
-              <div className="space-y-2">
-                <div className="mb-2 grid grid-cols-[1fr_auto_auto_3fr] gap-4 text-xs font-medium text-muted-foreground">
-                  <span>{tr("month")}</span>
-                  <span className="text-right">
-                    {tr("impactItemsProcessed")}
-                  </span>
-                  <span className="text-right">{t("itemsReused")}</span>
-                  <span>{t("reuseRate")}</span>
-                </div>
-                {monthlyBreakdown
-                  .slice(-12)
-                  .reverse()
-                  .map((row) => {
-                    const label = new Date(
-                      row.month + "-01",
-                    ).toLocaleDateString(DEFAULT_LOCALE, {
-                      year: "2-digit",
-                      month: "short",
-                    });
-                    return (
-                      <div
-                        key={row.month}
-                        className="grid grid-cols-[1fr_auto_auto_3fr] items-center gap-4 text-sm"
-                      >
-                        <span className="text-muted-foreground tabular-nums">
-                          {label}
-                        </span>
-                        <span className="text-right tabular-nums">
-                          {row.processed}
-                        </span>
-                        <span className="text-right tabular-nums text-success">
-                          {row.reused}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
-                            <div
-                              className="h-full rounded-full bg-success/60"
-                              style={{ width: `${row.reuseRatePercent}%` }}
-                            />
-                          </div>
-                          <span className="w-10 text-right text-xs text-muted-foreground tabular-nums">
-                            {row.reuseRatePercent}%
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-              </div>
-            </div>
-          )}
+          <MonthlyTrendSection data={monthlyBreakdown} />
 
-          {/* Top donors */}
-          <div className="rounded-xl border bg-card p-6">
-            <h2 className="mb-4 font-semibold flex items-center gap-2">
-              <Users className="h-4 w-4 text-muted-foreground" />
-              {tr("impactTopDonors")}
-            </h2>
-            {topDonors.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                {tr("impactNoDonors")}
-              </p>
-            ) : (
-              <div className="space-y-3">
-                {topDonors.map((donor, i) => {
-                  const co2PerItem =
-                    metrics.itemsReused > 0 ? co2Kg / metrics.itemsReused : 0;
-                  const donorCo2Kg = Math.round(donor.itemsReused * co2PerItem);
-                  const pct =
-                    metrics.itemsProcessed > 0
-                      ? Math.round(
-                          (donor.itemsDonated / metrics.itemsProcessed) * 100,
-                        )
-                      : 0;
-                  return (
-                    <div key={donor.donorId}>
-                      <div className="mb-1 flex items-center justify-between text-sm">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-muted-foreground w-4">
-                            {i + 1}.
-                          </span>
-                          <span className="font-medium">{donor.donorName}</span>
-                        </div>
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                          <span>
-                            {t("donorItemsDonated")}: {donor.itemsDonated}
-                          </span>
-                          <span className="font-medium text-success">
-                            {t("donorImpactSummary", {
-                              reused: donor.itemsReused,
-                              total: donor.itemsDonated,
-                              co2: `${donorCo2Kg} kg`,
-                            })}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-                        <div
-                          className="h-full rounded-full bg-primary/60"
-                          style={{ width: `${pct}%` }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+          <TopDonorsSection
+            topDonors={topDonors}
+            metrics={metrics}
+            co2Kg={co2Kg}
+          />
 
           {/* CO2 factors reference */}
           <div className="rounded-xl border bg-card p-6">
