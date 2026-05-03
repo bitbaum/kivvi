@@ -75,6 +75,7 @@ export const removeMemberAction = createAction<string, void>({
   revalidate: ["/settings/team"],
   errorMessage: () => getTranslations("team").then((t) => t("removeFailed")),
   minRole: "admin",
+  translateDomainErrors: true,
 });
 
 /**
@@ -104,6 +105,7 @@ export const updateMemberRoleAction = createAction<
   errorMessage: () =>
     getTranslations("team").then((t) => t("roleChangeFailed")),
   minRole: "admin",
+  translateDomainErrors: true,
 });
 
 /**

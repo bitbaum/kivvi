@@ -4179,6 +4179,13 @@
     "alreadyMember": "Cet utilisateur est déjà membre de cette entreprise",
     "invitationAlreadySent": "Une invitation a déjà été envoyée à cette adresse e-mail",
     "invitationNotFound": "Cette invitation est introuvable ou a déjà été utilisée",
-    "invitationExpired": "Cette invitation a expiré"
+    "invitationExpired": "Cette invitation a expiré",
+    "cannotRemoveLastOwner": "Impossible de supprimer le dernier propriétaire. Transférez d'abord la propriété.",
+    "cannotDemoteLastOwner": "Impossible de rétrograder le dernier propriétaire. Promouvez d'abord un autre membre au rang de propriétaire.",
+    "warehouseSameSrcDst": "L'entrepôt source et de destination doivent être différents",
+    "insufficientStock": "Stock insuffisant : {available} disponible, {requested} demandé",
+    "warehouseHasStock": "Impossible de supprimer un entrepôt avec du stock. Transférez ou ajustez le stock à zéro d'abord.",
+    "cannotDeleteOnlyWarehouse": "Impossible de supprimer le seul entrepôt.",
+    "warehouseIsDefault": "Définissez un autre entrepôt par défaut avant de supprimer celui-ci."
   }
 }

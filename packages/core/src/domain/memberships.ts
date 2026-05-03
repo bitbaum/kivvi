@@ -10,6 +10,7 @@ import type { Database } from "@kivvi/database";
 import type { MembershipRole } from "@kivvi/database";
 import { DEFAULT_VAT_RATE } from "../config/vat-rates";
 import { DEFAULT_CURRENCY } from "../config/locale";
+import { DomainError } from "../domain-error";
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -151,9 +152,7 @@ export async function removeMember(
         );
 
       if (owners.length <= 1) {
-        throw new Error(
-          "Cannot remove the last owner. Transfer ownership first.",
-        );
+        throw new DomainError("cannotRemoveLastOwner");
       }
     }
 
@@ -238,9 +237,7 @@ export async function updateMemberRole(
         );
 
       if (owners.length <= 1) {
-        throw new Error(
-          "Cannot demote the last owner. Promote another member to owner first.",
-        );
+        throw new DomainError("cannotDemoteLastOwner");
       }
     }
 

@@ -16,6 +16,7 @@ import type {
   SerialNumber,
 } from "@kivvi/database";
 import { STOCK_MOVEMENT_TYPE_VALUES } from "@kivvi/database/src/enums";
+import { DomainError } from "../domain-error";
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -433,7 +434,7 @@ export async function transferStock(
   const validated = transferStockSchema.parse(input);
 
   if (validated.fromWarehouseId === validated.toWarehouseId) {
-    throw new Error("Source and destination warehouse must be different");
+    throw new DomainError("warehouseSameSrcDst");
   }
 
   const fromWarehouse = await getWarehouse(
@@ -480,9 +481,10 @@ export async function transferStock(
 
     const sourceQty = new Decimal(sourceLevel?.quantity || "0");
     if (sourceQty.lt(transferQty)) {
-      throw new Error(
-        `Insufficient stock: ${sourceQty.toString()} available, ${transferQty.toString()} requested`,
-      );
+      throw new DomainError("insufficientStock", {
+        available: sourceQty.toString(),
+        requested: transferQty.toString(),
+      });
     }
 
     // 1. Outbound movement (negative)
@@ -588,20 +590,16 @@ export async function deleteWarehouse(
     .limit(1);
 
   if (stockCheck?.hasStock) {
-    throw new Error(
-      "Cannot delete warehouse with stock. Transfer or adjust stock to zero first.",
-    );
+    throw new DomainError("warehouseHasStock");
   }
 
   // Prevent deleting the default warehouse unless another exists
   if (warehouse.isDefault) {
     const allWarehouses = await listWarehouses(db, companyId);
     if (allWarehouses.length <= 1) {
-      throw new Error("Cannot delete the only warehouse.");
+      throw new DomainError("cannotDeleteOnlyWarehouse");
     }
-    throw new Error(
-      "Set another warehouse as default before deleting this one.",
-    );
+    throw new DomainError("warehouseIsDefault");
   }
 
   await db

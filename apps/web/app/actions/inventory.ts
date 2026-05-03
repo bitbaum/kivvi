@@ -60,6 +60,7 @@ export const deleteWarehouseAction = createAction<string, void>({
   errorMessage: () =>
     getTranslations("inventory").then((t) => t("errorDeleteWarehouse")),
   minRole: "admin",
+  translateDomainErrors: true,
 });
 
 // ============================================================================
@@ -96,6 +97,7 @@ export const transferStockAction = createAction<
   errorMessage: () =>
     getTranslations("inventory").then((t) => t("errorTransferStock")),
   minRole: "member",
+  translateDomainErrors: true,
 });
 
 // ============================================================================

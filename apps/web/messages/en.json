@@ -4179,6 +4179,13 @@
     "alreadyMember": "This user is already a member of this company",
     "invitationAlreadySent": "An invitation has already been sent to this email address",
     "invitationNotFound": "This invitation could not be found or has already been used",
-    "invitationExpired": "This invitation has expired"
+    "invitationExpired": "This invitation has expired",
+    "cannotRemoveLastOwner": "Cannot remove the last owner. Transfer ownership first.",
+    "cannotDemoteLastOwner": "Cannot demote the last owner. Promote another member to owner first.",
+    "warehouseSameSrcDst": "Source and destination warehouse must be different",
+    "insufficientStock": "Insufficient stock: {available} available, {requested} requested",
+    "warehouseHasStock": "Cannot delete warehouse with stock. Transfer or adjust stock to zero first.",
+    "cannotDeleteOnlyWarehouse": "Cannot delete the only warehouse.",
+    "warehouseIsDefault": "Set another warehouse as default before deleting this one."
   }
 }

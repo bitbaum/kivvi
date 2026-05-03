@@ -4179,6 +4179,13 @@
     "alreadyMember": "Dieser Benutzer ist bereits Mitglied dieses Unternehmens",
     "invitationAlreadySent": "An diese E-Mail-Adresse wurde bereits eine Einladung gesendet",
     "invitationNotFound": "Diese Einladung wurde nicht gefunden oder wurde bereits verwendet",
-    "invitationExpired": "Diese Einladung ist abgelaufen"
+    "invitationExpired": "Diese Einladung ist abgelaufen",
+    "cannotRemoveLastOwner": "Der letzte Inhaber kann nicht entfernt werden. Übertragen Sie zuerst die Inhaberschaft.",
+    "cannotDemoteLastOwner": "Der letzte Inhaber kann nicht herabgestuft werden. Befördern Sie zuerst ein anderes Mitglied zum Inhaber.",
+    "warehouseSameSrcDst": "Quell- und Ziellager müssen unterschiedlich sein",
+    "insufficientStock": "Unzureichender Bestand: {available} verfügbar, {requested} angefordert",
+    "warehouseHasStock": "Lager mit Bestand kann nicht gelöscht werden. Übertragen oder korrigieren Sie den Bestand zuerst auf null.",
+    "cannotDeleteOnlyWarehouse": "Das einzige Lager kann nicht gelöscht werden.",
+    "warehouseIsDefault": "Legen Sie zuerst ein anderes Lager als Standard fest, bevor Sie dieses löschen."
   }
 }
