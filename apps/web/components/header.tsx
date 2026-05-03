@@ -188,7 +188,7 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
 
         {/* Notification bell — shows count of overdue + unreconciled items */}
         <Link
-          href="/documents?status=overdue"
+          href="/sales/invoices?status=overdue"
           className="relative flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
           aria-label={t("aria.notifications")}
           title={

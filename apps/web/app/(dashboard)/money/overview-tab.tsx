@@ -79,7 +79,7 @@ export async function OverviewTab({ companyId }: { companyId: string }) {
           icon={<TrendingUp className="h-5 w-5" />}
           color="text-success"
           bgColor="bg-success/10"
-          href="/documents?type=invoice&status=sent"
+          href="/sales/invoices?status=sent"
         />
         <StatCard
           label={t("payables")}
@@ -87,7 +87,7 @@ export async function OverviewTab({ companyId }: { companyId: string }) {
           icon={<TrendingDown className="h-5 w-5" />}
           color="text-warning"
           bgColor="bg-warning/10"
-          href="/documents?type=purchase_invoice"
+          href="/purchasing/purchase-invoices"
         />
         {financialSummary.overdueTotal > 0 && (
           <StatCard
@@ -96,7 +96,7 @@ export async function OverviewTab({ companyId }: { companyId: string }) {
             icon={<AlertTriangle className="h-5 w-5" />}
             color="text-destructive"
             bgColor="bg-destructive/10"
-            href="/documents?type=invoice&status=overdue"
+            href="/sales/invoices?status=overdue"
             count={financialSummary.overdueCount}
           />
         )}
