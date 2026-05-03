@@ -2,22 +2,30 @@
 
 import { ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { getChecklistTemplate } from "@kivvi/core/src/config/checklist-templates";
 
-export const QUICK_CATEGORIES = [
-  { value: "laptop", labelKey: "categoryLaptop" },
-  { value: "desktop", labelKey: "categoryDesktop" },
-  { value: "monitor", labelKey: "categoryMonitor" },
-  { value: "phone", labelKey: "categoryPhone" },
-  { value: "tablet", labelKey: "categoryTablet" },
-  { value: "printer", labelKey: "categoryPrinter" },
-  { value: "keyboard", labelKey: "categoryKeyboard" },
-  { value: "bike", labelKey: "categoryBike" },
-  { value: "clothing", labelKey: "categoryClothing" },
-  { value: "furniture", labelKey: "categoryFurniture" },
-  { value: "book", labelKey: "categoryBook" },
-  { value: "appliance", labelKey: "categoryAppliance" },
-  { value: "other", labelKey: "categoryOther" },
+// Curated subset of categories shown in quick intake (ordered by frequency at revamp-it)
+const QUICK_CATEGORY_IDS = [
+  "laptop",
+  "desktop",
+  "monitor",
+  "phone",
+  "tablet",
+  "printer",
+  "keyboard",
+  "bike",
+  "clothing",
+  "furniture",
+  "book",
+  "appliance",
+  "other",
 ] as const;
+
+// labelKey derived from SSOT (checklist-templates) — no duplication
+export const QUICK_CATEGORIES = QUICK_CATEGORY_IDS.map((value) => ({
+  value,
+  labelKey: getChecklistTemplate(value).labelKey,
+}));
 
 interface StepDescriptionProps {
   description: string;
