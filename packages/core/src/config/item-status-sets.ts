@@ -36,3 +36,11 @@ export const DISPOSED_ITEM_STATUSES = ["sold", "donated"] as const;
 
 /** All statuses where the item has permanently left inventory (positive or recycled). */
 export const TERMINAL_ITEM_STATUSES = ["sold", "donated", "recycled"] as const;
+
+/** Conditions shown in the public shop filter — excludes untested, parts_only, scrap. */
+export const SHOP_CONDITION_VALUES = [
+  "like_new",
+  "good",
+  "fair",
+  "poor",
+] as const;

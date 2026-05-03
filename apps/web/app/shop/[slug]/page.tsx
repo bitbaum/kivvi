@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Package, MapPin } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { DEFAULT_COUNTRY } from "@kivvi/core/src/config/locale";
+import { SHOP_CONDITION_VALUES } from "@kivvi/core/src/config/item-status-sets";
 import { db } from "@/lib/db";
 import {
   getPublicCompanyBySlug,
@@ -79,10 +80,15 @@ export default async function ShopPage({ params, searchParams }: PageProps) {
               className="rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="">{t("allConditions")}</option>
-              <option value="like_new">{tInventory("conditionLikeNew")}</option>
-              <option value="good">{tInventory("conditionGood")}</option>
-              <option value="fair">{tInventory("conditionFair")}</option>
-              <option value="poor">{tInventory("conditionPoor")}</option>
+              {SHOP_CONDITION_VALUES.map((c) => (
+                <option key={c} value={c}>
+                  {tInventory(
+                    ITEM_CONDITION_CONFIG[c]!.labelKey as Parameters<
+                      typeof tInventory
+                    >[0],
+                  )}
+                </option>
+              ))}
             </select>
             <button
               type="submit"
