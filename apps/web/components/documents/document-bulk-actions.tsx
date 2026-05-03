@@ -39,9 +39,10 @@ export function DocumentBulkActions({
   );
 
   function isActionApplicable(action: BulkActionDef): boolean {
-    if (!action.applicableStatuses) return true;
+    const { applicableStatuses } = action;
+    if (!applicableStatuses) return true;
     return selectedStatuses.every((s) =>
-      action.applicableStatuses!.includes(s as never),
+      applicableStatuses.includes(s as never),
     );
   }
 

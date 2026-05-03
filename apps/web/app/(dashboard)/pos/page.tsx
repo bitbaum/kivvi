@@ -43,7 +43,7 @@ export default function PosPage() {
     setSearching(true);
     searchRef.current = setTimeout(async () => {
       const res = await listInventoryItemsAction({ search: q, pageSize: 20 });
-      if (res.success && res.data) setResults(res.data.data as SearchResult[]);
+      if (res.success && res.data) setResults(res.data.data);
       setSearching(false);
     }, 300);
   }, []);

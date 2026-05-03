@@ -146,11 +146,8 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
       "stock",
     ];
     const toImport = importOrder
-      .filter(
-        (type) =>
-          pendingImports.has(type) && pendingImports.get(type)!.confirmed,
-      )
-      .map((type) => pendingImports.get(type)!);
+      .map((type) => pendingImports.get(type))
+      .filter((imp): imp is NonNullable<typeof imp> => imp?.confirmed ?? false);
 
     const initialStatuses: ImportStatus[] = toImport.map((imp) => ({
       entityType: imp.entityType,

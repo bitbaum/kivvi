@@ -71,7 +71,8 @@ export function useCommandBarAI(): UseCommandBarAIReturn {
       setToolResults([]);
       setError(null);
 
-      abortRef.current = new AbortController();
+      const abortController = new AbortController();
+      abortRef.current = abortController;
 
       (async () => {
         try {
@@ -83,7 +84,7 @@ export function useCommandBarAI(): UseCommandBarAIReturn {
               mode: "command",
               locale,
             }),
-            signal: abortRef.current!.signal,
+            signal: abortController.signal,
           });
 
           if (!response.ok) {

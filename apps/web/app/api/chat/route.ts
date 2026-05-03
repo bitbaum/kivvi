@@ -211,6 +211,9 @@ export async function POST(request: NextRequest) {
       isCommandMode ? COMMAND_BAR_PROMPT : undefined,
     );
 
+    // conversation is always assigned by all branches above
+    const activeConversationId = conversation.id;
+
     // Create streaming response
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
@@ -219,7 +222,7 @@ export async function POST(request: NextRequest) {
           let fullContent = "";
 
           const streamGenerator = engine.streamMessage(message, {
-            id: conversation!.id,
+            id: activeConversationId,
             messages: previousMessages,
             context,
           });
@@ -248,7 +251,7 @@ export async function POST(request: NextRequest) {
               // Save assistant message to database (skip in command mode)
               if (fullContent && !isCommandMode) {
                 await db.insert(aiMessages).values({
-                  conversationId: conversation!.id,
+                  conversationId: activeConversationId,
                   role: "assistant",
                   content: fullContent,
                   model: activeModel || null,
@@ -258,7 +261,7 @@ export async function POST(request: NextRequest) {
 
               controller.enqueue(
                 encoder.encode(
-                  `data: ${JSON.stringify({ type: "done", conversationId: conversation!.id })}\n\n`,
+                  `data: ${JSON.stringify({ type: "done", conversationId: activeConversationId })}\n\n`,
                 ),
               );
             }

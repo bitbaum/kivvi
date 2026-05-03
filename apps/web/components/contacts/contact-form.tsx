@@ -21,10 +21,9 @@ import {
   ContactFormAdvancedSections,
 } from "./contact-form-sections";
 
-interface ContactFormProps {
-  mode: "create" | "edit";
-  contact?: Contact;
-}
+type ContactFormProps =
+  | { mode: "create"; contact?: never }
+  | { mode: "edit"; contact: Contact };
 
 export function ContactForm({ mode, contact }: ContactFormProps) {
   const router = useRouter();
@@ -68,7 +67,7 @@ export function ContactForm({ mode, contact }: ContactFormProps) {
   }
 
   const isEdit = mode === "edit";
-  const backHref = isEdit ? `/contacts/${contact!.id}` : "/contacts";
+  const backHref = isEdit ? `/contacts/${contact.id}` : "/contacts";
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -79,10 +78,10 @@ export function ContactForm({ mode, contact }: ContactFormProps) {
       const formData = new FormData(e.currentTarget);
 
       if (isEdit) {
-        const result = await updateContactAction(contact!.id, formData);
+        const result = await updateContactAction(contact.id, formData);
         if (result.success) {
           toast.success(t("updated"));
-          router.push(`/contacts/${contact!.id}`);
+          router.push(`/contacts/${contact.id}`);
         } else {
           setError(result.error || tc("error"));
         }
@@ -118,7 +117,7 @@ export function ContactForm({ mode, contact }: ContactFormProps) {
         </h1>
         <p className="text-muted-foreground">
           {isEdit
-            ? `${contact!.name}${contact!.contactNumber ? ` (${contact!.contactNumber})` : ""}`
+            ? `${contact.name}${contact.contactNumber ? ` (${contact.contactNumber})` : ""}`
             : t("subtitle")}
         </p>
       </div>

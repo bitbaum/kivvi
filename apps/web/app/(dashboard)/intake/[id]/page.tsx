@@ -59,7 +59,7 @@ export default async function IntakeDetailPage({ params }: PageProps) {
               {ti("itemsTitle")}
               {hasItems && (
                 <span className="ml-2 text-foreground font-semibold">
-                  ({linkedItems!.total})
+                  ({linkedItems?.total})
                 </span>
               )}
             </h3>
@@ -99,7 +99,7 @@ export default async function IntakeDetailPage({ params }: PageProps) {
             </div>
           ) : (
             <div className="divide-y rounded-lg border">
-              {linkedItems!.data.map((item) => {
+              {linkedItems?.data.map((item) => {
                 const cd = item.checklistData as ChecklistData | null;
                 let qcProgress:
                   | { done: number; total: number; signedOff: boolean }

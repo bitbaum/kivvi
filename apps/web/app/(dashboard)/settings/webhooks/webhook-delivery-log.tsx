@@ -13,17 +13,7 @@ import { useTranslations } from "next-intl";
 import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
 import { Button } from "@/components/ui/button";
 import { listWebhookDeliveriesAction } from "@/app/actions/webhooks";
-
-type Delivery = {
-  id: string;
-  event: string;
-  statusCode: number | null;
-  attemptCount: number;
-  deliveredAt: Date | null;
-  nextRetryAt: Date | null;
-  createdAt: Date;
-  responseBody: string | null;
-};
+import type { WebhookDelivery as Delivery } from "@kivvi/database";
 
 function DeliveryRow({ delivery }: { delivery: Delivery }) {
   const t = useTranslations("settings.webhooks.deliveryLog");
@@ -126,7 +116,7 @@ export function WebhookDeliveryLog({ endpointId }: Props) {
     setLoading(true);
     const result = await listWebhookDeliveriesAction(endpointId);
     if (result.success && result.data) {
-      setDeliveries(result.data as Delivery[]);
+      setDeliveries(result.data);
     }
     setLoading(false);
   }, [endpointId]);

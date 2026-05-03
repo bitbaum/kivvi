@@ -19,10 +19,9 @@ import {
   ProductFormVisibilitySection,
 } from "./product-form-sections";
 
-interface ProductFormProps {
-  mode: "create" | "edit";
-  product?: Product;
-}
+type ProductFormProps =
+  | { mode: "create"; product?: never }
+  | { mode: "edit"; product: Product };
 
 export function ProductForm({ mode, product }: ProductFormProps) {
   const router = useRouter();
@@ -34,7 +33,7 @@ export function ProductForm({ mode, product }: ProductFormProps) {
   const tc = useTranslations("common");
 
   const isEdit = mode === "edit";
-  const backHref = isEdit ? `/products/${product!.id}` : "/products";
+  const backHref = isEdit ? `/products/${product.id}` : "/products";
 
   async function handleSubmit(formData: FormData) {
     setIsSubmitting(true);
@@ -42,10 +41,10 @@ export function ProductForm({ mode, product }: ProductFormProps) {
 
     try {
       if (isEdit) {
-        const result = await updateProductAction(product!.id, formData);
+        const result = await updateProductAction(product.id, formData);
         if (result.success) {
           toast.success(t("updated"));
-          router.push(`/products/${product!.id}`);
+          router.push(`/products/${product.id}`);
         } else {
           setError(result.error || tc("error"));
           setIsSubmitting(false);
@@ -81,7 +80,7 @@ export function ProductForm({ mode, product }: ProductFormProps) {
           </h1>
           <p className="text-muted-foreground">
             {isEdit
-              ? `${product!.name}${product!.articleNumber ? ` (${product!.articleNumber})` : ""}`
+              ? `${product.name}${product.articleNumber ? ` (${product.articleNumber})` : ""}`
               : t("subtitle")}
           </p>
         </div>
