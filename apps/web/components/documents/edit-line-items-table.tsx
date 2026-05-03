@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { formatCurrency } from "@/lib/utils";
@@ -17,6 +18,8 @@ interface EditLineItemsTableProps {
     field: keyof LineItem,
     value: string | null,
   ) => void;
+  /** Optional slot rendered left of the "Add item" button in the header */
+  priceListSlot?: ReactNode;
 }
 
 export function EditLineItemsTable({
@@ -24,6 +27,7 @@ export function EditLineItemsTable({
   onAddItem,
   onRemoveItem,
   onUpdateItem,
+  priceListSlot,
 }: EditLineItemsTableProps) {
   const t = useTranslations("documents");
   const tc = useTranslations("common");
@@ -32,13 +36,16 @@ export function EditLineItemsTable({
     <div className="rounded-xl border bg-card">
       <div className="flex items-center justify-between border-b p-4">
         <h2 className="font-semibold">{t("lineItems")}</h2>
-        <button
-          type="button"
-          onClick={onAddItem}
-          className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
-        >
-          <Plus className="h-4 w-4" /> {t("addItem")}
-        </button>
+        <div className="flex items-center gap-2">
+          {priceListSlot}
+          <button
+            type="button"
+            onClick={onAddItem}
+            className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+          >
+            <Plus className="h-4 w-4" /> {t("addItem")}
+          </button>
+        </div>
       </div>
       <div className="divide-y">
         {items.map((item, index) => (

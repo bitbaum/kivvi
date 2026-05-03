@@ -13,14 +13,16 @@ import {
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { createDocumentAction } from "@/app/actions/documents";
+import { listPriceListsAction } from "@/app/actions/pricing";
 import { DOCUMENT_TYPES } from "@/lib/config/document-types";
 import { CharCountTextarea } from "@/components/ui/char-count-textarea";
-import type { DocumentType } from "@kivvi/database";
+import type { DocumentType, PriceList } from "@kivvi/database";
 import { IntakeQuickEntry } from "./intake-quick-entry";
 import { useDocumentForm, decodePrefill } from "@/hooks/use-document-form";
 import { LineItemsEditor } from "./line-items-editor";
 import { DocumentSummaryPanel } from "./document-summary-panel";
 import { DocumentContactDatesCard } from "./document-contact-dates-card";
+import { PriceListApplySlot } from "./price-list-apply-slot";
 import type { LineItem } from "./document-form-types";
 import { emptyItem } from "./document-form-types";
 
@@ -58,6 +60,14 @@ export function DocumentForm({ type }: DocumentFormProps) {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
   );
+
+  // Fetch price lists for the optional price-list apply slot
+  const [priceLists, setPriceLists] = useState<PriceList[]>([]);
+  useEffect(() => {
+    listPriceListsAction().then((r) => {
+      if (r.success && r.data) setPriceLists(r.data);
+    });
+  }, []);
 
   const handleSubmit = useCallback(async () => {
     setError(null);
@@ -214,6 +224,22 @@ export function DocumentForm({ type }: DocumentFormProps) {
               isIntake && !hideLineItemPricing
                 ? t("acquisitionCost")
                 : undefined
+            }
+            priceListSlot={
+              !hideLineItemPricing && priceLists.length > 0 ? (
+                <PriceListApplySlot
+                  priceLists={priceLists}
+                  items={form.items}
+                  onApply={(updates) => {
+                    Object.entries(updates).forEach(([productId, price]) => {
+                      const item = form.items.find(
+                        (i) => i.productId === productId,
+                      );
+                      if (item) form.updateItem(item.id, "unitPrice", price);
+                    });
+                  }}
+                />
+              ) : undefined
             }
             t={t}
             tc={tc}

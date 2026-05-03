@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { Plus } from "lucide-react";
 import {
   DndContext,
@@ -30,6 +31,8 @@ interface LineItemsEditorProps {
   onRemoveItem: (id: string) => void;
   hideFinancials?: boolean;
   priceLabel?: string;
+  /** Optional slot rendered left of the "Add item" button in the header */
+  priceListSlot?: ReactNode;
   t: ReturnType<typeof useTranslations>;
   tc: ReturnType<typeof useTranslations>;
 }
@@ -43,6 +46,7 @@ export function LineItemsEditor({
   onRemoveItem,
   hideFinancials,
   priceLabel,
+  priceListSlot,
   t,
   tc,
 }: LineItemsEditorProps) {
@@ -50,10 +54,13 @@ export function LineItemsEditor({
     <div className="rounded-xl border bg-card">
       <div className="flex items-center justify-between border-b p-4">
         <h2 className="font-semibold">{t("lineItems")}</h2>
-        <Button type="button" variant="link" size="sm" onClick={onAddItem}>
-          <Plus className="h-4 w-4" />
-          {t("addItem")}
-        </Button>
+        <div className="flex items-center gap-2">
+          {priceListSlot}
+          <Button type="button" variant="link" size="sm" onClick={onAddItem}>
+            <Plus className="h-4 w-4" />
+            {t("addItem")}
+          </Button>
+        </div>
       </div>
 
       <DndContext

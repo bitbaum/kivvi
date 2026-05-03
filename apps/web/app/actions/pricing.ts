@@ -15,6 +15,7 @@ import {
   updatePriceListSchema,
   createPriceRuleSchema,
   updatePriceRuleSchema,
+  resolvePriceForProduct,
 } from "@kivvi/core";
 import {
   type ActionResult,
@@ -187,6 +188,48 @@ export async function deletePriceRuleAction(
     return {
       success: false,
       error: safeErrorMessage(error, t("errorFailedToDeleteRule")),
+    };
+  }
+}
+
+// ============================================================================
+// PRICE RESOLUTION (used by document creation form)
+// ============================================================================
+
+/**
+ * Resolve the effective price for a set of (productId, quantity) pairs
+ * against a price list. Returns a map of productId → resolved price string.
+ * Items without a matching rule are omitted from the result.
+ */
+export async function resolvePricesAction(
+  priceListId: string,
+  items: Array<{ productId: string; quantity?: number }>,
+): Promise<ActionResult<Record<string, string>>> {
+  const t = await getTranslations("priceLists");
+  try {
+    const { companyId } = await requireRole("member");
+    const results: Record<string, string> = {};
+
+    await Promise.all(
+      items.map(async ({ productId, quantity }) => {
+        const resolved = await resolvePriceForProduct(
+          db,
+          companyId,
+          productId,
+          priceListId,
+          quantity,
+        );
+        if (resolved) {
+          results[productId] = resolved.price;
+        }
+      }),
+    );
+
+    return { success: true, data: results };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, t("errorFailedToLoad")),
     };
   }
 }

@@ -6,17 +6,19 @@ import { useTranslations } from "next-intl";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { updateDocumentAction } from "@/app/actions/documents";
+import { listPriceListsAction } from "@/app/actions/pricing";
 import type { DocumentTypeConfig } from "@/lib/config/document-types";
 import { DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
 import { ContactPicker } from "@/components/contacts/contact-picker";
 import { CharCountTextarea } from "@/components/ui/char-count-textarea";
 import { FormInput } from "@/components/ui/form-field";
-import type { DocumentType } from "@kivvi/database";
+import type { DocumentType, PriceList } from "@kivvi/database";
 import { toast } from "sonner";
 import { calculateDocumentTotals } from "./calculate-item-total";
 import type { LineItem } from "./document-form-types";
 import { EditLineItemsTable } from "./edit-line-items-table";
 import { EditDocumentSummary } from "./edit-document-summary";
+import { PriceListApplySlot } from "./price-list-apply-slot";
 
 interface EditDocumentFormProps {
   documentId: string;
@@ -56,6 +58,12 @@ export function EditDocumentForm({
   const [notes, setNotes] = useState(initialData.notes);
   const [internalNotes, setInternalNotes] = useState(initialData.internalNotes);
   const [items, setItems] = useState<LineItem[]>(initialData.items);
+  const [priceLists, setPriceLists] = useState<PriceList[]>([]);
+  useEffect(() => {
+    listPriceListsAction().then((r) => {
+      if (r.success && r.data) setPriceLists(r.data);
+    });
+  }, []);
 
   const addItem = () =>
     setItems([
@@ -233,6 +241,23 @@ export function EditDocumentForm({
             onAddItem={addItem}
             onRemoveItem={removeItem}
             onUpdateItem={updateItem}
+            priceListSlot={
+              priceLists.length > 0 ? (
+                <PriceListApplySlot
+                  priceLists={priceLists}
+                  items={items}
+                  onApply={(updates) => {
+                    setItems((prev) =>
+                      prev.map((item) =>
+                        item.productId && updates[item.productId]
+                          ? { ...item, unitPrice: updates[item.productId] }
+                          : item,
+                      ),
+                    );
+                  }}
+                />
+              ) : undefined
+            }
           />
 
           {/* Notes */}
