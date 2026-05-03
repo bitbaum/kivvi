@@ -4157,5 +4157,17 @@
     "errorFailedToCreateRule": "Création de la règle de prix échouée",
     "errorFailedToUpdateRule": "Mise à jour de la règle de prix échouée",
     "errorFailedToDeleteRule": "Suppression de la règle de prix échouée"
+  },
+  "domainErrors": {
+    "cannotTransition": "Impossible de changer le statut de {from} à {to}",
+    "cannotApproveConditionNotAssessed": "L'état de l'article n'a pas été évalué",
+    "cannotApprovePriceNotSet": "Le prix de l'article n'a pas été défini",
+    "cannotApproveBlockingChecks": "Approbation impossible : {checks}",
+    "cannotSellWrongStatus": "L'article ne peut pas être vendu avec le statut \"{status}\"",
+    "onlyDraftCanBeDeleted": "Seuls les documents en brouillon peuvent être supprimés",
+    "cannotRecordPaymentWrongType": "Les paiements ne peuvent pas être enregistrés sur les documents de type {type}",
+    "cannotRecordPaymentWrongStatus": "Le paiement ne peut pas être enregistré sur un document avec le statut \"{status}\"",
+    "cannotRecordPaymentExceedsBalance": "Le montant {amount} dépasse le solde restant {remaining}",
+    "cannotConvert": "Impossible de convertir {from} en {to}"
   }
 }

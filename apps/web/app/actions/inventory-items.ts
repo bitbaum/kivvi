@@ -122,7 +122,10 @@ export async function updateItemStatusAction(
   itemId: string,
   input: unknown,
 ): Promise<ActionResult<{ id: string; status: string }>> {
-  const t = await getTranslations("inventory");
+  const [t, tDomain] = await Promise.all([
+    getTranslations("inventory"),
+    getTranslations("domainErrors"),
+  ]);
   try {
     const { companyId, userId } = await requireRole("member");
     const parsed = updateStatusSchema.safeParse(input);
@@ -153,7 +156,12 @@ export async function updateItemStatusAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, t("errorFailedToUpdateStatus")),
+      error: safeErrorMessage(
+        error,
+        t("errorFailedToUpdateStatus"),
+        (code, params) =>
+          tDomain(code as Parameters<typeof tDomain>[0], params),
+      ),
     };
   }
 }

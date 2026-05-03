@@ -33,6 +33,7 @@ import {
   INTAKE_SOURCE_VALUES,
 } from "@kivvi/database/src/enums";
 import type { PaginatedResult } from "./contacts";
+import { DomainError } from "../domain-error";
 import { calcItemNet, calcDocumentTotals } from "../utils/document-totals";
 import { getNextNumber } from "./number-sequences";
 import {
@@ -836,7 +837,11 @@ export async function updateDocumentStatus(
   const doc = existing[0];
 
   if (!isValidTransition(doc.status, newStatus)) {
-    throw new Error(`Cannot transition from "${doc.status}" to "${newStatus}"`);
+    throw new DomainError(
+      "cannotTransition",
+      { from: doc.status, to: newStatus },
+      `Cannot transition from "${doc.status}" to "${newStatus}"`,
+    );
   }
 
   const updateValues: Record<string, unknown> = {
@@ -892,7 +897,11 @@ export async function deleteDocument(
   }
 
   if (existing[0].status !== "draft") {
-    throw new Error("Only draft documents can be deleted");
+    throw new DomainError(
+      "onlyDraftCanBeDeleted",
+      undefined,
+      "Only draft documents can be deleted",
+    );
   }
 
   // Items and payments cascade-delete via FK
@@ -938,11 +947,19 @@ export async function recordPayment(
   // Only invoices and purchase invoices can receive payments
   const payableTypes = PAYABLE_DOCUMENT_TYPES as readonly string[];
   if (!payableTypes.includes(doc.type)) {
-    throw new Error(`Cannot record payment for a ${doc.type} document`);
+    throw new DomainError(
+      "cannotRecordPaymentWrongType",
+      { type: doc.type },
+      `Cannot record payment for a ${doc.type} document`,
+    );
   }
 
   if (doc.status === "draft" || doc.status === "cancelled") {
-    throw new Error(`Cannot record payment for a ${doc.status} document`);
+    throw new DomainError(
+      "cannotRecordPaymentWrongStatus",
+      { status: doc.status },
+      `Cannot record payment for a ${doc.status} document`,
+    );
   }
 
   // Idempotency check: skip if payment with same bankTransactionId already exists
@@ -987,7 +1004,9 @@ export async function recordPayment(
     const paymentAmount = new Decimal(input.amount);
 
     if (paymentAmount.gt(remaining)) {
-      throw new Error(
+      throw new DomainError(
+        "cannotRecordPaymentExceedsBalance",
+        { amount: input.amount, remaining: remaining.toFixed(2) },
         `Cannot record payment: amount ${input.amount} exceeds remaining balance ${remaining.toFixed(2)}`,
       );
     }
@@ -1067,7 +1086,11 @@ export async function convertDocument(
   // Validate conversion path (SSOT: document-conversions.ts)
   const allowed = VALID_CONVERSIONS[source.type] ?? [];
   if (!allowed.includes(targetType)) {
-    throw new Error(`Cannot convert ${source.type} to ${targetType}`);
+    throw new DomainError(
+      "cannotConvert",
+      { from: source.type, to: targetType },
+      `Cannot convert ${source.type} to ${targetType}`,
+    );
   }
 
   // Wrap conversion in transaction

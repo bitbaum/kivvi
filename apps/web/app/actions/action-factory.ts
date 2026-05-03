@@ -1,4 +1,5 @@
 import { revalidatePath } from "next/cache";
+import { getTranslations } from "next-intl/server";
 import { db } from "@/lib/db";
 import {
   type ActionResult,
@@ -30,12 +31,17 @@ export function createAction<TInput, TResult>(opts: {
   revalidate?: string[];
   errorMessage: string | (() => Promise<string>);
   minRole?: MembershipRole;
+  translateDomainErrors?: boolean;
 }): (input: TInput) => Promise<ActionResult<TResult>> {
   return async (input: TInput): Promise<ActionResult<TResult>> => {
-    const fallback =
+    const [fallback, tDomain] = await Promise.all([
       typeof opts.errorMessage === "function"
-        ? await opts.errorMessage()
-        : opts.errorMessage;
+        ? opts.errorMessage()
+        : Promise.resolve(opts.errorMessage),
+      opts.translateDomainErrors
+        ? getTranslations("domainErrors")
+        : Promise.resolve(null),
+    ]);
     try {
       const { companyId, userId } = opts.minRole
         ? await requireRole(opts.minRole)
@@ -50,9 +56,13 @@ export function createAction<TInput, TResult>(opts: {
 
       return { success: true, data: result };
     } catch (error) {
+      const translateDomainError = tDomain
+        ? (code: string, params?: Record<string, string>) =>
+            tDomain(code as Parameters<typeof tDomain>[0], params)
+        : undefined;
       return {
         success: false,
-        error: safeErrorMessage(error, fallback),
+        error: safeErrorMessage(error, fallback, translateDomainError),
       };
     }
   };

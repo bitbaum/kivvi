@@ -2,6 +2,8 @@
 // NOTE: Do NOT import from this barrel in client components — it pulls in
 // postgres driver via transitive deps.  Import specific domain files instead.
 
+export * from "./domain-error";
+
 // Domain modules
 export * from "./domain/number-sequences";
 export * from "./domain/contacts";

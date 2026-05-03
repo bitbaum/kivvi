@@ -4157,5 +4157,17 @@
     "errorFailedToCreateRule": "Failed to create price rule",
     "errorFailedToUpdateRule": "Failed to update price rule",
     "errorFailedToDeleteRule": "Failed to delete price rule"
+  },
+  "domainErrors": {
+    "cannotTransition": "Cannot change status from {from} to {to}",
+    "cannotApproveConditionNotAssessed": "Item condition has not been assessed",
+    "cannotApprovePriceNotSet": "Item price has not been set",
+    "cannotApproveBlockingChecks": "Cannot approve: {checks}",
+    "cannotSellWrongStatus": "Item cannot be sold in status \"{status}\"",
+    "onlyDraftCanBeDeleted": "Only draft documents can be deleted",
+    "cannotRecordPaymentWrongType": "Payments cannot be recorded on {type} documents",
+    "cannotRecordPaymentWrongStatus": "Payment cannot be recorded on a document with status \"{status}\"",
+    "cannotRecordPaymentExceedsBalance": "Payment amount {amount} exceeds remaining balance {remaining}",
+    "cannotConvert": "Cannot convert {from} to {to}"
   }
 }

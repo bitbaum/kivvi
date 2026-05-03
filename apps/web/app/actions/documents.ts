@@ -135,13 +135,17 @@ export const deleteDocumentAction = createAction<string, void>({
   errorMessage: () =>
     getTranslations("documents").then((t) => t("errorFailedToDelete")),
   minRole: "member",
+  translateDomainErrors: true,
 });
 
 export async function updateDocumentStatusAction(
   documentId: string,
   newStatus: DocumentStatus,
 ): Promise<ActionResult<{ id: string; status: string }>> {
-  const t = await getTranslations("documents");
+  const [t, tDomain] = await Promise.all([
+    getTranslations("documents"),
+    getTranslations("domainErrors"),
+  ]);
   try {
     const { companyId } = await requireRole("member");
 
@@ -171,7 +175,12 @@ export async function updateDocumentStatusAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, t("errorFailedToUpdateStatus")),
+      error: safeErrorMessage(
+        error,
+        t("errorFailedToUpdateStatus"),
+        (code, params) =>
+          tDomain(code as Parameters<typeof tDomain>[0], params),
+      ),
     };
   }
 }
@@ -185,7 +194,10 @@ export async function recordPaymentAction(
     reference?: string;
   },
 ): Promise<ActionResult<{ id: string }>> {
-  const t = await getTranslations("documents");
+  const [t, tDomain] = await Promise.all([
+    getTranslations("documents"),
+    getTranslations("domainErrors"),
+  ]);
   try {
     const { companyId } = await requireRole("member");
 
@@ -283,7 +295,12 @@ export async function recordPaymentAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, t("errorFailedToRecordPayment")),
+      error: safeErrorMessage(
+        error,
+        t("errorFailedToRecordPayment"),
+        (code, params) =>
+          tDomain(code as Parameters<typeof tDomain>[0], params),
+      ),
     };
   }
 }
@@ -292,7 +309,10 @@ export async function convertDocumentAction(
   sourceDocumentId: string,
   targetType: DocumentType,
 ): Promise<ActionResult<{ id: string; number: string }>> {
-  const t = await getTranslations("documents");
+  const [t, tDomain] = await Promise.all([
+    getTranslations("documents"),
+    getTranslations("domainErrors"),
+  ]);
   try {
     const { companyId, userId } = await requireRole("member");
 
@@ -315,7 +335,12 @@ export async function convertDocumentAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, t("errorFailedToConvert")),
+      error: safeErrorMessage(
+        error,
+        t("errorFailedToConvert"),
+        (code, params) =>
+          tDomain(code as Parameters<typeof tDomain>[0], params),
+      ),
     };
   }
 }

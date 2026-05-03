@@ -4157,5 +4157,17 @@
     "errorFailedToCreateRule": "Preisregel konnte nicht erstellt werden",
     "errorFailedToUpdateRule": "Preisregel konnte nicht aktualisiert werden",
     "errorFailedToDeleteRule": "Preisregel konnte nicht gelöscht werden"
+  },
+  "domainErrors": {
+    "cannotTransition": "Status kann nicht von {from} auf {to} geändert werden",
+    "cannotApproveConditionNotAssessed": "Zustand des Artikels wurde nicht bewertet",
+    "cannotApprovePriceNotSet": "Preis des Artikels wurde nicht festgelegt",
+    "cannotApproveBlockingChecks": "Freigabe nicht möglich: {checks}",
+    "cannotSellWrongStatus": "Artikel kann im Status \"{status}\" nicht verkauft werden",
+    "onlyDraftCanBeDeleted": "Nur Dokumente im Entwurfsstatus können gelöscht werden",
+    "cannotRecordPaymentWrongType": "Zahlungen können bei {type}-Dokumenten nicht erfasst werden",
+    "cannotRecordPaymentWrongStatus": "Zahlung kann bei einem Dokument mit Status \"{status}\" nicht erfasst werden",
+    "cannotRecordPaymentExceedsBalance": "Zahlungsbetrag {amount} übersteigt den verbleibenden Saldo {remaining}",
+    "cannotConvert": "{from} kann nicht in {to} umgewandelt werden"
   }
 }

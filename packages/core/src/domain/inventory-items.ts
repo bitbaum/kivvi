@@ -1,6 +1,7 @@
 import { z } from "zod";
 import Decimal from "decimal.js";
 import { eq, and, ilike, desc, asc, sql, count, inArray } from "drizzle-orm";
+import { DomainError } from "../domain-error";
 import {
   inventoryItems,
   repairParts,
@@ -192,7 +193,9 @@ export async function updateItemStatus(
 
   const allowed = VALID_TRANSITIONS[current.status] || [];
   if (!allowed.includes(newStatus)) {
-    throw new Error(
+    throw new DomainError(
+      "cannotTransition",
+      { from: current.status, to: newStatus },
       `Cannot transition from "${current.status}" to "${newStatus}"`,
     );
   }
@@ -203,14 +206,20 @@ export async function updateItemStatus(
   if (newStatus === "ready_for_sale") {
     // Gate 1: condition must be assessed
     if (current.condition === "untested") {
-      throw new Error(
+      throw new DomainError(
+        "cannotApproveConditionNotAssessed",
+        undefined,
         "Cannot approve for sale: condition not assessed. Set condition grade first.",
       );
     }
 
     // Gate 2: price must be set
     if (!current.askingPrice) {
-      throw new Error("Cannot approve for sale: asking price not set.");
+      throw new DomainError(
+        "cannotApprovePriceNotSet",
+        undefined,
+        "Cannot approve for sale: asking price not set.",
+      );
     }
 
     // Gate 3: blocking checklist items must all pass (if checklist was done)
@@ -222,7 +231,9 @@ export async function updateItemStatus(
         checklistData.completions,
       );
       if (!passed) {
-        throw new Error(
+        throw new DomainError(
+          "cannotApproveBlockingChecks",
+          { checks: missing.join(", ") },
           `Cannot approve for sale: blocking checks incomplete or failed (${missing.join(", ")})`,
         );
       }
@@ -334,7 +345,9 @@ export async function sellInventoryItem(
 
   // Item must be in a sellable state
   if (!(SELLABLE_ITEM_STATUSES as readonly string[]).includes(current.status)) {
-    throw new Error(
+    throw new DomainError(
+      "cannotSellWrongStatus",
+      { status: current.status },
       `Cannot sell item in status "${current.status}". Must be ready_for_sale, listed, or reserved.`,
     );
   }

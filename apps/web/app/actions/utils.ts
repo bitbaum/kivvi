@@ -2,6 +2,7 @@ import { z } from "zod";
 import * as Sentry from "@sentry/nextjs";
 import { auth } from "@/lib/auth";
 import type { MembershipRole } from "@kivvi/database";
+import { DomainError } from "@kivvi/core/src/domain-error";
 
 export interface ActionResult<T = unknown> {
   success: boolean;
@@ -73,10 +74,28 @@ const SAFE_ERROR_PATTERNS = [
 
 /**
  * Sanitize error messages for user-facing responses.
- * Exposes known domain errors, replaces everything else with a generic fallback.
+ * - DomainError: translated via the provided t function (or English message as fallback)
+ * - Known English patterns: passed through verbatim (legacy path for non-migrated errors)
+ * - Unknown errors: logged to Sentry, generic fallback returned
  */
-export function safeErrorMessage(error: unknown, fallback: string): string {
+export function safeErrorMessage(
+  error: unknown,
+  fallback: string,
+  translateDomainError?: (
+    code: string,
+    params?: Record<string, string>,
+  ) => string,
+): string {
   if (!(error instanceof Error)) return fallback;
+
+  if (error instanceof DomainError) {
+    if (translateDomainError) {
+      return translateDomainError(error.code, error.params);
+    }
+    // English message serves as fallback when no translator is provided
+    return error.message;
+  }
+
   const msg = error.message;
   if (
     SAFE_ERROR_PATTERNS.some((pattern) =>
