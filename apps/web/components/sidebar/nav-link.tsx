@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import type { NavBadges } from "@/hooks/use-nav-badges";
+import type { MembershipRole } from "@kivvi/database";
 
-export type UserRole = "owner" | "admin" | "member" | "viewer";
+export type UserRole = MembershipRole;
 
 export const ROLE_RANK: Record<UserRole, number> = {
   viewer: 0,
