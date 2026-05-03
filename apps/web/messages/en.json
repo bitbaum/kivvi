@@ -453,7 +453,11 @@
       "agingRepairs": "Repairs Over 14 Days",
       "agingRepairsDesc": "{count, plural, one {# item} other {# items}} in repair for more than 14 days",
       "staleInventory": "Stale Inventory",
-      "staleInventoryDesc": "{count, plural, one {# item} other {# items}} ready for sale for over 60 days — review pricing?"
+      "staleInventoryDesc": "{count, plural, one {# item} other {# items}} ready for sale for over 60 days — review pricing?",
+      "staleIntake": "Intake Backlog",
+      "staleIntakeDesc": "{count, plural, one {# item} other {# items}} in intake for over 7 days — not yet processed",
+      "staleTesting": "Testing Backlog",
+      "staleTestingDesc": "{count, plural, one {# item} other {# items}} in testing for over 14 days"
     },
     "workflow": {
       "title": "Workflow Suggestions",

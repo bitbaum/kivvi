@@ -41,7 +41,9 @@ export interface DashboardAlert {
     | "low_stock"
     | "unreconciled_transaction"
     | "aging_repair"
-    | "stale_inventory";
+    | "stale_inventory"
+    | "stale_intake"
+    | "stale_testing";
   severity: "urgent" | "warning" | "info";
   titleKey: string;
   descriptionKey: string;
@@ -267,7 +269,60 @@ export async function getDashboardAlerts(
     });
   }
 
-  // 7. Items in ready_for_sale not sold after 60 days (pricing may need review)
+  // 7. Items stuck in intake > 7 days (processing backlog)
+  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const [staleIntakeResult] = await db
+    .select({ count: sql<number>`COUNT(*)::int` })
+    .from(inventoryItems)
+    .where(
+      and(
+        eq(inventoryItems.companyId, companyId),
+        eq(inventoryItems.status, "intake"),
+        lte(inventoryItems.createdAt, sevenDaysAgo),
+      ),
+    );
+
+  const staleIntakeCount = staleIntakeResult?.count || 0;
+  if (staleIntakeCount > 0) {
+    alerts.push({
+      id: "stale-intake",
+      type: "stale_intake",
+      severity: staleIntakeCount >= 5 ? "urgent" : "warning",
+      titleKey: "alerts.staleIntake",
+      descriptionKey: "alerts.staleIntakeDesc",
+      descriptionParams: { count: staleIntakeCount },
+      count: staleIntakeCount,
+      linkTo: "/intake/items?status=intake",
+    });
+  }
+
+  // 8. Items stuck in testing > 14 days (assessment backlog)
+  const [staleTestingResult] = await db
+    .select({ count: sql<number>`COUNT(*)::int` })
+    .from(inventoryItems)
+    .where(
+      and(
+        eq(inventoryItems.companyId, companyId),
+        eq(inventoryItems.status, "testing"),
+        lte(inventoryItems.createdAt, fourteenDaysAgo),
+      ),
+    );
+
+  const staleTestingCount = staleTestingResult?.count || 0;
+  if (staleTestingCount > 0) {
+    alerts.push({
+      id: "stale-testing",
+      type: "stale_testing",
+      severity: staleTestingCount >= 5 ? "urgent" : "warning",
+      titleKey: "alerts.staleTesting",
+      descriptionKey: "alerts.staleTestingDesc",
+      descriptionParams: { count: staleTestingCount },
+      count: staleTestingCount,
+      linkTo: "/intake/items?status=testing",
+    });
+  }
+
+  // 10. Items in ready_for_sale not sold after 60 days (pricing may need review)
   const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
   const [staleReadyResult] = await db
     .select({ count: sql<number>`COUNT(*)::int` })

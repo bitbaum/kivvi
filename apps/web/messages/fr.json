@@ -453,7 +453,11 @@
       "agingRepairs": "Réparations de plus de 14 jours",
       "agingRepairsDesc": "{count, plural, one {# article} other {# articles}} en réparation depuis plus de 14 jours",
       "staleInventory": "Stock stagnant",
-      "staleInventoryDesc": "{count, plural, one {# article} other {# articles}} en vente depuis plus de 60 jours — revoir les prix?"
+      "staleInventoryDesc": "{count, plural, one {# article} other {# articles}} en vente depuis plus de 60 jours — revoir les prix?",
+      "staleIntake": "Retard d'enregistrement",
+      "staleIntakeDesc": "{count, plural, one {# article} other {# articles}} en enregistrement depuis plus de 7 jours — pas encore traité",
+      "staleTesting": "Retard de test",
+      "staleTestingDesc": "{count, plural, one {# article} other {# articles}} en test depuis plus de 14 jours"
     },
     "workflow": {
       "title": "Suggestions de flux",
