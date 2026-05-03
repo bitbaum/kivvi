@@ -1288,6 +1288,8 @@
     "failed": "failed",
     "noItemsToLabel": "No items to label",
     "confirmIntakeFirst": "Confirm the intake first to create inventory items.",
+    "willCreateItems": "{count, plural, one {# item will be created} other {# items will be created}}",
+    "addItem": "Add Item",
     "labelSheetHint": "Labels are optimized for Avery L7160 sheets (63.5 × 38.1mm, 21 per A4). Set margins to \"None\" in your print dialog.",
     "print": "Print",
     "repairRecorded": "Repair recorded",

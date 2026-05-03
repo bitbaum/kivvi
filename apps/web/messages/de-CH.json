@@ -1288,6 +1288,8 @@
     "failed": "fehlgeschlagen",
     "noItemsToLabel": "Keine Artikel zum Etikettieren",
     "confirmIntakeFirst": "Bestätigen Sie den Eingang zuerst, um Artikel zu erstellen.",
+    "willCreateItems": "{count, plural, one {# Artikel wird erstellt} other {# Artikel werden erstellt}}",
+    "addItem": "Artikel hinzufügen",
     "labelSheetHint": "Etiketten für Avery L7160 (63.5 × 38.1mm, 21 pro A4). Ränder auf \"Keine\" setzen.",
     "print": "Drucken",
     "repairRecorded": "Reparatur erfasst",

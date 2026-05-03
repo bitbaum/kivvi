@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Tags, FileText, Package } from "lucide-react";
+import { Tags, FileText, Package, Plus } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
@@ -47,9 +47,30 @@ export default async function IntakeDetailPage({ params }: PageProps) {
 
   const hasItems = (linkedItems?.total ?? 0) > 0;
 
+  const draftItemCount = doc.items.reduce(
+    (sum, item) =>
+      sum + Math.max(1, Math.floor(parseFloat(item.quantity || "1"))),
+    0,
+  );
+
   return (
     <div className="space-y-6">
       <DocumentDetail doc={doc} config={DOCUMENT_TYPES.intake} />
+
+      {/* Draft hint: show expected item count before confirmation */}
+      {!isConfirmed && doc.status !== "cancelled" && doc.items.length > 0 && (
+        <div className="rounded-xl border bg-card p-4">
+          <div className="flex items-center gap-3">
+            <Package className="h-5 w-5 shrink-0 text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">
+              {ti("confirmIntakeFirst")}{" "}
+              <span className="font-medium text-foreground">
+                {ti("willCreateItems", { count: draftItemCount })}
+              </span>
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Intake-specific actions — shown after confirmation */}
       {isConfirmed && (
@@ -91,11 +112,18 @@ export default async function IntakeDetailPage({ params }: PageProps) {
           </div>
 
           {!hasItems ? (
-            <div className="flex flex-col items-center gap-2 py-8 text-center">
+            <div className="flex flex-col items-center gap-3 py-8 text-center">
               <Package className="h-8 w-8 text-muted-foreground/30" />
               <p className="text-sm text-muted-foreground">
                 {ti("noItemsFound")}
               </p>
+              <Link
+                href={`/intake/quick?intakeDocumentId=${id}`}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                {ti("addItem")}
+              </Link>
             </div>
           ) : (
             <div className="divide-y rounded-lg border">

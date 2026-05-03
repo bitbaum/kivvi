@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { createInventoryItemAction } from "@/app/actions/inventory-items";
@@ -14,6 +14,8 @@ type Step = 1 | 2 | 3 | 4;
 
 export default function QuickIntakePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const intakeDocumentId = searchParams.get("intakeDocumentId") || null;
   const [isPending, startTransition] = useTransition();
   const ti = useTranslations("inventory");
   const tc = useTranslations("common");
@@ -40,9 +42,14 @@ export default function QuickIntakePage() {
         condition,
         photoBase64: photoBase64 || undefined,
         donorContactId: donorContactId || undefined,
+        intakeDocumentId: intakeDocumentId || undefined,
       });
       if (result.success && result.data) {
-        router.push(`/intake/items/${result.data.id}`);
+        if (intakeDocumentId) {
+          router.push(`/intake/${intakeDocumentId}`);
+        } else {
+          router.push(`/intake/items/${result.data.id}`);
+        }
       } else {
         setError(result.error || ti("quickSubmitError"));
       }
