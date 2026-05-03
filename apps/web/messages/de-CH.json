@@ -1491,6 +1491,8 @@
     "impactCo2FactorsDesc": "Geschätzte Werte für die CO₂-Berechnung (kg CO₂ pro Artikel, vermieden durch Wiederverwendung statt Neuproduktion).",
     "impactCo2FactorsCustom": "Enthält unternehmensspezifische Anpassungen.",
     "impactCo2FactorsDefault": "Standardwerte basierend auf Lebenszyklusanalysen.",
+    "impactTopDonors": "Top-Spender",
+    "impactNoDonors": "Noch keine Spender verknüpft. Verknüpfen Sie Spender beim Intake, um diese Auswertung zu sehen.",
     "asOfDate": "Stichtag",
     "fromDate": "Von",
     "toDate": "Bis",

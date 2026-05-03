@@ -1,4 +1,4 @@
-import { ArrowLeft, Leaf, Recycle, Package } from "lucide-react";
+import { ArrowLeft, Leaf, Recycle, Package, Users } from "lucide-react";
 import Link from "next/link";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 import type { CompanySettings } from "@kivvi/database";
 import { getSessionOrRedirect } from "@/lib/session";
 import { getTranslations } from "next-intl/server";
-import { getImpactMetrics } from "@kivvi/core/src/domain/impact";
+import { getImpactMetrics, getTopDonors } from "@kivvi/core/src/domain/impact";
 import { getChecklistTemplate } from "@kivvi/core/src/config/checklist-templates";
 import { PageHeader } from "@/components/page-header";
 import {
@@ -40,7 +40,10 @@ export default async function ImpactReportPage() {
   const settings = (company?.settings as CompanySettings) ?? {};
   const co2FactorsKg = settings.co2FactorsKg;
 
-  const metrics = await getImpactMetrics(db, companyId, { co2FactorsKg });
+  const [metrics, topDonors] = await Promise.all([
+    getImpactMetrics(db, companyId, { co2FactorsKg }),
+    getTopDonors(db, companyId, { limit: 5 }),
+  ]);
 
   const co2Kg = Number(metrics.co2AvoidedKg);
   const co2Tonnes = (co2Kg / 1000).toFixed(2);
@@ -192,6 +195,63 @@ export default async function ImpactReportPage() {
               </div>
             </div>
           )}
+
+          {/* Top donors */}
+          <div className="rounded-xl border bg-card p-6">
+            <h2 className="mb-4 font-semibold flex items-center gap-2">
+              <Users className="h-4 w-4 text-muted-foreground" />
+              {tr("impactTopDonors")}
+            </h2>
+            {topDonors.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                {tr("impactNoDonors")}
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {topDonors.map((donor, i) => {
+                  const co2PerItem =
+                    metrics.itemsReused > 0 ? co2Kg / metrics.itemsReused : 0;
+                  const donorCo2Kg = Math.round(donor.itemsReused * co2PerItem);
+                  const pct =
+                    metrics.itemsProcessed > 0
+                      ? Math.round(
+                          (donor.itemsDonated / metrics.itemsProcessed) * 100,
+                        )
+                      : 0;
+                  return (
+                    <div key={donor.donorId}>
+                      <div className="mb-1 flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-muted-foreground w-4">
+                            {i + 1}.
+                          </span>
+                          <span className="font-medium">{donor.donorName}</span>
+                        </div>
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                          <span>
+                            {t("donorItemsDonated")}: {donor.itemsDonated}
+                          </span>
+                          <span className="font-medium text-success">
+                            {t("donorImpactSummary", {
+                              reused: donor.itemsReused,
+                              total: donor.itemsDonated,
+                              co2: `${donorCo2Kg} kg`,
+                            })}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+                        <div
+                          className="h-full rounded-full bg-primary/60"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
 
           {/* CO2 factors reference */}
           <div className="rounded-xl border bg-card p-6">
