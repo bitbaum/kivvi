@@ -11,7 +11,8 @@ import { useEffect } from "react";
 import {
   LayoutDashboard,
   MessageSquare,
-  FileText,
+  Receipt,
+  ShoppingCart,
   Wallet,
   Users,
   Package,
@@ -46,11 +47,17 @@ const primaryNavigation: NavItem[] = [
   { nameKey: "people", href: "/contacts", icon: Users },
   { nameKey: "catalog", href: "/products", icon: Package },
   {
-    nameKey: "documents",
-    href: "/documents",
-    icon: FileText,
-    activePrefixes: ["/sales", "/purchasing"],
+    nameKey: "sales",
+    href: "/sales/invoices",
+    icon: Receipt,
+    activePrefixes: ["/sales", "/invoices"],
     badgeKey: "documents",
+  },
+  {
+    nameKey: "purchasing",
+    href: "/purchasing/purchase-invoices",
+    icon: ShoppingCart,
+    activePrefixes: ["/purchasing"],
   },
   {
     nameKey: "money",
