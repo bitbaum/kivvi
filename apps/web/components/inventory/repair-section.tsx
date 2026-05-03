@@ -46,10 +46,9 @@ export function RepairSection({
     setIsRecording(true);
     setRepairError(null);
 
-    const result = await recordRepairAction(itemId, {
-      cost,
-      hours: hours || undefined,
-      note: note || undefined,
+    const result = await recordRepairAction({
+      itemId,
+      input: { cost, hours: hours || undefined, note: note || undefined },
     });
 
     if (result.success) {

@@ -38,9 +38,9 @@ export function ErasureSection({
     setIsRecording(true);
     setError(null);
 
-    const result = await recordDataErasureAction(itemId, {
-      method,
-      notes: notes || undefined,
+    const result = await recordDataErasureAction({
+      itemId,
+      input: { method, notes: notes || undefined },
     });
 
     if (result.success) {

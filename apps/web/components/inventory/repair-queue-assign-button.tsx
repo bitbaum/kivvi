@@ -33,8 +33,9 @@ export function RepairQueueAssignButton({
   function assign(userId: string | null) {
     setOpen(false);
     startTransition(async () => {
-      const result = await assignItemTechnicianAction(itemId, {
-        assignedToUserId: userId,
+      const result = await assignItemTechnicianAction({
+        itemId,
+        input: { assignedToUserId: userId },
       });
       if (!result.success) {
         toast.error(result.error ?? tc("error"));

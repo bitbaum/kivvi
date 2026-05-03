@@ -36,7 +36,7 @@ export function RepairPartsSection({
 
   function handleRemove(partId: string) {
     startTransition(async () => {
-      const result = await removeRepairPartAction(partId, itemId);
+      const result = await removeRepairPartAction({ partId, itemId });
       if (!result.success) {
         setError(result.error ?? tc("error"));
         return;

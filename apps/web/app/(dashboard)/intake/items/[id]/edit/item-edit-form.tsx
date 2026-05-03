@@ -100,8 +100,9 @@ export function ItemEditForm({
 
       // Step 1: update condition first (gate reads condition from DB)
       if (newCondition !== item.condition) {
-        const condResult = await updateItemConditionAction(item.id, {
-          condition: newCondition,
+        const condResult = await updateItemConditionAction({
+          itemId: item.id,
+          input: { condition: newCondition },
         });
         if (!condResult.success) {
           setError(condResult.error || tc("error"));

@@ -170,63 +170,51 @@ const updateConditionSchema = z.object({
   condition: z.enum(ITEM_CONDITION_VALUES),
 });
 
-export async function updateItemConditionAction(
-  itemId: string,
-  input: unknown,
-): Promise<ActionResult<{ id: string; condition: string }>> {
-  const t = await getTranslations("inventory");
-  try {
-    const { companyId } = await requireRole("member");
+export const updateItemConditionAction = createAction<
+  { itemId: string; input: unknown },
+  { id: string; condition: string }
+>({
+  handler: async ({ itemId, input }, { companyId, db }) => {
     const parsed = updateConditionSchema.safeParse(input);
     if (!parsed.success)
-      return { success: false, ...formatZodError(parsed.error) };
-
-    const item = await db.transaction(async (tx) => {
-      return updateItemCondition(tx, companyId, itemId, parsed.data.condition);
-    });
-
-    revalidatePath("/intake");
+      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    const item = await db.transaction(async (tx) =>
+      updateItemCondition(tx, companyId, itemId, parsed.data.condition),
+    );
     revalidatePath(`/intake/items/${itemId}`);
-    return { success: true, data: { id: item.id, condition: item.condition } };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorFailedToUpdateCondition")),
-    };
-  }
-}
+    return { id: item.id, condition: item.condition };
+  },
+  revalidate: ["/intake"],
+  errorMessage: () =>
+    getTranslations("inventory").then((t) => t("errorFailedToUpdateCondition")),
+  minRole: "member",
+});
 
 const bulkStatusSchema = z.object({
   itemIds: z.array(z.string().uuid()).min(1),
   newStatus: z.enum(ITEM_STATUS_VALUES),
 });
 
-export async function bulkUpdateItemStatusAction(
-  input: unknown,
-): Promise<ActionResult<{ succeeded: number; failed: number }>> {
-  const t = await getTranslations("inventory");
-  try {
-    const { companyId } = await requireRole("member");
+export const bulkUpdateItemStatusAction = createAction<
+  unknown,
+  { succeeded: number; failed: number }
+>({
+  handler: async (input, { companyId, db }) => {
     const parsed = bulkStatusSchema.safeParse(input);
     if (!parsed.success)
-      return { success: false, ...formatZodError(parsed.error) };
-
-    const result = await bulkUpdateStatus(
+      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    return bulkUpdateStatus(
       db,
       companyId,
       parsed.data.itemIds,
       parsed.data.newStatus,
     );
-
-    revalidatePath("/intake");
-    return { success: true, data: result };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorFailedToUpdateItems")),
-    };
-  }
-}
+  },
+  revalidate: ["/intake"],
+  errorMessage: () =>
+    getTranslations("inventory").then((t) => t("errorFailedToUpdateItems")),
+  minRole: "member",
+});
 
 const MAX_PHOTO_SIZE = MAX_UPLOAD_SIZE_BYTES;
 const ALLOWED_PHOTO_TYPES = ["image/png", "image/jpeg", "image/webp"];
@@ -334,101 +322,78 @@ const recordRepairSchema = z.object({
   note: z.string().max(500).optional(),
 });
 
-export async function recordRepairAction(
-  itemId: string,
-  input: unknown,
-): Promise<ActionResult<{ id: string; repairCost: string | null }>> {
-  const t = await getTranslations("inventory");
-  try {
-    const { companyId } = await requireRole("member");
+export const recordRepairAction = createAction<
+  { itemId: string; input: unknown },
+  { id: string; repairCost: string | null }
+>({
+  handler: async ({ itemId, input }, { companyId, db }) => {
     const parsed = recordRepairSchema.safeParse(input);
     if (!parsed.success)
-      return { success: false, ...formatZodError(parsed.error) };
-
-    const item = await db.transaction(async (tx) => {
-      return recordRepair(tx, companyId, itemId, {
+      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    const item = await db.transaction(async (tx) =>
+      recordRepair(tx, companyId, itemId, {
         cost: parsed.data.cost,
         hours: parsed.data.hours || undefined,
         note: parsed.data.note,
-      });
-    });
-
+      }),
+    );
     revalidatePath(`/intake/items/${itemId}`);
-    return {
-      success: true,
-      data: { id: item.id, repairCost: item.repairCost },
-    };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorFailedToRecordRepair")),
-    };
-  }
-}
+    return { id: item.id, repairCost: item.repairCost };
+  },
+  errorMessage: () =>
+    getTranslations("inventory").then((t) => t("errorFailedToRecordRepair")),
+  minRole: "member",
+});
 
-export async function addRepairPartAction(
-  itemId: string,
-  input: unknown,
-): Promise<ActionResult<{ id: string }>> {
-  const t = await getTranslations("inventory");
-  try {
-    const { companyId, userId } = await requireRole("member");
+export const addRepairPartAction = createAction<
+  { itemId: string; input: unknown },
+  { id: string }
+>({
+  handler: async ({ itemId, input }, { companyId, userId, db }) => {
     const parsed = addRepairPartSchema.safeParse(input);
     if (!parsed.success)
-      return { success: false, ...formatZodError(parsed.error) };
-
-    const part = await db.transaction(async (tx) => {
-      return addRepairPart(tx, companyId, itemId, parsed.data, userId);
-    });
-
+      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    const part = await db.transaction(async (tx) =>
+      addRepairPart(tx, companyId, itemId, parsed.data, userId),
+    );
     revalidatePath(`/intake/items/${itemId}`);
-    return { success: true, data: { id: part.id } };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorFailedToAddRepairPart")),
-    };
-  }
-}
+    return { id: part.id };
+  },
+  errorMessage: () =>
+    getTranslations("inventory").then((t) => t("errorFailedToAddRepairPart")),
+  minRole: "member",
+});
 
-export async function removeRepairPartAction(
-  partId: string,
-  itemId: string,
-): Promise<ActionResult<void>> {
-  const t = await getTranslations("inventory");
-  try {
-    const { companyId } = await requireRole("member");
-    await db.transaction(async (tx) => {
-      return removeRepairPart(tx, companyId, partId);
-    });
+export const removeRepairPartAction = createAction<
+  { partId: string; itemId: string },
+  void
+>({
+  handler: async ({ partId, itemId }, { companyId, db }) => {
+    await db.transaction(async (tx) => removeRepairPart(tx, companyId, partId));
     revalidatePath(`/intake/items/${itemId}`);
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorFailedToRemoveRepairPart")),
-    };
-  }
-}
+  },
+  errorMessage: () =>
+    getTranslations("inventory").then((t) =>
+      t("errorFailedToRemoveRepairPart"),
+    ),
+  minRole: "member",
+});
 
 const bulkConditionSchema = z.object({
   itemIds: z.array(z.string().uuid()).min(1),
   condition: z.enum(ITEM_CONDITION_VALUES),
 });
 
-export async function bulkUpdateItemConditionAction(
-  input: unknown,
-): Promise<ActionResult<{ succeeded: number; failed: number }>> {
-  const t = await getTranslations("inventory");
-  try {
-    const { companyId } = await requireRole("member");
+export const bulkUpdateItemConditionAction = createAction<
+  unknown,
+  { succeeded: number; failed: number }
+>({
+  handler: async (input, { companyId, db }) => {
     const parsed = bulkConditionSchema.safeParse(input);
     if (!parsed.success)
-      return { success: false, ...formatZodError(parsed.error) };
-
+      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
     let succeeded = 0;
     let failed = 0;
-
     for (const id of parsed.data.itemIds) {
       try {
         await updateItemCondition(db, companyId, id, parsed.data.condition);
@@ -437,35 +402,29 @@ export async function bulkUpdateItemConditionAction(
         failed++;
       }
     }
-
-    revalidatePath("/intake/items");
-    return { success: true, data: { succeeded, failed } };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorFailedToUpdateItems")),
-    };
-  }
-}
+    return { succeeded, failed };
+  },
+  revalidate: ["/intake/items"],
+  errorMessage: () =>
+    getTranslations("inventory").then((t) => t("errorFailedToUpdateItems")),
+  minRole: "member",
+});
 
 const bulkPriceSchema = z.object({
   itemIds: z.array(z.string().uuid()).min(1),
   askingPrice: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid price"),
 });
 
-export async function bulkUpdateItemAskingPriceAction(
-  input: unknown,
-): Promise<ActionResult<{ succeeded: number; failed: number }>> {
-  const t = await getTranslations("inventory");
-  try {
-    const { companyId } = await requireRole("member");
+export const bulkUpdateItemAskingPriceAction = createAction<
+  unknown,
+  { succeeded: number; failed: number }
+>({
+  handler: async (input, { companyId, db }) => {
     const parsed = bulkPriceSchema.safeParse(input);
     if (!parsed.success)
-      return { success: false, ...formatZodError(parsed.error) };
-
+      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
     let succeeded = 0;
     let failed = 0;
-
     for (const id of parsed.data.itemIds) {
       try {
         await updateInventoryItem(db, companyId, id, {
@@ -476,48 +435,41 @@ export async function bulkUpdateItemAskingPriceAction(
         failed++;
       }
     }
-
-    revalidatePath("/intake/items");
-    return { success: true, data: { succeeded, failed } };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorFailedToUpdatePrices")),
-    };
-  }
-}
+    return { succeeded, failed };
+  },
+  revalidate: ["/intake/items"],
+  errorMessage: () =>
+    getTranslations("inventory").then((t) => t("errorFailedToUpdatePrices")),
+  minRole: "member",
+});
 
 const assignTechnicianSchema = z.object({
   assignedToUserId: z.string().uuid().nullable(),
 });
 
-export async function assignItemTechnicianAction(
-  itemId: string,
-  input: unknown,
-): Promise<ActionResult<{ id: string }>> {
-  const t = await getTranslations("inventory");
-  try {
-    const { companyId } = await requireRole("member");
+export const assignItemTechnicianAction = createAction<
+  { itemId: string; input: unknown },
+  { id: string }
+>({
+  handler: async ({ itemId, input }, { companyId, db }) => {
     const parsed = assignTechnicianSchema.safeParse(input);
     if (!parsed.success)
-      return { success: false, ...formatZodError(parsed.error) };
-
-    const item = await db.transaction(async (tx) => {
-      return updateInventoryItem(tx, companyId, itemId, {
+      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    const item = await db.transaction(async (tx) =>
+      updateInventoryItem(tx, companyId, itemId, {
         assignedToUserId: parsed.data.assignedToUserId,
-      });
-    });
-
-    revalidatePath("/intake/repair-queue");
+      }),
+    );
     revalidatePath(`/intake/items/${itemId}`);
-    return { success: true, data: { id: item.id } };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorFailedToAssignTechnician")),
-    };
-  }
-}
+    return { id: item.id };
+  },
+  revalidate: ["/intake/repair-queue"],
+  errorMessage: () =>
+    getTranslations("inventory").then((t) =>
+      t("errorFailedToAssignTechnician"),
+    ),
+  minRole: "member",
+});
 
 export const deleteInventoryItemAction = createAction<string, void>({
   handler: async (itemId, { companyId, db }) => {
@@ -529,27 +481,25 @@ export const deleteInventoryItemAction = createAction<string, void>({
   minRole: "member",
 });
 
-export async function listInventoryItemsAction(options?: {
-  status?: string;
-  condition?: string;
-  search?: string;
-  warehouseId?: string;
-  intakeDocumentId?: string;
-  page?: number;
-  pageSize?: number;
-}): Promise<ActionResult<Awaited<ReturnType<typeof listInventoryItems>>>> {
-  const t = await getTranslations("inventory");
-  try {
-    const { companyId } = await requireRole("member");
-    const result = await listInventoryItems(db, companyId, options);
-    return { success: true, data: result };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorFailedToList")),
-    };
-  }
-}
+export const listInventoryItemsAction = createAction<
+  | {
+      status?: string;
+      condition?: string;
+      search?: string;
+      warehouseId?: string;
+      intakeDocumentId?: string;
+      page?: number;
+      pageSize?: number;
+    }
+  | undefined,
+  Awaited<ReturnType<typeof listInventoryItems>>
+>({
+  handler: async (options, { companyId, db }) =>
+    listInventoryItems(db, companyId, options),
+  errorMessage: () =>
+    getTranslations("inventory").then((t) => t("errorFailedToList")),
+  minRole: "member",
+});
 
 export async function getInventoryItemAction(
   itemId: string,
@@ -586,34 +536,28 @@ const checklistSchema = z.object({
   ),
 });
 
-export async function recordChecklistAction(
-  itemId: string,
-  input: unknown,
-): Promise<ActionResult<{ id: string }>> {
-  const t = await getTranslations("inventory");
-  try {
-    const { companyId, userId } = await requireRole("member");
+export const recordChecklistAction = createAction<
+  { itemId: string; input: unknown },
+  { id: string }
+>({
+  handler: async ({ itemId, input }, { companyId, userId, db }) => {
     const parsed = checklistSchema.safeParse(input);
     if (!parsed.success)
-      return { success: false, ...formatZodError(parsed.error) };
-
-    const item = await db.transaction(async (tx) => {
-      return recordChecklist(tx, companyId, itemId, {
+      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    const item = await db.transaction(async (tx) =>
+      recordChecklist(tx, companyId, itemId, {
         ...parsed.data,
         completions: parsed.data.completions as ChecklistItemCompletion[],
         userId,
-      });
-    });
-
+      }),
+    );
     revalidatePath(`/intake/items/${itemId}`);
-    return { success: true, data: { id: item.id } };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorFailedToRecordChecklist")),
-    };
-  }
-}
+    return { id: item.id };
+  },
+  errorMessage: () =>
+    getTranslations("inventory").then((t) => t("errorFailedToRecordChecklist")),
+  minRole: "member",
+});
 
 // ============================================================================
 // DATA ERASURE
@@ -626,30 +570,21 @@ const dataErasureSchema = z.object({
   notes: z.string().max(500).optional(),
 });
 
-export async function recordDataErasureAction(
-  itemId: string,
-  input: unknown,
-): Promise<ActionResult<{ id: string }>> {
-  const t = await getTranslations("inventory");
-  try {
-    const { companyId, userId } = await requireRole("member");
+export const recordDataErasureAction = createAction<
+  { itemId: string; input: unknown },
+  { id: string }
+>({
+  handler: async ({ itemId, input }, { companyId, userId, db }) => {
     const parsed = dataErasureSchema.safeParse(input);
     if (!parsed.success)
-      return { success: false, ...formatZodError(parsed.error) };
-
-    const item = await db.transaction(async (tx) => {
-      return recordDataErasure(tx, companyId, itemId, {
-        ...parsed.data,
-        userId,
-      });
-    });
-
+      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    const item = await db.transaction(async (tx) =>
+      recordDataErasure(tx, companyId, itemId, { ...parsed.data, userId }),
+    );
     revalidatePath(`/intake/items/${itemId}`);
-    return { success: true, data: { id: item.id } };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorFailedToRecordErasure")),
-    };
-  }
-}
+    return { id: item.id };
+  },
+  errorMessage: () =>
+    getTranslations("inventory").then((t) => t("errorFailedToRecordErasure")),
+  minRole: "member",
+});

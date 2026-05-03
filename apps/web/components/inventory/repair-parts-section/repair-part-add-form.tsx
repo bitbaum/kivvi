@@ -29,12 +29,15 @@ export function RepairPartAddForm({ itemId, onAdded, onClose }: Props) {
     e.preventDefault();
     setError(null);
     startTransition(async () => {
-      const result = await addRepairPartAction(itemId, {
-        description,
-        productId: productId ?? undefined,
-        quantity,
-        unitCost,
-        notes: notes || undefined,
+      const result = await addRepairPartAction({
+        itemId,
+        input: {
+          description,
+          productId: productId ?? undefined,
+          quantity,
+          unitCost,
+          notes: notes || undefined,
+        },
       });
       if (!result.success || !result.data) {
         setError(result.error ?? tc("error"));

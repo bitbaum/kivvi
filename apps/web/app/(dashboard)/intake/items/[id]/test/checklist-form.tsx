@@ -80,9 +80,9 @@ export function ChecklistForm({
   async function handleSave() {
     setError(null);
     startTransition(async () => {
-      const result = await recordChecklistAction(itemId, {
-        category,
-        completions: buildCompletions(),
+      const result = await recordChecklistAction({
+        itemId,
+        input: { category, completions: buildCompletions() },
       });
       if (!result.success) {
         setError(result.error ?? tcommon("error"));
@@ -95,17 +95,18 @@ export function ChecklistForm({
   async function handleApprove() {
     setError(null);
     startTransition(async () => {
-      const saveResult = await recordChecklistAction(itemId, {
-        category,
-        completions: buildCompletions(),
+      const saveResult = await recordChecklistAction({
+        itemId,
+        input: { category, completions: buildCompletions() },
       });
       if (!saveResult.success) {
         setError(saveResult.error ?? tcommon("error"));
         return;
       }
       if (selectedCondition && selectedCondition !== currentCondition) {
-        const condResult = await updateItemConditionAction(itemId, {
-          condition: selectedCondition,
+        const condResult = await updateItemConditionAction({
+          itemId,
+          input: { condition: selectedCondition },
         });
         if (!condResult.success) {
           setError(condResult.error ?? tcommon("error"));
@@ -128,9 +129,9 @@ export function ChecklistForm({
   async function handleRoute(newStatus: string) {
     setError(null);
     startTransition(async () => {
-      await recordChecklistAction(itemId, {
-        category,
-        completions: buildCompletions(),
+      await recordChecklistAction({
+        itemId,
+        input: { category, completions: buildCompletions() },
       });
       const result = await updateItemStatusAction(itemId, { newStatus });
       if (!result.success) {
