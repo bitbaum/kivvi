@@ -1531,6 +1531,8 @@
     "impactCo2FactorsDefault": "Standardwerte basierend auf Lebenszyklusanalysen.",
     "impactTopDonors": "Top-Spender",
     "impactNoDonors": "Noch keine Spender verknüpft. Verknüpfen Sie Spender beim Intake, um diese Auswertung zu sehen.",
+    "impactDestinationBreakdown": "Verbleib der Artikel",
+    "impactMonthlyTrend": "Monatliche Entwicklung",
     "asOfDate": "Stichtag",
     "fromDate": "Von",
     "toDate": "Bis",

@@ -1531,6 +1531,8 @@
     "impactCo2FactorsDefault": "Valeurs par défaut basées sur des études d'analyse du cycle de vie.",
     "impactTopDonors": "Principaux donateurs",
     "impactNoDonors": "Aucun donateur associé pour l'instant. Associez des donateurs lors de l'enregistrement pour voir cette analyse.",
+    "impactDestinationBreakdown": "Destination des articles",
+    "impactMonthlyTrend": "Évolution mensuelle",
     "asOfDate": "À la date du",
     "fromDate": "Du",
     "toDate": "Au",

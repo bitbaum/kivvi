@@ -1531,6 +1531,8 @@
     "impactCo2FactorsDefault": "Default values based on lifecycle assessment studies.",
     "impactTopDonors": "Top Donors",
     "impactNoDonors": "No donors linked yet. Link donors during intake to see this breakdown.",
+    "impactDestinationBreakdown": "Item Destinations",
+    "impactMonthlyTrend": "Monthly Trend",
     "asOfDate": "As of Date",
     "fromDate": "From",
     "toDate": "To",

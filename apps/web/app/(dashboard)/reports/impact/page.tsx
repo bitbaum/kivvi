@@ -1,4 +1,11 @@
-import { ArrowLeft, Leaf, Recycle, Package, Users } from "lucide-react";
+import {
+  ArrowLeft,
+  Leaf,
+  Recycle,
+  Package,
+  Users,
+  TrendingUp,
+} from "lucide-react";
 import Link from "next/link";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
@@ -7,7 +14,12 @@ import type { Metadata } from "next";
 import type { CompanySettings } from "@kivvi/database";
 import { getSessionOrRedirect } from "@/lib/session";
 import { getTranslations } from "next-intl/server";
-import { getImpactMetrics, getTopDonors } from "@kivvi/core/src/domain/impact";
+import {
+  getImpactMetrics,
+  getTopDonors,
+  getMonthlyBreakdown,
+  getDestinationBreakdown,
+} from "@kivvi/core/src/domain/impact";
 import { getChecklistTemplate } from "@kivvi/core/src/config/checklist-templates";
 import { PageHeader } from "@/components/page-header";
 import {
@@ -40,10 +52,13 @@ export default async function ImpactReportPage() {
   const settings = (company?.settings as CompanySettings) ?? {};
   const co2FactorsKg = settings.co2FactorsKg;
 
-  const [metrics, topDonors] = await Promise.all([
-    getImpactMetrics(db, companyId, { co2FactorsKg }),
-    getTopDonors(db, companyId, { limit: 5 }),
-  ]);
+  const [metrics, topDonors, monthlyBreakdown, destinationBreakdown] =
+    await Promise.all([
+      getImpactMetrics(db, companyId, { co2FactorsKg }),
+      getTopDonors(db, companyId, { limit: 5 }),
+      getMonthlyBreakdown(db, companyId),
+      getDestinationBreakdown(db, companyId),
+    ]);
 
   const co2Kg = Number(metrics.co2AvoidedKg);
   const co2Tonnes = (co2Kg / 1000).toFixed(2);
@@ -146,6 +161,80 @@ export default async function ImpactReportPage() {
             </div>
           </div>
 
+          {/* Destination breakdown */}
+          {(() => {
+            const total =
+              destinationBreakdown.sold +
+              destinationBreakdown.donated +
+              destinationBreakdown.recycled +
+              destinationBreakdown.inStock;
+            const pct = (n: number) =>
+              total > 0 ? Math.round((n / total) * 100) : 0;
+            const destinations = [
+              {
+                label: t("statusSold"),
+                value: destinationBreakdown.sold,
+                pct: pct(destinationBreakdown.sold),
+                color: "bg-success/20 text-success",
+                bar: "bg-success/60",
+              },
+              {
+                label: t("statusDonated"),
+                value: destinationBreakdown.donated,
+                pct: pct(destinationBreakdown.donated),
+                color: "bg-info/20 text-info",
+                bar: "bg-info/60",
+              },
+              {
+                label: t("statusRecycled"),
+                value: destinationBreakdown.recycled,
+                pct: pct(destinationBreakdown.recycled),
+                color: "bg-warning/20 text-warning",
+                bar: "bg-warning/60",
+              },
+              {
+                label: t("inStock"),
+                value: destinationBreakdown.inStock,
+                pct: pct(destinationBreakdown.inStock),
+                color: "bg-muted text-muted-foreground",
+                bar: "bg-muted-foreground/40",
+              },
+            ];
+            return (
+              <div className="rounded-xl border bg-card p-6">
+                <h2 className="mb-4 font-semibold">
+                  {tr("impactDestinationBreakdown")}
+                </h2>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {destinations.map((d) => (
+                    <div
+                      key={d.label}
+                      className="rounded-lg border bg-card p-4"
+                    >
+                      <div className="text-2xl font-bold tabular-nums">
+                        {d.value.toLocaleString(DEFAULT_LOCALE)}
+                      </div>
+                      <div
+                        className={`mt-1 inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${d.color}`}
+                      >
+                        {d.label}
+                      </div>
+                      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
+                        <div
+                          className={`h-full rounded-full ${d.bar}`}
+                          style={{ width: `${d.pct}%` }}
+                        />
+                      </div>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {d.pct}%
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+
           {/* Category breakdown */}
           {metrics.co2ByCategory.length > 0 && (
             <div className="rounded-xl border bg-card p-6">
@@ -192,6 +281,64 @@ export default async function ImpactReportPage() {
                     </div>
                   );
                 })}
+              </div>
+            </div>
+          )}
+
+          {/* Monthly trend */}
+          {monthlyBreakdown.length > 0 && (
+            <div className="rounded-xl border bg-card p-6">
+              <h2 className="mb-4 flex items-center gap-2 font-semibold">
+                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                {tr("impactMonthlyTrend")}
+              </h2>
+              <div className="space-y-2">
+                <div className="mb-2 grid grid-cols-[1fr_auto_auto_3fr] gap-4 text-xs font-medium text-muted-foreground">
+                  <span>{tr("month")}</span>
+                  <span className="text-right">
+                    {tr("impactItemsProcessed")}
+                  </span>
+                  <span className="text-right">{t("itemsReused")}</span>
+                  <span>{t("reuseRate")}</span>
+                </div>
+                {monthlyBreakdown
+                  .slice(-12)
+                  .reverse()
+                  .map((row) => {
+                    const label = new Date(
+                      row.month + "-01",
+                    ).toLocaleDateString(DEFAULT_LOCALE, {
+                      year: "2-digit",
+                      month: "short",
+                    });
+                    return (
+                      <div
+                        key={row.month}
+                        className="grid grid-cols-[1fr_auto_auto_3fr] items-center gap-4 text-sm"
+                      >
+                        <span className="text-muted-foreground tabular-nums">
+                          {label}
+                        </span>
+                        <span className="text-right tabular-nums">
+                          {row.processed}
+                        </span>
+                        <span className="text-right tabular-nums text-success">
+                          {row.reused}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
+                            <div
+                              className="h-full rounded-full bg-success/60"
+                              style={{ width: `${row.reuseRatePercent}%` }}
+                            />
+                          </div>
+                          <span className="w-10 text-right text-xs text-muted-foreground tabular-nums">
+                            {row.reuseRatePercent}%
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
               </div>
             </div>
           )}
