@@ -33,7 +33,7 @@ export function PriceRulesTable({ rules, priceListId }: Props) {
   function handleDelete(ruleId: string) {
     if (!confirm(t("deleteRuleConfirm"))) return;
     startTransition(async () => {
-      await deletePriceRuleAction(ruleId, priceListId);
+      await deletePriceRuleAction({ ruleId, priceListId });
     });
   }
 

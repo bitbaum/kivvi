@@ -28,13 +28,13 @@ export function PriceListApplySlot({ priceLists, items, onApply }: Props) {
     setApplied(false);
 
     startTransition(async () => {
-      const result = await resolvePricesAction(
-        selectedId,
-        itemsWithProduct.map((i) => ({
+      const result = await resolvePricesAction({
+        priceListId: selectedId,
+        items: itemsWithProduct.map((i) => ({
           productId: i.productId!,
           quantity: parseFloat(i.quantity) || 1,
         })),
-      );
+      });
       if (result.success && result.data) {
         onApply(result.data);
         setApplied(true);

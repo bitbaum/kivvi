@@ -17,35 +17,22 @@ import {
   updatePriceRuleSchema,
   resolvePriceForProduct,
 } from "@kivvi/core";
-import {
-  type ActionResult,
-  requireRole,
-  safeErrorMessage,
-  formatZodError,
-} from "./utils";
+import { type ActionResult, requireRole, safeErrorMessage } from "./utils";
 import { getTranslations } from "next-intl/server";
-import type { PriceList, PriceRule } from "@kivvi/database";
+import type { PriceList } from "@kivvi/database";
 import type { PriceListWithRules } from "@kivvi/core/src/domain/pricing";
+import { createAction } from "./action-factory";
 
 // ============================================================================
 // PRICE LISTS
 // ============================================================================
 
-export async function listPriceListsAction(): Promise<
-  ActionResult<PriceList[]>
-> {
-  const t = await getTranslations("priceLists");
-  try {
-    const { companyId } = await requireRole("member");
-    const lists = await listPriceLists(db, companyId);
-    return { success: true, data: lists };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorFailedToLoad")),
-    };
-  }
-}
+export const listPriceListsAction = createAction<void, PriceList[]>({
+  handler: async (_input, { companyId, db }) => listPriceLists(db, companyId),
+  errorMessage: () =>
+    getTranslations("priceLists").then((t) => t("errorFailedToLoad")),
+  minRole: "member",
+});
 
 export async function getPriceListAction(
   id: string,
@@ -64,133 +51,98 @@ export async function getPriceListAction(
   }
 }
 
-export async function createPriceListAction(
-  input: unknown,
-): Promise<ActionResult<{ id: string }>> {
-  const t = await getTranslations("priceLists");
-  try {
-    const { companyId } = await requireRole("member");
+export const createPriceListAction = createAction<unknown, { id: string }>({
+  handler: async (input, { companyId, db }) => {
     const parsed = createPriceListSchema.safeParse(input);
     if (!parsed.success)
-      return { success: false, ...formatZodError(parsed.error) };
-
+      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
     const list = await createPriceList(db, companyId, parsed.data);
-    revalidatePath("/settings/price-lists");
-    return { success: true, data: { id: list.id } };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorFailedToCreate")),
-    };
-  }
-}
+    return { id: list.id };
+  },
+  revalidate: ["/settings/price-lists"],
+  errorMessage: () =>
+    getTranslations("priceLists").then((t) => t("errorFailedToCreate")),
+  minRole: "member",
+});
 
-export async function updatePriceListAction(
-  id: string,
-  input: unknown,
-): Promise<ActionResult<{ id: string }>> {
-  const t = await getTranslations("priceLists");
-  try {
-    const { companyId } = await requireRole("member");
+export const updatePriceListAction = createAction<
+  { id: string; input: unknown },
+  { id: string }
+>({
+  handler: async ({ id, input }, { companyId, db }) => {
     const parsed = updatePriceListSchema.safeParse(input);
     if (!parsed.success)
-      return { success: false, ...formatZodError(parsed.error) };
-
+      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
     const list = await updatePriceList(db, companyId, id, parsed.data);
-    revalidatePath("/settings/price-lists");
     revalidatePath(`/settings/price-lists/${id}`);
-    return { success: true, data: { id: list.id } };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorFailedToUpdate")),
-    };
-  }
-}
+    return { id: list.id };
+  },
+  revalidate: ["/settings/price-lists"],
+  errorMessage: () =>
+    getTranslations("priceLists").then((t) => t("errorFailedToUpdate")),
+  minRole: "member",
+});
 
-export async function deletePriceListAction(
-  id: string,
-): Promise<ActionResult<void>> {
-  const t = await getTranslations("priceLists");
-  try {
-    const { companyId } = await requireRole("member");
+export const deletePriceListAction = createAction<string, void>({
+  handler: async (id, { companyId, db }) => {
     await deletePriceList(db, companyId, id);
-    revalidatePath("/settings/price-lists");
-    return { success: true, data: undefined };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorFailedToDelete")),
-    };
-  }
-}
+  },
+  revalidate: ["/settings/price-lists"],
+  errorMessage: () =>
+    getTranslations("priceLists").then((t) => t("errorFailedToDelete")),
+  minRole: "member",
+});
 
 // ============================================================================
 // PRICE RULES
 // ============================================================================
 
-export async function createPriceRuleAction(
-  priceListId: string,
-  input: unknown,
-): Promise<ActionResult<{ id: string }>> {
-  const t = await getTranslations("priceLists");
-  try {
-    const { companyId } = await requireRole("member");
+export const createPriceRuleAction = createAction<
+  { priceListId: string; input: unknown },
+  { id: string }
+>({
+  handler: async ({ priceListId, input }, { companyId, db }) => {
     const parsed = createPriceRuleSchema.safeParse(input);
     if (!parsed.success)
-      return { success: false, ...formatZodError(parsed.error) };
-
+      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
     const rule = await createPriceRule(db, companyId, priceListId, parsed.data);
     revalidatePath(`/settings/price-lists/${priceListId}`);
-    return { success: true, data: { id: rule.id } };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorFailedToCreateRule")),
-    };
-  }
-}
+    return { id: rule.id };
+  },
+  errorMessage: () =>
+    getTranslations("priceLists").then((t) => t("errorFailedToCreateRule")),
+  minRole: "member",
+});
 
-export async function updatePriceRuleAction(
-  ruleId: string,
-  priceListId: string,
-  input: unknown,
-): Promise<ActionResult<{ id: string }>> {
-  const t = await getTranslations("priceLists");
-  try {
-    const { companyId } = await requireRole("member");
+export const updatePriceRuleAction = createAction<
+  { ruleId: string; priceListId: string; input: unknown },
+  { id: string }
+>({
+  handler: async ({ ruleId, priceListId, input }, { companyId, db }) => {
     const parsed = updatePriceRuleSchema.safeParse(input);
     if (!parsed.success)
-      return { success: false, ...formatZodError(parsed.error) };
-
+      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
     const rule = await updatePriceRule(db, companyId, ruleId, parsed.data);
     revalidatePath(`/settings/price-lists/${priceListId}`);
-    return { success: true, data: { id: rule.id } };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorFailedToUpdateRule")),
-    };
-  }
-}
+    return { id: rule.id };
+  },
+  errorMessage: () =>
+    getTranslations("priceLists").then((t) => t("errorFailedToUpdateRule")),
+  minRole: "member",
+});
 
-export async function deletePriceRuleAction(
-  ruleId: string,
-  priceListId: string,
-): Promise<ActionResult<void>> {
-  const t = await getTranslations("priceLists");
-  try {
-    const { companyId } = await requireRole("member");
+export const deletePriceRuleAction = createAction<
+  { ruleId: string; priceListId: string },
+  void
+>({
+  handler: async ({ ruleId, priceListId }, { companyId, db }) => {
     await deletePriceRule(db, companyId, ruleId);
     revalidatePath(`/settings/price-lists/${priceListId}`);
-    return { success: true, data: undefined };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorFailedToDeleteRule")),
-    };
-  }
-}
+  },
+  errorMessage: () =>
+    getTranslations("priceLists").then((t) => t("errorFailedToDeleteRule")),
+  minRole: "member",
+});
 
 // ============================================================================
 // PRICE RESOLUTION (used by document creation form)
@@ -201,15 +153,15 @@ export async function deletePriceRuleAction(
  * against a price list. Returns a map of productId → resolved price string.
  * Items without a matching rule are omitted from the result.
  */
-export async function resolvePricesAction(
-  priceListId: string,
-  items: Array<{ productId: string; quantity?: number }>,
-): Promise<ActionResult<Record<string, string>>> {
-  const t = await getTranslations("priceLists");
-  try {
-    const { companyId } = await requireRole("member");
+export const resolvePricesAction = createAction<
+  {
+    priceListId: string;
+    items: Array<{ productId: string; quantity?: number }>;
+  },
+  Record<string, string>
+>({
+  handler: async ({ priceListId, items }, { companyId, db }) => {
     const results: Record<string, string> = {};
-
     await Promise.all(
       items.map(async ({ productId, quantity }) => {
         const resolved = await resolvePriceForProduct(
@@ -224,12 +176,9 @@ export async function resolvePricesAction(
         }
       }),
     );
-
-    return { success: true, data: results };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorFailedToLoad")),
-    };
-  }
-}
+    return results;
+  },
+  errorMessage: () =>
+    getTranslations("priceLists").then((t) => t("errorFailedToLoad")),
+  minRole: "member",
+});

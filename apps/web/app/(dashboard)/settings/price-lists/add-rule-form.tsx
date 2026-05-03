@@ -26,7 +26,7 @@ export function AddRuleForm({ priceListId }: Props) {
     };
 
     startTransition(async () => {
-      const result = await createPriceRuleAction(priceListId, input);
+      const result = await createPriceRuleAction({ priceListId, input });
       if (result.success) {
         formRef.current?.reset();
       }

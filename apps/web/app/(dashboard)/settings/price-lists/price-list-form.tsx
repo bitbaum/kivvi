@@ -29,7 +29,7 @@ export function PriceListForm({ list }: Props) {
 
     startTransition(async () => {
       const result = list
-        ? await updatePriceListAction(list.id, input)
+        ? await updatePriceListAction({ id: list.id, input })
         : await createPriceListAction(input);
 
       if (result.success && result.data) {
