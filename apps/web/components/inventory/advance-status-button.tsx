@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { updateItemStatusAction } from "@/app/actions/inventory-items";
 import { getStatusLabelKey } from "@/lib/config/inventory-items";
 import { cn } from "@/lib/utils";
@@ -36,6 +37,8 @@ export function AdvanceStatusButton({ itemId, currentStatus }: Props) {
       });
       if (result.success) {
         router.refresh();
+      } else {
+        toast.error(result.error || t("errorFailedToUpdateStatus"));
       }
     });
   }
