@@ -1841,6 +1841,10 @@
       "exportDescription": "Téléchargez un export complet de toutes les données de votre organisation au format JSON (conforme au RGPD).",
       "downloadButton": "Télécharger l'export des données"
     },
+    "priceLists": {
+      "title": "Listes de prix",
+      "settingsDesc": "Règles de tarification pour les produits et groupes de produits"
+    },
     "recurring": {
       "title": "Factures récurrentes",
       "subtitle": "Générer automatiquement des factures récurrentes à partir de commandes.",
@@ -4109,5 +4113,43 @@
   },
   "bulkImport": {
     "errorImportFailed": "Importation échouée"
+  },
+  "priceLists": {
+    "title": "Listes de prix",
+    "subtitle": "Gérez des règles de prix flexibles pour les groupes de clients ou les promotions",
+    "createNew": "Nouvelle liste de prix",
+    "createFirst": "Créer la première liste de prix",
+    "noLists": "Aucune liste de prix",
+    "settingsDesc": "Règles de tarification pour les produits et groupes de produits",
+    "defaultBadge": "Défaut",
+    "markAsDefault": "Définir par défaut",
+    "rules": "Règles de prix",
+    "noRules": "Aucune règle",
+    "addRule": "Ajouter une règle",
+    "ruleProduct": "Produit",
+    "ruleGroup": "Groupe de produits",
+    "ruleType": "Type",
+    "ruleValue": "Valeur",
+    "ruleMinQty": "Qté min.",
+    "ruleValidFrom": "Valide dès",
+    "ruleValidTo": "Valide jusqu'au",
+    "ruleTypeFixed": "Prix fixe",
+    "ruleTypePercentage": "Remise (%)",
+    "ruleTypeTiered": "Remise volume (%)",
+    "allProducts": "Tous les produits",
+    "fieldName": "Nom",
+    "fieldCurrency": "Devise",
+    "fieldIsDefault": "Liste de prix par défaut",
+    "fieldIsDefaultDesc": "Cette liste sera appliquée automatiquement aux nouveaux documents",
+    "deleteConfirm": "Supprimer cette liste de prix ? Toutes les règles associées seront également supprimées.",
+    "deleteRuleConfirm": "Supprimer cette règle de prix ?",
+    "errorNotFound": "Liste de prix introuvable",
+    "errorFailedToLoad": "Chargement des listes de prix échoué",
+    "errorFailedToCreate": "Création de la liste de prix échouée",
+    "errorFailedToUpdate": "Mise à jour de la liste de prix échouée",
+    "errorFailedToDelete": "Suppression de la liste de prix échouée",
+    "errorFailedToCreateRule": "Création de la règle de prix échouée",
+    "errorFailedToUpdateRule": "Mise à jour de la règle de prix échouée",
+    "errorFailedToDeleteRule": "Suppression de la règle de prix échouée"
   }
 }

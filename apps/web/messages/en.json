@@ -1841,6 +1841,10 @@
       "exportDescription": "Download a complete export of all your company data in JSON format (GDPR-compliant).",
       "downloadButton": "Download Data Export"
     },
+    "priceLists": {
+      "title": "Price Lists",
+      "settingsDesc": "Pricing rules for products and product groups"
+    },
     "recurring": {
       "title": "Recurring Invoices",
       "subtitle": "Automatically generate recurring invoices from orders.",
@@ -4109,5 +4113,43 @@
   },
   "bulkImport": {
     "errorImportFailed": "Failed to import data"
+  },
+  "priceLists": {
+    "title": "Price Lists",
+    "subtitle": "Manage flexible pricing rules for customer groups or promotions",
+    "createNew": "New Price List",
+    "createFirst": "Create first price list",
+    "noLists": "No price lists yet",
+    "settingsDesc": "Pricing rules for products and product groups",
+    "defaultBadge": "Default",
+    "markAsDefault": "Mark as default",
+    "rules": "Price Rules",
+    "noRules": "No rules yet",
+    "addRule": "Add rule",
+    "ruleProduct": "Product",
+    "ruleGroup": "Product group",
+    "ruleType": "Type",
+    "ruleValue": "Value",
+    "ruleMinQty": "Min. quantity",
+    "ruleValidFrom": "Valid from",
+    "ruleValidTo": "Valid to",
+    "ruleTypeFixed": "Fixed price",
+    "ruleTypePercentage": "Discount (%)",
+    "ruleTypeTiered": "Volume discount (%)",
+    "allProducts": "All products",
+    "fieldName": "Name",
+    "fieldCurrency": "Currency",
+    "fieldIsDefault": "Default price list",
+    "fieldIsDefaultDesc": "This price list will be applied automatically to new documents",
+    "deleteConfirm": "Delete this price list? All associated rules will also be deleted.",
+    "deleteRuleConfirm": "Delete this price rule?",
+    "errorNotFound": "Price list not found",
+    "errorFailedToLoad": "Failed to load price lists",
+    "errorFailedToCreate": "Failed to create price list",
+    "errorFailedToUpdate": "Failed to update price list",
+    "errorFailedToDelete": "Failed to delete price list",
+    "errorFailedToCreateRule": "Failed to create price rule",
+    "errorFailedToUpdateRule": "Failed to update price rule",
+    "errorFailedToDeleteRule": "Failed to delete price rule"
   }
 }

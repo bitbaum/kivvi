@@ -32,3 +32,4 @@ export * from "./domain/email";
 export * from "./domain/business-snapshot";
 export * from "./domain/memberships";
 export * from "./domain/invitations";
+export * from "./domain/pricing";

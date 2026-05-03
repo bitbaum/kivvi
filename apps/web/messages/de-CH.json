@@ -1841,6 +1841,10 @@
       "exportDescription": "Laden Sie einen vollständigen Export aller Unternehmensdaten im JSON-Format herunter (DSGVO-konform).",
       "downloadButton": "Datenexport herunterladen"
     },
+    "priceLists": {
+      "title": "Preislisten",
+      "settingsDesc": "Preisregeln für Produkte und Produktgruppen"
+    },
     "recurring": {
       "title": "Wiederkehrende Rechnungen",
       "subtitle": "Automatisch wiederkehrende Rechnungen aus Aufträgen generieren.",
@@ -4109,5 +4113,43 @@
   },
   "bulkImport": {
     "errorImportFailed": "Import fehlgeschlagen"
+  },
+  "priceLists": {
+    "title": "Preislisten",
+    "subtitle": "Verwalten Sie flexible Preisregeln für Kundengruppen oder Aktionen",
+    "createNew": "Neue Preisliste",
+    "createFirst": "Erste Preisliste erstellen",
+    "noLists": "Noch keine Preislisten vorhanden",
+    "settingsDesc": "Preisregeln für Produkte und Produktgruppen",
+    "defaultBadge": "Standard",
+    "markAsDefault": "Als Standard festlegen",
+    "rules": "Preisregeln",
+    "noRules": "Noch keine Regeln",
+    "addRule": "Regel hinzufügen",
+    "ruleProduct": "Produkt",
+    "ruleGroup": "Produktgruppe",
+    "ruleType": "Typ",
+    "ruleValue": "Wert",
+    "ruleMinQty": "Mindestmenge",
+    "ruleValidFrom": "Gültig ab",
+    "ruleValidTo": "Gültig bis",
+    "ruleTypeFixed": "Festpreis",
+    "ruleTypePercentage": "Rabatt (%)",
+    "ruleTypeTiered": "Mengenrabatt (%)",
+    "allProducts": "Alle Produkte",
+    "fieldName": "Name",
+    "fieldCurrency": "Währung",
+    "fieldIsDefault": "Standard-Preisliste",
+    "fieldIsDefaultDesc": "Diese Preisliste wird automatisch für neue Dokumente verwendet",
+    "deleteConfirm": "Preisliste wirklich löschen? Alle zugehörigen Regeln werden ebenfalls gelöscht.",
+    "deleteRuleConfirm": "Preisregel löschen?",
+    "errorNotFound": "Preisliste nicht gefunden",
+    "errorFailedToLoad": "Preislisten konnten nicht geladen werden",
+    "errorFailedToCreate": "Preisliste konnte nicht erstellt werden",
+    "errorFailedToUpdate": "Preisliste konnte nicht aktualisiert werden",
+    "errorFailedToDelete": "Preisliste konnte nicht gelöscht werden",
+    "errorFailedToCreateRule": "Preisregel konnte nicht erstellt werden",
+    "errorFailedToUpdateRule": "Preisregel konnte nicht aktualisiert werden",
+    "errorFailedToDeleteRule": "Preisregel konnte nicht gelöscht werden"
   }
 }

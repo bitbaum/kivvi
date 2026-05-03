@@ -13,6 +13,7 @@ import {
   Users,
   Plug,
   Webhook,
+  Tag,
 } from "lucide-react";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
@@ -53,6 +54,12 @@ export default async function SettingsPage() {
       subtitle: t("numberSequencesDesc"),
       href: "/settings/sequences",
       icon: Hash,
+    },
+    {
+      title: t("priceLists.title"),
+      subtitle: t("priceLists.settingsDesc"),
+      href: "/settings/price-lists",
+      icon: Tag,
     },
     {
       title: t("recurring.title"),
