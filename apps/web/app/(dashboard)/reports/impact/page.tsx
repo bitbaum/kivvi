@@ -12,6 +12,7 @@ import {
   getTopDonors,
   getMonthlyBreakdown,
   getDestinationBreakdown,
+  getCycleTimeMetrics,
 } from "@kivvi/core/src/domain/impact";
 import { getChecklistTemplate } from "@kivvi/core/src/config/checklist-templates";
 import { PageHeader } from "@/components/page-header";
@@ -25,6 +26,7 @@ import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
 import { DestinationBreakdownSection } from "./destination-breakdown";
 import { MonthlyTrendSection } from "./monthly-trend";
 import { TopDonorsSection } from "./top-donors";
+import { CycleTimeSection } from "./cycle-time";
 
 export const metadata: Metadata = {
   title: "Impact Report — Kivvi",
@@ -47,13 +49,19 @@ export default async function ImpactReportPage() {
   const settings = (company?.settings as CompanySettings) ?? {};
   const co2FactorsKg = settings.co2FactorsKg;
 
-  const [metrics, topDonors, monthlyBreakdown, destinationBreakdown] =
-    await Promise.all([
-      getImpactMetrics(db, companyId, { co2FactorsKg }),
-      getTopDonors(db, companyId, { limit: 5 }),
-      getMonthlyBreakdown(db, companyId),
-      getDestinationBreakdown(db, companyId),
-    ]);
+  const [
+    metrics,
+    topDonors,
+    monthlyBreakdown,
+    destinationBreakdown,
+    cycleTime,
+  ] = await Promise.all([
+    getImpactMetrics(db, companyId, { co2FactorsKg }),
+    getTopDonors(db, companyId, { limit: 5 }),
+    getMonthlyBreakdown(db, companyId),
+    getDestinationBreakdown(db, companyId),
+    getCycleTimeMetrics(db, companyId),
+  ]);
 
   const co2Kg = Number(metrics.co2AvoidedKg);
   const co2Tonnes = (co2Kg / 1000).toFixed(2);
@@ -152,6 +160,8 @@ export default async function ImpactReportPage() {
           </div>
 
           <DestinationBreakdownSection data={destinationBreakdown} />
+
+          <CycleTimeSection data={cycleTime} />
 
           {/* Category CO2 breakdown */}
           {metrics.co2ByCategory.length > 0 && (

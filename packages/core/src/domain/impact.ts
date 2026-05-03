@@ -20,8 +20,8 @@
  */
 
 import Decimal from "decimal.js";
-import { eq, and, gte, lte, count, inArray, sql } from "drizzle-orm";
-import { inventoryItems, contacts } from "@kivvi/database";
+import { eq, and, gte, lte, count, inArray, sql, isNotNull } from "drizzle-orm";
+import { inventoryItems, contacts, documents } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
 import { getCo2Factor, CO2_DEFAULT_KG } from "../config/co2-factors";
 import {
@@ -342,5 +342,72 @@ export async function getDestinationBreakdown(
     donated: byStatus.get("donated") || 0,
     recycled: byStatus.get("recycled") || 0,
     inStock,
+  };
+}
+
+/** Average cycle time from item intake to final disposition */
+export interface CycleTimeMetrics {
+  avgDaysToSell: number | null;
+  avgDaysToDonate: number | null;
+  avgDaysAll: number | null;
+  sampleSize: number;
+}
+
+/**
+ * Computes average days from item creation (intake) to disposition.
+ * Uses saleDocumentId → documents.issueDate for sold items.
+ * Donated/recycled items without a sale document use updatedAt as proxy.
+ */
+export async function getCycleTimeMetrics(
+  db: Database,
+  companyId: string,
+): Promise<CycleTimeMetrics> {
+  // For sold items: use the sale document's issue date
+  const soldRows = await db
+    .select({
+      days: sql<number>`EXTRACT(EPOCH FROM (${documents.issueDate}::timestamp - ${inventoryItems.createdAt})) / 86400`,
+    })
+    .from(inventoryItems)
+    .innerJoin(documents, eq(inventoryItems.saleDocumentId, documents.id))
+    .where(
+      and(
+        eq(inventoryItems.companyId, companyId),
+        eq(inventoryItems.status, "sold"),
+        isNotNull(inventoryItems.saleDocumentId),
+        isNotNull(documents.issueDate),
+      ),
+    );
+
+  // For donated items without a sale document: use updatedAt as best proxy
+  const donatedRows = await db
+    .select({
+      days: sql<number>`EXTRACT(EPOCH FROM (${inventoryItems.updatedAt} - ${inventoryItems.createdAt})) / 86400`,
+    })
+    .from(inventoryItems)
+    .where(
+      and(
+        eq(inventoryItems.companyId, companyId),
+        eq(inventoryItems.status, "donated"),
+      ),
+    );
+
+  const soldDays = soldRows
+    .map((r) => Number(r.days))
+    .filter((d) => d >= 0 && d < 3650);
+  const donatedDays = donatedRows
+    .map((r) => Number(r.days))
+    .filter((d) => d >= 0 && d < 3650);
+  const allDays = [...soldDays, ...donatedDays];
+
+  const avg = (arr: number[]) =>
+    arr.length > 0
+      ? Math.round(arr.reduce((a, b) => a + b, 0) / arr.length)
+      : null;
+
+  return {
+    avgDaysToSell: avg(soldDays),
+    avgDaysToDonate: avg(donatedDays),
+    avgDaysAll: avg(allDays),
+    sampleSize: allDays.length,
   };
 }
