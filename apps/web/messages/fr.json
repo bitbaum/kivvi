@@ -391,6 +391,7 @@
     "errorEmailNotConfigured": "L'envoi d'e-mails n'est pas configuré. Veuillez définir EMAIL_USER et EMAIL_PASS dans les variables d'environnement.",
     "errorFailedToSearch": "Impossible de rechercher les documents",
     "emailGreeting": "Bonjour",
+    "emailRecipientFallback": "Client",
     "emailClosing": "Meilleures salutations",
     "emailFooterAuto": "Cet e-mail a été envoyé automatiquement par {companyName}.",
     "emailFooterBranding": "Envoyé avec Kivvi — ERP basé sur l'IA pour les entreprises suisses",

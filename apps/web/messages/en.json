@@ -391,6 +391,7 @@
     "errorEmailNotConfigured": "Email sending is not configured. Please set EMAIL_USER and EMAIL_PASS in the environment variables.",
     "errorFailedToSearch": "Failed to search documents",
     "emailGreeting": "Dear",
+    "emailRecipientFallback": "Valued Customer",
     "emailClosing": "Kind regards",
     "emailFooterAuto": "This email was automatically sent by {companyName}.",
     "emailFooterBranding": "Sent with Kivvi — AI-powered ERP for Swiss businesses",

@@ -106,7 +106,7 @@ export async function sendDocumentEmailAction(
 
     const emailData = {
       recipientEmail: parsed.data.recipientEmail,
-      recipientName: doc.contact?.name || "Customer",
+      recipientName: doc.contact?.name || t("emailRecipientFallback"),
       companyName,
       documentNumber: doc.number,
       documentType: doc.type,

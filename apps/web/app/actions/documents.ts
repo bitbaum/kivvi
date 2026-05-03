@@ -213,7 +213,7 @@ export async function recordPaymentAction(
 
           const emailData = {
             recipientEmail: contactEmail,
-            recipientName: doc.contact?.name || "Customer",
+            recipientName: doc.contact?.name || t("emailRecipientFallback"),
             companyName,
             documentNumber: doc.number,
             amount: parsed.data.amount,
