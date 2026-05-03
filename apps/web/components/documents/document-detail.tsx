@@ -22,11 +22,25 @@ import {
   calculateOutstandingAmount,
   type DocumentWithRelations,
 } from "@kivvi/core/src/domain/documents";
+import { RecentItemTracker } from "@/components/recent-item-tracker";
+import type { RecentItem } from "@/hooks/use-recent-items";
 
 interface DocumentDetailProps {
   doc: DocumentWithRelations;
   config: DocumentTypeConfig;
 }
+
+// Map document types to recent-item types (dunning/intake not tracked)
+const DOC_TYPE_TO_RECENT: Partial<Record<string, RecentItem["type"]>> = {
+  invoice: "invoice",
+  quote: "quote",
+  order: "order",
+  order_confirmation: "order",
+  delivery_note: "delivery_note",
+  credit_note: "credit_note",
+  purchase_order: "purchase_order",
+  purchase_invoice: "purchase_invoice",
+};
 
 export async function DocumentDetail({ doc, config }: DocumentDetailProps) {
   const t = await getTranslations("documents");
@@ -40,8 +54,18 @@ export async function DocumentDetail({ doc, config }: DocumentDetailProps) {
     ? getOverdueInfo(doc)
     : { isOverdue: false, daysOverdue: 0 };
 
+  const recentType = DOC_TYPE_TO_RECENT[doc.type];
+
   return (
     <div className="space-y-6">
+      {recentType && (
+        <RecentItemTracker
+          id={doc.id}
+          type={recentType}
+          label={doc.number}
+          href={`${config.basePath}/${doc.id}`}
+        />
+      )}
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-center gap-4">

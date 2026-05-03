@@ -9,6 +9,7 @@ import { formatCurrency, formatDate, cn, isValidUUID } from "@/lib/utils";
 import { DeleteJournalEntryButton } from "./delete-button";
 import { getTranslations } from "next-intl/server";
 import { SOURCE_TYPE_STYLES, getSourceTypeLabels } from "@/lib/config/journal";
+import { RecentItemTracker } from "@/components/recent-item-tracker";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -38,6 +39,12 @@ export default async function JournalEntryDetailPage({ params }: PageProps) {
 
   return (
     <div className="space-y-6">
+      <RecentItemTracker
+        id={entry.id}
+        type="journal"
+        label={entry.reference || entry.id.slice(0, 8)}
+        href={`/accounting/journal/${entry.id}`}
+      />
       {/* Back + Header */}
       <div>
         <Link

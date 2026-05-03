@@ -27,6 +27,7 @@ import {
 } from "@/components/quick-actions-bar";
 import { ProjectLinkedDocuments } from "./project-linked-documents";
 import { ProjectDetailSidebar } from "./project-detail-sidebar";
+import { RecentItemTracker } from "@/components/recent-item-tracker";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -61,6 +62,12 @@ export default async function ProjectDetailPage({ params }: PageProps) {
 
   return (
     <div className="space-y-6">
+      <RecentItemTracker
+        id={project.id}
+        type="project"
+        label={project.name}
+        href={`/projects/${project.id}`}
+      />
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-4">

@@ -21,6 +21,7 @@ import {
 import { StatusBadge } from "@/components/status-badge";
 import { ProductDetailMain } from "./product-detail-main";
 import { ProductDetailSidebar } from "./product-detail-sidebar";
+import { RecentItemTracker } from "@/components/recent-item-tracker";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -59,6 +60,12 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
   return (
     <div className="space-y-6">
+      <RecentItemTracker
+        id={product.id}
+        type="product"
+        label={product.name}
+        href={`/products/${product.id}`}
+      />
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-4">

@@ -35,6 +35,7 @@ import { ContactDetailSidebar } from "./contact-detail-sidebar";
 import { ContactRecentDocuments } from "./contact-recent-documents";
 import { ContactDonorImpact } from "./contact-donor-impact";
 import { ContactDonatedItems } from "./contact-donated-items";
+import { RecentItemTracker } from "@/components/recent-item-tracker";
 
 interface ContactDetailPageProps {
   params: { id: string };
@@ -60,6 +61,12 @@ export default async function ContactDetailPage({
 
   return (
     <div className="space-y-6">
+      <RecentItemTracker
+        id={contact.id}
+        type="contact"
+        label={contact.name}
+        href={`/contacts/${contact.id}`}
+      />
       <Breadcrumb
         items={[
           { label: tc("dashboard"), href: "/dashboard" },
