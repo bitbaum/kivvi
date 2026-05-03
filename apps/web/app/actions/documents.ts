@@ -28,7 +28,9 @@ import {
 import {
   buildPaymentConfirmationEmailHtml,
   buildPaymentConfirmationEmailSubject,
+  type PaymentConfirmationEmailStrings,
 } from "@kivvi/core/src/domain/email";
+import { escapeHtml } from "@kivvi/core/src/utils/html";
 import {
   type ActionResult,
   requireRole,
@@ -219,12 +221,43 @@ export async function recordPaymentAction(
             plan,
           };
 
+          const tDoc = await getTranslations("documents");
+          const formattedAmount = new Intl.NumberFormat("de-CH", {
+            style: "currency",
+            currency: emailData.currency,
+          }).format(Number(emailData.amount));
+          const formattedPaymentDate = new Intl.DateTimeFormat("de-CH").format(
+            new Date(emailData.paymentDate),
+          );
+
+          const confirmStrings: PaymentConfirmationEmailStrings = {
+            subject: tDoc("paymentConfirmationSubject", {
+              number: emailData.documentNumber,
+            }),
+            greeting: `${tDoc("emailGreeting")} ${escapeHtml(emailData.recipientName)}`,
+            bodyHtml: tDoc("paymentConfirmationBody", {
+              amount: `<strong>${formattedAmount}</strong>`,
+              number: `<strong>${emailData.documentNumber}</strong>`,
+              date: `<strong>${formattedPaymentDate}</strong>`,
+            }),
+            thanks: tDoc("paymentConfirmationThanks"),
+            closing: tDoc("emailClosing"),
+            footerAuto: tDoc("emailFooterAuto", {
+              companyName: escapeHtml(companyName),
+            }),
+            footerBranding:
+              plan !== "premium" ? tDoc("emailFooterBranding") : undefined,
+          };
+
           const transporter = getTransporter();
           await transporter.sendMail({
             from: `${companyName} <${getFromEmail()}>`,
             to: contactEmail,
-            subject: buildPaymentConfirmationEmailSubject(emailData),
-            html: buildPaymentConfirmationEmailHtml(emailData),
+            subject: buildPaymentConfirmationEmailSubject(
+              emailData,
+              confirmStrings,
+            ),
+            html: buildPaymentConfirmationEmailHtml(emailData, confirmStrings),
           });
         }
       } catch (emailError) {

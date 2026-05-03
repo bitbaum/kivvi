@@ -23,7 +23,9 @@ import { eq } from "drizzle-orm";
 import {
   buildInvitationEmailHtml,
   buildInvitationEmailSubject,
+  type InvitationEmailStrings,
 } from "@kivvi/core/src/domain/email";
+import { escapeHtml } from "@kivvi/core/src/utils/html";
 import { getTransporter, getFromEmail } from "@/lib/email/transporter";
 import { isEmailConfigured } from "@/lib/config/email";
 
@@ -91,12 +93,28 @@ export const inviteMemberAction = createAction<
             }[parsed.data.role] ?? parsed.data.role,
         };
 
+        const invStrings: InvitationEmailStrings = {
+          subject: t("invitationSubject", {
+            company: emailData.companyName,
+          }),
+          greeting: t("invitationGreeting"),
+          bodyHtml: t("invitationBody", {
+            inviter: `<strong>${escapeHtml(emailData.inviterName)}</strong>`,
+            company: `<strong>${escapeHtml(emailData.companyName)}</strong>`,
+          }),
+          roleText: `${t("role")}: <strong>${escapeHtml(emailData.role)}</strong>`,
+          buttonText: t("invitationButton"),
+          expiryText: t("invitationExpiry"),
+          fallbackText: t("invitationFallback"),
+          footerAuto: tc("emailFooterAuto"),
+        };
+
         const transporter = getTransporter();
         await transporter.sendMail({
           from: `Kivvi <${getFromEmail()}>`,
           to: parsed.data.email,
-          subject: buildInvitationEmailSubject(emailData),
-          html: buildInvitationEmailHtml(emailData),
+          subject: buildInvitationEmailSubject(emailData, invStrings),
+          html: buildInvitationEmailHtml(emailData, invStrings),
         });
       } catch {
         // Email sending failed — invitation is still created, user can share the link manually

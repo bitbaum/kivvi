@@ -16,7 +16,9 @@ import {
 import {
   buildWelcomeEmailSubject,
   buildWelcomeEmailHtml,
+  type WelcomeEmailStrings,
 } from "@kivvi/core/src/domain/email";
+import { escapeHtml } from "@kivvi/core/src/utils/html";
 import type { ActionResult } from "./utils";
 import { safeErrorMessage } from "./utils";
 import { getTranslations } from "next-intl/server";
@@ -134,11 +136,27 @@ export async function registerAction(
           companyName: result.companyName,
           loginUrl,
         };
+        const tAuth = await getTranslations("auth");
+        const welcomeStrings: WelcomeEmailStrings = {
+          subject: tAuth("welcomeSubject", { name }),
+          greeting: `${tAuth("welcomeGreeting")} ${escapeHtml(name)}!`,
+          body1Html: tAuth("welcomeBody1", {
+            company: `<strong>${escapeHtml(result.companyName)}</strong>`,
+          }),
+          body2: tAuth("welcomeBody2"),
+          buttonText: tAuth("welcomeButton"),
+          featuresHeading: tAuth("welcomeFeaturesHeading"),
+          feature1: tAuth("welcomeFeature1"),
+          feature2: tAuth("welcomeFeature2"),
+          feature3: tAuth("welcomeFeature3"),
+          feature4: tAuth("welcomeFeature4"),
+          footerAuto: tAuth("welcomeFooterAuto"),
+        };
         await transporter.sendMail({
           from: getFromEmail(),
           to: result.email,
-          subject: buildWelcomeEmailSubject(emailData),
-          html: buildWelcomeEmailHtml(emailData),
+          subject: buildWelcomeEmailSubject(emailData, welcomeStrings),
+          html: buildWelcomeEmailHtml(emailData, welcomeStrings),
         });
       } catch (emailError) {
         logger.error("Failed to send welcome email", emailError);

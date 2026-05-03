@@ -31,6 +31,8 @@ import {
   buildPasswordResetEmailHtml,
   buildPasswordResetEmailSubject,
   type DonationReceiptEmailStrings,
+  type InvoiceEmailStrings,
+  type PasswordResetEmailStrings,
 } from "@kivvi/core/src/domain/email";
 import { escapeHtml } from "@kivvi/core/src/utils/html";
 import Decimal from "decimal.js";
@@ -131,12 +133,90 @@ export async function sendDocumentEmailAction(
       if (senderUser?.email) ccEmail = senderUser.email;
     }
 
+    // Map document type to i18n key
+    const DOC_TYPE_I18N_KEY: Record<string, string> = {
+      invoice: "invoice",
+      quote: "quote",
+      order: "order",
+      order_confirmation: "orderConfirmation",
+      delivery_note: "deliveryNote",
+      credit_note: "creditNote",
+      dunning: "dunning",
+      intake: "intake",
+      purchase_order: "purchaseOrder",
+      purchase_invoice: "purchaseInvoice",
+    };
+    const typeLabel = t(
+      (DOC_TYPE_I18N_KEY[emailData.documentType] ?? "document") as Parameters<
+        typeof t
+      >[0],
+    );
+
+    const formattedTotal = new Intl.NumberFormat("de-CH", {
+      style: "currency",
+      currency: emailData.currency,
+    }).format(Number(emailData.total));
+    const formattedDueDate = emailData.dueDate
+      ? new Intl.DateTimeFormat("de-CH").format(new Date(emailData.dueDate))
+      : null;
+
+    const numHtml = `<strong>${emailData.documentNumber}</strong>`;
+    const amtHtml = `<strong>${formattedTotal}</strong>`;
+    const dueDateHtml = formattedDueDate
+      ? `<strong>${formattedDueDate}</strong>`
+      : null;
+
+    let bodyHtml: string;
+    if (emailData.documentType === "dunning") {
+      bodyHtml =
+        `${t("emailBodyDunningIntro")}<br><br>` +
+        `${typeLabel}: ${numHtml}<br>` +
+        `${t("emailBodyDunningAmount")}: ${amtHtml}`;
+      if (dueDateHtml)
+        bodyHtml += `<br>${t("emailBodyDunningOverdue")}: ${dueDateHtml}`;
+      bodyHtml += `<br><br>${t("emailBodyDunningIgnore")}`;
+    } else if (emailData.documentType === "delivery_note") {
+      bodyHtml = t("emailBodyDeliveryLine", {
+        typeLabel,
+        number: numHtml,
+      });
+    } else if (emailData.documentType === "quote") {
+      bodyHtml = t("emailBodyQuoteLine", {
+        typeLabel,
+        number: numHtml,
+        amount: amtHtml,
+      });
+      if (dueDateHtml)
+        bodyHtml += `<br><br>${t("emailBodyValidUntil")}: ${dueDateHtml}`;
+      bodyHtml += `<br><br>${t("emailBodyFeedback")}`;
+    } else {
+      bodyHtml = t("emailBodyStandardLine", {
+        typeLabel,
+        number: numHtml,
+        amount: amtHtml,
+      });
+      if (dueDateHtml && emailData.documentType === "invoice") {
+        bodyHtml += `<br><br>${t("emailBodyDueDate")}: ${dueDateHtml}`;
+      }
+    }
+
+    const invoiceStrings: InvoiceEmailStrings = {
+      subject: buildInvoiceEmailSubject(emailData),
+      greeting: `${t("emailGreeting")} ${escapeHtml(emailData.recipientName)}`,
+      bodyHtml,
+      closing: t("emailClosing"),
+      footerAuto: t("emailFooterAuto", {
+        companyName: escapeHtml(companyName),
+      }),
+      footerBranding: plan !== "premium" ? t("emailFooterBranding") : undefined,
+    };
+
     const info = await transporter.sendMail({
       from: `${companyName} <${getFromEmail()}>`,
       to: parsed.data.recipientEmail,
       ...(ccEmail ? { cc: ccEmail } : {}),
-      subject: buildInvoiceEmailSubject(emailData),
-      html: buildInvoiceEmailHtml(emailData),
+      subject: buildInvoiceEmailSubject(emailData, invoiceStrings),
+      html: buildInvoiceEmailHtml(emailData, invoiceStrings),
       attachments: [
         {
           filename: `${doc.number}.pdf`,
@@ -362,6 +442,7 @@ export async function sendPasswordResetEmail(
   recipientEmail: string,
   recipientName: string,
   resetUrl: string,
+  strings?: PasswordResetEmailStrings,
 ): Promise<void> {
   if (!isEmailConfigured()) {
     throw new Error(
@@ -381,7 +462,7 @@ export async function sendPasswordResetEmail(
   await transporter.sendMail({
     from: `Kivvi <${getFromEmail()}>`,
     to: recipientEmail,
-    subject: buildPasswordResetEmailSubject(emailData),
-    html: buildPasswordResetEmailHtml(emailData),
+    subject: buildPasswordResetEmailSubject(emailData, strings),
+    html: buildPasswordResetEmailHtml(emailData, strings),
   });
 }
