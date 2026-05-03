@@ -39,5 +39,6 @@ export const ITEM_STATUS_TRANSITIONS: Record<
   recycled: [],
 };
 
-/** Document types that trigger inventory item sell on creation */
-export const SALES_DOCUMENT_TYPES = ["invoice", "quote", "order"] as const;
+/** Document types that trigger inventory item sell on creation.
+ * Only invoices constitute a completed sale. Quotes/orders are intentions. */
+export const SALES_DOCUMENT_TYPES = ["invoice"] as const;
