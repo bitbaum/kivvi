@@ -44,6 +44,7 @@ import { isEmailConfigured } from "@/lib/config/email";
 import { logger } from "@/lib/logger";
 import { dispatchWebhookEvent } from "@kivvi/core/src/domain/webhooks";
 import { getTranslations } from "next-intl/server";
+import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
 
 // ============================================================================
 // VALIDATION SCHEMAS FOR UNVALIDATED PARAMS
@@ -222,13 +223,13 @@ export async function recordPaymentAction(
           };
 
           const tDoc = await getTranslations("documents");
-          const formattedAmount = new Intl.NumberFormat("de-CH", {
+          const formattedAmount = new Intl.NumberFormat(DEFAULT_LOCALE, {
             style: "currency",
             currency: emailData.currency,
           }).format(Number(emailData.amount));
-          const formattedPaymentDate = new Intl.DateTimeFormat("de-CH").format(
-            new Date(emailData.paymentDate),
-          );
+          const formattedPaymentDate = new Intl.DateTimeFormat(
+            DEFAULT_LOCALE,
+          ).format(new Date(emailData.paymentDate));
 
           const confirmStrings: PaymentConfirmationEmailStrings = {
             subject: tDoc("paymentConfirmationSubject", {

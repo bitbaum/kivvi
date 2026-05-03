@@ -22,7 +22,10 @@ import {
 } from "@kivvi/core/src/domain/pdf-generation";
 import { buildInvoicePdfData } from "@/lib/pdf/build-pdf-data";
 import { formatDate } from "@/lib/utils";
-import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
+import {
+  DEFAULT_CURRENCY,
+  DEFAULT_LOCALE,
+} from "@kivvi/core/src/config/locale";
 import {
   buildInvoiceEmailHtml,
   buildInvoiceEmailSubject,
@@ -152,12 +155,14 @@ export async function sendDocumentEmailAction(
       >[0],
     );
 
-    const formattedTotal = new Intl.NumberFormat("de-CH", {
+    const formattedTotal = new Intl.NumberFormat(DEFAULT_LOCALE, {
       style: "currency",
       currency: emailData.currency,
     }).format(Number(emailData.total));
     const formattedDueDate = emailData.dueDate
-      ? new Intl.DateTimeFormat("de-CH").format(new Date(emailData.dueDate))
+      ? new Intl.DateTimeFormat(DEFAULT_LOCALE).format(
+          new Date(emailData.dueDate),
+        )
       : null;
 
     const numHtml = `<strong>${emailData.documentNumber}</strong>`;
@@ -371,7 +376,7 @@ export async function sendDonationReceiptEmailAction(
 
     const currency = doc.currency || DEFAULT_CURRENCY;
     const fmtAmount = estimatedValue
-      ? new Intl.NumberFormat("de-CH", {
+      ? new Intl.NumberFormat(DEFAULT_LOCALE, {
           style: "currency",
           currency,
         }).format(Number(estimatedValue))
