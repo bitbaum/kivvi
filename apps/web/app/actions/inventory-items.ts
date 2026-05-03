@@ -146,6 +146,7 @@ export async function updateItemStatusAction(
     }).catch(() => {});
 
     revalidatePath("/intake");
+    revalidatePath("/intake/items");
     revalidatePath(`/intake/items/${itemId}`);
     revalidatePath("/intake/repair-queue");
     return { success: true, data: { id: item.id, status: item.status } };

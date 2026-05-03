@@ -12,6 +12,7 @@ import {
   getConditionLabelKey,
 } from "@/lib/config/inventory-items";
 import { ItemBatchToolbar } from "./item-batch-toolbar";
+import { AdvanceStatusButton } from "./advance-status-button";
 import {
   PIPELINE_THRESHOLDS,
   PIPELINE_STATUSES,
@@ -158,6 +159,7 @@ export function SelectableItemList({ items }: SelectableItemListProps) {
                 </span>
               ) : null;
             })()}
+            <AdvanceStatusButton itemId={item.id} currentStatus={item.status} />
           </div>
           <div className="text-sm tabular-nums">
             {item.askingPrice ? formatCurrency(item.askingPrice) : "—"}
