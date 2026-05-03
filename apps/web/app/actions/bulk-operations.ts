@@ -104,6 +104,10 @@ async function runBulkOperation<T = unknown>(
   operation: (id: string) => Promise<T | undefined>,
   revalidate: () => void,
   errorLabel: string,
+  translateDomainError?: (
+    code: string,
+    params?: Record<string, string>,
+  ) => string,
 ): Promise<ActionResult<BulkOperationResult<T>>> {
   const results: BulkOperationResult<T>["results"] = [];
 
@@ -115,7 +119,7 @@ async function runBulkOperation<T = unknown>(
       results.push({
         id,
         success: false,
-        error: safeErrorMessage(error, errorLabel),
+        error: safeErrorMessage(error, errorLabel, translateDomainError),
       });
     }
   }
@@ -153,7 +157,14 @@ function parseInput<T>(
 export async function bulkConvertDocumentsAction(
   input: unknown,
 ): Promise<ActionResult<BulkOperationResult<{ id: string; number: string }>>> {
-  const t = await getTranslations("bulkActions");
+  const [t, tDomain] = await Promise.all([
+    getTranslations("bulkActions"),
+    getTranslations("domainErrors"),
+  ]);
+  const translateDomainError = (
+    code: string,
+    params?: Record<string, string>,
+  ) => tDomain(code as Parameters<typeof tDomain>[0], params);
   try {
     const { companyId, userId } = await requireRole("member");
     const data = parseInput(bulkConvertSchema, input);
@@ -173,11 +184,16 @@ export async function bulkConvertDocumentsAction(
       },
       () => revalidateDocumentPaths(data.targetType),
       t("errorConvertDocument"),
+      translateDomainError,
     );
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, t("errorBulkConvert")),
+      error: safeErrorMessage(
+        error,
+        t("errorBulkConvert"),
+        translateDomainError,
+      ),
     };
   }
 }
@@ -289,7 +305,14 @@ export async function bulkMatchTransactionsAction(
 export async function bulkStatusChangeAction(
   input: unknown,
 ): Promise<ActionResult<BulkOperationResult>> {
-  const t = await getTranslations("bulkActions");
+  const [t, tDomain] = await Promise.all([
+    getTranslations("bulkActions"),
+    getTranslations("domainErrors"),
+  ]);
+  const translateDomainError = (
+    code: string,
+    params?: Record<string, string>,
+  ) => tDomain(code as Parameters<typeof tDomain>[0], params);
   try {
     const { companyId } = await requireRole("member");
     const schema = bulkDocumentIdsSchema.extend({
@@ -311,11 +334,16 @@ export async function bulkStatusChangeAction(
       },
       () => revalidatePath("/"),
       t("errorUpdateStatus"),
+      translateDomainError,
     );
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, t("errorBulkUpdateStatus")),
+      error: safeErrorMessage(
+        error,
+        t("errorBulkUpdateStatus"),
+        translateDomainError,
+      ),
     };
   }
 }
@@ -324,7 +352,14 @@ export async function bulkStatusChangeAction(
 export async function bulkMarkPaidAction(
   input: unknown,
 ): Promise<ActionResult<BulkOperationResult>> {
-  const t = await getTranslations("bulkActions");
+  const [t, tDomain] = await Promise.all([
+    getTranslations("bulkActions"),
+    getTranslations("domainErrors"),
+  ]);
+  const translateDomainError = (
+    code: string,
+    params?: Record<string, string>,
+  ) => tDomain(code as Parameters<typeof tDomain>[0], params);
   try {
     const { companyId } = await requireRole("member");
     const schema = bulkDocumentIdsSchema.extend({
@@ -353,11 +388,16 @@ export async function bulkMarkPaidAction(
       },
       () => revalidatePath("/"),
       t("errorRecordPayment"),
+      translateDomainError,
     );
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, t("errorBulkMarkPaid")),
+      error: safeErrorMessage(
+        error,
+        t("errorBulkMarkPaid"),
+        translateDomainError,
+      ),
     };
   }
 }
@@ -366,7 +406,14 @@ export async function bulkMarkPaidAction(
 export async function bulkDeleteDocumentsAction(
   input: unknown,
 ): Promise<ActionResult<BulkOperationResult>> {
-  const t = await getTranslations("bulkActions");
+  const [t, tDomain] = await Promise.all([
+    getTranslations("bulkActions"),
+    getTranslations("domainErrors"),
+  ]);
+  const translateDomainError = (
+    code: string,
+    params?: Record<string, string>,
+  ) => tDomain(code as Parameters<typeof tDomain>[0], params);
   try {
     const { companyId } = await requireRole("member");
     const data = parseInput(bulkDocumentIdsSchema, input);
@@ -380,11 +427,16 @@ export async function bulkDeleteDocumentsAction(
       },
       () => revalidatePath("/"),
       t("errorDeleteDocument"),
+      translateDomainError,
     );
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, t("errorBulkDeleteDocuments")),
+      error: safeErrorMessage(
+        error,
+        t("errorBulkDeleteDocuments"),
+        translateDomainError,
+      ),
     };
   }
 }
