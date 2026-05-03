@@ -49,13 +49,12 @@ export async function searchSellablesAction(
       return { success: true, data: [] };
     }
 
-    const [readyForSale, listed, reserved] = SELLABLE_ITEM_STATUSES;
     const [products, items] = await Promise.all([
       searchProducts(db, companyId, query),
       listInventoryItems(db, companyId, {
         search: query,
-        status: readyForSale,
-        pageSize: 8,
+        statuses: [...SELLABLE_ITEM_STATUSES],
+        pageSize: 16,
       }),
     ]);
 
@@ -63,34 +62,6 @@ export async function searchSellablesAction(
 
     // Inventory items first (they're specific, more relevant for secondhand)
     for (const item of items.data) {
-      results.push({
-        kind: "inventory_item",
-        id: item.id,
-        number: item.itemNumber,
-        name: item.description,
-        price: item.askingPrice || item.estimatedValue || null,
-        vatRate: DEFAULT_VAT_RATE,
-        unit: DEFAULT_UNIT,
-        stockQuantity: "1",
-        condition: item.condition,
-        productId: item.productId,
-      });
-    }
-
-    // Also include listed and reserved items
-    const [listedItems, reservedItems] = await Promise.all([
-      listInventoryItems(db, companyId, {
-        search: query,
-        status: listed,
-        pageSize: 4,
-      }),
-      listInventoryItems(db, companyId, {
-        search: query,
-        status: reserved,
-        pageSize: 4,
-      }),
-    ]);
-    for (const item of [...listedItems.data, ...reservedItems.data]) {
       results.push({
         kind: "inventory_item",
         id: item.id,

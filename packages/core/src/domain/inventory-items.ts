@@ -787,6 +787,7 @@ export async function listInventoryItems(
   companyId: string,
   options: {
     status?: string;
+    statuses?: string[];
     condition?: string;
     search?: string;
     warehouseId?: string;
@@ -801,6 +802,7 @@ export async function listInventoryItems(
 ): Promise<PaginatedInventoryItems> {
   const {
     status,
+    statuses,
     condition,
     search,
     warehouseId,
@@ -815,7 +817,11 @@ export async function listInventoryItems(
 
   const conditions = [eq(inventoryItems.companyId, companyId)];
 
-  if (status) {
+  if (statuses && statuses.length > 0) {
+    conditions.push(
+      inArray(inventoryItems.status, statuses as ItemStatusValue[]),
+    );
+  } else if (status) {
     conditions.push(eq(inventoryItems.status, status as ItemStatusValue));
   }
   if (condition) {
