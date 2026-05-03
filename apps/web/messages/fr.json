@@ -4168,6 +4168,17 @@
     "cannotRecordPaymentWrongType": "Les paiements ne peuvent pas être enregistrés sur les documents de type {type}",
     "cannotRecordPaymentWrongStatus": "Le paiement ne peut pas être enregistré sur un document avec le statut \"{status}\"",
     "cannotRecordPaymentExceedsBalance": "Le montant {amount} dépasse le solde restant {remaining}",
-    "cannotConvert": "Impossible de convertir {from} en {to}"
+    "cannotConvert": "Impossible de convertir {from} en {to}",
+    "journalMustBalance": "L'écriture comptable doit être équilibrée (débit : {debits}, crédit : {credits})",
+    "onlyManualCanBeDeleted": "Seules les écritures créées manuellement peuvent être supprimées",
+    "periodAlreadyClosed": "Cette période comptable est déjà clôturée",
+    "fiscalYearAlreadyClosed": "Cet exercice fiscal est déjà clôturé",
+    "accountCodeExists": "Un compte avec le code {code} existe déjà",
+    "ibanMismatch": "Incompatibilité IBAN : l'extrait a {statement}, le compte a {account}",
+    "transactionAlreadyReconciled": "Cette transaction a déjà été rapprochée",
+    "alreadyMember": "Cet utilisateur est déjà membre de cette entreprise",
+    "invitationAlreadySent": "Une invitation a déjà été envoyée à cette adresse e-mail",
+    "invitationNotFound": "Cette invitation est introuvable ou a déjà été utilisée",
+    "invitationExpired": "Cette invitation a expiré"
   }
 }

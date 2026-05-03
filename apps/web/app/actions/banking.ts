@@ -180,7 +180,10 @@ export async function importCamtAction(
     totalEntries: number;
   }>
 > {
-  const t = await getTranslations("banking");
+  const [t, tDomain] = await Promise.all([
+    getTranslations("banking"),
+    getTranslations("domainErrors"),
+  ]);
   try {
     const { companyId } = await requireRole("member");
     const result = await db.transaction(async (tx) => {
@@ -191,7 +194,9 @@ export async function importCamtAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(error, t("errorImportCamt")),
+      error: safeErrorMessage(error, t("errorImportCamt"), (code, params) =>
+        tDomain(code as Parameters<typeof tDomain>[0], params),
+      ),
     };
   }
 }
@@ -207,6 +212,7 @@ export const reconcileTransactionAction = createAction<
   errorMessage: () =>
     getTranslations("banking").then((t) => t("errorReconcile")),
   minRole: "member",
+  translateDomainErrors: true,
 });
 
 export const unreconcileTransactionAction = createAction<

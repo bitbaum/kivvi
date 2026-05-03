@@ -18,6 +18,7 @@ import type {
   FiscalPeriod,
 } from "@kivvi/database";
 import { ACCOUNT_TYPE_VALUES } from "@kivvi/database/src/enums";
+import { DomainError } from "../domain-error";
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -109,7 +110,11 @@ export async function createAccount(
       and(eq(accounts.companyId, companyId), eq(accounts.code, validated.code)),
     );
   if (existing) {
-    throw new Error(`Account with code ${validated.code} already exists`);
+    throw new DomainError(
+      "accountCodeExists",
+      { code: validated.code },
+      `Account with code ${validated.code} already exists`,
+    );
   }
 
   const [account] = await db
@@ -147,7 +152,11 @@ export async function updateAccount(
         ),
       );
     if (existing) {
-      throw new Error(`Account with code ${validated.code} already exists`);
+      throw new DomainError(
+        "accountCodeExists",
+        { code: validated.code },
+        `Account with code ${validated.code} already exists`,
+      );
     }
   }
 
@@ -420,7 +429,9 @@ export async function createJournalEntry(
   // Validate debits = credits
   const balance = validateJournalBalance(validated.lines);
   if (!balance.valid) {
-    throw new Error(
+    throw new DomainError(
+      "journalMustBalance",
+      { debits: balance.totalDebits, credits: balance.totalCredits },
       `Journal entry must balance. Debits: ${balance.totalDebits}, Credits: ${balance.totalCredits}`,
     );
   }
@@ -548,7 +559,11 @@ export async function deleteJournalEntry(
 
   if (!entry) throw new Error("Journal entry not found");
   if (entry.sourceType !== "manual") {
-    throw new Error("Only manual journal entries can be deleted");
+    throw new DomainError(
+      "onlyManualCanBeDeleted",
+      undefined,
+      "Only manual journal entries can be deleted",
+    );
   }
 
   // Lines cascade via FK
@@ -716,7 +731,13 @@ export async function closeFiscalPeriod(
     );
 
   if (!period) throw new Error("Period not found");
-  if (period.period.isClosed) throw new Error("Period is already closed");
+  if (period.period.isClosed) {
+    throw new DomainError(
+      "periodAlreadyClosed",
+      undefined,
+      "Period is already closed",
+    );
+  }
 
   const [updated] = await db
     .update(fiscalPeriods)
@@ -738,7 +759,13 @@ export async function closeFiscalYear(
 ): Promise<FiscalYear> {
   const year = await getFiscalYear(db, companyId, yearId);
   if (!year) throw new Error("Fiscal year not found");
-  if (year.isClosed) throw new Error("Fiscal year is already closed");
+  if (year.isClosed) {
+    throw new DomainError(
+      "fiscalYearAlreadyClosed",
+      undefined,
+      "Fiscal year is already closed",
+    );
+  }
 
   return db.transaction(async (tx) => {
     // 1. Get all revenue & expense account balances for this fiscal year

@@ -13,6 +13,7 @@ import type { Database, BankAccount, BankTransaction } from "@kivvi/database";
 import { recordPayment } from "./documents";
 import { logger } from "../logger";
 import { parseCamtXml, normalizeIban, type CamtStatement } from "./camt-parser";
+import { DomainError } from "../domain-error";
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -338,7 +339,9 @@ export async function importCamtStatement(
     const stmtIban = normalizeIban(statement.accountIban);
     const acctIban = normalizeIban(bankAccount.iban);
     if (stmtIban !== acctIban) {
-      throw new Error(
+      throw new DomainError(
+        "ibanMismatch",
+        { statement: stmtIban, account: acctIban },
         `IBAN mismatch: statement has ${stmtIban}, account has ${acctIban}`,
       );
     }
@@ -404,7 +407,11 @@ export async function reconcileTransaction(
 
   if (!txn) throw new Error("Transaction not found");
   if (txn.transaction.isReconciled)
-    throw new Error("Transaction is already reconciled");
+    throw new DomainError(
+      "transactionAlreadyReconciled",
+      undefined,
+      "Transaction is already reconciled",
+    );
 
   // Verify document belongs to company
   const [doc] = await db
@@ -461,7 +468,12 @@ export async function matchTransactionToDocument(
 
   if (!txn) throw new Error("Transaction not found");
   if (txn.bankAccount.companyId !== companyId) throw new Error("Unauthorized");
-  if (txn.isReconciled) throw new Error("Transaction already reconciled");
+  if (txn.isReconciled)
+    throw new DomainError(
+      "transactionAlreadyReconciled",
+      undefined,
+      "Transaction already reconciled",
+    );
 
   const PAYABLE_STATUSES = sql`${documents.status} IN (${sql.join(
     NON_TERMINAL_STATUSES.map((s) => sql`${s}`),

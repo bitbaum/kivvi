@@ -4168,6 +4168,17 @@
     "cannotRecordPaymentWrongType": "Payments cannot be recorded on {type} documents",
     "cannotRecordPaymentWrongStatus": "Payment cannot be recorded on a document with status \"{status}\"",
     "cannotRecordPaymentExceedsBalance": "Payment amount {amount} exceeds remaining balance {remaining}",
-    "cannotConvert": "Cannot convert {from} to {to}"
+    "cannotConvert": "Cannot convert {from} to {to}",
+    "journalMustBalance": "Journal entry must balance (debits: {debits}, credits: {credits})",
+    "onlyManualCanBeDeleted": "Only manually created journal entries can be deleted",
+    "periodAlreadyClosed": "This accounting period is already closed",
+    "fiscalYearAlreadyClosed": "This fiscal year is already closed",
+    "accountCodeExists": "Account with code {code} already exists",
+    "ibanMismatch": "IBAN mismatch: statement has {statement}, account has {account}",
+    "transactionAlreadyReconciled": "This transaction has already been reconciled",
+    "alreadyMember": "This user is already a member of this company",
+    "invitationAlreadySent": "An invitation has already been sent to this email address",
+    "invitationNotFound": "This invitation could not be found or has already been used",
+    "invitationExpired": "This invitation has expired"
   }
 }

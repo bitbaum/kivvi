@@ -40,6 +40,7 @@ export const inviteMemberAction = createAction<
   unknown,
   { id: string; token: string }
 >({
+  translateDomainErrors: true,
   handler: async (input, { companyId, userId, db }) => {
     const t = await getTranslations("team");
     const tc = await getTranslations("common");
@@ -161,6 +162,7 @@ export const acceptInvitationAction = createAction<
   { companyId: string; companyName: string }
 >({
   errorMessage: () => getTranslations("team").then((t) => t("acceptFailed")),
+  translateDomainErrors: true,
   handler: async (token, { userId, db }) => {
     const parsed = z.string().min(1).safeParse(token);
     if (!parsed.success) throw new Error("bad_token");

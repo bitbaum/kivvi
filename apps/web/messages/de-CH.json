@@ -4168,6 +4168,17 @@
     "cannotRecordPaymentWrongType": "Zahlungen können bei {type}-Dokumenten nicht erfasst werden",
     "cannotRecordPaymentWrongStatus": "Zahlung kann bei einem Dokument mit Status \"{status}\" nicht erfasst werden",
     "cannotRecordPaymentExceedsBalance": "Zahlungsbetrag {amount} übersteigt den verbleibenden Saldo {remaining}",
-    "cannotConvert": "{from} kann nicht in {to} umgewandelt werden"
+    "cannotConvert": "{from} kann nicht in {to} umgewandelt werden",
+    "journalMustBalance": "Buchungssatz muss ausgeglichen sein (Soll: {debits}, Haben: {credits})",
+    "onlyManualCanBeDeleted": "Nur manuell erstellte Buchungssätze können gelöscht werden",
+    "periodAlreadyClosed": "Diese Buchhaltungsperiode ist bereits abgeschlossen",
+    "fiscalYearAlreadyClosed": "Dieses Geschäftsjahr ist bereits abgeschlossen",
+    "accountCodeExists": "Konto mit Code {code} existiert bereits",
+    "ibanMismatch": "IBAN-Abweichung: Kontoauszug hat {statement}, Konto hat {account}",
+    "transactionAlreadyReconciled": "Diese Transaktion wurde bereits abgeglichen",
+    "alreadyMember": "Dieser Benutzer ist bereits Mitglied dieses Unternehmens",
+    "invitationAlreadySent": "An diese E-Mail-Adresse wurde bereits eine Einladung gesendet",
+    "invitationNotFound": "Diese Einladung wurde nicht gefunden oder wurde bereits verwendet",
+    "invitationExpired": "Diese Einladung ist abgelaufen"
   }
 }

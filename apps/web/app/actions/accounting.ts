@@ -38,6 +38,7 @@ export const createAccountAction = createAction<
   errorMessage: () =>
     getTranslations("accounting").then((t) => t("errorCreateAccount")),
   minRole: "member",
+  translateDomainErrors: true,
 });
 
 export const updateAccountAction = createAction<
@@ -54,6 +55,7 @@ export const updateAccountAction = createAction<
   errorMessage: () =>
     getTranslations("accounting").then((t) => t("errorUpdateAccount")),
   minRole: "member",
+  translateDomainErrors: true,
 });
 
 export const toggleAccountAction = createAction<
@@ -98,6 +100,7 @@ export const createJournalEntryAction = createAction<
   errorMessage: () =>
     getTranslations("accounting").then((t) => t("errorCreateJournalEntry")),
   minRole: "member",
+  translateDomainErrors: true,
 });
 
 export const deleteJournalEntryAction = createAction<string, void>({
@@ -108,6 +111,7 @@ export const deleteJournalEntryAction = createAction<string, void>({
   errorMessage: () =>
     getTranslations("accounting").then((t) => t("errorDeleteJournalEntry")),
   minRole: "member",
+  translateDomainErrors: true,
 });
 
 // ============================================================================
@@ -141,6 +145,7 @@ export const closeFiscalPeriodAction = createAction<
   errorMessage: () =>
     getTranslations("accounting").then((t) => t("errorClosePeriod")),
   minRole: "admin",
+  translateDomainErrors: true,
 });
 
 export const closeFiscalYearAction = createAction<
@@ -154,6 +159,7 @@ export const closeFiscalYearAction = createAction<
   errorMessage: () =>
     getTranslations("accounting").then((t) => t("errorCloseFiscalYear")),
   minRole: "admin",
+  translateDomainErrors: true,
 });
 
 export const listAccountsAction = createAction<

@@ -11,6 +11,7 @@ import type { Database } from "@kivvi/database";
 import type { MembershipRole, InvitationStatus } from "@kivvi/database";
 import { randomBytes } from "crypto";
 import { addMember } from "./memberships";
+import { DomainError } from "../domain-error";
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -86,7 +87,11 @@ export async function createInvitation(
     });
 
     if (existingMembership) {
-      throw new Error("This user is already a member of this company");
+      throw new DomainError(
+        "alreadyMember",
+        undefined,
+        "This user is already a member of this company",
+      );
     }
   }
 
@@ -100,7 +105,11 @@ export async function createInvitation(
   });
 
   if (existingInvite) {
-    throw new Error("An invitation has already been sent to this email");
+    throw new DomainError(
+      "invitationAlreadySent",
+      undefined,
+      "An invitation has already been sent to this email",
+    );
   }
 
   // Generate secure token
@@ -139,7 +148,11 @@ export async function acceptInvitation(
   });
 
   if (!invitation) {
-    throw new Error("Invitation not found or already used");
+    throw new DomainError(
+      "invitationNotFound",
+      undefined,
+      "Invitation not found or already used",
+    );
   }
 
   if (invitation.expiresAt < new Date()) {
@@ -148,7 +161,11 @@ export async function acceptInvitation(
       .update(invitations)
       .set({ status: "expired" })
       .where(eq(invitations.id, invitation.id));
-    throw new Error("This invitation has expired");
+    throw new DomainError(
+      "invitationExpired",
+      undefined,
+      "This invitation has expired",
+    );
   }
 
   // Verify the accepting user's email matches the invitation
