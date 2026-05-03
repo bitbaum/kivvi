@@ -36,6 +36,7 @@ import {
 } from "@/lib/config/inventory-items";
 import { RepairPartsSection } from "@/components/inventory/repair-parts-section";
 import { ItemChecklistDisplay } from "@/components/inventory/item-checklist-display";
+import { AdvanceStatusButton } from "@/components/inventory/advance-status-button";
 import { ErasureSection } from "@/components/inventory/erasure-section";
 import type { ChecklistData } from "@kivvi/core/src/config/checklist-templates";
 import {
@@ -163,6 +164,12 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
               <Pencil className="h-4 w-4" />
               {tc("edit")}
             </Link>
+            {/* Advance button: shown for repair/ready_for_sale — Test button already covers intake/testing */}
+            {!(TESTABLE_STATUSES as readonly string[]).includes(
+              item.status,
+            ) && (
+              <AdvanceStatusButton itemId={id} currentStatus={item.status} />
+            )}
             {isSellable && hasRicardoKey && (
               <RicardoButton
                 itemId={id}
