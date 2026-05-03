@@ -21,6 +21,8 @@ interface ContactPickerProps {
   contactType?: "customer" | "vendor";
   /** Show the quick-create modal option */
   allowQuickCreate?: boolean;
+  /** Override the built-in label text */
+  label?: string;
 }
 
 interface ContactResult {
@@ -37,6 +39,7 @@ export function ContactPicker({
   onChange,
   contactType = "customer",
   allowQuickCreate = true,
+  label,
 }: ContactPickerProps) {
   const t = useTranslations("documents");
   const tc = useTranslations("common");
@@ -121,7 +124,7 @@ export function ContactPicker({
           htmlFor="contact-picker-search"
           className="block text-sm font-medium"
         >
-          {contactType === "vendor" ? t("vendor") : t("customer")}
+          {label ?? (contactType === "vendor" ? t("vendor") : t("customer"))}
         </label>
         <div className="relative mt-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />

@@ -1,13 +1,15 @@
 "use client";
 
-import { Check, User } from "lucide-react";
+import { Check } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ITEM_CONDITION_CONFIG } from "@/lib/config/inventory-items";
 import { QUICK_CATEGORIES } from "./step-description";
+import { ContactPicker } from "@/components/contacts/contact-picker";
 
 interface StepDonorProps {
-  donorName: string;
-  setDonorName: (v: string) => void;
+  donorContactId: string | null;
+  donorDisplayName: string;
+  onDonorChange: (id: string | null, name: string) => void;
   description: string;
   category: string;
   condition: string;
@@ -17,8 +19,9 @@ interface StepDonorProps {
 }
 
 export function StepDonor({
-  donorName,
-  setDonorName,
+  donorContactId,
+  donorDisplayName,
+  onDonorChange,
   description,
   category,
   condition,
@@ -47,20 +50,14 @@ export function StepDonor({
         </p>
       </div>
 
-      <div>
-        <label className="mb-1.5 flex items-center gap-2 text-sm font-medium">
-          <User className="h-4 w-4" />
-          {ti("donor")}
-        </label>
-        <input
-          type="text"
-          value={donorName}
-          onChange={(e) => setDonorName(e.target.value)}
-          placeholder={ti("quickDonorPlaceholder")}
-          className="w-full rounded-xl border bg-background px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
-          autoFocus
-        />
-      </div>
+      <ContactPicker
+        value={donorContactId}
+        displayValue={donorDisplayName}
+        onChange={(id, name) => onDonorChange(id, name)}
+        contactType="customer"
+        allowQuickCreate
+        label={ti("donor")}
+      />
 
       <div className="rounded-xl border bg-muted/30 p-4 space-y-2 text-sm">
         <div className="flex justify-between">

@@ -23,7 +23,8 @@ export default function QuickIntakePage() {
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<string>("other");
   const [condition, setCondition] = useState<string>("untested");
-  const [donorName, setDonorName] = useState("");
+  const [donorContactId, setDonorContactId] = useState<string | null>(null);
+  const [donorDisplayName, setDonorDisplayName] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   function handleSubmit() {
@@ -38,7 +39,7 @@ export default function QuickIntakePage() {
         category: category || null,
         condition,
         photoBase64: photoBase64 || undefined,
-        notes: donorName ? `${ti("donor")}: ${donorName}` : undefined,
+        donorContactId: donorContactId || undefined,
       });
       if (result.success && result.data) {
         router.push(`/intake/items/${result.data.id}`);
@@ -118,8 +119,12 @@ export default function QuickIntakePage() {
       )}
       {step === 4 && (
         <StepDonor
-          donorName={donorName}
-          setDonorName={setDonorName}
+          donorContactId={donorContactId}
+          donorDisplayName={donorDisplayName}
+          onDonorChange={(id, name) => {
+            setDonorContactId(id);
+            setDonorDisplayName(name);
+          }}
           description={description}
           category={category}
           condition={condition}
