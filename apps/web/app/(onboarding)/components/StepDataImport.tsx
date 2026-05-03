@@ -53,7 +53,7 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
   const [isCompleting, setIsCompleting] = useState(false);
   const [error, setError] = useState("");
 
-  const handleStartFresh = async () => {
+  const handleComplete = useCallback(async () => {
     setIsCompleting(true);
     const result = await completeOnboardingAction();
     if (result.success) {
@@ -62,9 +62,9 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
       setError(result.error || tc("error"));
       setIsCompleting(false);
     }
-  };
+  }, [onComplete, tc]);
 
-  const handleSampleData = async () => {
+  const handleSampleData = useCallback(async () => {
     setIsCompleting(true);
     const result = await seedSampleDataAction();
     if (result.success) {
@@ -73,7 +73,7 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
       setError(result.error || tc("error"));
       setIsCompleting(false);
     }
-  };
+  }, [onComplete, tc]);
 
   const handleCsvParsed = useCallback(
     (
@@ -208,17 +208,6 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
     setIsImporting(false);
   };
 
-  const handleCompleteSetup = async () => {
-    setIsCompleting(true);
-    const result = await completeOnboardingAction();
-    if (result.success) {
-      onComplete();
-    } else {
-      setError(result.error || tc("error"));
-      setIsCompleting(false);
-    }
-  };
-
   const confirmedCount = Array.from(pendingImports.values()).filter(
     (p) => p.confirmed,
   ).length;
@@ -232,7 +221,7 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
         error={error}
         isCompleting={isCompleting}
         onImportData={() => setMode("import")}
-        onStartFresh={handleStartFresh}
+        onStartFresh={handleComplete}
         onSampleData={handleSampleData}
       />
     );
@@ -294,7 +283,7 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
               )}
 
             {allImportsDone && (
-              <Button onClick={handleCompleteSetup} disabled={isCompleting}>
+              <Button onClick={handleComplete} disabled={isCompleting}>
                 {isCompleting && <Loader2 className="h-4 w-4 animate-spin" />}
                 {t("completeSetup")}
               </Button>
@@ -305,7 +294,7 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
               confirmedCount === 0 && (
                 <Button
                   variant="secondary"
-                  onClick={handleCompleteSetup}
+                  onClick={handleComplete}
                   disabled={isCompleting}
                 >
                   {isCompleting ? t("completing") : t("skipAndFinish")}
