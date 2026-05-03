@@ -19,6 +19,7 @@ import {
   getChecklistTemplate,
   type ChecklistData,
 } from "@kivvi/core/src/config/checklist-templates";
+import { PIPELINE_STATUSES } from "@kivvi/core/src/config/pipeline-thresholds";
 import { InventoryMetricsGrid } from "./inventory-metrics-grid";
 import { InventoryFilterPills } from "./inventory-filter-pills";
 
@@ -57,6 +58,15 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
         warehouseId,
         page,
         pageSize: 25,
+        // Show oldest-first for pipeline statuses so stale items surface at top
+        sortBy: "createdAt",
+        sortOrder:
+          status &&
+          PIPELINE_STATUSES.includes(
+            status as (typeof PIPELINE_STATUSES)[number],
+          )
+            ? "asc"
+            : "desc",
       }),
       getInventoryItemCounts(db, session.user.companyId),
       getInventoryItemConditionCounts(
@@ -177,6 +187,7 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
                 description: item.description,
                 condition: item.condition,
                 status: item.status,
+                createdAt: item.createdAt,
                 askingPrice: item.askingPrice,
                 donorName: item.donorName || null,
                 donorContactId: item.donorContactId || null,

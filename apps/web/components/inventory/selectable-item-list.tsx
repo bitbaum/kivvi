@@ -12,6 +12,10 @@ import {
   getConditionLabelKey,
 } from "@/lib/config/inventory-items";
 import { ItemBatchToolbar } from "./item-batch-toolbar";
+import {
+  PIPELINE_THRESHOLDS,
+  PIPELINE_STATUSES,
+} from "@kivvi/core/src/config/pipeline-thresholds";
 
 interface ItemData {
   id: string;
@@ -19,12 +23,27 @@ interface ItemData {
   description: string;
   condition: string;
   status: string;
+  createdAt: Date | string;
   askingPrice: string | null;
   donorName: string | null;
   donorContactId: string | null;
   productName: string | null;
   photoBase64: string | null;
   qcProgress?: { done: number; total: number; signedOff: boolean };
+}
+
+function daysAgo(date: Date | string): number {
+  const d = typeof date === "string" ? new Date(date) : date;
+  return Math.floor((Date.now() - d.getTime()) / 86_400_000);
+}
+
+function pipelineAgeClass(days: number, status: string): string | null {
+  const key = status as keyof typeof PIPELINE_THRESHOLDS;
+  if (!PIPELINE_STATUSES.includes(key)) return null;
+  const t = PIPELINE_THRESHOLDS[key];
+  if (days >= t.alert) return "text-destructive font-medium";
+  if (days >= t.warn) return "text-warning";
+  return null;
 }
 
 interface SelectableItemListProps {
@@ -121,14 +140,23 @@ export function SelectableItemList({ items }: SelectableItemListProps) {
           >
             {t(getConditionLabelKey(item.condition))}
           </span>
-          <span
-            className={cn(
-              "inline-flex rounded-full px-2 py-0.5 text-xs font-medium w-fit",
-              getStatusStyle(item.status),
-            )}
-          >
-            {t(getStatusLabelKey(item.status))}
-          </span>
+          <div className="flex flex-col gap-0.5">
+            <span
+              className={cn(
+                "inline-flex rounded-full px-2 py-0.5 text-xs font-medium w-fit",
+                getStatusStyle(item.status),
+              )}
+            >
+              {t(getStatusLabelKey(item.status))}
+            </span>
+            {(() => {
+              const days = daysAgo(item.createdAt);
+              const cls = pipelineAgeClass(days, item.status);
+              return cls ? (
+                <span className={cn("text-xs tabular-nums", cls)}>{days}d</span>
+              ) : null;
+            })()}
+          </div>
           <div className="text-sm tabular-nums">
             {item.askingPrice ? formatCurrency(item.askingPrice) : "—"}
           </div>

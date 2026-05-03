@@ -13,6 +13,7 @@ import {
   getConditionStyle,
   getConditionLabelKey,
 } from "@/lib/config/inventory-items";
+import { PIPELINE_THRESHOLDS } from "@kivvi/core/src/config/pipeline-thresholds";
 import { RepairQueueAssignButton } from "@/components/inventory/repair-queue-assign-button";
 import { RepairQueueDoneButton } from "@/components/inventory/repair-queue-done-button";
 
@@ -22,8 +23,10 @@ function daysAgo(date: Date | string): number {
 }
 
 function ageClass(days: number): string {
-  if (days >= 14) return "text-destructive font-semibold";
-  if (days >= 7) return "text-warning font-medium";
+  if (days >= PIPELINE_THRESHOLDS.repair.alert)
+    return "text-destructive font-semibold";
+  if (days >= PIPELINE_THRESHOLDS.repair.warn)
+    return "text-warning font-medium";
   return "text-muted-foreground";
 }
 

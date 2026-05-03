@@ -9,6 +9,7 @@ import {
 } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
 import { detectOverdueInvoices } from "./dunning";
+import { PIPELINE_THRESHOLDS } from "../config/pipeline-thresholds";
 
 // ============================================================================
 // TYPES
@@ -242,8 +243,10 @@ export async function getDashboardAlerts(
     });
   }
 
-  // 6. Items aging in repair (>14 days since intake — same logic as repair-queue page)
-  const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+  // 6. Items aging in repair (>PIPELINE_THRESHOLDS.repair.alert days)
+  const fourteenDaysAgo = new Date(
+    now.getTime() - PIPELINE_THRESHOLDS.repair.alert * 24 * 60 * 60 * 1000,
+  );
   const [agingRepairResult] = await db
     .select({ count: sql<number>`COUNT(*)::int` })
     .from(inventoryItems)
@@ -269,8 +272,10 @@ export async function getDashboardAlerts(
     });
   }
 
-  // 7. Items stuck in intake > 7 days (processing backlog)
-  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  // 7. Items stuck in intake > PIPELINE_THRESHOLDS.intake.alert days (processing backlog)
+  const sevenDaysAgo = new Date(
+    now.getTime() - PIPELINE_THRESHOLDS.intake.alert * 24 * 60 * 60 * 1000,
+  );
   const [staleIntakeResult] = await db
     .select({ count: sql<number>`COUNT(*)::int` })
     .from(inventoryItems)
@@ -296,7 +301,7 @@ export async function getDashboardAlerts(
     });
   }
 
-  // 8. Items stuck in testing > 14 days (assessment backlog)
+  // 8. Items stuck in testing > PIPELINE_THRESHOLDS.testing.alert days (assessment backlog)
   const [staleTestingResult] = await db
     .select({ count: sql<number>`COUNT(*)::int` })
     .from(inventoryItems)
@@ -322,8 +327,11 @@ export async function getDashboardAlerts(
     });
   }
 
-  // 10. Items in ready_for_sale not sold after 60 days (pricing may need review)
-  const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
+  // 10. Items in ready_for_sale not sold after PIPELINE_THRESHOLDS.ready_for_sale.alert days
+  const sixtyDaysAgo = new Date(
+    now.getTime() -
+      PIPELINE_THRESHOLDS.ready_for_sale.alert * 24 * 60 * 60 * 1000,
+  );
   const [staleReadyResult] = await db
     .select({ count: sql<number>`COUNT(*)::int` })
     .from(inventoryItems)
