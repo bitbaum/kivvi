@@ -21,10 +21,8 @@ import {
   generateDonationReceiptPdf,
 } from "@kivvi/core/src/domain/pdf-generation";
 import { buildInvoicePdfData } from "@/lib/pdf/build-pdf-data";
-import {
-  DEFAULT_LOCALE,
-  DEFAULT_CURRENCY,
-} from "@kivvi/core/src/config/locale";
+import { formatDate } from "@/lib/utils";
+import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 import {
   buildInvoiceEmailHtml,
   buildInvoiceEmailSubject,
@@ -84,11 +82,7 @@ export async function sendDocumentEmailAction(
 
     // Check email configuration
     if (!isEmailConfigured()) {
-      return {
-        success: false,
-        error:
-          "Email sending is not configured. Please set EMAIL_USER and EMAIL_PASS in the environment variables or contact the administrator.",
-      };
+      return { success: false, error: t("errorEmailNotConfigured") };
     }
 
     const transporter = getTransporter();
@@ -209,11 +203,7 @@ export async function sendDonationReceiptEmailAction(
     // Resolve donor contact
     const donorId = doc.donorId || doc.contactId;
     if (!donorId) {
-      return {
-        success: false,
-        error:
-          "No donor linked to this intake. Please add a donor contact first.",
-      };
+      return { success: false, error: t("errorNoDonorLinked") };
     }
 
     const [donor] = await db
@@ -223,20 +213,12 @@ export async function sendDonationReceiptEmailAction(
       .limit(1);
 
     if (!donor?.email) {
-      return {
-        success: false,
-        error:
-          "The donor contact has no email address. Please add one before sending.",
-      };
+      return { success: false, error: t("errorNoDonorEmail") };
     }
 
     // Check email configuration
     if (!isEmailConfigured()) {
-      return {
-        success: false,
-        error:
-          "Email sending is not configured. Please set EMAIL_USER and EMAIL_PASS in the environment variables or contact the administrator.",
-      };
+      return { success: false, error: t("errorEmailNotConfigured") };
     }
 
     const transporter = getTransporter();
@@ -269,8 +251,8 @@ export async function sendDonationReceiptEmailAction(
 
     // Format date
     const date = doc.issueDate
-      ? new Date(doc.issueDate).toLocaleDateString(DEFAULT_LOCALE)
-      : new Date().toLocaleDateString(DEFAULT_LOCALE);
+      ? formatDate(doc.issueDate)
+      : formatDate(new Date());
 
     // Generate PDF
     const pdfBuffer = await generateDonationReceiptPdf({

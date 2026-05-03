@@ -385,6 +385,9 @@
     "errorFailedToDuplicate": "Échec de la duplication du document.",
     "errorReceiptDonationOnly": "Le reçu est uniquement disponible pour les dons.",
     "errorReceiptConfirmFirst": "Confirmez la réception avant d'envoyer le reçu.",
+    "errorNoDonorLinked": "Aucun donateur lié à cette réception. Veuillez d'abord ajouter un contact donateur.",
+    "errorNoDonorEmail": "Le contact donateur n'a pas d'adresse e-mail. Veuillez en ajouter une avant l'envoi.",
+    "errorEmailNotConfigured": "L'envoi d'e-mails n'est pas configuré. Veuillez définir EMAIL_USER et EMAIL_PASS dans les variables d'environnement.",
     "errorFailedToSearch": "Impossible de rechercher les documents"
   },
   "dashboard": {

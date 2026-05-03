@@ -385,6 +385,9 @@
     "errorFailedToDuplicate": "Fehler beim Duplizieren des Dokuments.",
     "errorReceiptDonationOnly": "Quittung ist nur für Spendenannahmen verfügbar.",
     "errorReceiptConfirmFirst": "Bitte bestätigen Sie die Annahme, bevor Sie die Quittung senden.",
+    "errorNoDonorLinked": "Kein Spender mit dieser Annahme verknüpft. Bitte zuerst einen Spenderkontakt hinzufügen.",
+    "errorNoDonorEmail": "Der Spenderkontakt hat keine E-Mail-Adresse. Bitte zuerst eine hinterlegen.",
+    "errorEmailNotConfigured": "E-Mail-Versand ist nicht konfiguriert. Bitte EMAIL_USER und EMAIL_PASS in den Umgebungsvariablen setzen.",
     "errorFailedToSearch": "Dokumente konnten nicht gesucht werden"
   },
   "dashboard": {

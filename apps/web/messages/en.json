@@ -385,6 +385,9 @@
     "errorFailedToDuplicate": "Failed to duplicate document.",
     "errorReceiptDonationOnly": "Receipt only available for donation intakes.",
     "errorReceiptConfirmFirst": "Confirm the intake before sending the receipt.",
+    "errorNoDonorLinked": "No donor linked to this intake. Please add a donor contact first.",
+    "errorNoDonorEmail": "The donor contact has no email address. Please add one before sending.",
+    "errorEmailNotConfigured": "Email sending is not configured. Please set EMAIL_USER and EMAIL_PASS in the environment variables.",
     "errorFailedToSearch": "Failed to search documents"
   },
   "dashboard": {
