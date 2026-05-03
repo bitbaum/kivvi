@@ -33,6 +33,10 @@ export default function DashboardLayout({
       router.push("/sales/quotes/new");
     } else if (pathname.startsWith("/sales/orders")) {
       router.push("/sales/orders/new");
+    } else if (pathname.startsWith("/purchasing/purchase-orders")) {
+      router.push("/purchasing/purchase-orders/new");
+    } else if (pathname.startsWith("/purchasing/purchase-invoices")) {
+      router.push("/purchasing/purchase-invoices/new");
     } else {
       // Default: create contact
       router.push("/contacts/new");
