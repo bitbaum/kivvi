@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { User, FileText, Recycle, ShieldCheck } from "lucide-react";
+import { User, FileText, Recycle } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { formatDate } from "@/lib/utils";
 import { CardSection } from "@/components/card-section";
@@ -141,27 +141,6 @@ export async function InventoryItemSidebar({
           </div>
         </div>
       </CardSection>
-
-      {/* Data erasure certificate — only shown when erasure has been recorded */}
-      {item.dataErasuredAt && item.dataErasureMethod && (
-        <CardSection
-          title={ti("erasureCertificate")}
-          icon={<ShieldCheck className="h-4 w-4 text-success" />}
-        >
-          <p className="mb-3 text-xs text-muted-foreground">
-            {ti("erasureCertificateDesc")}
-          </p>
-          <Link
-            href={`/api/inventory/items/${itemId}/erasure-certificate`}
-            className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium hover:bg-muted transition-colors"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <FileText className="h-4 w-4" />
-            {ti("downloadErasureCertificate")}
-          </Link>
-        </CardSection>
-      )}
 
       {/* Printable label */}
       <CardSection title={ti("label")}>

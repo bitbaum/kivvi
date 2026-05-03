@@ -36,8 +36,12 @@ import {
 } from "@/lib/config/inventory-items";
 import { RepairPartsSection } from "@/components/inventory/repair-parts-section";
 import { ItemChecklistDisplay } from "@/components/inventory/item-checklist-display";
+import { ErasureSection } from "@/components/inventory/erasure-section";
 import type { ChecklistData } from "@kivvi/core/src/config/checklist-templates";
-import { getChecklistTemplate } from "@kivvi/core/src/config/checklist-templates";
+import {
+  getChecklistTemplate,
+  DATA_BEARING_CATEGORIES,
+} from "@kivvi/core/src/config/checklist-templates";
 import { InventoryItemSidebar } from "./inventory-item-sidebar";
 
 interface PageProps {
@@ -272,6 +276,17 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
           />
           {/* Repair Parts */}
           <RepairPartsSection itemId={id} initialParts={repairPartsList} />
+          {/* Data Erasure — only for data-bearing device categories */}
+          {item.category &&
+            (DATA_BEARING_CATEGORIES as readonly string[]).includes(
+              item.category,
+            ) && (
+              <ErasureSection
+                itemId={id}
+                dataErasuredAt={item.dataErasuredAt ?? null}
+                dataErasureMethod={item.dataErasureMethod ?? null}
+              />
+            )}
         </div>
 
         {/* Sidebar */}

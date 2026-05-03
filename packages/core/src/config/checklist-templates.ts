@@ -851,6 +851,16 @@ export const CHECKLIST_TEMPLATES: Record<string, ChecklistTemplate> = {
 
 export const ITEM_CATEGORIES = Object.keys(CHECKLIST_TEMPLATES) as string[];
 
+/** Categories whose items can store personal data and require documented erasure. */
+export const DATA_BEARING_CATEGORIES = [
+  "laptop",
+  "desktop",
+  "phone",
+  "tablet",
+] as const;
+
+export type DataBearingCategory = (typeof DATA_BEARING_CATEGORIES)[number];
+
 /**
  * Get checklist template for a category.
  * Falls back to "other" for unknown categories — never throws.
