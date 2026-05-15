@@ -235,8 +235,8 @@ export async function DocumentList({
         )}
       </div>
 
-      {/* Pagination */}
-      {result.totalPages > 1 && (
+      {/* Pagination — always show count when there are results; nav only when multi-page */}
+      {result.data.length > 0 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
             {tc(
@@ -244,26 +244,28 @@ export async function DocumentList({
               paginationRange(result.page, result.pageSize, result.total),
             )}
           </p>
-          <div className="flex gap-2">
-            {result.page > 1 && (
-              <Button asChild variant="secondary">
-                <Link
-                  href={`${config.basePath}${qs({ page: result.page - 1, status, search, ...preserveParams })}`}
-                >
-                  {tc("previous")}
-                </Link>
-              </Button>
-            )}
-            {result.page < result.totalPages && (
-              <Button asChild variant="secondary">
-                <Link
-                  href={`${config.basePath}${qs({ page: result.page + 1, status, search, ...preserveParams })}`}
-                >
-                  {tc("next")}
-                </Link>
-              </Button>
-            )}
-          </div>
+          {result.totalPages > 1 && (
+            <div className="flex gap-2">
+              {result.page > 1 && (
+                <Button asChild variant="secondary">
+                  <Link
+                    href={`${config.basePath}${qs({ page: result.page - 1, status, search, ...preserveParams })}`}
+                  >
+                    {tc("previous")}
+                  </Link>
+                </Button>
+              )}
+              {result.page < result.totalPages && (
+                <Button asChild variant="secondary">
+                  <Link
+                    href={`${config.basePath}${qs({ page: result.page + 1, status, search, ...preserveParams })}`}
+                  >
+                    {tc("next")}
+                  </Link>
+                </Button>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>
