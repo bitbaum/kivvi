@@ -27,6 +27,8 @@ interface DocumentListProps {
   search?: string;
   status?: string;
   headerActions?: React.ReactNode;
+  /** Optional extra filter row rendered below the search + status filters */
+  secondaryFilters?: React.ReactNode;
 }
 
 export async function DocumentList({
@@ -35,6 +37,7 @@ export async function DocumentList({
   search,
   status,
   headerActions,
+  secondaryFilters,
 }: DocumentListProps) {
   const t = await getTranslations("documents");
   const ts = await getTranslations("status");
@@ -159,6 +162,8 @@ export async function DocumentList({
           })}
         </div>
       </div>
+
+      {secondaryFilters && <div>{secondaryFilters}</div>}
 
       {/* Table */}
       <div className="rounded-xl border bg-card">

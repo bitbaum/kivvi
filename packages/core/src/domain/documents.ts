@@ -27,6 +27,7 @@ import type {
   DocumentType,
   DocumentStatus,
   PaymentMethodValue,
+  IntakeSourceValue,
 } from "@kivvi/database";
 import {
   DOCUMENT_TYPE_VALUES,
@@ -284,6 +285,7 @@ export function calculateOutstandingAmount(doc: {
 export interface DocumentFilters {
   type?: DocumentType;
   status?: DocumentStatus;
+  intakeSource?: IntakeSourceValue;
   contactId?: string;
   projectId?: string;
   search?: string;
@@ -316,6 +318,7 @@ export async function listDocuments(
   const {
     type,
     status,
+    intakeSource,
     contactId,
     projectId,
     search,
@@ -330,6 +333,7 @@ export async function listDocuments(
   const conditions = [eq(documents.companyId, companyId)];
 
   if (type) conditions.push(eq(documents.type, type));
+  if (intakeSource) conditions.push(eq(documents.intakeSource, intakeSource));
   if (status === "overdue") {
     // Dynamic overdue: past due date AND not paid/cancelled/draft
     conditions.push(
