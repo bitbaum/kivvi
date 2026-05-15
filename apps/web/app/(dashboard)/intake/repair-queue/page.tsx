@@ -97,12 +97,14 @@ export default async function RepairQueuePage() {
                   return (
                     <div
                       key={item.id}
-                      className="flex items-center gap-4 px-4 py-3"
+                      className="relative flex items-center gap-4 px-4 py-3 transition-colors hover:bg-muted/50"
                     >
                       <Link
                         href={`/intake/items/${item.id}`}
-                        className="flex-1 min-w-0 hover:underline"
-                      >
+                        className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
+                        aria-label={item.description}
+                      />
+                      <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-sm font-medium">
                             {item.itemNumber}
@@ -119,7 +121,7 @@ export default async function RepairQueuePage() {
                         <p className="mt-0.5 truncate text-sm text-muted-foreground">
                           {item.description}
                         </p>
-                      </Link>
+                      </div>
                       <div className="shrink-0 text-right">
                         <span className={cn("text-xs", ageClass(days))}>
                           {ti("ageInRepair", { days })}
@@ -131,13 +133,17 @@ export default async function RepairQueuePage() {
                             </p>
                           )}
                       </div>
-                      <RepairQueueDoneButton itemId={item.id} />
-                      <RepairQueueAssignButton
-                        itemId={item.id}
-                        assignedToUserId={item.assignedToUserId ?? null}
-                        assignedToName={item.assignedToName ?? null}
-                        companyUsers={userOptions}
-                      />
+                      <div className="relative z-10">
+                        <RepairQueueDoneButton itemId={item.id} />
+                      </div>
+                      <div className="relative z-10">
+                        <RepairQueueAssignButton
+                          itemId={item.id}
+                          assignedToUserId={item.assignedToUserId ?? null}
+                          assignedToName={item.assignedToName ?? null}
+                          companyUsers={userOptions}
+                        />
+                      </div>
                     </div>
                   );
                 })}
@@ -160,12 +166,14 @@ export default async function RepairQueuePage() {
                   return (
                     <div
                       key={item.id}
-                      className="flex items-center gap-4 px-4 py-3"
+                      className="relative flex items-center gap-4 px-4 py-3 transition-colors hover:bg-muted/50"
                     >
                       <Link
                         href={`/intake/items/${item.id}`}
-                        className="flex-1 min-w-0 hover:underline"
-                      >
+                        className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
+                        aria-label={item.description}
+                      />
+                      <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-sm font-medium">
                             {item.itemNumber}
@@ -182,7 +190,7 @@ export default async function RepairQueuePage() {
                         <p className="mt-0.5 truncate text-sm text-muted-foreground">
                           {item.description}
                         </p>
-                      </Link>
+                      </div>
                       <div className="shrink-0 text-right">
                         <span className={cn("text-xs", ageClass(days))}>
                           {ti("ageInRepair", { days })}
@@ -194,13 +202,17 @@ export default async function RepairQueuePage() {
                             </p>
                           )}
                       </div>
-                      <RepairQueueDoneButton itemId={item.id} />
-                      <RepairQueueAssignButton
-                        itemId={item.id}
-                        assignedToUserId={item.assignedToUserId ?? null}
-                        assignedToName={item.assignedToName ?? null}
-                        companyUsers={userOptions}
-                      />
+                      <div className="relative z-10">
+                        <RepairQueueDoneButton itemId={item.id} />
+                      </div>
+                      <div className="relative z-10">
+                        <RepairQueueAssignButton
+                          itemId={item.id}
+                          assignedToUserId={item.assignedToUserId ?? null}
+                          assignedToName={item.assignedToName ?? null}
+                          companyUsers={userOptions}
+                        />
+                      </div>
                     </div>
                   );
                 })}

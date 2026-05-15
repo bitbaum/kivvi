@@ -90,16 +90,26 @@ export function SelectableItemList({ items }: SelectableItemListProps) {
         <div
           key={item.id}
           className={cn(
-            "flex flex-col gap-1 border-b px-4 py-3 sm:grid sm:grid-cols-[auto_48px_1fr_auto_auto_auto_auto] sm:items-center sm:gap-4",
+            "relative flex flex-col gap-1 border-b px-4 py-3 transition-colors hover:bg-muted/50 sm:grid sm:grid-cols-[auto_48px_1fr_auto_auto_auto_auto] sm:items-center sm:gap-4",
             isSelected(item.id) && "bg-primary/5",
           )}
         >
-          <input
-            type="checkbox"
-            checked={isSelected(item.id)}
-            onChange={() => toggle(item.id)}
-            className="h-4 w-4 rounded border-input"
+          {/* Link overlay: covers entire row for right-click / Ctrl+click / screen-reader support */}
+          <Link
+            href={`/intake/items/${item.id}`}
+            className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
+            aria-label={item.description}
           />
+
+          {/* Interactive elements raised above the link overlay */}
+          <div className="relative z-10">
+            <input
+              type="checkbox"
+              checked={isSelected(item.id)}
+              onChange={() => toggle(item.id)}
+              className="h-4 w-4 rounded border-input"
+            />
+          </div>
           {/* Thumbnail */}
           <div className="flex items-center justify-center">
             {item.photoBase64 ? (
@@ -115,7 +125,7 @@ export function SelectableItemList({ items }: SelectableItemListProps) {
               </div>
             )}
           </div>
-          <Link href={`/intake/items/${item.id}`} className="hover:underline">
+          <div>
             <div className="font-medium">{item.description}</div>
             <div className="text-xs text-muted-foreground">
               {item.itemNumber}
@@ -132,7 +142,7 @@ export function SelectableItemList({ items }: SelectableItemListProps) {
                 ) : null}
               </div>
             )}
-          </Link>
+          </div>
           <span
             className={cn(
               "inline-flex rounded-full px-2 py-0.5 text-xs font-medium w-fit",
@@ -141,7 +151,7 @@ export function SelectableItemList({ items }: SelectableItemListProps) {
           >
             {t(getConditionLabelKey(item.condition))}
           </span>
-          <div className="flex flex-col gap-0.5">
+          <div className="relative z-10 flex flex-col gap-0.5">
             <span
               className={cn(
                 "inline-flex rounded-full px-2 py-0.5 text-xs font-medium w-fit",
@@ -164,12 +174,11 @@ export function SelectableItemList({ items }: SelectableItemListProps) {
           <div className="text-sm tabular-nums">
             {item.askingPrice ? formatCurrency(item.askingPrice) : "—"}
           </div>
-          <div className="text-sm text-muted-foreground truncate max-w-[150px]">
+          <div className="relative z-10 text-sm text-muted-foreground truncate max-w-[150px]">
             {item.donorContactId && item.donorName ? (
               <Link
                 href={`/contacts/${item.donorContactId}`}
                 className="hover:underline hover:text-primary"
-                onClick={(e) => e.stopPropagation()}
               >
                 {item.donorName}
               </Link>
