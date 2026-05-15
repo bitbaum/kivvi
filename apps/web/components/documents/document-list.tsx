@@ -11,6 +11,16 @@ import { cn, paginationRange } from "@/lib/utils";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 
+const INTAKE_SOURCE_LABEL_KEYS: Record<string, string> = {
+  donation: "intakeSourceDonation",
+  purchase: "intakeSourcePurchase",
+  trade_in: "intakeSourceTradeIn",
+  consignment: "intakeSourceConsignment",
+  estate_clearance: "intakeSourceEstate",
+  return: "intakeSourceReturn",
+  other: "intakeSourceOther",
+};
+
 interface DocumentListProps {
   config: DocumentTypeConfig;
   result: PaginatedResult<DocumentListItem>;
@@ -183,6 +193,15 @@ export async function DocumentList({
               issueDate: doc.issueDate,
               dueDate: doc.dueDate,
               contact: doc.contact,
+              tag: doc.intakeSource
+                ? INTAKE_SOURCE_LABEL_KEYS[doc.intakeSource]
+                  ? t(
+                      INTAKE_SOURCE_LABEL_KEYS[doc.intakeSource] as Parameters<
+                        typeof t
+                      >[0],
+                    )
+                  : null
+                : null,
             }))}
             translations={{ statusLabels, columnLabels, bulkLabels }}
           />

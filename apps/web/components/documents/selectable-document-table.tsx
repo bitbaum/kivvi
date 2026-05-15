@@ -22,6 +22,8 @@ interface DocumentItem {
   issueDate: string | Date;
   dueDate?: string | Date | null;
   contact?: { id: string; name: string } | null;
+  /** Pre-translated label shown as a small badge under the document number (e.g. intake source type) */
+  tag?: string | null;
 }
 
 interface Translations {
@@ -149,7 +151,14 @@ export function SelectableDocumentTable({
                 />
               </div>
               <div>
-                <span className="font-medium">{doc.number}</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">{doc.number}</span>
+                  {doc.tag && (
+                    <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                      {doc.tag}
+                    </span>
+                  )}
+                </div>
                 {/* Mobile: show key info inline */}
                 <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground sm:hidden">
                   <span>
