@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { cn, formatDate } from "@/lib/utils";
 import { StatusBadge } from "@/components/status-badge";
 import { CONTACT_TYPE_STYLES } from "@/lib/config/contact-types";
@@ -23,25 +23,22 @@ export function ContactTableRow({
   onToggle,
   translations,
 }: ContactTableRowProps) {
-  const router = useRouter();
-
   return (
     <div
-      role="link"
-      tabIndex={0}
-      onClick={() => router.push(`/contacts/${contact.id}`)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          router.push(`/contacts/${contact.id}`);
-        }
-      }}
       className={cn(
-        "flex cursor-pointer flex-col gap-1 p-4 transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:grid sm:grid-cols-[auto_1fr_2fr_auto_auto] sm:items-center sm:gap-4 sm:px-6 lg:grid-cols-[auto_1fr_2fr_auto_1.5fr_1fr_1fr_1fr_auto]",
+        "relative flex flex-col gap-1 p-4 transition-colors hover:bg-muted/50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary sm:grid sm:grid-cols-[auto_1fr_2fr_auto_auto] sm:items-center sm:gap-4 sm:px-6 lg:grid-cols-[auto_1fr_2fr_auto_1.5fr_1fr_1fr_1fr_auto]",
         isSelected && "bg-primary/5",
       )}
     >
-      <div className="flex items-center" onClick={(e) => e.stopPropagation()}>
+      {/* Native link covers the entire row for right-click / Ctrl+click / screen reader support */}
+      <Link
+        href={`/contacts/${contact.id}`}
+        className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
+        aria-label={contact.name}
+      />
+
+      {/* Interactive cells raised above the link overlay */}
+      <div className="relative z-10 flex items-center">
         <input
           type="checkbox"
           checked={isSelected}
@@ -103,10 +100,7 @@ export function ContactTableRow({
           }
         />
       </div>
-      <div
-        className="hidden lg:flex items-center justify-end"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="relative z-10 hidden lg:flex items-center justify-end">
         <ContactQuickActions
           contact={contact}
           labels={translations.quickActionLabels}

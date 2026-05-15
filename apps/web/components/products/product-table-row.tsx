@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Package, Wrench } from "lucide-react";
 import { cn, formatCurrency } from "@/lib/utils";
 import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
@@ -57,34 +57,29 @@ export function ProductTableRow({
   onToggle,
   translations,
 }: ProductTableRowProps) {
-  const router = useRouter();
-
   return (
     <tr
-      tabIndex={0}
-      onClick={() => router.push(`/products/${product.id}`)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          router.push(`/products/${product.id}`);
-        }
-      }}
       className={cn(
-        "group cursor-pointer transition-colors hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+        "group relative cursor-pointer transition-colors hover:bg-muted/50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary",
         isSelected && "bg-primary/5",
       )}
     >
-      <td
-        className="whitespace-nowrap px-4 py-3"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <input
-          type="checkbox"
-          checked={isSelected}
-          onChange={onToggle}
-          aria-label={`Select ${product.name}`}
-          className="h-4 w-4 rounded border-input"
+      <td className="whitespace-nowrap px-4 py-3">
+        {/* Native link covers entire row — tr position:relative makes this work */}
+        <Link
+          href={`/products/${product.id}`}
+          className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
+          aria-label={product.name}
         />
+        <span className="relative z-10">
+          <input
+            type="checkbox"
+            checked={isSelected}
+            onChange={onToggle}
+            aria-label={`Select ${product.name}`}
+            className="h-4 w-4 rounded border-input"
+          />
+        </span>
       </td>
       <td className="hidden whitespace-nowrap px-4 py-3 lg:table-cell">
         <span className="font-mono text-sm text-primary">
