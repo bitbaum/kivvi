@@ -3,9 +3,9 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getDocument } from "@kivvi/core";
 import { generateDonationReceiptPdf } from "@kivvi/core/src/domain/pdf-generation";
-import { companies, contacts, documentItems } from "@kivvi/database";
-import type { CompanySettings } from "@kivvi/database";
+import { contacts, documentItems } from "@kivvi/database";
 import { and, eq } from "drizzle-orm";
+import { getCompany } from "@kivvi/core/src/domain/companies";
 import Decimal from "decimal.js";
 import { logger } from "@/lib/logger";
 import {
@@ -47,14 +47,12 @@ export async function GET(
     }
 
     // Fetch company info
-    const company = await db.query.companies.findFirst({
-      where: eq(companies.id, companyId),
-    });
+    const company = await getCompany(db, companyId);
     if (!company) {
       return NextResponse.json({ error: "Company not found" }, { status: 500 });
     }
 
-    const settings = (company.settings as CompanySettings) || {};
+    const settings = company.settings || {};
 
     // Fetch donor contact
     const donorId = doc.donorId || doc.contactId;

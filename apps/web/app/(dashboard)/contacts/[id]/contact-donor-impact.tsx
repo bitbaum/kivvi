@@ -1,9 +1,7 @@
 import { Leaf, Recycle, PackageCheck } from "lucide-react";
-import { eq } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
 import { db } from "@/lib/db";
-import { companies } from "@kivvi/database";
-import type { CompanySettings } from "@kivvi/database";
+import { getCompanySettings } from "@kivvi/core/src/domain/companies";
 import { getImpactMetrics } from "@kivvi/core/src/domain/impact";
 import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
 import { CardSection } from "@/components/card-section";
@@ -20,12 +18,7 @@ export async function ContactDonorImpact({
   const t = await getTranslations("contacts");
   const ti = await getTranslations("inventory");
 
-  // Fetch company CO2 factor overrides
-  const company = await db.query.companies.findFirst({
-    where: eq(companies.id, companyId),
-    columns: { settings: true },
-  });
-  const settings = (company?.settings as CompanySettings) ?? {};
+  const settings = await getCompanySettings(db, companyId);
 
   const metrics = await getImpactMetrics(db, companyId, {
     donorContactId: contactId,

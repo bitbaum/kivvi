@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { companies } from "@kivvi/database";
-import type { CompanySettings } from "@kivvi/database";
-import { eq } from "drizzle-orm";
+import { getCompany } from "@kivvi/core/src/domain/companies";
 import {
   getImpactMetrics,
   getMonthlyBreakdown,
@@ -36,15 +34,12 @@ export async function GET(request: NextRequest) {
       endDate = new Date(year, 11, 31, 23, 59, 59);
     }
 
-    const company = await db.query.companies.findFirst({
-      where: eq(companies.id, companyId),
-      columns: { name: true, settings: true },
-    });
+    const company = await getCompany(db, companyId);
     if (!company) {
       return NextResponse.json({ error: "Company not found" }, { status: 404 });
     }
 
-    const settings = (company.settings as CompanySettings) ?? {};
+    const settings = company.settings ?? {};
     const opts = { startDate, endDate };
 
     // Fetch all data in parallel

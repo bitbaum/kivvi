@@ -24,15 +24,14 @@ import {
 } from "./skeletons";
 import { db } from "@/lib/db";
 import {
-  companies,
   contacts,
   documents,
   inventoryItems,
   users,
   bankAccounts,
 } from "@kivvi/database";
-import type { CompanySettings } from "@kivvi/database";
 import { eq, count } from "drizzle-orm";
+import { getCompany } from "@kivvi/core/src/domain/companies";
 import { OnboardingChecklist } from "./sections/onboarding-checklist";
 import { SampleDataBanner } from "./sections/sample-data-banner";
 
@@ -53,10 +52,7 @@ export default async function DashboardPage() {
     userCountResult,
     bankAccountResult,
   ] = await Promise.all([
-    db.query.companies.findFirst({
-      where: eq(companies.id, companyId),
-      columns: { createdAt: true, name: true, settings: true, slug: true },
-    }),
+    getCompany(db, companyId),
     db
       .select({ value: count() })
       .from(contacts)
@@ -88,7 +84,7 @@ export default async function DashboardPage() {
   const companyAgeDays = company?.createdAt
     ? Math.floor((Date.now() - company.createdAt.getTime()) / 86_400_000)
     : 999;
-  const settings = (company?.settings as CompanySettings) ?? {};
+  const settings = company?.settings ?? {};
   const checklistState = {
     hasIntake: (inventoryCountResult[0]?.value ?? 0) > 0,
     hasInvoice: documentCount > 0,

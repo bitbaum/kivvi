@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { eq, inArray } from "drizzle-orm";
+import { getCompany } from "@kivvi/core/src/domain/companies";
 import {
-  companies,
   contacts,
   contactAddresses,
   products,
@@ -48,7 +48,7 @@ export async function GET() {
 
   // Phase 1: Fetch all tables that have companyId directly
   const [
-    companyData,
+    companyRow,
     contactsData,
     productsData,
     groupsData,
@@ -62,7 +62,7 @@ export async function GET() {
     sequencesData,
     fiscalYearsData,
   ] = await Promise.all([
-    db.select().from(companies).where(eq(companies.id, companyId)),
+    getCompany(db, companyId),
     db.select().from(contacts).where(eq(contacts.companyId, companyId)),
     db.select().from(products).where(eq(products.companyId, companyId)),
     db
@@ -153,7 +153,7 @@ export async function GET() {
 
   const exportData = {
     exportedAt: new Date().toISOString(),
-    company: companyData[0] ?? null,
+    company: companyRow ?? null,
     contacts: contactsData,
     contactAddresses: addressesData,
     products: productsData,

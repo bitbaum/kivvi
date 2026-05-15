@@ -1,10 +1,8 @@
 import { ArrowLeft, Leaf, Recycle, Package } from "lucide-react";
 import Link from "next/link";
-import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { companies } from "@kivvi/database";
 import type { Metadata } from "next";
-import type { CompanySettings } from "@kivvi/database";
+import { getCompany } from "@kivvi/core/src/domain/companies";
 import { getSessionOrRedirect } from "@/lib/session";
 import { getTranslations } from "next-intl/server";
 import {
@@ -57,11 +55,8 @@ export default async function ImpactReportPage({ searchParams }: PageProps) {
       ? `${params.start} – ${params.end}`
       : tr("impactAllTime");
 
-  const company = await db.query.companies.findFirst({
-    where: eq(companies.id, companyId),
-    columns: { settings: true, name: true },
-  });
-  const settings = (company?.settings as CompanySettings) ?? {};
+  const company = await getCompany(db, companyId);
+  const settings = company?.settings ?? {};
   const co2FactorsKg = settings.co2FactorsKg;
 
   const dateRange = { startDate, endDate };

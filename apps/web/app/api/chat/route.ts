@@ -1,12 +1,7 @@
 // Chat API route
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import {
-  aiConversations,
-  aiMessages,
-  companies,
-  type CompanySettings,
-} from "@kivvi/database";
+import { aiConversations, aiMessages } from "@kivvi/database";
 import {
   ConversationEngine,
   createProviderWithFallback,
@@ -25,6 +20,7 @@ import {
   DEFAULT_CURRENCY,
   DEFAULT_LOCALE,
 } from "@kivvi/core/src/config/locale";
+import { getCompanySettings } from "@kivvi/core/src/domain/companies";
 import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
@@ -110,11 +106,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Load company settings for vertical and org profile
-    const company = await db.query.companies.findFirst({
-      where: eq(companies.id, session.user.companyId),
-      columns: { settings: true },
-    });
-    const settings = (company?.settings as CompanySettings) || {};
+    const settings = await getCompanySettings(db, session.user.companyId);
 
     // Determine provider and model — user selection > company settings > env fallback
     const selectedProvider = (providerId ||

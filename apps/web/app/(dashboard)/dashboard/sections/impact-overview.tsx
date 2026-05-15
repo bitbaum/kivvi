@@ -1,11 +1,9 @@
 import { Leaf, Recycle, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { eq } from "drizzle-orm";
 import { getSessionOrRedirect } from "@/lib/session";
 import { getTranslations } from "next-intl/server";
 import { db } from "@/lib/db";
-import { companies } from "@kivvi/database";
-import type { CompanySettings } from "@kivvi/database";
+import { getCompanySettings } from "@kivvi/core/src/domain/companies";
 import { getImpactMetrics } from "@kivvi/core/src/domain/impact";
 import { getChecklistTemplate } from "@kivvi/core/src/config/checklist-templates";
 import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
@@ -16,12 +14,7 @@ export async function ImpactOverview() {
   const tck = await getTranslations("checklist");
   const companyId = session.user.companyId;
 
-  // Fetch company CO2 factor overrides from settings
-  const company = await db.query.companies.findFirst({
-    where: eq(companies.id, companyId),
-    columns: { settings: true },
-  });
-  const settings = (company?.settings as CompanySettings) ?? {};
+  const settings = await getCompanySettings(db, companyId);
   const co2FactorsKg = settings.co2FactorsKg;
 
   const metrics = await getImpactMetrics(db, companyId, { co2FactorsKg });

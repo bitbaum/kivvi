@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { companies, users } from "@kivvi/database";
+import { users } from "@kivvi/database";
 import { eq } from "drizzle-orm";
+import { getCompany } from "@kivvi/core/src/domain/companies";
 import { getInventoryItem } from "@kivvi/core/src/domain/inventory-items";
 import { DATA_ERASURE_METHODS } from "@kivvi/core/src/config/checklist-templates";
 import {
@@ -43,10 +44,7 @@ export async function GET(
 
     // Fetch company info and erasing user in parallel
     const [company, erasedByUser] = await Promise.all([
-      db.query.companies.findFirst({
-        where: eq(companies.id, companyId),
-        columns: { name: true, address: true, city: true },
-      }),
+      getCompany(db, companyId),
       item.dataErasuredByUserId
         ? db.query.users.findFirst({
             where: eq(users.id, item.dataErasuredByUserId),
