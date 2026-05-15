@@ -677,6 +677,17 @@ export function getDocumentTypeConfig(type: DocumentType): DocumentTypeConfig {
   return config;
 }
 
+/** Maps intake source DB values to their documents-namespace translation keys. */
+export const INTAKE_SOURCE_LABEL_KEYS: Record<string, string> = {
+  donation: "intakeSourceDonation",
+  purchase: "intakeSourcePurchase",
+  trade_in: "intakeSourceTradeIn",
+  consignment: "intakeSourceConsignment",
+  estate_clearance: "intakeSourceEstate",
+  return: "intakeSourceReturn",
+  other: "intakeSourceOther",
+};
+
 /**
  * Get the filter status tabs shown on the list page for a document type.
  * Returns the most commonly used statuses for filtering.

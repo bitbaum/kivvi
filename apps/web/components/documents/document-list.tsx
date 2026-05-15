@@ -2,7 +2,11 @@ import { FileText, Plus, Search } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import type { DocumentTypeConfig } from "@/lib/config/document-types";
-import { getFilterStatuses, toCamelCase } from "@/lib/config/document-types";
+import {
+  getFilterStatuses,
+  toCamelCase,
+  INTAKE_SOURCE_LABEL_KEYS,
+} from "@/lib/config/document-types";
 import type { PaginatedResult } from "@kivvi/core";
 import type { DocumentListItem } from "@kivvi/core/src/domain/documents";
 import { documentStatusEnum } from "@kivvi/database";
@@ -10,16 +14,6 @@ import { SelectableDocumentTable } from "./selectable-document-table";
 import { cn, paginationRange } from "@/lib/utils";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
-
-const INTAKE_SOURCE_LABEL_KEYS: Record<string, string> = {
-  donation: "intakeSourceDonation",
-  purchase: "intakeSourcePurchase",
-  trade_in: "intakeSourceTradeIn",
-  consignment: "intakeSourceConsignment",
-  estate_clearance: "intakeSourceEstate",
-  return: "intakeSourceReturn",
-  other: "intakeSourceOther",
-};
 
 interface DocumentListProps {
   config: DocumentTypeConfig;

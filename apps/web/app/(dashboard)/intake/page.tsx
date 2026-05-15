@@ -4,7 +4,11 @@ import { getTranslations } from "next-intl/server";
 import { getSessionOrRedirect } from "@/lib/session";
 import { listDocuments, getInventoryItemCounts } from "@kivvi/core";
 import { db } from "@/lib/db";
-import { DOCUMENT_TYPES, DEFAULT_PAGE_SIZE } from "@/lib/config/document-types";
+import {
+  DOCUMENT_TYPES,
+  DEFAULT_PAGE_SIZE,
+  INTAKE_SOURCE_LABEL_KEYS,
+} from "@/lib/config/document-types";
 import { DocumentList } from "@/components/documents/document-list";
 import { cn } from "@/lib/utils";
 import type { DocumentStatus, IntakeSourceValue } from "@kivvi/database";
@@ -18,16 +22,6 @@ interface PageProps {
     page?: string;
   }>;
 }
-
-const INTAKE_SOURCE_LABEL_KEYS: Record<IntakeSourceValue, string> = {
-  donation: "intakeSourceDonation",
-  purchase: "intakeSourcePurchase",
-  trade_in: "intakeSourceTradeIn",
-  consignment: "intakeSourceConsignment",
-  estate_clearance: "intakeSourceEstate",
-  return: "intakeSourceReturn",
-  other: "intakeSourceOther",
-};
 
 export default async function IntakePage({ searchParams }: PageProps) {
   const session = await getSessionOrRedirect();
