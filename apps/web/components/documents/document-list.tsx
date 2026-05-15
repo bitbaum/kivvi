@@ -29,6 +29,20 @@ interface DocumentListProps {
   headerActions?: React.ReactNode;
   /** Optional extra filter row rendered below the search + status filters */
   secondaryFilters?: React.ReactNode;
+  /** Extra URL params to preserve in status pills, pagination, and search form */
+  preserveParams?: Record<string, string>;
+}
+
+/** Build a query string, dropping empty/undefined values */
+function qs(
+  params: Record<string, string | number | undefined | null>,
+): string {
+  const parts = Object.entries(params)
+    .filter(([, v]) => v !== undefined && v !== null && v !== "")
+    .map(
+      ([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`,
+    );
+  return parts.length ? `?${parts.join("&")}` : "";
 }
 
 export async function DocumentList({
@@ -38,6 +52,7 @@ export async function DocumentList({
   status,
   headerActions,
   secondaryFilters,
+  preserveParams,
 }: DocumentListProps) {
   const t = await getTranslations("documents");
   const ts = await getTranslations("status");
@@ -136,6 +151,10 @@ export async function DocumentList({
             className="w-full rounded-lg border bg-background py-2 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary"
           />
           {status && <input type="hidden" name="status" value={status} />}
+          {preserveParams &&
+            Object.entries(preserveParams).map(([k, v]) => (
+              <input key={k} type="hidden" name={k} value={v} />
+            ))}
         </form>
 
         <div className="flex gap-2">
@@ -143,8 +162,8 @@ export async function DocumentList({
             const isActive = s === "all" ? !status : status === s;
             const href =
               s === "all"
-                ? `${config.basePath}${search ? `?search=${search}` : ""}`
-                : `${config.basePath}?status=${s}${search ? `&search=${search}` : ""}`;
+                ? `${config.basePath}${qs({ search, ...preserveParams })}`
+                : `${config.basePath}${qs({ status: s, search, ...preserveParams })}`;
             return (
               <Link
                 key={s}
@@ -226,7 +245,7 @@ export async function DocumentList({
             {result.page > 1 && (
               <Button asChild variant="secondary">
                 <Link
-                  href={`${config.basePath}?page=${result.page - 1}${status ? `&status=${status}` : ""}${search ? `&search=${search}` : ""}`}
+                  href={`${config.basePath}${qs({ page: result.page - 1, status, search, ...preserveParams })}`}
                 >
                   {tc("previous")}
                 </Link>
@@ -235,7 +254,7 @@ export async function DocumentList({
             {result.page < result.totalPages && (
               <Button asChild variant="secondary">
                 <Link
-                  href={`${config.basePath}?page=${result.page + 1}${status ? `&status=${status}` : ""}${search ? `&search=${search}` : ""}`}
+                  href={`${config.basePath}${qs({ page: result.page + 1, status, search, ...preserveParams })}`}
                 >
                   {tc("next")}
                 </Link>

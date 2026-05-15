@@ -105,6 +105,7 @@ export default async function IntakePage({ searchParams }: PageProps) {
       search={search}
       status={status}
       secondaryFilters={sourceFilterPills}
+      preserveParams={intakeSource ? { intakeSource } : undefined}
       headerActions={
         <div className="flex items-center gap-2">
           <Link
