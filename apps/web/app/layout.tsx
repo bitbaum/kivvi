@@ -8,6 +8,7 @@ import { getLocale, getMessages } from "next-intl/server";
 import { Toaster } from "sonner";
 import { SentryUserContext } from "@/components/sentry-user-context";
 import { SITE_URL } from "@/lib/config/site";
+import { auth } from "@/lib/auth";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -64,6 +65,7 @@ export default async function RootLayout({
 }) {
   const locale = await getLocale();
   const messages = await getMessages();
+  const session = await auth();
 
   return (
     <html lang={locale} suppressHydrationWarning>
@@ -73,7 +75,7 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(ORGANIZATION_LD) }}
         />
         <NextIntlClientProvider messages={messages}>
-          <SessionProvider>
+          <SessionProvider session={session}>
             <ThemeProvider
               attribute="class"
               defaultTheme="system"
