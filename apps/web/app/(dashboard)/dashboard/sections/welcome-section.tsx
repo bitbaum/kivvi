@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Upload, UserPlus, FileText, X } from "lucide-react";
+import { Upload, UserPlus, PackagePlus, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 const DISMISS_KEY = "kivvi-welcome-dismissed";
@@ -37,6 +37,14 @@ export function WelcomeSection({
 
   const actions = [
     {
+      href: "/intake/quick",
+      icon: <PackagePlus className="h-7 w-7" />,
+      label: t("quickIntake"),
+      description: t("quickIntakeDesc"),
+      color: "text-primary",
+      bgColor: "bg-primary/10",
+    },
+    {
       href: "/onboarding",
       icon: <Upload className="h-7 w-7" />,
       label: t("importData"),
@@ -51,14 +59,6 @@ export function WelcomeSection({
       description: t("addContactDesc"),
       color: "text-success",
       bgColor: "bg-success/10",
-    },
-    {
-      href: "/sales/invoices/new",
-      icon: <FileText className="h-7 w-7" />,
-      label: t("createInvoice"),
-      description: t("createInvoiceDesc"),
-      color: "text-tag-purple",
-      bgColor: "bg-tag-purple/10",
     },
   ];
 

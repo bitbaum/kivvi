@@ -644,15 +644,15 @@
     },
     "aiAssistant": {
       "title": "Assistant IA",
-      "subtitle": "Demandez à Kivvi — votre IA analyse votre organisation",
-      "overdueInvoices": "Afficher les factures en retard",
+      "subtitle": "Interrogez Kivvi sur votre inventaire, réparations et ventes",
+      "repairQueue": "File de réparation",
+      "repairQueueQuery": "Quels articles sont actuellement dans la file de réparation ?",
+      "readyForSale": "Prêts à vendre",
+      "readyForSaleQuery": "Combien d'articles sont prêts à la vente et lesquels sont-ils ?",
+      "overdueInvoices": "Factures en retard",
       "overdueInvoicesQuery": "Montrez-moi toutes les factures en retard de plus de CHF 1000",
-      "revenueAnalysis": "Analyse du chiffre d'affaires",
-      "revenueAnalysisQuery": "Analysez l'évolution du chiffre d'affaires des 6 derniers mois",
-      "topCustomers": "Meilleurs clients",
-      "topCustomersQuery": "Quels sont mes 10 meilleurs clients par chiffre d'affaires ?",
-      "lowStock": "Stock faible",
-      "lowStockQuery": "Afficher les produits avec un stock faible",
+      "impactThisMonth": "Impact ce mois",
+      "impactThisMonthQuery": "Combien d'appareils avons-nous remis en état ce mois-ci et quel CO2 a été économisé ?",
       "openChat": "Ouvrir le chat"
     },
     "skipToMain": "Aller au contenu principal",
@@ -677,15 +677,15 @@
       "allGood": "Tout est en ordre — aucun élément en attente."
     },
     "welcome": {
-      "title": "Bienvenue sur Kivvi, {company} !",
-      "subtitle": "Configurons votre entreprise. Voici les meilleurs points de départ.",
+      "title": "Bienvenue sur Kivvi, {company} !",
+      "subtitle": "Commençons. Voici les meilleures premières étapes.",
+      "quickIntake": "Enregistrer votre premier article",
+      "quickIntakeDesc": "Saisir un appareil donné ou entrant pour démarrer votre inventaire",
       "importData": "Importer vos données",
       "importDataDesc": "Migrer depuis kivitendo ou un autre système via import CSV",
-      "addContact": "Ajouter votre premier contact",
-      "addContactDesc": "Ajouter un client ou fournisseur pour commencer à créer des documents",
-      "createInvoice": "Créer votre première facture",
-      "createInvoiceDesc": "Envoyer une facture professionnelle avec bulletin QR",
-      "dismiss": "Je vais explorer seul"
+      "addContact": "Ajouter un contact",
+      "addContactDesc": "Ajouter un client, donateur ou fournisseur",
+      "dismiss": "Je vais explorer par moi-même"
     },
     "onboardingChecklist": {
       "title": "Premiers pas avec Kivvi",

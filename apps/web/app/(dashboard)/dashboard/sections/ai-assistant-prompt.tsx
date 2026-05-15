@@ -1,29 +1,29 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { MessageSquare, Sparkles } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useRouter } from "next/navigation";
+import { MessageSquare, Sparkles } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export function AIAssistantPrompt() {
   const router = useRouter();
-  const t = useTranslations('dashboard.aiAssistant');
+  const t = useTranslations("dashboard.aiAssistant");
 
   const quickPrompts = [
     {
-      label: t('overdueInvoices'),
-      query: t('overdueInvoicesQuery'),
+      label: t("repairQueue"),
+      query: t("repairQueueQuery"),
     },
     {
-      label: t('revenueAnalysis'),
-      query: t('revenueAnalysisQuery'),
+      label: t("readyForSale"),
+      query: t("readyForSaleQuery"),
     },
     {
-      label: t('topCustomers'),
-      query: t('topCustomersQuery'),
+      label: t("overdueInvoices"),
+      query: t("overdueInvoicesQuery"),
     },
     {
-      label: t('lowStock'),
-      query: t('lowStockQuery'),
+      label: t("impactThisMonth"),
+      query: t("impactThisMonthQuery"),
     },
   ];
 
@@ -40,8 +40,8 @@ export function AIAssistantPrompt() {
         </div>
         <div className="flex-1 space-y-4">
           <div>
-            <h2 className="text-lg font-semibold">{t('title')}</h2>
-            <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
+            <h2 className="text-lg font-semibold">{t("title")}</h2>
+            <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
           </div>
 
           {/* Quick prompts */}
@@ -60,11 +60,11 @@ export function AIAssistantPrompt() {
 
           {/* Main CTA */}
           <button
-            onClick={() => router.push('/chat')}
+            onClick={() => router.push("/chat")}
             className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-primary px-6 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             <MessageSquare className="h-4 w-4" />
-            {t('openChat')}
+            {t("openChat")}
           </button>
         </div>
       </div>
