@@ -683,7 +683,7 @@
     },
     "sinceDate": "Since {date}",
     "narrative": {
-      "allGood": "Everything is in order — no open items."
+      "allGood": "No outstanding invoices or overdue payments."
     },
     "welcome": {
       "title": "Welcome to Kivvi, {company}!",

@@ -683,7 +683,7 @@
     },
     "sinceDate": "Depuis le {date}",
     "narrative": {
-      "allGood": "Tout est en ordre — aucun élément en attente."
+      "allGood": "Aucune facture en attente ni paiement en retard."
     },
     "welcome": {
       "title": "Bienvenue sur Kivvi, {company} !",

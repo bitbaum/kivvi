@@ -683,7 +683,7 @@
     },
     "sinceDate": "Seit {date}",
     "narrative": {
-      "allGood": "Alles im grünen Bereich — keine offenen Posten."
+      "allGood": "Keine offenen Rechnungen oder überfälligen Zahlungen."
     },
     "welcome": {
       "title": "Willkommen bei Kivvi, {company}!",

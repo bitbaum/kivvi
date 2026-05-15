@@ -88,9 +88,13 @@ export function CompanySwitcher({ tc }: CompanySwitcherProps) {
 
   useEffect(() => {
     async function loadMemberships() {
-      const result = await getMyMembershipsAction();
-      if (result.success && result.data) {
-        setMemberships(result.data);
+      try {
+        const result = await getMyMembershipsAction();
+        if (result?.success && result?.data) {
+          setMemberships(result.data);
+        }
+      } catch {
+        // Request cancelled during navigation — ignore
       }
     }
     if (session?.user?.id) loadMemberships();
