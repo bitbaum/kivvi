@@ -38,7 +38,7 @@ export function PosCart({ cart, onRemove }: PosCartProps) {
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={item.photoBase64}
-                  alt=""
+                  alt={item.description}
                   className="h-9 w-9 rounded object-cover shrink-0"
                 />
               ) : (

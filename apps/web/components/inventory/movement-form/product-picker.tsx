@@ -58,6 +58,7 @@ export function MovementProductPicker({
             type="button"
             variant="ghost"
             size="icon-sm"
+            aria-label={tc("clear")}
             onClick={() => {
               onSelect(null);
               setProductSearch("");

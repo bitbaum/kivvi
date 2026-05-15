@@ -5,7 +5,7 @@ import { Pagination } from "@/components/pagination";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { listStockMovements, listWarehouses, listProducts } from "@kivvi/core";
-import { formatDate, cn } from "@/lib/utils";
+import { formatDate, cn, paginationRange } from "@/lib/utils";
 import { getTranslations } from "next-intl/server";
 import {
   getMovementTypeLabels,
@@ -217,8 +217,6 @@ export default async function MovementsPage({ searchParams }: PageProps) {
             <Pagination
               page={movements.page}
               totalPages={movements.totalPages}
-              total={movements.total}
-              pageSize={movements.pageSize}
               buildHref={(p) =>
                 buildFilterUrl({
                   warehouseId: warehouseFilter,
@@ -227,14 +225,14 @@ export default async function MovementsPage({ searchParams }: PageProps) {
                 })
               }
               labels={{
-                showing: tc("showing", {
-                  from: (movements.page - 1) * movements.pageSize + 1,
-                  to: Math.min(
-                    movements.page * movements.pageSize,
+                showing: tc(
+                  "showing",
+                  paginationRange(
+                    movements.page,
+                    movements.pageSize,
                     movements.total,
                   ),
-                  total: movements.total,
-                }),
+                ),
                 previous: tc("previous"),
                 next: tc("next"),
                 pageOf: tc("pageOf", {

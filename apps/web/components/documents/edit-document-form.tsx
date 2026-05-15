@@ -45,6 +45,7 @@ export function EditDocumentForm({
   const router = useRouter();
   const t = useTranslations("documents");
   const tc = useTranslations("common");
+  const tPriceLists = useTranslations("priceLists");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -60,10 +61,12 @@ export function EditDocumentForm({
   const [items, setItems] = useState<LineItem[]>(initialData.items);
   const [priceLists, setPriceLists] = useState<PriceList[]>([]);
   useEffect(() => {
-    listPriceListsAction().then((r) => {
-      if (r.success && r.data) setPriceLists(r.data);
-    });
-  }, []);
+    listPriceListsAction()
+      .then((r) => {
+        if (r.success && r.data) setPriceLists(r.data);
+      })
+      .catch(() => toast.error(tPriceLists("errorFailedToLoad")));
+  }, [tPriceLists]);
 
   const addItem = () =>
     setItems([

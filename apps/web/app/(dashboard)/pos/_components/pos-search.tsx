@@ -60,7 +60,7 @@ export function PosSearch({
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={item.photoBase64}
-                  alt=""
+                  alt={item.description}
                   className="h-10 w-10 rounded object-cover shrink-0"
                 />
               ) : (

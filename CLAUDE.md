@@ -612,6 +612,156 @@ Before writing code, verify:
 
 ---
 
+## Design System
+
+**File**: `apps/web/app/globals.css` — SSOT for all design tokens.
+**Tailwind config**: `apps/web/tailwind.config.ts`
+**UI library**: shadcn/ui (built on `@radix-ui/*` primitives). Components live in `apps/web/components/ui/`. Tokens follow the shadcn HSL-channel convention.
+
+### CSS Custom Properties (from `globals.css`)
+
+All values are expressed as HSL channels (without the `hsl()` wrapper) so Tailwind can compose them with opacity modifiers.
+
+**Light mode (`:root`):**
+
+```css
+--background: 0 0% 100%;
+--foreground: 150 10% 8%;
+--card: 0 0% 100%;
+--card-foreground: 150 10% 8%;
+--popover: 0 0% 100%;
+--popover-foreground: 150 10% 8%;
+--primary: 152 76% 36%;
+--primary-foreground: 0 0% 100%;
+--secondary: 150 20% 96%;
+--secondary-foreground: 150 10% 12%;
+--muted: 150 20% 96%;
+--muted-foreground: 150 10% 45%;
+--accent: 150 20% 96%;
+--accent-foreground: 150 10% 12%;
+--destructive: 0 84.2% 60.2%;
+--destructive-foreground: 210 40% 98%;
+--border: 150 15% 90%;
+--input: 150 15% 90%;
+--ring: 152 76% 36%;
+--radius: 0.5rem;
+
+/* Brand gradient (used via .brand-gradient / .brand-gradient-text utilities) */
+--brand-from: #10b981;
+--brand-to: #059669;
+
+/* Semantic status colours — SSOT for all status/context indicators */
+--success: 142 70% 32%;
+--success-foreground: 0 0% 100%;
+--warning: 38 85% 38%;
+--warning-foreground: 0 0% 100%;
+--info: 217 75% 45%;
+--info-foreground: 0 0% 100%;
+--neutral: 220 15% 42%;
+--neutral-foreground: 0 0% 100%;
+--tag-purple: 271 70% 45%;
+--tag-purple-foreground: 0 0% 100%;
+--tag-rose: 347 75% 45%;
+--tag-rose-foreground: 0 0% 100%;
+```
+
+**Dark mode (`.dark`):**
+
+```css
+--background: 150 15% 5%;
+--foreground: 150 10% 96%;
+--card: 150 15% 5%;
+--card-foreground: 150 10% 96%;
+--popover: 150 15% 5%;
+--popover-foreground: 150 10% 96%;
+--primary: 152 60% 48%;
+--primary-foreground: 150 15% 5%;
+--secondary: 150 15% 14%;
+--secondary-foreground: 150 10% 96%;
+--muted: 150 15% 14%;
+--muted-foreground: 150 10% 60%;
+--accent: 150 15% 14%;
+--accent-foreground: 150 10% 96%;
+--destructive: 0 62.8% 30.6%;
+--destructive-foreground: 210 40% 98%;
+--border: 150 15% 14%;
+--input: 150 15% 14%;
+--ring: 152 60% 48%;
+
+--brand-from: #34d399;
+--brand-to: #10b981;
+
+--success: 142 55% 50%;
+--success-foreground: 142 70% 8%;
+--warning: 38 80% 55%;
+--warning-foreground: 38 85% 8%;
+--info: 217 70% 60%;
+--info-foreground: 217 75% 8%;
+--neutral: 220 15% 60%;
+--neutral-foreground: 220 15% 8%;
+--tag-purple: 271 65% 62%;
+--tag-purple-foreground: 271 70% 8%;
+--tag-rose: 347 70% 60%;
+--tag-rose-foreground: 347 75% 8%;
+```
+
+### Tailwind Config (clean — all CSS vars, no literal values)
+
+Every color maps to `hsl(var(--name))`. Border radius maps to `var(--radius)`. No violations in config.
+
+```ts
+colors: {
+  border: 'hsl(var(--border))',        input: 'hsl(var(--input))',
+  ring: 'hsl(var(--ring))',            background: 'hsl(var(--background))',
+  foreground: 'hsl(var(--foreground))',
+  primary: { DEFAULT: 'hsl(var(--primary))', foreground: 'hsl(var(--primary-foreground))' },
+  secondary: { DEFAULT: 'hsl(var(--secondary))', foreground: 'hsl(var(--secondary-foreground))' },
+  destructive: { DEFAULT: 'hsl(var(--destructive))', foreground: 'hsl(var(--destructive-foreground))' },
+  muted: { DEFAULT: 'hsl(var(--muted))', foreground: 'hsl(var(--muted-foreground))' },
+  accent: { DEFAULT: 'hsl(var(--accent))', foreground: 'hsl(var(--accent-foreground))' },
+  popover: { DEFAULT: 'hsl(var(--popover))', foreground: 'hsl(var(--popover-foreground))' },
+  card: { DEFAULT: 'hsl(var(--card))', foreground: 'hsl(var(--card-foreground))' },
+  success: { DEFAULT: 'hsl(var(--success))', foreground: 'hsl(var(--success-foreground))' },
+  warning: { DEFAULT: 'hsl(var(--warning))', foreground: 'hsl(var(--warning-foreground))' },
+  info: { DEFAULT: 'hsl(var(--info))', foreground: 'hsl(var(--info-foreground))' },
+  neutral: { DEFAULT: 'hsl(var(--neutral))', foreground: 'hsl(var(--neutral-foreground))' },
+  'tag-purple': { DEFAULT: 'hsl(var(--tag-purple))', foreground: 'hsl(var(--tag-purple-foreground))' },
+  'tag-rose': { DEFAULT: 'hsl(var(--tag-rose))', foreground: 'hsl(var(--tag-rose-foreground))' },
+},
+borderRadius: {
+  lg: 'var(--radius)',
+  md: 'calc(var(--radius) - 2px)',
+  sm: 'calc(var(--radius) - 4px)',
+},
+```
+
+### Status Badge Pattern
+
+```tsx
+// Light badge (most common)
+<span className="bg-success/10 text-success">Paid</span>
+<span className="bg-warning/10 text-warning">Pending</span>
+<span className="bg-destructive/10 text-destructive">Overdue</span>
+
+// Solid badge
+<span className="bg-success text-success-foreground">Paid</span>
+```
+
+### SSOT Rule
+
+All design tokens live in the main CSS file only. Tailwind config MUST reference CSS vars (`'hsl(var(--name))'`), never literal values. Components MUST use semantic Tailwind classes, never arbitrary values like `bg-[#hex]`.
+
+**Violations to fix when touching UI:**
+
+- `bg-[#hex]` / `text-[#hex]` in className → CSS var + semantic class
+- `style={{ color: '#hex' }}` → CSS var + className
+- Literal hex in tailwind.config → `'var(--color-name)'`
+- Same token defined in 2+ files → consolidate to main CSS file
+
+**Audit:** `grep -r '\[#' src/` — every result is a violation.
+
+---
+
 ## Red Flags
 
 Stop and reconsider if you see:

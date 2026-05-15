@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Search, BookOpen } from "lucide-react";
 import { getTranslations } from "next-intl/server";
-import { formatDate, cn } from "@/lib/utils";
+import { formatDate, cn, paginationRange } from "@/lib/utils";
 import { Pagination } from "@/components/pagination";
 import { EmptyState } from "@/components/empty-state";
 import { SOURCE_TYPE_STYLES, getSourceTypeLabels } from "@/lib/config/journal";
@@ -109,15 +109,12 @@ export async function JournalEntriesTable({
           <Pagination
             page={result.page}
             totalPages={result.totalPages}
-            total={result.total}
-            pageSize={result.pageSize}
             buildHref={buildPageUrl}
             labels={{
-              showing: tc("showing", {
-                from: (result.page - 1) * result.pageSize + 1,
-                to: Math.min(result.page * result.pageSize, result.total),
-                total: result.total,
-              }),
+              showing: tc(
+                "showing",
+                paginationRange(result.page, result.pageSize, result.total),
+              ),
               previous: tc("previous"),
               next: tc("next"),
               pageOf: tc("pageOf", {

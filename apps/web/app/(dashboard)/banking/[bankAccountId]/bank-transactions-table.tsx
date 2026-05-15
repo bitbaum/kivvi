@@ -2,7 +2,7 @@ import Link from "next/link";
 import { CheckCircle2, AlertCircle, FileText } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Pagination } from "@/components/pagination";
-import { formatCurrency, formatDate, cn } from "@/lib/utils";
+import { formatCurrency, formatDate, cn, paginationRange } from "@/lib/utils";
 import { DOCUMENT_TYPES } from "@/lib/config/document-types";
 import type { DocumentType } from "@kivvi/database";
 import { ReconcileButton } from "./reconcile-button";
@@ -135,18 +135,16 @@ export async function BankTransactionsTable({
       <Pagination
         page={transactions.page}
         totalPages={transactions.totalPages}
-        total={transactions.total}
-        pageSize={transactions.pageSize}
         buildHref={buildPageUrl}
         labels={{
-          showing: tc("showing", {
-            from: (transactions.page - 1) * transactions.pageSize + 1,
-            to: Math.min(
-              transactions.page * transactions.pageSize,
+          showing: tc(
+            "showing",
+            paginationRange(
+              transactions.page,
+              transactions.pageSize,
               transactions.total,
             ),
-            total: transactions.total,
-          }),
+          ),
           previous: tc("previous"),
           next: tc("next"),
           pageOf: tc("pageOf", {

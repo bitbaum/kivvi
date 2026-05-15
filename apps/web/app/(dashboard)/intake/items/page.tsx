@@ -207,8 +207,6 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
               <Pagination
                 page={result.page}
                 totalPages={result.totalPages}
-                total={result.total}
-                pageSize={result.pageSize}
                 buildHref={(p) => buildHref({ page: String(p) })}
                 labels={{
                   showing: t("showing"),

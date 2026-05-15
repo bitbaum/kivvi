@@ -9,6 +9,7 @@ import { products } from "@kivvi/database";
 import { count, and, eq, sql } from "drizzle-orm";
 import { DEFAULT_PAGE_SIZE } from "@/lib/config/document-types";
 import { getProductTypeLabels } from "@/lib/config/products";
+import { paginationRange } from "@/lib/utils";
 import { PageHeader } from "@/components/page-header";
 import { SelectableProductTable } from "@/components/products/selectable-product-table";
 import { Pagination } from "@/components/pagination";
@@ -230,15 +231,12 @@ export default async function ProductsPage({ searchParams }: PageProps) {
             <Pagination
               page={result.page}
               totalPages={result.totalPages}
-              total={result.total}
-              pageSize={result.pageSize}
               buildHref={buildPageUrl}
               labels={{
-                showing: tc("showing", {
-                  from: (result.page - 1) * result.pageSize + 1,
-                  to: Math.min(result.page * result.pageSize, result.total),
-                  total: result.total,
-                }),
+                showing: tc(
+                  "showing",
+                  paginationRange(result.page, result.pageSize, result.total),
+                ),
                 previous: tc("previous"),
                 next: tc("next"),
                 pageOf: tc("pageOf", {

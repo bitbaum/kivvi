@@ -7,7 +7,7 @@ import type { PaginatedResult } from "@kivvi/core";
 import type { DocumentListItem } from "@kivvi/core/src/domain/documents";
 import { documentStatusEnum } from "@kivvi/database";
 import { SelectableDocumentTable } from "./selectable-document-table";
-import { cn } from "@/lib/utils";
+import { cn, paginationRange } from "@/lib/utils";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 
@@ -193,23 +193,26 @@ export async function DocumentList({
       {result.totalPages > 1 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            {tc("showing", {
-              from: (result.page - 1) * result.pageSize + 1,
-              to: Math.min(result.page * result.pageSize, result.total),
-              total: result.total,
-            })}
+            {tc(
+              "showing",
+              paginationRange(result.page, result.pageSize, result.total),
+            )}
           </p>
           <div className="flex gap-2">
             {result.page > 1 && (
               <Button asChild variant="secondary">
-                <Link href={`${config.basePath}?page=${result.page - 1}${status ? `&status=${status}` : ""}${search ? `&search=${search}` : ""}`}>
+                <Link
+                  href={`${config.basePath}?page=${result.page - 1}${status ? `&status=${status}` : ""}${search ? `&search=${search}` : ""}`}
+                >
                   {tc("previous")}
                 </Link>
               </Button>
             )}
             {result.page < result.totalPages && (
               <Button asChild variant="secondary">
-                <Link href={`${config.basePath}?page=${result.page + 1}${status ? `&status=${status}` : ""}${search ? `&search=${search}` : ""}`}>
+                <Link
+                  href={`${config.basePath}?page=${result.page + 1}${status ? `&status=${status}` : ""}${search ? `&search=${search}` : ""}`}
+                >
                   {tc("next")}
                 </Link>
               </Button>

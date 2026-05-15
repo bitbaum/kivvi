@@ -39,7 +39,7 @@ export function ItemLabel({
       : null;
   return (
     <div
-      className="flex items-center gap-2 border border-gray-300 p-2"
+      className="flex items-center gap-2 border border-border p-2"
       style={{ width: "63.5mm", height: "38.1mm", pageBreakInside: "avoid" }}
     >
       {/* QR code */}
@@ -56,7 +56,7 @@ export function ItemLabel({
           <div className="text-[11pt] font-bold leading-tight">
             {itemNumber}
           </div>
-          <div className="mt-0.5 line-clamp-2 text-[7pt] leading-tight text-gray-700">
+          <div className="mt-0.5 line-clamp-2 text-[7pt] leading-tight text-foreground">
             {description}
           </div>
         </div>

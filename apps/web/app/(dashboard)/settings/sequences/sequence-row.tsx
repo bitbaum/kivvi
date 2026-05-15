@@ -94,7 +94,7 @@ export function SequenceRow({ sequence, typeLabel }: SequenceRowProps) {
               min={1}
               className={cn(
                 "w-full rounded-lg border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary",
-                showWarning && "border-yellow-500",
+                showWarning && "border-warning",
               )}
             />
           </div>

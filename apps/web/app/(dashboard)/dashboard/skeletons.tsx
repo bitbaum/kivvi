@@ -119,7 +119,7 @@ export function RecentActivitySkeleton() {
 
 export function AIAssistantSkeleton() {
   return (
-    <div className="rounded-xl border bg-gradient-to-br from-emerald-50 to-green-50 p-6 dark:from-emerald-950/20 dark:to-green-950/20">
+    <div className="rounded-xl border bg-gradient-to-br from-primary/5 to-primary/10 p-6">
       <div className="flex items-center gap-3">
         <Skeleton className="h-12 w-12 rounded-full" />
         <div className="flex-1">

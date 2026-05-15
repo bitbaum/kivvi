@@ -12,6 +12,7 @@ import {
   PointerSensor,
 } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import { toast } from "sonner";
 import { createDocumentAction } from "@/app/actions/documents";
 import { listPriceListsAction } from "@/app/actions/pricing";
 import { DOCUMENT_TYPES } from "@/lib/config/document-types";
@@ -36,6 +37,7 @@ export function DocumentForm({ type }: DocumentFormProps) {
   const searchParams = useSearchParams();
   const t = useTranslations("documents");
   const tc = useTranslations("common");
+  const tPriceLists = useTranslations("priceLists");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const isIntake = type === "intake";
@@ -64,10 +66,12 @@ export function DocumentForm({ type }: DocumentFormProps) {
   // Fetch price lists for the optional price-list apply slot
   const [priceLists, setPriceLists] = useState<PriceList[]>([]);
   useEffect(() => {
-    listPriceListsAction().then((r) => {
-      if (r.success && r.data) setPriceLists(r.data);
-    });
-  }, []);
+    listPriceListsAction()
+      .then((r) => {
+        if (r.success && r.data) setPriceLists(r.data);
+      })
+      .catch(() => toast.error(tPriceLists("errorFailedToLoad")));
+  }, [tPriceLists]);
 
   const handleSubmit = useCallback(async () => {
     setError(null);

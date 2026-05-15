@@ -501,22 +501,19 @@ export const listInventoryItemsAction = createAction<
   minRole: "member",
 });
 
-export async function getInventoryItemAction(
-  itemId: string,
-): Promise<ActionResult<Awaited<ReturnType<typeof getInventoryItem>>>> {
-  const t = await getTranslations("inventory");
-  try {
-    const { companyId } = await requireRole("member");
+export const getInventoryItemAction = createAction<
+  string,
+  NonNullable<Awaited<ReturnType<typeof getInventoryItem>>>
+>({
+  handler: async (itemId, { companyId, db }) => {
     const item = await getInventoryItem(db, companyId, itemId);
-    if (!item) return { success: false, error: t("errorItemNotFound") };
-    return { success: true, data: item };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorFailedToGet")),
-    };
-  }
-}
+    if (!item) throw new Error("Item not found");
+    return item;
+  },
+  errorMessage: () =>
+    getTranslations("inventory").then((t) => t("errorFailedToGet")),
+  minRole: "member",
+});
 
 // ============================================================================
 // CHECKLIST

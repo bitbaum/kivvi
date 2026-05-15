@@ -103,7 +103,7 @@ export function ModelSelector({
             (models.length === 0 ? t("aiModel") : t("selectModel"))}
         </span>
         {selected?.isFree && (
-          <span className="rounded bg-success/50/20 px-1.5 py-0.5 text-xs font-medium text-success">
+          <span className="rounded bg-success/10 px-1.5 py-0.5 text-xs font-medium text-success">
             {t("free")}
           </span>
         )}
@@ -139,7 +139,7 @@ export function ModelSelector({
                         <div className="flex items-center gap-2">
                           <span className="truncate">{model.name}</span>
                           {model.isFree && (
-                            <span className="rounded bg-success/50/20 px-1.5 py-0.5 text-xs font-medium text-success">
+                            <span className="rounded bg-success/10 px-1.5 py-0.5 text-xs font-medium text-success">
                               {t("free")}
                             </span>
                           )}

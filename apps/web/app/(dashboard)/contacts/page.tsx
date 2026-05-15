@@ -6,6 +6,7 @@ import { count, eq, and, gte } from "drizzle-orm";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { contacts } from "@kivvi/database";
+import { paginationRange } from "@/lib/utils";
 import { listContacts } from "@kivvi/core";
 import { DEFAULT_PAGE_SIZE } from "@/lib/config/document-types";
 import { getContactTypeLabels } from "@/lib/config/contact-types";
@@ -251,15 +252,12 @@ export default async function ContactsPage({
             <Pagination
               page={result.page}
               totalPages={result.totalPages}
-              total={result.total}
-              pageSize={result.pageSize}
               buildHref={buildPageUrl}
               labels={{
-                showing: tc("showing", {
-                  from: (result.page - 1) * result.pageSize + 1,
-                  to: Math.min(result.page * result.pageSize, result.total),
-                  total: result.total,
-                }),
+                showing: tc(
+                  "showing",
+                  paginationRange(result.page, result.pageSize, result.total),
+                ),
                 previous: tc("previous"),
                 next: tc("next"),
                 pageOf: tc("pageOf", {

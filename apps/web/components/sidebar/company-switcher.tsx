@@ -67,12 +67,7 @@ function CreateCompanyForm({
         >
           {creating ? tc("creatingOrganization") : tc("create")}
         </Button>
-        <Button
-          type="button"
-          variant="secondary"
-          size="sm"
-          onClick={onCancel}
-        >
+        <Button type="button" variant="secondary" size="sm" onClick={onCancel}>
           ✕
         </Button>
       </div>
@@ -128,6 +123,7 @@ export function CompanySwitcher({ tc }: CompanySwitcherProps) {
           className="flex w-full items-center gap-3 rounded-lg bg-muted p-3 text-left hover:bg-muted/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           aria-label={tc("aria.switchCompany")}
           aria-expanded={companySwitcherOpen}
+          aria-haspopup="listbox"
         >
           <Building2
             className="h-5 w-5 text-muted-foreground"

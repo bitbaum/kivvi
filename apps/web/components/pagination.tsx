@@ -4,8 +4,6 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 interface PaginationProps {
   page: number;
   totalPages: number;
-  total: number;
-  pageSize: number;
   buildHref: (page: number) => string;
   labels: {
     showing: string;
@@ -18,24 +16,14 @@ interface PaginationProps {
 export function Pagination({
   page,
   totalPages,
-  total,
-  pageSize,
   buildHref,
   labels,
 }: PaginationProps) {
   if (totalPages <= 1) return null;
 
-  const from = (page - 1) * pageSize + 1;
-  const to = Math.min(page * pageSize, total);
-
   return (
     <div className="flex items-center justify-between border-t px-6 py-4">
-      <p className="text-sm text-muted-foreground">
-        {labels.showing
-          .replace("{from}", String(from))
-          .replace("{to}", String(to))
-          .replace("{total}", String(total))}
-      </p>
+      <p className="text-sm text-muted-foreground">{labels.showing}</p>
       <div className="flex items-center gap-2">
         {page > 1 ? (
           <Link

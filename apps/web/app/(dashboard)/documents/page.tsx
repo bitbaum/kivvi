@@ -9,9 +9,8 @@ import {
   toCamelCase,
   COMMON_FILTER_STATUSES,
 } from "@/lib/config/document-types";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, cn, paginationRange } from "@/lib/utils";
 import { getTranslations } from "next-intl/server";
-import { cn } from "@/lib/utils";
 import { SearchInput } from "@/components/search-input";
 import { DateRangeFilter } from "@/components/date-range-filter";
 import { Pagination } from "@/components/pagination";
@@ -263,15 +262,12 @@ export default async function DocumentsPage({ searchParams }: PageProps) {
       <Pagination
         page={result.page}
         totalPages={result.totalPages}
-        total={result.total}
-        pageSize={result.pageSize}
         buildHref={(p) => buildHref({ page: p > 1 ? String(p) : undefined })}
         labels={{
-          showing: tc("showing", {
-            from: (result.page - 1) * result.pageSize + 1,
-            to: Math.min(result.page * result.pageSize, result.total),
-            total: result.total,
-          }),
+          showing: tc(
+            "showing",
+            paginationRange(result.page, result.pageSize, result.total),
+          ),
           previous: tc("previous"),
           next: tc("next"),
           pageOf: tc("pageOf", {

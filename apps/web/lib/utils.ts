@@ -54,3 +54,16 @@ export function formatDate(date: Date | string): string {
   const d = typeof date === "string" ? new Date(date) : date;
   return new Intl.DateTimeFormat(DEFAULT_LOCALE).format(d);
 }
+
+/** Returns the {from, to, total} values for a pagination "Showing X-Y of Z" label. */
+export function paginationRange(
+  page: number,
+  pageSize: number,
+  total: number,
+): { from: number; to: number; total: number } {
+  return {
+    from: (page - 1) * pageSize + 1,
+    to: Math.min(page * pageSize, total),
+    total,
+  };
+}

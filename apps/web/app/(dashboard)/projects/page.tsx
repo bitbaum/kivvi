@@ -4,7 +4,7 @@ import { EmptyState } from "@/components/empty-state";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { listProjects } from "@kivvi/core";
-import { cn, formatCurrency, formatDate } from "@/lib/utils";
+import { cn, formatCurrency, formatDate, paginationRange } from "@/lib/utils";
 import { getTranslations } from "next-intl/server";
 import {
   PROJECT_STATUS_STYLES as STATUS_STYLES,
@@ -197,17 +197,14 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
             <Pagination
               page={result.page}
               totalPages={result.totalPages}
-              total={result.total}
-              pageSize={result.pageSize}
               buildHref={(p) =>
                 buildFilterUrl({ search, status: statusFilter, page: p })
               }
               labels={{
-                showing: tc("showing", {
-                  from: (result.page - 1) * result.pageSize + 1,
-                  to: Math.min(result.page * result.pageSize, result.total),
-                  total: result.total,
-                }),
+                showing: tc(
+                  "showing",
+                  paginationRange(result.page, result.pageSize, result.total),
+                ),
                 previous: tc("previous"),
                 next: tc("next"),
                 pageOf: tc("pageOf", {

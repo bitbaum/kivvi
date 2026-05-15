@@ -17,7 +17,6 @@ import {
   updatePriceRuleSchema,
   resolvePriceForProduct,
 } from "@kivvi/core";
-import { type ActionResult, requireRole, safeErrorMessage } from "./utils";
 import { getTranslations } from "next-intl/server";
 import type { PriceList } from "@kivvi/database";
 import type { PriceListWithRules } from "@kivvi/core/src/domain/pricing";
@@ -34,22 +33,16 @@ export const listPriceListsAction = createAction<void, PriceList[]>({
   minRole: "member",
 });
 
-export async function getPriceListAction(
-  id: string,
-): Promise<ActionResult<PriceListWithRules>> {
-  const t = await getTranslations("priceLists");
-  try {
-    const { companyId } = await requireRole("member");
+export const getPriceListAction = createAction<string, PriceListWithRules>({
+  handler: async (id, { companyId, db }) => {
     const list = await getPriceList(db, companyId, id);
-    if (!list) return { success: false, error: t("errorNotFound") };
-    return { success: true, data: list };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorFailedToLoad")),
-    };
-  }
-}
+    if (!list) throw new Error("Price list not found");
+    return list;
+  },
+  errorMessage: () =>
+    getTranslations("priceLists").then((t) => t("errorFailedToLoad")),
+  minRole: "member",
+});
 
 export const createPriceListAction = createAction<unknown, { id: string }>({
   handler: async (input, { companyId, db }) => {
