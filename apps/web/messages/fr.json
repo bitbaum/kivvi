@@ -434,7 +434,7 @@
       "afternoon": "Bon après-midi",
       "evening": "Bonsoir"
     },
-    "hereIsOverview": "Voici un aperçu de votre organisation.",
+    "hereIsOverview": "Voici ce qui se passe dans votre entreprise.",
     "revenueThisMonth": "Chiffre d'affaires ce mois",
     "openInvoices": "Factures ouvertes",
     "overdueInvoices": "Factures en retard",
@@ -498,7 +498,7 @@
     },
     "workflow": {
       "title": "Suggestions de flux",
-      "subtitle": "Prochaines étapes recommandées pour vos documents",
+      "subtitle": "Documents et tâches en attente de votre action",
       "noSuggestions": "Aucune suggestion",
       "checkBackLater": "Revenez plus tard.",
       "highPriority": "Élevée",
@@ -519,14 +519,14 @@
     },
     "activity": {
       "title": "Activité récente",
-      "subtitle": "Dernières modifications dans votre organisation",
+      "subtitle": "Activité inventaire, réparations et facturation",
       "justNow": "À l'instant",
       "minutesAgo": "il y a {count} minutes",
       "hoursAgo": "il y a {count} heures",
       "daysAgo": "il y a {count} jours",
       "weeksAgo": "il y a {count} semaines",
       "noActivity": "Aucune activité",
-      "noActivityDesc": "Il n'y a pas encore d'activité dans votre organisation.",
+      "noActivityDesc": "Commencez par enregistrer votre premier article dans Réception.",
       "loadError": "Impossible de charger l'activité récente. Veuillez actualiser la page.",
       "quote": {
         "draft": "Devis créé",

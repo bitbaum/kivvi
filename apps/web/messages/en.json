@@ -434,7 +434,7 @@
       "afternoon": "Good afternoon",
       "evening": "Good evening"
     },
-    "hereIsOverview": "Here's an overview of your organization.",
+    "hereIsOverview": "Here is what is happening in your business.",
     "revenueThisMonth": "Revenue this month",
     "openInvoices": "Open Invoices",
     "overdueInvoices": "Overdue Invoices",
@@ -498,7 +498,7 @@
     },
     "workflow": {
       "title": "Workflow Suggestions",
-      "subtitle": "Recommended next steps for your documents",
+      "subtitle": "Documents and tasks awaiting your action",
       "noSuggestions": "No suggestions",
       "checkBackLater": "Check back later.",
       "highPriority": "High",
@@ -519,14 +519,14 @@
     },
     "activity": {
       "title": "Recent Activity",
-      "subtitle": "Latest changes in your organization",
+      "subtitle": "Inventory, repairs, and billing activity",
       "justNow": "Just now",
       "minutesAgo": "{count} minutes ago",
       "hoursAgo": "{count} hours ago",
       "daysAgo": "{count} days ago",
       "weeksAgo": "{count} weeks ago",
       "noActivity": "No activity",
-      "noActivityDesc": "There's no activity in your organization yet.",
+      "noActivityDesc": "Start by receiving your first item in Intake.",
       "loadError": "Unable to load recent activity. Please refresh the page.",
       "quote": {
         "draft": "Quote created",

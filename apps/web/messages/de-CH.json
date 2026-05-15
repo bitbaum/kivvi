@@ -434,7 +434,7 @@
       "afternoon": "Guten Tag",
       "evening": "Guten Abend"
     },
-    "hereIsOverview": "Hier ist die Übersicht Ihrer Organisation.",
+    "hereIsOverview": "Hier ist, was in Ihrem Betrieb gerade läuft.",
     "revenueThisMonth": "Umsatz diesen Monat",
     "openInvoices": "Offene Rechnungen",
     "overdueInvoices": "Überfällige Rechnungen",
@@ -498,7 +498,7 @@
     },
     "workflow": {
       "title": "Workflow-Vorschläge",
-      "subtitle": "Empfohlene nächste Schritte für Ihre Dokumente",
+      "subtitle": "Dokumente und Aufgaben, die Ihre Aufmerksamkeit benötigen",
       "noSuggestions": "Keine Vorschläge",
       "checkBackLater": "Schauen Sie später wieder vorbei.",
       "highPriority": "Hoch",
@@ -519,14 +519,14 @@
     },
     "activity": {
       "title": "Letzte Aktivitäten",
-      "subtitle": "Neueste Änderungen in Ihrer Organisation",
+      "subtitle": "Lager-, Reparatur- und Buchhaltungsaktivitäten",
       "justNow": "Gerade eben",
       "minutesAgo": "vor {count} Minuten",
       "hoursAgo": "vor {count} Stunden",
       "daysAgo": "vor {count} Tagen",
       "weeksAgo": "vor {count} Wochen",
       "noActivity": "Keine Aktivitäten",
-      "noActivityDesc": "Es gibt noch keine Aktivitäten in Ihrer Organisation.",
+      "noActivityDesc": "Erfassen Sie Ihren ersten Artikel unter Wareneingang.",
       "loadError": "Letzte Aktivitäten konnten nicht geladen werden. Bitte aktualisieren Sie die Seite.",
       "quote": {
         "draft": "Angebot erstellt",
