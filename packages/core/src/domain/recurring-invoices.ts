@@ -1,9 +1,10 @@
 import { z } from "zod";
-import { eq, and, lte, desc } from "drizzle-orm";
+import { eq, and, lte, desc, inArray } from "drizzle-orm";
 import {
   recurringInvoiceConfigs,
   documents,
   documentItems,
+  contacts,
   users,
 } from "@kivvi/database";
 import { DEFAULT_LOCALE } from "../config/locale";
@@ -556,4 +557,45 @@ export async function processRecurringInvoices(
   }
 
   return result;
+}
+
+export interface OrderOption {
+  id: string;
+  number: string;
+  contactName: string | null;
+}
+
+export async function getOrderOptionsForRecurring(
+  db: Database,
+  companyId: string,
+): Promise<OrderOption[]> {
+  const orders = await db
+    .select({
+      id: documents.id,
+      number: documents.number,
+      contactId: documents.contactId,
+    })
+    .from(documents)
+    .where(and(eq(documents.companyId, companyId), eq(documents.type, "order")))
+    .orderBy(documents.number);
+
+  const contactIds = orders
+    .map((o) => o.contactId)
+    .filter((id): id is string => id !== null);
+
+  const contactRows =
+    contactIds.length > 0
+      ? await db
+          .select({ id: contacts.id, name: contacts.name })
+          .from(contacts)
+          .where(inArray(contacts.id, contactIds))
+      : [];
+
+  const contactMap = new Map(contactRows.map((c) => [c.id, c.name]));
+
+  return orders.map((o) => ({
+    id: o.id,
+    number: o.number ?? "",
+    contactName: o.contactId ? (contactMap.get(o.contactId) ?? null) : null,
+  }));
 }

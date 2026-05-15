@@ -4,8 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { getRecurringConfig } from "@kivvi/core";
-import { documents } from "@kivvi/database";
-import { eq, and } from "drizzle-orm";
+import { getOrderOptionsForRecurring } from "@kivvi/core/src/domain/recurring-invoices";
 import { getTranslations } from "next-intl/server";
 import { RecurringConfigForm } from "../recurring-config-form";
 import { isValidUUID } from "@/lib/utils";
@@ -29,43 +28,13 @@ export default async function EditRecurringInvoicePage({
     notFound();
   }
 
-  // Fetch all orders for dropdown (user might want to change base order)
-  const orders = await db
-    .select({
-      id: documents.id,
-      number: documents.number,
-      contactId: documents.contactId,
-    })
-    .from(documents)
-    .where(
-      and(
-        eq(documents.companyId, session.user.companyId),
-        eq(documents.type, "order"),
-      ),
-    )
-    .orderBy(documents.number);
-
-  // Fetch contact names
-  const contactIds = orders
-    .map((o) => o.contactId)
-    .filter((id): id is string => id !== null);
-
-  const contacts =
-    contactIds.length > 0
-      ? await db.query.contacts.findMany({
-          where: (contacts, { inArray }) => inArray(contacts.id, contactIds),
-          columns: { id: true, name: true },
-        })
-      : [];
-
-  const contactMap = new Map(contacts.map((c) => [c.id, c.name]));
-
-  const orderOptions = orders.map((o) => ({
-    id: o.id,
-    number: o.number,
-    contactName: o.contactId
-      ? contactMap.get(o.contactId) || tc("unknown")
-      : tc("noContact"),
+  const rawOptions = await getOrderOptionsForRecurring(
+    db,
+    session.user.companyId,
+  );
+  const orderOptions = rawOptions.map((o) => ({
+    ...o,
+    contactName: o.contactName ?? tc("noContact"),
   }));
 
   return (
