@@ -537,3 +537,355 @@ describe("intake_inventory_item schema", () => {
     expect(result.success).toBe(false);
   });
 });
+
+// ============================================================================
+// update_document_status
+// ============================================================================
+
+describe("update_document_status schema", () => {
+  const tool = "update_document_status";
+
+  it("accepts valid UUID + status", () => {
+    const result = parse(tool, {
+      documentId: "550e8400-e29b-41d4-a716-446655440000",
+      newStatus: "sent",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts all valid statuses", () => {
+    const statuses = [
+      "draft",
+      "sent",
+      "confirmed",
+      "delivered",
+      "paid",
+      "partially_paid",
+      "overdue",
+      "cancelled",
+      "dunning_1",
+      "dunning_2",
+      "dunning_3",
+    ];
+    for (const newStatus of statuses) {
+      expect(
+        parse(tool, {
+          documentId: "550e8400-e29b-41d4-a716-446655440000",
+          newStatus,
+        }).success,
+      ).toBe(true);
+    }
+  });
+
+  it("rejects non-UUID documentId", () => {
+    const result = parse(tool, {
+      documentId: "RE-2026-00001",
+      newStatus: "sent",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects invalid status", () => {
+    const result = parse(tool, {
+      documentId: "550e8400-e29b-41d4-a716-446655440000",
+      newStatus: "archived",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects missing newStatus", () => {
+    const result = parse(tool, {
+      documentId: "550e8400-e29b-41d4-a716-446655440000",
+    });
+    expect(result.success).toBe(false);
+  });
+});
+
+// ============================================================================
+// record_payment
+// ============================================================================
+
+describe("record_payment schema", () => {
+  const tool = "record_payment";
+  const uuid = "550e8400-e29b-41d4-a716-446655440000";
+
+  it("accepts valid minimal input", () => {
+    const result = parse(tool, { documentId: uuid, amount: "1500.00" });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts full input", () => {
+    const result = parse(tool, {
+      documentId: uuid,
+      amount: "250.50",
+      date: "2026-03-15",
+      method: "cash",
+      reference: "TXN-9999",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts all valid payment methods", () => {
+    for (const method of ["bank_transfer", "cash", "card", "other"]) {
+      expect(
+        parse(tool, { documentId: uuid, amount: "100", method }).success,
+      ).toBe(true);
+    }
+  });
+
+  it("rejects non-UUID documentId", () => {
+    const result = parse(tool, {
+      documentId: "RE-2026-00001",
+      amount: "100.00",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects non-numeric amount string", () => {
+    const result = parse(tool, { documentId: uuid, amount: "abc" });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects amount with currency symbol", () => {
+    const result = parse(tool, { documentId: uuid, amount: "CHF 100" });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts integer amount string", () => {
+    const result = parse(tool, { documentId: uuid, amount: "500" });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects invalid date format", () => {
+    const result = parse(tool, {
+      documentId: uuid,
+      amount: "100",
+      date: "15.03.2026",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts valid YYYY-MM-DD date", () => {
+    const result = parse(tool, {
+      documentId: uuid,
+      amount: "100",
+      date: "2026-03-15",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects invalid method", () => {
+    const result = parse(tool, {
+      documentId: uuid,
+      amount: "100",
+      method: "crypto",
+    });
+    expect(result.success).toBe(false);
+  });
+});
+
+// ============================================================================
+// create_contact
+// ============================================================================
+
+describe("create_contact schema", () => {
+  const tool = "create_contact";
+
+  it("accepts minimal valid input", () => {
+    const result = parse(tool, { name: "Acme AG" });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts full input", () => {
+    const result = parse(tool, {
+      name: "Acme AG",
+      type: "vendor",
+      email: "info@acme.ch",
+      phone: "+41 44 123 45 67",
+      address: "Bahnhofstrasse 1",
+      city: "Zürich",
+      postalCode: "8001",
+      country: "CH",
+      vatNumber: "CHE-123.456.789 MWST",
+      notes: "Long-term supplier",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts all valid contact types", () => {
+    for (const type of ["customer", "vendor", "both"]) {
+      expect(parse(tool, { name: "Test", type }).success).toBe(true);
+    }
+  });
+
+  it("rejects empty name", () => {
+    const result = parse(tool, { name: "" });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects invalid email", () => {
+    const result = parse(tool, { name: "Test", email: "not-an-email" });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts valid email", () => {
+    const result = parse(tool, { name: "Test", email: "user@example.com" });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects invalid contact type", () => {
+    const result = parse(tool, { name: "Test", type: "supplier" });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects missing name", () => {
+    const result = parse(tool, { type: "customer" });
+    expect(result.success).toBe(false);
+  });
+
+  it("defaults type to customer when omitted", () => {
+    const result = parse(tool, { name: "Test" });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.type).toBe("customer");
+    }
+  });
+});
+
+// ============================================================================
+// record_repair
+// ============================================================================
+
+describe("record_repair schema", () => {
+  const tool = "record_repair";
+
+  it("accepts minimal valid input", () => {
+    const result = parse(tool, { item_identifier: "IT-00042", cost: 35 });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts full input", () => {
+    const result = parse(tool, {
+      item_identifier: "IT-00042",
+      cost: 60,
+      hours: 1.5,
+      note: "Replaced keyboard and palmrest",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts zero cost (volunteer labour)", () => {
+    const result = parse(tool, { item_identifier: "IT-00042", cost: 0 });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects negative cost", () => {
+    const result = parse(tool, { item_identifier: "IT-00042", cost: -5 });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects negative hours", () => {
+    const result = parse(tool, {
+      item_identifier: "IT-00042",
+      cost: 0,
+      hours: -1,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts zero hours", () => {
+    const result = parse(tool, {
+      item_identifier: "IT-00042",
+      cost: 10,
+      hours: 0,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects note longer than 500 chars", () => {
+    const result = parse(tool, {
+      item_identifier: "IT-00042",
+      cost: 10,
+      note: "x".repeat(501),
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects missing cost", () => {
+    const result = parse(tool, { item_identifier: "IT-00042" });
+    expect(result.success).toBe(false);
+  });
+});
+
+// ============================================================================
+// return_inventory_item
+// ============================================================================
+
+describe("return_inventory_item schema", () => {
+  const tool = "return_inventory_item";
+
+  it("accepts item number identifier", () => {
+    const result = parse(tool, { item_identifier: "IT-00042" });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts UUID identifier", () => {
+    const result = parse(tool, {
+      item_identifier: "550e8400-e29b-41d4-a716-446655440000",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects missing item_identifier", () => {
+    const result = parse(tool, {});
+    expect(result.success).toBe(false);
+  });
+});
+
+// ============================================================================
+// create_price_list
+// ============================================================================
+
+describe("create_price_list schema", () => {
+  const tool = "create_price_list";
+
+  it("accepts minimal valid input", () => {
+    const result = parse(tool, { name: "Wholesale" });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts full input", () => {
+    const result = parse(tool, {
+      name: "Student Discount",
+      currency: "EUR",
+      is_default: true,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("defaults currency to CHF when omitted", () => {
+    const result = parse(tool, { name: "Test" });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.currency).toBe("CHF");
+    }
+  });
+
+  it("rejects currency that is not exactly 3 characters", () => {
+    expect(parse(tool, { name: "Test", currency: "CH" }).success).toBe(false);
+    expect(parse(tool, { name: "Test", currency: "EURO" }).success).toBe(false);
+  });
+
+  it("rejects empty name", () => {
+    const result = parse(tool, { name: "" });
+    expect(result.success).toBe(false);
+  });
+
+  it("defaults is_default to false when omitted", () => {
+    const result = parse(tool, { name: "Test" });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.is_default).toBe(false);
+    }
+  });
+});
