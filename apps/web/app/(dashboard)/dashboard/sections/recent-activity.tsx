@@ -16,7 +16,14 @@ import {
   Package as PackageIcon,
   FileInput,
   Clock,
+  PackagePlus,
+  Wrench,
+  Tag,
+  ListChecks,
+  Recycle,
+  Heart,
 } from "lucide-react";
+import type { ActivityItem } from "@kivvi/core/src/domain/dashboard-activity";
 
 export async function RecentActivity() {
   const session = await getSessionOrRedirect();
@@ -31,15 +38,33 @@ export async function RecentActivity() {
     return (
       <div className="rounded-xl border border-warning/20 bg-warning/5 p-6 text-center">
         <AlertTriangle className="mx-auto mb-2 h-6 w-6 text-warning" />
-        <p className="text-sm text-warning">
-          {t("activity.loadError")}
-        </p>
+        <p className="text-sm text-warning">{t("activity.loadError")}</p>
       </div>
     );
   }
 
-  const getIconForType = (type: string) => {
-    switch (type) {
+  const getIconForActivity = (activity: ActivityItem) => {
+    if (activity.entityType === "inventory_item") {
+      switch (activity.type) {
+        case "intake":
+          return <PackagePlus className="h-4 w-4" />;
+        case "repair":
+          return <Wrench className="h-4 w-4" />;
+        case "ready_for_sale":
+          return <Tag className="h-4 w-4" />;
+        case "listed":
+          return <ListChecks className="h-4 w-4" />;
+        case "sold":
+          return <Receipt className="h-4 w-4" />;
+        case "donated":
+          return <Heart className="h-4 w-4" />;
+        case "recycled":
+          return <Recycle className="h-4 w-4" />;
+        default:
+          return <PackageIcon className="h-4 w-4" />;
+      }
+    }
+    switch (activity.type) {
       case "invoice":
         return <FileText className="h-4 w-4" />;
       case "quote":
@@ -120,7 +145,7 @@ export async function RecentActivity() {
               {/* Timeline dot and line */}
               <div className="flex flex-col items-center">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  {getIconForType(activity.type)}
+                  {getIconForActivity(activity)}
                 </div>
               </div>
 

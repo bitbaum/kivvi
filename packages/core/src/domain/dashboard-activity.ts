@@ -1,6 +1,6 @@
 import Decimal from "decimal.js";
-import { eq, desc, and, notInArray } from "drizzle-orm";
-import { documents } from "@kivvi/database";
+import { eq, desc, and, notInArray, inArray } from "drizzle-orm";
+import { documents, inventoryItems, contacts } from "@kivvi/database";
 import type { Database, DocumentType } from "@kivvi/database";
 
 // ============================================================================
@@ -9,7 +9,8 @@ import type { Database, DocumentType } from "@kivvi/database";
 
 export interface ActivityItem {
   id: string;
-  type: DocumentType;
+  entityType: "document" | "inventory_item";
+  type: string; // DocumentType for documents; ItemStatusValue for inventory items
   number: string;
   contactName: string | null;
   contactId: string | null;
@@ -21,39 +22,55 @@ export interface ActivityItem {
   linkTo: string;
 }
 
+// Inventory statuses worth surfacing in the activity feed
+const ACTIVITY_INVENTORY_STATUSES = [
+  "intake",
+  "repair",
+  "ready_for_sale",
+  "listed",
+  "sold",
+  "donated",
+  "recycled",
+] as const;
+
 // ============================================================================
 // RECENT ACTIVITY
 // ============================================================================
 
 /**
- * Get unified activity feed across all document types.
- * Returns recent document updates with human-readable actions.
+ * Get unified activity feed: recent document events + recent inventory item
+ * status changes, merged and sorted by recency.
  */
 export async function getRecentActivity(
   db: Database,
   companyId: string,
   limit = 20,
 ): Promise<ActivityItem[]> {
-  const recentDocs = await db.query.documents.findMany({
-    where: and(
-      eq(documents.companyId, companyId),
-      // Exclude delivery notes — they have no financial amount and clutter the feed
-      notInArray(documents.type, ["delivery_note"]),
-    ),
-    with: {
-      contact: {
-        columns: { id: true, name: true },
+  const [recentDocs, recentItems] = await Promise.all([
+    db.query.documents.findMany({
+      where: and(
+        eq(documents.companyId, companyId),
+        // Exclude delivery notes — no financial amount, clutter the feed
+        notInArray(documents.type, ["delivery_note"]),
+      ),
+      with: { contact: { columns: { id: true, name: true } } },
+      orderBy: [desc(documents.updatedAt)],
+      limit,
+    }),
+    db.query.inventoryItems.findMany({
+      where: and(
+        eq(inventoryItems.companyId, companyId),
+        inArray(inventoryItems.status, [...ACTIVITY_INVENTORY_STATUSES]),
+      ),
+      with: {
+        donorContact: { columns: { id: true, name: true } },
       },
-    },
-    orderBy: [desc(documents.updatedAt)],
-    limit,
-  });
+      orderBy: [desc(inventoryItems.statusUpdatedAt)],
+      limit,
+    }),
+  ]);
 
-  return recentDocs.map((doc) => {
-    // Construct i18n key: activity.<type>.<status>
-    const actionKey = `activity.${doc.type}.${doc.status}`;
-
-    // Determine link based on document type
+  const docItems: ActivityItem[] = recentDocs.map((doc) => {
     let linkTo = "/sales";
     if (doc.type === "invoice") linkTo = `/sales/invoices/${doc.id}`;
     else if (doc.type === "quote") linkTo = `/sales/quotes/${doc.id}`;
@@ -70,15 +87,37 @@ export async function getRecentActivity(
 
     return {
       id: doc.id,
-      type: doc.type,
+      entityType: "document",
+      type: doc.type as DocumentType,
       number: doc.number,
-      contactName: doc.contact?.name || null,
-      contactId: doc.contact?.id || null,
+      contactName: doc.contact?.name ?? null,
+      contactId: doc.contact?.id ?? null,
       amount: new Decimal(doc.total || "0").toNumber(),
       status: doc.status,
-      actionKey,
+      actionKey: `activity.${doc.type}.${doc.status}`,
       timestamp: doc.updatedAt,
       linkTo,
     };
   });
+
+  const inventoryActivityItems: ActivityItem[] = recentItems.map((item) => ({
+    id: item.id,
+    entityType: "inventory_item",
+    type: item.status,
+    number: item.itemNumber,
+    contactName: item.donorContact?.name ?? null,
+    contactId: item.donorContact?.id ?? null,
+    amount: new Decimal(
+      item.soldPrice ?? item.askingPrice ?? item.estimatedValue ?? "0",
+    ).toNumber(),
+    status: item.status,
+    actionKey: `activity.inventory.${item.status}`,
+    timestamp: item.statusUpdatedAt,
+    linkTo: `/intake/items/${item.id}`,
+  }));
+
+  // Merge and sort by recency, return top N
+  return [...docItems, ...inventoryActivityItems]
+    .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+    .slice(0, limit);
 }

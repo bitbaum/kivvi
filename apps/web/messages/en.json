@@ -583,6 +583,15 @@
       "dunning": {
         "draft": "Dunning created",
         "sent": "Dunning sent"
+      },
+      "inventory": {
+        "intake": "Item received",
+        "repair": "Sent for repair",
+        "ready_for_sale": "Ready for sale",
+        "listed": "Listed online",
+        "sold": "Sold",
+        "donated": "Donated",
+        "recycled": "Recycled"
       }
     },
     "createInvoice": "Create Invoice",

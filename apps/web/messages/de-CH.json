@@ -583,6 +583,15 @@
       "dunning": {
         "draft": "Mahnung erstellt",
         "sent": "Mahnung versendet"
+      },
+      "inventory": {
+        "intake": "Artikel erfasst",
+        "repair": "In Reparatur",
+        "ready_for_sale": "Verkaufsbereit",
+        "listed": "Online inseriert",
+        "sold": "Verkauft",
+        "donated": "Gespendet",
+        "recycled": "Recycelt"
       }
     },
     "createInvoice": "Rechnung erstellen",

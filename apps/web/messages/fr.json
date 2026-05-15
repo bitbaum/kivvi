@@ -583,6 +583,15 @@
       "dunning": {
         "draft": "Rappel créé",
         "sent": "Rappel envoyé"
+      },
+      "inventory": {
+        "intake": "Article enregistré",
+        "repair": "En réparation",
+        "ready_for_sale": "Prêt à la vente",
+        "listed": "Listé en ligne",
+        "sold": "Vendu",
+        "donated": "Donné",
+        "recycled": "Recyclé"
       }
     },
     "createInvoice": "Créer une facture",
