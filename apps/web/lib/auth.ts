@@ -1,6 +1,5 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { db } from "./db";
@@ -15,8 +14,9 @@ const loginSchema = z.object({
 });
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  // Justified: adapter type mismatch between @auth/drizzle-adapter and next-auth versions
-  adapter: DrizzleAdapter(db) as any,
+  // No adapter: JWT strategy with credentials provider is fully stateless.
+  // The DrizzleAdapter caused CONNECT_TIMEOUT errors because Kivvi has no
+  // NextAuth sessions/accounts/verificationTokens tables.
   session: { strategy: "jwt", maxAge: 7 * 24 * 60 * 60 },
   pages: {
     signIn: "/login",
