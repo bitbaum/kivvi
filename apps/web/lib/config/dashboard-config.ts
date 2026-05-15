@@ -7,7 +7,6 @@
 
 export interface DashboardConfig {
   defaultVisibleStats: string[];
-  maxWorkflowSuggestions: number;
   maxQuickActions: number;
 }
 
@@ -18,6 +17,5 @@ export const DEFAULT_DASHBOARD_CONFIG: DashboardConfig = {
     "overdue",
     "bank-balance",
   ],
-  maxWorkflowSuggestions: 5,
   maxQuickActions: 4,
 };
