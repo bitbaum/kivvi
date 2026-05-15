@@ -2348,7 +2348,7 @@
   "chat": {
     "title": "AI Assistant",
     "howCanIHelp": "How can I help you?",
-    "askDescription": "Ask me to create invoices, check payments, generate reports, or manage your operations.",
+    "askDescription": "Ask me to intake donations, log repairs, update item status, check your inventory, or manage invoices and payments.",
     "askKivvi": "Ask Kivvi anything...",
     "sendMessage": "Send message",
     "thinking": "Thinking...",
@@ -2360,10 +2360,10 @@
     "free": "Free",
     "freeModelsRateLimit": "Free models have rate limits. Local models require Ollama running.",
     "suggestions": {
-      "unpaidInvoices": "Show me unpaid invoices",
-      "createInvoice": "Create an invoice for my last meeting",
-      "revenueThisMonth": "What's my revenue this month?",
-      "reconcileTransactions": "Reconcile bank transactions"
+      "repairQueue": "What's in the repair queue today?",
+      "intakeDonation": "Intake 5 donated ThinkPads from UBS",
+      "itemsReadyForSale": "How many items are ready for sale?",
+      "unpaidInvoices": "Show unpaid invoices"
     },
     "openAssistant": "Open AI assistant",
     "closeAssistant": "Close",

@@ -86,10 +86,10 @@ export function ChatWidget() {
   };
 
   const suggestions = [
+    t("suggestions.repairQueue"),
+    t("suggestions.intakeDonation"),
+    t("suggestions.itemsReadyForSale"),
     t("suggestions.unpaidInvoices"),
-    t("suggestions.createInvoice"),
-    t("suggestions.revenueThisMonth"),
-    t("suggestions.reconcileTransactions"),
   ];
 
   return (

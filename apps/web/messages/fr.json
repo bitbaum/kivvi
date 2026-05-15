@@ -2348,7 +2348,7 @@
   "chat": {
     "title": "Assistant IA",
     "howCanIHelp": "Comment puis-je vous aider ?",
-    "askDescription": "Demandez-moi de créer des factures, vérifier des paiements, générer des rapports ou gérer vos opérations.",
+    "askDescription": "Demandez-moi d'enregistrer des dons, de noter des réparations, de mettre à jour le statut des articles, de vérifier votre inventaire ou de gérer les factures et paiements.",
     "askKivvi": "Demandez à Kivvi...",
     "sendMessage": "Envoyer le message",
     "thinking": "Réflexion...",
@@ -2360,10 +2360,10 @@
     "free": "Gratuit",
     "freeModelsRateLimit": "Les modèles gratuits ont des limites. Les modèles locaux nécessitent Ollama.",
     "suggestions": {
-      "unpaidInvoices": "Montrer les factures impayées",
-      "createInvoice": "Créer une facture pour ma dernière réunion",
-      "revenueThisMonth": "Quel est mon chiffre d'affaires ce mois-ci ?",
-      "reconcileTransactions": "Rapprocher les transactions bancaires"
+      "repairQueue": "Qu'y a-t-il dans la file de réparations aujourd'hui ?",
+      "intakeDonation": "Enregistrer 5 ThinkPads donnés par UBS",
+      "itemsReadyForSale": "Combien d'articles sont prêts à la vente ?",
+      "unpaidInvoices": "Montrer les factures impayées"
     },
     "openAssistant": "Ouvrir l'assistant IA",
     "closeAssistant": "Fermer",

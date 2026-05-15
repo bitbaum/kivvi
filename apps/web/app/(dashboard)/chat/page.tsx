@@ -20,10 +20,10 @@ export default function ChatPage() {
   const [initialQuerySent, setInitialQuerySent] = useState(false);
 
   const suggestions = [
+    t("suggestions.repairQueue"),
+    t("suggestions.intakeDonation"),
+    t("suggestions.itemsReadyForSale"),
     t("suggestions.unpaidInvoices"),
-    t("suggestions.createInvoice"),
-    t("suggestions.revenueThisMonth"),
-    t("suggestions.reconcileTransactions"),
   ];
 
   const { messages, input, setInput, isLoading, sendMessage } = useChat({

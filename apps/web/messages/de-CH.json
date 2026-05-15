@@ -2348,7 +2348,7 @@
   "chat": {
     "title": "KI-Assistent",
     "howCanIHelp": "Wie kann ich Ihnen helfen?",
-    "askDescription": "Fragen Sie mich, Rechnungen zu erstellen, Zahlungen zu prüfen, Berichte zu generieren oder Ihre Abläufe zu verwalten.",
+    "askDescription": "Fragen Sie mich, Spenden einzubuchen, Reparaturen zu erfassen, Artikelstatus zu aktualisieren, Ihr Inventar zu prüfen oder Rechnungen und Zahlungen zu verwalten.",
     "askKivvi": "Kivvi fragen...",
     "sendMessage": "Nachricht senden",
     "thinking": "Denke nach...",
@@ -2360,10 +2360,10 @@
     "free": "Gratis",
     "freeModelsRateLimit": "Gratis-Modelle haben Ratenlimits. Lokale Modelle benötigen Ollama.",
     "suggestions": {
-      "unpaidInvoices": "Unbezahlte Rechnungen anzeigen",
-      "createInvoice": "Rechnung für mein letztes Meeting erstellen",
-      "revenueThisMonth": "Was ist mein Umsatz diesen Monat?",
-      "reconcileTransactions": "Banktransaktionen abgleichen"
+      "repairQueue": "Was steht heute in der Reparaturwarteschlange?",
+      "intakeDonation": "5 gespendete ThinkPads von UBS einbuchen",
+      "itemsReadyForSale": "Wie viele Artikel sind verkaufsbereit?",
+      "unpaidInvoices": "Unbezahlte Rechnungen anzeigen"
     },
     "openAssistant": "KI-Assistent öffnen",
     "closeAssistant": "Schliessen",
