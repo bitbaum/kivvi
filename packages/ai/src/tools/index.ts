@@ -1,53 +1,5 @@
 import type { Tool } from "../types";
 
-// Re-export all tools
-export { searchInvoicesTool } from "./search-invoices";
-export { searchCustomersTool } from "./search-customers";
-export { getInvoiceDetailsTool } from "./get-invoice-details";
-export { getCustomerDetailsTool } from "./get-customer-details";
-export { createDocumentTool } from "./create-document";
-export { updateDocumentStatusTool } from "./update-document-status";
-export { convertDocumentTool } from "./convert-document";
-export { searchProductsTool } from "./search-products";
-export { getFinancialSummaryTool } from "./get-financial-summary";
-export { getReportTool } from "./get-report";
-export { recordPaymentTool } from "./record-payment";
-export { listOverdueInvoicesTool } from "./list-overdue-invoices";
-export { getStockLevelsTool } from "./get-stock-levels";
-export { getBankSummaryTool } from "./get-bank-summary";
-export { searchProjectsTool } from "./search-projects";
-export { getProjectDetailsTool } from "./get-project-details";
-export { createContactTool } from "./create-contact";
-export { updateContactTool } from "./update-contact";
-export { createProductTool } from "./create-product";
-export { updateProductTool } from "./update-product";
-export { getAccountBalancesTool } from "./get-account-balances";
-export { createJournalEntryTool } from "./create-journal-entry";
-export { recordStockMovementTool } from "./manage-inventory";
-export { getRecurringInvoicesTool } from "./get-recurring-invoices";
-export { processDunningTool } from "./process-dunning";
-export { reconcileTransactionTool } from "./reconcile-transaction";
-export { getDashboardSummaryTool } from "./get-dashboard-summary";
-export { prepareDocumentTool } from "./prepare-document";
-export { searchInventoryTool } from "./search-inventory";
-export { getInventoryDashboardTool } from "./get-inventory-dashboard";
-export { recordRepairTool } from "./record-repair";
-export { recordRepairPartTool } from "./record-repair-part";
-export {
-  updateItemStatusTool,
-  updateItemConditionTool,
-} from "./update-item-status";
-export { recordDataErasureTool } from "./record-data-erasure";
-export { getItemDetailsTool } from "./get-item-details";
-export { recordChecklistTool } from "./record-checklist";
-export { intakeInventoryItemTool } from "./intake-inventory-item";
-export { returnInventoryItemTool } from "./return-inventory-item";
-export { getPriceListsTool } from "./get-price-lists";
-export { resolveProductPriceTool } from "./resolve-product-price";
-export { createPriceRuleTool } from "./create-price-rule";
-export { createPriceListTool } from "./create-price-list";
-
-// Import for getDefaultTools
 import { searchInvoicesTool } from "./search-invoices";
 import { searchCustomersTool } from "./search-customers";
 import { getInvoiceDetailsTool } from "./get-invoice-details";
@@ -89,14 +41,59 @@ import { getItemDetailsTool } from "./get-item-details";
 import { recordChecklistTool } from "./record-checklist";
 import { intakeInventoryItemTool } from "./intake-inventory-item";
 import { returnInventoryItemTool } from "./return-inventory-item";
+import { updateInventoryItemTool } from "./update-inventory-item";
 import { getPriceListsTool } from "./get-price-lists";
 import { resolveProductPriceTool } from "./resolve-product-price";
 import { createPriceRuleTool } from "./create-price-rule";
 import { createPriceListTool } from "./create-price-list";
 
-/**
- * Get default tools for the ERP system
- */
+export {
+  searchInvoicesTool,
+  searchCustomersTool,
+  getInvoiceDetailsTool,
+  getCustomerDetailsTool,
+  createDocumentTool,
+  updateDocumentStatusTool,
+  convertDocumentTool,
+  searchProductsTool,
+  getFinancialSummaryTool,
+  getReportTool,
+  recordPaymentTool,
+  listOverdueInvoicesTool,
+  getStockLevelsTool,
+  getBankSummaryTool,
+  searchProjectsTool,
+  getProjectDetailsTool,
+  createContactTool,
+  updateContactTool,
+  createProductTool,
+  updateProductTool,
+  getAccountBalancesTool,
+  createJournalEntryTool,
+  recordStockMovementTool,
+  getRecurringInvoicesTool,
+  processDunningTool,
+  reconcileTransactionTool,
+  getDashboardSummaryTool,
+  prepareDocumentTool,
+  searchInventoryTool,
+  getInventoryDashboardTool,
+  recordRepairTool,
+  recordRepairPartTool,
+  updateItemStatusTool,
+  updateItemConditionTool,
+  recordDataErasureTool,
+  getItemDetailsTool,
+  recordChecklistTool,
+  intakeInventoryItemTool,
+  returnInventoryItemTool,
+  updateInventoryItemTool,
+  getPriceListsTool,
+  resolveProductPriceTool,
+  createPriceRuleTool,
+  createPriceListTool,
+};
+
 export function getDefaultTools(): Tool[] {
   return [
     searchInvoicesTool,
@@ -138,6 +135,7 @@ export function getDefaultTools(): Tool[] {
     recordChecklistTool,
     intakeInventoryItemTool,
     returnInventoryItemTool,
+    updateInventoryItemTool,
     getPriceListsTool,
     resolveProductPriceTool,
     createPriceRuleTool,
@@ -145,10 +143,6 @@ export function getDefaultTools(): Tool[] {
   ];
 }
 
-/**
- * Get tools filtered by user permissions.
- * Each tool declares its own requiredPermissions — no heuristics needed.
- */
 export function getToolsForPermissions(permissions: string[]): Tool[] {
   return getDefaultTools().filter((tool) =>
     tool.requiredPermissions.every((p) => permissions.includes(p)),
