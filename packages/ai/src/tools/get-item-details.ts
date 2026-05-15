@@ -1,8 +1,7 @@
 import Decimal from "decimal.js";
 import { z } from "zod";
-import { eq, and } from "drizzle-orm";
 import type { Tool, ExecutionContext, ToolResult } from "../types";
-import { getDb } from "./utils";
+import { getDb, resolveInventoryItem } from "./utils";
 import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 
 const getItemDetailsSchema = z.object({
@@ -25,46 +24,23 @@ export const getItemDetailsTool: Tool = {
     try {
       const { getInventoryItem, listRepairParts } =
         await import("@kivvi/core/src/domain/inventory-items");
-      const { inventoryItems } = await import("@kivvi/database");
       const db = getDb(context);
 
-      // Resolve item number or UUID
-      const isUUID =
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-          params.item_identifier,
-        );
-
-      let itemId: string;
-
-      if (isUUID) {
-        itemId = params.item_identifier;
-      } else {
-        const [row] = await db
-          .select({ id: inventoryItems.id })
-          .from(inventoryItems)
-          .where(
-            and(
-              eq(
-                inventoryItems.itemNumber,
-                params.item_identifier.toUpperCase(),
-              ),
-              eq(inventoryItems.companyId, context.companyId),
-            ),
-          )
-          .limit(1);
-
-        if (!row) {
-          return {
-            success: false,
-            error: `Item "${params.item_identifier}" not found. Use search_inventory to find the correct item number.`,
-          };
-        }
-        itemId = row.id;
+      const resolved = await resolveInventoryItem(
+        db,
+        context.companyId,
+        params.item_identifier,
+      );
+      if (!resolved) {
+        return {
+          success: false,
+          error: `Item "${params.item_identifier}" not found. Use search_inventory to find the correct item number.`,
+        };
       }
 
       const [item, repairParts] = await Promise.all([
-        getInventoryItem(db, context.companyId, itemId),
-        listRepairParts(db, context.companyId, itemId),
+        getInventoryItem(db, context.companyId, resolved.id),
+        listRepairParts(db, context.companyId, resolved.id),
       ]);
 
       if (!item) {

@@ -1,8 +1,7 @@
 import Decimal from "decimal.js";
 import { z } from "zod";
-import { eq, and } from "drizzle-orm";
 import type { Tool, ExecutionContext, ToolResult } from "../types";
-import { getDb } from "./utils";
+import { getDb, resolveInventoryItem } from "./utils";
 import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 
 const recordRepairSchema = z.object({
@@ -48,84 +47,27 @@ Examples:
     try {
       const { recordRepair } =
         await import("@kivvi/core/src/domain/inventory-items");
-      const { inventoryItems } = await import("@kivvi/database");
       const db = getDb(context);
 
-      // Resolve item: accept UUID or item number (e.g. "IT-00042")
-      const isUUID =
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-          params.item_identifier,
-        );
-
-      let itemId: string;
-      let itemNumber: string;
-      let currentRepairCost: string | null;
-
-      if (isUUID) {
-        // Direct UUID lookup
-        const [row] = await db
-          .select({
-            id: inventoryItems.id,
-            itemNumber: inventoryItems.itemNumber,
-            repairCost: inventoryItems.repairCost,
-            companyId: inventoryItems.companyId,
-          })
-          .from(inventoryItems)
-          .where(
-            and(
-              eq(inventoryItems.id, params.item_identifier),
-              eq(inventoryItems.companyId, context.companyId),
-            ),
-          )
-          .limit(1);
-
-        if (!row) {
-          return {
-            success: false,
-            error: `Item with ID "${params.item_identifier}" not found.`,
-          };
-        }
-        itemId = row.id;
-        itemNumber = row.itemNumber;
-        currentRepairCost = row.repairCost;
-      } else {
-        // Item number lookup (case-insensitive)
-        const [row] = await db
-          .select({
-            id: inventoryItems.id,
-            itemNumber: inventoryItems.itemNumber,
-            repairCost: inventoryItems.repairCost,
-          })
-          .from(inventoryItems)
-          .where(
-            and(
-              eq(
-                inventoryItems.itemNumber,
-                params.item_identifier.toUpperCase(),
-              ),
-              eq(inventoryItems.companyId, context.companyId),
-            ),
-          )
-          .limit(1);
-
-        if (!row) {
-          return {
-            success: false,
-            error: `Item "${params.item_identifier}" not found. Use search_inventory to find the correct item number.`,
-          };
-        }
-        itemId = row.id;
-        itemNumber = row.itemNumber;
-        currentRepairCost = row.repairCost;
+      const item = await resolveInventoryItem(
+        db,
+        context.companyId,
+        params.item_identifier,
+      );
+      if (!item) {
+        return {
+          success: false,
+          error: `Item "${params.item_identifier}" not found. Use search_inventory to find the correct item number.`,
+        };
       }
 
-      const updated = await recordRepair(db, context.companyId, itemId, {
+      const updated = await recordRepair(db, context.companyId, item.id, {
         cost: String(params.cost),
         hours: params.hours !== undefined ? String(params.hours) : undefined,
         note: params.note,
       });
 
-      const prevCost = new Decimal(currentRepairCost ?? "0");
+      const prevCost = new Decimal(item.repairCost ?? "0");
       const newTotalCost = new Decimal(updated.repairCost ?? "0");
       const currency = context.defaultCurrency ?? DEFAULT_CURRENCY;
 
@@ -137,10 +79,10 @@ Examples:
 
       return {
         success: true,
-        message: `Recorded ${currency} ${params.cost.toFixed(2)}${hoursNote} repair on ${itemNumber}${workNote}. Total repair cost: ${currency} ${newTotalCost.toDecimalPlaces(2)} (was ${currency} ${prevCost.toDecimalPlaces(2)}).`,
+        message: `Recorded ${currency} ${params.cost.toFixed(2)}${hoursNote} repair on ${item.itemNumber}${workNote}. Total repair cost: ${currency} ${newTotalCost.toDecimalPlaces(2)} (was ${currency} ${prevCost.toDecimalPlaces(2)}).`,
         data: {
-          itemId,
-          itemNumber,
+          itemId: item.id,
+          itemNumber: item.itemNumber,
           addedCost: params.cost,
           addedHours: params.hours ?? 0,
           note: params.note ?? null,
@@ -149,9 +91,9 @@ Examples:
         },
         actions: [
           {
-            label: `View ${itemNumber}`,
+            label: `View ${item.itemNumber}`,
             action: "navigate",
-            params: { url: `/intake/items/${itemId}` },
+            params: { url: `/intake/items/${item.id}` },
             variant: "primary",
           },
           {

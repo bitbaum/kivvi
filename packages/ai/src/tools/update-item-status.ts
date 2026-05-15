@@ -1,7 +1,6 @@
 import { z } from "zod";
-import { eq, and } from "drizzle-orm";
 import type { Tool, ExecutionContext, ToolResult } from "../types";
-import { getDb } from "./utils";
+import { getDb, resolveInventoryItem } from "./utils";
 
 const updateItemStatusSchema = z.object({
   item_identifier: z
@@ -45,41 +44,6 @@ const updateItemConditionSchema = z.object({
     ),
 });
 
-/** Resolve item number or UUID → { id, itemNumber, currentStatus } */
-async function resolveItem(
-  db: ReturnType<typeof getDb>,
-  identifier: string,
-  companyId: string,
-) {
-  const { inventoryItems } = await import("@kivvi/database");
-
-  const isUUID =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-      identifier,
-    );
-
-  const [row] = await db
-    .select({
-      id: inventoryItems.id,
-      itemNumber: inventoryItems.itemNumber,
-      status: inventoryItems.status,
-      condition: inventoryItems.condition,
-      askingPrice: inventoryItems.askingPrice,
-    })
-    .from(inventoryItems)
-    .where(
-      and(
-        isUUID
-          ? eq(inventoryItems.id, identifier)
-          : eq(inventoryItems.itemNumber, identifier.toUpperCase()),
-        eq(inventoryItems.companyId, companyId),
-      ),
-    )
-    .limit(1);
-
-  return row ?? null;
-}
-
 export const updateItemStatusTool: Tool = {
   name: "update_item_status",
   description: `Transition an inventory item to a new status. Enforces the lifecycle rules:
@@ -102,10 +66,10 @@ Use after record_repair to move an item back to testing. Use when a technician c
         await import("@kivvi/core/src/domain/inventory-items");
       const db = getDb(context);
 
-      const item = await resolveItem(
+      const item = await resolveInventoryItem(
         db,
-        params.item_identifier,
         context.companyId,
+        params.item_identifier,
       );
       if (!item) {
         return {
@@ -184,10 +148,10 @@ Condition grades:
         await import("@kivvi/core/src/domain/inventory-items");
       const db = getDb(context);
 
-      const item = await resolveItem(
+      const item = await resolveInventoryItem(
         db,
-        params.item_identifier,
         context.companyId,
+        params.item_identifier,
       );
       if (!item) {
         return {

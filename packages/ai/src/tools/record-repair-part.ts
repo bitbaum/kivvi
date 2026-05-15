@@ -1,8 +1,7 @@
 import { z } from "zod";
-import { eq, and } from "drizzle-orm";
 import Decimal from "decimal.js";
 import type { Tool, ExecutionContext, ToolResult } from "../types";
-import { getDb } from "./utils";
+import { getDb, resolveInventoryItem } from "./utils";
 import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 
 const recordRepairPartSchema = z.object({
@@ -49,72 +48,22 @@ Examples:
     try {
       const { addRepairPart } =
         await import("@kivvi/core/src/domain/inventory-items");
-      const { inventoryItems } = await import("@kivvi/database");
       const db = getDb(context);
 
-      // Resolve item: accept UUID or item number (e.g. "IT-00042")
-      const isUUID =
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-          params.item_identifier,
-        );
-
-      let itemId: string;
-      let itemNumber: string;
-
-      if (isUUID) {
-        const [row] = await db
-          .select({
-            id: inventoryItems.id,
-            itemNumber: inventoryItems.itemNumber,
-            companyId: inventoryItems.companyId,
-          })
-          .from(inventoryItems)
-          .where(
-            and(
-              eq(inventoryItems.id, params.item_identifier),
-              eq(inventoryItems.companyId, context.companyId),
-            ),
-          )
-          .limit(1);
-
-        if (!row) {
-          return {
-            success: false,
-            error: `Item with ID "${params.item_identifier}" not found.`,
-          };
-        }
-        itemId = row.id;
-        itemNumber = row.itemNumber;
-      } else {
-        const [row] = await db
-          .select({
-            id: inventoryItems.id,
-            itemNumber: inventoryItems.itemNumber,
-          })
-          .from(inventoryItems)
-          .where(
-            and(
-              eq(
-                inventoryItems.itemNumber,
-                params.item_identifier.toUpperCase(),
-              ),
-              eq(inventoryItems.companyId, context.companyId),
-            ),
-          )
-          .limit(1);
-
-        if (!row) {
-          return {
-            success: false,
-            error: `Item "${params.item_identifier}" not found. Use search_inventory to find the correct item number.`,
-          };
-        }
-        itemId = row.id;
-        itemNumber = row.itemNumber;
+      const item = await resolveInventoryItem(
+        db,
+        context.companyId,
+        params.item_identifier,
+      );
+      if (!item) {
+        return {
+          success: false,
+          error: `Item "${params.item_identifier}" not found. Use search_inventory to find the correct item number.`,
+        };
       }
 
       const quantity = params.quantity ?? 1;
-      const part = await addRepairPart(db, context.companyId, itemId, {
+      const part = await addRepairPart(db, context.companyId, item.id, {
         description: params.description,
         quantity: String(quantity),
         unitCost: String(params.unit_cost),
@@ -129,11 +78,11 @@ Examples:
 
       return {
         success: true,
-        message: `Added repair part to ${itemNumber}: ${qtyNote}${params.description} — ${currency} ${lineTotal}${params.notes ? ` (${params.notes})` : ""}.`,
+        message: `Added repair part to ${item.itemNumber}: ${qtyNote}${params.description} — ${currency} ${lineTotal}${params.notes ? ` (${params.notes})` : ""}.`,
         data: {
           partId: part.id,
-          itemId,
-          itemNumber,
+          itemId: item.id,
+          itemNumber: item.itemNumber,
           description: params.description,
           quantity,
           unitCost: params.unit_cost,
@@ -142,9 +91,9 @@ Examples:
         },
         actions: [
           {
-            label: `View ${itemNumber}`,
+            label: `View ${item.itemNumber}`,
             action: "navigate",
-            params: { url: `/intake/items/${itemId}` },
+            params: { url: `/intake/items/${item.id}` },
             variant: "primary",
           },
         ],

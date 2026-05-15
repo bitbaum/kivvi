@@ -1,7 +1,6 @@
 import { z } from "zod";
-import { eq, and } from "drizzle-orm";
 import type { Tool, ExecutionContext, ToolResult } from "../types";
-import { getDb } from "./utils";
+import { getDb, resolveInventoryItem } from "./utils";
 
 const returnInventoryItemSchema = z.object({
   item_identifier: z
@@ -27,34 +26,13 @@ Examples:
     try {
       const { returnInventoryItem } =
         await import("@kivvi/core/src/domain/inventory-items");
-      const { inventoryItems } = await import("@kivvi/database");
       const db = getDb(context);
 
-      const isUUID =
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-          params.item_identifier,
-        );
-
-      const [row] = await db
-        .select({
-          id: inventoryItems.id,
-          itemNumber: inventoryItems.itemNumber,
-          description: inventoryItems.description,
-          status: inventoryItems.status,
-        })
-        .from(inventoryItems)
-        .where(
-          and(
-            isUUID
-              ? eq(inventoryItems.id, params.item_identifier)
-              : eq(
-                  inventoryItems.itemNumber,
-                  params.item_identifier.toUpperCase(),
-                ),
-            eq(inventoryItems.companyId, context.companyId),
-          ),
-        )
-        .limit(1);
+      const row = await resolveInventoryItem(
+        db,
+        context.companyId,
+        params.item_identifier,
+      );
 
       if (!row) {
         return {

@@ -1,7 +1,6 @@
 import { z } from "zod";
-import { eq, and } from "drizzle-orm";
 import type { Tool, ExecutionContext, ToolResult } from "../types";
-import { getDb } from "./utils";
+import { getDb, resolveInventoryItem } from "./utils";
 
 const checkResultSchema = z.object({
   id: z
@@ -62,35 +61,13 @@ Examples:
         await import("@kivvi/core/src/domain/inventory-items");
       const { CHECKLIST_TEMPLATES, getChecklistTemplate } =
         await import("@kivvi/core/src/config/checklist-templates");
-      const { inventoryItems } = await import("@kivvi/database");
       const db = getDb(context);
 
-      // Resolve item number or UUID
-      const isUUID =
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-          params.item_identifier,
-        );
-
-      const [row] = await db
-        .select({
-          id: inventoryItems.id,
-          itemNumber: inventoryItems.itemNumber,
-          category: inventoryItems.category,
-        })
-        .from(inventoryItems)
-        .where(
-          and(
-            isUUID
-              ? eq(inventoryItems.id, params.item_identifier)
-              : eq(
-                  inventoryItems.itemNumber,
-                  params.item_identifier.toUpperCase(),
-                ),
-            eq(inventoryItems.companyId, context.companyId),
-          ),
-        )
-        .limit(1);
-
+      const row = await resolveInventoryItem(
+        db,
+        context.companyId,
+        params.item_identifier,
+      );
       if (!row) {
         return {
           success: false,

@@ -1,7 +1,6 @@
 import { z } from "zod";
-import { eq, and, ilike } from "drizzle-orm";
 import type { Tool, ExecutionContext, ToolResult } from "../types";
-import { getDb } from "./utils";
+import { getDb, resolveProduct, resolvePriceList } from "./utils";
 
 const resolveProductPriceSchema = z.object({
   product_identifier: z
@@ -39,82 +38,13 @@ Examples:
     try {
       const { resolvePriceForProduct } =
         await import("@kivvi/core/src/domain/pricing");
-      const { products, priceLists } = await import("@kivvi/database");
       const db = getDb(context);
 
-      // Resolve product
-      const isUUID =
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
-          params.product_identifier,
-        );
-      const isArticleNumber = /^ART-\d+$/i.test(params.product_identifier);
-
-      let productRow: {
-        id: string;
-        name: string;
-        articleNumber: string | null;
-        unitPrice: string;
-        currency: string | null;
-      } | null = null;
-
-      if (isUUID) {
-        const [row] = await db
-          .select({
-            id: products.id,
-            name: products.name,
-            articleNumber: products.articleNumber,
-            unitPrice: products.unitPrice,
-            currency: products.currency,
-          })
-          .from(products)
-          .where(
-            and(
-              eq(products.id, params.product_identifier),
-              eq(products.companyId, context.companyId),
-            ),
-          )
-          .limit(1);
-        productRow = row ?? null;
-      } else if (isArticleNumber) {
-        const [row] = await db
-          .select({
-            id: products.id,
-            name: products.name,
-            articleNumber: products.articleNumber,
-            unitPrice: products.unitPrice,
-            currency: products.currency,
-          })
-          .from(products)
-          .where(
-            and(
-              eq(
-                products.articleNumber,
-                params.product_identifier.toUpperCase(),
-              ),
-              eq(products.companyId, context.companyId),
-            ),
-          )
-          .limit(1);
-        productRow = row ?? null;
-      } else {
-        const [row] = await db
-          .select({
-            id: products.id,
-            name: products.name,
-            articleNumber: products.articleNumber,
-            unitPrice: products.unitPrice,
-            currency: products.currency,
-          })
-          .from(products)
-          .where(
-            and(
-              ilike(products.name, `%${params.product_identifier}%`),
-              eq(products.companyId, context.companyId),
-            ),
-          )
-          .limit(1);
-        productRow = row ?? null;
-      }
+      const productRow = await resolveProduct(
+        db,
+        context.companyId,
+        params.product_identifier,
+      );
 
       if (!productRow) {
         return {
@@ -123,17 +53,11 @@ Examples:
         };
       }
 
-      // Resolve price list by name (partial match)
-      const [listRow] = await db
-        .select({ id: priceLists.id, name: priceLists.name })
-        .from(priceLists)
-        .where(
-          and(
-            eq(priceLists.companyId, context.companyId),
-            ilike(priceLists.name, `%${params.price_list_name}%`),
-          ),
-        )
-        .limit(1);
+      const listRow = await resolvePriceList(
+        db,
+        context.companyId,
+        params.price_list_name,
+      );
 
       if (!listRow) {
         return {
