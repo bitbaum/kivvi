@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { eq, and, or, ilike, sql, desc, asc } from "drizzle-orm";
+import { eq, and, or, ilike, sql, desc, asc, count, gte } from "drizzle-orm";
 import { contacts, contactAddresses, documents } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
 import type { Contact, ContactAddress } from "@kivvi/database";
@@ -631,4 +631,50 @@ export async function resolveOrCreateContact(
     email: email?.trim() || null,
   });
   return created.id;
+}
+
+export interface ContactStats {
+  customerCount: number;
+  vendorCount: number;
+  newThisMonth: number;
+}
+
+export async function getContactStats(
+  db: Database,
+  companyId: string,
+): Promise<ContactStats> {
+  const startOfMonth = new Date(
+    new Date().getFullYear(),
+    new Date().getMonth(),
+    1,
+  );
+
+  const [typeCounts, [newRow]] = await Promise.all([
+    db
+      .select({ type: contacts.type, total: count() })
+      .from(contacts)
+      .where(
+        and(eq(contacts.companyId, companyId), eq(contacts.isActive, true)),
+      )
+      .groupBy(contacts.type),
+    db
+      .select({ total: count() })
+      .from(contacts)
+      .where(
+        and(
+          eq(contacts.companyId, companyId),
+          gte(contacts.createdAt, startOfMonth),
+        ),
+      ),
+  ]);
+
+  // "both" contacts count toward both customers and vendors
+  const customerCount =
+    (typeCounts.find((c) => c.type === "customer")?.total ?? 0) +
+    (typeCounts.find((c) => c.type === "both")?.total ?? 0);
+  const vendorCount =
+    (typeCounts.find((c) => c.type === "vendor")?.total ?? 0) +
+    (typeCounts.find((c) => c.type === "both")?.total ?? 0);
+
+  return { customerCount, vendorCount, newThisMonth: newRow?.total ?? 0 };
 }

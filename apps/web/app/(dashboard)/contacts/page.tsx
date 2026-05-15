@@ -2,12 +2,11 @@ import Link from "next/link";
 import { Plus, Users, Search } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { getTranslations } from "next-intl/server";
-import { count, eq, and, gte } from "drizzle-orm";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
-import { contacts } from "@kivvi/database";
 import { paginationRange } from "@/lib/utils";
 import { listContacts } from "@kivvi/core";
+import { getContactStats } from "@kivvi/core/src/domain/contacts";
 import { DEFAULT_PAGE_SIZE } from "@/lib/config/document-types";
 import { getContactTypeLabels } from "@/lib/config/contact-types";
 import { PageHeader } from "@/components/page-header";
@@ -49,51 +48,18 @@ export default async function ContactsPage({
     | "city";
   const order = (searchParams.order || "asc") as "asc" | "desc";
 
-  // Summary counts + list query in parallel
-  const startOfMonth = new Date(
-    new Date().getFullYear(),
-    new Date().getMonth(),
-    1,
-  );
-
-  const [result, typeCounts, [{ newThisMonth }]] = await Promise.all([
-    listContacts(db, companyId, {
-      search: search || undefined,
-      type: typeFilter || undefined,
-      page,
-      pageSize: DEFAULT_PAGE_SIZE,
-      sortBy: sort,
-      sortOrder: order,
-    }),
-
-    // Count by contact type (active only)
-    db
-      .select({ type: contacts.type, count: count() })
-      .from(contacts)
-      .where(
-        and(eq(contacts.companyId, companyId), eq(contacts.isActive, true)),
-      )
-      .groupBy(contacts.type),
-
-    // New contacts this month
-    db
-      .select({ newThisMonth: count() })
-      .from(contacts)
-      .where(
-        and(
-          eq(contacts.companyId, companyId),
-          gte(contacts.createdAt, startOfMonth),
-        ),
-      ),
-  ]);
-
-  // customer + both = Kunden, vendor + both = Lieferanten
-  const customerCount =
-    (typeCounts.find((c) => c.type === "customer")?.count ?? 0) +
-    (typeCounts.find((c) => c.type === "both")?.count ?? 0);
-  const vendorCount =
-    (typeCounts.find((c) => c.type === "vendor")?.count ?? 0) +
-    (typeCounts.find((c) => c.type === "both")?.count ?? 0);
+  const [result, { customerCount, vendorCount, newThisMonth }] =
+    await Promise.all([
+      listContacts(db, companyId, {
+        search: search || undefined,
+        type: typeFilter || undefined,
+        page,
+        pageSize: DEFAULT_PAGE_SIZE,
+        sortBy: sort,
+        sortOrder: order,
+      }),
+      getContactStats(db, companyId),
+    ]);
 
   // Pre-resolve translations for client component
   const bulkActionKeys = [
