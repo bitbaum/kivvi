@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { eq, and, or, isNull } from "drizzle-orm";
+import { eq, and, or, isNull, lte, gte } from "drizzle-orm";
 import { priceLists, priceRules, products } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
 import type { PriceList, PriceRule } from "@kivvi/database";
@@ -242,6 +242,32 @@ export async function deletePriceRule(
  *   - "percentage" → apply discount: price * (1 - value/100)
  *   - "tiered"     → same as percentage but only applies at minQuantity threshold
  */
+
+/**
+ * Pure calculation: given a matched rule and the product's base price, compute
+ * the resolved price. Returns null if the quantity doesn't meet the threshold.
+ */
+export function applyPriceRule(
+  rule: { type: string; value: string; minQuantity?: string | null },
+  basePrice: string,
+  quantity?: number,
+): { price: string; ruleType: string } | null {
+  if (rule.type === "tiered" && quantity !== undefined && rule.minQuantity) {
+    if (new Decimal(quantity).lt(new Decimal(rule.minQuantity))) {
+      return null;
+    }
+  }
+
+  if (rule.type === "percentage" || rule.type === "tiered") {
+    const base = new Decimal(basePrice);
+    const discount = new Decimal(rule.value).div(100);
+    const price = base.times(new Decimal(1).minus(discount)).toFixed(2);
+    return { price, ruleType: rule.type };
+  }
+
+  return { price: rule.value, ruleType: "fixed" };
+}
+
 export async function resolvePriceForProduct(
   db: Database,
   companyId: string,
@@ -267,8 +293,8 @@ export async function resolvePriceForProduct(
         eq(priceRules.priceListId, priceListId),
         eq(priceLists.companyId, companyId),
         or(eq(priceRules.productId, productId), isNull(priceRules.productId)),
-        or(isNull(priceRules.validFrom), eq(priceRules.validFrom, today)),
-        or(isNull(priceRules.validTo), eq(priceRules.validTo, today)),
+        or(isNull(priceRules.validFrom), lte(priceRules.validFrom, today)),
+        or(isNull(priceRules.validTo), gte(priceRules.validTo, today)),
       ),
     )
     .orderBy(priceRules.productId); // non-null productId rows first (DESC nulls last)
@@ -277,18 +303,7 @@ export async function resolvePriceForProduct(
   const productRule = rules.find((r) => r.productId === productId) || rules[0];
   if (!productRule) return null;
 
-  // tiered rules need quantity threshold
-  if (
-    productRule.type === "tiered" &&
-    quantity !== undefined &&
-    productRule.minQuantity
-  ) {
-    if (new Decimal(quantity).lt(new Decimal(productRule.minQuantity))) {
-      return null;
-    }
-  }
-
-  // Fetch base price for percentage/tiered rules
+  // percentage/tiered rules need the product's base price
   if (productRule.type === "percentage" || productRule.type === "tiered") {
     const [product] = await db
       .select({ unitPrice: products.unitPrice })
@@ -297,12 +312,8 @@ export async function resolvePriceForProduct(
 
     if (!product) return null;
 
-    const base = new Decimal(product.unitPrice);
-    const discount = new Decimal(productRule.value).div(100);
-    const price = base.times(new Decimal(1).minus(discount)).toDecimalPlaces(2);
-    return { price: price.toString(), ruleType: productRule.type };
+    return applyPriceRule(productRule, product.unitPrice, quantity);
   }
 
-  // fixed
-  return { price: productRule.value, ruleType: "fixed" };
+  return applyPriceRule(productRule, productRule.value, quantity);
 }
