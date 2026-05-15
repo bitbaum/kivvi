@@ -40,6 +40,8 @@ export {
 export { recordDataErasureTool } from "./record-data-erasure";
 export { getItemDetailsTool } from "./get-item-details";
 export { recordChecklistTool } from "./record-checklist";
+export { intakeInventoryItemTool } from "./intake-inventory-item";
+export { returnInventoryItemTool } from "./return-inventory-item";
 
 // Import for getDefaultTools
 import { searchInvoicesTool } from "./search-invoices";
@@ -81,6 +83,8 @@ import {
 import { recordDataErasureTool } from "./record-data-erasure";
 import { getItemDetailsTool } from "./get-item-details";
 import { recordChecklistTool } from "./record-checklist";
+import { intakeInventoryItemTool } from "./intake-inventory-item";
+import { returnInventoryItemTool } from "./return-inventory-item";
 
 /**
  * Get default tools for the ERP system
@@ -124,6 +128,8 @@ export function getDefaultTools(): Tool[] {
     recordDataErasureTool,
     getItemDetailsTool,
     recordChecklistTool,
+    intakeInventoryItemTool,
+    returnInventoryItemTool,
   ];
 }
 
