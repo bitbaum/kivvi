@@ -159,11 +159,19 @@ export function SelectableDunningTable({
             <div
               key={inv.id}
               className={cn(
-                "flex flex-col gap-2 p-4 sm:grid sm:grid-cols-[auto_1fr_1.5fr_auto_auto_auto_auto] sm:items-center sm:gap-4",
+                "relative flex flex-col gap-2 p-4 transition-colors hover:bg-muted/50 sm:grid sm:grid-cols-[auto_1fr_1.5fr_auto_auto_auto_auto] sm:items-center sm:gap-4",
                 isSelected(inv.id) && "bg-primary/5",
               )}
             >
-              <div className="flex items-center">
+              {/* Link overlay: covers entire row */}
+              <Link
+                href={`/sales/invoices/${inv.id}`}
+                className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
+                aria-label={inv.number}
+              />
+
+              {/* Interactive elements raised above the link overlay */}
+              <div className="relative z-10 flex items-center">
                 {canSelect ? (
                   <input
                     type="checkbox"
@@ -177,12 +185,7 @@ export function SelectableDunningTable({
                 )}
               </div>
               <div>
-                <Link
-                  href={`/sales/invoices/${inv.id}`}
-                  className="font-medium text-primary hover:underline"
-                >
-                  {inv.number}
-                </Link>
+                <div className="font-medium">{inv.number}</div>
                 {/* Mobile: show key info inline */}
                 <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground sm:hidden">
                   <span>
@@ -238,7 +241,7 @@ export function SelectableDunningTable({
                     inv.status}
                 </span>
               </div>
-              <div className="text-right">
+              <div className="relative z-10 text-right">
                 {inv.dunningLevel < 3 ? (
                   <div>
                     <button

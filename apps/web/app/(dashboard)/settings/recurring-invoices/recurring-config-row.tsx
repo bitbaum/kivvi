@@ -91,15 +91,13 @@ export function RecurringConfigRow({
     config.endDate && config.endDate < new Date().toISOString().split("T")[0];
 
   return (
-    <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_auto] gap-4 px-6 py-4 text-sm items-center">
-      <div className="font-medium">
-        <Link
-          href={`/settings/recurring-invoices/${config.id}`}
-          className="hover:text-primary transition-colors"
-        >
-          {config.orderNumber}
-        </Link>
-      </div>
+    <div className="relative grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_auto] gap-4 px-6 py-4 text-sm items-center transition-colors hover:bg-muted/50">
+      <Link
+        href={`/settings/recurring-invoices/${config.id}`}
+        className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
+        aria-label={config.orderNumber}
+      />
+      <div className="font-medium">{config.orderNumber}</div>
       <div className="text-muted-foreground">{config.contactName}</div>
       <div>{periodicityLabel}</div>
       <div className="text-muted-foreground">
@@ -120,7 +118,7 @@ export function RecurringConfigRow({
           </span>
         )}
       </div>
-      <div>
+      <div className="relative z-10">
         <DropdownMenu>
           <DropdownMenuTrigger className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-accent transition-colors">
             <MoreVertical className="h-4 w-4" />
