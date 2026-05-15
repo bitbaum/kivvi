@@ -116,6 +116,9 @@ export async function DocumentList({
       config.contactFilter === "vendor" ? t("noVendor") : t("noCustomer"),
   };
 
+  const hasActiveFilter =
+    !!(search || status) || Object.values(preserveParams ?? {}).some(Boolean);
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -188,20 +191,20 @@ export async function DocumentList({
       <div className="rounded-xl border bg-card">
         {result.data.length === 0 ? (
           <EmptyState
-            icon={search || status ? Search : FileText}
+            icon={hasActiveFilter ? Search : FileText}
             title={t("noDocumentsFound", { type: t(config.labelPlural) })}
             description={
-              search || status
+              hasActiveFilter
                 ? t("adjustFilters")
                 : t("createFirst", { type: t(config.label) })
             }
             actionLabel={
-              !search && !status && config.canCreate
+              !hasActiveFilter && config.canCreate
                 ? t("newDocument", { type: t(config.label) })
                 : undefined
             }
             actionHref={
-              !search && !status && config.canCreate
+              !hasActiveFilter && config.canCreate
                 ? `${config.basePath}/new`
                 : undefined
             }
