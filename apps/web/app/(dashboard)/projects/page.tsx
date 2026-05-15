@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Plus, Search, FolderKanban } from "lucide-react";
+import { ProjectTableRow } from "./project-table-row";
 import { EmptyState } from "@/components/empty-state";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
@@ -142,14 +143,16 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
                 </thead>
                 <tbody className="divide-y">
                   {result.data.map((project) => (
-                    <tr
+                    <ProjectTableRow
                       key={project.id}
-                      className="group transition-colors hover:bg-muted/50"
+                      href={`/projects/${project.id}`}
                     >
                       <td className="px-4 py-3">
+                        {/* Preserve Link for right-click / Ctrl+click / keyboard navigation */}
                         <Link
                           href={`/projects/${project.id}`}
-                          className="font-medium hover:underline"
+                          className="font-medium"
+                          onClick={(e) => e.stopPropagation()}
                         >
                           {project.name}
                         </Link>
@@ -188,7 +191,7 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
                       <td className="whitespace-nowrap px-4 py-3 text-sm text-muted-foreground">
                         {project.endDate ? formatDate(project.endDate) : "-"}
                       </td>
-                    </tr>
+                    </ProjectTableRow>
                   ))}
                 </tbody>
               </table>
