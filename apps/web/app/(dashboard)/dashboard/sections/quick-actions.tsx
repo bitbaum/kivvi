@@ -1,22 +1,21 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
+import { useState } from "react";
+import Link from "next/link";
 import {
   FileText,
-  Plus,
-  Receipt,
   CreditCard,
   UserPlus,
-  Package,
   Upload,
   MessageSquare,
-  ShoppingCart,
   ChevronDown,
   ChevronUp,
-} from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { DEFAULT_DASHBOARD_CONFIG } from '@/lib/config/dashboard-config';
+  PackagePlus,
+  Wrench,
+  Tag,
+} from "lucide-react";
+import { useTranslations } from "next-intl";
+import { DEFAULT_DASHBOARD_CONFIG } from "@/lib/config/dashboard-config";
 
 interface QuickAction {
   label: string;
@@ -27,56 +26,56 @@ interface QuickAction {
 
 export function QuickActions() {
   const [showAll, setShowAll] = useState(false);
-  const t = useTranslations('dashboard.quickActions');
+  const t = useTranslations("dashboard.quickActions");
 
   const actions: QuickAction[] = [
     {
-      label: t('createInvoice'),
-      href: '/sales/invoices/new',
+      label: t("quickIntake"),
+      href: "/intake/quick",
+      icon: <PackagePlus className="h-6 w-6" />,
+      description: t("quickIntakeDesc"),
+    },
+    {
+      label: t("repairQueue"),
+      href: "/intake/repair-queue",
+      icon: <Wrench className="h-6 w-6" />,
+      description: t("repairQueueDesc"),
+    },
+    {
+      label: t("readyForSale"),
+      href: "/intake/items?status=ready_for_sale",
+      icon: <Tag className="h-6 w-6" />,
+      description: t("readyForSaleDesc"),
+    },
+    {
+      label: t("createInvoice"),
+      href: "/sales/invoices/new",
       icon: <FileText className="h-6 w-6" />,
-      description: t('createInvoiceDesc'),
+      description: t("createInvoiceDesc"),
     },
     {
-      label: t('createQuote'),
-      href: '/sales/quotes/new',
-      icon: <Receipt className="h-6 w-6" />,
-      description: t('createQuoteDesc'),
-    },
-    {
-      label: t('createOrder'),
-      href: '/sales/orders/new',
-      icon: <ShoppingCart className="h-6 w-6" />,
-      description: t('createOrderDesc'),
-    },
-    {
-      label: t('recordPayment'),
-      href: '/sales/invoices?action=payment',
+      label: t("recordPayment"),
+      href: "/sales/invoices?action=payment",
       icon: <CreditCard className="h-6 w-6" />,
-      description: t('recordPaymentDesc'),
+      description: t("recordPaymentDesc"),
     },
     {
-      label: t('addContact'),
-      href: '/contacts/new',
+      label: t("addContact"),
+      href: "/contacts/new",
       icon: <UserPlus className="h-6 w-6" />,
-      description: t('addContactDesc'),
+      description: t("addContactDesc"),
     },
     {
-      label: t('addProduct'),
-      href: '/products/new',
-      icon: <Package className="h-6 w-6" />,
-      description: t('addProductDesc'),
-    },
-    {
-      label: t('importData'),
-      href: '/onboarding',
+      label: t("importData"),
+      href: "/onboarding",
       icon: <Upload className="h-6 w-6" />,
-      description: t('importDataDesc'),
+      description: t("importDataDesc"),
     },
     {
-      label: t('openAIChat'),
-      href: '/chat',
+      label: t("openAIChat"),
+      href: "/chat",
       icon: <MessageSquare className="h-6 w-6" />,
-      description: t('openAIChatDesc'),
+      description: t("openAIChatDesc"),
     },
   ];
 
@@ -88,8 +87,8 @@ export function QuickActions() {
     <div className="rounded-xl border bg-card">
       <div className="border-b p-4 flex items-center justify-between">
         <div>
-          <h2 className="font-semibold">{t('title')}</h2>
-          <p className="text-sm text-muted-foreground">{t('subtitle')}</p>
+          <h2 className="font-semibold">{t("title")}</h2>
+          <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
         {actions.length > DEFAULT_DASHBOARD_CONFIG.maxQuickActions && (
           <button
@@ -100,12 +99,12 @@ export function QuickActions() {
           >
             {showAll ? (
               <>
-                <span>{t('showLess')}</span>
+                <span>{t("showLess")}</span>
                 <ChevronUp className="h-4 w-4" />
               </>
             ) : (
               <>
-                <span>{t('showAll')}</span>
+                <span>{t("showAll")}</span>
                 <ChevronDown className="h-4 w-4" />
               </>
             )}
@@ -131,7 +130,9 @@ export function QuickActions() {
                 <p className="font-medium leading-tight">{action.label}</p>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">{action.description}</p>
+            <p className="text-xs text-muted-foreground">
+              {action.description}
+            </p>
           </Link>
         ))}
       </div>
