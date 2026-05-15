@@ -191,7 +191,7 @@ export function SortableLineItem({
                     htmlFor={`vatRate-${item.id}`}
                     className="block text-sm text-muted-foreground"
                   >
-                    {t("vatRate")} %
+                    {t("vatRate")}
                   </label>
                   <FormSelect
                     id={`vatRate-${item.id}`}
