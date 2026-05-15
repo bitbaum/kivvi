@@ -42,6 +42,9 @@ export { getItemDetailsTool } from "./get-item-details";
 export { recordChecklistTool } from "./record-checklist";
 export { intakeInventoryItemTool } from "./intake-inventory-item";
 export { returnInventoryItemTool } from "./return-inventory-item";
+export { getPriceListsTool } from "./get-price-lists";
+export { resolveProductPriceTool } from "./resolve-product-price";
+export { createPriceRuleTool } from "./create-price-rule";
 
 // Import for getDefaultTools
 import { searchInvoicesTool } from "./search-invoices";
@@ -85,6 +88,9 @@ import { getItemDetailsTool } from "./get-item-details";
 import { recordChecklistTool } from "./record-checklist";
 import { intakeInventoryItemTool } from "./intake-inventory-item";
 import { returnInventoryItemTool } from "./return-inventory-item";
+import { getPriceListsTool } from "./get-price-lists";
+import { resolveProductPriceTool } from "./resolve-product-price";
+import { createPriceRuleTool } from "./create-price-rule";
 
 /**
  * Get default tools for the ERP system
@@ -130,6 +136,9 @@ export function getDefaultTools(): Tool[] {
     recordChecklistTool,
     intakeInventoryItemTool,
     returnInventoryItemTool,
+    getPriceListsTool,
+    resolveProductPriceTool,
+    createPriceRuleTool,
   ];
 }
 
