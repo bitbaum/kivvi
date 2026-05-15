@@ -35,7 +35,8 @@ import {
   type NavItem,
 } from "@/components/sidebar/nav-link";
 
-// Core navigation — flat, 9 items
+// Core navigation — ordered by daily workflow priority for secondhand/refurbished goods:
+// Intake → Inventory → Sell → Support entities → Finance
 // minRole defaults to "member"; viewers only see dashboard + intake + inventory
 const primaryNavigation: NavItem[] = [
   {
@@ -43,28 +44,6 @@ const primaryNavigation: NavItem[] = [
     href: "/dashboard",
     icon: LayoutDashboard,
     minRole: "viewer",
-  },
-  { nameKey: "people", href: "/contacts", icon: Users },
-  { nameKey: "catalog", href: "/products", icon: Package },
-  {
-    nameKey: "sales",
-    href: "/sales/invoices",
-    icon: Receipt,
-    activePrefixes: ["/sales", "/invoices"],
-    badgeKey: "documents",
-  },
-  {
-    nameKey: "purchasing",
-    href: "/purchasing/purchase-invoices",
-    icon: ShoppingCart,
-    activePrefixes: ["/purchasing"],
-  },
-  {
-    nameKey: "money",
-    href: "/money",
-    icon: Wallet,
-    activePrefixes: ["/banking", "/accounting"],
-    badgeKey: "money",
   },
   {
     nameKey: "intake",
@@ -74,14 +53,36 @@ const primaryNavigation: NavItem[] = [
     badgeKey: "repair",
     badgeVariant: "warning",
   },
-  { nameKey: "pos", href: "/pos", icon: ShoppingBag },
   {
     nameKey: "inventory",
     href: "/inventory",
     icon: Warehouse,
     minRole: "viewer",
   },
+  {
+    nameKey: "sales",
+    href: "/sales/invoices",
+    icon: Receipt,
+    activePrefixes: ["/sales", "/invoices"],
+    badgeKey: "documents",
+  },
+  { nameKey: "pos", href: "/pos", icon: ShoppingBag },
+  { nameKey: "people", href: "/contacts", icon: Users },
+  { nameKey: "catalog", href: "/products", icon: Package },
+  {
+    nameKey: "purchasing",
+    href: "/purchasing/purchase-invoices",
+    icon: ShoppingCart,
+    activePrefixes: ["/purchasing"],
+  },
   { nameKey: "projects", href: "/projects", icon: FolderKanban },
+  {
+    nameKey: "money",
+    href: "/money",
+    icon: Wallet,
+    activePrefixes: ["/banking", "/accounting"],
+    badgeKey: "money",
+  },
   { nameKey: "reports", href: "/reports", icon: BarChart3 },
 ];
 
