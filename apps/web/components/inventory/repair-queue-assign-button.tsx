@@ -54,7 +54,7 @@ export function RepairQueueAssignButton({
         }}
         disabled={isPending}
         className={cn(
-          "flex h-8 items-center gap-1.5 rounded-full px-2.5 text-xs font-medium transition-colors",
+          "flex min-h-[44px] items-center gap-1.5 rounded-full px-2.5 text-xs font-medium transition-colors",
           assignedToUserId
             ? "bg-primary/10 text-primary hover:bg-primary/20"
             : "bg-muted text-muted-foreground hover:bg-muted/80",

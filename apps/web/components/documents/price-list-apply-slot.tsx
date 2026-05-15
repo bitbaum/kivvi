@@ -51,7 +51,7 @@ export function PriceListApplySlot({ priceLists, items, onApply }: Props) {
           setSelectedId(e.target.value);
           setApplied(false);
         }}
-        className="h-8 rounded-md border bg-background px-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
+        className="min-h-[44px] rounded-md border bg-background px-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
       >
         <option value="">{t("priceListSelectPlaceholder")}</option>
         {priceLists.map((pl) => (
@@ -66,7 +66,7 @@ export function PriceListApplySlot({ priceLists, items, onApply }: Props) {
           type="button"
           onClick={handleApply}
           disabled={isPending || itemsWithProduct.length === 0}
-          className="inline-flex h-8 items-center gap-1 rounded-md border bg-background px-2.5 text-xs font-medium hover:bg-muted disabled:opacity-40 transition-colors"
+          className="inline-flex min-h-[44px] items-center gap-1 rounded-md border bg-background px-2.5 text-xs font-medium hover:bg-muted disabled:opacity-40 transition-colors"
         >
           {applied ? (
             <>

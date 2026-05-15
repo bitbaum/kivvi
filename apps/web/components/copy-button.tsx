@@ -27,7 +27,7 @@ export function CopyButton({
       type="button"
       title={label || "Copy"}
       aria-label={label || "Copy to clipboard"}
-      className="inline-flex h-6 w-6 items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+      className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
     >
       {copied ? (
         <Check className="h-3 w-3 text-success" />

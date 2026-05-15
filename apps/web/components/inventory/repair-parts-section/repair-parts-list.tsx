@@ -76,7 +76,7 @@ export function RepairPartsList({
               <button
                 onClick={() => onRemove(part.id)}
                 disabled={isPending}
-                className="rounded p-0.5 text-muted-foreground opacity-0 transition-all hover:text-destructive group-hover:opacity-100"
+                className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded text-muted-foreground opacity-0 transition-all hover:text-destructive group-hover:opacity-100"
                 title={tc("delete")}
               >
                 <Trash2 className="h-3.5 w-3.5" />

@@ -144,7 +144,7 @@ export function LandingNav({
           </Button>
 
           {openDropdown === "solutions" && (
-            <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50 w-[520px] rounded-xl border bg-background shadow-lg ring-1 ring-black/5 dark:ring-white/10">
+            <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50 w-[520px] max-w-[calc(100vw-2rem)] rounded-xl border bg-background shadow-lg ring-1 ring-black/5 dark:ring-white/10">
               <div className="p-4">
                 <p className="mb-3 px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   {forWhomQuestionLabel}
@@ -216,7 +216,7 @@ export function LandingNav({
           </Button>
 
           {openDropdown === "wissen" && wissenItems.length > 0 && (
-            <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50 w-[400px] rounded-xl border bg-background shadow-lg ring-1 ring-black/5 dark:ring-white/10">
+            <div className="absolute left-1/2 -translate-x-1/2 top-full mt-2 z-50 w-[400px] max-w-[calc(100vw-2rem)] rounded-xl border bg-background shadow-lg ring-1 ring-black/5 dark:ring-white/10">
               <div className="p-4">
                 <p className="mb-3 px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   {featuredArticlesLabel}

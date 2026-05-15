@@ -160,7 +160,7 @@ export function ChatWidget() {
           {/* New conversation */}
           <button
             onClick={clearMessages}
-            className="flex shrink-0 items-center justify-center rounded-lg h-10 w-10 text-muted-foreground hover:bg-muted hover:text-foreground"
+            className="flex shrink-0 items-center justify-center rounded-lg min-h-[44px] min-w-[44px] text-muted-foreground hover:bg-muted hover:text-foreground"
             aria-label={t("newConversation")}
             title={t("newConversation")}
           >
@@ -170,7 +170,7 @@ export function ChatWidget() {
           {/* Expand to full page */}
           <button
             onClick={handleExpand}
-            className="flex shrink-0 items-center justify-center rounded-lg h-10 w-10 text-muted-foreground hover:bg-muted hover:text-foreground"
+            className="flex shrink-0 items-center justify-center rounded-lg min-h-[44px] min-w-[44px] text-muted-foreground hover:bg-muted hover:text-foreground"
             aria-label={t("expandToFullPage")}
             title={t("expandToFullPage")}
           >
@@ -180,7 +180,7 @@ export function ChatWidget() {
           {/* Close */}
           <button
             onClick={close}
-            className="flex shrink-0 items-center justify-center rounded-lg h-10 w-10 text-muted-foreground hover:bg-muted hover:text-foreground"
+            className="flex shrink-0 items-center justify-center rounded-lg min-h-[44px] min-w-[44px] text-muted-foreground hover:bg-muted hover:text-foreground"
             aria-label={t("closeAssistant")}
           >
             <X className="h-4 w-4" />

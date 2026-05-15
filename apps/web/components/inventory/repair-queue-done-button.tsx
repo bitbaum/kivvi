@@ -40,7 +40,7 @@ export function RepairQueueDoneButton({ itemId }: RepairQueueDoneButtonProps) {
       onClick={handleDone}
       disabled={isPending}
       className={cn(
-        "flex h-8 items-center gap-1.5 rounded-full px-2.5 text-xs font-medium transition-colors",
+        "flex min-h-[44px] items-center gap-1.5 rounded-full px-2.5 text-xs font-medium transition-colors",
         "bg-success/10 text-success hover:bg-success/20",
         isPending && "opacity-50 cursor-not-allowed",
       )}

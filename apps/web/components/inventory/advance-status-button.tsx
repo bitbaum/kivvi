@@ -52,7 +52,7 @@ export function AdvanceStatusButton({ itemId, currentStatus }: Props) {
       disabled={isPending}
       title={t(getStatusLabelKey(nextStatus))}
       className={cn(
-        "inline-flex items-center gap-1 rounded-md border px-2 py-1 text-xs font-medium transition-colors",
+        "inline-flex min-h-[44px] items-center gap-1 rounded-md border px-2 py-1 text-xs font-medium transition-colors",
         "border-border/50 bg-background text-muted-foreground",
         "hover:border-primary/50 hover:bg-primary/5 hover:text-primary",
         "disabled:opacity-40",
