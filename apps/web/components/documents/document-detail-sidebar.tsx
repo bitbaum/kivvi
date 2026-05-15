@@ -133,7 +133,21 @@ export async function DocumentDetailSidebar({
       {doc.contact && (
         <div className="rounded-xl border bg-card p-6">
           <h2 className="mb-4 font-semibold">
-            {config.contactFilter === "vendor" ? t("vendor") : t("customer")}
+            {doc.type === "intake"
+              ? doc.intakeSource === "donation"
+                ? t("intakeContactDonor")
+                : doc.intakeSource === "purchase" ||
+                    doc.intakeSource === "estate_clearance"
+                  ? t("intakeContactSeller")
+                  : doc.intakeSource === "trade_in" ||
+                      doc.intakeSource === "return"
+                    ? t("intakeContactCustomer")
+                    : doc.intakeSource === "consignment"
+                      ? t("intakeContactOwner")
+                      : t("intakeContactSeller")
+              : config.contactFilter === "vendor"
+                ? t("vendor")
+                : t("customer")}
           </h2>
           <div className="space-y-1 text-sm">
             <p className="font-medium">{doc.contact.name}</p>
