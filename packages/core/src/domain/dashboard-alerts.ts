@@ -3,6 +3,7 @@ import { eq, and, sql, desc, gte, lte, inArray } from "drizzle-orm";
 import {
   documents,
   products,
+  stockMovements,
   bankTransactions,
   bankAccounts,
   inventoryItems,
@@ -173,7 +174,10 @@ export async function getDashboardAlerts(
     });
   }
 
-  // 4. Low stock products (where stockQuantity <= minStock)
+  // 4. Low stock products (where stockQuantity <= minStock).
+  // Only products with at least one stock movement are considered — products
+  // imported as a catalog without ever receiving stock should not fire this
+  // alert, since their minStock is typically an import artifact.
   const lowStockProducts = await db
     .select({
       id: products.id,
@@ -188,6 +192,7 @@ export async function getDashboardAlerts(
         eq(products.companyId, companyId),
         eq(products.isActive, true),
         sql`${products.minStock} IS NOT NULL AND CAST(${products.stockQuantity} AS DECIMAL) <= ${products.minStock}`,
+        sql`EXISTS (SELECT 1 FROM ${stockMovements} sm WHERE sm.product_id = ${products.id})`,
       ),
     )
     .orderBy(
