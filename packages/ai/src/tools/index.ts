@@ -42,6 +42,7 @@ import { recordChecklistTool } from "./record-checklist";
 import { intakeInventoryItemTool } from "./intake-inventory-item";
 import { returnInventoryItemTool } from "./return-inventory-item";
 import { updateInventoryItemTool } from "./update-inventory-item";
+import { bulkUpdateItemStatusTool } from "./bulk-update-item-status";
 import { getPriceListsTool } from "./get-price-lists";
 import { resolveProductPriceTool } from "./resolve-product-price";
 import { createPriceRuleTool } from "./create-price-rule";
@@ -88,6 +89,7 @@ export {
   intakeInventoryItemTool,
   returnInventoryItemTool,
   updateInventoryItemTool,
+  bulkUpdateItemStatusTool,
   getPriceListsTool,
   resolveProductPriceTool,
   createPriceRuleTool,
@@ -136,6 +138,7 @@ export function getDefaultTools(): Tool[] {
     intakeInventoryItemTool,
     returnInventoryItemTool,
     updateInventoryItemTool,
+    bulkUpdateItemStatusTool,
     getPriceListsTool,
     resolveProductPriceTool,
     createPriceRuleTool,
