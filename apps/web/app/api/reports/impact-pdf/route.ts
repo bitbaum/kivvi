@@ -20,15 +20,20 @@ export async function GET(request: NextRequest) {
     }
     const companyId = session.user.companyId;
 
-    // Optional ?year=2026 filter. Omit for all-time.
+    // Accept ?start=YYYY-MM-DD&end=YYYY-MM-DD (preferred) or legacy ?year=2026.
+    const startParam = request.nextUrl.searchParams.get("start");
+    const endParam = request.nextUrl.searchParams.get("end");
     const yearParam = request.nextUrl.searchParams.get("year");
     const year = yearParam ? parseInt(yearParam, 10) : null;
 
     let startDate: Date | undefined;
     let endDate: Date | undefined;
-    if (year && !isNaN(year)) {
-      startDate = new Date(year, 0, 1); // Jan 1
-      endDate = new Date(year, 11, 31, 23, 59, 59); // Dec 31
+    if (startParam && endParam) {
+      startDate = new Date(startParam);
+      endDate = new Date(`${endParam}T23:59:59`);
+    } else if (year && !isNaN(year)) {
+      startDate = new Date(year, 0, 1);
+      endDate = new Date(year, 11, 31, 23, 59, 59);
     }
 
     const company = await db.query.companies.findFirst({
@@ -58,7 +63,7 @@ export async function GET(request: NextRequest) {
         getDestinationBreakdown(db, companyId, opts),
       ]);
 
-    // Fetch previous year metrics for comparison (only when a specific year is selected)
+    // Fetch previous year metrics for comparison (only when a specific calendar year is selected)
     let previousYearMetrics = undefined;
     let previousYear = undefined;
     if (year && !isNaN(year)) {
@@ -72,7 +77,12 @@ export async function GET(request: NextRequest) {
       previousYear = String(year - 1);
     }
 
-    const yearLabel = year ? String(year) : "Gesamt";
+    const yearLabel =
+      startParam && endParam
+        ? `${startParam}–${endParam}`
+        : year
+          ? String(year)
+          : "Gesamt";
     const pdf = await generateImpactPdf({
       companyName: company.name,
       year: yearLabel,

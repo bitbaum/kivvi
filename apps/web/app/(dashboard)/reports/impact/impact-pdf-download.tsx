@@ -3,14 +3,12 @@
 import { useState } from "react";
 import { Download } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-
-const CURRENT_YEAR = new Date().getFullYear();
-const YEAR_VALUES = Array.from({ length: 5 }, (_, i) => CURRENT_YEAR - i);
 
 export function ImpactPdfDownload() {
   const tr = useTranslations("reports");
-  const [year, setYear] = useState(String(CURRENT_YEAR));
+  const searchParams = useSearchParams();
   const [anonymize, setAnonymize] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -18,7 +16,10 @@ export function ImpactPdfDownload() {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (year) params.set("year", year);
+      const start = searchParams.get("start");
+      const end = searchParams.get("end");
+      if (start) params.set("start", start);
+      if (end) params.set("end", end);
       if (anonymize) params.set("anonymize", "1");
       const url = `/api/reports/impact-pdf?${params.toString()}`;
       const res = await fetch(url);
@@ -38,19 +39,6 @@ export function ImpactPdfDownload() {
 
   return (
     <div className="flex items-center gap-2">
-      <select
-        value={year}
-        onChange={(e) => setYear(e.target.value)}
-        className="h-10 rounded-lg border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
-        aria-label={tr("impactReportYear")}
-      >
-        <option value="">{tr("impactAllPeriods")}</option>
-        {YEAR_VALUES.map((y) => (
-          <option key={y} value={String(y)}>
-            {y}
-          </option>
-        ))}
-      </select>
       <label className="flex items-center gap-1.5 text-sm text-muted-foreground cursor-pointer select-none">
         <input
           type="checkbox"
