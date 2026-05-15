@@ -33,7 +33,9 @@ export async function InventoryOverview() {
           label={ti("avgMargin")}
           value={`${data.averageMarginPercent}%`}
           sub={`${formatCurrency(data.totalProfit)} ${ti("metricProfit")}`}
-          positive={data.averageMarginPercent > 0}
+          positive={
+            data.soldCount > 0 ? data.averageMarginPercent > 0 : undefined
+          }
         />
         <MetricCard
           icon={<Clock className="h-5 w-5" />}
@@ -46,7 +48,9 @@ export async function InventoryOverview() {
           label={ti("sellThrough")}
           value={`${data.sellThroughRate}%`}
           sub={ti("ofProcessedItemsSold")}
-          positive={data.sellThroughRate > 50}
+          positive={
+            data.intakeCount > 0 ? data.sellThroughRate > 50 : undefined
+          }
         />
       </div>
 

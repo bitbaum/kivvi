@@ -1,5 +1,5 @@
 import Decimal from "decimal.js";
-import { eq, and, sql, desc, lt, gte, inArray } from "drizzle-orm";
+import { eq, and, sql, desc, lt, gte, lte, inArray } from "drizzle-orm";
 import { documents, contacts } from "@kivvi/database";
 import type { Database, DocumentType } from "@kivvi/database";
 
@@ -55,6 +55,7 @@ export async function getWorkflowSuggestions(
       inArray(documents.status, ["sent", "confirmed"]),
       lt(documents.issueDate, threeDaysAgo),
       gte(documents.issueDate, ninetyDaysAgo),
+      lte(documents.issueDate, now),
     ),
     with: {
       contact: {
@@ -108,6 +109,7 @@ export async function getWorkflowSuggestions(
         eq(documents.type, "order"),
         eq(documents.status, "delivered"),
         gte(documents.issueDate, ninetyDaysAgo),
+        lte(documents.issueDate, now),
       ),
     )
     .orderBy(desc(documents.deliveryDate))
@@ -149,6 +151,7 @@ export async function getWorkflowSuggestions(
       eq(documents.type, "delivery_note"),
       eq(documents.status, "sent"),
       gte(documents.issueDate, ninetyDaysAgo),
+      lte(documents.issueDate, now),
     ),
     with: {
       contact: {
@@ -190,6 +193,7 @@ export async function getWorkflowSuggestions(
       eq(documents.status, "overdue"),
       sql`${documents.dueDate} < NOW() - INTERVAL '7 days'`,
       gte(documents.dueDate, ninetyDaysAgo),
+      lte(documents.dueDate, now),
     ),
     with: {
       contact: {
