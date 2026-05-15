@@ -23,15 +23,7 @@ import {
   QuickActionsSkeleton,
 } from "./skeletons";
 import { db } from "@/lib/db";
-import {
-  contacts,
-  documents,
-  inventoryItems,
-  users,
-  bankAccounts,
-} from "@kivvi/database";
-import { eq, count } from "drizzle-orm";
-import { getCompany } from "@kivvi/core/src/domain/companies";
+import { getDashboardBootstrap } from "@kivvi/core/src/domain/dashboard-bootstrap";
 import { OnboardingChecklist } from "./sections/onboarding-checklist";
 import { SampleDataBanner } from "./sections/sample-data-banner";
 
@@ -42,59 +34,12 @@ export default async function DashboardPage() {
   const session = await getSessionOrRedirect();
   const t = await getTranslations("dashboard");
 
-  // Fetch company info and counts for welcome section + sinceDate filter
   const companyId = session.user.companyId;
-  const [
-    company,
-    contactCountResult,
-    documentCountResult,
-    inventoryCountResult,
-    userCountResult,
-    bankAccountResult,
-  ] = await Promise.all([
-    getCompany(db, companyId),
-    db
-      .select({ value: count() })
-      .from(contacts)
-      .where(eq(contacts.companyId, companyId)),
-    db
-      .select({ value: count() })
-      .from(documents)
-      .where(eq(documents.companyId, companyId)),
-    db
-      .select({ value: count() })
-      .from(inventoryItems)
-      .where(eq(inventoryItems.companyId, companyId)),
-    db
-      .select({ value: count() })
-      .from(users)
-      .where(eq(users.companyId, companyId)),
-    db
-      .select({ iban: bankAccounts.iban })
-      .from(bankAccounts)
-      .where(eq(bankAccounts.companyId, companyId))
-      .limit(1),
-  ]);
+  const { company, contactCount, documentCount, checklistState } =
+    await getDashboardBootstrap(db, companyId);
   const sinceDate = company?.createdAt;
   const companyName = company?.name ?? "";
-  const contactCount = contactCountResult[0]?.value ?? 0;
-  const documentCount = documentCountResult[0]?.value ?? 0;
-
-  // Checklist data
-  const companyAgeDays = company?.createdAt
-    ? Math.floor((Date.now() - company.createdAt.getTime()) / 86_400_000)
-    : 999;
   const settings = company?.settings ?? {};
-  const checklistState = {
-    hasIntake: (inventoryCountResult[0]?.value ?? 0) > 0,
-    hasInvoice: documentCount > 0,
-    hasBankAccount: !!(
-      bankAccountResult[0]?.iban || settings.bankAccount?.iban
-    ),
-    hasTeamMember: (userCountResult[0]?.value ?? 0) > 1,
-    hasShopUrl: !!company?.slug,
-    companyAgeDays,
-  };
 
   return (
     <div className="space-y-8">

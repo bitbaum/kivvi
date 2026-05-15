@@ -4,17 +4,11 @@ import Link from "next/link";
 import { CheckCircle2, Circle, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import type { ChecklistState } from "@kivvi/core/src/domain/dashboard-bootstrap";
+
+export type { ChecklistState };
 
 const DISMISS_KEY = "kivvi-checklist-dismissed";
-
-export interface ChecklistState {
-  hasIntake: boolean;
-  hasInvoice: boolean;
-  hasBankAccount: boolean;
-  hasTeamMember: boolean;
-  hasShopUrl: boolean;
-  companyAgeDays: number;
-}
 
 interface ChecklistItem {
   id: string;
