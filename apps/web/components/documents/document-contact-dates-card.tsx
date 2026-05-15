@@ -79,26 +79,25 @@ export function DocumentContactDatesCard({
         </div>
       )}
 
-      {/* Contact label for intake (adapts to source) */}
-      {isIntake && (
-        <label className="block text-sm font-medium text-muted-foreground">
-          {intakeSource === "donation"
-            ? t("intakeContactDonor")
-            : intakeSource === "purchase" || intakeSource === "estate_clearance"
-              ? t("intakeContactSeller")
-              : intakeSource === "trade_in" || intakeSource === "return"
-                ? t("intakeContactCustomer")
-                : intakeSource === "consignment"
-                  ? t("intakeContactOwner")
-                  : t("intakeContactSeller")}
-        </label>
-      )}
-
       <ContactPicker
         value={contactId ?? null}
         displayValue={contactName ?? ""}
         onChange={onContactChange}
         contactType={contactFilter === "vendor" ? "vendor" : "customer"}
+        label={
+          isIntake
+            ? intakeSource === "donation"
+              ? t("intakeContactDonor")
+              : intakeSource === "purchase" ||
+                  intakeSource === "estate_clearance"
+                ? t("intakeContactSeller")
+                : intakeSource === "trade_in" || intakeSource === "return"
+                  ? t("intakeContactCustomer")
+                  : intakeSource === "consignment"
+                    ? t("intakeContactOwner")
+                    : t("intakeContactSeller")
+            : undefined
+        }
       />
 
       <div className="grid gap-4 sm:grid-cols-2">

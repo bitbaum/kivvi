@@ -160,7 +160,6 @@ export function DocumentForm({ type }: DocumentFormProps) {
           <h1 className="text-3xl font-bold">
             {t("newDocument", { type: t(config.label) })}
           </h1>
-          <p className="text-muted-foreground">{t("modifyDraft")}</p>
         </div>
       </div>
 
