@@ -29,6 +29,7 @@ import { MonthlyTrendSection } from "./monthly-trend";
 import { TopDonorsSection } from "./top-donors";
 import { CycleTimeSection } from "./cycle-time";
 import { StatusDwellSection } from "./status-dwell";
+import { DateRangeForm } from "../date-range-form";
 
 export const metadata: Metadata = {
   title: "Impact Report — Kivvi",
@@ -36,7 +37,11 @@ export const metadata: Metadata = {
 
 export const revalidate = 60;
 
-export default async function ImpactReportPage() {
+interface PageProps {
+  searchParams: Promise<{ start?: string; end?: string }>;
+}
+
+export default async function ImpactReportPage({ searchParams }: PageProps) {
   const session = await getSessionOrRedirect();
   const t = await getTranslations("inventory");
   const tr = await getTranslations("reports");
@@ -44,12 +49,22 @@ export default async function ImpactReportPage() {
   const tck = await getTranslations("checklist");
   const companyId = session.user.companyId;
 
+  const params = await searchParams;
+  const startDate = params.start ? new Date(params.start) : undefined;
+  const endDate = params.end ? new Date(`${params.end}T23:59:59`) : undefined;
+  const dateSubtitle =
+    params.start && params.end
+      ? `${params.start} – ${params.end}`
+      : tr("impactAllTime");
+
   const company = await db.query.companies.findFirst({
     where: eq(companies.id, companyId),
     columns: { settings: true, name: true },
   });
   const settings = (company?.settings as CompanySettings) ?? {};
   const co2FactorsKg = settings.co2FactorsKg;
+
+  const dateRange = { startDate, endDate };
 
   const [
     metrics,
@@ -59,10 +74,10 @@ export default async function ImpactReportPage() {
     cycleTime,
     statusDwell,
   ] = await Promise.all([
-    getImpactMetrics(db, companyId, { co2FactorsKg }),
-    getTopDonors(db, companyId, { limit: 5 }),
-    getMonthlyBreakdown(db, companyId),
-    getDestinationBreakdown(db, companyId),
+    getImpactMetrics(db, companyId, { co2FactorsKg, ...dateRange }),
+    getTopDonors(db, companyId, { limit: 5, ...dateRange }),
+    getMonthlyBreakdown(db, companyId, dateRange),
+    getDestinationBreakdown(db, companyId, dateRange),
     getCycleTimeMetrics(db, companyId),
     getStatusDwellMetrics(db, companyId),
   ]);
@@ -84,12 +99,20 @@ export default async function ImpactReportPage() {
         <PageHeader
           title={t("impact")}
           subtitle={
-            company?.name ? `${company.name} — ${tc("allTime")}` : tc("allTime")
+            company?.name ? `${company.name} — ${dateSubtitle}` : dateSubtitle
           }
         />
         <div className="ml-auto">
           <ImpactPdfDownload />
         </div>
+      </div>
+
+      {/* Date Range Filter */}
+      <div className="rounded-xl border bg-card p-4">
+        <DateRangeForm
+          defaultStart={params.start ?? ""}
+          defaultEnd={params.end ?? ""}
+        />
       </div>
 
       {metrics.itemsProcessed === 0 ? (
