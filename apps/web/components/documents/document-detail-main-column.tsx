@@ -39,7 +39,7 @@ export async function DocumentDetailMainColumn({
           {config.hasDeliveryDate && (
             <div>
               <p className="text-sm text-muted-foreground">
-                {t("deliveryDate")}
+                {config.hasDueDate ? t("deliveryDate") : t(config.dueDateLabel)}
               </p>
               <p className="font-medium">
                 {doc.deliveryDate ? formatDate(doc.deliveryDate) : tc("notSet")}

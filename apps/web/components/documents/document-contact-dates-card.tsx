@@ -23,6 +23,7 @@ interface DocumentContactDatesCardProps {
   dueDate: string;
   onDueDateChange: (v: string) => void;
   hasDeliveryDate: boolean;
+  deliveryDateLabel?: string;
   deliveryDate: string;
   onDeliveryDateChange: (v: string) => void;
 }
@@ -42,6 +43,7 @@ export function DocumentContactDatesCard({
   dueDate,
   onDueDateChange,
   hasDeliveryDate,
+  deliveryDateLabel,
   deliveryDate,
   onDeliveryDateChange,
 }: DocumentContactDatesCardProps) {
@@ -133,7 +135,7 @@ export function DocumentContactDatesCard({
         {hasDeliveryDate && (
           <div>
             <label className="block text-sm font-medium">
-              {t("deliveryDate")}
+              {deliveryDateLabel ?? t("deliveryDate")}
             </label>
             <FormInput
               type="date"

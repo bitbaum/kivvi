@@ -226,7 +226,9 @@ export function EditDocumentForm({
               {config.hasDeliveryDate && (
                 <div>
                   <label className="block text-sm font-medium">
-                    {t("deliveryDate")}
+                    {config.hasDueDate
+                      ? t("deliveryDate")
+                      : t(config.dueDateLabel)}
                   </label>
                   <FormInput
                     type="date"

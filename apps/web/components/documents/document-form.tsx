@@ -205,6 +205,11 @@ export function DocumentForm({ type }: DocumentFormProps) {
             dueDate={form.dueDate}
             onDueDateChange={form.setDueDate}
             hasDeliveryDate={config.hasDeliveryDate}
+            deliveryDateLabel={
+              config.hasDeliveryDate && !config.hasDueDate
+                ? t(config.dueDateLabel)
+                : undefined
+            }
             deliveryDate={form.deliveryDate}
             onDeliveryDateChange={form.setDeliveryDate}
           />
