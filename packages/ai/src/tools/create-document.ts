@@ -22,6 +22,20 @@ const documentItemSchema = z.object({
     .describe("Discount percentage (0-100)"),
 });
 
+const TYPE_BASE_PATHS: Record<string, string> = {
+  invoice: "/sales/invoices",
+  quote: "/sales/quotes",
+  order: "/sales/orders",
+  order_confirmation: "/sales/orders",
+  delivery_note: "/sales/delivery-notes",
+  credit_note: "/sales/credit-notes",
+  purchase_order: "/purchasing/purchase-orders",
+  purchase_invoice: "/purchasing/purchase-invoices",
+  dunning: "/sales/dunning",
+  intake: "/intake",
+  repair_order: "/repairs",
+};
+
 const createDocumentSchema = z.object({
   type: z
     .enum([
@@ -33,6 +47,8 @@ const createDocumentSchema = z.object({
       "credit_note",
       "purchase_order",
       "purchase_invoice",
+      "repair_order",
+      "intake",
     ])
     .describe("The type of document to create"),
   contactId: z
@@ -61,7 +77,7 @@ const createDocumentSchema = z.object({
 
 export const createDocumentTool: Tool = {
   name: "create_document",
-  description: `Create a new document (invoice, quote, order, credit note, etc.) with line items. The document is always created in draft status so the user can review before sending. Requires a contact ID and at least one line item.`,
+  description: `Create a new document (invoice, quote, order, credit note, repair order, intake, etc.) with line items. The document is always created in draft status so the user can review before sending. Requires a contact ID and at least one line item.`,
   parameters: createDocumentSchema,
   requiredPermissions: ["invoice:write"],
   execute: async (
@@ -110,7 +126,11 @@ export const createDocumentTool: Tool = {
         credit_note: "Credit Note",
         purchase_order: "Purchase Order",
         purchase_invoice: "Purchase Invoice",
+        repair_order: "Repair Order",
+        intake: "Intake",
       };
+
+      const basePath = TYPE_BASE_PATHS[params.type] ?? "/sales";
 
       return {
         success: true,
@@ -136,13 +156,13 @@ export const createDocumentTool: Tool = {
           {
             label: "View Document",
             action: "navigate",
-            params: { url: `/sales/${doc.id}` },
+            params: { url: `${basePath}/${doc.id}` },
             variant: "primary",
           },
           {
             label: "Edit Document",
             action: "navigate",
-            params: { url: `/sales/${doc.id}/edit` },
+            params: { url: `${basePath}/${doc.id}/edit` },
           },
         ],
       };
