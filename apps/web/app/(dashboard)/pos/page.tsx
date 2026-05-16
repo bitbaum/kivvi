@@ -58,6 +58,8 @@ export default function PosPage() {
         itemNumber: item.itemNumber,
         description: item.description,
         askingPrice: item.askingPrice ?? "",
+        soldPrice: item.askingPrice ?? "",
+        minPrice: item.minPrice ?? null,
         condition: item.condition,
         photoBase64: item.photoBase64,
       },
@@ -66,8 +68,14 @@ export default function PosPage() {
     setResults([]);
   }
 
+  function updateSoldPrice(id: string, price: string) {
+    setCart((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, soldPrice: price } : c)),
+    );
+  }
+
   const total = cart.reduce(
-    (sum, item) => sum.plus(new Decimal(item.askingPrice)),
+    (sum, item) => sum.plus(new Decimal(item.soldPrice || item.askingPrice)),
     new Decimal(0),
   );
 
@@ -83,7 +91,7 @@ export default function PosPage() {
           position: i,
           description: item.description,
           quantity: "1",
-          unitPrice: item.askingPrice,
+          unitPrice: item.soldPrice || item.askingPrice,
           vatRate: DEFAULT_VAT_RATE,
           discount: "0",
           inventoryItemId: item.id,
@@ -150,6 +158,7 @@ export default function PosPage() {
         <PosCart
           cart={cart}
           onRemove={(id) => setCart((prev) => prev.filter((c) => c.id !== id))}
+          onPriceChange={updateSoldPrice}
         />
       </div>
       <PosPaymentPanel
