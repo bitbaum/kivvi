@@ -21,6 +21,7 @@ interface DocumentItem {
   total: string;
   issueDate: string | Date;
   dueDate?: string | Date | null;
+  deliveryDate?: string | Date | null;
   contact?: { id: string; name: string } | null;
   /** Pre-translated label shown as a small badge under the document number (e.g. intake source type) */
   tag?: string | null;
@@ -169,7 +170,13 @@ export function SelectableDocumentTable({
                     {formatCurrency(doc.total)}
                   </span>
                   <span>·</span>
-                  <span>{formatDate(doc.issueDate)}</span>
+                  <span>
+                    {config.hasDeliveryDate &&
+                    !config.hasDueDate &&
+                    doc.deliveryDate
+                      ? formatDate(doc.deliveryDate)
+                      : formatDate(doc.issueDate)}
+                  </span>
                 </div>
               </div>
               <div className="hidden text-sm text-muted-foreground sm:block">
@@ -190,7 +197,11 @@ export function SelectableDocumentTable({
                 </span>
               </div>
               <div className="hidden text-right text-sm text-muted-foreground sm:block">
-                {formatDate(doc.issueDate)}
+                {config.hasDeliveryDate &&
+                !config.hasDueDate &&
+                doc.deliveryDate
+                  ? formatDate(doc.deliveryDate)
+                  : formatDate(doc.issueDate)}
               </div>
             </div>
           );

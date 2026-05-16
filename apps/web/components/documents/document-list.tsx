@@ -105,7 +105,10 @@ export async function DocumentList({
     contact: config.contactFilter === "vendor" ? t("vendor") : t("customer"),
     total: tc("total"),
     status: tc("status"),
-    date: tc("date"),
+    date:
+      config.hasDeliveryDate && !config.hasDueDate
+        ? t(config.dueDateLabel)
+        : tc("date"),
     noContact:
       config.contactFilter === "vendor" ? t("noVendor") : t("noCustomer"),
   };
@@ -213,6 +216,7 @@ export async function DocumentList({
               total: doc.total,
               issueDate: doc.issueDate,
               dueDate: doc.dueDate,
+              deliveryDate: doc.deliveryDate,
               contact: doc.contact,
               tag: doc.intakeSource
                 ? INTAKE_SOURCE_LABEL_KEYS[doc.intakeSource]
