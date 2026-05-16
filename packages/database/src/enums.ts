@@ -20,6 +20,7 @@ export const DOCUMENT_TYPE_VALUES = [
   "purchase_invoice",
   "dunning",
   "intake",
+  "repair_order",
 ] as const;
 export type DocumentTypeValue = (typeof DOCUMENT_TYPE_VALUES)[number];
 

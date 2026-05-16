@@ -16,6 +16,7 @@ export const VALID_CONVERSIONS: Partial<Record<DocumentType, DocumentType[]>> =
     delivery_note: ["invoice"],
     invoice: ["credit_note"],
     purchase_order: ["purchase_invoice"],
+    repair_order: ["invoice"],
   };
 
 /**
@@ -33,4 +34,5 @@ export const DOCUMENT_TYPE_LABELS_DE: Record<DocumentType, string> = {
   purchase_order: "Bestellung",
   purchase_invoice: "Eingangsrechnung",
   intake: "Wareneingang",
+  repair_order: "Serviceauftrag",
 };

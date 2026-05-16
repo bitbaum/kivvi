@@ -194,7 +194,8 @@
     "warehouses": "Entrepôts",
     "stockMovements": "Mouvements de stock",
     "deliveryNotes": "Bons de livraison",
-    "pos": "Caisse"
+    "pos": "Caisse",
+    "repairs": "Réparations"
   },
   "status": {
     "draft": "Brouillon",
@@ -235,6 +236,8 @@
     "dunningPlural": "Rappels",
     "intake": "Entrée",
     "intakePlural": "Entrées",
+    "repairOrder": "Ordre de réparation",
+    "repairOrderPlural": "Ordres de réparation",
     "purchaseOrder": "Commande fournisseur",
     "purchaseOrderPlural": "Commandes fournisseurs",
     "purchaseInvoice": "Facture fournisseur",
@@ -256,6 +259,7 @@
     "deliveryDate": "Date de livraison",
     "validUntil": "Valable jusqu'au",
     "expectedDelivery": "Livraison prévue",
+    "expectedCompletion": "Achèvement prévu",
     "lineItems": "Lignes",
     "addItem": "Ajouter une ligne",
     "priceListApply": "Appliquer",

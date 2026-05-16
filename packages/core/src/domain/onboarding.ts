@@ -43,7 +43,7 @@ export async function initializeCompany(
     // 1. Seed chart of accounts (Swiss KMU Kontenrahmen)
     const accountsCreated = await seedChartOfAccounts(tx, companyId);
 
-    // 2. Initialize number sequences (11 types)
+    // 2. Initialize number sequences (12 types)
     await initializeSequences(tx, companyId);
 
     // 3. Create default warehouse
@@ -88,7 +88,7 @@ export async function initializeCompany(
 
     return {
       accountsCreated,
-      sequencesCreated: 11,
+      sequencesCreated: 12,
       warehouseId: warehouse.id,
       fiscalYearId: fiscalYear.id,
     };

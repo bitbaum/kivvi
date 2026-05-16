@@ -24,6 +24,7 @@ import {
   FolderKanban,
   X,
   ShoppingBag,
+  Wrench,
 } from "lucide-react";
 import { KivviLogo } from "@/components/kivvi-logo";
 import { CompanySwitcher } from "@/components/sidebar/company-switcher";
@@ -67,6 +68,7 @@ const primaryNavigation: NavItem[] = [
     badgeKey: "documents",
   },
   { nameKey: "pos", href: "/pos", icon: ShoppingBag },
+  { nameKey: "repairs", href: "/repairs", icon: Wrench },
   { nameKey: "people", href: "/contacts", icon: Users },
   { nameKey: "catalog", href: "/products", icon: Package },
   {

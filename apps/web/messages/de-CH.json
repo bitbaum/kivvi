@@ -194,7 +194,8 @@
     "warehouses": "Lagerhäuser",
     "stockMovements": "Lagerbewegungen",
     "deliveryNotes": "Lieferscheine",
-    "pos": "Kasse"
+    "pos": "Kasse",
+    "repairs": "Reparaturen"
   },
   "status": {
     "draft": "Entwurf",
@@ -235,6 +236,8 @@
     "dunningPlural": "Mahnungen",
     "intake": "Wareneingang",
     "intakePlural": "Wareneingänge",
+    "repairOrder": "Serviceauftrag",
+    "repairOrderPlural": "Serviceaufträge",
     "purchaseOrder": "Bestellung",
     "purchaseOrderPlural": "Bestellungen",
     "purchaseInvoice": "Eingangsrechnung",
@@ -256,6 +259,7 @@
     "deliveryDate": "Lieferdatum",
     "validUntil": "Gültig bis",
     "expectedDelivery": "Voraussichtliche Lieferung",
+    "expectedCompletion": "Voraussichtliche Fertigstellung",
     "lineItems": "Positionen",
     "addItem": "Position hinzufügen",
     "priceListApply": "Anwenden",

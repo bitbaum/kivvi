@@ -194,7 +194,8 @@
     "warehouses": "Warehouses",
     "stockMovements": "Stock Movements",
     "deliveryNotes": "Delivery Notes",
-    "pos": "POS"
+    "pos": "POS",
+    "repairs": "Repairs"
   },
   "status": {
     "draft": "Draft",
@@ -235,6 +236,8 @@
     "dunningPlural": "Dunning",
     "intake": "Intake",
     "intakePlural": "Intakes",
+    "repairOrder": "Repair Order",
+    "repairOrderPlural": "Repair Orders",
     "purchaseOrder": "Purchase Order",
     "purchaseOrderPlural": "Purchase Orders",
     "purchaseInvoice": "Purchase Invoice",
@@ -256,6 +259,7 @@
     "deliveryDate": "Delivery Date",
     "validUntil": "Valid Until",
     "expectedDelivery": "Expected Delivery",
+    "expectedCompletion": "Expected Completion",
     "lineItems": "Line Items",
     "addItem": "Add Item",
     "priceListApply": "Apply",

@@ -93,7 +93,7 @@ describe("VALID_CONVERSIONS", () => {
 // ============================================================================
 
 describe("DOCUMENT_TYPE_LABELS_DE", () => {
-  it("defines labels for all 9 document types", () => {
+  it("defines labels for all 11 document types", () => {
     const expectedTypes = [
       "invoice",
       "quote",
@@ -105,6 +105,7 @@ describe("DOCUMENT_TYPE_LABELS_DE", () => {
       "purchase_order",
       "purchase_invoice",
       "intake",
+      "repair_order",
     ];
     expect(Object.keys(DOCUMENT_TYPE_LABELS_DE).sort()).toEqual(
       expectedTypes.sort(),

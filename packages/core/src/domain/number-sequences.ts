@@ -17,6 +17,7 @@ const SEQUENCE_DEFAULTS: Record<string, { prefix: string; format: string }> = {
   purchase_invoice: { prefix: "ER", format: "{prefix}-{year}-{number:5}" },
   dunning: { prefix: "MA", format: "{prefix}-{year}-{number:5}" },
   intake: { prefix: "EI", format: "{prefix}-{year}-{number:5}" },
+  repair_order: { prefix: "SA", format: "{prefix}-{year}-{number:5}" },
   contact: { prefix: "K", format: "{prefix}-{number:5}" },
   product: { prefix: "ART", format: "{prefix}-{number:5}" },
   inventory_item: { prefix: "IT", format: "{prefix}-{number:5}" },

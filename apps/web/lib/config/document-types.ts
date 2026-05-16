@@ -628,6 +628,62 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
       },
     ],
   },
+  repair_order: {
+    type: "repair_order",
+    label: "repairOrder",
+    labelPlural: "repairOrderPlural",
+    basePath: "/repairs",
+    contactFilter: "all",
+    statuses: ["draft", "confirmed", "delivered", "paid", "cancelled"],
+    actions: {
+      draft: [
+        { label: "confirm", targetStatus: "confirmed", variant: "primary" },
+        { label: "cancel", targetStatus: "cancelled", variant: "destructive" },
+      ],
+      confirmed: [
+        {
+          label: "markDelivered",
+          targetStatus: "delivered",
+          variant: "primary",
+        },
+        { label: "cancel", targetStatus: "cancelled", variant: "destructive" },
+      ],
+      delivered: [
+        { label: "cancel", targetStatus: "cancelled", variant: "destructive" },
+      ],
+    },
+    conversionTargets: VALID_CONVERSIONS.repair_order ?? [],
+    hasDueDate: false,
+    hasDeliveryDate: true,
+    hasPayments: false,
+    canCreate: true,
+    dueDateLabel: "expectedCompletion",
+    bulkActions: [
+      {
+        id: "convert_to_invoice",
+        label: "convertToInvoice",
+        action: "convert",
+        variant: "primary",
+        targetType: "invoice",
+      },
+      {
+        id: "confirm",
+        label: "confirm",
+        action: "status_change",
+        variant: "primary",
+        targetStatus: "confirmed",
+        applicableStatuses: ["draft"],
+      },
+      {
+        id: "delete",
+        label: "delete",
+        action: "delete",
+        variant: "destructive",
+        applicableStatuses: ["draft"],
+        requiresConfirmation: true,
+      },
+    ],
+  },
   intake: {
     type: "intake",
     label: "intake",
