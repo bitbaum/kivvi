@@ -589,6 +589,13 @@
         "sent": "Facture fournisseur envoyée",
         "paid": "Facture fournisseur payée"
       },
+      "repair_order": {
+        "draft": "Ordre de réparation créé",
+        "confirmed": "Ordre de réparation confirmé",
+        "delivered": "Ordre de réparation livré",
+        "paid": "Ordre de réparation payé",
+        "cancelled": "Ordre de réparation annulé"
+      },
       "dunning": {
         "draft": "Rappel créé",
         "sent": "Rappel envoyé"

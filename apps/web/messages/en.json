@@ -589,6 +589,13 @@
         "sent": "Purchase invoice sent",
         "paid": "Purchase invoice paid"
       },
+      "repair_order": {
+        "draft": "Repair order created",
+        "confirmed": "Repair order confirmed",
+        "delivered": "Repair order delivered",
+        "paid": "Repair order paid",
+        "cancelled": "Repair order cancelled"
+      },
       "dunning": {
         "draft": "Dunning created",
         "sent": "Dunning sent"

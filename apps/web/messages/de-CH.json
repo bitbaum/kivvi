@@ -589,6 +589,13 @@
         "sent": "Eingangsrechnung versendet",
         "paid": "Eingangsrechnung bezahlt"
       },
+      "repair_order": {
+        "draft": "Serviceauftrag erstellt",
+        "confirmed": "Serviceauftrag bestätigt",
+        "delivered": "Serviceauftrag geliefert",
+        "paid": "Serviceauftrag bezahlt",
+        "cancelled": "Serviceauftrag storniert"
+      },
       "dunning": {
         "draft": "Mahnung erstellt",
         "sent": "Mahnung versendet"
