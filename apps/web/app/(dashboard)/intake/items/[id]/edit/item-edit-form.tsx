@@ -37,6 +37,7 @@ interface ItemEditFormProps {
     estimatedValue: string | null;
     askingPrice: string | null;
     minPrice: string | null;
+    consignmentRate: string | null;
     notes: string | null;
     repairCost: string | null;
     repairHours: string | null;
@@ -118,6 +119,7 @@ export function ItemEditForm({
         askingPrice: (formData.get("askingPrice") as string) || null,
         minPrice: (formData.get("minPrice") as string) || null,
         estimatedValue: (formData.get("estimatedValue") as string) || null,
+        consignmentRate: (formData.get("consignmentRate") as string) || null,
         serialNumber: (formData.get("serialNumber") as string) || null,
         location: (formData.get("location") as string) || null,
         notes: (formData.get("notes") as string) || null,
@@ -204,7 +206,7 @@ export function ItemEditForm({
         </CardSection>
 
         <CardSection title={ti("pricing")}>
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <label
                 htmlFor="estimatedValue"
@@ -247,6 +249,26 @@ export function ItemEditForm({
                 defaultValue={item.minPrice || ""}
                 placeholder="0.00"
               />
+            </div>
+            <div>
+              <label
+                htmlFor="consignmentRate"
+                className="mb-1.5 block text-sm font-medium"
+              >
+                {ti("consignmentRate")}
+              </label>
+              <div className="relative">
+                <FormInput
+                  id="consignmentRate"
+                  name="consignmentRate"
+                  defaultValue={item.consignmentRate || ""}
+                  placeholder="0"
+                  className="pr-8"
+                />
+                <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-muted-foreground">
+                  %
+                </span>
+              </div>
             </div>
           </div>
         </CardSection>

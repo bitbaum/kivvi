@@ -1243,6 +1243,8 @@
     "effectiveCost": "Effective Cost",
     "askingPrice": "Asking Price",
     "minPrice": "Min Price",
+    "consignmentRate": "Consignment Rate",
+    "consignorPayout": "Consignor Payout",
     "soldFor": "Sold For",
     "itemImpactTitle": "Item rescued",
     "itemImpactTaglineSold": "This item was saved from e-waste and given a second life.",

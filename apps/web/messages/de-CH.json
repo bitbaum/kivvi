@@ -1243,6 +1243,8 @@
     "effectiveCost": "Effektive Kosten",
     "askingPrice": "Verkaufspreis",
     "minPrice": "Mindestpreis",
+    "consignmentRate": "Konsignationsanteil",
+    "consignorPayout": "Auszahlung Einlieferer",
     "soldFor": "Verkauft für",
     "itemImpactTitle": "Artikel gerettet",
     "itemImpactTaglineSold": "Dieser Artikel wurde vor dem Elektroschrott gerettet und weiterverwendet.",

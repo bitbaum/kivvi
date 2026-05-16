@@ -16,6 +16,7 @@ interface PricingItem {
   effectiveCost?: string | null;
   askingPrice?: string | null;
   minPrice?: string | null;
+  consignmentRate?: string | null;
   soldPrice?: string | null;
   saleDocumentId?: string | null;
 }
@@ -46,6 +47,13 @@ export async function ItemPricingCard({
   const margin =
     item.soldPrice && item.effectiveCost
       ? new Decimal(item.soldPrice).minus(item.effectiveCost)
+      : null;
+
+  const consignorPayout =
+    item.soldPrice && item.consignmentRate
+      ? new Decimal(item.soldPrice)
+          .times(new Decimal(item.consignmentRate).div(100))
+          .toDecimalPlaces(2)
       : null;
 
   return (
@@ -117,6 +125,16 @@ export async function ItemPricingCard({
                 >
                   {margin.gte(0) ? "+" : ""}
                   {formatCurrency(margin.toFixed(2))}
+                </span>
+              </div>
+            )}
+            {consignorPayout && (
+              <div className="flex justify-between text-sm border-t pt-2">
+                <span className="text-muted-foreground font-medium">
+                  {ti("consignorPayout")} ({item.consignmentRate}%)
+                </span>
+                <span className="font-medium text-warning">
+                  {formatCurrency(consignorPayout.toFixed(2))}
                 </span>
               </div>
             )}

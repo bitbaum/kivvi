@@ -831,6 +831,8 @@ export const inventoryItems = pgTable(
     askingPrice: decimal("asking_price", { precision: 12, scale: 2 }),
     minPrice: decimal("min_price", { precision: 12, scale: 2 }),
     soldPrice: decimal("sold_price", { precision: 12, scale: 2 }),
+    // Consignment: percentage of sale price owed to the owner (e.g. 60.00 for 60%)
+    consignmentRate: decimal("consignment_rate", { precision: 5, scale: 2 }),
     // Category — drives checklist template (e.g. "laptop", "bike", "clothing")
     category: text("category"),
     // Assignment (for repair queue)

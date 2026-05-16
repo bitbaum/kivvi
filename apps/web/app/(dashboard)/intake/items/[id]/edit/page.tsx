@@ -54,6 +54,7 @@ export default async function EditInventoryItemPage({ params }: PageProps) {
           estimatedValue: item.estimatedValue,
           askingPrice: item.askingPrice,
           minPrice: item.minPrice,
+          consignmentRate: item.consignmentRate,
           notes: item.notes,
           repairCost: item.repairCost,
           repairHours: item.repairHours,
