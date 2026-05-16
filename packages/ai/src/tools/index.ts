@@ -47,6 +47,7 @@ import { getPriceListsTool } from "./get-price-lists";
 import { resolveProductPriceTool } from "./resolve-product-price";
 import { createPriceRuleTool } from "./create-price-rule";
 import { createPriceListTool } from "./create-price-list";
+import { searchRepairOrdersTool } from "./search-repair-orders";
 
 export {
   searchInvoicesTool,
@@ -94,6 +95,7 @@ export {
   resolveProductPriceTool,
   createPriceRuleTool,
   createPriceListTool,
+  searchRepairOrdersTool,
 };
 
 export function getDefaultTools(): Tool[] {
@@ -143,6 +145,7 @@ export function getDefaultTools(): Tool[] {
     resolveProductPriceTool,
     createPriceRuleTool,
     createPriceListTool,
+    searchRepairOrdersTool,
   ];
 }
 
