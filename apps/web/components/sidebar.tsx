@@ -68,7 +68,12 @@ const primaryNavigation: NavItem[] = [
     badgeKey: "documents",
   },
   { nameKey: "pos", href: "/pos", icon: ShoppingBag },
-  { nameKey: "repairs", href: "/repairs", icon: Wrench },
+  {
+    nameKey: "repairs",
+    href: "/repairs",
+    icon: Wrench,
+    badgeKey: "openRepairOrders",
+  },
   { nameKey: "people", href: "/contacts", icon: Users },
   { nameKey: "catalog", href: "/products", icon: Package },
   {

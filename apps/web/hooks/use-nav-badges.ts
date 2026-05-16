@@ -7,10 +7,16 @@ import { getNavBadgesAction } from "@/app/actions/dashboard-preferences";
 export interface NavBadges {
   documents: number; // overdue invoices
   money: number; // unreconciled transactions
-  repair: number; // items in repair
+  repair: number; // items in repair (inventory items with status=repair)
+  openRepairOrders: number; // open repair order documents (draft + confirmed)
 }
 
-const EMPTY_BADGES: NavBadges = { documents: 0, money: 0, repair: 0 };
+const EMPTY_BADGES: NavBadges = {
+  documents: 0,
+  money: 0,
+  repair: 0,
+  openRepairOrders: 0,
+};
 
 export function useNavBadges(): NavBadges {
   const { data: session } = useSession();
