@@ -1324,6 +1324,10 @@ export const documentItemsRelations = relations(documentItems, ({ one }) => ({
     fields: [documentItems.productId],
     references: [products.id],
   }),
+  inventoryItem: one(inventoryItems, {
+    fields: [documentItems.inventoryItemId],
+    references: [inventoryItems.id],
+  }),
 }));
 
 export const documentPaymentsRelations = relations(

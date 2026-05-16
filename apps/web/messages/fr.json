@@ -425,7 +425,10 @@
     "donationReceiptEmailClosing": "Meilleures salutations",
     "donationReceiptEmailFooterAuto": "Cet e-mail a été envoyé automatiquement par {companyName}.",
     "donationReceiptEmailFooterBranding": "Envoyé avec Kivvi — ERP basé sur l'IA pour les entreprises suisses",
-    "donationReceiptEmailFilename": "RecuDeDon-{receiptNumber}.pdf"
+    "donationReceiptEmailFilename": "RecuDeDon-{receiptNumber}.pdf",
+    "saleImpactTitle": "Produits reconditionnés",
+    "saleImpactDesc": "{count, plural, one {# article} other {# articles}} de stock reconditionné — sauvés des déchets.",
+    "saleImpactCo2": "~{kg} kg CO₂ évités par rapport au neuf"
   },
   "dashboard": {
     "title": "Tableau de bord",

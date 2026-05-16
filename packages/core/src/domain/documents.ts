@@ -415,7 +415,10 @@ export async function getDocument(
       contact: true,
       project: true,
       items: {
-        with: { product: true },
+        with: {
+          product: true,
+          inventoryItem: { columns: { id: true, category: true } },
+        },
         orderBy: [asc(documentItems.position)],
       },
       payments: true,

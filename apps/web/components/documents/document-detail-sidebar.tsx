@@ -1,6 +1,6 @@
 import Decimal from "decimal.js";
 import Link from "next/link";
-import { CheckCircle2, Mail } from "lucide-react";
+import { CheckCircle2, Mail, Recycle } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { PaymentForm } from "./payment-form";
@@ -10,6 +10,7 @@ import {
   calculateOutstandingAmount,
   type DocumentWithRelations,
 } from "@kivvi/core/src/domain/documents";
+import { getCo2Factor } from "@kivvi/core/src/config/co2-factors";
 
 interface DocumentDetailSidebarProps {
   doc: DocumentWithRelations;
@@ -31,8 +32,41 @@ export async function DocumentDetailSidebar({
     ? new Decimal(doc.total || "0").minus(outstandingDecimal).toFixed(2)
     : "0.00";
 
+  // Impact callout: sum CO2 for all line items linked to inventory items
+  const inventoryLineItems = (doc.items ?? []).filter(
+    (item) => item.inventoryItemId,
+  );
+  const totalCo2Kg = inventoryLineItems.reduce(
+    (sum, item) =>
+      sum +
+      getCo2Factor(item.inventoryItem?.category) *
+        Math.max(1, Math.round(parseFloat(item.quantity || "1"))),
+    0,
+  );
+  const showImpact =
+    inventoryLineItems.length > 0 &&
+    (doc.type === "invoice" || doc.type === "order" || doc.type === "quote");
+
   return (
     <div className="space-y-6">
+      {/* Impact callout — shown on sales documents with refurbished inventory items */}
+      {showImpact && (
+        <div className="rounded-xl border border-success/30 bg-success/5 p-4">
+          <div className="mb-2 flex items-center gap-2">
+            <Recycle className="h-4 w-4 text-success" />
+            <span className="text-sm font-semibold text-success">
+              {t("saleImpactTitle")}
+            </span>
+          </div>
+          <p className="mb-2 text-sm text-muted-foreground">
+            {t("saleImpactDesc", { count: inventoryLineItems.length })}
+          </p>
+          <p className="text-sm font-semibold text-success">
+            {t("saleImpactCo2", { kg: totalCo2Kg })}
+          </p>
+        </div>
+      )}
+
       {/* Totals */}
       <div className="rounded-xl border bg-card p-6">
         <h2 className="mb-4 font-semibold">{t("summary")}</h2>

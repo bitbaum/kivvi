@@ -425,7 +425,10 @@
     "donationReceiptEmailClosing": "Freundliche Grüsse",
     "donationReceiptEmailFooterAuto": "Diese E-Mail wurde automatisch von {companyName} versendet.",
     "donationReceiptEmailFooterBranding": "Versendet mit Kivvi — KI-gestützte ERP-Software für Schweizer Unternehmen",
-    "donationReceiptEmailFilename": "Spendenquittung-{receiptNumber}.pdf"
+    "donationReceiptEmailFilename": "Spendenquittung-{receiptNumber}.pdf",
+    "saleImpactTitle": "Aufbereitete Waren",
+    "saleImpactDesc": "{count, plural, one {# Artikel} other {# Artikel}} aus aufbereitetem Bestand — vor Entsorgung gerettet.",
+    "saleImpactCo2": "~{kg} kg CO₂ eingespart gegenüber Neukauf"
   },
   "dashboard": {
     "title": "Übersicht",
