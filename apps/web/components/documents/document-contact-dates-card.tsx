@@ -8,6 +8,8 @@ interface DocumentContactDatesCardProps {
   isIntake: boolean;
   intakeSource: string;
   onIntakeSourceChange: (v: string) => void;
+  consignmentRate: string;
+  onConsignmentRateChange: (v: string) => void;
   contactId: string | undefined | null;
   contactName: string | undefined;
   onContactChange: (
@@ -32,6 +34,8 @@ export function DocumentContactDatesCard({
   isIntake,
   intakeSource,
   onIntakeSourceChange,
+  consignmentRate,
+  onConsignmentRateChange,
   contactId,
   contactName,
   onContactChange,
@@ -77,6 +81,36 @@ export function DocumentContactDatesCard({
             {intakeSource === "consignment" && t("intakeSourceConsignmentHint")}
             {intakeSource === "estate_clearance" && t("intakeSourceEstateHint")}
             {intakeSource === "return" && t("intakeSourceReturnHint")}
+          </p>
+        </div>
+      )}
+
+      {isIntake && intakeSource === "consignment" && (
+        <div>
+          <label
+            htmlFor="consignmentRate"
+            className="block text-sm font-medium"
+          >
+            {t("consignmentRate")}
+          </label>
+          <div className="relative mt-1">
+            <FormInput
+              id="consignmentRate"
+              type="number"
+              min="0"
+              max="100"
+              step="0.5"
+              value={consignmentRate}
+              onChange={(e) => onConsignmentRateChange(e.target.value)}
+              placeholder="30"
+              className="pr-8"
+            />
+            <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-sm text-muted-foreground">
+              %
+            </span>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {t("consignmentRateHint")}
           </p>
         </div>
       )}

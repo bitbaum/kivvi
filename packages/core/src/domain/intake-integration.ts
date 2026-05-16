@@ -25,6 +25,7 @@ export async function createInventoryItemsFromIntake(
     id: string;
     contactId: string | null;
     donorId?: string | null;
+    consignmentRate?: string | null;
   },
 ): Promise<{ created: number }> {
   // Fetch line items for this intake document
@@ -59,6 +60,7 @@ export async function createInventoryItemsFromIntake(
           intakeDocumentId: doc.id,
           donorContactId: doc.donorId ?? doc.contactId ?? null,
           estimatedValue: unitCost,
+          consignmentRate: doc.consignmentRate ?? null,
         });
         created++;
       }
@@ -76,6 +78,7 @@ export async function createInventoryItemsFromIntake(
         donorContactId: doc.donorId ?? doc.contactId ?? null,
         estimatedValue: unitCost,
         notes: `Bulk lot: ${qty} units`,
+        consignmentRate: doc.consignmentRate ?? null,
       });
       created++;
     }

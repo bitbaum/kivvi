@@ -285,6 +285,8 @@
     "intakeContactSeller": "Seller",
     "intakeContactCustomer": "Customer",
     "intakeContactOwner": "Owner",
+    "consignmentRate": "Consignment Rate (%)",
+    "consignmentRateHint": "Your commission percentage. The remainder is owed to the owner after sale.",
     "acquisitionCost": "Cost",
     "aiQuickEntry": "AI Quick Entry",
     "aiQuickEntryHint": "Describe what arrived — one item or many. AI parses it into line items.",

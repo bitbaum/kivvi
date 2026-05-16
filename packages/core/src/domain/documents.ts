@@ -98,6 +98,11 @@ export const createDocumentSchema = z.object({
   // Intake-specific fields
   intakeSource: z.enum(INTAKE_SOURCE_VALUES).optional().nullable(),
   donorId: z.string().uuid().optional().nullable(),
+  consignmentRate: z
+    .string()
+    .regex(/^\d+(\.\d{1,2})?$/, "Invalid consignment rate")
+    .optional()
+    .nullable(),
   items: z
     .array(documentItemSchema)
     .min(1, "At least one line item is required"),
@@ -112,6 +117,11 @@ export const updateDocumentSchema = z.object({
   currency: z.string().optional(),
   notes: z.string().max(5000).optional().nullable(),
   internalNotes: z.string().max(5000).optional().nullable(),
+  consignmentRate: z
+    .string()
+    .regex(/^\d+(\.\d{1,2})?$/, "Invalid consignment rate")
+    .optional()
+    .nullable(),
   items: z
     .array(documentItemSchema)
     .min(1, "At least one line item is required")
@@ -506,6 +516,7 @@ export async function createDocument(
         // Intake-specific fields
         intakeSource: validated.intakeSource ?? null,
         donorId: validated.donorId ?? null,
+        consignmentRate: validated.consignmentRate ?? null,
         qrReference,
         createdBy: userId,
       })
@@ -656,6 +667,8 @@ export async function updateDocument(
       if (validated.notes !== undefined) updateValues.notes = validated.notes;
       if (validated.internalNotes !== undefined)
         updateValues.internalNotes = validated.internalNotes;
+      if (validated.consignmentRate !== undefined)
+        updateValues.consignmentRate = validated.consignmentRate;
 
       // Recalculate totals
       const totals = calculateTotals(items);
@@ -715,6 +728,8 @@ export async function updateDocument(
   if (validated.notes !== undefined) updateValues.notes = validated.notes;
   if (validated.internalNotes !== undefined)
     updateValues.internalNotes = validated.internalNotes;
+  if (validated.consignmentRate !== undefined)
+    updateValues.consignmentRate = validated.consignmentRate;
 
   const [updated] = await db
     .update(documents)
@@ -773,6 +788,7 @@ async function handleInventoryItemCreation(
     type: string;
     contactId: string | null;
     donorId: string | null;
+    consignmentRate: string | null;
   },
   newStatus: DocumentStatus,
 ) {
@@ -781,6 +797,7 @@ async function handleInventoryItemCreation(
       id: doc.id,
       contactId: doc.contactId,
       donorId: doc.donorId ?? null,
+      consignmentRate: doc.consignmentRate ?? null,
     });
   }
   if (doc.type === "purchase_invoice" && newStatus === "confirmed") {

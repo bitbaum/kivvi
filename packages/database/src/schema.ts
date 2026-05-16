@@ -424,6 +424,7 @@ export const documents = pgTable(
     // Intake-specific fields (for type='intake')
     intakeSource: intakeSourceEnum("intake_source"),
     donorId: uuid("donor_id").references(() => contacts.id),
+    consignmentRate: decimal("consignment_rate", { precision: 5, scale: 2 }),
     // Email tracking
     lastEmailedAt: timestamp("last_emailed_at"),
     lastEmailedTo: text("last_emailed_to"),

@@ -280,6 +280,8 @@
     "intakeContactSeller": "Verkäufer",
     "intakeContactCustomer": "Kunde",
     "intakeContactOwner": "Eigentümer",
+    "consignmentRate": "Konsignationsanteil (%)",
+    "consignmentRateHint": "Ihre Provision in Prozent. Der Rest wird nach dem Verkauf an den Eigentümer ausgeschüttet.",
     "intakeSourceEstate": "Haushaltsauflösung",
     "intakeSourceReturn": "Retoure",
     "intakeSourceOther": "Sonstiges",

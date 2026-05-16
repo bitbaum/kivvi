@@ -280,6 +280,8 @@
     "intakeContactSeller": "Vendeur",
     "intakeContactCustomer": "Client",
     "intakeContactOwner": "Propriétaire",
+    "consignmentRate": "Taux de consignation (%)",
+    "consignmentRateHint": "Votre pourcentage de commission. Le reste est dû au propriétaire après la vente.",
     "intakeSourceEstate": "Liquidation de succession",
     "intakeSourceReturn": "Retour",
     "intakeSourceOther": "Autre",

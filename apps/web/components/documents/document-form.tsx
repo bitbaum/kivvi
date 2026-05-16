@@ -42,6 +42,7 @@ export function DocumentForm({ type }: DocumentFormProps) {
   const [error, setError] = useState<string | null>(null);
   const isIntake = type === "intake";
   const [intakeSource, setIntakeSource] = useState<string>("donation");
+  const [consignmentRate, setConsignmentRate] = useState<string>("");
   // Donations don't need pricing on line items. Everything else does.
   const hideLineItemPricing = isIntake && intakeSource === "donation";
 
@@ -97,6 +98,10 @@ export function DocumentForm({ type }: DocumentFormProps) {
         ...(isIntake && {
           intakeSource,
           donorId: form.contactId || null,
+          consignmentRate:
+            intakeSource === "consignment" && consignmentRate
+              ? consignmentRate
+              : null,
         }),
         items: validItems.map((item, index) => ({
           position: index,
@@ -118,7 +123,17 @@ export function DocumentForm({ type }: DocumentFormProps) {
         );
       }
     });
-  }, [form, type, config, router, t, startTransition, isIntake, intakeSource]);
+  }, [
+    form,
+    type,
+    config,
+    router,
+    t,
+    startTransition,
+    isIntake,
+    intakeSource,
+    consignmentRate,
+  ]);
 
   // Cmd+Enter (Mac) / Ctrl+Enter (Win/Linux) to submit
   useEffect(() => {
@@ -186,6 +201,8 @@ export function DocumentForm({ type }: DocumentFormProps) {
             isIntake={isIntake}
             intakeSource={intakeSource}
             onIntakeSourceChange={setIntakeSource}
+            consignmentRate={consignmentRate}
+            onConsignmentRateChange={setConsignmentRate}
             contactId={form.contactId}
             contactName={form.contactName}
             onContactChange={(id, name, paymentTermsDays) => {
