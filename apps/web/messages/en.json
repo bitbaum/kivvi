@@ -1286,6 +1286,8 @@
     "divertedFromLandfill": "diverted from landfill",
     "reuseRate": "reuse rate",
     "impact": "Impact",
+    "thisMonth": "This month",
+    "allTime": "all time",
     "fullReport": "Full report",
     "byCategory": "by category",
     "status": "Status",

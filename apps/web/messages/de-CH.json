@@ -1286,6 +1286,8 @@
     "divertedFromLandfill": "von der Deponie abgelenkt",
     "reuseRate": "Wiederverwendungsrate",
     "impact": "Impact",
+    "thisMonth": "Diesen Monat",
+    "allTime": "gesamt",
     "fullReport": "Vollständiger Bericht",
     "byCategory": "nach Kategorie",
     "status": "Status",
