@@ -197,6 +197,40 @@ export async function DocumentDetailSidebar({
               </p>
             )}
           </div>
+          {doc.type === "intake" && doc.intakeSource && (
+            <div className="mt-3 space-y-1.5 border-t pt-3 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">
+                  {t("intakeSource")}
+                </span>
+                <span>
+                  {doc.intakeSource === "donation"
+                    ? t("intakeSourceDonation")
+                    : doc.intakeSource === "purchase"
+                      ? t("intakeSourcePurchase")
+                      : doc.intakeSource === "trade_in"
+                        ? t("intakeSourceTradeIn")
+                        : doc.intakeSource === "consignment"
+                          ? t("intakeSourceConsignment")
+                          : doc.intakeSource === "estate_clearance"
+                            ? t("intakeSourceEstate")
+                            : doc.intakeSource === "return"
+                              ? t("intakeSourceReturn")
+                              : t("intakeSourceOther")}
+                </span>
+              </div>
+              {doc.intakeSource === "consignment" && doc.consignmentRate && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">
+                    {t("consignmentRate")}
+                  </span>
+                  <span className="font-medium text-warning">
+                    {doc.consignmentRate}%
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
           <Link
             href={`/contacts/${doc.contact.id}`}
             className="mt-3 inline-block text-sm text-primary hover:underline"
