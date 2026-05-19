@@ -26,10 +26,10 @@ import {
 import type { CompanyMember } from "@kivvi/core/src/domain/memberships";
 import type { PendingInvitation } from "@kivvi/core/src/domain/invitations";
 import {
-  type MembershipRole,
-  INVITABLE_ROLES,
-  MEMBERSHIP_ROLES,
-} from "@kivvi/database";
+  INVITABLE_ROLE_VALUES as INVITABLE_ROLES,
+  MEMBERSHIP_ROLE_VALUES as MEMBERSHIP_ROLES,
+  type MembershipRoleValue as MembershipRole,
+} from "@kivvi/database/src/enums";
 import { useSession } from "next-auth/react";
 import { TeamInvitationsList } from "./team-invitations-list";
 import { RoleBadge } from "./role-badge";

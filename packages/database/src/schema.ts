@@ -26,6 +26,7 @@ import {
   ITEM_CONDITION_VALUES,
   ITEM_STATUS_VALUES,
   WEBHOOK_EVENT_VALUES,
+  MEMBERSHIP_ROLE_VALUES,
   type AiProviderValue,
   type WebhookEvent,
 } from "./enums";
@@ -72,10 +73,7 @@ export const itemConditionEnum = pgEnum("item_condition", [
 export const itemStatusEnum = pgEnum("item_status", [...ITEM_STATUS_VALUES]);
 
 export const membershipRoleEnum = pgEnum("membership_role", [
-  "owner",
-  "admin",
-  "member",
-  "viewer",
+  ...MEMBERSHIP_ROLE_VALUES,
 ]);
 
 export const invitationStatusEnum = pgEnum("invitation_status", [
@@ -1809,13 +1807,8 @@ export type DocumentStatus = (typeof documentStatusEnum.enumValues)[number];
 export type AccountType = (typeof accountTypeEnum.enumValues)[number];
 export type ContactType = (typeof contactTypeEnum.enumValues)[number];
 export type MembershipRole = (typeof membershipRoleEnum.enumValues)[number];
+/** All membership roles — re-exported from enums for convenience */
 export const MEMBERSHIP_ROLES = membershipRoleEnum.enumValues;
-/** Roles assignable via invitation (owner excluded — ownership is granted at company creation) */
-export const INVITABLE_ROLES = [
-  "admin",
-  "member",
-  "viewer",
-] as const satisfies readonly MembershipRole[];
 export type InvitationStatus = (typeof invitationStatusEnum.enumValues)[number];
 export type RecurringPeriodicity =
   (typeof recurringPeriodicityEnum.enumValues)[number];

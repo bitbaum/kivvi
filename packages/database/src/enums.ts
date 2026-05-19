@@ -155,3 +155,19 @@ export const WEBHOOK_EVENT_VALUES = [
   "payment.received",
 ] as const;
 export type WebhookEvent = (typeof WEBHOOK_EVENT_VALUES)[number];
+
+export const MEMBERSHIP_ROLE_VALUES = [
+  "owner",
+  "admin",
+  "member",
+  "viewer",
+] as const;
+export type MembershipRoleValue = (typeof MEMBERSHIP_ROLE_VALUES)[number];
+/** Roles assignable via invitation (owner excluded — granted at company creation) */
+export const INVITABLE_ROLE_VALUES = [
+  "admin",
+  "member",
+  "viewer",
+] as const satisfies readonly MembershipRoleValue[];
+/** @deprecated use INVITABLE_ROLE_VALUES */
+export const INVITABLE_ROLES = INVITABLE_ROLE_VALUES;
