@@ -7,8 +7,8 @@ import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import { useChatWidget } from "@/hooks/use-chat-widget";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
-import { ChatMessages } from "./ChatMessages";
-import { ChatInput } from "./ChatInput";
+import { ChatMessages } from "./chat-messages";
+import { ChatInput } from "./chat-input";
 import { ModelSelector } from "@/components/model-selector";
 
 export function ChatWidget() {

@@ -45,6 +45,10 @@ import { logger } from "@/lib/logger";
 import { dispatchWebhookEvent } from "@kivvi/core/src/domain/webhooks";
 import { getTranslations } from "next-intl/server";
 import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
+import {
+  AMOUNT_REGEX,
+  DATE_REGEX,
+} from "@kivvi/core/src/utils/validation-patterns";
 
 // ============================================================================
 // VALIDATION SCHEMAS FOR UNVALIDATED PARAMS
@@ -55,8 +59,8 @@ const updateStatusSchema = z.object({
 });
 
 const recordPaymentSchema = z.object({
-  amount: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid amount"),
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}/, "Invalid date"),
+  amount: z.string().regex(AMOUNT_REGEX, "Invalid amount"),
+  date: z.string().regex(DATE_REGEX, "Invalid date"),
   method: z.enum(PAYMENT_METHOD_VALUES).optional(),
   reference: z.string().max(500).optional(),
 });

@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { Send, Loader2 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { Send, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface ChatInputProps {
   input: string;
@@ -11,8 +11,14 @@ interface ChatInputProps {
   inputRef?: React.RefObject<HTMLInputElement>;
 }
 
-export function ChatInput({ input, setInput, onSubmit, isLoading, inputRef }: ChatInputProps) {
-  const t = useTranslations('chat');
+export function ChatInput({
+  input,
+  setInput,
+  onSubmit,
+  isLoading,
+  inputRef,
+}: ChatInputProps) {
+  const t = useTranslations("chat");
 
   return (
     <form onSubmit={onSubmit} className="flex gap-2">
@@ -21,7 +27,7 @@ export function ChatInput({ input, setInput, onSubmit, isLoading, inputRef }: Ch
         type="text"
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        placeholder={t('askKivvi')}
+        placeholder={t("askKivvi")}
         className="flex-1 rounded-lg border bg-background px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
         disabled={isLoading}
       />
@@ -29,7 +35,7 @@ export function ChatInput({ input, setInput, onSubmit, isLoading, inputRef }: Ch
         type="submit"
         disabled={!input.trim() || isLoading}
         className="flex items-center justify-center rounded-lg bg-primary min-h-[44px] min-w-[44px] text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-        aria-label={t('sendMessage')}
+        aria-label={t("sendMessage")}
       >
         {isLoading ? (
           <Loader2 className="h-5 w-5 animate-spin" />

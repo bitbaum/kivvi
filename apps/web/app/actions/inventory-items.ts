@@ -38,6 +38,7 @@ import { revalidatePath } from "next/cache";
 import { dispatchWebhookEvent } from "@kivvi/core/src/domain/webhooks";
 import { getTranslations } from "next-intl/server";
 import { MAX_UPLOAD_SIZE_BYTES } from "@/lib/config/uploads";
+import { AMOUNT_REGEX } from "@kivvi/core/src/utils/validation-patterns";
 
 export async function createInventoryItemAction(
   input: unknown,
@@ -313,10 +314,10 @@ export async function removeItemPhotoAction(
 }
 
 const recordRepairSchema = z.object({
-  cost: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid cost"),
+  cost: z.string().regex(AMOUNT_REGEX, "Invalid cost"),
   hours: z
     .string()
-    .regex(/^\d+(\.\d{1,2})?$/, "Invalid hours")
+    .regex(AMOUNT_REGEX, "Invalid hours")
     .optional()
     .or(z.literal("")),
   note: z.string().max(500).optional(),
@@ -412,7 +413,7 @@ export const bulkUpdateItemConditionAction = createAction<
 
 const bulkPriceSchema = z.object({
   itemIds: z.array(z.string().uuid()).min(1),
-  askingPrice: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid price"),
+  askingPrice: z.string().regex(AMOUNT_REGEX, "Invalid price"),
 });
 
 export const bulkUpdateItemAskingPriceAction = createAction<

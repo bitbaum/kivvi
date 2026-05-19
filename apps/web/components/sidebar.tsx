@@ -176,11 +176,8 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
             onClose?.();
           }}
           className={cn(
-            "flex w-full min-h-[44px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-            chatWidget.isOpen
-              ? "bg-primary text-primary-foreground"
-              : "text-muted-foreground hover:bg-muted hover:text-foreground",
+            "ui-nav-item",
+            chatWidget.isOpen && "ui-nav-item-active",
           )}
         >
           <MessageSquare className="h-4 w-4" aria-hidden="true" />
@@ -210,13 +207,7 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
               key={item.nameKey}
               href={item.href}
               onClick={onClose}
-              className={cn(
-                "flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                isActive
-                  ? "bg-muted text-foreground"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
-              )}
+              className={cn("ui-nav-item", isActive && "ui-nav-item-active")}
               aria-current={isActive ? "page" : undefined}
             >
               <item.icon className="h-4 w-4" aria-hidden="true" />

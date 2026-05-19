@@ -14,12 +14,12 @@ import {
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { toast } from "sonner";
 import { createDocumentAction } from "@/app/actions/documents";
-import { listPriceListsAction } from "@/app/actions/pricing";
 import { DOCUMENT_TYPES } from "@/lib/config/document-types";
 import { CharCountTextarea } from "@/components/ui/char-count-textarea";
-import type { DocumentType, PriceList } from "@kivvi/database";
+import type { DocumentType } from "@kivvi/database";
 import { IntakeQuickEntry } from "./intake-quick-entry";
 import { useDocumentForm, decodePrefill } from "@/hooks/use-document-form";
+import { usePriceLists } from "@/hooks/use-price-lists";
 import { LineItemsEditor } from "./line-items-editor";
 import { DocumentSummaryPanel } from "./document-summary-panel";
 import { DocumentContactDatesCard } from "./document-contact-dates-card";
@@ -37,7 +37,6 @@ export function DocumentForm({ type }: DocumentFormProps) {
   const searchParams = useSearchParams();
   const t = useTranslations("documents");
   const tc = useTranslations("common");
-  const tPriceLists = useTranslations("priceLists");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const isIntake = type === "intake";
@@ -64,15 +63,7 @@ export function DocumentForm({ type }: DocumentFormProps) {
     }),
   );
 
-  // Fetch price lists for the optional price-list apply slot
-  const [priceLists, setPriceLists] = useState<PriceList[]>([]);
-  useEffect(() => {
-    listPriceListsAction()
-      .then((r) => {
-        if (r.success && r.data) setPriceLists(r.data);
-      })
-      .catch(() => toast.error(tPriceLists("errorFailedToLoad")));
-  }, [tPriceLists]);
+  const priceLists = usePriceLists();
 
   const handleSubmit = useCallback(async () => {
     setError(null);

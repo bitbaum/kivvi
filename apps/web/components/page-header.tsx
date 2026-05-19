@@ -12,7 +12,7 @@ export function PageHeader({ title, subtitle, actions }: PageHeaderProps) {
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h1 className="text-3xl font-bold">{title}</h1>
+        <h1>{title}</h1>
         {subtitle && <p className="text-muted-foreground">{subtitle}</p>}
       </div>
       {actions && (
@@ -60,7 +60,7 @@ export function DetailPageHeader({
           </Link>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold">{title}</h1>
+              <h1>{title}</h1>
               {badge}
             </div>
             {subtitle && <p className="text-muted-foreground">{subtitle}</p>}

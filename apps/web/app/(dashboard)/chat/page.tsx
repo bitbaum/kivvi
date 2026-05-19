@@ -7,8 +7,8 @@ import { useTranslations } from "next-intl";
 import { useChat } from "@/hooks/use-chat";
 import { useModelSelection } from "@/hooks/use-model-selection";
 import { ModelSelector, type ModelOption } from "@/components/model-selector";
-import { ChatMessages } from "@/components/chat-widget/ChatMessages";
-import { ChatInput } from "@/components/chat-widget/ChatInput";
+import { ChatMessages } from "@/components/chat-widget/chat-messages";
+import { ChatInput } from "@/components/chat-widget/chat-input";
 import { logger } from "@/lib/logger";
 import { getAvailableModelsAction } from "@/app/actions/ai-extract";
 

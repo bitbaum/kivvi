@@ -7,7 +7,7 @@ import { Header } from "@/components/header";
 import { KeyboardShortcutsHelp } from "@/components/keyboard-shortcuts-help";
 import { CommandPalette } from "@/components/command-palette";
 import { ChatWidgetProvider } from "@/hooks/use-chat-widget";
-import { ChatWidget } from "@/components/chat-widget/ChatWidget";
+import { ChatWidget } from "@/components/chat-widget/chat-widget";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 
 export default function DashboardLayout({
@@ -92,7 +92,7 @@ export default function DashboardLayout({
 
   return (
     <ChatWidgetProvider>
-      <div className="flex h-screen bg-muted/30">
+      <div className="flex h-screen bg-background">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         <div className="flex flex-1 flex-col overflow-hidden">
           <Header

@@ -62,6 +62,7 @@ import {
   NON_TERMINAL_STATUSES,
 } from "../config/document-constants";
 import { logger } from "../logger";
+import { AMOUNT_REGEX, QUANTITY_REGEX } from "../utils/validation-patterns";
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -72,16 +73,16 @@ const documentItemSchema = z.object({
   inventoryItemId: z.string().uuid().optional().nullable(),
   position: z.number().int().min(0),
   description: z.string().min(1, "Description is required"),
-  quantity: z.string().regex(/^\d+(\.\d{1,4})?$/, "Invalid quantity"),
-  unitPrice: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid unit price"),
+  quantity: z.string().regex(QUANTITY_REGEX, "Invalid quantity"),
+  unitPrice: z.string().regex(AMOUNT_REGEX, "Invalid unit price"),
   discount: z
     .string()
-    .regex(/^\d+(\.\d{1,2})?$/, "Invalid discount")
+    .regex(AMOUNT_REGEX, "Invalid discount")
     .default("0")
     .refine((v) => parseFloat(v) <= 100, "Discount cannot exceed 100%"),
   vatRate: z
     .string()
-    .regex(/^\d+(\.\d{1,2})?$/, "Invalid VAT rate")
+    .regex(AMOUNT_REGEX, "Invalid VAT rate")
     .default(DEFAULT_VAT_RATE),
 });
 
@@ -100,7 +101,7 @@ export const createDocumentSchema = z.object({
   donorId: z.string().uuid().optional().nullable(),
   consignmentRate: z
     .string()
-    .regex(/^\d+(\.\d{1,2})?$/, "Invalid consignment rate")
+    .regex(AMOUNT_REGEX, "Invalid consignment rate")
     .optional()
     .nullable(),
   items: z
@@ -119,7 +120,7 @@ export const updateDocumentSchema = z.object({
   internalNotes: z.string().max(5000).optional().nullable(),
   consignmentRate: z
     .string()
-    .regex(/^\d+(\.\d{1,2})?$/, "Invalid consignment rate")
+    .regex(AMOUNT_REGEX, "Invalid consignment rate")
     .optional()
     .nullable(),
   items: z

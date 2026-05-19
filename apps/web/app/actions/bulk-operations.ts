@@ -35,6 +35,7 @@ import {
 } from "./utils";
 import { revalidateDocumentPaths } from "./utils/revalidate-documents";
 import { getTranslations } from "next-intl/server";
+import { DATE_EXACT_REGEX } from "@kivvi/core/src/utils/validation-patterns";
 
 // ============================================================================
 // TYPES
@@ -363,7 +364,7 @@ export async function bulkMarkPaidAction(
   try {
     const { companyId } = await requireRole("member");
     const schema = bulkDocumentIdsSchema.extend({
-      paymentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+      paymentDate: z.string().regex(DATE_EXACT_REGEX),
       method: z.enum(PAYMENT_METHOD_VALUES).default("bank_transfer"),
     });
     const data = parseInput(schema, input);

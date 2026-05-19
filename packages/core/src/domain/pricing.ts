@@ -6,6 +6,7 @@ import type { PriceList, PriceRule } from "@kivvi/database";
 import { PRICE_RULE_TYPE_VALUES } from "@kivvi/database";
 import Decimal from "decimal.js";
 import { DEFAULT_CURRENCY } from "../config/locale";
+import { AMOUNT_REGEX, QUANTITY_REGEX } from "../utils/validation-patterns";
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -23,10 +24,10 @@ export const createPriceRuleSchema = z.object({
   productId: z.string().uuid().optional().nullable(),
   productGroupId: z.string().uuid().optional().nullable(),
   type: z.enum(PRICE_RULE_TYPE_VALUES),
-  value: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid value format"),
+  value: z.string().regex(AMOUNT_REGEX, "Invalid value format"),
   minQuantity: z
     .string()
-    .regex(/^\d+(\.\d{1,4})?$/, "Invalid quantity")
+    .regex(QUANTITY_REGEX, "Invalid quantity")
     .optional()
     .nullable(),
   validFrom: z.string().date().optional().nullable(),

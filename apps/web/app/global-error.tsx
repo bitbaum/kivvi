@@ -38,7 +38,7 @@ export default function GlobalError({
           >
             An unexpected error occurred
           </h1>
-          <p style={{ color: "#666", marginBottom: "1.5rem" }}>
+          <p style={{ color: "rgb(107 114 128)", marginBottom: "1.5rem" }}>
             The error has been reported automatically. Please try again.
           </p>
           <button

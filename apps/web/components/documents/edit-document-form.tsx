@@ -6,14 +6,14 @@ import { useTranslations } from "next-intl";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { updateDocumentAction } from "@/app/actions/documents";
-import { listPriceListsAction } from "@/app/actions/pricing";
 import type { DocumentTypeConfig } from "@/lib/config/document-types";
 import { DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
 import { ContactPicker } from "@/components/contacts/contact-picker";
 import { CharCountTextarea } from "@/components/ui/char-count-textarea";
 import { FormInput } from "@/components/ui/form-field";
-import type { DocumentType, PriceList } from "@kivvi/database";
+import type { DocumentType } from "@kivvi/database";
 import { toast } from "sonner";
+import { usePriceLists } from "@/hooks/use-price-lists";
 import { calculateDocumentTotals } from "./calculate-item-total";
 import type { LineItem } from "./document-form-types";
 import { EditLineItemsTable } from "./edit-line-items-table";
@@ -45,7 +45,6 @@ export function EditDocumentForm({
   const router = useRouter();
   const t = useTranslations("documents");
   const tc = useTranslations("common");
-  const tPriceLists = useTranslations("priceLists");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -59,14 +58,7 @@ export function EditDocumentForm({
   const [notes, setNotes] = useState(initialData.notes);
   const [internalNotes, setInternalNotes] = useState(initialData.internalNotes);
   const [items, setItems] = useState<LineItem[]>(initialData.items);
-  const [priceLists, setPriceLists] = useState<PriceList[]>([]);
-  useEffect(() => {
-    listPriceListsAction()
-      .then((r) => {
-        if (r.success && r.data) setPriceLists(r.data);
-      })
-      .catch(() => toast.error(tPriceLists("errorFailedToLoad")));
-  }, [tPriceLists]);
+  const priceLists = usePriceLists();
 
   const addItem = () =>
     setItems([

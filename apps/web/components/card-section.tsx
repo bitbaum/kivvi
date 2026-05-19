@@ -18,9 +18,9 @@ export function CardSection({
   className,
 }: CardSectionProps) {
   return (
-    <div className={cn("rounded-xl border bg-card", className)}>
-      <div className="flex items-center justify-between border-b px-6 py-4">
-        <h2 className="font-semibold flex items-center gap-2">
+    <div className={cn("ui-panel", className)}>
+      <div className="ui-panel-header">
+        <h2 className="text-sm font-semibold flex items-center gap-2">
           {icon}
           {title}
         </h2>

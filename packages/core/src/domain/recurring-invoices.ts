@@ -17,6 +17,7 @@ import { RECURRING_PERIODICITY_VALUES } from "@kivvi/database/src/enums";
 import { convertDocument } from "./documents";
 import { buildInvoiceEmailSubject } from "./email";
 import { logger } from "../logger";
+import { DATE_REGEX } from "../utils/validation-patterns";
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -25,12 +26,8 @@ import { logger } from "../logger";
 export const createRecurringConfigSchema = z.object({
   orderId: z.string().uuid(),
   periodicity: z.enum(RECURRING_PERIODICITY_VALUES),
-  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}/, "Invalid date"),
-  endDate: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}/, "Invalid date")
-    .optional()
-    .nullable(),
+  startDate: z.string().regex(DATE_REGEX, "Invalid date"),
+  endDate: z.string().regex(DATE_REGEX, "Invalid date").optional().nullable(),
   autoExtensionMonths: z.number().int().min(1).max(60).optional().nullable(),
   emailRecipients: z.array(z.string().email()).optional().nullable(),
   notes: z.string().max(5000).optional().nullable(),
@@ -39,15 +36,8 @@ export const createRecurringConfigSchema = z.object({
 export const updateRecurringConfigSchema = z.object({
   isActive: z.boolean().optional(),
   periodicity: z.enum(RECURRING_PERIODICITY_VALUES).optional(),
-  startDate: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}/, "Invalid date")
-    .optional(),
-  endDate: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}/, "Invalid date")
-    .optional()
-    .nullable(),
+  startDate: z.string().regex(DATE_REGEX, "Invalid date").optional(),
+  endDate: z.string().regex(DATE_REGEX, "Invalid date").optional().nullable(),
   autoExtensionMonths: z.number().int().min(1).max(60).optional().nullable(),
   emailRecipients: z.array(z.string().email()).optional().nullable(),
   notes: z.string().max(5000).optional().nullable(),

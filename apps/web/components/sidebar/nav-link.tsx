@@ -65,13 +65,7 @@ export function NavLink({
     <Link
       href={item.href}
       onClick={onClick}
-      className={cn(
-        "flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-        isActive
-          ? "bg-primary text-primary-foreground"
-          : "text-muted-foreground hover:bg-muted hover:text-foreground",
-      )}
+      className={cn("ui-nav-item", isActive && "ui-nav-item-active")}
       aria-current={isActive ? "page" : undefined}
     >
       <div className="relative">
@@ -91,11 +85,9 @@ export function NavLink({
         <span
           className={cn(
             "ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-xs font-medium",
-            isActive
-              ? "bg-primary-foreground/20 text-primary-foreground"
-              : isWarning
-                ? "bg-warning/10 text-warning"
-                : "bg-destructive/10 text-destructive",
+            isWarning
+              ? "bg-warning/10 text-warning"
+              : "bg-destructive/10 text-destructive",
           )}
         >
           {badgeCount > 99 ? "99+" : badgeCount}

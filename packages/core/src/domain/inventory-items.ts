@@ -30,6 +30,7 @@ import {
 } from "../config/checklist-templates";
 import { getNextNumber } from "./number-sequences";
 import { logger } from "../logger";
+import { AMOUNT_REGEX, QUANTITY_REGEX } from "../utils/validation-patterns";
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -444,11 +445,8 @@ export async function recordRepair(
 
 export const addRepairPartSchema = z.object({
   description: z.string().min(1, "Description is required").max(200),
-  quantity: z
-    .string()
-    .regex(/^\d+(\.\d{1,4})?$/, "Invalid quantity")
-    .default("1"),
-  unitCost: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid cost"),
+  quantity: z.string().regex(QUANTITY_REGEX, "Invalid quantity").default("1"),
+  unitCost: z.string().regex(AMOUNT_REGEX, "Invalid cost"),
   productId: z.string().uuid().optional().nullable(),
   notes: z.string().max(500).optional().nullable(),
 });

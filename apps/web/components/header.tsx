@@ -155,7 +155,7 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
           </button>
           {showLangMenu && (
             <div
-              className="absolute right-0 top-full z-50 mt-2 w-36 rounded-lg border bg-card p-1 shadow-lg"
+              className="absolute right-0 top-full z-50 mt-2 w-36 rounded-lg border bg-card p-1 shadow-md"
               role="menu"
               aria-label={t("aria.languageOptions")}
             >
@@ -232,7 +232,7 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
 
           {showUserMenu && (
             <div
-              className="absolute right-0 top-full z-50 mt-2 w-56 rounded-lg border bg-card p-1 shadow-lg"
+              className="absolute right-0 top-full z-50 mt-2 w-56 rounded-lg border bg-card p-1 shadow-md"
               role="menu"
               aria-label={t("aria.userMenu")}
             >

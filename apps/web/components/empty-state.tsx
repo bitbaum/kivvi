@@ -1,5 +1,5 @@
-import Link from 'next/link';
-import { LucideIcon } from 'lucide-react';
+import Link from "next/link";
+import { LucideIcon } from "lucide-react";
 
 interface EmptyStateProps {
   icon: LucideIcon;
@@ -21,20 +21,18 @@ export function EmptyState({
   secondaryActionHref,
 }: EmptyStateProps) {
   return (
-    <div className="rounded-xl border bg-card p-12 text-center">
-      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-        <Icon className="h-8 w-8 text-muted-foreground" />
+    <div className="ui-empty-state">
+      <div className="ui-empty-icon">
+        <Icon className="h-6 w-6" />
       </div>
-      <h3 className="mt-4 text-lg font-semibold">{title}</h3>
-      <p className="mt-2 text-sm text-muted-foreground max-w-md mx-auto">
-        {description}
-      </p>
+      <h3 className="ui-empty-title">{title}</h3>
+      <p className="ui-empty-description">{description}</p>
       {(actionLabel || secondaryActionLabel) && (
-        <div className="mt-6 flex items-center justify-center gap-3">
+        <div className="flex items-center justify-center gap-3">
           {actionHref && actionLabel && (
             <Link
               href={actionHref}
-              className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               {actionLabel}
             </Link>
@@ -42,7 +40,7 @@ export function EmptyState({
           {secondaryActionHref && secondaryActionLabel && (
             <Link
               href={secondaryActionHref}
-              className="inline-flex items-center justify-center rounded-md border bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="inline-flex items-center justify-center rounded-md border bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
               {secondaryActionLabel}
             </Link>

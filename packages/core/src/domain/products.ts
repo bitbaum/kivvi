@@ -10,6 +10,7 @@ import {
 } from "../config/product";
 import { getNextNumber } from "./number-sequences";
 import type { PaginatedResult } from "./contacts";
+import { AMOUNT_REGEX, WEIGHT_REGEX } from "../utils/validation-patterns";
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -23,35 +24,27 @@ export const createProductSchema = z.object({
   ean: z.string().max(50).optional().nullable(),
   manufacturerId: z.string().uuid().optional().nullable(),
   productGroupId: z.string().uuid().optional().nullable(),
-  unitPrice: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid price format"),
+  unitPrice: z.string().regex(AMOUNT_REGEX, "Invalid price format"),
   purchasePrice: z
     .string()
-    .regex(/^\d+(\.\d{1,2})?$/, "Invalid price format")
+    .regex(AMOUNT_REGEX, "Invalid price format")
     .optional()
     .nullable(),
   currency: z.string().default(DEFAULT_CURRENCY),
-  vatRate: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid VAT rate"),
+  vatRate: z.string().regex(AMOUNT_REGEX, "Invalid VAT rate"),
   unit: z.enum(UNIT_TYPE_VALUES).default(DEFAULT_UNIT),
   weight: z
     .string()
-    .regex(/^\d+(\.\d{1,3})?$/, "Invalid weight")
+    .regex(WEIGHT_REGEX, "Invalid weight")
     .optional()
     .nullable(),
-  width: z
-    .string()
-    .regex(/^\d+(\.\d{1,2})?$/, "Invalid width")
-    .optional()
-    .nullable(),
+  width: z.string().regex(AMOUNT_REGEX, "Invalid width").optional().nullable(),
   height: z
     .string()
-    .regex(/^\d+(\.\d{1,2})?$/, "Invalid height")
+    .regex(AMOUNT_REGEX, "Invalid height")
     .optional()
     .nullable(),
-  depth: z
-    .string()
-    .regex(/^\d+(\.\d{1,2})?$/, "Invalid depth")
-    .optional()
-    .nullable(),
+  depth: z.string().regex(AMOUNT_REGEX, "Invalid depth").optional().nullable(),
   minStock: z.coerce.number().int().min(0).optional().nullable(),
   serialNumberTracking: z.boolean().default(false),
   shopVisible: z.boolean().default(false),
@@ -59,12 +52,12 @@ export const createProductSchema = z.object({
   isPriceFlexible: z.boolean().default(false),
   minPrice: z
     .string()
-    .regex(/^\d+(\.\d{1,2})?$/, "Invalid price format")
+    .regex(AMOUNT_REGEX, "Invalid price format")
     .optional()
     .nullable(),
   maxPrice: z
     .string()
-    .regex(/^\d+(\.\d{1,2})?$/, "Invalid price format")
+    .regex(AMOUNT_REGEX, "Invalid price format")
     .optional()
     .nullable(),
   notes: z.string().max(5000).optional().nullable(),
