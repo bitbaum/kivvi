@@ -342,6 +342,7 @@ export async function sellInventoryItem(
         eq(inventoryItems.companyId, companyId),
       ),
     )
+    .for("update")
     .limit(1);
 
   if (!current) throw new Error("Inventory item not found");
@@ -390,53 +391,60 @@ export async function recordRepair(
     note?: string;
   },
 ): Promise<InventoryItem> {
-  const [current] = await db
-    .select()
-    .from(inventoryItems)
-    .where(
-      and(
-        eq(inventoryItems.id, itemId),
-        eq(inventoryItems.companyId, companyId),
-      ),
-    )
-    .limit(1);
+  // Concurrent repairs on the same item must not lose updates. Wrap the
+  // read-modify-write in a transaction with SELECT...FOR UPDATE so the row
+  // is locked between read and write.
+  return db.transaction(async (tx) => {
+    const [current] = await tx
+      .select()
+      .from(inventoryItems)
+      .where(
+        and(
+          eq(inventoryItems.id, itemId),
+          eq(inventoryItems.companyId, companyId),
+        ),
+      )
+      .for("update")
+      .limit(1);
 
-  if (!current) throw new Error("Inventory item not found");
+    if (!current) throw new Error("Inventory item not found");
 
-  // Accumulate cost
-  const currentCost = new Decimal(current.repairCost ?? "0");
-  const addedCost = new Decimal(input.cost);
-  const newCost = currentCost.plus(addedCost).toDecimalPlaces(2).toString();
+    const addedCost = new Decimal(input.cost);
+    const addedHours = new Decimal(input.hours ?? "0");
 
-  // Accumulate hours
-  const currentHours = new Decimal(current.repairHours ?? "0");
-  const addedHours = new Decimal(input.hours ?? "0");
-  const newHours = currentHours.plus(addedHours).toDecimalPlaces(2).toString();
+    const newCost = new Decimal(current.repairCost ?? "0")
+      .plus(addedCost)
+      .toDecimalPlaces(2)
+      .toString();
+    const newHours = new Decimal(current.repairHours ?? "0")
+      .plus(addedHours)
+      .toDecimalPlaces(2)
+      .toString();
 
-  // Append to log with timestamp
-  const date = new Date().toISOString().split("T")[0];
-  const entry = `${date} — CHF ${addedCost.toDecimalPlaces(2).toString()}${
-    addedHours.greaterThan(0) ? ` / ${addedHours}h` : ""
-  }${input.note ? `: ${input.note}` : ""}`;
-  const newLog = current.repairLog ? `${current.repairLog}\n${entry}` : entry;
+    const date = new Date().toISOString().split("T")[0];
+    const entry = `${date} — CHF ${addedCost.toDecimalPlaces(2).toString()}${
+      addedHours.greaterThan(0) ? ` / ${addedHours}h` : ""
+    }${input.note ? `: ${input.note}` : ""}`;
+    const newLog = current.repairLog ? `${current.repairLog}\n${entry}` : entry;
 
-  const [updated] = await db
-    .update(inventoryItems)
-    .set({
-      repairCost: newCost,
-      repairHours: newHours,
-      repairLog: newLog,
-      updatedAt: new Date(),
-    })
-    .where(
-      and(
-        eq(inventoryItems.id, itemId),
-        eq(inventoryItems.companyId, companyId),
-      ),
-    )
-    .returning();
+    const [updated] = await tx
+      .update(inventoryItems)
+      .set({
+        repairCost: newCost,
+        repairHours: newHours,
+        repairLog: newLog,
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(inventoryItems.id, itemId),
+          eq(inventoryItems.companyId, companyId),
+        ),
+      )
+      .returning();
 
-  return updated;
+    return updated;
+  });
 }
 
 // ============================================================================

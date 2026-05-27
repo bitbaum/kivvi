@@ -63,7 +63,7 @@ export async function createInventoryItemAction(
       status: item.status,
       warehouseId: item.warehouseId,
       askingPrice: item.askingPrice,
-    }).catch(() => {});
+    });
 
     revalidatePath("/intake");
     return {
@@ -101,7 +101,7 @@ export async function updateInventoryItemAction(
       status: item.status,
       warehouseId: item.warehouseId,
       askingPrice: item.askingPrice,
-    }).catch(() => {});
+    });
 
     revalidatePath("/intake");
     revalidatePath(`/intake/items/${itemId}`);
@@ -147,7 +147,7 @@ export async function updateItemStatusAction(
       id: item.id,
       itemNumber: item.itemNumber,
       status: item.status,
-    }).catch(() => {});
+    });
 
     revalidatePath("/intake");
     revalidatePath("/intake/items");

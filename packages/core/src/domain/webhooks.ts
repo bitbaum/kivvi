@@ -30,6 +30,7 @@ function sign(secret: string, body: string): string {
 /**
  * Fire an event to all active, subscribed endpoints for a company.
  * Non-blocking: failures are logged and queued for retry — never throws.
+ * Callers can fire-and-forget without wrapping in .catch().
  */
 export async function dispatchWebhookEvent(
   db: Database,
@@ -37,36 +38,43 @@ export async function dispatchWebhookEvent(
   event: WebhookEvent,
   data: Record<string, unknown>,
 ): Promise<void> {
-  // Find all active endpoints for this company that subscribe to this event
-  const endpoints = await db
-    .select()
-    .from(webhookEndpoints)
-    .where(
-      and(
-        eq(webhookEndpoints.companyId, companyId),
-        eq(webhookEndpoints.isActive, true),
-      ),
+  try {
+    const endpoints = await db
+      .select()
+      .from(webhookEndpoints)
+      .where(
+        and(
+          eq(webhookEndpoints.companyId, companyId),
+          eq(webhookEndpoints.isActive, true),
+        ),
+      );
+
+    const subscribed = endpoints.filter((ep) =>
+      (ep.events as WebhookEvent[]).includes(event),
     );
 
-  const subscribed = endpoints.filter((ep) =>
-    (ep.events as WebhookEvent[]).includes(event),
-  );
+    if (subscribed.length === 0) return;
 
-  if (subscribed.length === 0) return;
+    const payload = {
+      event,
+      timestamp: new Date().toISOString(),
+      companyId,
+      data,
+    };
+    const body = JSON.stringify(payload);
 
-  const payload = {
-    event,
-    timestamp: new Date().toISOString(),
-    companyId,
-    data,
-  };
-  const body = JSON.stringify(payload);
-
-  await Promise.allSettled(
-    subscribed.map((ep) =>
-      deliverWebhook(db, ep.id, ep.url, ep.secret, event, payload, body),
-    ),
-  );
+    await Promise.allSettled(
+      subscribed.map((ep) =>
+        deliverWebhook(db, ep.id, ep.url, ep.secret, event, payload, body),
+      ),
+    );
+  } catch (err) {
+    logger.warn("Webhook dispatch failed", {
+      companyId,
+      event,
+      error: String(err),
+    });
+  }
 }
 
 async function deliverWebhook(

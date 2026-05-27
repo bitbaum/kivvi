@@ -44,7 +44,7 @@ import { isEmailConfigured } from "@/lib/config/email";
 import { logger } from "@/lib/logger";
 import { dispatchWebhookEvent } from "@kivvi/core/src/domain/webhooks";
 import { getTranslations } from "next-intl/server";
-import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
+import { formatCurrency, formatDate } from "@/lib/utils";
 import {
   AMOUNT_REGEX,
   DATE_REGEX,
@@ -94,7 +94,7 @@ export async function createDocumentAction(
       status: doc.status,
       contactId: doc.contactId,
       total: doc.total,
-    }).catch(() => {});
+    });
 
     revalidateDocumentPaths(doc.type, doc.id);
     return { success: true, data: { id: doc.id, number: doc.number } };
@@ -172,7 +172,7 @@ export async function updateDocumentStatusAction(
       type: doc.type,
       status: doc.status,
       contactId: doc.contactId,
-    }).catch(() => {});
+    });
 
     revalidateDocumentPaths(doc.type, doc.id);
     return { success: true, data: { id: doc.id, status: doc.status } };
@@ -239,13 +239,11 @@ export async function recordPaymentAction(
           };
 
           const tDoc = await getTranslations("documents");
-          const formattedAmount = new Intl.NumberFormat(DEFAULT_LOCALE, {
-            style: "currency",
-            currency: emailData.currency,
-          }).format(Number(emailData.amount));
-          const formattedPaymentDate = new Intl.DateTimeFormat(
-            DEFAULT_LOCALE,
-          ).format(new Date(emailData.paymentDate));
+          const formattedAmount = formatCurrency(
+            emailData.amount,
+            emailData.currency,
+          );
+          const formattedPaymentDate = formatDate(emailData.paymentDate);
 
           const confirmStrings: PaymentConfirmationEmailStrings = {
             subject: tDoc("paymentConfirmationSubject", {
@@ -292,7 +290,7 @@ export async function recordPaymentAction(
       amount: parsed.data.amount,
       method: parsed.data.method ?? "bank_transfer",
       date: parsed.data.date,
-    }).catch(() => {});
+    });
 
     revalidateDocumentPaths("invoice", documentId);
     return { success: true, data: { id: payment.id } };

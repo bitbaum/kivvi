@@ -251,68 +251,70 @@ export async function importTransactions(
 
   if (transactions.length === 0) return { imported: 0, skippedDuplicates: 0 };
 
-  // Dedup: find existing entryReferences for this bank account
-  const incomingRefs = transactions
-    .map((t) => t.entryReference)
-    .filter((ref): ref is string => !!ref);
+  // Dedup + insert + balance update must be atomic, otherwise a partial
+  // failure leaves the bank account balance out of sync with the rows.
+  return db.transaction(async (tx) => {
+    const incomingRefs = transactions
+      .map((t) => t.entryReference)
+      .filter((ref): ref is string => !!ref);
 
-  let existingRefs = new Set<string>();
-  if (incomingRefs.length > 0) {
-    const existing = await db
-      .select({ ref: bankTransactions.entryReference })
-      .from(bankTransactions)
-      .where(
-        and(
-          eq(bankTransactions.bankAccountId, bankAccountId),
-          sql`${bankTransactions.entryReference} IS NOT NULL`,
-        ),
-      );
-    existingRefs = new Set(existing.map((r) => r.ref!));
-  }
+    let existingRefs = new Set<string>();
+    if (incomingRefs.length > 0) {
+      const existing = await tx
+        .select({ ref: bankTransactions.entryReference })
+        .from(bankTransactions)
+        .where(
+          and(
+            eq(bankTransactions.bankAccountId, bankAccountId),
+            sql`${bankTransactions.entryReference} IS NOT NULL`,
+          ),
+        );
+      existingRefs = new Set(existing.map((r) => r.ref!));
+    }
 
-  let skippedDuplicates = 0;
-  const values = transactions
-    .filter((t) => {
-      if (t.entryReference && existingRefs.has(t.entryReference)) {
-        skippedDuplicates++;
-        return false;
-      }
-      return true;
-    })
-    .map((t) => ({
-      bankAccountId,
-      date: new Date(t.date),
-      description: t.description || null,
-      reference: t.reference || null,
-      amount: t.amount,
-      balance: t.balance || null,
-      entryReference: t.entryReference || null,
-      valueDate: t.valueDate ? new Date(t.valueDate) : null,
-      debtorName: t.debtorName || null,
-      creditorName: t.creditorName || null,
-      remittanceInfo: t.remittanceInfo || null,
-    }));
+    let skippedDuplicates = 0;
+    const values = transactions
+      .filter((t) => {
+        if (t.entryReference && existingRefs.has(t.entryReference)) {
+          skippedDuplicates++;
+          return false;
+        }
+        return true;
+      })
+      .map((t) => ({
+        bankAccountId,
+        date: new Date(t.date),
+        description: t.description || null,
+        reference: t.reference || null,
+        amount: t.amount,
+        balance: t.balance || null,
+        entryReference: t.entryReference || null,
+        valueDate: t.valueDate ? new Date(t.valueDate) : null,
+        debtorName: t.debtorName || null,
+        creditorName: t.creditorName || null,
+        remittanceInfo: t.remittanceInfo || null,
+      }));
 
-  if (values.length > 0) {
-    await db.insert(bankTransactions).values(values);
-  }
+    if (values.length > 0) {
+      await tx.insert(bankTransactions).values(values);
+    }
 
-  // Update bank account balance
-  const balanceToSet =
-    options?.closingBalance || transactions[transactions.length - 1].balance;
-  if (balanceToSet) {
-    await db
-      .update(bankAccounts)
-      .set({ balance: balanceToSet, lastSyncAt: new Date() })
-      .where(
-        and(
-          eq(bankAccounts.id, bankAccountId),
-          eq(bankAccounts.companyId, companyId),
-        ),
-      );
-  }
+    const balanceToSet =
+      options?.closingBalance || transactions[transactions.length - 1].balance;
+    if (balanceToSet) {
+      await tx
+        .update(bankAccounts)
+        .set({ balance: balanceToSet, lastSyncAt: new Date() })
+        .where(
+          and(
+            eq(bankAccounts.id, bankAccountId),
+            eq(bankAccounts.companyId, companyId),
+          ),
+        );
+    }
 
-  return { imported: values.length, skippedDuplicates };
+    return { imported: values.length, skippedDuplicates };
+  });
 }
 
 /**

@@ -18,33 +18,11 @@ export interface InvoiceEmailData {
 }
 
 import { DOCUMENT_TYPE_LABELS_DE } from "./document-conversions";
-import { DEFAULT_LOCALE } from "../config/locale";
+import { formatCurrency, formatDate } from "../utils/format";
 
 // ============================================================================
 // HTML TEMPLATE
 // ============================================================================
-
-/**
- * Formats a date string (YYYY-MM-DD or ISO) to Swiss format (DD.MM.YYYY).
- */
-function formatDateSwiss(dateStr: string): string {
-  const d = new Date(dateStr);
-  if (isNaN(d.getTime())) return dateStr;
-  return d.toLocaleDateString(DEFAULT_LOCALE);
-}
-
-/**
- * Formats a numeric string with currency for display in emails.
- * Uses Swiss number formatting (e.g., CHF 1'234.50).
- */
-function formatAmountSwiss(amount: string, currency: string): string {
-  const num = Number(amount);
-  if (isNaN(num)) return `${currency} ${amount}`;
-  return new Intl.NumberFormat(DEFAULT_LOCALE, {
-    style: "currency",
-    currency,
-  }).format(num);
-}
 
 /**
  * Returns the German greeting and body text based on document type.
@@ -58,7 +36,7 @@ function getDocumentBody(data: InvoiceEmailData): {
     DOCUMENT_TYPE_LABELS_DE[
       data.documentType as keyof typeof DOCUMENT_TYPE_LABELS_DE
     ] || data.documentType;
-  const formattedTotal = formatAmountSwiss(data.total, data.currency);
+  const formattedTotal = formatCurrency(data.total, data.currency);
 
   const greeting = `Guten Tag ${e(data.recipientName)}`;
 
@@ -67,13 +45,13 @@ function getDocumentBody(data: InvoiceEmailData): {
     case "invoice":
       body = `Anbei erhalten Sie unsere ${typeLabel} <strong>${data.documentNumber}</strong> über <strong>${formattedTotal}</strong>.`;
       if (data.dueDate) {
-        body += `<br><br>Zahlbar bis: <strong>${formatDateSwiss(data.dueDate)}</strong>`;
+        body += `<br><br>Zahlbar bis: <strong>${formatDate(data.dueDate)}</strong>`;
       }
       break;
     case "quote":
       body = `Anbei erhalten Sie unser ${typeLabel} <strong>${data.documentNumber}</strong> über <strong>${formattedTotal}</strong>.`;
       if (data.dueDate) {
-        body += `<br><br>Gültig bis: <strong>${formatDateSwiss(data.dueDate)}</strong>`;
+        body += `<br><br>Gültig bis: <strong>${formatDate(data.dueDate)}</strong>`;
       }
       body += "<br><br>Wir freuen uns auf Ihre Rückmeldung.";
       break;
@@ -86,7 +64,7 @@ function getDocumentBody(data: InvoiceEmailData): {
         `${typeLabel}: <strong>${data.documentNumber}</strong><br>` +
         `Betrag: <strong>${formattedTotal}</strong>`;
       if (data.dueDate) {
-        body += `<br>Fällig seit: <strong>${formatDateSwiss(data.dueDate)}</strong>`;
+        body += `<br>Fällig seit: <strong>${formatDate(data.dueDate)}</strong>`;
       }
       body +=
         "<br><br>Falls Sie die Zahlung bereits veranlasst haben, betrachten Sie dieses Schreiben als gegenstandslos.";
@@ -395,8 +373,8 @@ export function buildPaymentConfirmationEmailHtml(
   data: PaymentConfirmationEmailData,
   strings?: PaymentConfirmationEmailStrings,
 ): string {
-  const formattedAmount = formatAmountSwiss(data.amount, data.currency);
-  const formattedDate = formatDateSwiss(data.paymentDate);
+  const formattedAmount = formatCurrency(data.amount, data.currency);
+  const formattedDate = formatDate(data.paymentDate);
   const safeCompanyName = e(data.companyName);
   const safeRecipientName = e(data.recipientName);
 
@@ -527,12 +505,12 @@ export function buildDonationReceiptEmailHtml(
   data: DonationReceiptEmailData,
   strings?: DonationReceiptEmailStrings,
 ): string {
-  const formattedDate = formatDateSwiss(data.date);
+  const formattedDate = formatDate(data.date);
   const safeCompanyName = e(data.companyName);
   const safeRecipientName = e(data.recipientName);
   const valueText =
     data.estimatedValue && Number(data.estimatedValue) > 0
-      ? ` im geschätzten Wert von <strong>${formatAmountSwiss(data.estimatedValue, data.currency)}</strong>`
+      ? ` im geschätzten Wert von <strong>${formatCurrency(data.estimatedValue, data.currency)}</strong>`
       : "";
 
   const title = strings

@@ -443,11 +443,18 @@ export async function processRecurringInvoices(
         notes = substituteVariables(notes, generationDate, config.periodicity);
       }
 
-      // Generate invoice by converting order
-      // Note: userId is not tracked for automated cron jobs - use system user concept or null
+      // Generate invoice by converting order AND advance the recurring config
+      // in one transaction. If the process crashes between the two, the next
+      // cron pass would otherwise either skip a generation or create a
+      // duplicate invoice for the same period.
+      // Note: userId is not tracked for automated cron jobs - use first user
+      // from company as fallback.
+      const nextGenDate = calculateNextDate(
+        new Date(config.nextGenerationDate),
+        config.periodicity,
+      );
+
       const invoice = await db.transaction(async (tx) => {
-        // Convert order to invoice
-        // For automated generation, we don't have a userId - use first user from company as fallback
         const firstUser = await tx.query.users.findFirst({
           where: (users, { eq }) => eq(users.companyId, config.companyId),
           columns: { id: true },
@@ -465,7 +472,7 @@ export async function processRecurringInvoices(
           "invoice",
         );
 
-        // Update invoice with substituted notes if applicable
+        let finalInv = inv;
         if (notes !== config.order.notes) {
           const [updated] = await tx
             .update(documents)
@@ -477,30 +484,24 @@ export async function processRecurringInvoices(
               ),
             )
             .returning();
-          return updated;
+          finalInv = updated;
         }
 
-        return inv;
+        await tx
+          .update(recurringInvoiceConfigs)
+          .set({
+            lastGeneratedDate: today,
+            nextGenerationDate: toISODate(nextGenDate),
+          })
+          .where(
+            and(
+              eq(recurringInvoiceConfigs.id, config.id),
+              eq(recurringInvoiceConfigs.companyId, config.companyId),
+            ),
+          );
+
+        return finalInv;
       });
-
-      // Update recurring config
-      const nextGenDate = calculateNextDate(
-        new Date(config.nextGenerationDate),
-        config.periodicity,
-      );
-
-      await db
-        .update(recurringInvoiceConfigs)
-        .set({
-          lastGeneratedDate: today,
-          nextGenerationDate: toISODate(nextGenDate),
-        })
-        .where(
-          and(
-            eq(recurringInvoiceConfigs.id, config.id),
-            eq(recurringInvoiceConfigs.companyId, config.companyId),
-          ),
-        );
 
       // Send email if recipients configured and callback provided
       if (

@@ -987,18 +987,13 @@ export async function recordPayment(
     );
   }
 
-  // Idempotency check: skip if payment with same bankTransactionId already exists
+  // Idempotency check: skip if payment with same bankTransactionId already
+  // exists ON THIS DOCUMENT. Scoping by documentId — already verified to
+  // belong to companyId above — prevents cross-tenant payment lookups.
   if (input.bankTransactionId) {
-    const [existing] = await db
-      .select({ id: documentPayments.id })
-      .from(documentPayments)
-      .where(eq(documentPayments.bankTransactionId, input.bankTransactionId))
-      .limit(1);
-    if (existing) {
-      return existing;
-    }
-
-    // Verify bankTransaction belongs to this company
+    // Verify bankTransaction belongs to this company FIRST, before any lookup,
+    // so an attacker cannot probe for the existence of cross-tenant bank
+    // transactions via this code path.
     const [txn] = await db
       .select({ companyId: bankAccounts.companyId })
       .from(bankTransactions)
@@ -1010,6 +1005,20 @@ export async function recordPayment(
       .limit(1);
     if (!txn || txn.companyId !== companyId) {
       throw new Error("Bank transaction not found");
+    }
+
+    const [existing] = await db
+      .select({ id: documentPayments.id })
+      .from(documentPayments)
+      .where(
+        and(
+          eq(documentPayments.bankTransactionId, input.bankTransactionId),
+          eq(documentPayments.documentId, documentId),
+        ),
+      )
+      .limit(1);
+    if (existing) {
+      return existing;
     }
   }
 

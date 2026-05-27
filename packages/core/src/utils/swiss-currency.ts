@@ -1,10 +1,4 @@
 import Decimal from "decimal.js";
-import { DEFAULT_LOCALE, DEFAULT_CURRENCY } from "../config/locale";
-
-/**
- * Swiss currency utilities.
- * Centralized Swiss-specific financial formatting and rounding.
- */
 
 /**
  * Round CHF amounts to nearest 0.05 (Swiss Rappen rounding).
@@ -19,22 +13,4 @@ import { DEFAULT_LOCALE, DEFAULT_CURRENCY } from "../config/locale";
  */
 export function rappenRound(amount: Decimal): Decimal {
   return amount.times(20).round().div(20);
-}
-
-/**
- * Format a decimal amount as Swiss Francs with proper locale formatting.
- * Includes Rappen rounding and Swiss number formatting (apostrophe thousands separator).
- *
- * @example
- * formatSwissFrancs(new Decimal('1234.567')) // "CHF 1'234.55"
- * formatSwissFrancs('1234.567') // "CHF 1'234.55"
- */
-export function formatSwissFrancs(amount: string | Decimal): string {
-  const decimal = typeof amount === "string" ? new Decimal(amount) : amount;
-  const rounded = rappenRound(decimal);
-
-  return new Intl.NumberFormat(DEFAULT_LOCALE, {
-    style: "currency",
-    currency: DEFAULT_CURRENCY,
-  }).format(rounded.toNumber());
 }
