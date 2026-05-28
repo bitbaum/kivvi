@@ -90,7 +90,7 @@ export const FormInput = React.forwardRef<
     <input
       ref={ref}
       className={cn(
-        "w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary disabled:opacity-50",
+        "w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none h-10 border-input focus:ring-2 focus:ring-ring disabled:opacity-50",
         error && "border-destructive focus:ring-destructive",
         className,
       )}
@@ -114,7 +114,7 @@ export function FormTextarea({
   return (
     <textarea
       className={cn(
-        "w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary disabled:opacity-50",
+        "w-full min-h-[80px] rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring disabled:opacity-50",
         error && "border-destructive focus:ring-destructive",
         className,
       )}
@@ -139,7 +139,7 @@ export function FormSelect({
   return (
     <select
       className={cn(
-        "w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary disabled:opacity-50",
+        "w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none h-10 border-input focus:ring-2 focus:ring-ring disabled:opacity-50",
         error && "border-destructive focus:ring-destructive",
         className,
       )}
