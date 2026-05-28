@@ -13,6 +13,15 @@ export * from "./schema";
 // `@neondatabase/serverless`, so no extra install is needed.
 neonConfig.webSocketConstructor = ws;
 
+// Route single Pool queries through HTTPS fetch instead of WebSocket.
+// Next.js's webpack bundle of `ws` was breaking with "t.mask is not a
+// function" inside the WebSocket frame masker, which made every auth query
+// — and therefore every login — fail in production with a generic NextAuth
+// `Configuration` error. Single queries don't need a stateful connection;
+// explicit `db.transaction()` blocks still upgrade to WebSocket because
+// Postgres transactions require it.
+neonConfig.poolQueryViaFetch = true;
+
 /**
  * Neon serverless driver using WebSocket connections.
  *
