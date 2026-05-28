@@ -94,9 +94,7 @@ export function RegisterForm({ prefillEmail, callbackUrl }: RegisterFormProps) {
         </Link>
       </div>
 
-      <h1 className="mb-2 text-2xl font-semibold tracking-tight">
-        {t("register")}
-      </h1>
+      <h1 className="mb-2 text-2xl font-semibold">{t("register")}</h1>
 
       {/* Mode toggle */}
       <div className="mb-6 flex rounded-lg border p-1 text-sm">

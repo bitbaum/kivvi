@@ -62,9 +62,7 @@ export default async function RoadmapPage() {
     <div className="container mx-auto max-w-5xl px-4 py-16 space-y-20">
       {/* Header */}
       <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-          {t("hero.title")}
-        </h1>
+        <h1 className="text-4xl font-bold sm:text-5xl">{t("hero.title")}</h1>
         <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
           {t("hero.description")}
         </p>

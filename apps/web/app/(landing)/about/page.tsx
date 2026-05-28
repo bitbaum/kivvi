@@ -28,7 +28,7 @@ export default async function AboutPage() {
             <Recycle className="h-8 w-8 text-primary" />
           </div>
         </div>
-        <h1 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl">
+        <h1 className="mb-4 text-4xl font-bold sm:text-5xl">
           {t("hero.title")}
         </h1>
         <p className="text-xl text-muted-foreground">{t("hero.description")}</p>

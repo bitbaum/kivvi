@@ -66,9 +66,7 @@ function LoginForm() {
             </Link>
           </div>
 
-          <h1 className="mb-2 text-2xl font-semibold tracking-tight">
-            {t("signIn")}
-          </h1>
+          <h1 className="mb-2 text-2xl font-semibold">{t("signIn")}</h1>
           <p className="mb-8 text-muted-foreground">{t("signInSubtitle")}</p>
 
           {error && (

@@ -1,47 +1,59 @@
 /**
  * Centralized chart color configuration (SSOT).
- * All chart colors for the application defined in one place.
+ *
+ * Chart libraries (Recharts) need hex/rgb strings; CSS vars resolved at
+ * runtime don't always work for shape fills. We keep the values literal
+ * here but tuned to the muted/achromatic-leaning palette used everywhere
+ * else, so charts read as "from the same family" as the rest of the UI.
+ *
+ * Where a chart color overlaps with a semantic token (success, warning,
+ * destructive, info) the hex roughly matches that token's resolved color
+ * in light mode. If the design tokens change, this file needs a refresh.
  */
 
 /**
- * Aging bucket colors (used in AR/AP aging reports).
- * Color progression: Green (current) → Yellow → Orange → Red → Dark Red (very overdue)
+ * Aging bucket colors (AR/AP aging reports).
+ * Progression: muted green (current) → amber → orange → red → deep red.
  */
 export const AGING_BUCKET_COLORS = {
-  current: '#22c55e',   // Green - current/not overdue
-  days30: '#eab308',    // Yellow - 1-30 days overdue
-  days60: '#f97316',    // Orange - 31-60 days overdue
-  days90: '#ef4444',    // Red - 61-90 days overdue
-  over90: '#991b1b',    // Dark red - over 90 days overdue
+  current: "#3f8a5b", // muted green (matches --success)
+  days30: "#a3791a", // muted amber (matches --warning)
+  days60: "#b85a26", // muted orange
+  days90: "#b53a3a", // muted red (matches --destructive)
+  over90: "#7f1d1d", // deep red
 } as const;
 
 /**
  * General chart colors for various chart types.
+ * Tuned to the muted palette — saturated enough to read against the
+ * background, calm enough not to clash with the rest of the UI.
  */
 export const CHART_COLORS = {
-  primary: 'hsl(var(--primary))',
-  revenue: '#3b82f6',      // Blue - revenue/income
-  expense: '#ef4444',      // Red - expenses/costs
-  profit: '#22c55e',       // Green - profit/gains
-  loss: '#ef4444',         // Red - losses
-  neutral: '#6b7280',      // Gray - neutral/informational
-  warning: '#f59e0b',      // Amber - warnings/caution
-  info: '#3b82f6',         // Blue - informational
-  success: '#10b981',      // Emerald - success states
+  primary: "hsl(var(--primary))",
+  revenue: "#3b6bb5", // muted blue (matches --info)
+  expense: "#b53a3a", // muted red
+  profit: "#3f8a5b", // muted green (matches --success / brand family)
+  loss: "#b53a3a", // muted red
+  neutral: "#6b7280", // gray
+  warning: "#a3791a", // muted amber
+  info: "#3b6bb5", // muted blue
+  success: "#3f8a5b", // muted green
 } as const;
 
 /**
- * Status-based colors (for document status indicators).
+ * Status-based colors (document status indicators in charts).
+ * Match the resolved muted values of the --success, --warning,
+ * --destructive, --info, --tag-purple tokens.
  */
 export const STATUS_COLORS = {
-  draft: '#6b7280',        // Gray - draft
-  sent: '#3b82f6',         // Blue - sent
-  confirmed: '#8b5cf6',    // Purple - confirmed
-  delivered: '#06b6d4',    // Cyan - delivered
-  paid: '#22c55e',         // Green - paid
-  partiallyPaid: '#eab308', // Yellow - partially paid
-  overdue: '#ef4444',      // Red - overdue
-  cancelled: '#6b7280',    // Gray - cancelled
+  draft: "#6b7280", // gray
+  sent: "#3b6bb5", // muted blue
+  confirmed: "#7a4ea6", // muted purple
+  delivered: "#3b8a99", // muted cyan
+  paid: "#3f8a5b", // muted green
+  partiallyPaid: "#a3791a", // muted amber
+  overdue: "#b53a3a", // muted red
+  cancelled: "#6b7280", // gray
 } as const;
 
 /**

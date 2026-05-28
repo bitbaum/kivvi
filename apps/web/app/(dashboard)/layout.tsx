@@ -101,7 +101,7 @@ export default function DashboardLayout({
           />
           <main
             id="main-content"
-            className="flex-1 overflow-y-auto p-4 sm:p-6"
+            className="flex-1 overflow-y-auto"
             role="main"
           >
             <a
@@ -110,7 +110,12 @@ export default function DashboardLayout({
             >
               Skip to content
             </a>
-            {children}
+            {/* Cap content at --shell-max (1440px) and let it center on
+                wide displays. Without this, dashboard tables stretch to
+                the full window width on 4K monitors. */}
+            <div className="mx-auto w-full max-w-shell p-4 sm:p-6">
+              {children}
+            </div>
           </main>
         </div>
 

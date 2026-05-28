@@ -37,11 +37,9 @@ export default function JoinPage() {
 
   return (
     <div className="flex min-h-screen bg-muted/30">
-
       {/* Left — form */}
       <div className="flex flex-1 items-center justify-center px-4 py-12">
         <div className="w-full max-w-md">
-
           {/* Logo */}
           <div className="mb-10">
             <Link href="/" className="inline-flex items-center gap-2.5">
@@ -54,18 +52,21 @@ export default function JoinPage() {
             <div className="rounded-lg bg-primary/10 p-2">
               <Building2 className="h-5 w-5 text-primary" />
             </div>
-            <h1 className="text-2xl font-semibold tracking-tight">
-              {t("createOrg")}
-            </h1>
+            <h1 className="text-2xl font-semibold">{t("createOrg")}</h1>
           </div>
-          <p className="mb-8 text-muted-foreground">
-            {t("desc")}
-          </p>
+          <p className="mb-8 text-muted-foreground">{t("desc")}</p>
 
           {error && (
             <div className="mb-5 flex items-center gap-2 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
-              <svg className="h-4 w-4 shrink-0" viewBox="0 0 16 16" fill="currentColor">
-                <path fillRule="evenodd" d="M8 15A7 7 0 108 1a7 7 0 000 14zM8 4a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 018 4zm0 8a1 1 0 100-2 1 1 0 000 2z" />
+              <svg
+                className="h-4 w-4 shrink-0"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M8 15A7 7 0 108 1a7 7 0 000 14zM8 4a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 018 4zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                />
               </svg>
               {error}
             </div>
@@ -73,7 +74,10 @@ export default function JoinPage() {
 
           <form onSubmit={handleCreate} className="space-y-4">
             <div>
-              <label htmlFor="companyName" className="mb-1.5 block text-sm font-medium">
+              <label
+                htmlFor="companyName"
+                className="mb-1.5 block text-sm font-medium"
+              >
                 {t("orgNamePlaceholder")}
               </label>
               <input
@@ -134,7 +138,8 @@ export default function JoinPage() {
             Das Betriebssystem der Kreislaufwirtschaft.
           </h2>
           <p className="text-white/80 text-lg">
-            Ihr Betrieb in wenigen Minuten eingerichtet — Buchhaltung, Inventar, KI-Erfassung und Impact-Tracking, alles in einem.
+            Ihr Betrieb in wenigen Minuten eingerichtet — Buchhaltung, Inventar,
+            KI-Erfassung und Impact-Tracking, alles in einem.
           </p>
           <ul className="space-y-3 text-white/80">
             {[
@@ -145,8 +150,19 @@ export default function JoinPage() {
             ].map((f) => (
               <li key={f} className="flex items-center gap-3 text-sm">
                 <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-white/20">
-                  <svg className="h-3 w-3" viewBox="0 0 12 12" fill="currentColor">
-                    <path d="M10 3L5 8.5 2 5.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                  <svg
+                    className="h-3 w-3"
+                    viewBox="0 0 12 12"
+                    fill="currentColor"
+                  >
+                    <path
+                      d="M10 3L5 8.5 2 5.5"
+                      stroke="white"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      fill="none"
+                    />
                   </svg>
                 </div>
                 {f}
@@ -155,7 +171,6 @@ export default function JoinPage() {
           </ul>
         </div>
       </div>
-
     </div>
   );
 }

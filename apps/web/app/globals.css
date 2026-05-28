@@ -114,8 +114,12 @@
     --shell-max:              90rem;      /* 1440px */
     --page-min-height:        60vh;
   }
+}
 
-  .dark {
+/* Dark-mode token overrides — kept OUTSIDE `@layer base` because Tailwind's
+   PostCSS pass was stripping the raw `.dark { ... }` rule when it lived
+   inside the layer. Result: dark mode silently inherited light values. */
+.dark {
     --background:             0 0% 5%;
     --foreground:             0 0% 95%;
     --card:                   0 0% 8%;
@@ -178,7 +182,6 @@
 
     --shadow-panel:           0 1px 0 rgb(255 255 255 / 4%), 0 0 0 1px rgb(255 255 255 / 6%);
     --shadow-panel-strong:    0 2px 0 rgb(255 255 255 / 4%), 0 0 0 1px rgb(255 255 255 / 8%);
-  }
 }
 
 /* ============================================================
@@ -188,23 +191,6 @@
    ============================================================ */
 
 @layer components {
-  /* ── App shell ───────────────────────────────────────────── */
-  .app-shell-frame {
-    @apply min-h-screen text-foreground;
-  }
-  .app-main {
-    @apply min-w-0 flex-1 overflow-y-auto;
-  }
-  .app-page {
-    width: min(100%, var(--shell-max));
-    @apply mx-auto px-4 py-5 sm:px-6 sm:py-6 md:px-8 md:py-8;
-  }
-
-  /* ── Sidebar (glassy) ────────────────────────────────────── */
-  .ui-sidebar-glass {
-    @apply border-r border-border-subtle bg-card/88 backdrop-blur-xl;
-  }
-
   /* ── Panel / card ────────────────────────────────────────── */
   .ui-panel {
     @apply rounded-xl border border-border-subtle bg-card text-card-foreground;

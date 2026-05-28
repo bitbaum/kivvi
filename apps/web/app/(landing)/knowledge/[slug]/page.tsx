@@ -77,9 +77,7 @@ export default async function KnowledgeArticlePage({
               {meta.readTime} {t("readTimeSuffix")}
             </span>
           </div>
-          <h1 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
-            {meta.title}
-          </h1>
+          <h1 className="mb-4 text-3xl font-bold sm:text-4xl">{meta.title}</h1>
           <p className="text-lg text-muted-foreground leading-relaxed">
             {meta.lead}
           </p>

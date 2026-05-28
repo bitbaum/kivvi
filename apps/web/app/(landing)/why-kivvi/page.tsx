@@ -41,7 +41,7 @@ export default async function WhyKivviPage() {
         <p className="mb-3 text-sm font-medium uppercase tracking-wider text-primary">
           {t("hero.label")}
         </p>
-        <h1 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl">
+        <h1 className="mb-4 text-4xl font-bold sm:text-5xl">
           {t("hero.title")}
         </h1>
         <p className="text-xl text-muted-foreground">{t("hero.description")}</p>
