@@ -111,7 +111,8 @@
       "dragToReorder": "Glisser pour réorganiser",
       "removeLineItem": "Supprimer la ligne",
       "selectAll": "Tout sélectionner",
-      "switchCompany": "Changer d'entreprise"
+      "switchCompany": "Changer d'entreprise",
+      "toggleTheme": "Changer le thème en {mode}"
     },
     "or": "ou",
     "comingSoon": "Bientôt disponible",

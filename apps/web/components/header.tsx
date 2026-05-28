@@ -16,6 +16,7 @@ import {
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { getUserAvatarAction } from "@/app/actions/settings";
 import { RecentItemsDropdown } from "./recent-items-dropdown";
+import { ThemeToggle } from "./theme-toggle";
 import { useNavBadges } from "@/hooks/use-nav-badges";
 import type { Locale } from "@/i18n/request";
 import { LOCALE_CONFIG } from "@/lib/config/locales";
@@ -185,6 +186,9 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
             </div>
           )}
         </div>
+
+        {/* Theme toggle — light / system / dark */}
+        <ThemeToggle />
 
         {/* Notification bell — shows count of overdue + unreconciled items */}
         <Link

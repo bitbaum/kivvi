@@ -111,7 +111,8 @@
       "dragToReorder": "Ziehen zum Umsortieren",
       "removeLineItem": "Position entfernen",
       "selectAll": "Alle auswählen",
-      "switchCompany": "Firma wechseln"
+      "switchCompany": "Firma wechseln",
+      "toggleTheme": "Design wechseln zu {mode}"
     },
     "or": "oder",
     "comingSoon": "Demnächst verfügbar",
