@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useState, useTransition } from "react";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
 import { BulkActionToolbar } from "@/components/bulk-action-toolbar";
 import { BulkResultBanner } from "@/components/bulk-result-banner";
 import { BulkConfirmDialog } from "@/components/bulk-confirm-dialog";
@@ -183,22 +184,24 @@ export function SelectableContactTable({
         clearLabel={translations.bulkLabels.clearSelection}
         onClear={clear}
       >
-        <button
+        <Button
+          variant="outline"
+          size="sm"
           onClick={() => executeAction("deactivate")}
           disabled={isPending}
-          className="inline-flex items-center gap-1.5 rounded-lg border bg-background px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted disabled:opacity-50"
         >
           {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
           {translations.bulkLabels.deactivate}
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="destructive"
+          size="sm"
           onClick={() => executeAction("delete")}
           disabled={isPending}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-destructive px-3 py-1.5 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
         >
           {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
           {translations.bulkLabels.delete}
-        </button>
+        </Button>
       </BulkActionToolbar>
 
       {/* Confirmation dialog */}

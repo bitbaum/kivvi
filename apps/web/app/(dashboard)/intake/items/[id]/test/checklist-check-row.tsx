@@ -69,7 +69,7 @@ export function CheckRow({ check, state, onChange, tl, tc }: CheckRowProps) {
                     result: e.target.value ? "pass" : null,
                   })
                 }
-                className="w-28 rounded-lg border px-3 py-1.5 text-sm"
+                className="h-10 w-28 rounded-lg border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               />
               {check.unit && (
                 <span className="text-sm text-muted-foreground">
@@ -86,7 +86,7 @@ export function CheckRow({ check, state, onChange, tl, tc }: CheckRowProps) {
                 type="checkbox"
                 checked={state.result === "pass"}
                 onChange={(e) => setResult(e.target.checked ? "pass" : null)}
-                className="h-4 w-4 rounded border-gray-300"
+                className="h-4 w-4 rounded border-input"
               />
               <span className="text-sm text-muted-foreground">
                 {tc("confirmCheck")}
@@ -103,7 +103,7 @@ export function CheckRow({ check, state, onChange, tl, tc }: CheckRowProps) {
               onChange={(e) =>
                 onChange({ ...state, skipReason: e.target.value })
               }
-              className="mt-2 w-full rounded-lg border px-3 py-1.5 text-sm"
+              className="mt-2 h-10 w-full rounded-lg border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />
           )}
         </div>

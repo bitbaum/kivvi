@@ -37,6 +37,7 @@ import { RoleBadge } from "./role-badge";
 export default function TeamPage() {
   const t = useTranslations("team");
   const tc = useTranslations("common");
+  const tAria = useTranslations("aria");
   const { data: session } = useSession();
   const [members, setMembers] = useState<CompanyMember[]>([]);
   const [invites, setInvites] = useState<PendingInvitation[]>([]);
@@ -142,7 +143,12 @@ export default function TeamPage() {
       {error && (
         <div className="flex items-center justify-between rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
           {error}
-          <button onClick={() => setError("")}>
+          <button
+            type="button"
+            onClick={() => setError("")}
+            aria-label={tAria("dismiss")}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-destructive/10"
+          >
             <X className="h-4 w-4" />
           </button>
         </div>
@@ -150,7 +156,12 @@ export default function TeamPage() {
       {successMessage && (
         <div className="flex items-center justify-between rounded-lg bg-success/5 p-3 text-sm text-success">
           {successMessage}
-          <button onClick={() => setSuccessMessage("")}>
+          <button
+            type="button"
+            onClick={() => setSuccessMessage("")}
+            aria-label={tAria("dismiss")}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-success/10"
+          >
             <X className="h-4 w-4" />
           </button>
         </div>

@@ -11,6 +11,7 @@ import {
 } from "@/lib/config/document-types";
 import { formatCurrency, cn, paginationRange } from "@/lib/utils";
 import { getTranslations } from "next-intl/server";
+import { Button } from "@/components/ui/button";
 import { SearchInput } from "@/components/search-input";
 import { DateRangeFilter } from "@/components/date-range-filter";
 import { Pagination } from "@/components/pagination";
@@ -115,10 +116,10 @@ export default async function DocumentsPage({ searchParams }: PageProps) {
         subtitle={t("subtitle")}
         actions={
           <div className="group relative">
-            <button className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+            <Button>
               <Plus className="h-4 w-4" />
               {t("newDocument")}
-            </button>
+            </Button>
             <div className="absolute right-0 top-full z-10 mt-1 hidden w-56 rounded-lg border bg-popover p-1 shadow-lg group-focus-within:block hover:block">
               {creatableTypes.map((type) => (
                 <Link

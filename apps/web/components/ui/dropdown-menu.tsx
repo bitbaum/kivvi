@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { cn } from '@/lib/utils';
+import * as React from "react";
+import { cn } from "@/lib/utils";
 
 interface DropdownMenuProps {
   children: React.ReactNode;
@@ -14,7 +14,7 @@ interface DropdownMenuTriggerProps {
 
 interface DropdownMenuContentProps {
   children: React.ReactNode;
-  align?: 'start' | 'end';
+  align?: "start" | "end";
 }
 
 interface DropdownMenuItemProps {
@@ -43,21 +43,23 @@ export function DropdownMenu({ children }: DropdownMenuProps) {
   );
 }
 
-export function DropdownMenuTrigger({ children, className }: DropdownMenuTriggerProps) {
+export function DropdownMenuTrigger({
+  children,
+  className,
+}: DropdownMenuTriggerProps) {
   const { open, setOpen } = React.useContext(DropdownMenuContext);
 
   return (
-    <button
-      type="button"
-      onClick={() => setOpen(!open)}
-      className={className}
-    >
+    <button type="button" onClick={() => setOpen(!open)} className={className}>
       {children}
     </button>
   );
 }
 
-export function DropdownMenuContent({ children, align = 'end' }: DropdownMenuContentProps) {
+export function DropdownMenuContent({
+  children,
+  align = "end",
+}: DropdownMenuContentProps) {
   const { open, setOpen } = React.useContext(DropdownMenuContext);
   const ref = React.useRef<HTMLDivElement>(null);
 
@@ -69,8 +71,9 @@ export function DropdownMenuContent({ children, align = 'end' }: DropdownMenuCon
     }
 
     if (open) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
+      document.addEventListener("mousedown", handleClickOutside);
+      return () =>
+        document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [open, setOpen]);
 
@@ -80,8 +83,8 @@ export function DropdownMenuContent({ children, align = 'end' }: DropdownMenuCon
     <div
       ref={ref}
       className={cn(
-        'absolute z-50 mt-2 min-w-[200px] rounded-lg border bg-popover p-1 text-popover-foreground shadow-lg',
-        align === 'end' ? 'right-0' : 'left-0'
+        "absolute z-50 mt-2 min-w-[12rem] max-w-[calc(100vw-1rem)] rounded-lg border bg-popover p-1 text-popover-foreground shadow-lg",
+        align === "end" ? "right-0" : "left-0",
       )}
     >
       {children}
@@ -109,9 +112,9 @@ export function DropdownMenuItem({
     return React.cloneElement(children as React.ReactElement, {
       onClick: handleClick,
       className: cn(
-        'flex w-full cursor-pointer items-center rounded-md px-3 py-2 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground',
-        disabled && 'pointer-events-none opacity-50',
-        className
+        "flex w-full cursor-pointer items-center rounded-md px-3 py-2 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground",
+        disabled && "pointer-events-none opacity-50",
+        className,
       ),
     });
   }
@@ -122,9 +125,9 @@ export function DropdownMenuItem({
       onClick={handleClick}
       disabled={disabled}
       className={cn(
-        'flex w-full cursor-pointer items-center rounded-md px-3 py-2 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground',
-        disabled && 'pointer-events-none opacity-50',
-        className
+        "flex w-full cursor-pointer items-center rounded-md px-3 py-2 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground",
+        disabled && "pointer-events-none opacity-50",
+        className,
       )}
     >
       {children}
