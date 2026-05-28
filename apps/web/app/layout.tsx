@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SessionProvider } from "@/components/session-provider";
@@ -10,7 +10,29 @@ import { SentryUserContext } from "@/components/sentry-user-context";
 import { SITE_URL } from "@/lib/config/site";
 import { auth } from "@/lib/auth";
 
-const inter = Inter({ subsets: ["latin"] });
+// Body font — Space Grotesk for x.ai-aligned aesthetic.
+// Inter stays loaded as fallback for any explicit `font-['Inter']` references.
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-space-grotesk",
+  display: "swap",
+});
+
+// Display variant — used for h1/h2/h3 via the font-display Tailwind utility.
+// Same family, different CSS variable so we can swap to a true display face
+// later without touching markup.
+const spaceGroteskDisplay = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-space-grotesk-display",
+  display: "swap",
+  weight: ["500", "600", "700"],
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 const ORGANIZATION_LD = {
   "@context": "https://schema.org",
@@ -68,8 +90,12 @@ export default async function RootLayout({
   const session = await auth();
 
   return (
-    <html lang={locale} suppressHydrationWarning>
-      <body className={inter.className}>
+    <html
+      lang={locale}
+      suppressHydrationWarning
+      className={`${spaceGrotesk.variable} ${spaceGroteskDisplay.variable} ${inter.variable}`}
+    >
+      <body className="font-sans">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(ORGANIZATION_LD) }}

@@ -66,13 +66,13 @@ export default async function Home() {
       {/* ============================================================ */}
       <section className="mx-auto max-w-3xl py-20 text-center">
         <div className="mb-6 inline-flex items-center gap-2 rounded-full border bg-muted/50 px-4 py-1.5 text-sm text-muted-foreground">
-          <Recycle className="h-3.5 w-3.5 text-primary" />
+          <Recycle className="h-3.5 w-3.5 text-brand" />
           {t("heroBadge")}
         </div>
-        <h1 className="mb-4 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
+        <h1 className="mb-4 text-4xl font-bold tracking-display sm:text-5xl lg:text-6xl">
           {t("heroTitle")}
         </h1>
-        <p className="mb-6 text-xl font-medium text-primary sm:text-2xl">
+        <p className="mb-6 text-xl font-medium text-brand sm:text-2xl">
           {t("heroTagline")}
         </p>
         <p className="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground">

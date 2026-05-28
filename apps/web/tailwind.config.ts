@@ -15,16 +15,36 @@ const config: Config = {
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
-        // Surface hierarchy — bg-surface-page, bg-surface-base, etc.
+        // Surface hierarchy
         surface: {
           page: "hsl(var(--surface-page))",
           base: "hsl(var(--surface-base))",
           raised: "hsl(var(--surface-raised))",
           overlay: "hsl(var(--surface-overlay))",
+          modal: "hsl(var(--surface-modal))",
+          public: "hsl(var(--surface-public))",
         },
-        // Border tiers — border-subtle, border-strong
+        // Border tiers
         "border-subtle": "hsl(var(--border-subtle))",
+        "border-default": "hsl(var(--border-default))",
         "border-strong": "hsl(var(--border-strong))",
+        "border-interactive": "hsl(var(--border-interactive))",
+        // Semantic text colors
+        text: {
+          primary: "hsl(var(--text-primary))",
+          secondary: "hsl(var(--text-secondary))",
+          tertiary: "hsl(var(--text-tertiary))",
+          muted: "hsl(var(--text-muted))",
+          inverted: "hsl(var(--text-inverted))",
+        },
+        // Accent interactive surfaces
+        "accent-muted": "hsl(var(--accent-muted))",
+        "accent-hover": "hsl(var(--accent-hover))",
+        // Brand (deliberate Kivvi green use only)
+        brand: {
+          DEFAULT: "hsl(var(--brand))",
+          foreground: "hsl(var(--brand-foreground))",
+        },
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -53,7 +73,6 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Semantic status colours — SSOT via CSS variables in globals.css
         success: {
           DEFAULT: "hsl(var(--success))",
           foreground: "hsl(var(--success-foreground))",
@@ -79,10 +98,40 @@ const config: Config = {
           foreground: "hsl(var(--tag-rose-foreground))",
         },
       },
+      fontFamily: {
+        sans: ["var(--font-sans)"],
+        display: ["var(--font-display)"],
+        mono: ["var(--font-mono)"],
+      },
+      fontSize: {
+        nano: "var(--text-nano)",
+        micro: "var(--text-micro)",
+      },
+      letterSpacing: {
+        display: "var(--tracking-display)",
+        label: "var(--tracking-label)",
+        caps: "var(--tracking-caps)",
+      },
+      boxShadow: {
+        panel: "var(--shadow-panel)",
+        "panel-strong": "var(--shadow-panel-strong)",
+      },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        // Layered radius scale anchored on --radius (0.5rem default).
+        // Smaller values for tight controls, larger for sheets/pills.
+        sm: "calc(var(--radius) * 0.6)", // 0.3rem
+        md: "calc(var(--radius) * 0.8)", // 0.4rem
+        lg: "var(--radius)", // 0.5rem
+        xl: "calc(var(--radius) * 1.4)", // 0.7rem
+        "2xl": "calc(var(--radius) * 1.8)", // 0.9rem
+        "3xl": "calc(var(--radius) * 2.2)", // 1.1rem
+        pill: "calc(var(--radius) * 3.5)", // 1.75rem
+      },
+      maxWidth: {
+        shell: "var(--shell-max)",
+      },
+      minHeight: {
+        page: "var(--page-min-height)",
       },
     },
   },
