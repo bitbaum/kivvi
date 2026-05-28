@@ -2,13 +2,28 @@
   "name": "kivvi",
   "version": "0.1.0",
   "private": true,
-  "description": "AI-first ERP for Swiss businesses. Business on autopilot.",
+  "description": "The ERP that knows things have a history. AI-first, Swiss-native ERP for refurbishers, Brockenhäuser, repair workshops, and vintage shops.",
   "license": "MIT",
-  "author": "RevampIT",
+  "author": "RevampIT <hello@revampit.ch> (https://revampit.ch)",
+  "homepage": "https://kivvi.vercel.app",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kivvi/kivvi.git"
+    "url": "git+https://github.com/g-but/kivvi.git"
   },
+  "bugs": {
+    "url": "https://github.com/g-but/kivvi/issues"
+  },
+  "keywords": [
+    "erp",
+    "circular-economy",
+    "secondhand",
+    "refurbishing",
+    "swiss",
+    "qr-bill",
+    "nextjs",
+    "drizzle",
+    "ai"
+  ],
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -53,10 +68,8 @@
   },
   "dependencies": {
     "@types/pdfkit": "^0.17.4",
-    "node-fetch": "^3.3.2",
     "pdfkit": "^0.17.2",
     "recharts": "^3.7.0",
-    "resend": "^6.9.2",
     "swissqrbill": "^4.2.1"
   }
 }

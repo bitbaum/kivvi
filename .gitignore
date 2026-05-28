@@ -44,9 +44,9 @@ drizzle/
 tsconfig.tsbuildinfo
 *.tsbuildinfo
 
-# Customer data exports (contains real financial data)
-kivitendo-export/*.csv
-kivitendo-export/generated/
+# Customer data exports (contains real financial data — never commit)
+kivitendo-export/*
+!kivitendo-export/README.md
 
 # Vercel
 .vercel/
