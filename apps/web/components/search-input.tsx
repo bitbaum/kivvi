@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Search } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Search } from "lucide-react";
 
 interface SearchInputProps {
   /** Base path for the page (e.g., '/contacts') */
@@ -24,19 +24,19 @@ interface SearchInputProps {
 export function SearchInput({
   basePath,
   placeholder,
-  paramName = 'search',
+  paramName = "search",
   debounceMs = 300,
   preserveParams = [],
 }: SearchInputProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const currentValue = searchParams.get(paramName) || '';
+  const currentValue = searchParams.get(paramName) || "";
   const [value, setValue] = useState(currentValue);
   const timerRef = useRef<ReturnType<typeof setTimeout>>();
 
   // Sync input when URL changes externally (e.g., back/forward navigation)
   useEffect(() => {
-    setValue(searchParams.get(paramName) || '');
+    setValue(searchParams.get(paramName) || "");
   }, [searchParams, paramName]);
 
   const pushToUrl = useCallback(
@@ -51,11 +51,11 @@ export function SearchInput({
         params.set(paramName, term);
       }
       // Reset to page 1 on new search
-      params.delete('page');
+      params.delete("page");
       const qs = params.toString();
-      router.push(`${basePath}${qs ? `?${qs}` : ''}`);
+      router.push(`${basePath}${qs ? `?${qs}` : ""}`);
     },
-    [router, searchParams, basePath, paramName, preserveParams]
+    [router, searchParams, basePath, paramName, preserveParams],
   );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,7 +78,7 @@ export function SearchInput({
         value={value}
         onChange={handleChange}
         placeholder={placeholder}
-        className="w-full rounded-lg border bg-background py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+        className="w-full rounded-lg border bg-background py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
       />
     </div>
   );

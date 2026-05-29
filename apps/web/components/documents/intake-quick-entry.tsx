@@ -138,7 +138,7 @@ export function IntakeQuickEntry({ onItemsExtracted }: IntakeQuickEntryProps) {
                 placeholder={t("aiQuickEntryPlaceholder")}
                 disabled={state === "loading"}
                 rows={3}
-                className="w-full rounded-lg border bg-card px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 resize-none"
+                className="w-full rounded-lg border bg-card px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 resize-none"
               />
 
               <div className="flex items-center gap-3">

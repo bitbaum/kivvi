@@ -161,7 +161,7 @@ export function IntakeBulkReview({
                         ),
                       )
                     }
-                    className="w-full rounded border-0 bg-transparent text-sm focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
+                    className="w-full rounded border-0 bg-transparent text-sm focus:outline-none focus:ring-1 focus:ring-ring cursor-pointer"
                   >
                     {ITEM_CATEGORIES.map((v) => (
                       <option key={v} value={v}>
@@ -277,7 +277,7 @@ function EditCell({
               onCommit();
             }
           }}
-          className="w-full rounded border px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+          className="w-full rounded border px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
         />
       </td>
     );

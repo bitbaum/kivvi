@@ -51,7 +51,7 @@ export function PriceListForm({ list }: Props) {
           name="name"
           defaultValue={list?.name ?? ""}
           required
-          className="block w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          className="block w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
         />
       </div>
 
@@ -64,7 +64,7 @@ export function PriceListForm({ list }: Props) {
           name="currency"
           defaultValue={list?.currency ?? DEFAULT_CURRENCY}
           maxLength={3}
-          className="block w-28 rounded-lg border bg-background px-3 py-2 text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-primary"
+          className="block w-28 rounded-lg border bg-background px-3 py-2 text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-ring"
         />
       </div>
 

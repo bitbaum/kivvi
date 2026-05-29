@@ -93,7 +93,7 @@ export function ModelSelector({
         className={cn(
           "flex items-center gap-1.5 rounded-lg border bg-card px-2 py-1.5 text-sm transition-colors hover:bg-muted",
           disabled && "cursor-not-allowed opacity-50",
-          isOpen && "ring-2 ring-primary",
+          isOpen && "ring-2 ring-ring",
         )}
       >
         <Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />

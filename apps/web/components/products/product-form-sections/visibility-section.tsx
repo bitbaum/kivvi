@@ -23,7 +23,7 @@ export function ProductFormVisibilitySection({ product }: SectionProps) {
             id="shopVisible"
             name="shopVisible"
             defaultChecked={product?.shopVisible ?? false}
-            className="h-4 w-4 rounded border-input text-primary focus:ring-primary"
+            className="h-4 w-4 rounded border-input text-primary focus:ring-ring"
           />
           <div>
             <label htmlFor="shopVisible" className="text-sm font-medium">

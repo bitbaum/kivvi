@@ -26,14 +26,14 @@ export function ContactTableRow({
   return (
     <div
       className={cn(
-        "relative flex flex-col gap-1 p-4 transition-colors hover:bg-muted/50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary sm:grid sm:grid-cols-[auto_1fr_2fr_auto_auto] sm:items-center sm:gap-4 sm:px-6 lg:grid-cols-[auto_1fr_2fr_auto_1.5fr_1fr_1fr_1fr_auto_auto]",
+        "relative flex flex-col gap-1 p-4 transition-colors hover:bg-muted/50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-ring sm:grid sm:grid-cols-[auto_1fr_2fr_auto_auto] sm:items-center sm:gap-4 sm:px-6 lg:grid-cols-[auto_1fr_2fr_auto_1.5fr_1fr_1fr_1fr_auto_auto]",
         isSelected && "bg-primary/5",
       )}
     >
       {/* Native link covers the entire row for right-click / Ctrl+click / screen reader support */}
       <Link
         href={`/contacts/${contact.id}`}
-        className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
+        className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
         aria-label={contact.name}
       />
 

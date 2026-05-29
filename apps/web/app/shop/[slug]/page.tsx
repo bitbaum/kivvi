@@ -72,12 +72,12 @@ export default async function ShopPage({ params, searchParams }: PageProps) {
               name="search"
               defaultValue={searchParams.search ?? ""}
               placeholder={t("searchPlaceholder")}
-              className="rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary w-full sm:w-auto sm:flex-1 max-w-xs"
+              className="rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring w-full sm:w-auto sm:flex-1 max-w-xs"
             />
             <select
               name="condition"
               defaultValue={searchParams.condition ?? ""}
-              className="rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              className="rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             >
               <option value="">{t("allConditions")}</option>
               {SHOP_CONDITION_VALUES.map((c) => (

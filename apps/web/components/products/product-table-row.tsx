@@ -60,7 +60,7 @@ export function ProductTableRow({
   return (
     <tr
       className={cn(
-        "group relative cursor-pointer transition-colors hover:bg-muted/50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary",
+        "group relative cursor-pointer transition-colors hover:bg-muted/50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-ring",
         isSelected && "bg-primary/5",
       )}
     >
@@ -68,7 +68,7 @@ export function ProductTableRow({
         {/* Native link covers entire row — tr position:relative makes this work */}
         <Link
           href={`/products/${product.id}`}
-          className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
+          className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
           aria-label={product.name}
         />
         <span className="relative z-10">

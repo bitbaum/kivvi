@@ -43,7 +43,7 @@ export function AddRuleForm({ priceListId }: Props) {
           <select
             name="type"
             required
-            className="block w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            className="block w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           >
             <option value="fixed">{t("ruleTypeFixed")}</option>
             <option value="percentage">{t("ruleTypePercentage")}</option>
@@ -62,7 +62,7 @@ export function AddRuleForm({ priceListId }: Props) {
             pattern="^\d+(\.\d{1,2})?$"
             placeholder="0.00"
             required
-            className="block w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            className="block w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
 
@@ -75,7 +75,7 @@ export function AddRuleForm({ priceListId }: Props) {
             type="text"
             inputMode="decimal"
             placeholder="—"
-            className="block w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            className="block w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
 
@@ -86,7 +86,7 @@ export function AddRuleForm({ priceListId }: Props) {
           <input
             name="validFrom"
             type="date"
-            className="block w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            className="block w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
 

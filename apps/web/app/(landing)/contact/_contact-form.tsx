@@ -14,7 +14,7 @@ const BETRIEBSTYP_VALUES = [
 ] as const;
 
 const inputClass =
-  "w-full rounded-lg border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50";
+  "w-full rounded-lg border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50 disabled:opacity-50";
 const labelClass = "mb-1.5 block text-sm font-medium";
 
 export function ContactForm() {
@@ -230,7 +230,7 @@ export function WaitlistForm() {
         required
         placeholder={t("emailPlaceholder")}
         disabled={isPending}
-        className="flex-1 rounded-lg border bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50"
+        className="flex-1 rounded-lg border bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50 disabled:opacity-50"
       />
       <button
         type="submit"

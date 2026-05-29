@@ -71,7 +71,7 @@ export function ItemSpecsEditor({
                 value={row.key}
                 onChange={(e) => updateRow(idx, "key", e.target.value)}
                 placeholder={COMMON_SPECS[idx % COMMON_SPECS.length]}
-                className="w-36 rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-36 rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               />
               <span className="text-muted-foreground">:</span>
               <input
@@ -79,7 +79,7 @@ export function ItemSpecsEditor({
                 value={row.value}
                 onChange={(e) => updateRow(idx, "value", e.target.value)}
                 placeholder={t("specValue")}
-                className="flex-1 rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                className="flex-1 rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               />
               <button
                 type="button"

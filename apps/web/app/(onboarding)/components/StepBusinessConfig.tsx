@@ -104,7 +104,7 @@ export function StepBusinessConfig({
                 key={option.value}
                 className={`flex cursor-pointer items-center gap-3 rounded-lg border p-4 transition-colors ${
                   vatRate === option.value
-                    ? "border-primary bg-primary/5 ring-1 ring-primary"
+                    ? "border-brand bg-brand/5 ring-1 ring-brand"
                     : "hover:bg-muted/50"
                 }`}
               >
@@ -119,12 +119,12 @@ export function StepBusinessConfig({
                 <div
                   className={`flex h-4 w-4 items-center justify-center rounded-full border-2 ${
                     vatRate === option.value
-                      ? "border-primary"
+                      ? "border-brand"
                       : "border-muted-foreground/40"
                   }`}
                 >
                   {vatRate === option.value && (
-                    <div className="h-2 w-2 rounded-full bg-primary" />
+                    <div className="h-2 w-2 rounded-full bg-brand" />
                   )}
                 </div>
                 <div>
@@ -157,7 +157,7 @@ export function StepBusinessConfig({
                 parseInt(e.target.value) || DEFAULT_PAYMENT_TERMS_DAYS,
               )
             }
-            className="w-full max-w-xs rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full max-w-xs rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-ring"
           />
           <p className="mt-1 text-xs text-muted-foreground">
             {t("paymentTermsHint")}
@@ -181,7 +181,7 @@ export function StepBusinessConfig({
                 value={bankIban}
                 onChange={(e) => setBankIban(e.target.value)}
                 placeholder="CH93 0076 2011 6238 5295 7"
-                className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
             <div>
@@ -197,7 +197,7 @@ export function StepBusinessConfig({
                 value={bankName}
                 onChange={(e) => setBankName(e.target.value)}
                 placeholder="PostFinance"
-                className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
           </div>

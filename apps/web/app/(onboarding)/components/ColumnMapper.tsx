@@ -77,7 +77,7 @@ export function ColumnMapper({
                     onChange={(e) =>
                       handleSourceChange(field.target, e.target.value)
                     }
-                    className="w-full rounded border bg-background px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="w-full rounded border bg-background px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
                   >
                     <option value="">-- {t("skip")} --</option>
                     {headers.map((h) => (

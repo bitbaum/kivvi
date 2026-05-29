@@ -34,7 +34,7 @@ export function PosSearch({
           value={query}
           onChange={(e) => onSearch(e.target.value)}
           placeholder={t("posSearchItems")}
-          className="w-full rounded-xl border bg-background py-3 pl-10 pr-4 text-base focus:outline-none focus:ring-2 focus:ring-primary"
+          className="w-full rounded-xl border bg-background py-3 pl-10 pr-4 text-base focus:outline-none focus:ring-2 focus:ring-ring"
           autoFocus
         />
         {query && (

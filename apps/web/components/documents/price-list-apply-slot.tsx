@@ -51,7 +51,7 @@ export function PriceListApplySlot({ priceLists, items, onApply }: Props) {
           setSelectedId(e.target.value);
           setApplied(false);
         }}
-        className="min-h-[44px] rounded-md border bg-background px-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
+        className="min-h-[44px] rounded-md border bg-background px-2 text-xs focus:outline-none focus:ring-2 focus:ring-ring"
       >
         <option value="">{t("priceListSelectPlaceholder")}</option>
         {priceLists.map((pl) => (

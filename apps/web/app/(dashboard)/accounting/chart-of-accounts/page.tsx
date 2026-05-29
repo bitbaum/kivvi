@@ -143,7 +143,7 @@ export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
                 name="search"
                 placeholder={t("searchAccounts")}
                 defaultValue={search}
-                className="w-full rounded-lg border bg-background py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full rounded-lg border bg-background py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               />
               {typeFilter && (
                 <input type="hidden" name="type" value={typeFilter} />

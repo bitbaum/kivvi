@@ -133,13 +133,13 @@ export function SelectableDocumentTable({
             <div
               key={doc.id}
               className={cn(
-                "relative flex flex-col gap-1 p-4 hover:bg-muted/50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary sm:grid sm:grid-cols-[auto_1fr_1.5fr_auto_auto_auto] sm:items-center sm:gap-4",
+                "relative flex flex-col gap-1 p-4 hover:bg-muted/50 focus-within:ring-2 focus-within:ring-inset focus-within:ring-ring sm:grid sm:grid-cols-[auto_1fr_1.5fr_auto_auto_auto] sm:items-center sm:gap-4",
                 isSelected(doc.id) && "bg-primary/5",
               )}
             >
               <Link
                 href={`${config.basePath}/${doc.id}`}
-                className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
+                className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                 aria-label={doc.number}
               />
               <div className="relative z-10 flex items-center">

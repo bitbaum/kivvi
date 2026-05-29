@@ -28,7 +28,7 @@ export function ChatInput({
         value={input}
         onChange={(e) => setInput(e.target.value)}
         placeholder={t("askKivvi")}
-        className="flex-1 rounded-lg border bg-background px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+        className="flex-1 rounded-lg border bg-background px-4 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
         disabled={isLoading}
       />
       <button

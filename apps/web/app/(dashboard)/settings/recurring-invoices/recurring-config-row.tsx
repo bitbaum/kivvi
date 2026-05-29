@@ -94,7 +94,7 @@ export function RecurringConfigRow({
     <div className="relative grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_auto] gap-4 px-6 py-4 text-sm items-center transition-colors hover:bg-muted/50">
       <Link
         href={`/settings/recurring-invoices/${config.id}`}
-        className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
+        className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
         aria-label={config.orderNumber}
       />
       <div className="font-medium">{config.orderNumber}</div>

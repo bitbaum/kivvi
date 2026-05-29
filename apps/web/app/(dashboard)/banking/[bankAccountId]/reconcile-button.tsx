@@ -160,7 +160,7 @@ export function ReconcileButton({
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder={t("searchInvoices")}
                 autoFocus
-                className="w-full rounded-lg border bg-background py-1.5 pl-8 pr-3 text-sm outline-none focus:ring-2 focus:ring-primary"
+                className="w-full rounded-lg border bg-background py-1.5 pl-8 pr-3 text-sm outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
           </div>

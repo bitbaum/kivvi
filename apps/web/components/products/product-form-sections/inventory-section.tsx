@@ -41,7 +41,7 @@ export function ProductFormInventorySection({ product, isEdit }: SectionProps) {
             id="serialNumberTracking"
             name="serialNumberTracking"
             defaultChecked={product?.serialNumberTracking ?? false}
-            className="h-4 w-4 rounded border-input text-primary focus:ring-primary"
+            className="h-4 w-4 rounded border-input text-primary focus:ring-ring"
           />
           <label htmlFor="serialNumberTracking" className="text-sm font-medium">
             {t("serialNumberTracking")}

@@ -92,7 +92,7 @@ export function RicardoSection({ hasApiKey }: Props) {
               if (apiKey === "••••••••") setApiKey("");
             }}
             placeholder="clientId:clientSecret"
-            className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
 

@@ -66,7 +66,7 @@ export function StepDescription({
             onChange={(e) => setDescription(e.target.value)}
             placeholder={ti("quickDescriptionPlaceholder")}
             rows={3}
-            className="w-full rounded-xl border bg-background px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full rounded-xl border bg-background px-4 py-3 text-base focus:outline-none focus:ring-2 focus:ring-ring"
             autoFocus
           />
         </div>

@@ -81,7 +81,7 @@ export function ShopInquiryForm({
           onChange={(e) => setName(e.target.value)}
           required
           placeholder={t("namePlaceholder")}
-          className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
         />
       </div>
 
@@ -95,7 +95,7 @@ export function ShopInquiryForm({
           onChange={(e) => setEmail(e.target.value)}
           required
           placeholder={t("emailPlaceholder")}
-          className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
         />
       </div>
 
@@ -108,7 +108,7 @@ export function ShopInquiryForm({
           onChange={(e) => setMessage(e.target.value)}
           placeholder={t("messagePlaceholder")}
           rows={3}
-          className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
         />
       </div>
 

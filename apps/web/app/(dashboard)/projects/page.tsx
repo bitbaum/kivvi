@@ -75,7 +75,7 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
             name="search"
             placeholder={t("searchProjects")}
             defaultValue={search}
-            className="w-full rounded-lg border bg-card py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+            className="w-full rounded-lg border bg-card py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary"
           />
         </form>
 

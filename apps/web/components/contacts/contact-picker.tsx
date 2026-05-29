@@ -135,7 +135,7 @@ export function ContactPicker({
             onChange={(e) => handleSearch(e.target.value)}
             onFocus={() => results.length > 0 && setShowDropdown(true)}
             placeholder={`${tc("search")}...`}
-            className="w-full rounded-lg border bg-background py-2 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary"
+            className="w-full rounded-lg border bg-background py-2 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-ring"
           />
           {value && (
             <button

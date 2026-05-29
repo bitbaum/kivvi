@@ -151,7 +151,7 @@ export function ApiTokensPanel({ initialTokens }: { initialTokens: Token[] }) {
                 value={newTokenName}
                 onChange={(e) => setNewTokenName(e.target.value)}
                 placeholder={t("tokenNamePlaceholder")}
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
+                className="w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
                 onKeyDown={(e) => e.key === "Enter" && handleCreate()}
               />
             </div>

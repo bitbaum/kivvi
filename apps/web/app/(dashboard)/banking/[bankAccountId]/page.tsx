@@ -160,7 +160,7 @@ export default async function BankAccountDetailPage({
             type="text"
             placeholder={t("searchTransactions")}
             defaultValue={search}
-            className="w-full rounded-lg border bg-background py-2 pl-3 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary"
+            className="w-full rounded-lg border bg-background py-2 pl-3 pr-4 text-sm outline-none focus:ring-2 focus:ring-ring"
           />
           {filter && <input type="hidden" name="filter" value={filter} />}
         </form>

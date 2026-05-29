@@ -101,7 +101,7 @@ export default async function RepairQueuePage() {
                     >
                       <Link
                         href={`/intake/items/${item.id}`}
-                        className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
+                        className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                         aria-label={item.description}
                       />
                       <div className="flex-1 min-w-0">
@@ -170,7 +170,7 @@ export default async function RepairQueuePage() {
                     >
                       <Link
                         href={`/intake/items/${item.id}`}
-                        className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
+                        className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                         aria-label={item.description}
                       />
                       <div className="flex-1 min-w-0">

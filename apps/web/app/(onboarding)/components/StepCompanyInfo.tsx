@@ -90,7 +90,7 @@ export function StepCompanyInfo({
               onChange={handleChange}
               placeholder={t("placeholders.companyName")}
               required
-              className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
 
@@ -108,7 +108,7 @@ export function StepCompanyInfo({
               value={formData.legalName}
               onChange={handleChange}
               placeholder={t("placeholders.companyName")}
-              className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
 
@@ -126,7 +126,7 @@ export function StepCompanyInfo({
               value={formData.address}
               onChange={handleChange}
               placeholder="Bahnhofstrasse 1"
-              className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
 
@@ -144,7 +144,7 @@ export function StepCompanyInfo({
               value={formData.postalCode}
               onChange={handleChange}
               placeholder="8001"
-              className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
 
@@ -159,7 +159,7 @@ export function StepCompanyInfo({
               value={formData.city}
               onChange={handleChange}
               placeholder="Zürich"
-              className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
 
@@ -175,7 +175,7 @@ export function StepCompanyInfo({
               name="country"
               value={formData.country}
               onChange={handleChange}
-              className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-ring"
             >
               <option value="CH">{t("countries.ch")}</option>
               <option value="DE">{t("countries.de")}</option>
@@ -198,7 +198,7 @@ export function StepCompanyInfo({
               value={formData.vatNumber}
               onChange={handleChange}
               placeholder={t("placeholders.vatNumber")}
-              className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
         </div>

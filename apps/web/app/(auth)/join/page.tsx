@@ -91,7 +91,7 @@ export default function JoinPage() {
                 required
                 autoFocus
                 autoComplete="organization"
-                className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/20"
               />
             </div>
 

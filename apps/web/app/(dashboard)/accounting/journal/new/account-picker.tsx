@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState, useMemo } from 'react';
-import { Search } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { FormInput } from '@/components/ui/form-field';
+import { useState, useMemo } from "react";
+import { Search } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { FormInput } from "@/components/ui/form-field";
 
 export interface Account {
   id: string;
@@ -25,17 +25,17 @@ export function AccountPicker({
   selectedAccountId,
   onSelect,
 }: AccountPickerProps) {
-  const t = useTranslations('accounting');
-  const tc = useTranslations('common');
+  const t = useTranslations("accounting");
+  const tc = useTranslations("common");
   const [isOpen, setIsOpen] = useState(false);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
 
   const filtered = useMemo(() => {
     if (!search) return accounts;
     const q = search.toLowerCase();
     return accounts.filter(
       (a) =>
-        a.code.toLowerCase().includes(q) || a.name.toLowerCase().includes(q)
+        a.code.toLowerCase().includes(q) || a.name.toLowerCase().includes(q),
     );
   }, [accounts, search]);
 
@@ -53,10 +53,10 @@ export function AccountPicker({
           onBlur={() => {
             setTimeout(() => {
               setIsOpen(false);
-              setSearch('');
+              setSearch("");
             }, 200);
           }}
-          placeholder={t('searchAccounts')}
+          placeholder={t("searchAccounts")}
           className="pl-10 pr-4"
         />
         {filtered.length > 0 && (
@@ -69,14 +69,14 @@ export function AccountPicker({
                 onClick={() => {
                   onSelect(account);
                   setIsOpen(false);
-                  setSearch('');
+                  setSearch("");
                 }}
                 className="w-full px-4 py-2 text-left text-sm hover:bg-muted first:rounded-t-lg last:rounded-b-lg"
               >
                 <span className="font-mono text-muted-foreground">
                   {account.code}
                 </span>
-                {' - '}
+                {" - "}
                 <span className="font-medium">{account.name}</span>
               </button>
             ))}
@@ -91,9 +91,9 @@ export function AccountPicker({
       type="button"
       onClick={() => {
         setIsOpen(true);
-        setSearch('');
+        setSearch("");
       }}
-      className="w-full rounded-lg border bg-background px-3 py-2 text-left text-sm outline-none hover:bg-muted/50 focus:ring-2 focus:ring-primary"
+      className="w-full rounded-lg border bg-background px-3 py-2 text-left text-sm outline-none hover:bg-muted/50 focus:ring-2 focus:ring-ring"
     >
       {selectedAccountId && selectedAccount ? (
         <span>
@@ -101,7 +101,7 @@ export function AccountPicker({
         </span>
       ) : (
         <span className="text-muted-foreground">
-          {loading ? tc('loading') : t('account') + '...'}
+          {loading ? tc("loading") : t("account") + "..."}
         </span>
       )}
     </button>

@@ -83,7 +83,7 @@ export function SequenceRow({ sequence, typeLabel }: SequenceRowProps) {
               value={prefix}
               onChange={(e) => setPrefix(e.target.value)}
               maxLength={10}
-              className="w-full rounded-lg border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full rounded-lg border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
           <div>
@@ -93,7 +93,7 @@ export function SequenceRow({ sequence, typeLabel }: SequenceRowProps) {
               onChange={(e) => handleNextNumberChange(e.target.value)}
               min={1}
               className={cn(
-                "w-full rounded-lg border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary",
+                "w-full rounded-lg border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring",
                 showWarning && "border-warning",
               )}
             />
@@ -104,7 +104,7 @@ export function SequenceRow({ sequence, typeLabel }: SequenceRowProps) {
               value={format}
               onChange={(e) => setFormat(e.target.value)}
               maxLength={100}
-              className="w-full rounded-lg border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full rounded-lg border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
           <div className="flex items-center gap-1">

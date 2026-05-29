@@ -82,7 +82,7 @@ export default async function JournalPage({ searchParams }: PageProps) {
             name="search"
             placeholder={tc("search") + "..."}
             defaultValue={search}
-            className="w-full rounded-lg border bg-background py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full rounded-lg border bg-background py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           />
           {sourceType && (
             <input type="hidden" name="sourceType" value={sourceType} />
@@ -150,7 +150,7 @@ export default async function JournalPage({ searchParams }: PageProps) {
             type="date"
             name="dateFrom"
             defaultValue={dateFrom}
-            className="rounded-lg border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            className="rounded-lg border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
         <div>
@@ -165,7 +165,7 @@ export default async function JournalPage({ searchParams }: PageProps) {
             type="date"
             name="dateTo"
             defaultValue={dateTo}
-            className="rounded-lg border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            className="rounded-lg border bg-background px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
         <button

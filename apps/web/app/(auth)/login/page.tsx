@@ -101,7 +101,7 @@ function LoginForm() {
                 placeholder="you@company.ch"
                 required
                 autoComplete="email"
-                className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/20"
               />
             </div>
 
@@ -126,7 +126,7 @@ function LoginForm() {
                   placeholder="••••••••"
                   required
                   autoComplete="current-password"
-                  className="w-full rounded-lg border bg-background px-4 py-2.5 pr-11 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full rounded-lg border bg-background px-4 py-2.5 pr-11 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/20"
                 />
                 <button
                   type="button"

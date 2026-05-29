@@ -97,7 +97,7 @@ export function SelectableItemList({ items }: SelectableItemListProps) {
           {/* Link overlay: covers entire row for right-click / Ctrl+click / screen-reader support */}
           <Link
             href={`/intake/items/${item.id}`}
-            className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
+            className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
             aria-label={item.description}
           />
 

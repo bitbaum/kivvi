@@ -148,7 +148,7 @@ export async function DocumentList({
             type="text"
             placeholder={t("searchDocuments", { type: t(config.labelPlural) })}
             defaultValue={search}
-            className="w-full rounded-lg border bg-background py-2 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary"
+            className="w-full rounded-lg border bg-background py-2 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-ring"
           />
           {status && <input type="hidden" name="status" value={status} />}
           {preserveParams &&

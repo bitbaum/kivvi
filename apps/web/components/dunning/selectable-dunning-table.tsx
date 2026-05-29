@@ -166,7 +166,7 @@ export function SelectableDunningTable({
               {/* Link overlay: covers entire row */}
               <Link
                 href={`/sales/invoices/${inv.id}`}
-                className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
+                className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                 aria-label={inv.number}
               />
 
