@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
 
 interface BulkConfirmDialogProps {
@@ -49,23 +50,20 @@ export function BulkConfirmDialog({
         </h2>
         <p className="mt-2 text-sm text-muted-foreground">{message}</p>
         <div className="mt-4 flex justify-end gap-2">
-          <button
-            onClick={onCancel}
-            className="rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted"
-          >
+          <Button variant="outline" onClick={onCancel}>
             {cancelLabel}
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="destructive"
             onClick={onConfirm}
             disabled={isLoading}
-            className="rounded-lg bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
           >
             {isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               confirmLabel
             )}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

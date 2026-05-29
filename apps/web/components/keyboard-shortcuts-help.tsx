@@ -1,17 +1,20 @@
-'use client';
+"use client";
 
-import { useRef } from 'react';
-import { X, Command, Slash, Plus, MessageSquare } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { useFocusTrap } from '@/hooks/use-focus-trap';
+import { useRef } from "react";
+import { X, Command, Slash, Plus, MessageSquare } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useFocusTrap } from "@/hooks/use-focus-trap";
 
 interface KeyboardShortcutsHelpProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export function KeyboardShortcutsHelp({ isOpen, onClose }: KeyboardShortcutsHelpProps) {
-  const tc = useTranslations('common');
+export function KeyboardShortcutsHelp({
+  isOpen,
+  onClose,
+}: KeyboardShortcutsHelpProps) {
+  const tc = useTranslations("common");
   const modalRef = useRef<HTMLDivElement>(null);
   useFocusTrap(modalRef, isOpen);
 
@@ -19,43 +22,51 @@ export function KeyboardShortcutsHelp({ isOpen, onClose }: KeyboardShortcutsHelp
 
   const shortcuts = [
     {
-      keys: ['⌘ K', 'Ctrl K'],
-      description: tc('shortcuts.openCommandPalette'),
+      keys: ["⌘ K", "Ctrl K"],
+      description: tc("shortcuts.openCommandPalette"),
       icon: <Command className="h-4 w-4" />,
     },
     {
-      keys: ['/'],
-      description: tc('shortcuts.focusSearch'),
+      keys: ["/"],
+      description: tc("shortcuts.focusSearch"),
       icon: <Slash className="h-4 w-4" />,
     },
     {
-      keys: ['N'],
-      description: tc('shortcuts.createNew'),
+      keys: ["N"],
+      description: tc("shortcuts.createNew"),
       icon: <Plus className="h-4 w-4" />,
     },
     {
-      keys: ['⌘ J', 'Ctrl J'],
-      description: tc('shortcuts.toggleAI'),
+      keys: ["⌘ J", "Ctrl J"],
+      description: tc("shortcuts.toggleAI"),
       icon: <MessageSquare className="h-4 w-4" />,
     },
     {
-      keys: ['?'],
-      description: tc('shortcuts.showShortcuts'),
+      keys: ["?"],
+      description: tc("shortcuts.showShortcuts"),
     },
     {
-      keys: ['Esc'],
-      description: tc('shortcuts.closeModals'),
+      keys: ["Esc"],
+      description: tc("shortcuts.closeModals"),
     },
   ];
 
   return (
-    <div ref={modalRef} className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div role="dialog" aria-modal="true" aria-labelledby="shortcuts-title" className="relative w-full max-w-lg rounded-xl border bg-card p-6 shadow-lg">
+    <div
+      ref={modalRef}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="shortcuts-title"
+        className="relative w-full max-w-lg rounded-xl border bg-card p-6 shadow-lg"
+      >
         {/* Close button */}
         <button
           type="button"
           onClick={onClose}
-          aria-label={tc('close')}
+          aria-label={tc("close")}
           className="absolute right-4 top-4 rounded-lg p-1 hover:bg-muted"
         >
           <X className="h-4 w-4" />
@@ -63,9 +74,11 @@ export function KeyboardShortcutsHelp({ isOpen, onClose }: KeyboardShortcutsHelp
 
         {/* Header */}
         <div className="mb-6">
-          <h2 id="shortcuts-title" className="text-xl font-semibold">{tc('shortcuts.title')}</h2>
+          <h2 id="shortcuts-title" className="text-xl font-semibold">
+            {tc("shortcuts.title")}
+          </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            {tc('shortcuts.subtitle')}
+            {tc("shortcuts.subtitle")}
           </p>
         </div>
 
@@ -85,11 +98,13 @@ export function KeyboardShortcutsHelp({ isOpen, onClose }: KeyboardShortcutsHelp
               <div className="flex gap-1">
                 {shortcut.keys.map((key, i) => (
                   <span key={i}>
-                    <kbd className="rounded border border-muted bg-muted/50 px-2 py-1 text-xs font-mono">
+                    <kbd className="rounded border bg-muted/50 px-2 py-1 text-xs font-mono">
                       {key}
                     </kbd>
                     {i < shortcut.keys.length - 1 && (
-                      <span className="mx-1 text-xs text-muted-foreground">{tc('or')}</span>
+                      <span className="mx-1 text-xs text-muted-foreground">
+                        {tc("or")}
+                      </span>
                     )}
                   </span>
                 ))}
@@ -100,7 +115,7 @@ export function KeyboardShortcutsHelp({ isOpen, onClose }: KeyboardShortcutsHelp
 
         {/* Footer */}
         <div className="mt-6 rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground">
-          {tc('shortcuts.tip')}
+          {tc("shortcuts.tip")}
         </div>
       </div>
     </div>
