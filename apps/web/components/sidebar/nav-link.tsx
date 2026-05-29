@@ -54,12 +54,13 @@ export function NavLink({
 }: {
   item: NavItem;
   pathname: string;
-  badges: NavBadges;
+  /** Optional — only required for items that declare a `badgeKey`. */
+  badges?: NavBadges;
   onClick?: () => void;
   t: (key: string) => string;
 }) {
   const isActive = isNavActive(item, pathname);
-  const badgeCount = item.badgeKey ? badges[item.badgeKey] : 0;
+  const badgeCount = item.badgeKey && badges ? badges[item.badgeKey] : 0;
   const isWarning = item.badgeVariant === "warning";
   return (
     <Link
@@ -68,27 +69,17 @@ export function NavLink({
       className={cn("ui-nav-item", isActive && "ui-nav-item-active")}
       aria-current={isActive ? "page" : undefined}
     >
-      <div className="relative">
-        <item.icon className="h-4 w-4" aria-hidden="true" />
-        {badgeCount > 0 && (
-          <span
-            className={cn(
-              "absolute -right-1 -top-1 h-2 w-2 rounded-full",
-              isWarning ? "bg-warning/70" : "bg-destructive/50",
-            )}
-            aria-label={`${badgeCount}`}
-          />
-        )}
-      </div>
+      <item.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
       <span className="flex-1">{t(item.nameKey)}</span>
       {badgeCount > 0 && (
         <span
           className={cn(
-            "ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-xs font-medium",
+            "ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-medium",
             isWarning
               ? "bg-warning/10 text-warning"
               : "bg-destructive/10 text-destructive",
           )}
+          aria-label={`${badgeCount}`}
         >
           {badgeCount > 99 ? "99+" : badgeCount}
         </span>

@@ -8,95 +8,15 @@ import { cn } from "@/lib/utils";
 import { useChatWidget } from "@/hooks/use-chat-widget";
 import { useNavBadges } from "@/hooks/use-nav-badges";
 import { useEffect } from "react";
-import {
-  LayoutDashboard,
-  MessageSquare,
-  Receipt,
-  ShoppingCart,
-  Wallet,
-  Users,
-  Package,
-  PackageOpen,
-  Settings,
-  HelpCircle,
-  Warehouse,
-  BarChart3,
-  FolderKanban,
-  X,
-  ShoppingBag,
-  Wrench,
-} from "lucide-react";
+import { MessageSquare, X } from "lucide-react";
 import { KivviLogo } from "@/components/kivvi-logo";
 import { CompanySwitcher } from "@/components/sidebar/company-switcher";
 import { Button } from "@/components/ui/button";
+import { NavLink, hasMinRole } from "@/components/sidebar/nav-link";
 import {
-  NavLink,
-  hasMinRole,
-  isNavActive,
-  type NavItem,
-} from "@/components/sidebar/nav-link";
-
-// Core navigation — ordered by daily workflow priority for secondhand/refurbished goods:
-// Intake → Inventory → Sell → Support entities → Finance
-// minRole defaults to "member"; viewers only see dashboard + intake + inventory
-const primaryNavigation: NavItem[] = [
-  {
-    nameKey: "home",
-    href: "/dashboard",
-    icon: LayoutDashboard,
-    minRole: "viewer",
-  },
-  {
-    nameKey: "intake",
-    href: "/intake",
-    icon: PackageOpen,
-    minRole: "viewer",
-    badgeKey: "repair",
-    badgeVariant: "warning",
-  },
-  {
-    nameKey: "inventory",
-    href: "/inventory",
-    icon: Warehouse,
-    minRole: "viewer",
-  },
-  {
-    nameKey: "sales",
-    href: "/sales/invoices",
-    icon: Receipt,
-    activePrefixes: ["/sales", "/invoices"],
-    badgeKey: "documents",
-  },
-  { nameKey: "pos", href: "/pos", icon: ShoppingBag },
-  {
-    nameKey: "repairs",
-    href: "/repairs",
-    icon: Wrench,
-    badgeKey: "openRepairOrders",
-  },
-  { nameKey: "people", href: "/contacts", icon: Users },
-  { nameKey: "catalog", href: "/products", icon: Package },
-  {
-    nameKey: "purchasing",
-    href: "/purchasing/purchase-invoices",
-    icon: ShoppingCart,
-    activePrefixes: ["/purchasing"],
-  },
-  { nameKey: "projects", href: "/projects", icon: FolderKanban },
-  {
-    nameKey: "money",
-    href: "/money",
-    icon: Wallet,
-    activePrefixes: ["/banking", "/accounting"],
-    badgeKey: "money",
-  },
-  { nameKey: "reports", href: "/reports", icon: BarChart3 },
-];
-
-const secondaryNavigation: NavItem[] = [
-  { nameKey: "settings", href: "/settings", icon: Settings, minRole: "admin" },
-  { nameKey: "help", href: "/help", icon: HelpCircle, minRole: "viewer" },
-];
+  PRIMARY_NAVIGATION,
+  SECONDARY_NAVIGATION,
+} from "@/lib/config/navigation";
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -112,10 +32,10 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const { data: session } = useSession();
   const userRole = session?.user?.role;
 
-  const visiblePrimary = primaryNavigation.filter((item) =>
+  const visiblePrimary = PRIMARY_NAVIGATION.filter((item) =>
     hasMinRole(userRole, item.minRole ?? "member"),
   );
-  const visibleSecondary = secondaryNavigation.filter((item) =>
+  const visibleSecondary = SECONDARY_NAVIGATION.filter((item) =>
     hasMinRole(userRole, item.minRole ?? "member"),
   );
 
@@ -200,21 +120,15 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
 
       {/* Secondary navigation */}
       <nav className="border-t p-4" aria-label={tc("aria.secondaryNavigation")}>
-        {visibleSecondary.map((item) => {
-          const isActive = isNavActive(item, pathname);
-          return (
-            <Link
-              key={item.nameKey}
-              href={item.href}
-              onClick={onClose}
-              className={cn("ui-nav-item", isActive && "ui-nav-item-active")}
-              aria-current={isActive ? "page" : undefined}
-            >
-              <item.icon className="h-4 w-4" aria-hidden="true" />
-              {t(item.nameKey)}
-            </Link>
-          );
-        })}
+        {visibleSecondary.map((item) => (
+          <NavLink
+            key={item.href}
+            item={item}
+            pathname={pathname}
+            onClick={onClose}
+            t={t}
+          />
+        ))}
       </nav>
     </aside>
   );
@@ -236,6 +150,7 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
             className="fixed inset-y-0 left-0 z-50 lg:hidden"
             role="dialog"
             aria-modal="true"
+            aria-label={tc("aria.mainNavigation")}
           >
             {sidebarContent}
           </div>
