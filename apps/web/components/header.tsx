@@ -13,11 +13,12 @@ import {
   User,
   Globe,
 } from "lucide-react";
-import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { getUserAvatarAction } from "@/app/actions/settings";
 import { RecentItemsDropdown } from "./recent-items-dropdown";
 import { ThemeToggle } from "./theme-toggle";
 import { useNavBadges } from "@/hooks/use-nav-badges";
+import { usePopover } from "@/hooks/use-popover";
 import type { Locale } from "@/i18n/request";
 import { LOCALE_CONFIG } from "@/lib/config/locales";
 import { cn } from "@/lib/utils";
@@ -32,8 +33,8 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
   const t = useTranslations("common");
   const locale = useLocale() as Locale;
   const router = useRouter();
-  const [showUserMenu, setShowUserMenu] = useState(false);
-  const [showLangMenu, setShowLangMenu] = useState(false);
+  const userMenu = usePopover();
+  const langMenu = usePopover();
   const [avatarBase64, setAvatarBase64] = useState<string | null>(null);
   const badges = useNavBadges();
   const alertCount = badges.documents + badges.money;
@@ -49,8 +50,7 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
   useEffect(() => {
     fetchAvatar();
   }, [fetchAvatar]);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const langRef = useRef<HTMLDivElement>(null);
+
   const isMac = useMemo(
     () =>
       typeof navigator !== "undefined" &&
@@ -60,35 +60,9 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
 
   function switchLocale(newLocale: Locale) {
     document.cookie = `NEXT_LOCALE=${newLocale};path=/;max-age=${365 * 24 * 60 * 60}`;
-    setShowLangMenu(false);
+    langMenu.close();
     router.refresh();
   }
-
-  // Close menus when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setShowUserMenu(false);
-      }
-      if (langRef.current && !langRef.current.contains(event.target as Node)) {
-        setShowLangMenu(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // Close menus on Escape key
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setShowUserMenu(false);
-        setShowLangMenu(false);
-      }
-    };
-    document.addEventListener("keydown", handleEscape);
-    return () => document.removeEventListener("keydown", handleEscape);
-  }, []);
 
   return (
     <header
@@ -143,18 +117,18 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
         <RecentItemsDropdown />
 
         {/* Language switcher */}
-        <div className="relative" ref={langRef}>
+        <div className="relative" ref={langMenu.containerRef}>
           <button
-            onClick={() => setShowLangMenu(!showLangMenu)}
+            onClick={langMenu.toggle}
             className="flex min-h-[44px] items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label={`Current language: ${LOCALE_CONFIG[locale].native}`}
-            aria-expanded={showLangMenu}
+            aria-expanded={langMenu.open}
             aria-haspopup="true"
           >
             <Globe className="h-4 w-4" aria-hidden="true" />
             {LOCALE_CONFIG[locale].short}
           </button>
-          {showLangMenu && (
+          {langMenu.open && (
             <div
               className="absolute right-0 top-full z-50 mt-2 w-36 rounded-lg border bg-card p-1 shadow-md"
               role="menu"
@@ -210,12 +184,12 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
         </Link>
 
         {/* User menu */}
-        <div className="relative" ref={menuRef}>
+        <div className="relative" ref={userMenu.containerRef}>
           <button
-            onClick={() => setShowUserMenu(!showUserMenu)}
+            onClick={userMenu.toggle}
             className="flex items-center gap-2 rounded-lg p-1 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label={`User menu: ${session?.user?.name || "User"}`}
-            aria-expanded={showUserMenu}
+            aria-expanded={userMenu.open}
             aria-haspopup="true"
           >
             {status === "loading" ? (
@@ -234,7 +208,7 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
             )}
           </button>
 
-          {showUserMenu && (
+          {userMenu.open && (
             <div
               className="absolute right-0 top-full z-50 mt-2 w-56 rounded-lg border bg-card p-1 shadow-md"
               role="menu"
@@ -258,7 +232,7 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
                   href="/settings/profile"
                   className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   role="menuitem"
-                  onClick={() => setShowUserMenu(false)}
+                  onClick={() => userMenu.close()}
                 >
                   <User className="h-4 w-4" aria-hidden="true" />
                   {t("profile")}
@@ -268,7 +242,7 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
                   href="/settings"
                   className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   role="menuitem"
-                  onClick={() => setShowUserMenu(false)}
+                  onClick={() => userMenu.close()}
                 >
                   <Settings className="h-4 w-4" aria-hidden="true" />
                   {t("settings")}
