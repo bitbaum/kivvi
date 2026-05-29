@@ -91,7 +91,7 @@ export function IntakeQuickEntry({ onItemsExtracted }: IntakeQuickEntryProps) {
         className="w-full flex items-center justify-between px-4 py-3 hover:bg-primary/10 transition-colors"
       >
         <div className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-primary" />
+          <Sparkles className="h-4 w-4 text-brand" />
           <span className="text-sm font-medium">{t("aiQuickEntry")}</span>
           {isCollapsed && state === "success" && (
             <span className="text-xs text-success">

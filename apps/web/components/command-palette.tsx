@@ -93,7 +93,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
         <div className="flex items-center gap-3 border-b px-4 py-3">
           {showAI ? (
             <Sparkles
-              className="h-4 w-4 shrink-0 text-primary"
+              className="h-4 w-4 shrink-0 text-brand"
               aria-hidden="true"
             />
           ) : (
@@ -202,7 +202,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
               onClick={() => ai.submit(query)}
               className="mt-1 flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-left text-muted-foreground hover:bg-muted"
             >
-              <Sparkles className="h-4 w-4 text-primary" />
+              <Sparkles className="h-4 w-4 text-brand" />
               <span>
                 {t("aiHint")} <span className="text-xs">(Enter)</span>
               </span>

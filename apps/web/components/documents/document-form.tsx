@@ -171,7 +171,7 @@ export function DocumentForm({ type }: DocumentFormProps) {
 
       {/* AI prefill banner */}
       {form.isPrefilled && (
-        <div className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-4 py-2.5 text-sm text-primary">
+        <div className="flex items-center gap-2 rounded-lg border border-brand/20 bg-brand/5 px-4 py-2.5 text-sm text-brand">
           <svg
             className="h-4 w-4 shrink-0"
             viewBox="0 0 24 24"

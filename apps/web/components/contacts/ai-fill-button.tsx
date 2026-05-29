@@ -45,7 +45,7 @@ export function ContactAiFillButton({ onFill }: AiFillButtonProps) {
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="inline-flex items-center gap-2 rounded-lg border border-dashed px-3 py-2 text-sm text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+        className="inline-flex items-center gap-2 rounded-lg border border-dashed px-3 py-2 text-sm text-muted-foreground hover:border-brand hover:text-brand transition-colors"
       >
         <Sparkles className="h-4 w-4" />
         {t("aiFillButton")}
@@ -54,8 +54,8 @@ export function ContactAiFillButton({ onFill }: AiFillButtonProps) {
   }
 
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-primary/30 bg-primary/5 p-4">
-      <div className="flex items-center gap-2 text-sm font-medium text-primary">
+    <div className="flex flex-col gap-2 rounded-lg border border-brand/30 bg-brand/5 p-4">
+      <div className="flex items-center gap-2 text-sm font-medium text-brand">
         <Sparkles className="h-4 w-4" />
         {t("aiFillTitle")}
       </div>
