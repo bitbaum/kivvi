@@ -48,7 +48,7 @@ export function OnboardingShell({
             <div key={label} className="flex items-center gap-1.5">
               <div
                 className={`h-2.5 w-2.5 rounded-full transition-colors ${
-                  i + 1 <= currentStep ? "bg-primary" : "bg-muted-foreground/30"
+                  i + 1 <= currentStep ? "bg-brand" : "bg-muted-foreground/30"
                 }`}
               />
               <span
