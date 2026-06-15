@@ -53,5 +53,7 @@ kivitendo-export/*
 .vercel
 # Screenshots (dev artifacts)
 /*.png
+/*.jpg
+/*.jpeg
 .playwright-mcp/
 build-output.txt
