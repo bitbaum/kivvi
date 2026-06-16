@@ -1,0 +1,8 @@
+#!/usr/bin/env sh
+# >>> fleetcrown push-deploy >>>
+# Pushing main deploys to the Hetzner box (background; see /tmp/push-deploy-kivvi.log)
+if git symbolic-ref --short HEAD 2>/dev/null | grep -qx main; then
+  ( sleep 5 && env -u CI -u VERCEL bash /home/g/dev/fleetcrown/scripts/hetzner/deploy.sh kivvi ) >> /tmp/push-deploy-kivvi.log 2>&1 & disown 2>/dev/null || true
+  echo "[push-deploy] kivvi: deploy started in background → /tmp/push-deploy-kivvi.log"
+fi
+# <<< fleetcrown push-deploy <<<

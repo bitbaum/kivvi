@@ -744,6 +744,24 @@ export const INTAKE_SOURCE_LABEL_KEYS: Record<string, string> = {
   other: "intakeSourceOther",
 };
 
+/** Fallback when an intake source has no explicit label/role mapping. */
+export const INTAKE_SOURCE_LABEL_FALLBACK = "intakeSourceOther";
+export const INTAKE_CONTACT_ROLE_FALLBACK = "intakeContactSeller";
+
+/**
+ * Maps intake source DB values to the contact-role translation key used for the
+ * contact heading/label (a donor gives, a seller sells, an owner consigns, etc.).
+ */
+export const INTAKE_CONTACT_ROLE_LABEL_KEYS: Record<string, string> = {
+  donation: "intakeContactDonor",
+  purchase: "intakeContactSeller",
+  estate_clearance: "intakeContactSeller",
+  trade_in: "intakeContactCustomer",
+  return: "intakeContactCustomer",
+  consignment: "intakeContactOwner",
+  other: "intakeContactSeller",
+};
+
 /**
  * Get the filter status tabs shown on the list page for a document type.
  * Returns the most commonly used statuses for filtering.

@@ -5,7 +5,14 @@ import { getTranslations } from "next-intl/server";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { PaymentForm } from "./payment-form";
 import type { DocumentTypeConfig } from "@/lib/config/document-types";
-import { TERMINAL_STATUSES, STATUS } from "@/lib/config/document-types";
+import {
+  TERMINAL_STATUSES,
+  STATUS,
+  INTAKE_SOURCE_LABEL_KEYS,
+  INTAKE_SOURCE_LABEL_FALLBACK,
+  INTAKE_CONTACT_ROLE_LABEL_KEYS,
+  INTAKE_CONTACT_ROLE_FALLBACK,
+} from "@/lib/config/document-types";
 import {
   calculateOutstandingAmount,
   type DocumentWithRelations,
@@ -46,6 +53,14 @@ export async function DocumentDetailSidebar({
   const showImpact =
     inventoryLineItems.length > 0 &&
     (doc.type === "invoice" || doc.type === "order" || doc.type === "quote");
+
+  // Intake labels resolve through config maps (SSOT) instead of inline branching.
+  const intakeContactRoleKey = (INTAKE_CONTACT_ROLE_LABEL_KEYS[
+    doc.intakeSource ?? ""
+  ] ?? INTAKE_CONTACT_ROLE_FALLBACK) as Parameters<typeof t>[0];
+  const intakeSourceLabelKey = (INTAKE_SOURCE_LABEL_KEYS[
+    doc.intakeSource ?? ""
+  ] ?? INTAKE_SOURCE_LABEL_FALLBACK) as Parameters<typeof t>[0];
 
   return (
     <div className="space-y-6">
@@ -168,17 +183,7 @@ export async function DocumentDetailSidebar({
         <div className="rounded-xl border bg-card p-6">
           <h2 className="mb-4 font-semibold">
             {doc.type === "intake"
-              ? doc.intakeSource === "donation"
-                ? t("intakeContactDonor")
-                : doc.intakeSource === "purchase" ||
-                    doc.intakeSource === "estate_clearance"
-                  ? t("intakeContactSeller")
-                  : doc.intakeSource === "trade_in" ||
-                      doc.intakeSource === "return"
-                    ? t("intakeContactCustomer")
-                    : doc.intakeSource === "consignment"
-                      ? t("intakeContactOwner")
-                      : t("intakeContactSeller")
+              ? t(intakeContactRoleKey)
               : config.contactFilter === "vendor"
                 ? t("vendor")
                 : t("customer")}
@@ -203,21 +208,7 @@ export async function DocumentDetailSidebar({
                 <span className="text-muted-foreground">
                   {t("intakeSource")}
                 </span>
-                <span>
-                  {doc.intakeSource === "donation"
-                    ? t("intakeSourceDonation")
-                    : doc.intakeSource === "purchase"
-                      ? t("intakeSourcePurchase")
-                      : doc.intakeSource === "trade_in"
-                        ? t("intakeSourceTradeIn")
-                        : doc.intakeSource === "consignment"
-                          ? t("intakeSourceConsignment")
-                          : doc.intakeSource === "estate_clearance"
-                            ? t("intakeSourceEstate")
-                            : doc.intakeSource === "return"
-                              ? t("intakeSourceReturn")
-                              : t("intakeSourceOther")}
-                </span>
+                <span>{t(intakeSourceLabelKey)}</span>
               </div>
               {doc.intakeSource === "consignment" && doc.consignmentRate && (
                 <div className="flex justify-between">
@@ -225,7 +216,7 @@ export async function DocumentDetailSidebar({
                     {t("consignmentRate")}
                   </span>
                   <span className="font-medium text-warning">
-                    {doc.consignmentRate}%
+                    {parseFloat(doc.consignmentRate)}%
                   </span>
                 </div>
               )}

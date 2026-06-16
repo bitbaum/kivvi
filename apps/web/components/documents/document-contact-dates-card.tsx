@@ -3,6 +3,10 @@
 import { useTranslations } from "next-intl";
 import { ContactPicker } from "@/components/contacts/contact-picker";
 import { FormInput, FormSelect } from "@/components/ui/form-field";
+import {
+  INTAKE_CONTACT_ROLE_LABEL_KEYS,
+  INTAKE_CONTACT_ROLE_FALLBACK,
+} from "@/lib/config/document-types";
 
 interface DocumentContactDatesCardProps {
   isIntake: boolean;
@@ -122,16 +126,10 @@ export function DocumentContactDatesCard({
         contactType={contactFilter === "vendor" ? "vendor" : "customer"}
         label={
           isIntake
-            ? intakeSource === "donation"
-              ? t("intakeContactDonor")
-              : intakeSource === "purchase" ||
-                  intakeSource === "estate_clearance"
-                ? t("intakeContactSeller")
-                : intakeSource === "trade_in" || intakeSource === "return"
-                  ? t("intakeContactCustomer")
-                  : intakeSource === "consignment"
-                    ? t("intakeContactOwner")
-                    : t("intakeContactSeller")
+            ? t(
+                (INTAKE_CONTACT_ROLE_LABEL_KEYS[intakeSource] ??
+                  INTAKE_CONTACT_ROLE_FALLBACK) as Parameters<typeof t>[0],
+              )
             : undefined
         }
       />
