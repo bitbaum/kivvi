@@ -15,6 +15,7 @@ const PUBLIC_PREFIXES = [
   "/api/auth",
   "/api/health",
   "/api/v1",
+  "/api/cron", // cron routes self-authenticate via CRON_SECRET (box systemd timers)
   "/onboarding",
   "/invite",
   "/circular-economy",
