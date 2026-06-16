@@ -518,8 +518,8 @@ OLLAMA_BASE_URL="http://localhost:11434"
 
 ### Database
 
-- **Development**: Local PostgreSQL via Docker, or Neon serverless
-- **Production**: Self-hosted PostgreSQL (planned: datacenterthurgau.ch)
+- **Development**: Local PostgreSQL via Docker
+- **Production**: Self-hosted PostgreSQL on a Hetzner box (behind Caddy)
 - DB client factory auto-detects environment (HTTP for serverless, TCP for traditional)
 - The `createDb()` function in `packages/database/src/index.ts` handles both
 

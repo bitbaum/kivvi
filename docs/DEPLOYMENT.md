@@ -77,11 +77,11 @@ NEXTAUTH_SECRET      # openssl rand -hex 32
 
 The `apps/web/vercel.json` configures cron jobs. Vercel picks it up automatically:
 
-| Cron path                      | Schedule      | What it does                     |
-| ------------------------------ | ------------- | -------------------------------- |
-| `/api/cron/recurring-invoices` | `0 6 * * *`   | Generate due recurring invoices  |
-| `/api/cron/dunning`            | `0 7 * * *`   | Escalate overdue invoice dunning |
-| `/api/cron/webhook-retry`      | `*/5 * * * *` | Retry failed outbound webhooks   |
+| Cron path                      | Schedule    | What it does                     |
+| ------------------------------ | ----------- | -------------------------------- |
+| `/api/cron/recurring-invoices` | `0 6 * * *` | Generate due recurring invoices  |
+| `/api/cron/dunning`            | `0 7 * * *` | Escalate overdue invoice dunning |
+| `/api/cron/webhook-retry`      | `0 8 * * *` | Retry failed outbound webhooks   |
 
 Cron endpoints are protected by `CRON_SECRET`. Set it in Vercel env vars and Vercel will include it automatically in cron requests.
 
@@ -95,18 +95,14 @@ Vercel Dashboard → Domains → Add your domain. Update DNS as instructed.
 
 ---
 
-## Important: DB driver on Vercel
+## DB driver selection
 
-On Vercel, the app detects `process.env.VERCEL` and switches to the **Neon HTTP driver** (`drizzle-orm/neon-http`). This driver makes HTTP requests instead of persistent TCP connections, which is required for serverless.
+`createDb()` in `packages/database/src/index.ts` picks the driver from the environment:
 
-**Limitation**: Neon HTTP transactions are not full ACID. They batch queries as HTTP requests — if the connection drops mid-transaction, partial writes can occur.
+- **Self-hosted / persistent server (default)**: `postgres-js` with connection pooling and full ACID `db.transaction()` support. This is what our hosted production (self-hosted Postgres on a Hetzner box) uses.
+- **Serverless (`VERCEL=1` or `USE_NEON=true`)**: the Neon **WebSocket** driver (`drizzle-orm/neon-serverless`), which also supports native ACID transactions. Single pool queries are routed via HTTPS fetch (`neonConfig.poolQueryViaFetch`) to avoid a webpack `ws` bundling issue.
 
-**Mitigation**: Use Neon with the WebSocket driver instead, which supports true transactions. To switch:
-
-1. Add `NEON_USE_WS=true` (or configure `neonConfig.webSocketConstructor`) in `packages/database/src/index.ts`
-2. Use `drizzle-orm/neon-serverless` with `Pool` from `@neondatabase/serverless`
-
-For most small-to-medium loads the HTTP driver is fine. If you need ACID guarantees on Vercel, implement the WebSocket driver or move to self-hosted.
+No configuration is required — set `USE_NEON=true` only if you deploy to a serverless host that needs the Neon driver but does not set `VERCEL`.
 
 ---
 
@@ -216,7 +212,7 @@ Add to `/etc/cron.d/kivvi`:
 
 0 6 * * * root curl -s -X POST -H "Authorization: Bearer YOUR_SECRET" https://your-domain.com/api/cron/recurring-invoices
 0 7 * * * root curl -s -X POST -H "Authorization: Bearer YOUR_SECRET" https://your-domain.com/api/cron/dunning
-*/5 * * * * root curl -s -X POST -H "Authorization: Bearer YOUR_SECRET" https://your-domain.com/api/cron/webhook-retry
+0 8 * * * root curl -s -X POST -H "Authorization: Bearer YOUR_SECRET" https://your-domain.com/api/cron/webhook-retry
 ```
 
 Or use a systemd timer — same effect, better logging.

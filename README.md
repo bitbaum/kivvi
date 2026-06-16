@@ -12,7 +12,7 @@ The operating system for the circular economy. Built for businesses that sell us
 [![Next.js](https://img.shields.io/badge/Next.js-14-black.svg)](https://nextjs.org/)
 [![Made in Switzerland](https://img.shields.io/badge/Made%20in-Switzerland-D52B1E.svg)](https://revampit.ch)
 
-[**Live demo**](https://kivvi.vercel.app) · [**Product brief**](PRODUCT.md) · [**Docs**](docs/) · [**Architecture**](#architecture)
+[**Live demo**](https://kivvi.ch) · [**Product brief**](PRODUCT.md) · [**Docs**](docs/) · [**Architecture**](#architecture)
 
 ![Kivvi landing](docs/screenshots/landing-desktop.png)
 
@@ -93,7 +93,7 @@ Full engineering bible in [`CLAUDE.md`](CLAUDE.md).
 | AI         | Anthropic Claude · OpenAI · Ollama (self-hosted) | Configurable per company; default Claude                                    |
 | UI         | Tailwind + shadcn/ui + Radix                     | CSS variables as the only design SSOT; semantic tokens everywhere           |
 | Validation | Zod                                              | Schema = SSOT for validation _and_ types                                    |
-| Hosting    | Vercel · Docker · self-host                      | Pick your tradeoffs                                                         |
+| Hosting    | Self-hosted (Docker · any Linux VPS)             | Runs on our own Hetzner box behind Caddy; portable to any host              |
 
 ## Quick start
 
@@ -206,7 +206,7 @@ Found a vulnerability? See [`SECURITY.md`](SECURITY.md). Do _not_ open a public 
 
 Kivvi is built by [RevampIT](https://revampit.ch) (Zürich) — a nonprofit IT refurbisher running it in production — and the wider community of secondhand shops that want their software to fit their workflow, not the other way around.
 
-If you run a Brockenhaus, refurbishing workshop, or vintage shop and your ERP is fighting you, [get in touch](https://kivvi.vercel.app).
+If you run a Brockenhaus, refurbishing workshop, or vintage shop and your ERP is fighting you, [get in touch](https://kivvi.ch).
 
 ## License
 

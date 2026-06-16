@@ -78,7 +78,7 @@ export const inviteMemberAction = createAction<
           .from(users)
           .where(eq(users.id, userId));
 
-        const baseUrl = process.env.NEXTAUTH_URL || "https://kivvi.vercel.app";
+        const baseUrl = process.env.NEXTAUTH_URL || "https://kivvi.ch";
         const acceptUrl = `${baseUrl}/invite/${invitation.token}`;
 
         const emailData = {

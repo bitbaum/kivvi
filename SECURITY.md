@@ -40,7 +40,7 @@ Out of scope:
 
 1. You report → we acknowledge within 72 hours.
 2. We investigate, confirm, and develop a fix.
-3. We ship the fix to production (Vercel) and to self-hosting users via release notes.
+3. We ship the fix to our hosted production and to self-hosting users via release notes.
 4. We publish a security advisory crediting you (unless you prefer to remain anonymous).
 
 We coordinate on disclosure date with you. Typical embargo is 30 days from fix.
