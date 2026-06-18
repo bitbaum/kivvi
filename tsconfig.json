@@ -20,5 +20,13 @@
       "@kivvi/ai": ["packages/ai/src"]
     }
   },
+  "//": "Base compilerOptions consumed via `extends` by packages/core (only compilerOptions are inherited — files/include/exclude are not). This root config compiles nothing itself: `files: []` + `references` make it a solution-style config (empty `files` requires `references`, else TS18002), so `npx tsc --noEmit` delegates instead of sweeping apps/web (which owns the @/* alias) and the unwired scripts/. The authoritative typecheck is `pnpm type-check` (turbo, per-workspace).",
+  "files": [],
+  "references": [
+    { "path": "apps/web" },
+    { "path": "packages/core" },
+    { "path": "packages/database" },
+    { "path": "packages/ai" }
+  ],
   "exclude": ["node_modules"]
 }
