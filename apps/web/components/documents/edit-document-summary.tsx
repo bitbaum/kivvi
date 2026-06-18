@@ -66,7 +66,7 @@ export function EditDocumentSummary({
         ) : (
           <span className="flex items-center justify-center gap-2">
             {tc("saveChanges")}
-            <kbd className="hidden items-center gap-0.5 rounded border border-primary-foreground/20 bg-primary-foreground/10 px-1.5 py-0.5 font-mono text-[10px] sm:inline-flex">
+            <kbd className="hidden items-center gap-0.5 rounded border border-primary-foreground/20 bg-primary-foreground/10 px-1.5 py-0.5 font-mono text-micro sm:inline-flex">
               ⌘↵
             </kbd>
           </span>

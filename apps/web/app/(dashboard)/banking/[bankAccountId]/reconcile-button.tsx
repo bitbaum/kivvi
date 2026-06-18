@@ -193,7 +193,7 @@ export function ReconcileButton({
                         <span className="text-sm font-medium">
                           {doc.number ?? "-"}
                         </span>
-                        <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium uppercase">
+                        <span className="rounded-full bg-muted px-1.5 py-0.5 text-micro font-medium uppercase">
                           {doc.type}
                         </span>
                       </div>
