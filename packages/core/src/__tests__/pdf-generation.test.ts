@@ -73,6 +73,62 @@ const QR_DATA: InvoicePdfData = {
   qrReference: VALID_QR_REFERENCE,
 };
 
+// Reconstruct the human-visible text rendered into a PDF. PDFKit (and the
+// swissqrbill payment slip) write text as hex-encoded show strings inside
+// FlateDecode content streams; concatenating every decoded hex run yields the
+// visible text — proving content renders, not just metadata. Whitespace is
+// dropped so values formatted in groups (IBAN "CH18 3199 …", reference
+// "17 16781 …") match their canonical, unspaced form.
+function reconstructPdfText(pdf: Buffer): { text: string; compact: string } {
+  const raw = pdf.toString("latin1");
+  const streamRe = /stream\r?\n([\s\S]*?)\r?\nendstream/g;
+  let text = "";
+  let match: RegExpExecArray | null;
+  while ((match = streamRe.exec(raw)) !== null) {
+    let body: string;
+    try {
+      body = inflateSync(Buffer.from(match[1], "latin1")).toString("latin1");
+    } catch {
+      continue; // Non-Flate stream (e.g. metadata) — skip.
+    }
+    for (const hex of body.match(/<([0-9a-fA-F]+)>/g) ?? []) {
+      text += Buffer.from(hex.slice(1, -1), "hex").toString("latin1");
+    }
+  }
+  return { text, compact: text.replace(/\s/g, "") };
+}
+
+// MOD-10 recursive check (Swiss QR-bill standard) — mirrors the domain
+// algorithm so the test validates the reference independently of how it was
+// generated. Returns the check digit for a digit string.
+function mod10Recursive(input: string): string {
+  const table = [0, 9, 4, 6, 8, 2, 7, 1, 3, 5];
+  let carry = 0;
+  for (const ch of input) carry = table[(carry + parseInt(ch, 10)) % 10];
+  return ((10 - carry) % 10).toString();
+}
+
+// ISO 7064 mod-97-10 check for SCOR (ISO 11649 creditor) references.
+function isValidScor(ref: string): boolean {
+  if (!/^RF\d{2}[A-Z0-9]{1,21}$/.test(ref)) return false;
+  const rearranged = ref.slice(4) + ref.slice(0, 4);
+  const numeric = rearranged.replace(/[A-Z]/g, (c) =>
+    (c.charCodeAt(0) - 55).toString(),
+  );
+  let remainder = 0;
+  for (const ch of numeric) remainder = (remainder * 10 + Number(ch)) % 97;
+  return remainder === 1;
+}
+
+// A structurally valid Swiss payment reference is either a 27-digit QRR with a
+// valid trailing MOD-10 check digit, or an ISO 11649 SCOR reference.
+function isValidQrReference(ref: string): boolean {
+  if (/^\d{27}$/.test(ref)) {
+    return mod10Recursive(ref.slice(0, 26)) === ref[26];
+  }
+  return isValidScor(ref);
+}
+
 // ---------------------------------------------------------------------------
 // generateInvoicePdf
 // ---------------------------------------------------------------------------
@@ -238,6 +294,39 @@ describe("generateInvoicePdf", () => {
     // Should be larger than no-IBAN version (QR-bill rendered)
     const noIban = await generateInvoicePdf(BASE_DATA);
     expect(pdf.length).toBeGreaterThan(noIban.length);
+  });
+
+  it("renders a Swiss QR-bill payment slip with valid reference, IBAN and amount", async () => {
+    const pdf = await generateInvoicePdf(QR_DATA);
+    const { text, compact } = reconstructPdfText(pdf);
+
+    // Payment slip is present (German QR-bill section labels, legally fixed).
+    expect(text).toContain("Empfangsschein"); // receipt part
+    expect(text).toContain("Zahlteil"); // payment part
+    expect(text).toContain("Referenz"); // reference label
+
+    // The structured reference renders and is structurally valid (QRR/SCOR).
+    expect(compact).toContain(VALID_QR_REFERENCE);
+    expect(isValidQrReference(VALID_QR_REFERENCE)).toBe(true);
+
+    // Creditor IBAN renders (formatted in groups → matched in compact form).
+    expect(compact).toContain(QR_IBAN.replace(/\s/g, ""));
+
+    // Currency and payable amount render in the slip.
+    expect(text).toContain("CHF");
+    expect(compact).toContain(QR_DATA.total); // "350.00"
+  });
+
+  it("rejects malformed QR references (validator sanity check)", () => {
+    expect(isValidQrReference(VALID_QR_REFERENCE)).toBe(true);
+    // Flip the check digit → invalid QRR.
+    const badCheck =
+      VALID_QR_REFERENCE.slice(0, 26) +
+      ((Number(VALID_QR_REFERENCE[26]) + 1) % 10).toString();
+    expect(isValidQrReference(badCheck)).toBe(false);
+    expect(isValidQrReference("12345")).toBe(false); // wrong length
+    expect(isValidQrReference("RF18539007547034")).toBe(true); // valid SCOR
+    expect(isValidQrReference("RF19539007547034")).toBe(false); // bad SCOR check
   });
 });
 
