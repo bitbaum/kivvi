@@ -1,102 +1,123 @@
-'use client';
+"use client";
 
-import { useState, useCallback, useRef } from 'react';
-import { Upload, FileText, X } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import Papa from 'papaparse';
-import { cleanHeaders } from '@kivvi/core/src/domain/import-mappings';
+import { useState, useCallback, useRef } from "react";
+import { Upload, FileText, X } from "lucide-react";
+import { useTranslations } from "next-intl";
+import Papa from "papaparse";
+import { cleanHeaders } from "@kivvi/core/src/domain/import-mappings";
 
 interface CsvUploaderProps {
-  onParsed: (headers: string[], rows: Record<string, string>[], rawArrayRows: string[][]) => void;
+  onParsed: (
+    headers: string[],
+    rows: Record<string, string>[],
+    rawArrayRows: string[][],
+  ) => void;
   label?: string;
   accept?: string;
 }
 
-export function CsvUploader({ onParsed, label = 'Upload CSV', accept = '.csv' }: CsvUploaderProps) {
-  const t = useTranslations('onboarding');
+export function CsvUploader({
+  onParsed,
+  label = "Upload CSV",
+  accept = ".csv",
+}: CsvUploaderProps) {
+  const t = useTranslations("onboarding");
+  const tc = useTranslations("common");
   const [fileName, setFileName] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const parseFile = useCallback((file: File) => {
-    setError('');
-    setFileName(file.name);
+  const parseFile = useCallback(
+    (file: File) => {
+      setError("");
+      setFileName(file.name);
 
-    Papa.parse(file, {
-      header: false,
-      skipEmptyLines: true,
-      encoding: 'UTF-8',
-      complete: (results) => {
-        if (results.errors.length > 0 && results.data.length === 0) {
-          setError(`Parse error: ${results.errors[0].message}`);
-          return;
-        }
+      Papa.parse(file, {
+        header: false,
+        skipEmptyLines: true,
+        encoding: "UTF-8",
+        complete: (results) => {
+          if (results.errors.length > 0 && results.data.length === 0) {
+            setError(`Parse error: ${results.errors[0].message}`);
+            return;
+          }
 
-        const rawArrayRows = results.data as string[][];
-        if (rawArrayRows.length === 0) {
-          setError('CSV file is empty');
-          return;
-        }
+          const rawArrayRows = results.data as string[][];
+          if (rawArrayRows.length === 0) {
+            setError("CSV file is empty");
+            return;
+          }
 
-        // First row is headers
-        const rawHeaders = rawArrayRows[0].map((h) => h || '');
-        const headers = cleanHeaders(rawHeaders);
-        const dataRows = rawArrayRows.slice(1);
+          // First row is headers
+          const rawHeaders = rawArrayRows[0].map((h) => h || "");
+          const headers = cleanHeaders(rawHeaders);
+          const dataRows = rawArrayRows.slice(1);
 
-        // Build Record<string, string>[] from array rows (same shape as before)
-        const cleanedRows = dataRows.map((row) => {
-          const cleaned: Record<string, string> = {};
-          headers.forEach((h, i) => {
-            cleaned[h] = row[i] || '';
+          // Build Record<string, string>[] from array rows (same shape as before)
+          const cleanedRows = dataRows.map((row) => {
+            const cleaned: Record<string, string> = {};
+            headers.forEach((h, i) => {
+              cleaned[h] = row[i] || "";
+            });
+            return cleaned;
           });
-          return cleaned;
-        });
 
-        onParsed(headers, cleanedRows, rawArrayRows);
-      },
-      error: (err) => {
-        setError(`Failed to parse CSV: ${err.message}`);
-      },
-    });
-  }, [onParsed]);
+          onParsed(headers, cleanedRows, rawArrayRows);
+        },
+        error: (err) => {
+          setError(`Failed to parse CSV: ${err.message}`);
+        },
+      });
+    },
+    [onParsed],
+  );
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const file = e.dataTransfer.files[0];
-    if (file) parseFile(file);
-  }, [parseFile]);
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragging(false);
+      const file = e.dataTransfer.files[0];
+      if (file) parseFile(file);
+    },
+    [parseFile],
+  );
 
-  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) parseFile(file);
-  }, [parseFile]);
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) parseFile(file);
+    },
+    [parseFile],
+  );
 
   const handleClear = () => {
     setFileName(null);
-    setError('');
-    if (fileInputRef.current) fileInputRef.current.value = '';
+    setError("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   return (
     <div>
       {!fileName ? (
         <div
-          onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setIsDragging(true);
+          }}
           onDragLeave={() => setIsDragging(false)}
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
           className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors ${
             isDragging
-              ? 'border-primary bg-primary/5'
-              : 'border-muted-foreground/25 hover:border-muted-foreground/50 hover:bg-muted/30'
+              ? "border-primary bg-primary/5"
+              : "border-muted-foreground/25 hover:border-muted-foreground/50 hover:bg-muted/30"
           }`}
         >
           <Upload className="mb-2 h-8 w-8 text-muted-foreground" />
           <span className="text-sm font-medium">{label}</span>
           <span className="mt-1 text-xs text-muted-foreground">
-            {t('dragAndDrop')}
+            {t("dragAndDrop")}
           </span>
         </div>
       ) : (
@@ -105,9 +126,10 @@ export function CsvUploader({ onParsed, label = 'Upload CSV', accept = '.csv' }:
           <span className="flex-1 truncate text-sm">{fileName}</span>
           <button
             onClick={handleClear}
+            aria-label={tc("aria.removeFile")}
             className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
           >
-            <X className="h-4 w-4" />
+            <X className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
       )}
@@ -120,9 +142,7 @@ export function CsvUploader({ onParsed, label = 'Upload CSV', accept = '.csv' }:
         className="hidden"
       />
 
-      {error && (
-        <p className="mt-2 text-sm text-destructive">{error}</p>
-      )}
+      {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
     </div>
   );
 }

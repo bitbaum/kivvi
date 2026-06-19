@@ -110,6 +110,8 @@
       "dismiss": "Dismiss",
       "dragToReorder": "Drag to reorder",
       "removeLineItem": "Remove line item",
+      "removeFile": "Remove file",
+      "removePhoto": "Remove photo",
       "selectAll": "Select all",
       "switchCompany": "Switch company",
       "toggleTheme": "Switch theme to {mode}",
