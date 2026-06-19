@@ -43,7 +43,9 @@ export function RecurringConfigRow({
   const [isToggling, setIsToggling] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const confirmRef = useRef<HTMLDivElement>(null);
-  useFocusTrap(confirmRef, showDeleteConfirm);
+  useFocusTrap(confirmRef, showDeleteConfirm, () =>
+    setShowDeleteConfirm(false),
+  );
 
   async function handleDelete() {
     setIsDeleting(true);
@@ -120,7 +122,10 @@ export function RecurringConfigRow({
       </div>
       <div className="relative z-10">
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-accent transition-colors">
+          <DropdownMenuTrigger
+            aria-label={tc("actions")}
+            className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-accent transition-colors"
+          >
             <MoreVertical className="h-4 w-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -166,11 +171,23 @@ export function RecurringConfigRow({
           onClick={() => setShowDeleteConfirm(false)}
         >
           <div
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby={`recurring-delete-title-${config.id}`}
+            aria-describedby={`recurring-delete-desc-${config.id}`}
             className="mx-4 w-full max-w-md rounded-xl border bg-card p-6 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-lg font-semibold">{tc("delete")}</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <h3
+              id={`recurring-delete-title-${config.id}`}
+              className="text-lg font-semibold"
+            >
+              {tc("delete")}
+            </h3>
+            <p
+              id={`recurring-delete-desc-${config.id}`}
+              className="mt-2 text-sm text-muted-foreground"
+            >
               {t("recurring.confirmDelete")}
             </p>
             <div className="mt-4 flex justify-end gap-2">

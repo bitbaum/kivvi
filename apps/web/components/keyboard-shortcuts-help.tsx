@@ -16,7 +16,7 @@ export function KeyboardShortcutsHelp({
 }: KeyboardShortcutsHelpProps) {
   const tc = useTranslations("common");
   const modalRef = useRef<HTMLDivElement>(null);
-  useFocusTrap(modalRef, isOpen);
+  useFocusTrap(modalRef, isOpen, onClose);
 
   if (!isOpen) return null;
 
