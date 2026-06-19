@@ -93,7 +93,7 @@ export function DocumentSummaryPanel({
         ) : (
           <>
             {t("newDocument", { type: t(config.label) })}
-            <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded border border-primary-foreground/20 bg-primary-foreground/10 px-1.5 py-0.5 text-[10px] font-mono">
+            <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded border border-primary-foreground/20 bg-primary-foreground/10 px-1.5 py-0.5 text-micro font-mono">
               ⌘↵
             </kbd>
           </>
