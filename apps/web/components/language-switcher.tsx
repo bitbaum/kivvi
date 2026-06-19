@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { useLocale, useTranslations } from 'next-intl';
-import { Globe } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
-import type { Locale } from '@/i18n/request';
-import { LOCALE_CONFIG } from '@/lib/config/locales';
-import { cn } from '@/lib/utils';
+import { useRouter } from "next/navigation";
+import { useLocale, useTranslations } from "next-intl";
+import { Globe } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import type { Locale } from "@/i18n/request";
+import { LOCALE_CONFIG } from "@/lib/config/locales";
+import { cn } from "@/lib/utils";
 
 /**
  * Language switcher component for unauthenticated pages.
@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils';
 export function LanguageSwitcher() {
   const locale = useLocale() as Locale;
   const router = useRouter();
-  const tc = useTranslations('common');
+  const tc = useTranslations("common");
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -32,19 +32,19 @@ export function LanguageSwitcher() {
         setShowMenu(false);
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Close menu on Escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         setShowMenu(false);
       }
     };
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
   }, []);
 
   return (
@@ -52,7 +52,9 @@ export function LanguageSwitcher() {
       <button
         onClick={() => setShowMenu(!showMenu)}
         className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium hover:bg-muted transition-colors"
-        aria-label={`Current language: ${LOCALE_CONFIG[locale].native}`}
+        aria-label={tc("aria.currentLanguage", {
+          language: LOCALE_CONFIG[locale].native,
+        })}
         aria-expanded={showMenu}
         aria-haspopup="true"
       >
@@ -63,17 +65,29 @@ export function LanguageSwitcher() {
         <div
           className="absolute right-0 top-full z-50 mt-2 w-36 rounded-lg border bg-card p-1 shadow-lg"
           role="menu"
-          aria-label={tc('aria.languageOptions')}
+          aria-label={tc("aria.languageOptions")}
         >
-          {(Object.entries(LOCALE_CONFIG) as [Locale, { short: string; native: string }][]).map(([loc, cfg]) => (
+          {(
+            Object.entries(LOCALE_CONFIG) as [
+              Locale,
+              { short: string; native: string },
+            ][]
+          ).map(([loc, cfg]) => (
             <button
               key={loc}
               onClick={() => switchLocale(loc)}
-              className={cn('flex w-full items-center gap-2 rounded px-3 py-2 text-sm hover:bg-muted', locale === loc && 'font-medium text-primary')}
+              className={cn(
+                "flex w-full items-center gap-2 rounded px-3 py-2 text-sm hover:bg-muted",
+                locale === loc && "font-medium text-primary",
+              )}
               role="menuitem"
             >
               {cfg.native}
-              {locale === loc && <span className="ml-auto text-primary" aria-hidden="true">✓</span>}
+              {locale === loc && (
+                <span className="ml-auto text-primary" aria-hidden="true">
+                  ✓
+                </span>
+              )}
             </button>
           ))}
         </div>

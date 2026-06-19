@@ -147,7 +147,7 @@ export function SelectableDocumentTable({
                   type="checkbox"
                   checked={isSelected(doc.id)}
                   onChange={() => toggle(doc.id)}
-                  aria-label={`Select ${doc.number}`}
+                  aria-label={tc("aria.selectItem", { name: doc.number })}
                   className="h-4 w-4 rounded border-input"
                 />
               </div>

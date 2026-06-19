@@ -112,8 +112,12 @@
       "removeLineItem": "Supprimer la ligne",
       "selectAll": "Tout sélectionner",
       "switchCompany": "Changer d'entreprise",
-      "toggleTheme": "Changer le thème en {mode}"
+      "toggleTheme": "Changer le thème en {mode}",
+      "currentLanguage": "Langue actuelle : {language}",
+      "userMenuNamed": "Menu utilisateur : {name}",
+      "selectItem": "Sélectionner {name}"
     },
+    "user": "Utilisateur",
     "or": "ou",
     "comingSoon": "Bientôt disponible",
     "upload": "Télécharger",
