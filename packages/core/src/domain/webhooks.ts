@@ -22,6 +22,22 @@ import { logger } from "../logger";
 const RETRY_DELAYS_MS = [60_000, 300_000, 1_800_000, 7_200_000, 28_800_000];
 const MAX_ATTEMPTS = RETRY_DELAYS_MS.length;
 
+/**
+ * Backoff delay (ms) to wait AFTER a failed delivery attempt before the next
+ * one — or `null` when `attempt` was the final attempt and the delivery should
+ * be abandoned. `attempt` is 1-indexed (the initial dispatch is attempt 1).
+ *
+ * The delay after attempt N is `RETRY_DELAYS_MS[N - 1]`, so the schedule runs
+ * sequentially through the tiers: after attempt 1 wait 1m, after 2 wait 5m,
+ * after 3 wait 30m, after 4 wait 2h. (Previously the retry loop indexed with
+ * `RETRY_DELAYS_MS[attempt]`, which skipped the 5m tier and waited one tier too
+ * long on every retry.)
+ */
+export function retryDelayMs(attempt: number): number | null {
+  if (attempt < 1 || attempt >= MAX_ATTEMPTS) return null;
+  return RETRY_DELAYS_MS[attempt - 1];
+}
+
 /** Sign a payload string with the endpoint's secret */
 function sign(secret: string, body: string): string {
   return createHmac("sha256", secret).update(body).digest("hex");
@@ -188,14 +204,14 @@ export async function retryFailedDeliveries(db: Database): Promise<void> {
 
         if (response.ok) {
           deliveredAt = new Date();
-        } else if (attempt < MAX_ATTEMPTS) {
-          nextRetryAt = new Date(Date.now() + RETRY_DELAYS_MS[attempt]);
+        } else {
+          const delay = retryDelayMs(attempt);
+          if (delay !== null) nextRetryAt = new Date(Date.now() + delay);
+          // delay === null → final attempt, abandon (nextRetryAt stays null)
         }
-        // else: abandon — nextRetryAt stays null
       } catch {
-        if (attempt < MAX_ATTEMPTS) {
-          nextRetryAt = new Date(Date.now() + RETRY_DELAYS_MS[attempt]);
-        }
+        const delay = retryDelayMs(attempt);
+        if (delay !== null) nextRetryAt = new Date(Date.now() + delay);
       }
 
       await db
