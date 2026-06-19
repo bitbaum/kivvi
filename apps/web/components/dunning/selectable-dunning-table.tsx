@@ -177,7 +177,7 @@ export function SelectableDunningTable({
                     type="checkbox"
                     checked={isSelected(inv.id)}
                     onChange={() => toggle(inv.id)}
-                    aria-label={`Select ${inv.number}`}
+                    aria-label={tc("aria.selectItem", { name: inv.number })}
                     className="h-4 w-4 rounded border-input"
                   />
                 ) : (

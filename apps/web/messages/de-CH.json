@@ -112,8 +112,12 @@
       "removeLineItem": "Position entfernen",
       "selectAll": "Alle auswählen",
       "switchCompany": "Firma wechseln",
-      "toggleTheme": "Design wechseln zu {mode}"
+      "toggleTheme": "Design wechseln zu {mode}",
+      "currentLanguage": "Aktuelle Sprache: {language}",
+      "userMenuNamed": "Benutzermenü: {name}",
+      "selectItem": "{name} auswählen"
     },
+    "user": "Benutzer",
     "or": "oder",
     "comingSoon": "Demnächst verfügbar",
     "upload": "Hochladen",
@@ -3437,7 +3441,7 @@
         "title": "Was wir glauben",
         "paragraph1": "Die Kreislaufwirtschaft ist keine Nische. Sie ist das Gegenmittel zu einem Wirtschaftssystem, das voraussetzt, dass Güter nur einmal benutzt werden. Brockenhäuser, IT-Refurbisher, Repair Cafés und Vintage-Shops machen täglich vor, dass das Gegenteil möglich ist.",
         "paragraph2": "Das Problem: Die Software, die diese Betriebe nutzen müssen, wurde für das Gegenteil gebaut. Für neue Waren, feste Preise, klare Lieferketten. Kein Feld für Zustand. Kein Konzept für Spendenquittungen. Keine Marge pro Einzelartikel.",
-        "conclusion": "Kivvi schließt diese Lücke — mit einem ERP, das die Realität der Kreislaufwirtschaft nativ abbildet, statt dagegen anzuarbeiten. Unsere Ambition: das Betriebssystem für Kreislaufbetriebe weltweit zu werden."
+        "conclusion": "Kivvi schliesst diese Lücke — mit einem ERP, das die Realität der Kreislaufwirtschaft nativ abbildet, statt dagegen anzuarbeiten. Unsere Ambition: das Betriebssystem für Kreislaufbetriebe weltweit zu werden."
       },
       "values": {
         "title": "Was Kivvi antreibt",

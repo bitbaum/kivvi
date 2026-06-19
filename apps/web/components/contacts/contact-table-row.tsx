@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { cn, formatDate } from "@/lib/utils";
 import { StatusBadge } from "@/components/status-badge";
 import { CONTACT_TYPE_STYLES } from "@/lib/config/contact-types";
@@ -23,6 +24,7 @@ export function ContactTableRow({
   onToggle,
   translations,
 }: ContactTableRowProps) {
+  const tc = useTranslations("common");
   return (
     <div
       className={cn(
@@ -43,7 +45,7 @@ export function ContactTableRow({
           type="checkbox"
           checked={isSelected}
           onChange={onToggle}
-          aria-label={`Select ${contact.name}`}
+          aria-label={tc("aria.selectItem", { name: contact.name })}
           className="h-4 w-4 rounded border-input"
         />
       </div>

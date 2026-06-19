@@ -112,8 +112,12 @@
       "removeLineItem": "Remove line item",
       "selectAll": "Select all",
       "switchCompany": "Switch company",
-      "toggleTheme": "Switch theme to {mode}"
+      "toggleTheme": "Switch theme to {mode}",
+      "currentLanguage": "Current language: {language}",
+      "userMenuNamed": "User menu: {name}",
+      "selectItem": "Select {name}"
     },
+    "user": "User",
     "or": "or",
     "comingSoon": "Coming soon",
     "upload": "Upload",

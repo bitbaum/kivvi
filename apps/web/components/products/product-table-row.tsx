@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Package, Wrench } from "lucide-react";
 import { cn, formatCurrency } from "@/lib/utils";
 import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
@@ -57,6 +58,7 @@ export function ProductTableRow({
   onToggle,
   translations,
 }: ProductTableRowProps) {
+  const tc = useTranslations("common");
   return (
     <tr
       className={cn(
@@ -76,7 +78,7 @@ export function ProductTableRow({
             type="checkbox"
             checked={isSelected}
             onChange={onToggle}
-            aria-label={`Select ${product.name}`}
+            aria-label={tc("aria.selectItem", { name: product.name })}
             className="h-4 w-4 rounded border-input"
           />
         </span>

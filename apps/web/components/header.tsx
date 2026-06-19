@@ -121,7 +121,9 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
           <button
             onClick={langMenu.toggle}
             className="flex min-h-[44px] items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm font-medium hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            aria-label={`Current language: ${LOCALE_CONFIG[locale].native}`}
+            aria-label={t("aria.currentLanguage", {
+              language: LOCALE_CONFIG[locale].native,
+            })}
             aria-expanded={langMenu.open}
             aria-haspopup="true"
           >
@@ -188,7 +190,9 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
           <button
             onClick={userMenu.toggle}
             className="flex items-center gap-2 rounded-lg p-1 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            aria-label={`User menu: ${session?.user?.name || "User"}`}
+            aria-label={t("aria.userMenuNamed", {
+              name: session?.user?.name || t("user"),
+            })}
             aria-expanded={userMenu.open}
             aria-haspopup="true"
           >
