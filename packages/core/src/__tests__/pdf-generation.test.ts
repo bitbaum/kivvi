@@ -1,3 +1,4 @@
+import { inflateSync } from "node:zlib";
 import { describe, it, expect } from "vitest";
 import {
   generateInvoicePdf,
@@ -541,6 +542,34 @@ describe("generateDonationReceiptPdf", () => {
       generateDonationReceiptPdf(alt),
     ]);
     expect(pdf1.equals(pdf2)).toBe(false);
+  });
+
+  it("renders the title, donor name, and receipt number in the visible body", async () => {
+    // PDFKit writes the visible text into FlateDecode content streams as
+    // hex-encoded show strings (e.g. `<5370...> Tj`), split by kerning
+    // offsets. Inflate the streams and concatenate every decoded hex run to
+    // reconstruct the rendered text — proving the content actually renders,
+    // not just the PDF metadata.
+    const pdf = await generateDonationReceiptPdf(DONATION_RECEIPT_DATA);
+    const raw = pdf.toString("latin1");
+    let rendered = "";
+    const streamRe = /stream\r?\n([\s\S]*?)\r?\nendstream/g;
+    let match: RegExpExecArray | null;
+    while ((match = streamRe.exec(raw)) !== null) {
+      let body: string;
+      try {
+        body = inflateSync(Buffer.from(match[1], "latin1")).toString("latin1");
+      } catch {
+        continue; // Non-Flate stream (e.g. metadata) — skip.
+      }
+      for (const hex of body.match(/<([0-9a-fA-F]+)>/g) ?? []) {
+        rendered += Buffer.from(hex.slice(1, -1), "hex").toString("latin1");
+      }
+    }
+
+    expect(rendered).toContain("Spendenquittung");
+    expect(rendered).toContain(DONATION_RECEIPT_DATA.donorName);
+    expect(rendered).toContain(DONATION_RECEIPT_DATA.number);
   });
 });
 
