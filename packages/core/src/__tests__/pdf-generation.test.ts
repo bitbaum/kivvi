@@ -76,9 +76,11 @@ const QR_DATA: InvoicePdfData = {
 // Reconstruct the human-visible text rendered into a PDF. PDFKit (and the
 // swissqrbill payment slip) write text as hex-encoded show strings inside
 // FlateDecode content streams; concatenating every decoded hex run yields the
-// visible text — proving content renders, not just metadata. Whitespace is
-// dropped so values formatted in groups (IBAN "CH18 3199 …", reference
-// "17 16781 …") match their canonical, unspaced form.
+// visible text — proving content renders, not just metadata. `text` keeps the
+// rendered spacing; `compact` drops whitespace so values formatted in groups
+// (IBAN "CH18 3199 …", reference "17 16781 …") match their canonical form.
+// Bytes decode as latin1, so ASCII and Latin-1 chars (ä/ö/ü) match; callers
+// should assert on dash-free substrings (en-dashes have no latin1 equivalent).
 function reconstructPdfText(pdf: Buffer): { text: string; compact: string } {
   const raw = pdf.toString("latin1");
   const streamRe = /stream\r?\n([\s\S]*?)\r?\nendstream/g;
@@ -441,6 +443,25 @@ describe("generateDeliveryNotePdf", () => {
     ]);
     expect(pdf1.equals(pdf2)).toBe(false);
   });
+
+  it("renders the title and line items in the visible body", async () => {
+    const { text } = reconstructPdfText(
+      await generateDeliveryNotePdf(DELIVERY_NOTE_DATA),
+    );
+
+    // Document title and number render on the page (not just metadata).
+    expect(text).toContain("Lieferschein");
+    expect(text).toContain("LS-2026-00001");
+
+    // Item table column headers render (no prices on a delivery note).
+    expect(text).toContain("Menge");
+    expect(text).toContain("Einheit");
+
+    // Each line item's description and unit render.
+    expect(text).toContain("ThinkPad T14 general"); // dash-free prefix
+    expect(text).toContain("Dell Latitude E7440");
+    expect(text).toContain("Stk");
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -538,6 +559,25 @@ describe("generateQuotePdf", () => {
       generateQuotePdf(alt),
     ]);
     expect(pdf1.equals(pdf2)).toBe(false);
+  });
+
+  it("renders the title, line item and totals in the visible body", async () => {
+    const { text } = reconstructPdfText(await generateQuotePdf(QUOTE_DATA));
+
+    // Document title and number render on the page (not just metadata).
+    expect(text).toContain("Angebot");
+    expect(text).toContain("AN-2026-00001");
+
+    // Line item description and price render (en-dash split into safe parts).
+    expect(text).toContain("MacBook Air M2");
+    expect(text).toContain("refurbished");
+    expect(text).toContain("850.00"); // line total / grand total
+
+    // Computed totals render in the summary block.
+    expect(text).toContain("786.31"); // net subtotal
+    expect(text).toContain("63.69"); // VAT amount
+    expect(text).toContain("Total");
+    expect(text).toContain("CHF");
   });
 });
 
