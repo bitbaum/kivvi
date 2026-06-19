@@ -77,9 +77,10 @@ export function AccountForm({ account, parentAccounts }: AccountFormProps) {
         </h2>
         <button
           onClick={handleCancel}
+          aria-label={tc("cancel")}
           className="rounded-md p-1.5 text-muted-foreground hover:bg-muted transition-colors"
         >
-          <X className="h-4 w-4" />
+          <X className="h-4 w-4" aria-hidden="true" />
         </button>
       </div>
 

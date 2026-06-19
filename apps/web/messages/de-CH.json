@@ -110,6 +110,8 @@
       "dismiss": "Schliessen",
       "dragToReorder": "Ziehen zum Umsortieren",
       "removeLineItem": "Position entfernen",
+      "removeFile": "Datei entfernen",
+      "removePhoto": "Foto entfernen",
       "selectAll": "Alle auswählen",
       "switchCompany": "Firma wechseln",
       "toggleTheme": "Design wechseln zu {mode}",

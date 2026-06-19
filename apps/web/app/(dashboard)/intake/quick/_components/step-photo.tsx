@@ -80,9 +80,10 @@ export function StepPhoto({
           />
           <button
             onClick={onPhotoClear}
+            aria-label={tc("aria.removePhoto")}
             className="absolute top-2 right-2 rounded-full bg-black/50 p-1 text-white hover:bg-black/70"
           >
-            <X className="h-4 w-4" />
+            <X className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
       ) : (

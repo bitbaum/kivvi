@@ -127,9 +127,10 @@ export function SequenceRow({ sequence, typeLabel }: SequenceRowProps) {
               type="button"
               onClick={handleCancel}
               disabled={isSubmitting}
+              aria-label={tc("cancel")}
               className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg border p-2 hover:bg-muted transition-colors"
             >
-              <X className="h-4 w-4" />
+              <X className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
         </div>
