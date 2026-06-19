@@ -53,6 +53,8 @@ export function RepairQueueAssignButton({
           setOpen((v) => !v);
         }}
         disabled={isPending}
+        aria-haspopup="menu"
+        aria-expanded={open}
         className={cn(
           "flex min-h-[44px] items-center gap-1.5 rounded-full px-2.5 text-xs font-medium transition-colors",
           assignedToUserId

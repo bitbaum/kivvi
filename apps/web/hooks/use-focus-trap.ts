@@ -1,4 +1,4 @@
-import { useEffect, useRef, type RefObject } from 'react';
+import { useEffect, useRef, type RefObject } from "react";
 
 const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -11,9 +11,19 @@ const FOCUSABLE_SELECTOR =
  *
  * @param ref - Ref to the container element
  * @param active - Whether the trap is active (default: true). Use this for conditional modals.
+ * @param onEscape - Optional handler invoked when Escape is pressed inside the trap.
+ *                   Pass the dialog's close callback to get standard Esc-to-close behaviour.
  */
-export function useFocusTrap<T extends HTMLElement>(ref: RefObject<T | null>, active = true) {
+export function useFocusTrap<T extends HTMLElement>(
+  ref: RefObject<T | null>,
+  active = true,
+  onEscape?: () => void,
+) {
   const previousFocusRef = useRef<Element | null>(null);
+  // Keep the latest onEscape without re-running the effect (and thus
+  // re-stealing focus) every render when callers pass an inline function.
+  const onEscapeRef = useRef(onEscape);
+  onEscapeRef.current = onEscape;
 
   useEffect(() => {
     if (!active) return;
@@ -23,15 +33,25 @@ export function useFocusTrap<T extends HTMLElement>(ref: RefObject<T | null>, ac
     previousFocusRef.current = document.activeElement;
 
     // Focus first focusable element
-    const focusableElements = container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+    const focusableElements =
+      container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
     if (focusableElements.length > 0) {
       focusableElements[0].focus();
     }
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== 'Tab') return;
+      if (e.key === "Escape") {
+        if (onEscapeRef.current) {
+          e.preventDefault();
+          onEscapeRef.current();
+        }
+        return;
+      }
 
-      const focusable = container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+      if (e.key !== "Tab") return;
+
+      const focusable =
+        container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
       if (focusable.length === 0) return;
 
       const first = focusable[0];
@@ -50,10 +70,10 @@ export function useFocusTrap<T extends HTMLElement>(ref: RefObject<T | null>, ac
       }
     };
 
-    container.addEventListener('keydown', handleKeyDown);
+    container.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      container.removeEventListener('keydown', handleKeyDown);
+      container.removeEventListener("keydown", handleKeyDown);
       // Return focus to previously focused element
       if (previousFocusRef.current instanceof HTMLElement) {
         previousFocusRef.current.focus();

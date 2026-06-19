@@ -28,7 +28,7 @@ export function QuickCreateContactModal({
   const tc = useTranslations("common");
   const [isPending, startTransition] = useTransition();
   const modalRef = useRef<HTMLDivElement>(null);
-  useFocusTrap(modalRef, isOpen);
+  useFocusTrap(modalRef, isOpen, handleClose);
 
   const [name, setName] = useState(initialName);
   const [email, setEmail] = useState("");

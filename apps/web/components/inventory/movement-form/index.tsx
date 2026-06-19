@@ -45,7 +45,7 @@ export function MovementForm(props: MovementFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
-  useFocusTrap(modalRef, isOpen);
+  useFocusTrap(modalRef, isOpen, handleClose);
 
   const movementTypeOptions = MOVEMENT_TYPES.map((mt) => ({
     value: mt,
@@ -110,9 +110,16 @@ export function MovementForm(props: MovementFormProps) {
       ref={modalRef}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
     >
-      <div className="w-full max-w-md rounded-xl border bg-card p-6 shadow-lg">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="movement-form-title"
+        className="w-full max-w-md rounded-xl border bg-card p-6 shadow-lg"
+      >
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold">{t("recordMovement")}</h2>
+          <h2 id="movement-form-title" className="text-lg font-semibold">
+            {t("recordMovement")}
+          </h2>
           <Button
             variant="ghost"
             size="icon"

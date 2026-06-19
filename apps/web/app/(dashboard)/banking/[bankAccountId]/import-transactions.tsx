@@ -45,7 +45,7 @@ export function ImportTransactions({
   const modalRef = useRef<HTMLDivElement>(null);
   const t = useTranslations("banking");
   const tc = useTranslations("common");
-  useFocusTrap(modalRef, isOpen);
+  useFocusTrap(modalRef, isOpen, handleClose);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -164,10 +164,22 @@ export function ImportTransactions({
       ref={modalRef}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
     >
-      <div className="flex max-h-[80vh] w-full max-w-3xl flex-col overflow-hidden rounded-xl border bg-card shadow-lg">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="import-transactions-title"
+        className="flex max-h-[80vh] w-full max-w-3xl flex-col overflow-hidden rounded-xl border bg-card shadow-lg"
+      >
         <div className="flex items-center justify-between border-b px-6 py-4">
-          <h2 className="text-lg font-semibold">{t("importStatement")}</h2>
-          <Button variant="ghost" size="icon" onClick={handleClose}>
+          <h2 id="import-transactions-title" className="text-lg font-semibold">
+            {t("importStatement")}
+          </h2>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleClose}
+            aria-label={tc("close")}
+          >
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -211,7 +223,10 @@ export function ImportTransactions({
               )}
 
               {error && (
-                <div className="flex items-start gap-2 rounded-lg bg-destructive/5 p-3 text-sm text-destructive">
+                <div
+                  role="alert"
+                  className="flex items-start gap-2 rounded-lg bg-destructive/5 p-3 text-sm text-destructive"
+                >
                   <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
                   {error}
                 </div>

@@ -17,7 +17,7 @@ export function AddAccountForm() {
   const [error, setError] = useState<string | null>(null);
   const t = useTranslations("banking");
   const modalRef = useRef<HTMLDivElement>(null);
-  useFocusTrap(modalRef, isOpen);
+  useFocusTrap(modalRef, isOpen, () => setIsOpen(false));
   const tc = useTranslations("common");
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -57,10 +57,22 @@ export function AddAccountForm() {
       ref={modalRef}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
     >
-      <div className="w-full max-w-md rounded-xl border bg-card p-6 shadow-lg">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="add-account-title"
+        className="w-full max-w-md rounded-xl border bg-card p-6 shadow-lg"
+      >
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">{t("addAccount")}</h2>
-          <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
+          <h2 id="add-account-title" className="text-lg font-semibold">
+            {t("addAccount")}
+          </h2>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsOpen(false)}
+            aria-label={tc("close")}
+          >
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -112,7 +124,9 @@ export function AddAccountForm() {
           </div>
 
           {error && (
-            <p className="text-sm text-destructive">{error}</p>
+            <p role="alert" className="text-sm text-destructive">
+              {error}
+            </p>
           )}
 
           <div className="flex gap-2 pt-2">

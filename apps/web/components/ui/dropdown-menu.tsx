@@ -10,6 +10,8 @@ interface DropdownMenuProps {
 interface DropdownMenuTriggerProps {
   children: React.ReactNode;
   className?: string;
+  /** Accessible name — required for icon-only triggers that have no visible text. */
+  "aria-label"?: string;
 }
 
 interface DropdownMenuContentProps {
@@ -46,11 +48,19 @@ export function DropdownMenu({ children }: DropdownMenuProps) {
 export function DropdownMenuTrigger({
   children,
   className,
+  "aria-label": ariaLabel,
 }: DropdownMenuTriggerProps) {
   const { open, setOpen } = React.useContext(DropdownMenuContext);
 
   return (
-    <button type="button" onClick={() => setOpen(!open)} className={className}>
+    <button
+      type="button"
+      onClick={() => setOpen(!open)}
+      className={className}
+      aria-label={ariaLabel}
+      aria-haspopup="menu"
+      aria-expanded={open}
+    >
       {children}
     </button>
   );

@@ -17,7 +17,7 @@ export function AddWarehouseForm() {
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
-  useFocusTrap(modalRef, isOpen);
+  useFocusTrap(modalRef, isOpen, () => setIsOpen(false));
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -55,10 +55,22 @@ export function AddWarehouseForm() {
       ref={modalRef}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
     >
-      <div className="w-full max-w-md rounded-xl border bg-card p-6 shadow-lg">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="add-warehouse-title"
+        className="w-full max-w-md rounded-xl border bg-card p-6 shadow-lg"
+      >
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">{t("addWarehouse")}</h2>
-          <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
+          <h2 id="add-warehouse-title" className="text-lg font-semibold">
+            {t("addWarehouse")}
+          </h2>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsOpen(false)}
+            aria-label={tc("close")}
+          >
             <X className="h-4 w-4" />
           </Button>
         </div>
