@@ -1824,6 +1824,13 @@
         "journal": "Écriture comptable"
       }
     },
+    "modules": {
+      "title": "Modules",
+      "subtitle": "Activez ou désactivez les modules optionnels pour votre entreprise.",
+      "settingsDesc": "Activer ou désactiver les modules optionnels.",
+      "helpText": "Les modules désactivés sont masqués de la barre latérale. Les modules principaux (Accueil, Ventes, Contacts, Catalogue, Finances, Rapports) ne peuvent pas être désactivés.",
+      "saved": "Modules enregistrés"
+    },
     "billing": {
       "title": "Facturation",
       "settingsDesc": "Abonnement et paramètres de paiement.",
