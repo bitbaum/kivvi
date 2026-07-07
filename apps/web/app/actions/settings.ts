@@ -12,6 +12,7 @@ import {
   DEFAULT_CURRENCY,
   DEFAULT_COUNTRY,
 } from "@kivvi/core/src/config/locale";
+import { TOGGLEABLE_MODULE_KEYS } from "@kivvi/core/src/config/modules";
 import {
   type ActionResult,
   getSession,
@@ -474,5 +475,47 @@ export const updateCo2FactorsAction = createAction<
   revalidate: ["/settings", "/reports/impact"],
   errorMessage: () =>
     getTranslations("settings").then((t) => t("errorUpdateCo2Factors")),
+  minRole: "admin",
+});
+
+// ============================================================================
+// ENABLED MODULES (per-tenant module configuration)
+// ============================================================================
+
+// Only known toggleable module keys may be persisted. Unknown keys are
+// rejected — the enum validates against the runtime SSOT registry.
+const updateEnabledModulesSchema = z.object({
+  enabledModules: z.array(
+    z.enum(TOGGLEABLE_MODULE_KEYS as [string, ...string[]]),
+  ),
+});
+
+export const updateEnabledModulesAction = createAction<unknown, void>({
+  handler: async (input, { companyId, db }) => {
+    const parsed = updateEnabledModulesSchema.safeParse(input);
+    if (!parsed.success)
+      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+
+    const [existing] = await db
+      .select({ settings: companies.settings })
+      .from(companies)
+      .where(eq(companies.id, companyId));
+
+    const existingSettings = (existing?.settings as CompanySettings) ?? {};
+
+    await db
+      .update(companies)
+      .set({
+        settings: {
+          ...existingSettings,
+          enabledModules: parsed.data.enabledModules,
+        },
+        updatedAt: new Date(),
+      })
+      .where(eq(companies.id, companyId));
+  },
+  revalidate: ["/settings", "/dashboard"],
+  errorMessage: () =>
+    getTranslations("settings").then((t) => t("errorUpdateCompany")),
   minRole: "admin",
 });

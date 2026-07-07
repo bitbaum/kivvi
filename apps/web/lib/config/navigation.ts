@@ -42,6 +42,7 @@ export const PRIMARY_NAVIGATION: NavItem[] = [
     minRole: "viewer",
     badgeKey: "repair",
     badgeVariant: "warning",
+    moduleKey: "intake",
   },
   {
     nameKey: "inventory",
@@ -56,12 +57,13 @@ export const PRIMARY_NAVIGATION: NavItem[] = [
     activePrefixes: ["/sales", "/invoices"],
     badgeKey: "documents",
   },
-  { nameKey: "pos", href: "/pos", icon: ShoppingBag },
+  { nameKey: "pos", href: "/pos", icon: ShoppingBag, moduleKey: "pos" },
   {
     nameKey: "repairs",
     href: "/repairs",
     icon: Wrench,
     badgeKey: "openRepairOrders",
+    moduleKey: "repairs",
   },
   { nameKey: "people", href: "/contacts", icon: Users },
   { nameKey: "catalog", href: "/products", icon: Package },
@@ -70,8 +72,14 @@ export const PRIMARY_NAVIGATION: NavItem[] = [
     href: "/purchasing/purchase-invoices",
     icon: ShoppingCart,
     activePrefixes: ["/purchasing"],
+    moduleKey: "purchasing",
   },
-  { nameKey: "projects", href: "/projects", icon: FolderKanban },
+  {
+    nameKey: "projects",
+    href: "/projects",
+    icon: FolderKanban,
+    moduleKey: "projects",
+  },
   {
     nameKey: "money",
     href: "/money",

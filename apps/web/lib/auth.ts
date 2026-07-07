@@ -66,6 +66,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           companyName: companyData?.name ?? null,
           role,
           onboardingComplete: !!settings.onboardingCompletedAt,
+          enabledModules: settings.enabledModules ?? null,
         };
       },
     }),
@@ -78,6 +79,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.companyName = user.companyName ?? null;
         token.role = user.role ?? "member";
         token.onboardingComplete = user.onboardingComplete ?? false;
+        token.enabledModules = user.enabledModules ?? null;
       }
       // Refresh session data when session is updated (company switch, onboarding completion)
       if (trigger === "update" && token.id) {
@@ -103,6 +105,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           token.companyName = company?.name ?? null;
           const settings = (company?.settings as CompanySettings) ?? {};
           token.onboardingComplete = !!settings.onboardingCompletedAt;
+          token.enabledModules = settings.enabledModules ?? null;
         }
       }
       return token;
@@ -114,6 +117,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.companyName = token.companyName as string;
         session.user.role = token.role as string;
         session.user.onboardingComplete = token.onboardingComplete as boolean;
+        session.user.enabledModules =
+          (token.enabledModules as string[] | null) ?? null;
       }
       return session;
     },
