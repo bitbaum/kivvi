@@ -146,7 +146,7 @@ kivvi/
 │   │   └── src/domain/             # One file per domain
 │   │       ├── contacts.ts         # CRUD + search
 │   │       ├── products.ts         # CRUD + search
-│   │       ├── documents.ts        # Unified doc model (778 lines)
+│   │       ├── documents.ts        # Unified doc model (largest domain file)
 │   │       ├── accounting.ts       # Chart of accounts, journal entries
 │   │       ├── accounting-integration.ts  # Auto journal entries
 │   │       ├── banking.ts          # Bank accounts, reconciliation
@@ -311,7 +311,7 @@ const SAFE_ERROR_PATTERNS = [
 
 ---
 
-## Database Schema (28 Tables)
+## Database Schema (38 Tables)
 
 ### Core Tables
 
@@ -352,22 +352,42 @@ const SAFE_ERROR_PATTERNS = [
 
 ### Inventory Tables
 
-| Table            | Purpose           | Key Fields                                 |
-| ---------------- | ----------------- | ------------------------------------------ |
-| `warehouses`     | Storage locations | isDefault                                  |
-| `stockLevels`    | Current stock     | productId + warehouseId (unique)           |
-| `stockMovements` | Movement history  | type (purchase/sale/adjustment/transfer)   |
-| `serialNumbers`  | Serial tracking   | status (available/sold/reserved/defective) |
+| Table            | Purpose                        | Key Fields                                         |
+| ---------------- | ------------------------------ | -------------------------------------------------- |
+| `warehouses`     | Storage locations              | isDefault                                          |
+| `stockLevels`    | Current stock                  | productId + warehouseId (unique)                   |
+| `stockMovements` | Movement history               | type (purchase/sale/adjustment/transfer)           |
+| `serialNumbers`  | Serial tracking                | status (available/sold/reserved/defective)         |
+| `inventoryItems` | Unique, condition-graded units | itemNumber (IT-00001), condition, status lifecycle |
+| `repairParts`    | Parts consumed on repairs      | inventoryItemId, cost, quantity                    |
+
+### Auth & Multi-Tenancy Tables
+
+| Table                 | Purpose                        | Key Fields                             |
+| --------------------- | ------------------------------ | -------------------------------------- |
+| `memberships`         | User↔company links (RBAC SSOT) | userId, companyId, role                |
+| `invitations`         | Pending team invites           | email, role, token, expiresAt          |
+| `apiTokens`           | Bearer tokens for `/api/v1`    | tokenHash, tokenPrefix (kv\_...), role |
+| `passwordResetTokens` | Password-reset flow            | userId, token, expiresAt               |
+
+### Integration & Platform Tables
+
+| Table                | Purpose                                 | Key Fields                                |
+| -------------------- | --------------------------------------- | ----------------------------------------- |
+| `webhookEndpoints`   | Per-company outbound webhook configs    | url, secret (HMAC), events[]              |
+| `webhookDeliveries`  | Outbound delivery log + retry (outbox)  | event, payload, attemptCount, nextRetryAt |
+| `contactSubmissions` | Public contact/inquiry form submissions | name, email, message                      |
 
 ### Other Tables
 
-| Table                            | Purpose                                    |
-| -------------------------------- | ------------------------------------------ |
-| `projects`                       | Project tracking with budget               |
-| `numberSequences`                | Auto-incrementing number generators        |
-| `priceLists` + `priceRules`      | Flexible pricing (fixed/percentage/tiered) |
-| `aiConversations` + `aiMessages` | AI chat history                            |
-| `aiActionAudit`                  | AI action audit trail                      |
+| Table                            | Purpose                                     |
+| -------------------------------- | ------------------------------------------- |
+| `projects`                       | Project tracking with budget                |
+| `numberSequences`                | Auto-incrementing number generators         |
+| `priceLists` + `priceRules`      | Flexible pricing (fixed/percentage/tiered)  |
+| `recurringInvoiceConfigs`        | Recurring-invoice schedules (auto-generate) |
+| `aiConversations` + `aiMessages` | AI chat history                             |
+| `aiActionAudit`                  | AI action audit trail                       |
 
 ---
 
