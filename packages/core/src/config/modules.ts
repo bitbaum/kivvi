@@ -80,3 +80,33 @@ export function getEnabledToggleableModules(
     isModuleEnabled(enabledModules, key),
   );
 }
+
+/**
+ * SSOT map of each toggleable module → the dashboard route prefixes it owns.
+ * Used to gate direct-URL access to a disabled module's pages (middleware),
+ * so disabling a module both hides its sidebar item AND blocks its routes.
+ * Keep in sync with the `moduleKey` tags in apps/web/lib/config/navigation.ts.
+ */
+export const MODULE_ROUTE_PREFIXES: Record<ModuleKey, readonly string[]> = {
+  intake: ["/intake"],
+  repairs: ["/repairs"],
+  pos: ["/pos"],
+  purchasing: ["/purchasing"],
+  projects: ["/projects"],
+};
+
+/**
+ * Which toggleable module (if any) a dashboard pathname belongs to. A path
+ * matches a module when it equals a prefix or is nested under it (`/intake`,
+ * `/intake/new`). Returns `null` for core/unowned paths. Pure — edge-safe.
+ */
+export function moduleForPath(pathname: string): ModuleKey | null {
+  for (const key of TOGGLEABLE_MODULE_KEYS) {
+    for (const prefix of MODULE_ROUTE_PREFIXES[key]) {
+      if (pathname === prefix || pathname.startsWith(prefix + "/")) {
+        return key;
+      }
+    }
+  }
+  return null;
+}

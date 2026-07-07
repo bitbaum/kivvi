@@ -5,6 +5,8 @@ import {
   isToggleableModule,
   isModuleEnabled,
   getEnabledToggleableModules,
+  MODULE_ROUTE_PREFIXES,
+  moduleForPath,
   type ModuleKey,
 } from "../config/modules";
 
@@ -135,5 +137,53 @@ describe("getEnabledToggleableModules", () => {
     expect(getEnabledToggleableModules(["intake", "nope"])).toEqual<
       ModuleKey[]
     >(["intake"]);
+  });
+});
+
+// ============================================================================
+// Route → module mapping (middleware gating)
+// ============================================================================
+
+describe("MODULE_ROUTE_PREFIXES", () => {
+  it("has an entry for every toggleable module", () => {
+    for (const key of TOGGLEABLE_MODULE_KEYS) {
+      expect(MODULE_ROUTE_PREFIXES[key].length).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe("moduleForPath", () => {
+  it("matches an exact module root path", () => {
+    expect(moduleForPath("/intake")).toBe("intake");
+    expect(moduleForPath("/pos")).toBe("pos");
+  });
+
+  it("matches nested paths under a module", () => {
+    expect(moduleForPath("/intake/new")).toBe("intake");
+    expect(moduleForPath("/repairs/123/edit")).toBe("repairs");
+    expect(moduleForPath("/purchasing/purchase-invoices")).toBe("purchasing");
+    expect(moduleForPath("/projects/abc")).toBe("projects");
+  });
+
+  it("returns null for core / unowned paths", () => {
+    expect(moduleForPath("/dashboard")).toBeNull();
+    expect(moduleForPath("/sales/invoices")).toBeNull();
+    expect(moduleForPath("/settings/modules")).toBeNull();
+    expect(moduleForPath("/")).toBeNull();
+  });
+
+  it("does not match a path that merely shares a prefix string", () => {
+    // "/intaker" must NOT be treated as the "/intake" module
+    expect(moduleForPath("/intaker")).toBeNull();
+    expect(moduleForPath("/positions")).toBeNull();
+  });
+
+  it("agrees with isModuleEnabled for gating decisions", () => {
+    // A disabled module's path is gated; an enabled one is not.
+    const enabled = ["repairs"]; // intake disabled, repairs enabled
+    const intakeMod = moduleForPath("/intake/new");
+    const repairsMod = moduleForPath("/repairs");
+    expect(intakeMod && isModuleEnabled(enabled, intakeMod)).toBe(false);
+    expect(repairsMod && isModuleEnabled(enabled, repairsMod)).toBe(true);
   });
 });
