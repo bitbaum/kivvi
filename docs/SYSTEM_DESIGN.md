@@ -2,7 +2,7 @@
 
 **created_date**: 2026-07-02
 **last_modified_date**: 2026-07-08
-**last_modified_summary**: Marked repair-labor billing and service revenue routing as implemented, documented the repair labor invoice flow, and added a company-level default repair hourly rate.
+**last_modified_summary**: Updated go-live steps now that PRs #28–#30 are merged to main; clarified deploy uses `pnpm db:push`/`db:migrate` for `api_idempotency_keys`.
 **Status**: Design reference (living doc)
 **Audience**: Kivvi engineers + revamp-it ops + the Verein's Treuhänder (for the flagged VAT/NPO items)
 **Scope**: How Kivvi + a storefront (revamp-it at `revampit.orangecat.ch`) form one coherent, automated, correct, and _helpful_ system.
@@ -49,7 +49,7 @@
 
 ## 3. Integration contract (revamp-it ↔ Kivvi) — verified, and how to make it live
 
-### 3.1 Contract (verified to match across Kivvi PR #29 and revamp-it PR #206)
+### 3.1 Contract (verified to match Kivvi main and revamp-it PR #206)
 
 **Forward (storefront → Kivvi)** — item created/edited on revamp-it:
 
@@ -68,7 +68,7 @@
 
 ### 3.2 Go-live checklist (the ops wiring — makes the connection actually work)
 
-1. Deploy Kivvi **#28 + #29**; ensure the deploy runs the migration so `api_idempotency_keys` exists.
+1. Deploy current **Kivvi `main`** (includes per-company modules, durable sync, repair-labor billing); run `pnpm db:push` or `pnpm db:migrate` so `api_idempotency_keys` exists.
 2. Deploy revamp-it **#206** → the receiver goes live at `https://revampit.orangecat.ch/api/webhooks/kivvi`.
 3. In Kivvi (revamp-it's tenant): **Settings → Webhooks → Add endpoint**
    - URL `https://revampit.orangecat.ch/api/webhooks/kivvi`
@@ -94,8 +94,8 @@ Accounts per Swiss KMU Kontenrahmen. ✅ = works today · 🟡 = partial · 🔨
 | ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
 | **Owned refurb sale**                       | invoice: `DR 1100 / CR 3000 + CR 2200 (VAT 8.1%)`; payment: `DR 1020 / CR 1100`                                                                                                                 | ✅                                                         |
 | **Purchase (parts/goods/services)**         | `DR 4000 + DR 1170 (Vorsteuer) / CR 2000`; payment: `DR 2000 / CR 1020`                                                                                                                         | ✅                                                         |
-| **Consignment sale**                        | sale as above **+** consignor share `DR 4200 / CR 2140`; payout `DR 2140 / CR 1020`                                                                                                             | ✅ (#29)                                                   |
-| **P2P secure sale (agency)**                | Kivvi books only revamp-it's economics: commission `→ CR 3xxx` (revenue); buyer funds held `→ CR 2xxx` pass-through liability to seller; payout `DR 2xxx / CR 1020`. **No full-price revenue.** | 🔨 (reuse #29 machinery)                                   |
+| **Consignment sale**                        | sale as above **+** consignor share `DR 4200 / CR 2140`; payout `DR 2140 / CR 1020`                                                                                                             | ✅ (merged)                                                |
+| **P2P secure sale (agency)**                | Kivvi books only revamp-it's economics: commission `→ CR 3xxx` (revenue); buyer funds held `→ CR 2xxx` pass-through liability to seller; payout `DR 2xxx / CR 1020`. **No full-price revenue.** | 🔨 (reuse consignment/payout machinery)                    |
 | **Customer repair**                         | parts already expensed at purchase (no COGS); labor `→ CR 3200 Dienstleistungserlöse` as an invoice line                                                                                        | ✅ tracked hours can now create a draft labor invoice      |
 | **Pure service (consulting/Linux install)** | `DR 1100 / CR 3200 + CR 2200`                                                                                                                                                                   | ✅ service invoice lines now route to 3200                 |
 | **Donated goods in**                        | none (expense-as-incurred → nothing capitalized). Optionally record fair-value donation income for transparency.                                                                                | ✅ (no entry is correct); income = policy choice           |
@@ -126,9 +126,9 @@ Recording correctly is the floor. Kivvi should actively reduce the human's cogni
 
 **Command bar (Cmd+K, natural language)**: "50 laptops donated by UBS", "invoice the repair for K-00123", "how much VAT do I owe this quarter" — each maps to the same audited domain functions.
 
-**Smart defaults & progressive disclosure**: per-company module toggles (PR #28) hide what a business doesn't use; a repair-café sees repairs, a vintage shop doesn't see data-erasure. Complexity appears only when needed.
+**Smart defaults & progressive disclosure**: per-company module toggles hide what a business doesn't use; a repair-café sees repairs, a vintage shop doesn't see data-erasure. Complexity appears only when needed.
 
-**Guardrails as help**: idempotency (#29) makes retries safe; the P2P revenue guard stops phantom income; validation blocks unbalanced journals. Helpful = the system won't let you post something wrong.
+**Guardrails as help**: API idempotency keys make retries safe; the P2P revenue guard stops phantom income; validation blocks unbalanced journals. Helpful = the system won't let you post something wrong.
 
 ---
 
