@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { checkRateLimit, getRateLimitConfig } from "@/lib/rate-limit";
+import { moduleForPath, isModuleEnabled } from "@kivvi/core/src/config/modules";
 
 // Only these routes are accessible without authentication
 const PUBLIC_PATHS = [
@@ -116,6 +117,23 @@ export default auth((req) => {
     // Finished onboarding + still on onboarding page → go to dashboard
     if (companyId && onboardingComplete && isOnboardingPath) {
       return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
+
+    // Per-tenant module gating: a disabled module's routes are unreachable by
+    // direct URL, not just hidden from the sidebar. Undefined enabledModules
+    // (legacy default) means all modules on → no redirect.
+    if (companyId && onboardingComplete && !pathname.startsWith("/api/")) {
+      const mod = moduleForPath(pathname);
+      if (mod) {
+        // Justified: next-auth middleware types don't include custom fields
+        const enabledModules = (req.auth as any)?.user?.enabledModules as
+          | string[]
+          | null
+          | undefined;
+        if (!isModuleEnabled(enabledModules ?? undefined, mod)) {
+          return NextResponse.redirect(new URL("/dashboard", req.url));
+        }
+      }
     }
   }
 

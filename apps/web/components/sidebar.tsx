@@ -12,7 +12,11 @@ import { MessageSquare, X } from "lucide-react";
 import { KivviLogo } from "@/components/kivvi-logo";
 import { CompanySwitcher } from "@/components/sidebar/company-switcher";
 import { Button } from "@/components/ui/button";
-import { NavLink, hasMinRole } from "@/components/sidebar/nav-link";
+import {
+  NavLink,
+  hasMinRole,
+  filterNavByModules,
+} from "@/components/sidebar/nav-link";
 import {
   PRIMARY_NAVIGATION,
   SECONDARY_NAVIGATION,
@@ -31,10 +35,12 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const badges = useNavBadges();
   const { data: session } = useSession();
   const userRole = session?.user?.role;
+  const enabledModules = session?.user?.enabledModules;
 
-  const visiblePrimary = PRIMARY_NAVIGATION.filter((item) =>
-    hasMinRole(userRole, item.minRole ?? "member"),
-  );
+  const visiblePrimary = filterNavByModules(
+    PRIMARY_NAVIGATION,
+    enabledModules,
+  ).filter((item) => hasMinRole(userRole, item.minRole ?? "member"));
   const visibleSecondary = SECONDARY_NAVIGATION.filter((item) =>
     hasMinRole(userRole, item.minRole ?? "member"),
   );

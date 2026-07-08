@@ -14,6 +14,7 @@ import {
   Plug,
   Webhook,
   Tag,
+  LayoutGrid,
 } from "lucide-react";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
@@ -54,6 +55,12 @@ export default async function SettingsPage() {
       subtitle: t("numberSequencesDesc"),
       href: "/settings/sequences",
       icon: Hash,
+    },
+    {
+      title: t("modules.title"),
+      subtitle: t("modules.settingsDesc"),
+      href: "/settings/modules",
+      icon: LayoutGrid,
     },
     {
       title: t("priceLists.title"),

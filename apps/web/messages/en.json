@@ -1824,6 +1824,13 @@
         "journal": "Journal Entry"
       }
     },
+    "modules": {
+      "title": "Modules",
+      "subtitle": "Enable or disable optional modules for your company.",
+      "settingsDesc": "Enable or disable optional modules.",
+      "helpText": "Disabled modules are hidden from the sidebar. Core modules (Home, Sales, People, Catalog, Money, Reports) cannot be disabled.",
+      "saved": "Modules saved"
+    },
     "billing": {
       "title": "Billing",
       "settingsDesc": "Subscription plan and payment settings.",

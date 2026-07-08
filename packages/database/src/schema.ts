@@ -1756,6 +1756,13 @@ export interface CompanySettings {
   aiApiKey?: string; // encrypted
   onboardingCompletedAt?: string; // ISO date, null = not done
   onboardingStep?: number; // 1-4, for resume
+  /**
+   * Per-tenant module configuration. Keys are toggleable module ids (see
+   * packages/core/src/config/modules.ts). `undefined` = ALL modules enabled
+   * (legacy/default behaviour); an array = only the listed modules are on.
+   * Stored in JSONB — no migration required.
+   */
+  enabledModules?: string[];
   dashboardPreferences?: {
     layout?: "default" | "compact" | "detailed";
     visibleSections?: string[];

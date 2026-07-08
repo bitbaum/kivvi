@@ -4,6 +4,10 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import type { NavBadges } from "@/hooks/use-nav-badges";
 import type { MembershipRole } from "@kivvi/database";
+import {
+  isModuleEnabled,
+  type ModuleKey,
+} from "@kivvi/core/src/config/modules";
 
 export type UserRole = MembershipRole;
 
@@ -32,6 +36,12 @@ export interface NavItem {
   badgeVariant?: "destructive" | "warning";
   /** Minimum role required to see this item. Defaults to "member". */
   minRole?: UserRole;
+  /**
+   * Optional toggleable module this item belongs to. When set, the item is
+   * only shown if the module is enabled for the current company. Core items
+   * leave this undefined and are always shown.
+   */
+  moduleKey?: ModuleKey;
 }
 
 export function isNavActive(item: NavItem, pathname: string): boolean {
@@ -43,6 +53,21 @@ export function isNavActive(item: NavItem, pathname: string): boolean {
     );
   }
   return false;
+}
+
+/**
+ * Filter nav items by the company's enabled modules. Items without a
+ * `moduleKey` (core items) always pass. `enabledModules` of `null`/`undefined`
+ * means all modules enabled (legacy default). Pure — safe to unit test.
+ */
+export function filterNavByModules<T extends { moduleKey?: ModuleKey }>(
+  items: T[],
+  enabledModules: readonly string[] | null | undefined,
+): T[] {
+  const list = enabledModules ?? undefined;
+  return items.filter(
+    (item) => !item.moduleKey || isModuleEnabled(list, item.moduleKey),
+  );
 }
 
 export function NavLink({

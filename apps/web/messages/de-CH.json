@@ -1824,6 +1824,13 @@
         "journal": "Buchung"
       }
     },
+    "modules": {
+      "title": "Module",
+      "subtitle": "Aktivieren oder deaktivieren Sie optionale Module für Ihr Unternehmen.",
+      "settingsDesc": "Optionale Module aktivieren oder deaktivieren.",
+      "helpText": "Deaktivierte Module werden aus der Seitenleiste ausgeblendet. Kernmodule (Start, Verkauf, Kontakte, Katalog, Finanzen, Berichte) können nicht deaktiviert werden.",
+      "saved": "Module gespeichert"
+    },
     "billing": {
       "title": "Abrechnung",
       "settingsDesc": "Abonnement und Zahlungseinstellungen.",
