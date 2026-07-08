@@ -91,15 +91,6 @@ export async function createRepairLaborInvoiceAction(
       createRepairLaborInvoice(tx, companyId, userId, parsed.data),
     );
 
-    dispatchWebhookEvent(db, companyId, "document.created", {
-      id: doc.id,
-      number: doc.number,
-      type: doc.type,
-      status: doc.status,
-      contactId: doc.contactId,
-      total: doc.total,
-    });
-
     revalidateDocumentPaths(doc.type, doc.id);
     revalidatePath("/intake");
     return { success: true, data: { id: doc.id, number: doc.number } };
