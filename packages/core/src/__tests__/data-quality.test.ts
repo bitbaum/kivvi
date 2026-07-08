@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   findDuplicateContacts,
+  findContactIssues,
   findDocumentIssues,
   findProductIssues,
 } from "../domain/data-quality";
@@ -17,6 +18,10 @@ import type { Database } from "@kivvi/database";
 //     delivery_note exemptions
 //   - findDuplicateContacts: case/whitespace-insensitive name grouping, only
 //     groups of 2+, annotated with each member's document count
+//   - findContactIssues: three INDEPENDENT checks (no dedup — one contact can
+//     surface multiple issues): customers-with-invoices-but-no-email,
+//     no-address (no inline address AND not in the contactAddresses set),
+//     inactive-with-open-docs
 
 const COMPANY_ID = "550e8400-e29b-41d4-a716-446655440000";
 
@@ -304,5 +309,164 @@ describe("findDuplicateContacts", () => {
     const groups = await findDuplicateContacts(db, COMPANY_ID);
     const c2 = groups[0].contacts.find((c) => c.id === "c2");
     expect(c2?.documentCount).toBe(0);
+  });
+});
+
+// ============================================================================
+// findContactIssues
+// ============================================================================
+
+describe("findContactIssues", () => {
+  // The detector runs four reads in a fixed order; build the mock from named
+  // slots so each test only specifies the rows it cares about.
+  //   1. customersWithInvoices  → seeds "no_email_with_invoices"
+  //   2. contactsWithAddresses  → the set of contacts that DO have an address
+  //   3. allContacts            → scanned for "no_address"
+  //   4. inactiveWithOpenDocs   → seeds "inactive_with_open_docs"
+  const db = (slots: {
+    noEmail?: unknown[];
+    withAddress?: unknown[];
+    allContacts?: unknown[];
+    inactiveOpen?: unknown[];
+  }) =>
+    makeDb([
+      slots.noEmail ?? [],
+      slots.withAddress ?? [],
+      slots.allContacts ?? [],
+      slots.inactiveOpen ?? [],
+    ]);
+
+  // An allContacts row that is fully addressed, so it never trips no_address
+  // unless a test overrides the address.
+  const addressed = (over: Record<string, unknown> = {}) => ({
+    id: "c1",
+    name: "ACME AG",
+    contactNumber: "K-00001",
+    type: "customer",
+    address: "Bahnhofstrasse 1, 8001 Zürich",
+    ...over,
+  });
+
+  it("flags a customer with invoices but no email as no_email_with_invoices", async () => {
+    const issues = await findContactIssues(
+      db({
+        noEmail: [
+          {
+            id: "c1",
+            name: "ACME AG",
+            contactNumber: "K-00001",
+            type: "customer",
+            email: null,
+          },
+        ],
+        // present in the address set + addressed in allContacts → no other issue
+        withAddress: [{ contactId: "c1" }],
+        allContacts: [addressed()],
+      }),
+      COMPANY_ID,
+    );
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toMatchObject({
+      id: "c1",
+      issue: "no_email_with_invoices",
+    });
+  });
+
+  it("flags a contact with neither an inline nor a separate address as no_address", async () => {
+    const issues = await findContactIssues(
+      db({
+        allContacts: [addressed({ address: null })],
+        // withAddress empty → c1 is not in the address set
+      }),
+      COMPANY_ID,
+    );
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toMatchObject({ id: "c1", issue: "no_address" });
+  });
+
+  it("does NOT flag no_address when the contact has an inline address", async () => {
+    const issues = await findContactIssues(
+      db({ allContacts: [addressed()] }),
+      COMPANY_ID,
+    );
+    expect(issues).toEqual([]);
+  });
+
+  it("does NOT flag no_address when the contact has a separate contactAddress", async () => {
+    // No inline address, but it IS in the contactAddresses set.
+    const issues = await findContactIssues(
+      db({
+        withAddress: [{ contactId: "c1" }],
+        allContacts: [addressed({ address: null })],
+      }),
+      COMPANY_ID,
+    );
+    expect(issues).toEqual([]);
+  });
+
+  it("treats a whitespace-only inline address as no address", async () => {
+    const issues = await findContactIssues(
+      db({ allContacts: [addressed({ address: "   " })] }),
+      COMPANY_ID,
+    );
+    expect(issues).toHaveLength(1);
+    expect(issues[0].issue).toBe("no_address");
+  });
+
+  it("flags an inactive contact that still has open documents", async () => {
+    const issues = await findContactIssues(
+      db({
+        // an inactive contact never appears in allContacts (filtered isActive)
+        inactiveOpen: [
+          {
+            id: "c9",
+            name: "Old Vendor GmbH",
+            contactNumber: "K-00009",
+            type: "vendor",
+          },
+        ],
+      }),
+      COMPANY_ID,
+    );
+    expect(issues).toHaveLength(1);
+    expect(issues[0]).toMatchObject({
+      id: "c9",
+      issue: "inactive_with_open_docs",
+    });
+  });
+
+  it("accumulates multiple independent issues for the same contact (no dedup)", async () => {
+    // c1 has an invoice but no email AND no address — both checks fire.
+    const issues = await findContactIssues(
+      db({
+        noEmail: [
+          {
+            id: "c1",
+            name: "ACME AG",
+            contactNumber: "K-00001",
+            type: "customer",
+            email: null,
+          },
+        ],
+        allContacts: [addressed({ address: null })],
+      }),
+      COMPANY_ID,
+    );
+    expect(issues).toHaveLength(2);
+    expect(issues.map((i) => i.issue).sort()).toEqual([
+      "no_address",
+      "no_email_with_invoices",
+    ]);
+  });
+
+  it("returns no issues when every contact is complete", async () => {
+    const issues = await findContactIssues(
+      db({
+        withAddress: [{ contactId: "c1" }],
+        allContacts: [addressed()],
+      }),
+      COMPANY_ID,
+    );
+    expect(issues).toEqual([]);
   });
 });
