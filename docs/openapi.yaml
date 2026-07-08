@@ -53,6 +53,8 @@ tags:
     description: All business documents (quotes, orders, invoices, etc.)
   - name: Inventory Items
     description: Individual physical items tracked through intake → sale lifecycle
+  - name: Marketplace
+    description: P2P facilitated-sale agency accounting (commission + pass-through)
 
 # ==============================================================================
 # PATHS
@@ -864,6 +866,103 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
+
+  # ----------------------------------------------------------------------------
+  # Marketplace (P2P agency accounting)
+  # ----------------------------------------------------------------------------
+
+  /marketplace/agency-sales:
+    post:
+      tags: [Marketplace]
+      summary: Record a facilitated (P2P) marketplace sale
+      operationId: recordMarketplaceAgencySale
+      description: |
+        Books only the platform's economics for a private-seller secure sale —
+        never full-price revenue. Use when `is_revampit=false` on the listing.
+
+        Journal: `DR 1020` gross · `CR 2140` seller pass-through ·
+        `CR 3200` commission · `CR 2200` VAT on the fee only.
+
+        Send `Idempotency-Key: marketplace-order:{orderId}:paid` so Payrexx
+        webhook retries cannot duplicate the entry.
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: false
+          schema:
+            type: string
+          description: >-
+            Recommended. Stable key per paid order (e.g.
+            `marketplace-order:{uuid}:paid`).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarketplaceAgencySaleInput'
+      responses:
+        '200':
+          description: Journal entry created (or replayed)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/JournalEntryRef'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Idempotency key already in progress
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /marketplace/payouts:
+    post:
+      tags: [Marketplace]
+      summary: Record a marketplace seller payout
+      operationId: recordMarketplacePayout
+      description: |
+        Settles the pass-through liability to the private seller from the bank.
+        Journal: `DR 2140 / CR 1020`.
+
+        Send `Idempotency-Key: marketplace-order:{orderId}:payout`.
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MarketplacePayoutInput'
+      responses:
+        '200':
+          description: Journal entry created (or replayed)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/JournalEntryRef'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '409':
+          description: Idempotency key already in progress
+        '500':
+          $ref: '#/components/responses/InternalError'
 
 # ==============================================================================
 # COMPONENTS
@@ -2060,3 +2159,57 @@ components:
           type: string
           maxLength: 200
           nullable: true
+
+    JournalEntryRef:
+      type: object
+      properties:
+        journalEntryId:
+          type: string
+          format: uuid
+        reference:
+          type: string
+        sourceType:
+          type: string
+          enum: [marketplace_agency_sale, marketplace_payout]
+
+    MarketplaceAgencySaleInput:
+      type: object
+      required: [orderReference, date, grossAmount]
+      properties:
+        orderReference:
+          type: string
+          description: Stable reference, e.g. `MO-{orderId}`
+        date:
+          type: string
+          format: date
+        grossAmount:
+          type: string
+          description: What the buyer paid (decimal string)
+        commissionAmount:
+          type: string
+          default: "0"
+          description: Platform fee excl. VAT
+        commissionVatAmount:
+          type: string
+          default: "0"
+          description: VAT on the commission fee only
+        sourceId:
+          type: string
+          description: External order UUID for journal sourceId
+        description:
+          type: string
+
+    MarketplacePayoutInput:
+      type: object
+      required: [amount, date, reference]
+      properties:
+        amount:
+          type: string
+          description: Payout to seller (decimal string)
+        date:
+          type: string
+          format: date
+        reference:
+          type: string
+        description:
+          type: string

@@ -66,6 +66,41 @@ export type UpdateInventoryItemInput = z.infer<
   typeof updateInventoryItemSchema
 >;
 
+/**
+ * A single row accepted by the smart bulk importer. Stricter than a manual
+ * create: a warehouse is REQUIRED (we must know where the item is) and
+ * `presenceConfirmed` MUST be true (a human has confirmed we physically have
+ * it). Rows that fail either gate never reach the database.
+ */
+export const importInventoryItemSchema = z.object({
+  description: z.string().min(1, "Description is required").max(500),
+  warehouseId: z.string().uuid("A warehouse must be assigned"),
+  category: z.string().max(50).optional().nullable(),
+  condition: z.enum(ITEM_CONDITION_VALUES).default("untested"),
+  serialNumber: z.string().max(200).optional().nullable(),
+  askingPrice: z.string().optional().nullable(),
+  estimatedValue: z.string().optional().nullable(),
+  location: z.string().max(200).optional().nullable(),
+  notes: z.string().max(5000).optional().nullable(),
+  presenceConfirmed: z.literal(true, {
+    errorMap: () => ({ message: "Item presence must be confirmed" }),
+  }),
+});
+
+export type ImportInventoryItemInput = z.infer<
+  typeof importInventoryItemSchema
+>;
+
+export interface ImportInventoryResult {
+  inserted: number;
+  skippedDuplicates: number;
+  skippedInvalid: number;
+  errors: string[];
+}
+
+/** Cap per import so a stray huge file can't hammer production. */
+export const MAX_INVENTORY_IMPORT_ROWS = 500;
+
 // ============================================================================
 // STATUS TRANSITIONS
 // ============================================================================
@@ -161,6 +196,90 @@ export async function createInventoryItem(
   });
 
   return item;
+}
+
+/**
+ * Bulk-import confirmed inventory items from a reviewed worklist.
+ *
+ * Reuses createInventoryItem per row so every item inherits the same SSOT
+ * behaviour (auto item number, webhook emission). Enforces the import gates:
+ *   - warehouse required (validated by importInventoryItemSchema)
+ *   - presence confirmed (validated by importInventoryItemSchema)
+ *   - serial-number de-duplication against existing items AND within the batch
+ *
+ * Returns per-outcome counts; never throws for a single bad row.
+ */
+export async function bulkImportInventoryItems(
+  db: Database,
+  companyId: string,
+  rows: unknown[],
+): Promise<ImportInventoryResult> {
+  const result: ImportInventoryResult = {
+    inserted: 0,
+    skippedDuplicates: 0,
+    skippedInvalid: 0,
+    errors: [],
+  };
+
+  if (rows.length > MAX_INVENTORY_IMPORT_ROWS) {
+    throw new DomainError(
+      "tooManyImportRows",
+      { max: String(MAX_INVENTORY_IMPORT_ROWS) },
+      `Too many rows: ${rows.length}. Import at most ${MAX_INVENTORY_IMPORT_ROWS} at a time.`,
+    );
+  }
+
+  // Load existing serials once for de-duplication.
+  const existing = await db
+    .select({ serialNumber: inventoryItems.serialNumber })
+    .from(inventoryItems)
+    .where(eq(inventoryItems.companyId, companyId));
+  const seenSerials = new Set(
+    existing
+      .map((r) => r.serialNumber?.toLowerCase())
+      .filter((s): s is string => !!s),
+  );
+
+  for (let i = 0; i < rows.length; i++) {
+    const parsed = importInventoryItemSchema.safeParse(rows[i]);
+    if (!parsed.success) {
+      result.skippedInvalid++;
+      result.errors.push(
+        `Row ${i + 1}: ${parsed.error.errors.map((e) => e.message).join(", ")}`,
+      );
+      continue;
+    }
+
+    const data = parsed.data;
+    const serialKey = data.serialNumber?.toLowerCase() ?? null;
+    if (serialKey && seenSerials.has(serialKey)) {
+      result.skippedDuplicates++;
+      continue;
+    }
+
+    try {
+      await createInventoryItem(db, companyId, {
+        description: data.description,
+        warehouseId: data.warehouseId,
+        category: data.category ?? null,
+        condition: data.condition,
+        serialNumber: data.serialNumber ?? null,
+        askingPrice: data.askingPrice ?? null,
+        estimatedValue: data.estimatedValue ?? null,
+        location: data.location ?? null,
+        notes: data.notes ?? null,
+      });
+      if (serialKey) seenSerials.add(serialKey);
+      result.inserted++;
+    } catch (err) {
+      result.skippedInvalid++;
+      result.errors.push(
+        `Row ${i + 1}: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
+  }
+
+  return result;
 }
 
 export async function updateInventoryItem(

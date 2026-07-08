@@ -2,7 +2,7 @@
 
 **created_date**: 2026-07-02
 **last_modified_date**: 2026-07-08
-**last_modified_summary**: Updated go-live steps now that PRs #28–#30 are merged to main; clarified deploy uses `pnpm db:push`/`db:migrate` for `api_idempotency_keys`.
+**last_modified_summary**: Added §3.4 P2P sync contract (`syncP2POrderToKivvi`), REST endpoints `/api/v1/marketplace/agency-sales` + `/payouts`, and 10-item import dry-run fixture at `docs/fixtures/inventory-import-sample-10.csv`.
 **Status**: Design reference (living doc)
 **Audience**: Kivvi engineers + revamp-it ops + the Verein's Treuhänder (for the flagged VAT/NPO items)
 **Scope**: How Kivvi + a storefront (revamp-it at `revampit.orangecat.ch`) form one coherent, automated, correct, and _helpful_ system.
@@ -82,6 +82,163 @@
 
 An item lands in Kivvi at `intake` and does **not** auto-advance to `listed` when published for sale. Add: on publish/list, `PATCH` Kivvi status → `listed`, so Kivvi mirrors reality between intake and sale.
 
+### 3.4 P2P marketplace sync contract (`syncP2POrderToKivvi`)
+
+When Payrexx confirms payment, revamp-it must branch on **who owns the listing** — never on seller email domain.
+
+```
+payment confirmed (Payrexx webhook)
+        │
+        ├─ listing.is_revampit === true  →  syncOrderToKivvi()     (existing)
+        │                                 invoice + payment + mark Kivvi item sold
+        │
+        └─ listing.is_revampit === false →  syncP2POrderToKivvi() (new)
+                                          agency journal only — NO invoice, NO full revenue
+```
+
+#### Owned stock (`is_revampit=true`) — unchanged
+
+Keep the current path in `payment-webhook.ts:syncOrderToKivvi`:
+
+1. `POST /api/v1/documents` (invoice) → `PATCH …/status` → `sent`
+2. `POST /api/v1/documents/{id}/payments`
+3. `PATCH /api/v1/inventory-items/{id}` → `status: sold` (when backed by a Kivvi item)
+
+Idempotency-Key on document create: `marketplace-order:{orderId}:invoice`
+
+#### P2P facilitated sale (`is_revampit=false`) — agency model
+
+**Do not** create an invoice or book full-price revenue. Call:
+
+```
+POST /api/v1/marketplace/agency-sales
+Authorization: Bearer kv_…
+Idempotency-Key: marketplace-order:{orderId}:paid
+Content-Type: application/json
+```
+
+**Request body** (all amounts decimal strings, never floats):
+
+| Field                 | Source                                      | Notes                                                         |
+| --------------------- | ------------------------------------------- | ------------------------------------------------------------- |
+| `orderReference`      | `MO-{order.id}` or marketplace order number | Stable, human-readable                                        |
+| `date`                | payment date `YYYY-MM-DD`                   | ISO 8601                                                      |
+| `grossAmount`         | `order.amountChf`                           | What the buyer paid (incl. shipping if in total)              |
+| `commissionAmount`    | net commission                              | Platform fee **excl. VAT**                                    |
+| `commissionVatAmount` | computed                                    | VAT on the fee only (8.1% of `commissionAmount` when taxable) |
+| `sourceId`            | `order.id`                                  | UUID for journal `sourceId`                                   |
+| `description`         | optional                                    | e.g. `P2P sale MO-… Payrexx {txnId}`                          |
+
+**Invariant** (enforced by Kivvi):
+
+```
+grossAmount = commissionAmount + commissionVatAmount + sellerPayout
+```
+
+where `sellerPayout` is what revamp-it already stores as `order.sellerPayoutChf`.
+
+**At 0% commission** (`COMMISSION_RATE=0` today):
+
+```json
+{
+  "orderReference": "MO-550e8400-e29b-41d4-a716-446655440099",
+  "date": "2026-07-08",
+  "grossAmount": "350.00",
+  "commissionAmount": "0",
+  "commissionVatAmount": "0",
+  "sourceId": "550e8400-e29b-41d4-a716-446655440099"
+}
+```
+
+→ Kivvi posts `DR 1020 / CR 2140` for CHF 350.00 (pure pass-through).
+
+**With commission** (future `COMMISSION_RATE > 0`):
+
+```json
+{
+  "orderReference": "MO-…",
+  "date": "2026-07-08",
+  "grossAmount": "110.81",
+  "commissionAmount": "10.00",
+  "commissionVatAmount": "0.81",
+  "sourceId": "…"
+}
+```
+
+→ `DR 1020 110.81 / CR 2140 100.00 / CR 3200 10.00 / CR 2200 0.81`
+
+**Response** (success):
+
+```json
+{
+  "success": true,
+  "data": {
+    "journalEntryId": "…",
+    "reference": "MO-…",
+    "sourceType": "marketplace_agency_sale"
+  }
+}
+```
+
+Retries with the same `Idempotency-Key` return the stored response (`Idempotent-Replayed: true`).
+
+#### Seller payout (when funds released)
+
+Separate event — do not combine with the paid webhook:
+
+```
+POST /api/v1/marketplace/payouts
+Idempotency-Key: marketplace-order:{orderId}:payout
+```
+
+```json
+{
+  "amount": "100.00",
+  "date": "2026-07-15",
+  "reference": "PAYOUT-MO-…",
+  "description": "Seller payout MO-…"
+}
+```
+
+→ `DR 2140 / CR 1020`
+
+#### Reference implementation sketch (revamp-it)
+
+```typescript
+async function syncP2POrderToKivvi(
+  order: MarketplaceOrder,
+  payrexxTxnId: string | null,
+) {
+  const commissionNet = order.commissionChf; // must be NET excl. VAT
+  const commissionVat = computeCommissionVat(commissionNet); // 0 when rate is 0
+  const sellerPayout = new Decimal(order.sellerPayoutChf);
+  const gross = new Decimal(order.amountChf);
+  // Assert: gross = commissionNet + commissionVat + sellerPayout (±0.01 rounding)
+
+  await kivviFetch("/api/v1/marketplace/agency-sales", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${KIVVI_API_TOKEN}`,
+      "Idempotency-Key": `marketplace-order:${order.id}:paid`,
+    },
+    body: JSON.stringify({
+      orderReference: `MO-${order.id}`,
+      date: new Date().toISOString().split("T")[0],
+      grossAmount: gross.toFixed(2),
+      commissionAmount: commissionNet,
+      commissionVatAmount: commissionVat,
+      sourceId: order.id,
+      description: payrexxTxnId ? `P2P Payrexx ${payrexxTxnId}` : undefined,
+    }),
+  });
+  // No invoice. No inventory mark-sold (P2P items are not Kivvi owned stock).
+}
+```
+
+#### Inventory import dry-run (10-item sample)
+
+Fixture: `docs/fixtures/inventory-import-sample-10.csv` — upload at **Intake → Items → Import** (`/intake/items/import`). The file deliberately mixes ready rows, missing locations, duplicates, and incomplete info so the review UI can be exercised before any Shopware bulk import.
+
 ---
 
 ## 4. Accounting model — exact double-entry per transaction type
@@ -90,22 +247,22 @@ An item lands in Kivvi at `intake` and does **not** auto-advance to `listed` whe
 
 Accounts per Swiss KMU Kontenrahmen. ✅ = works today · 🟡 = partial · 🔨 = to build · ⚖️ = **needs Treuhänder sign-off before coding**.
 
-| Transaction                                 | Double entry                                                                                                                                                                                    | State                                                      |
-| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| **Owned refurb sale**                       | invoice: `DR 1100 / CR 3000 + CR 2200 (VAT 8.1%)`; payment: `DR 1020 / CR 1100`                                                                                                                 | ✅                                                         |
-| **Purchase (parts/goods/services)**         | `DR 4000 + DR 1170 (Vorsteuer) / CR 2000`; payment: `DR 2000 / CR 1020`                                                                                                                         | ✅                                                         |
-| **Consignment sale**                        | sale as above **+** consignor share `DR 4200 / CR 2140`; payout `DR 2140 / CR 1020`                                                                                                             | ✅ (merged)                                                |
-| **P2P secure sale (agency)**                | Kivvi books only revamp-it's economics: commission `→ CR 3xxx` (revenue); buyer funds held `→ CR 2xxx` pass-through liability to seller; payout `DR 2xxx / CR 1020`. **No full-price revenue.** | 🔨 (reuse consignment/payout machinery)                    |
-| **Customer repair**                         | parts already expensed at purchase (no COGS); labor `→ CR 3200 Dienstleistungserlöse` as an invoice line                                                                                        | ✅ tracked hours can now create a draft labor invoice      |
-| **Pure service (consulting/Linux install)** | `DR 1100 / CR 3200 + CR 2200`                                                                                                                                                                   | ✅ service invoice lines now route to 3200                 |
-| **Donated goods in**                        | none (expense-as-incurred → nothing capitalized). Optionally record fair-value donation income for transparency.                                                                                | ✅ (no entry is correct); income = policy choice           |
-| **Monetary donation (Spende)**              | `DR 1020 / CR 3xxx Spenden` — **no** input-VAT reduction (Art. 33 Abs. 1)                                                                                                                       | 🔨 ⚖️                                                      |
-| **Grant / Subvention**                      | `DR 1020 / CR 3xxx Subventionen` **+ proportional input-VAT reduction (Art. 33 Abs. 2)**                                                                                                        | 🔨 ⚖️ (highest error-risk rule)                            |
-| **Purchased used goods**                    | full-price output VAT on resale **+ fiktiver Vorsteuerabzug (Art. 28a)** keyed to the per-item purchase price                                                                                   | 🔨 ⚖️ (~0 for donated stock)                               |
-| **Foreign services (SaaS/ads)**             | **Bezugsteuer / reverse charge (Art. 45)** self-declared above CHF 10k/yr                                                                                                                       | 🔨 ⚖️                                                      |
-| **Advance payment / deposit**               | `DR 1020 / CR 2030 Erhaltene Anzahlungen` (liability, VAT deferred); settle on final invoice                                                                                                    | 🔨 (currently all to AR 1100)                              |
-| **Disposal / recycle / scrap**              | none (nothing was capitalized). If input VAT _was_ deducted on a purchased item → possible Eigenverbrauch/Vorsteuerkorrektur (Art. 31)                                                          | ✅ (no entry is correct) ⚖️ (Art. 31 edge case)            |
-| **Fixed assets / depreciation**             | manual journal entries for now                                                                                                                                                                  | ⚪ low (Kivitendo lacks it too — parity, not a regression) |
+| Transaction                                 | Double entry                                                                                                                                                                                                                                                       | State                                                        |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------ |
+| **Owned refurb sale**                       | invoice: `DR 1100 / CR 3000 + CR 2200 (VAT 8.1%)`; payment: `DR 1020 / CR 1100`                                                                                                                                                                                    | ✅                                                           |
+| **Purchase (parts/goods/services)**         | `DR 4000 + DR 1170 (Vorsteuer) / CR 2000`; payment: `DR 2000 / CR 1020`                                                                                                                                                                                            | ✅                                                           |
+| **Consignment sale**                        | sale as above **+** consignor share `DR 4200 / CR 2140`; payout `DR 2140 / CR 1020`                                                                                                                                                                                | ✅ (merged)                                                  |
+| **P2P secure sale (agency)**                | Kivvi books only revamp-it's economics: `DR 1020` gross; `CR 2140` pass-through owed to seller; `CR 3200` commission; `CR 2200` VAT on the fee only; payout `DR 2140 / CR 1020`. **No full-price revenue.** 0% commission collapses safely to `DR 1020 / CR 2140`. | ✅ (Kivvi domain + tests; awaiting revamp-it webhook wiring) |
+| **Customer repair**                         | parts already expensed at purchase (no COGS); labor `→ CR 3200 Dienstleistungserlöse` as an invoice line                                                                                                                                                           | ✅ tracked hours can now create a draft labor invoice        |
+| **Pure service (consulting/Linux install)** | `DR 1100 / CR 3200 + CR 2200`                                                                                                                                                                                                                                      | ✅ service invoice lines now route to 3200                   |
+| **Donated goods in**                        | none (expense-as-incurred → nothing capitalized). Optionally record fair-value donation income for transparency.                                                                                                                                                   | ✅ (no entry is correct); income = policy choice             |
+| **Monetary donation (Spende)**              | `DR 1020 / CR 3xxx Spenden` — **no** input-VAT reduction (Art. 33 Abs. 1)                                                                                                                                                                                          | 🔨 ⚖️                                                        |
+| **Grant / Subvention**                      | `DR 1020 / CR 3xxx Subventionen` **+ proportional input-VAT reduction (Art. 33 Abs. 2)**                                                                                                                                                                           | 🔨 ⚖️ (highest error-risk rule)                              |
+| **Purchased used goods**                    | full-price output VAT on resale **+ fiktiver Vorsteuerabzug (Art. 28a)** keyed to the per-item purchase price                                                                                                                                                      | 🔨 ⚖️ (~0 for donated stock)                                 |
+| **Foreign services (SaaS/ads)**             | **Bezugsteuer / reverse charge (Art. 45)** self-declared above CHF 10k/yr                                                                                                                                                                                          | 🔨 ⚖️                                                        |
+| **Advance payment / deposit**               | `DR 1020 / CR 2030 Erhaltene Anzahlungen` (liability, VAT deferred); settle on final invoice                                                                                                                                                                       | 🔨 (currently all to AR 1100)                                |
+| **Disposal / recycle / scrap**              | none (nothing was capitalized). If input VAT _was_ deducted on a purchased item → possible Eigenverbrauch/Vorsteuerkorrektur (Art. 31)                                                                                                                             | ✅ (no entry is correct) ⚖️ (Art. 31 edge case)              |
+| **Fixed assets / depreciation**             | manual journal entries for now                                                                                                                                                                                                                                     | ⚪ low (Kivitendo lacks it too — parity, not a regression)   |
 
 **Do NOT build:** German-style margin taxation (Differenzbesteuerung) — abolished for used goods in CH (2010); only art/collectibles (Art. 24a). Refurb IT is fully taxable at 8.1% regardless of donated origin.
 
@@ -130,6 +287,14 @@ Recording correctly is the floor. Kivvi should actively reduce the human's cogni
 
 **Guardrails as help**: API idempotency keys make retries safe; the P2P revenue guard stops phantom income; validation blocks unbalanced journals. Helpful = the system won't let you post something wrong.
 
+**Smart inventory import** (`/intake/items/import`): a bulk import of secondhand items is never a blind insert — an external export (Shopware, a spreadsheet) often lists items we may no longer physically have, that lack key info, or whose location is unknown. Before anything is written, Kivvi classifies every row and asks the three questions a human would (`analyzeInventoryImportRows`, pure/testable):
+
+1. **Do we actually have it?** Presence is _unconfirmed_ by default; a row can't be imported until a human ticks "present" (bulk-confirm available). This directly handles "most of which don't even exist".
+2. **Do we have the right info?** A per-row completeness score + missing-field list; missing description blocks, missing price/condition/serial warn.
+3. **Where exactly is it?** Each row must resolve to a warehouse (shop vs storage vs _which_ storage) — the free-text hint is matched to known warehouses (exact → unique-substring → ambiguous/unresolved is flagged, never guessed); shelf/bin is captured as a recommended detail.
+
+The importer de-duplicates on serial number (against existing items and within the file), caps batch size to protect production, and reuses `createInventoryItem` so imported items inherit the same numbering + webhook behaviour as manual intake. Recommended flow: dry-run with ~10 rows, review the worklist, then scale up.
+
 ---
 
 ## 6. Roadmap (prioritized)
@@ -142,7 +307,7 @@ Recording correctly is the floor. Kivvi should actively reduce the human's cogni
 
 **After Treuhänder sign-off (⚖️ items) — Swiss NPO/VAT correctness:** 4. Subvention/Spende classifier + Art. 33 input-VAT reduction. 5. Fiktiver Vorsteuerabzug (Art. 28a) for purchased used goods. 6. Bezugsteuer (Art. 45) tracking for foreign services. 7. Monetary donation/grant income + (if FER 21 applies) restricted-fund accounting.
 
-**Later — structural:** 8. P2P agency accounting (commission + pass-through liability). 9. Advance-payment liability routing. 10. Collapse the dual-write (storefront reads owned-item facts live from Kivvi) → true SSOT. 11. Fixed assets/depreciation; Postgres RLS (defense-in-depth before scaling tenants).
+**Later — structural:** 8. ✅ P2P agency accounting (commission + pass-through liability) — Kivvi domain done (`recordMarketplaceAgencySale` / `recordMarketplacePayout`); remaining work is revamp-it calling it from the `secure sale paid` webhook (see §3.2) instead of booking a full-price invoice. 9. Advance-payment liability routing. 10. Collapse the dual-write (storefront reads owned-item facts live from Kivvi) → true SSOT. 11. Fixed assets/depreciation; Postgres RLS (defense-in-depth before scaling tenants).
 
 ---
 

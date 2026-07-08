@@ -2,7 +2,7 @@
 
 **created_date**: 2026-06-18
 **last_modified_date**: 2026-07-08
-**last_modified_summary**: Added a staging runbook for the Kivvi ↔ revamp-it integration rollout, including DB migration, webhook wiring, env vars, and forward-sync verification.
+**last_modified_summary**: Documented post-deploy verification for smart inventory import (`/intake/items/import`) and P2P marketplace API (`/api/v1/marketplace/agency-sales`, `/payouts`).
 
 Target audience: technical founder or DevOps engineer doing first deployment.
 
@@ -495,6 +495,8 @@ After the first deployment, before going live:
 - [ ] Create a test invoice and verify number sequence generates (`RE-2026-00001`)
 - [ ] Send a test invoice by email — verify it arrives with the correct FROM address
 - [ ] Verify the AI command bar (Cmd+K) responds (requires at least one AI key)
+- [ ] **Intake → Items → Import** loads (`/intake/items/import`); upload `docs/fixtures/inventory-import-sample-10.csv` and confirm the review worklist appears
+- [ ] **P2P API** (revamp-it integration): `POST /api/v1/marketplace/agency-sales` accepts a test payload with `Idempotency-Key` (see `docs/SYSTEM_DESIGN.md` §3.4)
 
 ### Security checks
 

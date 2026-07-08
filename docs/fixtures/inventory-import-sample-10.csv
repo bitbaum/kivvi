@@ -1,0 +1,11 @@
+description,category,condition,serialNumber,askingPrice,warehouse,location,externalRef,notes
+ThinkPad X260 12.5" i5-6300U 8GB,laptop,good,5CG7290ABC1,189.00,Shop,Regal A3,SW-10001,Getestet — Akku OK
+Dell OptiPlex 3050 SFF,i desktop,good,,120.00,Shop,Regal B1,SW-10002,Ohne SSD
+HP EliteBook 840 G3,laptop,fair,5CG8123XYZ9,145.00,Lager A,Palette 2,SW-10003,Display-Kratzer
+Lenovo T470s — kein Netzteil,laptop,untested,,85.00,,,SW-10004,Standort unklar — vor Import prüfen
+Samsung SyncMaster 24",monitor,good,,45.00,Shop,Schaufenster,SW-10005,
+Apple Magic Keyboard DE,accessory,like_new,,35.00,Shop,Theke,SW-10006,Neuwertig
+Cisco SG300-10 Switch,network,good,FCW1234ABCD,55.00,Lager A,Regal Netzwerk,SW-10007,
+,,good,5CG7290ABC1,99.00,Shop,,SW-10008,Duplikat-Seriennummer + fehlende Beschreibung
+Surface Pro 4 128GB,tablet,poor,,65.00,Shop,,SW-10009,Ohne Preis in Shopware — Preis nachtragen
+Velo Kind 20" blau,bike,fair,,,Shop,Aussenbereich,SW-10010,Spende — Preis noch festlegen

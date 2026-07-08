@@ -341,6 +341,226 @@ export async function createConsignmentSettlementJournalEntry(
   });
 }
 
+// ============================================================================
+// MARKETPLACE AGENCY (P2P) — commission + pass-through, no full-price revenue
+// ============================================================================
+
+const POSITIVE_AMOUNT = /^\d+(\.\d{1,2})?$/;
+const NON_NEGATIVE_AMOUNT = /^\d+(\.\d{1,2})?$/;
+
+/** Validation for booking a facilitated (P2P) marketplace sale. */
+export const recordMarketplaceAgencySaleSchema = z
+  .object({
+    orderReference: z.string().min(1, "Order reference is required"),
+    date: z.string().min(1, "Date is required"),
+    // What the buyer paid in total (held by the platform).
+    grossAmount: z
+      .string()
+      .regex(POSITIVE_AMOUNT, "Gross amount must be a decimal like 100.00")
+      .refine(
+        (v) => new Decimal(v).gt(0),
+        "Gross amount must be greater than 0",
+      ),
+    // The platform's fee, net of VAT. May be 0 (e.g. non-profit 0% commission).
+    commissionAmount: z
+      .string()
+      .regex(NON_NEGATIVE_AMOUNT, "Commission must be a decimal like 10.00")
+      .default("0"),
+    // VAT charged on the commission fee only (never on the gross sale).
+    commissionVatAmount: z
+      .string()
+      .regex(NON_NEGATIVE_AMOUNT, "VAT must be a decimal like 0.81")
+      .default("0"),
+    sourceId: z.string().min(1).optional(),
+    description: z.string().optional(),
+  })
+  .refine(
+    (v) =>
+      new Decimal(v.grossAmount)
+        .minus(v.commissionAmount)
+        .minus(v.commissionVatAmount)
+        .gte(0),
+    {
+      message: "Commission + VAT cannot exceed the gross amount",
+      path: ["commissionAmount"],
+    },
+  );
+
+export type RecordMarketplaceAgencySaleInput = z.infer<
+  typeof recordMarketplaceAgencySaleSchema
+>;
+
+/** Validation for paying out the seller's share of a facilitated sale. */
+export const recordMarketplacePayoutSchema = z.object({
+  amount: z
+    .string()
+    .regex(POSITIVE_AMOUNT, "Amount must be a decimal like 90.00")
+    .refine((v) => new Decimal(v).gt(0), "Amount must be greater than 0"),
+  date: z.string().min(1, "Date is required"),
+  reference: z.string().min(1, "Reference is required"),
+  description: z.string().optional(),
+});
+
+export type RecordMarketplacePayoutInput = z.infer<
+  typeof recordMarketplacePayoutSchema
+>;
+
+/**
+ * Domain wrapper: validate + book a facilitated (P2P) marketplace sale.
+ * Thin boundary so Server Actions / API routes / AI stay logic-free.
+ */
+export async function recordMarketplaceAgencySale(
+  db: Database,
+  companyId: string,
+  input: unknown,
+) {
+  const v = recordMarketplaceAgencySaleSchema.parse(input);
+  return createMarketplaceAgencySaleJournalEntry(db, companyId, {
+    orderReference: v.orderReference,
+    date: new Date(v.date),
+    grossAmount: v.grossAmount,
+    commissionAmount: v.commissionAmount,
+    commissionVatAmount: v.commissionVatAmount,
+    sourceId: v.sourceId ?? v.orderReference,
+    description: v.description,
+  });
+}
+
+/** Domain wrapper: validate + book a marketplace seller payout. */
+export async function recordMarketplacePayout(
+  db: Database,
+  companyId: string,
+  input: unknown,
+) {
+  const v = recordMarketplacePayoutSchema.parse(input);
+  return createMarketplacePayoutJournalEntry(db, companyId, {
+    reference: v.reference,
+    date: new Date(v.date),
+    amount: v.amount,
+    description: v.description,
+  });
+}
+
+/**
+ * Book a facilitated (P2P) marketplace sale — the AGENCY model.
+ *
+ * Kivvi records only the platform's economics, never the full sale price:
+ *   Dr 1020 Bank                       grossAmount        (funds received)
+ *   Cr 2140 Verbindlichkeiten          sellerPayout       (owed to the seller)
+ *   Cr 3200 Dienstleistungserlöse      commissionAmount   (platform fee)
+ *   Cr 2200 MWST                       commissionVatAmount(fee VAT only)
+ *
+ * sellerPayout = gross − commission − commissionVat. With 0% commission this
+ * collapses to Dr 1020 / Cr 2140 (pure pass-through), which is still correct.
+ */
+export async function createMarketplaceAgencySaleJournalEntry(
+  db: Database,
+  companyId: string,
+  input: {
+    orderReference: string;
+    date: Date;
+    grossAmount: string;
+    commissionAmount: string;
+    commissionVatAmount: string;
+    sourceId: string;
+    description?: string;
+  },
+) {
+  const {
+    bankAccount,
+    liabilityAccount,
+    commissionRevenueAccount,
+    vatAccount,
+  } = ACCOUNT_MAPPINGS.marketplaceAgencySale;
+
+  const gross = new Decimal(input.grossAmount);
+  const commission = new Decimal(input.commissionAmount || "0");
+  const commissionVat = new Decimal(input.commissionVatAmount || "0");
+  const sellerPayout = gross.minus(commission).minus(commissionVat);
+
+  const lines: Array<{
+    accountCode: string;
+    debit?: string;
+    credit?: string;
+    description?: string;
+  }> = [
+    {
+      accountCode: bankAccount,
+      debit: gross.toFixed(2),
+      description: `Marketplace sale ${input.orderReference}`,
+    },
+  ];
+
+  if (sellerPayout.gt(0)) {
+    lines.push({
+      accountCode: liabilityAccount,
+      credit: sellerPayout.toFixed(2),
+      description: `Payable to seller ${input.orderReference}`,
+    });
+  }
+  if (commission.gt(0)) {
+    lines.push({
+      accountCode: commissionRevenueAccount,
+      credit: commission.toFixed(2),
+      description: `Commission ${input.orderReference}`,
+    });
+  }
+  if (commissionVat.gt(0)) {
+    lines.push({
+      accountCode: vatAccount,
+      credit: commissionVat.toFixed(2),
+      description: `Commission VAT ${input.orderReference}`,
+    });
+  }
+
+  return createAutoJournalEntry(db, companyId, {
+    date: input.date,
+    reference: input.orderReference,
+    description:
+      input.description || `Marketplace agency sale: ${input.orderReference}`,
+    sourceType: "marketplace_agency_sale",
+    sourceId: input.sourceId,
+    lines,
+  });
+}
+
+/**
+ * Create journal entry settling a marketplace seller payable from the bank.
+ * Debit: 2140 Übrige kurzfristige Verbindlichkeiten, Credit: 1020 Bank
+ */
+export async function createMarketplacePayoutJournalEntry(
+  db: Database,
+  companyId: string,
+  input: {
+    reference: string;
+    date: Date;
+    amount: string;
+    description?: string;
+  },
+) {
+  const { debitAccount, creditAccount } = ACCOUNT_MAPPINGS.marketplacePayout;
+
+  return createAutoJournalEntry(db, companyId, {
+    date: input.date,
+    reference: input.reference,
+    description: input.description || `Marketplace payout: ${input.reference}`,
+    sourceType: "marketplace_payout",
+    sourceId: input.reference,
+    lines: [
+      {
+        accountCode: debitAccount,
+        debit: input.amount,
+        description: `Marketplace payout ${input.reference}`,
+      },
+      {
+        accountCode: creditAccount,
+        credit: input.amount,
+        description: `Marketplace payout ${input.reference}`,
+      },
+    ],
+  });
+}
+
 /**
  * Create journal entry settling a consignor payable from the bank.
  * Debit: 2140 Übrige kurzfristige Verbindlichkeiten, Credit: 1020 Bank

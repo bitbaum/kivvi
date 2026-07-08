@@ -1,4 +1,4 @@
-import { PackageOpen, Plus, Wrench } from "lucide-react";
+import { PackageOpen, Plus, Wrench, Upload } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { getSessionOrRedirect } from "@/lib/session";
@@ -127,6 +127,13 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
               {(counts["repair"] ?? 0) > 0
                 ? `${ti("repairQueue")} (${counts["repair"]})`
                 : ti("repairQueue")}
+            </Link>
+            <Link
+              href="/intake/items/import"
+              className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-accent transition-colors"
+            >
+              <Upload className="h-4 w-4" />
+              {ti("importItems")}
             </Link>
             <Link
               href="/intake/new"

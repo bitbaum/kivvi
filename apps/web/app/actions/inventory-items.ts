@@ -17,10 +17,12 @@ import {
   removeRepairPart,
   recordChecklist,
   recordDataErasure,
+  bulkImportInventoryItems,
   createInventoryItemSchema,
   updateInventoryItemSchema,
   addRepairPartSchema,
 } from "@kivvi/core";
+import type { ImportInventoryResult } from "@kivvi/core";
 import { DATA_ERASURE_METHODS } from "@kivvi/core/src/config/checklist-templates";
 import type { ChecklistItemCompletion } from "@kivvi/core/src/config/checklist-templates";
 import {
@@ -57,6 +59,33 @@ export async function createInventoryItemAction(
       success: true,
       data: { id: item.id, itemNumber: item.itemNumber },
     };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, t("errorFailedToCreate")),
+    };
+  }
+}
+
+/**
+ * Import a reviewed worklist of inventory items. Each row must carry an assigned
+ * warehouse and a confirmed physical presence (enforced in the domain layer).
+ */
+export async function importInventoryItemsAction(
+  rows: unknown[],
+): Promise<ActionResult<ImportInventoryResult>> {
+  const t = await getTranslations("inventory");
+  try {
+    const { companyId } = await requireRole("member");
+
+    if (!Array.isArray(rows)) {
+      return { success: false, error: t("errorFailedToCreate") };
+    }
+
+    const result = await bulkImportInventoryItems(db, companyId, rows);
+
+    revalidatePath("/intake/items");
+    return { success: true, data: result };
   } catch (error) {
     return {
       success: false,

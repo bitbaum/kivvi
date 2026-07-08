@@ -27,6 +27,9 @@ export * from "./domain/dashboard";
 export * from "./domain/onboarding";
 export * from "./domain/import-mappings";
 export * from "./domain/import-bulk";
+// inventory-import is pure (enums only) — safe to import directly in client
+// components via '@kivvi/core/src/domain/inventory-import'.
+export * from "./domain/inventory-import";
 export * from "./domain/recurring-invoices";
 // pdf-generation is NOT re-exported here because it imports pdfkit (Node.js only).
 // Import directly: import { generateInvoicePdf } from '@kivvi/core/src/domain/pdf-generation';
