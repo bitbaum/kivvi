@@ -63,6 +63,7 @@ import {
 } from "../config/document-constants";
 import { logger } from "../logger";
 import { AMOUNT_REGEX, QUANTITY_REGEX } from "../utils/validation-patterns";
+import { dispatchWebhookEvent } from "./webhooks";
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -455,7 +456,7 @@ export async function createDocument(
   const validated = createDocumentSchema.parse(input);
 
   // Wrap entire operation in transaction for atomicity
-  return db.transaction(async (tx) => {
+  const doc = await db.transaction(async (tx) => {
     // Generate document number
     const number = await getNextNumber(tx, companyId, validated.type);
 
@@ -565,6 +566,20 @@ export async function createDocument(
 
     return doc;
   });
+
+  // Emit outbound webhook AFTER the transaction commits (post-commit,
+  // best-effort, non-blocking). Lives here — not in the caller — so every
+  // entry point (dashboard action, /api/v1 route, AI tool) fires identically.
+  dispatchWebhookEvent(db, companyId, "document.created", {
+    id: doc.id,
+    number: doc.number,
+    type: doc.type,
+    status: doc.status,
+    contactId: doc.contactId,
+    total: doc.total,
+  });
+
+  return doc;
 }
 
 /**
@@ -881,8 +896,8 @@ export async function updateDocumentStatus(
 
   // Wrap status update + journal entry in a transaction so they're atomic.
   // If journal entry creation fails, the status update is rolled back.
-  return db.transaction(async (tx) => {
-    const [updated] = await tx
+  const updated = await db.transaction(async (tx) => {
+    const [row] = await tx
       .update(documents)
       .set(updateValues)
       .where(
@@ -897,8 +912,19 @@ export async function updateDocumentStatus(
     await handleInventoryItemCreation(tx, companyId, doc, newStatus);
     await handleCreditNoteReversal(tx, companyId, doc, newStatus);
 
-    return updated;
+    return row;
   });
+
+  // Post-commit, best-effort webhook. Emitted here so all callers inherit it.
+  dispatchWebhookEvent(db, companyId, "document.status_changed", {
+    id: updated.id,
+    number: updated.number,
+    type: updated.type,
+    status: updated.status,
+    contactId: updated.contactId,
+  });
+
+  return updated;
 }
 
 /**
@@ -1023,7 +1049,7 @@ export async function recordPayment(
   }
 
   // Wrap payment + status update in transaction
-  return db.transaction(async (tx) => {
+  const payment = await db.transaction(async (tx) => {
     // Validate: payment must not exceed remaining balance
     const existingPayments = await tx
       .select({
@@ -1088,6 +1114,18 @@ export async function recordPayment(
 
     return payment;
   });
+
+  // Post-commit, best-effort webhook. Emitted here so all callers (dashboard,
+  // /api/v1 payments route, bank reconciliation, AI tool) fire identically.
+  dispatchWebhookEvent(db, companyId, "payment.received", {
+    paymentId: payment.id,
+    documentId,
+    amount: input.amount,
+    method: input.method ?? "bank_transfer",
+    date: input.date,
+  });
+
+  return payment;
 }
 
 /**
