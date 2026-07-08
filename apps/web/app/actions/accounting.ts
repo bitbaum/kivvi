@@ -15,6 +15,7 @@ import {
   updateAccountSchema,
   createJournalEntrySchema,
   createFiscalYearSchema,
+  recordConsignorPayout,
 } from "@kivvi/core";
 import type { Account } from "@kivvi/database";
 import { createAction } from "./action-factory";
@@ -170,4 +171,24 @@ export const listAccountsAction = createAction<
     listAccounts(db, companyId, filters ?? { isActive: true }),
   errorMessage: () =>
     getTranslations("accounting").then((t) => t("errorLoadAccounts")),
+});
+
+// ============================================================================
+// CONSIGNMENT
+// ============================================================================
+
+/**
+ * Record a payout to a consignor, settling the accumulated payable from the
+ * bank (Dr 2140 / Cr 1020). Validation lives in the domain layer.
+ */
+export const recordConsignorPayoutAction = createAction<
+  unknown,
+  Awaited<ReturnType<typeof recordConsignorPayout>>
+>({
+  handler: async (input, { companyId, db }) =>
+    recordConsignorPayout(db, companyId, input),
+  revalidate: ["/accounting"],
+  errorMessage: "Failed to record consignor payout",
+  minRole: "admin",
+  translateDomainErrors: true,
 });

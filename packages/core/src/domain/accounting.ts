@@ -1,6 +1,6 @@
 import { z } from "zod";
 import Decimal from "decimal.js";
-import { eq, and, asc, desc, sql, ilike, between } from "drizzle-orm";
+import { eq, and, asc, desc, sql, ilike, between, inArray } from "drizzle-orm";
 import {
   accounts,
   journalEntries,
@@ -493,7 +493,11 @@ export async function createAutoJournalEntry(
     .where(
       and(
         eq(accounts.companyId, companyId),
-        sql`${accounts.code} = ANY(${accountCodes})`,
+        // inArray (not raw `= ANY(...)`) so the code list binds correctly on
+        // BOTH drivers — postgres-js (self-hosted/TCP) rejects the raw-ANY
+        // array binding; neon accepts it. Auto journal entries must work on
+        // every deployment.
+        inArray(accounts.code, accountCodes),
       ),
     );
 

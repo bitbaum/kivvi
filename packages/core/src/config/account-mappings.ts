@@ -34,4 +34,23 @@ export const ACCOUNT_MAPPINGS = {
     debitAccount: "2000", // Kreditoren
     creditAccount: "1020", // Bank
   },
+  /**
+   * Consignment settlement (principal model): recognize the consignor's share
+   * of a sale as cost-of-goods + a payable liability. Fires when a consigned
+   * item is sold (invoice sent). Does NOT touch VAT or revenue — the invoice
+   * still books full revenue; this only splits out what is owed to the owner.
+   * Dr 4200 Handelswarenaufwand / Cr 2140 Übrige kurzfristige Verbindlichkeiten
+   */
+  consignmentSettlement: {
+    expenseAccount: "4200", // Handelswarenaufwand (consignor's share as COGS)
+    liabilityAccount: "2140", // Übrige kurzfristige Verbindlichkeiten (payable to consignor)
+  },
+  /**
+   * Consignor payout: settle the accumulated consignor payable from the bank.
+   * Dr 2140 Übrige kurzfristige Verbindlichkeiten / Cr 1020 Bank
+   */
+  consignorPayout: {
+    debitAccount: "2140", // Übrige kurzfristige Verbindlichkeiten (reduce payable)
+    creditAccount: "1020", // Bank
+  },
 } as const;

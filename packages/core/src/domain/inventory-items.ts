@@ -31,6 +31,7 @@ import {
 import { getNextNumber } from "./number-sequences";
 import { logger } from "../logger";
 import { AMOUNT_REGEX, QUANTITY_REGEX } from "../utils/validation-patterns";
+import { dispatchWebhookEvent } from "./webhooks";
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -146,6 +147,19 @@ export async function createInventoryItem(
     })
     .returning();
 
+  // Post-write, best-effort webhook so connected systems (revamp-it, etc.) learn
+  // of the new item. Emitted here — not in the caller — so every entry point
+  // (dashboard action, /api/v1 route, AI tool) fires identically.
+  dispatchWebhookEvent(db, companyId, "inventory_item.created", {
+    id: item.id,
+    itemNumber: item.itemNumber,
+    description: item.description,
+    condition: item.condition,
+    status: item.status,
+    warehouseId: item.warehouseId,
+    askingPrice: item.askingPrice,
+  });
+
   return item;
 }
 
@@ -170,6 +184,18 @@ export async function updateInventoryItem(
     .returning();
 
   if (!updated) throw new Error("Inventory item not found");
+
+  // Post-write, best-effort webhook. Emitted here so all callers inherit it.
+  dispatchWebhookEvent(db, companyId, "inventory_item.updated", {
+    id: updated.id,
+    itemNumber: updated.itemNumber,
+    description: updated.description,
+    condition: updated.condition,
+    status: updated.status,
+    warehouseId: updated.warehouseId,
+    askingPrice: updated.askingPrice,
+  });
+
   return updated;
 }
 
@@ -268,6 +294,13 @@ export async function updateItemStatus(
       ),
     )
     .returning();
+
+  // Post-write, best-effort webhook. Emitted here so all callers inherit it.
+  dispatchWebhookEvent(db, companyId, "inventory_item.status_changed", {
+    id: updated.id,
+    itemNumber: updated.itemNumber,
+    status: updated.status,
+  });
 
   return updated;
 }

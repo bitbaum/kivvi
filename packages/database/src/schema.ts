@@ -1195,6 +1195,45 @@ export const webhookDeliveries = pgTable(
   }),
 );
 
+/**
+ * Idempotency keys for external `/api/v1` writes. A client (e.g. revamp-it's
+ * Payrexx webhook handler) sends an `Idempotency-Key` header; a retried request
+ * with the same key + company returns the stored response instead of creating a
+ * duplicate document / payment / GL entry (Ground Truth #1: a transaction either
+ * happened or it didn't). Rows are claimed 'pending' before processing to close
+ * the concurrent-retry race, then updated to 'completed' with the response.
+ */
+export const apiIdempotencyKeys = pgTable(
+  "api_idempotency_keys",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    companyId: uuid("company_id")
+      .references(() => companies.id, { onDelete: "cascade" })
+      .notNull(),
+    /** Client-supplied idempotency key (unique per company) */
+    key: text("key").notNull(),
+    method: text("method").notNull(),
+    path: text("path").notNull(),
+    /** 'pending' while the first request is in flight, 'completed' once stored */
+    status: text("status").$type<"pending" | "completed">().notNull(),
+    /** HTTP status + JSON body of the first response (null until completed) */
+    responseStatus: integer("response_status"),
+    responseBody: jsonb("response_body"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    /** TTL horizon for cleanup of old keys */
+    expiresAt: timestamp("expires_at").notNull(),
+  },
+  (table) => ({
+    companyKeyIdx: uniqueIndex("api_idempotency_keys_company_key_idx").on(
+      table.companyId,
+      table.key,
+    ),
+    expiresAtIdx: index("api_idempotency_keys_expires_at_idx").on(
+      table.expiresAt,
+    ),
+  }),
+);
+
 // ============================================================================
 // RELATIONS
 // ============================================================================
@@ -1795,6 +1834,9 @@ export type WebhookEndpoint = typeof webhookEndpoints.$inferSelect;
 export type NewWebhookEndpoint = typeof webhookEndpoints.$inferInsert;
 export type WebhookDelivery = typeof webhookDeliveries.$inferSelect;
 export type NewWebhookDelivery = typeof webhookDeliveries.$inferInsert;
+
+export type ApiIdempotencyKey = typeof apiIdempotencyKeys.$inferSelect;
+export type NewApiIdempotencyKey = typeof apiIdempotencyKeys.$inferInsert;
 
 export type Membership = typeof memberships.$inferSelect;
 export type NewMembership = typeof memberships.$inferInsert;

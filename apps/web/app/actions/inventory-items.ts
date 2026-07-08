@@ -35,7 +35,6 @@ import {
 } from "./utils";
 import { createAction } from "./action-factory";
 import { revalidatePath } from "next/cache";
-import { dispatchWebhookEvent } from "@kivvi/core/src/domain/webhooks";
 import { getTranslations } from "next-intl/server";
 import { MAX_UPLOAD_SIZE_BYTES } from "@/lib/config/uploads";
 import { AMOUNT_REGEX } from "@kivvi/core/src/utils/validation-patterns";
@@ -50,20 +49,8 @@ export async function createInventoryItemAction(
     if (!parsed.success)
       return { success: false, ...formatZodError(parsed.error) };
 
-    const item = await db.transaction(async (tx) => {
-      return createInventoryItem(tx, companyId, parsed.data);
-    });
-
-    // Non-blocking: fire webhook event so connected systems (RevampIT, etc.) know
-    dispatchWebhookEvent(db, companyId, "inventory_item.created", {
-      id: item.id,
-      itemNumber: item.itemNumber,
-      description: item.description,
-      condition: item.condition,
-      status: item.status,
-      warehouseId: item.warehouseId,
-      askingPrice: item.askingPrice,
-    });
+    // Domain function emits inventory_item.created post-write (best-effort).
+    const item = await createInventoryItem(db, companyId, parsed.data);
 
     revalidatePath("/intake");
     return {
@@ -89,19 +76,8 @@ export async function updateInventoryItemAction(
     if (!parsed.success)
       return { success: false, ...formatZodError(parsed.error) };
 
-    const item = await db.transaction(async (tx) => {
-      return updateInventoryItem(tx, companyId, itemId, parsed.data);
-    });
-
-    dispatchWebhookEvent(db, companyId, "inventory_item.updated", {
-      id: item.id,
-      itemNumber: item.itemNumber,
-      description: item.description,
-      condition: item.condition,
-      status: item.status,
-      warehouseId: item.warehouseId,
-      askingPrice: item.askingPrice,
-    });
+    // Domain function emits inventory_item.updated post-write (best-effort).
+    const item = await updateInventoryItem(db, companyId, itemId, parsed.data);
 
     revalidatePath("/intake");
     revalidatePath(`/intake/items/${itemId}`);
@@ -133,21 +109,14 @@ export async function updateItemStatusAction(
     if (!parsed.success)
       return { success: false, ...formatZodError(parsed.error) };
 
-    const item = await db.transaction(async (tx) => {
-      return updateItemStatus(
-        tx,
-        companyId,
-        itemId,
-        parsed.data.newStatus,
-        userId,
-      );
-    });
-
-    dispatchWebhookEvent(db, companyId, "inventory_item.status_changed", {
-      id: item.id,
-      itemNumber: item.itemNumber,
-      status: item.status,
-    });
+    // Domain function emits inventory_item.status_changed post-write (best-effort).
+    const item = await updateItemStatus(
+      db,
+      companyId,
+      itemId,
+      parsed.data.newStatus,
+      userId,
+    );
 
     revalidatePath("/intake");
     revalidatePath("/intake/items");

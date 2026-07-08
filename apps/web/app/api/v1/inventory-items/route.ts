@@ -9,6 +9,7 @@ import {
   apiZodError,
   paginationQueryFields,
 } from "@/lib/api-handler";
+import { withIdempotency } from "@/lib/api-idempotency";
 import {
   listInventoryItems,
   createInventoryItem,
@@ -59,23 +60,27 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  try {
-    const ctx = await authenticateApi(request, "member");
-    if (ctx instanceof Response) return ctx;
+  const ctx = await authenticateApi(request, "member");
+  if (ctx instanceof Response) return ctx;
 
-    const body = await request.json();
-    const parsed = createInventoryItemSchema.safeParse(body);
-    if (!parsed.success) {
-      return apiZodError(parsed.error, "body");
+  // Idempotent: a retried intake sync with the same Idempotency-Key returns the
+  // original response instead of creating a duplicate inventory item.
+  return withIdempotency(request, ctx.companyId, async () => {
+    try {
+      const body = await request.json();
+      const parsed = createInventoryItemSchema.safeParse(body);
+      if (!parsed.success) {
+        return apiZodError(parsed.error, "body");
+      }
+
+      const item = await createInventoryItem(db, ctx.companyId, parsed.data);
+      return apiSuccess(item);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Failed to create inventory item";
+      return apiError(message, 400);
     }
-
-    const item = await createInventoryItem(db, ctx.companyId, parsed.data);
-    return apiSuccess(item);
-  } catch (error) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : "Failed to create inventory item";
-    return apiError(message, 400);
-  }
+  });
 }
