@@ -8,6 +8,7 @@ import { FormInput } from "@/components/ui/form-field";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { recordRepairAction } from "@/app/actions/inventory-items";
+import { RepairLaborBilling } from "@/components/inventory/repair-labor-billing";
 import { formatCurrency } from "@/lib/utils";
 
 interface RepairSectionProps {
@@ -15,6 +16,7 @@ interface RepairSectionProps {
   currentCost: string | null;
   currentHours: string | null;
   currentLog: string | null;
+  defaultHourlyRate?: string;
   onRecorded: (updated: {
     repairCost: string | null;
     repairHours: string | null;
@@ -27,6 +29,7 @@ export function RepairSection({
   currentCost,
   currentHours,
   currentLog,
+  defaultHourlyRate,
   onRecorded,
 }: RepairSectionProps) {
   const ti = useTranslations("inventory");
@@ -154,6 +157,14 @@ export function RepairSection({
             </Button>
           </div>
         </form>
+
+        {totalHours.gt(0) && (
+          <RepairLaborBilling
+            itemId={itemId}
+            totalHours={totalHours.toFixed(2)}
+            defaultHourlyRate={defaultHourlyRate}
+          />
+        )}
       </div>
     </div>
   );

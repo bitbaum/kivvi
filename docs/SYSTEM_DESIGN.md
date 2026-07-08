@@ -1,5 +1,8 @@
 # Kivvi — Exemplary System Design: Architecture, Integration & Accounting
 
+**created_date**: 2026-07-02
+**last_modified_date**: 2026-07-08
+**last_modified_summary**: Marked repair-labor billing and service revenue routing as implemented, documented the repair labor invoice flow, and added a company-level default repair hourly rate.
 **Status**: Design reference (living doc)
 **Audience**: Kivvi engineers + revamp-it ops + the Verein's Treuhänder (for the flagged VAT/NPO items)
 **Scope**: How Kivvi + a storefront (revamp-it at `revampit.orangecat.ch`) form one coherent, automated, correct, and _helpful_ system.
@@ -93,8 +96,8 @@ Accounts per Swiss KMU Kontenrahmen. ✅ = works today · 🟡 = partial · 🔨
 | **Purchase (parts/goods/services)**         | `DR 4000 + DR 1170 (Vorsteuer) / CR 2000`; payment: `DR 2000 / CR 1020`                                                                                                                         | ✅                                                         |
 | **Consignment sale**                        | sale as above **+** consignor share `DR 4200 / CR 2140`; payout `DR 2140 / CR 1020`                                                                                                             | ✅ (#29)                                                   |
 | **P2P secure sale (agency)**                | Kivvi books only revamp-it's economics: commission `→ CR 3xxx` (revenue); buyer funds held `→ CR 2xxx` pass-through liability to seller; payout `DR 2xxx / CR 1020`. **No full-price revenue.** | 🔨 (reuse #29 machinery)                                   |
-| **Customer repair**                         | parts already expensed at purchase (no COGS); labor `→ CR 3200 Dienstleistungserlöse` as an invoice line                                                                                        | 🟡 labor line not auto-generated from tracked hours        |
-| **Pure service (consulting/Linux install)** | `DR 1100 / CR 3200 + CR 2200`                                                                                                                                                                   | 🟡 revenue currently routes to 3000, not 3200              |
+| **Customer repair**                         | parts already expensed at purchase (no COGS); labor `→ CR 3200 Dienstleistungserlöse` as an invoice line                                                                                        | ✅ tracked hours can now create a draft labor invoice      |
+| **Pure service (consulting/Linux install)** | `DR 1100 / CR 3200 + CR 2200`                                                                                                                                                                   | ✅ service invoice lines now route to 3200                 |
 | **Donated goods in**                        | none (expense-as-incurred → nothing capitalized). Optionally record fair-value donation income for transparency.                                                                                | ✅ (no entry is correct); income = policy choice           |
 | **Monetary donation (Spende)**              | `DR 1020 / CR 3xxx Spenden` — **no** input-VAT reduction (Art. 33 Abs. 1)                                                                                                                       | 🔨 ⚖️                                                      |
 | **Grant / Subvention**                      | `DR 1020 / CR 3xxx Subventionen` **+ proportional input-VAT reduction (Art. 33 Abs. 2)**                                                                                                        | 🔨 ⚖️ (highest error-risk rule)                            |
@@ -134,7 +137,7 @@ Recording correctly is the floor. Kivvi should actively reduce the human's cogni
 **Now — makes the connection actually work + closes revenue leakage (no tax-law dependency):**
 
 1. Deploy + wire the sync (§3.2); add reconciliation + status-on-publish (§3.3).
-2. Repair-labor billing (hours × rate → invoice line) + route service revenue to 3200.
+2. Repair-labor billing (hours × rate → invoice line) + route service revenue to 3200. ✅
 3. Cost centers (Kostenstellen) — per-activity P&L + grant reporting.
 
 **After Treuhänder sign-off (⚖️ items) — Swiss NPO/VAT correctness:** 4. Subvention/Spende classifier + Art. 33 input-VAT reduction. 5. Fiktiver Vorsteuerabzug (Art. 28a) for purchased used goods. 6. Bezugsteuer (Art. 45) tracking for foreign services. 7. Monetary donation/grant income + (if FER 21 applies) restricted-fund accounting.

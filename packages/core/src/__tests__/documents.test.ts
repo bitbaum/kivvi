@@ -3,6 +3,8 @@ import {
   getOverdueInfo,
   calculateOutstandingAmount,
   createDocumentSchema,
+  createRepairLaborInvoiceSchema,
+  calculateRepairLaborAmount,
   updateDocumentSchema,
 } from "../domain/documents";
 import { VALID_CONVERSIONS } from "../domain/document-conversions";
@@ -477,6 +479,30 @@ describe("createDocumentSchema", () => {
       items: [{ ...validInput.items[0], productId: "bad-id" }],
     });
     expect(result.success).toBe(false);
+  });
+});
+
+// ============================================================================
+// Repair labor billing
+// ============================================================================
+
+describe("repair labor billing helpers", () => {
+  it("calculates repair labor amount from hours and hourly rate", () => {
+    expect(calculateRepairLaborAmount("3.5", "95.00")).toBe("332.50");
+  });
+
+  it("validates repair labor invoice input", () => {
+    const result = createRepairLaborInvoiceSchema.safeParse({
+      itemId: "550e8400-e29b-41d4-a716-446655440000",
+      contactId: "550e8400-e29b-41d4-a716-446655440001",
+      hours: "2.25",
+      hourlyRate: "95.00",
+    });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.vatRate).toBe("8.1");
+    }
   });
 });
 

@@ -1745,6 +1745,8 @@ export interface CompanySettings {
   invoicePrefix?: string;
   invoiceNextNumber?: number;
   defaultPaymentTermsDays?: number;
+  /** Default hourly rate (CHF, decimal string) used when billing repair labor */
+  defaultRepairHourlyRate?: string;
   bankAccount?: {
     iban?: string;
     bankName?: string;

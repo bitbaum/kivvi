@@ -791,6 +791,80 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+  /inventory-items/{id}/repair-labor-invoice:
+    parameters:
+      - $ref: '#/components/parameters/id'
+
+    post:
+      tags: [Inventory Items]
+      summary: Create a repair labor invoice
+      operationId: createRepairLaborInvoice
+      description: |
+        Creates a draft sales invoice from the tracked repair hours of an inventory
+        item. The invoice line uses a service product so the repaired item stays in
+        inventory and is not marked as sold.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [contactId]
+              properties:
+                contactId:
+                  type: string
+                  format: uuid
+                hours:
+                  type: string
+                  description: Optional decimal string. Defaults to the item's tracked repair hours.
+                hourlyRate:
+                  type: string
+                  description: >-
+                    Optional decimal string in CHF. Falls back to the company's
+                    configured default repair hourly rate when omitted; a 400 is
+                    returned if neither is available.
+                issueDate:
+                  type: string
+                  format: date
+                vatRate:
+                  type: string
+                  description: Decimal VAT rate string. Defaults to 8.1.
+                description:
+                  type: string
+      responses:
+        '200':
+          description: Draft repair labor invoice created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          number:
+                            type: string
+                          type:
+                            type: string
+                            enum: [invoice]
+                          status:
+                            type: string
+                          total:
+                            type: string
+                          currency:
+                            type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
 # ==============================================================================
 # COMPONENTS
 # ==============================================================================

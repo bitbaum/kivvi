@@ -20,8 +20,10 @@ import {
   documentPayments,
   bankTransactions,
   bankAccounts,
+  companies,
   contacts,
   inventoryItems,
+  products,
 } from "@kivvi/database";
 import type {
   Database,
@@ -29,6 +31,7 @@ import type {
   DocumentStatus,
   PaymentMethodValue,
   IntakeSourceValue,
+  CompanySettings,
 } from "@kivvi/database";
 import {
   DOCUMENT_TYPE_VALUES,
@@ -135,6 +138,31 @@ export const updateDocumentSchema = z.object({
 export type CreateDocumentInput = z.infer<typeof createDocumentSchema>;
 export type UpdateDocumentInput = z.infer<typeof updateDocumentSchema>;
 export type DocumentItemInput = z.infer<typeof documentItemSchema>;
+
+export const createRepairLaborInvoiceSchema = z.object({
+  itemId: z.string().uuid(),
+  contactId: z.string().uuid(),
+  hours: z.string().regex(AMOUNT_REGEX, "Invalid hours").optional(),
+  // Optional: falls back to the company's defaultRepairHourlyRate when omitted.
+  hourlyRate: z.string().regex(AMOUNT_REGEX, "Invalid hourly rate").optional(),
+  issueDate: z.string().optional(),
+  vatRate: z
+    .string()
+    .regex(AMOUNT_REGEX, "Invalid VAT rate")
+    .default(DEFAULT_VAT_RATE),
+  description: z.string().min(1).max(500).optional(),
+});
+
+export type CreateRepairLaborInvoiceInput = z.input<
+  typeof createRepairLaborInvoiceSchema
+>;
+
+export function calculateRepairLaborAmount(
+  hours: string,
+  hourlyRate: string,
+): string {
+  return new Decimal(hours).times(hourlyRate).toFixed(2);
+}
 
 // ============================================================================
 // DOCUMENT STATUS TRANSITIONS
@@ -582,6 +610,132 @@ export async function createDocument(
   });
 
   return doc;
+}
+
+async function getOrCreateRepairLaborProduct(
+  db: Database,
+  companyId: string,
+  hourlyRate: string,
+  vatRate: string,
+): Promise<string> {
+  const sku = "repair-labor";
+  const [existing] = await db
+    .select({ id: products.id })
+    .from(products)
+    .where(
+      and(
+        eq(products.companyId, companyId),
+        eq(products.sku, sku),
+        eq(products.type, "service"),
+      ),
+    )
+    .limit(1);
+
+  if (existing) return existing.id;
+
+  const [created] = await db
+    .insert(products)
+    .values({
+      companyId,
+      sku,
+      name: "Repair labor",
+      description: "Tracked repair labor billed from inventory repairs",
+      type: "service",
+      unitPrice: hourlyRate,
+      currency: DEFAULT_CURRENCY,
+      vatRate,
+      unit: "hour",
+      isActive: true,
+      shopVisible: false,
+    })
+    .returning({ id: products.id });
+
+  return created.id;
+}
+
+/**
+ * Create a draft invoice for tracked repair labor on an inventory item.
+ *
+ * The line intentionally references a service product, not the inventory item:
+ * billing labor must not mark the repaired device as sold. When the invoice is
+ * sent, the accounting integration routes the service line to account 3200.
+ */
+export async function createRepairLaborInvoice(
+  db: Database,
+  companyId: string,
+  userId: string,
+  input: CreateRepairLaborInvoiceInput,
+) {
+  const validated = createRepairLaborInvoiceSchema.parse(input);
+  const [item] = await db
+    .select({
+      id: inventoryItems.id,
+      itemNumber: inventoryItems.itemNumber,
+      description: inventoryItems.description,
+      repairHours: inventoryItems.repairHours,
+    })
+    .from(inventoryItems)
+    .where(
+      and(
+        eq(inventoryItems.id, validated.itemId),
+        eq(inventoryItems.companyId, companyId),
+      ),
+    )
+    .limit(1);
+
+  if (!item) throw new Error("Inventory item not found");
+
+  const hours = validated.hours ?? item.repairHours ?? "0";
+  if (new Decimal(hours).lte(0)) {
+    throw new Error("No repair hours to invoice");
+  }
+
+  // Resolve the rate: explicit input wins, else the company default.
+  let hourlyRate = validated.hourlyRate;
+  if (!hourlyRate) {
+    const [company] = await db
+      .select({ settings: companies.settings })
+      .from(companies)
+      .where(eq(companies.id, companyId))
+      .limit(1);
+    const settings = (company?.settings as CompanySettings | undefined) ?? {};
+    hourlyRate = settings.defaultRepairHourlyRate ?? undefined;
+  }
+  if (!hourlyRate) {
+    throw new Error(
+      "No hourly rate provided and no default repair rate configured",
+    );
+  }
+
+  const productId = await getOrCreateRepairLaborProduct(
+    db,
+    companyId,
+    hourlyRate,
+    validated.vatRate,
+  );
+  const amount = calculateRepairLaborAmount(hours, hourlyRate);
+  const description =
+    validated.description ??
+    `Repair labor ${item.itemNumber}: ${item.description}`;
+
+  return createDocument(db, companyId, userId, {
+    type: "invoice",
+    contactId: validated.contactId,
+    issueDate: validated.issueDate,
+    currency: DEFAULT_CURRENCY,
+    internalNotes: `Repair labor for inventory item ${item.itemNumber} (${item.id}); amount CHF ${amount}`,
+    items: [
+      {
+        productId,
+        position: 0,
+        description,
+        quantity: hours,
+        unitPrice: hourlyRate,
+        discount: "0",
+        vatRate: validated.vatRate,
+      },
+    ],
+  });
 }
 
 /**

@@ -49,6 +49,11 @@ const updateCompanySchema = z.object({
     .refine((v) => !v || !isNaN(Number(v)), "Must be a valid number")
     .optional()
     .nullable(),
+  defaultRepairHourlyRate: z
+    .string()
+    .refine((v) => !v || !isNaN(Number(v)), "Must be a valid number")
+    .optional()
+    .nullable(),
   defaultDocumentFooter: z.string().max(1000).optional().nullable(),
   aiProvider: z.enum(AI_PROVIDER_VALUES).optional().nullable(),
   aiModel: z.string().max(100).optional().nullable(),
@@ -84,6 +89,9 @@ export const updateCompanyAction = createAction<unknown, Company | undefined>({
       defaultPaymentTermsDays: parsed.data.defaultPaymentTermsDays
         ? parseInt(parsed.data.defaultPaymentTermsDays, 10)
         : existingSettings.defaultPaymentTermsDays,
+      defaultRepairHourlyRate: parsed.data.defaultRepairHourlyRate
+        ? parsed.data.defaultRepairHourlyRate
+        : existingSettings.defaultRepairHourlyRate,
       defaultDocumentFooter:
         parsed.data.defaultDocumentFooter ??
         existingSettings.defaultDocumentFooter,

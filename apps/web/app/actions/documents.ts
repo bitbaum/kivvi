@@ -15,6 +15,8 @@ import {
   createDocumentSchema,
   updateDocumentSchema,
   getDocument,
+  createRepairLaborInvoice,
+  createRepairLaborInvoiceSchema,
 } from "@kivvi/core";
 import {
   documentStatusEnum,
@@ -44,6 +46,7 @@ import { isEmailConfigured } from "@/lib/config/email";
 import { logger } from "@/lib/logger";
 import { getTranslations } from "next-intl/server";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { revalidatePath } from "next/cache";
 import {
   AMOUNT_REGEX,
   DATE_REGEX,
@@ -71,6 +74,42 @@ const convertSchema = z.object({
 // ============================================================================
 // SERVER ACTIONS
 // ============================================================================
+
+export async function createRepairLaborInvoiceAction(
+  input: unknown,
+): Promise<ActionResult<{ id: string; number: string }>> {
+  const t = await getTranslations("inventory");
+  try {
+    const { companyId, userId } = await requireRole("member");
+
+    const parsed = createRepairLaborInvoiceSchema.safeParse(input);
+    if (!parsed.success) {
+      return { success: false, ...formatZodError(parsed.error) };
+    }
+
+    const doc = await db.transaction(async (tx) =>
+      createRepairLaborInvoice(tx, companyId, userId, parsed.data),
+    );
+
+    dispatchWebhookEvent(db, companyId, "document.created", {
+      id: doc.id,
+      number: doc.number,
+      type: doc.type,
+      status: doc.status,
+      contactId: doc.contactId,
+      total: doc.total,
+    });
+
+    revalidateDocumentPaths(doc.type, doc.id);
+    revalidatePath("/intake");
+    return { success: true, data: { id: doc.id, number: doc.number } };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, t("errorRepairLaborInvoice")),
+    };
+  }
+}
 
 export async function createDocumentAction(
   input: unknown,
