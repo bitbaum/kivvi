@@ -1,5 +1,9 @@
 # Kivvi ERP — Deployment Guide
 
+**created_date**: 2026-06-18
+**last_modified_date**: 2026-07-08
+**last_modified_summary**: Added a staging runbook for the Kivvi ↔ revamp-it integration rollout, including DB migration, webhook wiring, env vars, and forward-sync verification.
+
 Target audience: technical founder or DevOps engineer doing first deployment.
 
 ---
@@ -103,6 +107,140 @@ Vercel Dashboard → Domains → Add your domain. Update DNS as instructed.
 - **Serverless (`VERCEL=1` or `USE_NEON=true`)**: the Neon **WebSocket** driver (`drizzle-orm/neon-serverless`), which also supports native ACID transactions. Single pool queries are routed via HTTPS fetch (`neonConfig.poolQueryViaFetch`) to avoid a webpack `ws` bundling issue.
 
 No configuration is required — set `USE_NEON=true` only if you deploy to a serverless host that needs the Neon driver but does not set `VERCEL`.
+
+---
+
+## Staging Integration Runbook
+
+Use this when rolling out the Kivvi ↔ revamp-it sync on staging before touching production.
+
+### Scope
+
+This runbook covers:
+
+- Kivvi staging deploy on current `main`
+- revamp-it staging deploy of PR `#206`
+- webhook + API-token wiring
+- forward-sync verification for intake create + edit
+
+### Prerequisites
+
+- Staging Kivvi domain
+- Staging revamp-it domain
+- Staging PostgreSQL access
+- Access to Kivvi Settings for API tokens and webhooks
+- Access to revamp-it staging environment variables
+
+### Phase A — Wire the systems
+
+#### A1. Deploy Kivvi staging
+
+Deploy current `main`, then run the database step against the staging database:
+
+```bash
+DATABASE_URL="postgresql://..." pnpm db:migrate
+```
+
+If your staging flow uses schema push instead of migrations:
+
+```bash
+DATABASE_URL="postgresql://..." pnpm db:push
+```
+
+**Verify:**
+
+- The app boots successfully.
+- The `api_idempotency_keys` table exists.
+- The latest document, inventory, and accounting changes are present.
+
+#### A2. Deploy revamp-it staging
+
+Deploy revamp-it PR `#206` (`feat/kivvi-bidirectional-sync`) to staging.
+
+Set these environment variables in revamp-it staging:
+
+```bash
+KIVVI_API_URL=https://<kivvi-staging-domain>
+KIVVI_API_TOKEN=kv_...
+KIVVI_DEFAULT_WAREHOUSE_ID=<staging-default-warehouse-id>
+KIVVI_WEBHOOK_SECRET=<same-secret-configured-in-kivvi>
+```
+
+**Verify:**
+
+- The staging app boots.
+- `POST /api/webhooks/kivvi` fails closed without a valid signature.
+
+#### A3. Configure Kivvi staging
+
+In Kivvi staging:
+
+1. Create an API token in `Settings → API Tokens`.
+2. Add a webhook endpoint in `Settings → Webhooks`:
+   - URL: `https://<revampit-staging-domain>/api/webhooks/kivvi`
+   - Events: `inventory_item.updated`, `inventory_item.status_changed`
+3. Copy the generated webhook secret into revamp-it as `KIVVI_WEBHOOK_SECRET`.
+4. Set `KIVVI_DEFAULT_WAREHOUSE_ID` in revamp-it to the default warehouse for the staging tenant.
+
+### Phase B — Forward-sync verification
+
+#### B1. Intake create sync
+
+Create one new revamp-it-owned item in revamp-it staging via the normal intake flow.
+
+**Verify in Kivvi staging:**
+
+- A new inventory item appears.
+- Description matches.
+- Status is `intake`.
+- `askingPrice` matches revamp-it.
+
+#### B2. Idempotency replay
+
+Retry the same logical create with the same `Idempotency-Key`.
+
+**Verify in Kivvi staging:**
+
+- No duplicate inventory item is created.
+- The same inventory item ID is returned/reused.
+
+**Verify in logs/proxy if available:**
+
+- Response includes `Idempotent-Replayed: true`.
+
+#### B3. Edit sync
+
+Edit the same revamp-it-owned item in revamp-it staging:
+
+- Change price
+- Change condition
+
+**Verify in Kivvi staging:**
+
+- The existing inventory item is updated in place.
+- `askingPrice` reflects the new value.
+- `condition` reflects the new value.
+- No duplicate row is created.
+
+### Known staging gap
+
+Publishing an item for sale still does not automatically advance the Kivvi item from `intake` to `listed`.
+
+Current workaround:
+
+- either patch the Kivvi status manually during dogfooding
+- or implement the status-on-publish follow-up described in `docs/SYSTEM_DESIGN.md`
+
+### Exit criteria
+
+Staging is ready to proceed to reverse sync and accounting verification only when all of the following are true:
+
+- Kivvi staging is deployed on current `main`
+- `api_idempotency_keys` exists in the staging database
+- revamp-it staging is deployed with PR `#206`
+- webhook secret matches on both sides
+- API token works
+- B1, B2, and B3 all pass with no duplicate items
 
 ---
 
