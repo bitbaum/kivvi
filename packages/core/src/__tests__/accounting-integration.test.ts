@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import Decimal from "decimal.js";
 import { validateJournalBalance } from "../domain/accounting";
+import { buildInvoiceRevenueLines } from "../domain/accounting-integration";
 
 /**
  * Tests for accounting integration journal entry correctness.
@@ -147,6 +148,29 @@ describe("Invoice sent journal entries", () => {
       vatAmount: "0.00",
     });
     expect(validateJournalBalance(lines).valid).toBe(true);
+  });
+
+  it("splits service invoice revenue to account 3200", () => {
+    const revenueLines = buildInvoiceRevenueLines(
+      [
+        { total: "120.00", productType: "product" },
+        { total: "80.00", productType: "service" },
+      ],
+      "200.00",
+    );
+
+    expect(revenueLines).toEqual([
+      {
+        accountCode: "3000",
+        credit: "120.00",
+        description: "Revenue",
+      },
+      {
+        accountCode: "3200",
+        credit: "80.00",
+        description: "Service revenue",
+      },
+    ]);
   });
 });
 

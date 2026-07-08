@@ -47,11 +47,13 @@ interface ItemEditFormProps {
     assignedToUserId: string | null;
   };
   companyUsers: { id: string; label: string }[];
+  defaultRepairHourlyRate: string;
 }
 
 export function ItemEditForm({
   item: initialItem,
   companyUsers,
+  defaultRepairHourlyRate,
 }: ItemEditFormProps) {
   const router = useRouter();
   const ti = useTranslations("inventory");
@@ -173,6 +175,7 @@ export function ItemEditForm({
           currentCost={item.repairCost}
           currentHours={item.repairHours}
           currentLog={item.repairLog}
+          defaultHourlyRate={defaultRepairHourlyRate}
           onRecorded={(updated) => setItem({ ...item, ...updated })}
         />
       )}

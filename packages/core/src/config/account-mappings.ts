@@ -10,6 +10,7 @@ export const ACCOUNT_MAPPINGS = {
   invoiceSent: {
     debitAccount: "1100", // Debitoren (Accounts Receivable)
     revenueAccount: "3000", // Warenertrag (Revenue)
+    serviceRevenueAccount: "3200", // Dienstleistungserlöse (Service revenue)
     vatAccount: "2200", // Geschuldete MWSt (VAT Payable)
   },
   /** Sales credit note sent: reversal of invoice */

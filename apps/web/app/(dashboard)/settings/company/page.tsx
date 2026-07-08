@@ -65,6 +65,7 @@ export default async function CompanySettingsPage() {
           defaultPaymentTermsDays:
             settings.defaultPaymentTermsDays?.toString() ||
             String(DEFAULT_PAYMENT_TERMS_DAYS),
+          defaultRepairHourlyRate: settings.defaultRepairHourlyRate || "",
           defaultDocumentFooter: settings.defaultDocumentFooter || "",
           logoBase64: settings.logoBase64 || null,
           aiProvider: settings.aiProvider || "",

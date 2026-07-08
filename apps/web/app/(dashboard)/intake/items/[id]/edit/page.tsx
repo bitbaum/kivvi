@@ -7,7 +7,8 @@ import { DetailPageHeader } from "@/components/page-header";
 import { getTranslations } from "next-intl/server";
 import { ItemEditForm } from "./item-edit-form";
 import { eq } from "drizzle-orm";
-import { users } from "@kivvi/database";
+import { users, companies } from "@kivvi/database";
+import type { CompanySettings } from "@kivvi/database";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -19,14 +20,21 @@ export default async function EditInventoryItemPage({ params }: PageProps) {
   const { id } = await params;
   if (!isValidUUID(id)) notFound();
 
-  const [item, companyUsers] = await Promise.all([
+  const [item, companyUsers, companyRow] = await Promise.all([
     getInventoryItem(db, session.user.companyId, id),
     db
       .select({ id: users.id, name: users.name, email: users.email })
       .from(users)
       .where(eq(users.companyId, session.user.companyId)),
+    db
+      .select({ settings: companies.settings })
+      .from(companies)
+      .where(eq(companies.id, session.user.companyId))
+      .then((r) => r[0]),
   ]);
   if (!item) notFound();
+
+  const settings = (companyRow?.settings as CompanySettings | undefined) ?? {};
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -68,6 +76,7 @@ export default async function EditInventoryItemPage({ params }: PageProps) {
           id: u.id,
           label: u.name || u.email,
         }))}
+        defaultRepairHourlyRate={settings.defaultRepairHourlyRate || ""}
       />
     </div>
   );

@@ -9,12 +9,14 @@ interface Props {
   currency: string;
   defaultVatRate: string;
   defaultPaymentTermsDays: string;
+  defaultRepairHourlyRate: string;
 }
 
 export function PreferencesSection({
   currency,
   defaultVatRate,
   defaultPaymentTermsDays,
+  defaultRepairHourlyRate,
 }: Props) {
   const t = useTranslations("settings");
   return (
@@ -76,6 +78,25 @@ export function PreferencesSection({
           />
           <p className="mt-1 text-xs text-muted-foreground">
             {t("company.paymentTermsDaysHint")}
+          </p>
+        </div>
+
+        <div>
+          <label
+            htmlFor="defaultRepairHourlyRate"
+            className="mb-1.5 block text-sm font-medium"
+          >
+            {t("company.defaultRepairHourlyRate")}
+          </label>
+          <FormInput
+            type="text"
+            id="defaultRepairHourlyRate"
+            name="defaultRepairHourlyRate"
+            defaultValue={defaultRepairHourlyRate}
+            placeholder="95.00"
+          />
+          <p className="mt-1 text-xs text-muted-foreground">
+            {t("company.defaultRepairHourlyRateHint")}
           </p>
         </div>
       </div>

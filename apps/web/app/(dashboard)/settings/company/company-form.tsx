@@ -29,6 +29,7 @@ interface CompanyFormProps {
     bankName: string;
     defaultVatRate: string;
     defaultPaymentTermsDays: string;
+    defaultRepairHourlyRate: string;
     defaultDocumentFooter: string;
     logoBase64: string | null;
     aiProvider: string;
@@ -66,6 +67,8 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
         defaultVatRate: (formData.get("defaultVatRate") as string) || null,
         defaultPaymentTermsDays:
           (formData.get("defaultPaymentTermsDays") as string) || null,
+        defaultRepairHourlyRate:
+          (formData.get("defaultRepairHourlyRate") as string) || null,
         defaultDocumentFooter:
           (formData.get("defaultDocumentFooter") as string) || null,
         aiProvider: (formData.get("aiProvider") as string) || null,
@@ -130,6 +133,7 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
         currency={initialData.currency}
         defaultVatRate={initialData.defaultVatRate}
         defaultPaymentTermsDays={initialData.defaultPaymentTermsDays}
+        defaultRepairHourlyRate={initialData.defaultRepairHourlyRate}
       />
 
       <DocumentFooterSection

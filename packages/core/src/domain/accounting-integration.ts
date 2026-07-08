@@ -1,6 +1,8 @@
 import { z } from "zod";
 import Decimal from "decimal.js";
+import { eq } from "drizzle-orm";
 import type { Database } from "@kivvi/database";
+import { documentItems, products } from "@kivvi/database";
 import { createAutoJournalEntry } from "./accounting";
 import { ACCOUNT_MAPPINGS } from "../config/account-mappings";
 
@@ -39,6 +41,38 @@ export async function recordConsignorPayout(
   });
 }
 
+export function buildInvoiceRevenueLines(
+  items: Array<{ total: string; productType: "product" | "service" | null }>,
+  fallbackSubtotal: string,
+): Array<{ accountCode: string; credit: string; description?: string }> {
+  const { revenueAccount, serviceRevenueAccount } =
+    ACCOUNT_MAPPINGS.invoiceSent;
+  const totalsByAccount = new Map<string, Decimal>();
+
+  if (items.length === 0) {
+    totalsByAccount.set(revenueAccount, new Decimal(fallbackSubtotal || "0"));
+  } else {
+    for (const item of items) {
+      const accountCode =
+        item.productType === "service" ? serviceRevenueAccount : revenueAccount;
+      totalsByAccount.set(
+        accountCode,
+        (totalsByAccount.get(accountCode) ?? new Decimal(0)).plus(
+          item.total || "0",
+        ),
+      );
+    }
+  }
+
+  return Array.from(totalsByAccount.entries())
+    .filter(([, amount]) => amount.gt(0))
+    .map(([accountCode, amount]) => ({
+      accountCode,
+      credit: amount.toFixed(2),
+      description:
+        accountCode === serviceRevenueAccount ? "Service revenue" : "Revenue",
+    }));
+}
 /**
  * Create journal entry when a sales invoice is sent.
  * Debit: 1100 Debitoren, Credit: 3000 Warenertrag + 2200 MWSt
@@ -55,8 +89,23 @@ export async function createInvoiceSentJournalEntry(
     issueDate: Date;
   },
 ) {
-  const { debitAccount, revenueAccount, vatAccount } =
-    ACCOUNT_MAPPINGS.invoiceSent;
+  const { debitAccount, vatAccount } = ACCOUNT_MAPPINGS.invoiceSent;
+
+  const itemRows = await db
+    .select({
+      total: documentItems.total,
+      productType: products.type,
+    })
+    .from(documentItems)
+    .leftJoin(products, eq(documentItems.productId, products.id))
+    .where(eq(documentItems.documentId, doc.id));
+
+  const revenueLines = buildInvoiceRevenueLines(itemRows, doc.subtotal).map(
+    (line) => ({
+      ...line,
+      description: `${line.description} ${doc.number}`,
+    }),
+  );
 
   const lines: Array<{
     accountCode: string;
@@ -69,11 +118,7 @@ export async function createInvoiceSentJournalEntry(
       debit: doc.total,
       description: `Invoice ${doc.number}`,
     },
-    {
-      accountCode: revenueAccount,
-      credit: doc.subtotal,
-      description: `Revenue ${doc.number}`,
-    },
+    ...revenueLines,
   ];
 
   if (new Decimal(doc.vatAmount).gt(0)) {
