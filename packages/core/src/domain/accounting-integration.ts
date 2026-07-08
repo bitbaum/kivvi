@@ -1,7 +1,43 @@
+import { z } from "zod";
 import Decimal from "decimal.js";
 import type { Database } from "@kivvi/database";
 import { createAutoJournalEntry } from "./accounting";
 import { ACCOUNT_MAPPINGS } from "../config/account-mappings";
+
+/** Validation for recording a consignor payout (Dr 2140 / Cr 1020). */
+export const recordConsignorPayoutSchema = z.object({
+  // Positive decimal string, e.g. "70.00" — never a float (Ground Truth #2).
+  amount: z
+    .string()
+    .regex(/^\d+(\.\d{1,2})?$/, "Amount must be a decimal like 70.00")
+    .refine((v) => new Decimal(v).gt(0), "Amount must be greater than 0"),
+  date: z.string().min(1, "Date is required"),
+  reference: z.string().min(1, "Reference is required"),
+  description: z.string().optional(),
+});
+
+export type RecordConsignorPayoutInput = z.infer<
+  typeof recordConsignorPayoutSchema
+>;
+
+/**
+ * Domain wrapper: validate input and post a consignor payout journal entry.
+ * Thin boundary over createConsignorPayoutJournalEntry so the Server Action
+ * stays free of business logic.
+ */
+export async function recordConsignorPayout(
+  db: Database,
+  companyId: string,
+  input: unknown,
+) {
+  const validated = recordConsignorPayoutSchema.parse(input);
+  return createConsignorPayoutJournalEntry(db, companyId, {
+    reference: validated.reference,
+    date: new Date(validated.date),
+    amount: validated.amount,
+    description: validated.description,
+  });
+}
 
 /**
  * Create journal entry when a sales invoice is sent.
@@ -205,6 +241,96 @@ export async function createCancellationReversalJournalEntry(
       lines,
     });
   }
+}
+
+/**
+ * Create journal entry recognizing a consignor's share when consigned goods
+ * are sold (principal model — tenant sells in its own name).
+ *
+ * This is ADDITIVE to the invoice-sent entry. Revenue and VAT are untouched;
+ * this only splits out the portion of the net sale owed to the consignor as
+ * cost-of-goods (Dr 4200) and a payable liability (Cr 2140).
+ *
+ * No-op when consignorShare <= 0 (normal, non-consigned sales).
+ */
+export async function createConsignmentSettlementJournalEntry(
+  db: Database,
+  companyId: string,
+  input: {
+    saleDocId: string;
+    reference: string;
+    date: Date;
+    consignorShare: string;
+    itemNumbers: string[];
+  },
+) {
+  // Skip when there is nothing owed to a consignor.
+  if (new Decimal(input.consignorShare || "0").lte(0)) {
+    return undefined;
+  }
+
+  const { expenseAccount, liabilityAccount } =
+    ACCOUNT_MAPPINGS.consignmentSettlement;
+
+  const itemLabel =
+    input.itemNumbers.length > 0 ? ` (${input.itemNumbers.join(", ")})` : "";
+
+  return createAutoJournalEntry(db, companyId, {
+    date: input.date,
+    reference: input.reference,
+    description: `Consignment settlement: ${input.reference}${itemLabel}`,
+    sourceType: "consignment_settlement",
+    sourceId: input.saleDocId,
+    lines: [
+      {
+        accountCode: expenseAccount,
+        debit: input.consignorShare,
+        description: `Consignor share ${input.reference}`,
+      },
+      {
+        accountCode: liabilityAccount,
+        credit: input.consignorShare,
+        description: `Payable to consignor ${input.reference}`,
+      },
+    ],
+  });
+}
+
+/**
+ * Create journal entry settling a consignor payable from the bank.
+ * Debit: 2140 Übrige kurzfristige Verbindlichkeiten, Credit: 1020 Bank
+ */
+export async function createConsignorPayoutJournalEntry(
+  db: Database,
+  companyId: string,
+  input: {
+    reference: string;
+    date: Date;
+    amount: string;
+    description?: string;
+  },
+) {
+  const { debitAccount, creditAccount } = ACCOUNT_MAPPINGS.consignorPayout;
+
+  return createAutoJournalEntry(db, companyId, {
+    date: input.date,
+    reference: input.reference,
+    description: input.description || `Consignor payout: ${input.reference}`,
+    sourceType: "consignor_payout",
+    sourceId: input.reference,
+    lines: [
+      {
+        accountCode: debitAccount,
+        debit: input.amount,
+        description: `Consignor payout ${input.reference}`,
+      },
+      {
+        accountCode: creditAccount,
+        credit: input.amount,
+        description: `Consignor payout ${input.reference}`,
+      },
+    ],
+  });
 }
 
 /**

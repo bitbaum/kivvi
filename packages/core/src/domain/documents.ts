@@ -21,6 +21,7 @@ import {
   bankTransactions,
   bankAccounts,
   contacts,
+  inventoryItems,
 } from "@kivvi/database";
 import type {
   Database,
@@ -43,6 +44,7 @@ import {
   createCreditNoteSentJournalEntry,
   createCancellationReversalJournalEntry,
   createPaymentReceivedJournalEntry,
+  createConsignmentSettlementJournalEntry,
 } from "./accounting-integration";
 import { DEFAULT_VAT_RATE } from "../config/vat-rates";
 import { DEFAULT_CURRENCY } from "../config/locale";
@@ -781,6 +783,10 @@ async function handleJournalEntries(
 ) {
   if (newStatus === "sent" && doc.type === "invoice") {
     await createInvoiceSentJournalEntry(tx, companyId, doc);
+    // Consignment (principal model): additionally recognize the consignor's
+    // share of any consigned items sold on this invoice. Additive to the entry
+    // above — revenue and VAT are untouched. No-op for normal invoices.
+    await handleConsignmentSettlement(tx, companyId, doc);
   } else if (newStatus === "sent" && doc.type === "credit_note") {
     await createCreditNoteSentJournalEntry(tx, companyId, doc);
   } else if (newStatus === "confirmed" && doc.type === "purchase_invoice") {
@@ -793,6 +799,69 @@ async function handleJournalEntries(
       await createCancellationReversalJournalEntry(tx, companyId, doc);
     }
   }
+}
+
+/**
+ * Recognize consignor payables for consigned items sold on an invoice.
+ *
+ * For each line linked to an inventory item with consignmentRate > 0, the
+ * consignor's share = line NET amount × consignmentRate / 100 (rounded to 2dp,
+ * per Swiss line-level rounding). We use the NET (pre-VAT) line amount because
+ * revenue is booked net. Shares are summed across lines and, if positive, a
+ * single settlement entry (Dr 4200 / Cr 2140) is created in the same tx.
+ *
+ * consignmentRate is stored as a percentage (e.g. 70.00 → 70%), so we divide
+ * by 100.
+ */
+async function handleConsignmentSettlement(
+  tx: Database,
+  companyId: string,
+  doc: { id: string; number: string; issueDate: Date },
+) {
+  const rows = await tx
+    .select({
+      lineNet: documentItems.total,
+      consignmentRate: inventoryItems.consignmentRate,
+      itemNumber: inventoryItems.itemNumber,
+    })
+    .from(documentItems)
+    .innerJoin(
+      inventoryItems,
+      eq(documentItems.inventoryItemId, inventoryItems.id),
+    )
+    .where(
+      and(
+        eq(documentItems.documentId, doc.id),
+        eq(inventoryItems.companyId, companyId),
+      ),
+    );
+
+  let consignorShare = new Decimal(0);
+  const itemNumbers: string[] = [];
+
+  for (const row of rows) {
+    const rate = new Decimal(row.consignmentRate || "0");
+    if (rate.lte(0)) continue;
+
+    const share = new Decimal(row.lineNet || "0")
+      .times(rate)
+      .div(100)
+      .toDecimalPlaces(2);
+    if (share.lte(0)) continue;
+
+    consignorShare = consignorShare.plus(share);
+    itemNumbers.push(row.itemNumber);
+  }
+
+  if (consignorShare.lte(0)) return;
+
+  await createConsignmentSettlementJournalEntry(tx, companyId, {
+    saleDocId: doc.id,
+    reference: doc.number,
+    date: doc.issueDate,
+    consignorShare: consignorShare.toFixed(2),
+    itemNumbers,
+  });
 }
 
 /** Create inventory items when intake or purchase invoice is confirmed */
