@@ -9,6 +9,7 @@ import {
   apiZodError,
   paginationQueryFields,
 } from "@/lib/api-handler";
+import { withIdempotency } from "@/lib/api-idempotency";
 import {
   listDocuments,
   createDocument,
@@ -63,52 +64,58 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  try {
-    const ctx = await authenticateApi(request, "member");
-    if (ctx instanceof Response) return ctx;
+  const ctx = await authenticateApi(request, "member");
+  if (ctx instanceof Response) return ctx;
 
-    const body = await request.json();
+  // Idempotent: a retried Payrexx/marketplace webhook with the same
+  // Idempotency-Key returns the original response instead of a duplicate invoice.
+  return withIdempotency(request, ctx.companyId, async () => {
+    try {
+      const body = await request.json();
 
-    // Allow external callers (e.g. RevampIT) to pass contactName + contactEmail
-    // instead of a contactId. Resolve or auto-create the contact transparently.
-    let resolvedBody = { ...body };
-    if (!body.contactId && body.contactName) {
-      const contactId = await resolveOrCreateContact(
+      // Allow external callers (e.g. RevampIT) to pass contactName + contactEmail
+      // instead of a contactId. Resolve or auto-create the contact transparently.
+      let resolvedBody = { ...body };
+      if (!body.contactId && body.contactName) {
+        const contactId = await resolveOrCreateContact(
+          db,
+          ctx.companyId,
+          body.contactName,
+          body.contactEmail,
+        );
+        resolvedBody = { ...body, contactId };
+        delete resolvedBody.contactName;
+        delete resolvedBody.contactEmail;
+      }
+
+      // Auto-populate `position` on items — external callers don't track it
+      if (Array.isArray(resolvedBody.items)) {
+        resolvedBody = {
+          ...resolvedBody,
+          items: resolvedBody.items.map(
+            (item: Record<string, unknown>, idx: number) =>
+              item.position !== undefined
+                ? item
+                : { ...item, position: idx + 1 },
+          ),
+        };
+      }
+
+      const parsed = createDocumentSchema.safeParse(resolvedBody);
+      if (!parsed.success) {
+        return apiZodError(parsed.error, "body");
+      }
+      const doc = await createDocument(
         db,
         ctx.companyId,
-        body.contactName,
-        body.contactEmail,
+        ctx.userId,
+        parsed.data,
       );
-      resolvedBody = { ...body, contactId };
-      delete resolvedBody.contactName;
-      delete resolvedBody.contactEmail;
+      return apiSuccess(doc);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to create document";
+      return apiError(message, 400);
     }
-
-    // Auto-populate `position` on items — external callers don't need to track it
-    if (Array.isArray(resolvedBody.items)) {
-      resolvedBody = {
-        ...resolvedBody,
-        items: resolvedBody.items.map(
-          (item: Record<string, unknown>, idx: number) =>
-            item.position !== undefined ? item : { ...item, position: idx + 1 },
-        ),
-      };
-    }
-
-    const parsed = createDocumentSchema.safeParse(resolvedBody);
-    if (!parsed.success) {
-      return apiZodError(parsed.error, "body");
-    }
-    const doc = await createDocument(
-      db,
-      ctx.companyId,
-      ctx.userId,
-      parsed.data,
-    );
-    return apiSuccess(doc);
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to create document";
-    return apiError(message, 400);
-  }
+  });
 }

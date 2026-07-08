@@ -7,6 +7,7 @@ import {
   apiSuccess,
   apiZodError,
 } from "@/lib/api-handler";
+import { withIdempotency } from "@/lib/api-idempotency";
 import { recordPayment } from "@kivvi/core";
 import { PAYMENT_METHOD_VALUES } from "@kivvi/database/src/enums";
 
@@ -31,23 +32,27 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  try {
-    const ctx = await authenticateApi(request, "member");
-    if (ctx instanceof Response) return ctx;
+  const ctx = await authenticateApi(request, "member");
+  if (ctx instanceof Response) return ctx;
 
-    const { id } = await params;
-    const body = await request.json();
+  // Idempotent: a retried payment webhook with the same Idempotency-Key returns
+  // the original response instead of recording a duplicate payment + GL entry.
+  return withIdempotency(request, ctx.companyId, async () => {
+    try {
+      const { id } = await params;
+      const body = await request.json();
 
-    const parsed = recordPaymentSchema.safeParse(body);
-    if (!parsed.success) {
-      return apiZodError(parsed.error, "body");
+      const parsed = recordPaymentSchema.safeParse(body);
+      if (!parsed.success) {
+        return apiZodError(parsed.error, "body");
+      }
+
+      const payment = await recordPayment(db, ctx.companyId, id, parsed.data);
+      return apiSuccess(payment);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "Failed to record payment";
+      return apiError(message, 400);
     }
-
-    const payment = await recordPayment(db, ctx.companyId, id, parsed.data);
-    return apiSuccess(payment);
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to record payment";
-    return apiError(message, 400);
-  }
+  });
 }
