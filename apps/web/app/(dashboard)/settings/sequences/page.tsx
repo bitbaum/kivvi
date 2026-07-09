@@ -1,10 +1,10 @@
-import Link from "next/link";
-import { ArrowLeft, Hash } from "lucide-react";
+import { Hash } from "lucide-react";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { numberSequences } from "@kivvi/database";
 import { eq } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
+import { SettingsSubpageHeader } from "@/components/settings-subpage-header";
 import { SequenceRow } from "./sequence-row";
 
 export default async function SequencesSettingsPage() {
@@ -30,20 +30,10 @@ export default async function SequencesSettingsPage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      {/* Back link */}
-      <Link
-        href="/settings"
-        className="inline-flex min-h-[44px] items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        {tc("back")}
-      </Link>
-
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">{t("sequences.title")}</h1>
-        <p className="text-muted-foreground">{t("sequences.subtitle")}</p>
-      </div>
+      <SettingsSubpageHeader
+        title={t("sequences.title")}
+        description={t("sequences.subtitle")}
+      />
 
       {/* Sequences table */}
       <div className="rounded-xl border bg-card">

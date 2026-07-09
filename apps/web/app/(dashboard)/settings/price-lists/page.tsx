@@ -1,9 +1,11 @@
 import Link from "next/link";
-import { ArrowLeft, Plus, Tag } from "lucide-react";
+import { Plus, Tag } from "lucide-react";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { listPriceLists } from "@kivvi/core";
 import { getTranslations } from "next-intl/server";
+import { SettingsSubpageHeader } from "@/components/settings-subpage-header";
+import { Button } from "@/components/ui/button";
 import { PriceListRow } from "./price-list-row";
 
 export default async function PriceListsPage() {
@@ -15,27 +17,18 @@ export default async function PriceListsPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <Link
-        href="/settings"
-        className="inline-flex min-h-[44px] items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        {tc("back")}
-      </Link>
-
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">{t("title")}</h1>
-          <p className="text-muted-foreground">{t("subtitle")}</p>
-        </div>
-        <Link
-          href="/settings/price-lists/new"
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-        >
-          <Plus className="h-4 w-4" />
-          {t("createNew")}
-        </Link>
-      </div>
+      <SettingsSubpageHeader
+        title={t("title")}
+        description={t("subtitle")}
+        actions={
+          <Button asChild>
+            <Link href="/settings/price-lists/new">
+              <Plus className="h-4 w-4" />
+              {t("createNew")}
+            </Link>
+          </Button>
+        }
+      />
 
       <div className="rounded-xl border bg-card">
         {lists.length === 0 ? (
@@ -43,13 +36,12 @@ export default async function PriceListsPage() {
             <Tag className="h-12 w-12 text-muted-foreground/50" />
             <h3 className="mt-4 text-lg font-medium">{tc("noResults")}</h3>
             <p className="mt-1 text-sm text-muted-foreground">{t("noLists")}</p>
-            <Link
-              href="/settings/price-lists/new"
-              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-            >
-              <Plus className="h-4 w-4" />
-              {t("createFirst")}
-            </Link>
+            <Button asChild className="mt-4">
+              <Link href="/settings/price-lists/new">
+                <Plus className="h-4 w-4" />
+                {t("createFirst")}
+              </Link>
+            </Button>
           </div>
         ) : (
           <>

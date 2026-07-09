@@ -20,6 +20,7 @@ import {
   type WarehouseOption,
 } from "@kivvi/core/src/domain/inventory-import";
 import { importInventoryItemsAction } from "@/app/actions/inventory-items";
+import { CsvDropZone } from "@/components/import/csv-drop-zone";
 
 interface Props {
   warehouses: WarehouseOption[];
@@ -307,7 +308,13 @@ export function InventoryImportPanel({ warehouses }: Props) {
 
   // ── Upload screen ──────────────────────────────────────────────────────────
   if (!analysis) {
-    return <FileDropZone onFile={handleFile} t={t} />;
+    return (
+      <CsvDropZone
+        onFile={handleFile}
+        label={t("uploadLabel")}
+        hint={t("uploadHint")}
+      />
+    );
   }
 
   // ── Review screen ──────────────────────────────────────────────────────────
@@ -608,50 +615,5 @@ function Stat({
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className={`mt-1 text-lg font-semibold ${toneClass}`}>{value}</p>
     </div>
-  );
-}
-
-function FileDropZone({
-  onFile,
-  t,
-}: {
-  onFile: (file: File) => void;
-  t: ReturnType<typeof useTranslations<"inventoryImport">>;
-}) {
-  const [isDragging, setIsDragging] = useState(false);
-  return (
-    <label
-      onDragOver={(e) => {
-        e.preventDefault();
-        setIsDragging(true);
-      }}
-      onDragLeave={() => setIsDragging(false)}
-      onDrop={(e) => {
-        e.preventDefault();
-        setIsDragging(false);
-        const file = e.dataTransfer.files[0];
-        if (file) onFile(file);
-      }}
-      className={`flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed p-10 transition-colors ${
-        isDragging
-          ? "border-primary bg-primary/5"
-          : "border-muted-foreground/25 hover:border-muted-foreground/50 hover:bg-muted/30"
-      }`}
-    >
-      <Upload className="mb-2 h-8 w-8 text-muted-foreground" />
-      <span className="text-sm font-medium">{t("uploadLabel")}</span>
-      <span className="mt-1 max-w-md text-center text-xs text-muted-foreground">
-        {t("uploadHint")}
-      </span>
-      <input
-        type="file"
-        accept=".csv"
-        className="hidden"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) onFile(file);
-        }}
-      />
-    </label>
   );
 }

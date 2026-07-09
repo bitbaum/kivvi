@@ -1,12 +1,11 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { companies } from "@kivvi/database";
 import type { CompanySettings } from "@kivvi/database";
 import { eq } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
+import { SettingsSubpageHeader } from "@/components/settings-subpage-header";
 import { DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
 import {
   DEFAULT_CURRENCY,
@@ -20,7 +19,6 @@ import { ShopUrlSection } from "./shop-url-section";
 export default async function CompanySettingsPage() {
   const session = await getSessionOrRedirect();
   const t = await getTranslations("settings");
-  const tc = await getTranslations("common");
 
   const [company] = await db
     .select()
@@ -33,20 +31,10 @@ export default async function CompanySettingsPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      {/* Back link */}
-      <Link
-        href="/settings"
-        className="inline-flex min-h-[44px] items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        {tc("back")}
-      </Link>
-
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">{t("companySettings")}</h1>
-        <p className="text-muted-foreground">{t("companySettingsDesc")}</p>
-      </div>
+      <SettingsSubpageHeader
+        title={t("companySettings")}
+        description={t("companySettingsDesc")}
+      />
 
       <CompanyForm
         initialData={{

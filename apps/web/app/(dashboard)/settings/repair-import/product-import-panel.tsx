@@ -13,6 +13,7 @@ import {
   KIVITENDO_PRODUCT_PROFILE,
 } from "@kivvi/core/src/domain/import-mappings";
 import { importProductsFromCsvAction } from "@/app/actions/onboarding";
+import { CsvDropZone } from "@/components/import/csv-drop-zone";
 
 interface ParsedPreview {
   fileName: string;
@@ -119,7 +120,14 @@ export function ProductImportPanel() {
         </div>
       </div>
 
-      {!preview && !result && <FileDropZone onFile={handleFile} t={t} />}
+      {!preview && !result && (
+        <CsvDropZone
+          onFile={handleFile}
+          label={t("uploadLabel")}
+          hint={t("uploadHint")}
+          size="compact"
+        />
+      )}
 
       {preview && !result && (
         <div className="space-y-4">
@@ -238,51 +246,5 @@ function Stat({ label, value }: { label: string; value: number }) {
         {value.toLocaleString(DEFAULT_LOCALE)}
       </p>
     </div>
-  );
-}
-
-function FileDropZone({
-  onFile,
-  t,
-}: {
-  onFile: (file: File) => void;
-  t: ReturnType<typeof useTranslations<"settings.repairImport.productImport">>;
-}) {
-  const [isDragging, setIsDragging] = useState(false);
-
-  return (
-    <label
-      onDragOver={(e) => {
-        e.preventDefault();
-        setIsDragging(true);
-      }}
-      onDragLeave={() => setIsDragging(false)}
-      onDrop={(e) => {
-        e.preventDefault();
-        setIsDragging(false);
-        const file = e.dataTransfer.files[0];
-        if (file) onFile(file);
-      }}
-      className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 transition-colors ${
-        isDragging
-          ? "border-primary bg-primary/5"
-          : "border-muted-foreground/25 hover:border-muted-foreground/50 hover:bg-muted/30"
-      }`}
-    >
-      <Upload className="mb-2 h-7 w-7 text-muted-foreground" />
-      <span className="text-sm font-medium">{t("uploadLabel")}</span>
-      <span className="mt-1 text-xs text-muted-foreground">
-        {t("uploadHint")}
-      </span>
-      <input
-        type="file"
-        accept=".csv"
-        className="hidden"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) onFile(file);
-        }}
-      />
-    </label>
   );
 }

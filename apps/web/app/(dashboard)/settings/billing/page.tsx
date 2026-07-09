@@ -5,6 +5,7 @@ import { companies } from "@kivvi/database";
 import type { CompanySettings } from "@kivvi/database";
 import { eq } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
+import { SettingsSubpageHeader } from "@/components/settings-subpage-header";
 import {
   isPlanActive,
   isTrialing,
@@ -32,11 +33,8 @@ export default async function BillingPage() {
   const status = settings.subscriptionStatus;
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold">{t("title")}</h1>
-        <p className="text-muted-foreground">{t("subtitle")}</p>
-      </div>
+    <div className="mx-auto max-w-3xl space-y-8">
+      <SettingsSubpageHeader title={t("title")} description={t("subtitle")} />
 
       {/* Current Plan */}
       <div className="rounded-xl border bg-card p-6 space-y-4">
@@ -50,8 +48,7 @@ export default async function BillingPage() {
               status="past_due"
               label={t("pastDue")}
               styleMap={{
-                past_due:
-                  "bg-destructive/10 text-destructive",
+                past_due: "bg-destructive/10 text-destructive",
               }}
             />
           )}
@@ -67,9 +64,7 @@ export default async function BillingPage() {
         )}
 
         {status === "past_due" && (
-          <p className="text-sm text-destructive">
-            {t("pastDueMessage")}
-          </p>
+          <p className="text-sm text-destructive">{t("pastDueMessage")}</p>
         )}
       </div>
 
