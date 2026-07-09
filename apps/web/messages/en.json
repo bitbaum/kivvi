@@ -1909,6 +1909,8 @@
     "repairImport": {
       "title": "Repair Import",
       "description": "Re-import line items from Kivitendo CSV exports",
+      "lineItemTitle": "Document line-item repair",
+      "lineItemDescription": "Fix missing or broken line items on existing documents from a Kivitendo export",
       "productImport": {
         "title": "Import Products",
         "description": "Load Kivitendo product export (CSV) — creates product master data, groups and manufacturers, updates number sequence.",

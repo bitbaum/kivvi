@@ -1,7 +1,6 @@
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { getSessionOrRedirect } from "@/lib/session";
+import { SettingsSubpageHeader } from "@/components/settings-subpage-header";
 import { getDataRepairStatusAction } from "@/app/actions/data-repair";
 import { getDataQualityReportAction } from "@/app/actions/data-quality";
 import { DataRepairPanel } from "./data-repair-panel";
@@ -18,20 +17,10 @@ export default async function DataRepairPage() {
 
   return (
     <div className="space-y-10">
-      <div className="flex items-center gap-4">
-        <Link
-          href="/settings"
-          className="min-h-[44px] min-w-[44px] rounded-lg border p-2 hover:bg-muted/50"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold">{t("dataRepair.title")}</h1>
-          <p className="text-sm text-muted-foreground">
-            {t("dataRepair.description")}
-          </p>
-        </div>
-      </div>
+      <SettingsSubpageHeader
+        title={t("dataRepair.title")}
+        description={t("dataRepair.description")}
+      />
 
       {/* Data quality — duplicates, missing fields, bad values */}
       <section className="space-y-4">

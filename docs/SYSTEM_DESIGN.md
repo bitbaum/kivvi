@@ -1,8 +1,8 @@
 # Kivvi — Exemplary System Design: Architecture, Integration & Accounting
 
 **created_date**: 2026-07-02
-**last_modified_date**: 2026-07-08
-**last_modified_summary**: Added §3.4 P2P sync contract (`syncP2POrderToKivvi`), REST endpoints `/api/v1/marketplace/agency-sales` + `/payouts`, and 10-item import dry-run fixture at `docs/fixtures/inventory-import-sample-10.csv`.
+**last_modified_date**: 2026-07-09
+**last_modified_summary**: SSOT pass — document status transitions + overdue constants centralized; inventory webhook payload unified; PATCH coalescing; P2P `sellerPayout` validation; shared UI primitives (`BackButton`, `SettingsSubpageHeader`, `CsvDropZone`); nav badges moved to domain.
 **Status**: Design reference (living doc)
 **Audience**: Kivvi engineers + revamp-it ops + the Verein's Treuhänder (for the flagged VAT/NPO items)
 **Scope**: How Kivvi + a storefront (revamp-it at `revampit.orangecat.ch`) form one coherent, automated, correct, and _helpful_ system.
@@ -60,7 +60,8 @@
 
 - Kivvi emits signed webhooks from the **domain layer**, so API-origin changes fire too.
 - Headers: `X-Kivvi-Event`, `X-Kivvi-Signature` = `HMAC-SHA256(rawBody, secret)` (hex).
-- Body: `{ event, timestamp, companyId, data: { id, itemNumber, description, condition, status, warehouseId, askingPrice } }`.
+- Body: `{ event, timestamp, companyId, data: { id, itemNumber, description, condition, status, warehouseId, askingPrice } }` — **same shape for `created`, `updated`, and `status_changed`** (SSOT: `buildInventoryItemWebhookPayload` in `inventory-items.ts`).
+- Combined `PATCH /inventory-items/{id}` (status + fields) emits **one** webhook (`status_changed` wins). `sellInventoryItem` (invoice line with `inventoryItemId`) also emits `status_changed`.
 - Receiver verifies the HMAC over the **raw** body, joins `data.id → inventory_items.kivviInventoryItemId`, maps `askingPrice→sellingPriceChf`, `condition→conditionOverride`, and delists the listing on a terminal status (`sold/returned/recycled/donated`).
 - **Loop-safe**: receiver writes are internal and never push back; only human UI edits push forward.
 
@@ -126,16 +127,15 @@ Content-Type: application/json
 | `grossAmount`         | `order.amountChf`                           | What the buyer paid (incl. shipping if in total)              |
 | `commissionAmount`    | net commission                              | Platform fee **excl. VAT**                                    |
 | `commissionVatAmount` | computed                                    | VAT on the fee only (8.1% of `commissionAmount` when taxable) |
+| `sellerPayout`        | `order.sellerPayoutChf`                     | Optional but recommended — when sent, must balance gross      |
 | `sourceId`            | `order.id`                                  | UUID for journal `sourceId`                                   |
 | `description`         | optional                                    | e.g. `P2P sale MO-… Payrexx {txnId}`                          |
 
-**Invariant** (enforced by Kivvi):
+**Invariant** (enforced by Kivvi Zod schema when `sellerPayout` is provided):
 
 ```
-grossAmount = commissionAmount + commissionVatAmount + sellerPayout
+grossAmount = commissionAmount + commissionVatAmount + sellerPayout  (±0.01)
 ```
-
-where `sellerPayout` is what revamp-it already stores as `order.sellerPayoutChf`.
 
 **At 0% commission** (`COMMISSION_RATE=0` today):
 

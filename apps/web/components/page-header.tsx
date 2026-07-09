@@ -1,7 +1,6 @@
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { Breadcrumb, type BreadcrumbItem } from "@/components/breadcrumb";
+import { BackButton } from "@/components/back-button";
 
 interface PageHeaderProps {
   title: string;
@@ -48,22 +47,12 @@ export async function DetailPageHeader({
   badge,
   actions,
 }: DetailPageHeaderProps) {
-  // Icon-only back link needs an accessible name for screen readers
-  // (WCAG 2.4.4 / 4.1.2). Reuse the existing common.back label.
-  const t = await getTranslations("common");
-
   return (
     <div className="space-y-2">
       <Breadcrumb items={breadcrumbs} />
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-start gap-4">
-          <Link
-            href={backHref}
-            aria-label={t("back")}
-            className="mt-1 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg border p-2 hover:bg-muted transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          </Link>
+          <BackButton href={backHref} className="mt-1" />
           <div>
             <div className="flex items-center gap-3">
               <h1>{title}</h1>

@@ -352,7 +352,7 @@ const NON_NEGATIVE_AMOUNT = /^\d+(\.\d{1,2})?$/;
 export const recordMarketplaceAgencySaleSchema = z
   .object({
     orderReference: z.string().min(1, "Order reference is required"),
-    date: z.string().min(1, "Date is required"),
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be YYYY-MM-DD"),
     // What the buyer paid in total (held by the platform).
     grossAmount: z
       .string()
@@ -371,6 +371,11 @@ export const recordMarketplaceAgencySaleSchema = z
       .string()
       .regex(NON_NEGATIVE_AMOUNT, "VAT must be a decimal like 0.81")
       .default("0"),
+    // Seller pass-through — must balance with gross, commission, and VAT.
+    sellerPayout: z
+      .string()
+      .regex(NON_NEGATIVE_AMOUNT, "Seller payout must be a decimal like 90.00")
+      .optional(),
     sourceId: z.string().min(1).optional(),
     description: z.string().optional(),
   })
@@ -383,6 +388,20 @@ export const recordMarketplaceAgencySaleSchema = z
     {
       message: "Commission + VAT cannot exceed the gross amount",
       path: ["commissionAmount"],
+    },
+  )
+  .refine(
+    (v) => {
+      const computedSeller = new Decimal(v.grossAmount)
+        .minus(v.commissionAmount)
+        .minus(v.commissionVatAmount);
+      if (!v.sellerPayout) return true;
+      return computedSeller.minus(v.sellerPayout).abs().lte(0.01);
+    },
+    {
+      message:
+        "sellerPayout must equal grossAmount − commissionAmount − commissionVatAmount",
+      path: ["sellerPayout"],
     },
   );
 

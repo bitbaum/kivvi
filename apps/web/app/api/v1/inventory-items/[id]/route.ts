@@ -13,7 +13,9 @@ import {
   updateInventoryItem,
   updateItemStatus,
   updateInventoryItemSchema,
+  buildInventoryItemWebhookPayload,
 } from "@kivvi/core/src/domain/inventory-items";
+import { dispatchWebhookEvent } from "@kivvi/core/src/domain/webhooks";
 import { ITEM_STATUS_VALUES } from "@kivvi/database/src/enums";
 
 const patchSchema = updateInventoryItemSchema.extend({
@@ -53,19 +55,36 @@ export async function PATCH(
     }
 
     const { status, ...fields } = parsed.data;
+    const hasOtherFields = Object.keys(fields).length > 0;
 
-    // Status transitions go through the domain guard (validates allowed transitions)
+    // Coalesce webhooks: one PATCH → at most one event (status_changed wins).
     if (status) {
-      await updateItemStatus(db, ctx.companyId, params.id, status);
+      await updateItemStatus(db, ctx.companyId, params.id, status, undefined, {
+        skipWebhook: true,
+      });
     }
 
-    // Update other fields if any were provided
-    const hasOtherFields = Object.keys(fields).length > 0;
     const updated = hasOtherFields
-      ? await updateInventoryItem(db, ctx.companyId, params.id, fields)
-      : await getInventoryItem(db, ctx.companyId, params.id);
+      ? await updateInventoryItem(db, ctx.companyId, params.id, fields, {
+          skipWebhook: true,
+        })
+      : status
+        ? await getInventoryItem(db, ctx.companyId, params.id)
+        : await getInventoryItem(db, ctx.companyId, params.id);
 
     if (!updated) return apiError("Inventory item not found", 404);
+
+    if (status || hasOtherFields) {
+      const event = status
+        ? "inventory_item.status_changed"
+        : "inventory_item.updated";
+      await dispatchWebhookEvent(
+        db,
+        ctx.companyId,
+        event,
+        buildInventoryItemWebhookPayload(updated),
+      );
+    }
 
     return apiSuccess(updated);
   } catch (error) {

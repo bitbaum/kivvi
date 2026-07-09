@@ -757,15 +757,16 @@ paths:
         transitions are:
 
         ```
-        intake       → testing, repair, ready_for_sale, donated, recycled
-        testing      → repair, ready_for_sale, donated, recycled
-        repair       → testing, ready_for_sale, donated, recycled
-        ready_for_sale → listed, reserved, sold, donated, recycled
-        listed       → reserved, sold, donated, recycled
-        reserved     → ready_for_sale, sold, donated, recycled
+        intake       → testing, ready_for_sale, recycled
+        testing      → repair, ready_for_sale, parts_only, recycled
+        repair       → testing, parts_only, recycled
+        ready_for_sale → listed, reserved, donated
+        listed       → reserved, sold, ready_for_sale
+        reserved     → sold, listed, ready_for_sale
         sold         → returned
-        returned     → ready_for_sale, donated, recycled
+        returned     → testing, repair, ready_for_sale, recycled
         donated      → (terminal)
+        parts_only   → recycled
         recycled     → (terminal)
         ```
       requestBody:

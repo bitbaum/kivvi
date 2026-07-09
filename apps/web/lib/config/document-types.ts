@@ -1,6 +1,12 @@
 import type { DocumentType, DocumentStatus } from "@kivvi/database";
 import { VALID_CONVERSIONS } from "@kivvi/core/src/domain/document-conversions";
-export { DEFAULT_PAYMENT_TERMS_DAYS } from "@kivvi/core/src/config/document-constants";
+import { TERMINAL_DOCUMENT_STATUSES } from "@kivvi/core/src/config/document-constants";
+export {
+  DEFAULT_PAYMENT_TERMS_DAYS,
+  OVERDUE_ELIGIBLE_STATUSES,
+  TERMINAL_DOCUMENT_STATUSES,
+  isValidDocumentTransition,
+} from "@kivvi/core/src/config/document-constants";
 
 // ============================================================================
 // DOCUMENT TYPE CONFIG — SSOT for all document type behavior
@@ -80,17 +86,10 @@ export const COMMON_FILTER_STATUSES: DocumentStatus[] = [
   "cancelled",
 ];
 
-/** Statuses that indicate an invoice is overdue-eligible (sent but unpaid) */
-export const OVERDUE_ELIGIBLE_STATUSES: DocumentStatus[] = [
-  "sent",
-  "partially_paid",
-];
-
-/**
- * Statuses from which no further action is possible.
- * Used in UI to hide action buttons and editing controls.
- */
-export const TERMINAL_STATUSES: DocumentStatus[] = ["paid", "cancelled"];
+/** @deprecated Use TERMINAL_DOCUMENT_STATUSES from document-constants */
+export const TERMINAL_STATUSES: DocumentStatus[] = [
+  ...TERMINAL_DOCUMENT_STATUSES,
+] as DocumentStatus[];
 
 /**
  * Typed status constants — use these instead of hardcoded strings in JSX.

@@ -4,6 +4,11 @@ import { getTranslations } from "next-intl/server";
 import Decimal from "decimal.js";
 import { formatCurrency } from "@/lib/utils";
 import { CardSection } from "@/components/card-section";
+import {
+  calculatePartsTotal,
+  calculateSaleMargin,
+  calculateConsignorPayout,
+} from "@kivvi/core/src/domain/inventory-items";
 
 interface RepairPart {
   quantity: number | string;
@@ -32,13 +37,7 @@ export async function ItemPricingCard({
 }: ItemPricingCardProps) {
   const ti = await getTranslations("inventory");
 
-  const partsTotal = repairParts.reduce((sum, p) => {
-    try {
-      return sum.plus(new Decimal(p.quantity).times(new Decimal(p.unitCost)));
-    } catch {
-      return sum;
-    }
-  }, new Decimal(0));
+  const partsTotal = calculatePartsTotal(repairParts);
   const hasPartsTotal = partsTotal.greaterThan(0);
   const hasRepairCost = !!item.repairCost && new Decimal(item.repairCost).gt(0);
   const showEffectiveCost =
@@ -46,14 +45,12 @@ export async function ItemPricingCard({
 
   const margin =
     item.soldPrice && item.effectiveCost
-      ? new Decimal(item.soldPrice).minus(item.effectiveCost)
+      ? calculateSaleMargin(item.soldPrice, item.effectiveCost)
       : null;
 
   const consignorPayout =
     item.soldPrice && item.consignmentRate
-      ? new Decimal(item.soldPrice)
-          .times(new Decimal(item.consignmentRate).div(100))
-          .toDecimalPlaces(2)
+      ? calculateConsignorPayout(item.soldPrice, item.consignmentRate)
       : null;
 
   return (
@@ -134,7 +131,7 @@ export async function ItemPricingCard({
                   {ti("consignorPayout")} ({item.consignmentRate}%)
                 </span>
                 <span className="font-medium text-warning">
-                  {formatCurrency(consignorPayout.toFixed(2))}
+                  {formatCurrency(consignorPayout)}
                 </span>
               </div>
             )}

@@ -65,6 +65,7 @@ import {
   QR_REFERENCE_TYPES,
   OPEN_STATUSES,
   NON_TERMINAL_STATUSES,
+  isValidDocumentTransition,
 } from "../config/document-constants";
 import { logger } from "../logger";
 import { AMOUNT_REGEX, QUANTITY_REGEX } from "../utils/validation-patterns";
@@ -165,25 +166,12 @@ export function calculateRepairLaborAmount(
 }
 
 // ============================================================================
-// DOCUMENT STATUS TRANSITIONS
+// DOCUMENT STATUS TRANSITIONS (SSOT: document-constants.ts)
 // ============================================================================
 
-const VALID_TRANSITIONS: Record<string, string[]> = {
-  draft: ["sent", "confirmed", "cancelled"],
-  sent: ["confirmed", "paid", "partially_paid", "overdue", "cancelled"],
-  confirmed: ["delivered", "paid", "partially_paid", "overdue", "cancelled"],
-  delivered: ["paid", "partially_paid", "overdue", "cancelled"],
-  partially_paid: ["paid", "overdue", "cancelled"],
-  overdue: ["paid", "partially_paid", "dunning_1", "cancelled"],
-  dunning_1: ["paid", "partially_paid", "dunning_2", "cancelled"],
-  dunning_2: ["paid", "partially_paid", "dunning_3", "cancelled"],
-  dunning_3: ["paid", "partially_paid", "cancelled"],
-  paid: [],
-  cancelled: [],
-};
-
+/** @deprecated Use isValidDocumentTransition from document-constants */
 export function isValidTransition(from: string, to: string): boolean {
-  return VALID_TRANSITIONS[from]?.includes(to) ?? false;
+  return isValidDocumentTransition(from, to);
 }
 
 // ============================================================================

@@ -1855,6 +1855,8 @@
     "repairImport": {
       "title": "Réparer l'import",
       "description": "Réimporter les lignes de position depuis les exports CSV Kivitendo",
+      "lineItemTitle": "Réparation des lignes de documents",
+      "lineItemDescription": "Corriger les lignes manquantes ou erronées sur des documents existants à partir d'un export Kivitendo",
       "productImport": {
         "title": "Importer des produits",
         "description": "Charger l'export produits Kivitendo (CSV) — crée les articles, groupes et fabricants, met à jour la séquence de numérotation.",

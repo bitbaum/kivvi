@@ -72,3 +72,54 @@ export const ACTIVE_STATUSES = ["draft", ...NON_TERMINAL_STATUSES] as const;
  * all posted transactions (VAT report, P&L, aging report).
  */
 export const ISSUED_STATUSES = [...NON_TERMINAL_STATUSES, "paid"] as const;
+
+/**
+ * Statuses from which no further workflow action is possible.
+ * Used in UI to hide action buttons and editing controls.
+ */
+export const TERMINAL_DOCUMENT_STATUSES = ["paid", "cancelled"] as const;
+
+/**
+ * Statuses where an invoice can be overdue (open balance, past due date).
+ * Alias of OPEN_STATUSES — use this name in nav badges and overdue counts.
+ */
+export const OVERDUE_ELIGIBLE_STATUSES = OPEN_STATUSES;
+
+/**
+ * Statuses that may display as overdue when past the due date.
+ * Includes dunning stages (still collectible).
+ */
+export const OVERDUE_CANDIDATE_STATUSES = [
+  ...OPEN_STATUSES,
+  "overdue",
+  "dunning_1",
+  "dunning_2",
+  "dunning_3",
+] as const;
+
+// ---------------------------------------------------------------------------
+// Document status transitions — SSOT for domain + UI validation
+// ---------------------------------------------------------------------------
+
+/**
+ * Valid document status transitions. Domain enforces these; UI actions must
+ * be a subset (each action.targetStatus must be in this list for from-status).
+ */
+export const VALID_DOCUMENT_TRANSITIONS: Record<string, string[]> = {
+  draft: ["sent", "confirmed", "cancelled"],
+  sent: ["confirmed", "paid", "partially_paid", "overdue", "cancelled"],
+  confirmed: ["delivered", "paid", "partially_paid", "overdue", "cancelled"],
+  delivered: ["paid", "partially_paid", "overdue", "cancelled"],
+  partially_paid: ["paid", "overdue", "cancelled"],
+  overdue: ["paid", "partially_paid", "dunning_1", "cancelled"],
+  dunning_1: ["paid", "partially_paid", "dunning_2", "cancelled"],
+  dunning_2: ["paid", "partially_paid", "dunning_3", "cancelled"],
+  dunning_3: ["paid", "partially_paid", "cancelled"],
+  paid: [],
+  cancelled: [],
+};
+
+/** Whether a document status transition is allowed by business rules. */
+export function isValidDocumentTransition(from: string, to: string): boolean {
+  return VALID_DOCUMENT_TRANSITIONS[from]?.includes(to) ?? false;
+}

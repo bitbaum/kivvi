@@ -33,6 +33,41 @@ import { logger } from "../logger";
 import { AMOUNT_REGEX, QUANTITY_REGEX } from "../utils/validation-patterns";
 import { dispatchWebhookEvent } from "./webhooks";
 
+export interface InventoryUpdateOptions {
+  /** When true, caller emits webhooks (e.g. coalesced API PATCH). */
+  skipWebhook?: boolean;
+}
+
+/** Standard webhook payload for inventory item events (revamp-it SSOT). */
+export function buildInventoryItemWebhookPayload(item: InventoryItem) {
+  return {
+    id: item.id,
+    itemNumber: item.itemNumber,
+    description: item.description,
+    condition: item.condition,
+    status: item.status,
+    warehouseId: item.warehouseId,
+    askingPrice: item.askingPrice,
+  };
+}
+
+function emitInventoryItemWebhook(
+  db: Database,
+  companyId: string,
+  event:
+    | "inventory_item.created"
+    | "inventory_item.updated"
+    | "inventory_item.status_changed",
+  item: InventoryItem,
+) {
+  dispatchWebhookEvent(
+    db,
+    companyId,
+    event,
+    buildInventoryItemWebhookPayload(item),
+  );
+}
+
 // ============================================================================
 // VALIDATION SCHEMAS
 // ============================================================================
@@ -138,6 +173,38 @@ export function calculateEffectiveCost(
   return base.plus(labour).plus(parts).toDecimalPlaces(2).toString();
 }
 
+/** Sum repair parts costs for display and margin calculation. */
+export function calculatePartsTotal(
+  parts: Array<{ quantity: number | string; unitCost: number | string }>,
+): Decimal {
+  return parts.reduce((sum, p) => {
+    try {
+      return sum.plus(new Decimal(p.quantity).times(new Decimal(p.unitCost)));
+    } catch {
+      return sum;
+    }
+  }, new Decimal(0));
+}
+
+/** Sale margin when both sold price and effective cost are known. */
+export function calculateSaleMargin(
+  soldPrice: string,
+  effectiveCost: string,
+): Decimal {
+  return new Decimal(soldPrice).minus(effectiveCost);
+}
+
+/** Consignor payout from sold price and consignment rate (percentage). */
+export function calculateConsignorPayout(
+  soldPrice: string,
+  consignmentRate: string,
+): string {
+  return new Decimal(soldPrice)
+    .times(new Decimal(consignmentRate).div(100))
+    .toDecimalPlaces(2)
+    .toString();
+}
+
 export interface PaginatedInventoryItems {
   data: InventoryItemWithDetails[];
   total: number;
@@ -186,13 +253,7 @@ export async function createInventoryItem(
   // of the new item. Emitted here — not in the caller — so every entry point
   // (dashboard action, /api/v1 route, AI tool) fires identically.
   dispatchWebhookEvent(db, companyId, "inventory_item.created", {
-    id: item.id,
-    itemNumber: item.itemNumber,
-    description: item.description,
-    condition: item.condition,
-    status: item.status,
-    warehouseId: item.warehouseId,
-    askingPrice: item.askingPrice,
+    ...buildInventoryItemWebhookPayload(item),
   });
 
   return item;
@@ -287,6 +348,7 @@ export async function updateInventoryItem(
   companyId: string,
   itemId: string,
   input: UpdateInventoryItemInput,
+  options?: InventoryUpdateOptions,
 ): Promise<InventoryItem> {
   const [updated] = await db
     .update(inventoryItems)
@@ -304,16 +366,9 @@ export async function updateInventoryItem(
 
   if (!updated) throw new Error("Inventory item not found");
 
-  // Post-write, best-effort webhook. Emitted here so all callers inherit it.
-  dispatchWebhookEvent(db, companyId, "inventory_item.updated", {
-    id: updated.id,
-    itemNumber: updated.itemNumber,
-    description: updated.description,
-    condition: updated.condition,
-    status: updated.status,
-    warehouseId: updated.warehouseId,
-    askingPrice: updated.askingPrice,
-  });
+  if (!options?.skipWebhook) {
+    emitInventoryItemWebhook(db, companyId, "inventory_item.updated", updated);
+  }
 
   return updated;
 }
@@ -324,6 +379,7 @@ export async function updateItemStatus(
   itemId: string,
   newStatus: (typeof ITEM_STATUS_VALUES)[number],
   userId?: string,
+  options?: InventoryUpdateOptions,
 ): Promise<InventoryItem> {
   // Fetch current item
   const [current] = await db
@@ -414,12 +470,14 @@ export async function updateItemStatus(
     )
     .returning();
 
-  // Post-write, best-effort webhook. Emitted here so all callers inherit it.
-  dispatchWebhookEvent(db, companyId, "inventory_item.status_changed", {
-    id: updated.id,
-    itemNumber: updated.itemNumber,
-    status: updated.status,
-  });
+  if (!options?.skipWebhook) {
+    emitInventoryItemWebhook(
+      db,
+      companyId,
+      "inventory_item.status_changed",
+      updated,
+    );
+  }
 
   return updated;
 }
@@ -442,6 +500,9 @@ export async function updateItemCondition(
     .returning();
 
   if (!updated) throw new Error("Inventory item not found");
+
+  emitInventoryItemWebhook(db, companyId, "inventory_item.updated", updated);
+
   return updated;
 }
 
@@ -525,6 +586,15 @@ export async function sellInventoryItem(
       ),
     )
     .returning();
+
+  if (updated) {
+    emitInventoryItemWebhook(
+      db,
+      companyId,
+      "inventory_item.status_changed",
+      updated,
+    );
+  }
 
   return updated;
 }

@@ -1909,6 +1909,8 @@
     "repairImport": {
       "title": "Import reparieren",
       "description": "Positionszeilen aus Kivitendo CSV-Exporten erneut importieren",
+      "lineItemTitle": "Beleg-Positionsreparatur",
+      "lineItemDescription": "Fehlende oder fehlerhafte Positionen auf bestehenden Belegen aus einem Kivitendo-Export korrigieren",
       "productImport": {
         "title": "Produkte importieren",
         "description": "Kivitendo-Produktexport (CSV) laden — Artikelstamm, Warengruppen und Hersteller werden angelegt, Nummernkreis wird angepasst.",

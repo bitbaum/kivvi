@@ -215,7 +215,6 @@ describe("recordMarketplaceAgencySaleSchema", () => {
     if (result.success) {
       expect(result.data.commissionAmount).toBe("0");
       expect(result.data.commissionVatAmount).toBe("0");
-      // sellerPayout would be the full gross.
       expect(
         new Decimal(result.data.grossAmount)
           .minus(result.data.commissionAmount)
@@ -223,5 +222,29 @@ describe("recordMarketplaceAgencySaleSchema", () => {
           .toFixed(2),
       ).toBe("50.00");
     }
+  });
+
+  it("rejects mismatched sellerPayout when provided", () => {
+    const result = recordMarketplaceAgencySaleSchema.safeParse({
+      orderReference: "MO-Z",
+      date: "2026-04-13",
+      grossAmount: "110.81",
+      commissionAmount: "10.00",
+      commissionVatAmount: "0.81",
+      sellerPayout: "90.00",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts sellerPayout when it balances gross, commission, and VAT", () => {
+    const result = recordMarketplaceAgencySaleSchema.safeParse({
+      orderReference: "MO-Z",
+      date: "2026-04-13",
+      grossAmount: "110.81",
+      commissionAmount: "10.00",
+      commissionVatAmount: "0.81",
+      sellerPayout: "100.00",
+    });
+    expect(result.success).toBe(true);
   });
 });

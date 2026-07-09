@@ -5,7 +5,12 @@
  * SSOT for overdue determination. Used by:
  * - packages/core/src/domain/documents.ts (getOverdueInfo re-exports this)
  * - Client components that need overdue status
+ * - Nav badge counts (via OVERDUE_ELIGIBLE_STATUSES in document-constants)
  */
+
+import { OVERDUE_CANDIDATE_STATUSES } from "../config/document-constants";
+
+const OVERDUE_STATUS_SET = new Set<string>(OVERDUE_CANDIDATE_STATUSES);
 
 export function getOverdueInfo(doc: {
   status: string;
@@ -15,9 +20,7 @@ export function getOverdueInfo(doc: {
   daysOverdue: number;
 } {
   const isOverdue =
-    doc.status !== "paid" &&
-    doc.status !== "cancelled" &&
-    doc.status !== "draft" &&
+    OVERDUE_STATUS_SET.has(doc.status) &&
     !!doc.dueDate &&
     new Date(doc.dueDate) < new Date();
 
