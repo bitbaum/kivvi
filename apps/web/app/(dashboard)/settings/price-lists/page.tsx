@@ -30,7 +30,7 @@ export default async function PriceListsPage() {
         }
       />
 
-      <div className="rounded-xl border bg-card">
+      <div className="overflow-x-auto rounded-xl border bg-card">
         {lists.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
             <Tag className="h-12 w-12 text-muted-foreground/50" />
@@ -45,7 +45,7 @@ export default async function PriceListsPage() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-[2fr_1fr_1fr_auto] gap-4 border-b px-6 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            <div className="grid grid-cols-[2fr_1fr_1fr_auto] gap-4 border-b px-6 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground min-w-[560px]">
               <div>{t("fieldName")}</div>
               <div>{t("fieldCurrency")}</div>
               <div>{t("rules")}</div>

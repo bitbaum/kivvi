@@ -13,7 +13,7 @@ export function PriceListRow({ list, defaultBadge }: Props) {
   return (
     <Link
       href={`/settings/price-lists/${list.id}`}
-      className="grid grid-cols-[2fr_1fr_1fr_auto] gap-4 px-6 py-4 items-center hover:bg-muted/50 transition-colors"
+      className="grid grid-cols-[2fr_1fr_1fr_auto] gap-4 px-6 py-4 items-center hover:bg-muted/50 transition-colors min-w-[560px]"
     >
       <div className="flex items-center gap-2 font-medium">
         {list.name}

@@ -22,7 +22,7 @@ export default function Loading() {
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border bg-card">
+      <div className="overflow-x-auto rounded-xl border bg-card">
         {/* Table header */}
         <div className="grid grid-cols-[80px_1fr_auto_auto_auto] gap-4 border-b px-6 py-3">
           <Skeleton className="h-3 w-12" />

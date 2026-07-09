@@ -8,6 +8,7 @@ import { getTranslations } from "next-intl/server";
 import { DEFAULT_PAGE_SIZE } from "@/lib/config/document-types";
 import { SOURCE_TYPE_STYLES, getSourceTypeLabels } from "@/lib/config/journal";
 import { PageHeader } from "@/components/page-header";
+import { Button } from "@/components/ui/button";
 import { JournalEntriesTable } from "./journal-entries-table";
 
 interface PageProps {
@@ -57,13 +58,12 @@ export default async function JournalPage({ searchParams }: PageProps) {
               <Download className="h-4 w-4" />
               {tc("exportCsv")}
             </a>
-            <Link
-              href="/accounting/journal/new"
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-            >
-              <Plus className="h-4 w-4" />
-              {t("newJournalEntry")}
-            </Link>
+            <Button asChild>
+              <Link href="/accounting/journal/new">
+                <Plus className="h-4 w-4" />
+                {t("newJournalEntry")}
+              </Link>
+            </Button>
           </>
         }
       />

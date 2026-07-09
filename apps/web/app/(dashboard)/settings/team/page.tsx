@@ -12,6 +12,7 @@ import {
   X,
 } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
+import { Button } from "@/components/ui/button";
 import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
 import {
   getTeamMembersAction,
@@ -129,13 +130,10 @@ export default function TeamPage() {
         title={t("title")}
         subtitle={t("subtitle")}
         actions={
-          <button
-            onClick={() => setShowInviteForm(true)}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-          >
+          <Button onClick={() => setShowInviteForm(true)}>
             <UserPlus className="h-4 w-4" />
             {t("invite")}
-          </button>
+          </Button>
         }
       />
 

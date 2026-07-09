@@ -15,6 +15,7 @@ import { SeedButton } from "./seed-button";
 import { AccountForm } from "./account-form";
 import { ToggleButton } from "./toggle-button";
 import { getTranslations } from "next-intl/server";
+import { Button } from "@/components/ui/button";
 
 interface PageProps {
   searchParams: Promise<{
@@ -84,17 +85,18 @@ export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
         </div>
         <div className="flex items-center gap-3">
           {isEmpty && <SeedButton />}
-          <Link
-            href={
-              showAddForm
-                ? "/accounting/chart-of-accounts"
-                : "/accounting/chart-of-accounts?add=1"
-            }
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-          >
-            <Plus className="h-4 w-4" />
-            {t("addAccount")}
-          </Link>
+          <Button asChild>
+            <Link
+              href={
+                showAddForm
+                  ? "/accounting/chart-of-accounts"
+                  : "/accounting/chart-of-accounts?add=1"
+              }
+            >
+              <Plus className="h-4 w-4" />
+              {t("addAccount")}
+            </Link>
+          </Button>
         </div>
       </div>
 
@@ -178,7 +180,7 @@ export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
           </div>
 
           {/* Table */}
-          <div className="rounded-xl border bg-card">
+          <div className="overflow-x-auto rounded-xl border bg-card">
             {accounts.length === 0 ? (
               <EmptyState
                 icon={Search}
@@ -188,7 +190,7 @@ export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
             ) : (
               <>
                 {/* Table header */}
-                <div className="grid grid-cols-[80px_1fr_auto_auto_auto] gap-4 border-b px-6 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                <div className="grid grid-cols-[80px_1fr_auto_auto_auto] gap-4 border-b px-6 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground min-w-[720px]">
                   <div>{t("accountCode")}</div>
                   <div>{tc("name")}</div>
                   <div>{tc("type")}</div>
@@ -208,7 +210,7 @@ export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
                       <div
                         key={account.id}
                         className={cn(
-                          "grid grid-cols-[80px_1fr_auto_auto_auto] gap-4 px-6 py-4 transition-colors hover:bg-muted/50",
+                          "grid grid-cols-[80px_1fr_auto_auto_auto] gap-4 px-6 py-4 transition-colors hover:bg-muted/50 min-w-[720px]",
                           !account.isActive && "opacity-60",
                         )}
                       >

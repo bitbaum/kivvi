@@ -1,7 +1,7 @@
 # Codebase Audit Report
 
 **last_modified_date**: 2026-07-09
-**last_modified_summary**: Phase 1 UI migration — all settings subpages use SettingsSubpageHeader; CsvDropZone wired into inventory and product import panels. Phase 2: idempotency on PATCH/PUT, OpenAPI webhooks docs, list page Buttons, POS responsive, revamp-it syncP2POrderToKivvi.
+**last_modified_summary**: Phase 3 complete — data-repair domain extraction, DocumentList→PageHeader, responsive fixed-grid tables, dashboard Button migration; revamp-it P2P payout on CONFIRMED. Prod env/webhook wiring remains ops checklist (§3.2).
 **Previous Audit**: 2026-04-23
 **Auditor**: Claude (Cursor Agent)
 **Branch**: main
@@ -19,13 +19,13 @@ This pass **fixed critical integration and correctness issues** and established 
 
 ## Health Score
 
-| Area                              | Before     | After (this pass) | Notes                                                                    |
-| --------------------------------- | ---------- | ----------------- | ------------------------------------------------------------------------ |
-| First Principles (SSOT, layering) | 8.5/10     | **9.2/10**        | Transitions + overdue centralized; nav badges in domain                  |
-| Best Practices                    | 9.0/10     | **9.3/10**        | Webhook coalescing; P2P gross invariant                                  |
-| revamp-it Integration             | 7.5/10     | **8.5/10**        | Full webhook payload; sellInventoryItem emits; OpenAPI transitions fixed |
-| UI/UX & Responsive                | 8.0/10     | **8.4/10**        | SettingsSubpageHeader + BackButton; repair-import i18n fix               |
-| **Overall**                       | **8.5/10** | **9.0/10**        | Production-ready; revamp-it wiring still pending                         |
+| Area                              | Before     | After (this pass) | Notes                                                                              |
+| --------------------------------- | ---------- | ----------------- | ---------------------------------------------------------------------------------- |
+| First Principles (SSOT, layering) | 8.5/10     | **9.2/10**        | Transitions + overdue centralized; nav badges in domain                            |
+| Best Practices                    | 9.0/10     | **9.3/10**        | Webhook coalescing; P2P gross invariant                                            |
+| revamp-it Integration             | 7.5/10     | **8.5/10**        | Full webhook payload; sellInventoryItem emits; OpenAPI transitions fixed           |
+| UI/UX & Responsive                | 8.0/10     | **8.8/10**        | PageHeader on doc lists; overflow-x-auto on fixed grids; Button on dashboard lists |
+| **Overall**                       | **8.5/10** | **9.2/10**        | Code complete; prod webhook/env wiring is ops-only (§3.2)                          |
 
 ---
 
@@ -150,9 +150,14 @@ pnpm type-check                 → 4/4 packages green
 - [x] Shared BackButton / SettingsSubpageHeader / CsvDropZone
 - [x] OpenAPI transition diagram fix
 - [x] Migrate all settings subpages to SettingsSubpageHeader
-- [x] Wire CsvDropZone into import panels (inventory + product)
-- [ ] Button migration on remaining list pages
-- [ ] revamp-it syncP2POrderToKivvi + webhook receiver deploy
-- [ ] OpenAPI webhooks + idempotency documentation
-- [ ] data-repair domain extraction
-- [ ] Responsive POS + fixed-grid tables
+- [x] Button migration on main list pages (contacts, products, projects, intake items)
+- [x] OpenAPI webhooks + idempotency documentation
+- [x] Idempotency on PATCH inventory + PUT document status
+- [x] POS responsive layout (stack on mobile)
+- [x] revamp-it `syncP2POrderToKivvi` + `recordKivviPayout` on CONFIRMED
+- [x] data-repair domain extraction (`packages/core/src/domain/data-repair.ts`)
+- [x] DocumentList → PageHeader (all sales/intake doc routes via shared component)
+- [x] Responsive fixed-grid tables (chart-of-accounts, price-lists, sequences)
+- [x] Dashboard list Button migration (contacts, products, projects, intake, journal, chart-of-accounts, team)
+- [ ] revamp-it + Kivvi prod deploy + env/webhook configuration (§3.2 — requires secrets)
+- [ ] Defer `sellInventoryItem` until invoice sent/paid (owned-stock timing — architectural)

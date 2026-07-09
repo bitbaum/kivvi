@@ -38,8 +38,8 @@ export function PriceRulesTable({ rules, priceListId }: Props) {
   }
 
   return (
-    <div>
-      <div className="grid grid-cols-[2fr_1.5fr_1fr_1fr_auto] gap-4 border-b px-6 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+    <div className="overflow-x-auto">
+      <div className="grid grid-cols-[2fr_1.5fr_1fr_1fr_auto] gap-4 border-b px-6 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground min-w-[640px]">
         <div>{t("ruleProduct")}</div>
         <div>{t("ruleType")}</div>
         <div>{t("ruleValue")}</div>
@@ -50,7 +50,7 @@ export function PriceRulesTable({ rules, priceListId }: Props) {
         {rules.map((rule) => (
           <div
             key={rule.id}
-            className="grid grid-cols-[2fr_1.5fr_1fr_1fr_auto] gap-4 px-6 py-3 items-center text-sm"
+            className="grid grid-cols-[2fr_1.5fr_1fr_1fr_auto] gap-4 px-6 py-3 items-center text-sm min-w-[640px]"
           >
             <div className="font-medium">
               {rule.productName ?? t("allProducts")}

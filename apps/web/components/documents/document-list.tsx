@@ -13,6 +13,7 @@ import { documentStatusEnum } from "@kivvi/database";
 import { SelectableDocumentTable } from "./selectable-document-table";
 import { cn, paginationRange } from "@/lib/utils";
 import { EmptyState } from "@/components/empty-state";
+import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 
 interface DocumentListProps {
@@ -118,26 +119,23 @@ export async function DocumentList({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">{t(config.labelPlural)}</h1>
-          <p className="text-muted-foreground">
-            {t("manageAndTrack", { type: t(config.labelPlural) })}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          {headerActions}
-          {config.canCreate && (
-            <Button asChild>
-              <Link href={`${config.basePath}/new`}>
-                <Plus className="h-4 w-4" />
-                {t("newDocument", { type: t(config.label) })}
-              </Link>
-            </Button>
-          )}
-        </div>
-      </div>
+      <PageHeader
+        title={t(config.labelPlural)}
+        subtitle={t("manageAndTrack", { type: t(config.labelPlural) })}
+        actions={
+          <>
+            {headerActions}
+            {config.canCreate && (
+              <Button asChild>
+                <Link href={`${config.basePath}/new`}>
+                  <Plus className="h-4 w-4" />
+                  {t("newDocument", { type: t(config.label) })}
+                </Link>
+              </Button>
+            )}
+          </>
+        }
+      />
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">
