@@ -145,7 +145,7 @@ export default function PosPage() {
   const cartIds = new Set(cart.map((c) => c.id));
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] gap-4 overflow-hidden">
+    <div className="flex h-[calc(100vh-8rem)] flex-col gap-4 overflow-hidden lg:flex-row">
       <div className="flex flex-1 flex-col gap-4 overflow-hidden">
         <PosSearch
           query={query}

@@ -15,6 +15,7 @@ import {
 } from "@/lib/config/project-status";
 import { DEFAULT_PAGE_SIZE } from "@/lib/config/document-types";
 import { PageHeader } from "@/components/page-header";
+import { Button } from "@/components/ui/button";
 import { Pagination } from "@/components/pagination";
 
 interface PageProps {
@@ -52,13 +53,12 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
         title={t("title")}
         subtitle={t("subtitle")}
         actions={
-          <Link
-            href="/projects/new"
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-          >
-            <Plus className="h-4 w-4" />
-            {t("newProject")}
-          </Link>
+          <Button asChild>
+            <Link href="/projects/new">
+              <Plus className="h-4 w-4" />
+              {t("newProject")}
+            </Link>
+          </Button>
         }
       />
 

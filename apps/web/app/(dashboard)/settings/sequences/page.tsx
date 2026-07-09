@@ -36,7 +36,7 @@ export default async function SequencesSettingsPage() {
       />
 
       {/* Sequences table */}
-      <div className="rounded-xl border bg-card">
+      <div className="overflow-x-auto rounded-xl border bg-card">
         {sequences.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
             <Hash className="h-12 w-12 text-muted-foreground/50" />

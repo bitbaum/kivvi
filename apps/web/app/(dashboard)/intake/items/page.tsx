@@ -13,6 +13,7 @@ import {
   listWarehouses,
 } from "@kivvi/core";
 import { PageHeader } from "@/components/page-header";
+import { Button } from "@/components/ui/button";
 import { Pagination } from "@/components/pagination";
 import { EmptyState } from "@/components/empty-state";
 import {
@@ -104,7 +105,7 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
         title={ti("itemsTitle")}
         subtitle={ti("itemsTracked", { count: totalItems })}
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <InventoryItemsExportButton
               totalCount={totalItems}
               filters={{
@@ -115,33 +116,34 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
                 warehouseId: warehouseId,
               }}
             />
-            <Link
-              href="/intake/repair-queue"
+            <Button
+              asChild
+              variant={(counts["repair"] ?? 0) > 0 ? "outline" : "secondary"}
               className={
                 (counts["repair"] ?? 0) > 0
-                  ? "inline-flex items-center gap-2 rounded-lg border border-warning/30 bg-warning/5 px-4 py-2 text-sm font-medium text-warning hover:bg-warning/10 transition-colors"
-                  : "inline-flex items-center gap-2 rounded-lg border border-input bg-background px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-accent transition-colors"
+                  ? "border-warning/30 bg-warning/5 text-warning hover:bg-warning/10"
+                  : undefined
               }
             >
-              <Wrench className="h-4 w-4" />
-              {(counts["repair"] ?? 0) > 0
-                ? `${ti("repairQueue")} (${counts["repair"]})`
-                : ti("repairQueue")}
-            </Link>
-            <Link
-              href="/intake/items/import"
-              className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-accent transition-colors"
-            >
-              <Upload className="h-4 w-4" />
-              {ti("importItems")}
-            </Link>
-            <Link
-              href="/intake/new"
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-            >
-              <Plus className="h-4 w-4" />
-              {ti("newIntake")}
-            </Link>
+              <Link href="/intake/repair-queue">
+                <Wrench className="h-4 w-4" />
+                {(counts["repair"] ?? 0) > 0
+                  ? `${ti("repairQueue")} (${counts["repair"]})`
+                  : ti("repairQueue")}
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/intake/items/import">
+                <Upload className="h-4 w-4" />
+                {ti("importItems")}
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link href="/intake/new">
+                <Plus className="h-4 w-4" />
+                {ti("newIntake")}
+              </Link>
+            </Button>
           </div>
         }
       />

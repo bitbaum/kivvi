@@ -11,6 +11,7 @@ import { DEFAULT_PAGE_SIZE } from "@/lib/config/document-types";
 import { getProductTypeLabels } from "@/lib/config/products";
 import { paginationRange } from "@/lib/utils";
 import { PageHeader } from "@/components/page-header";
+import { Button } from "@/components/ui/button";
 import { SelectableProductTable } from "@/components/products/selectable-product-table";
 import { Pagination } from "@/components/pagination";
 import { ProductExportButton } from "@/components/products/product-export-button";
@@ -177,13 +178,12 @@ export default async function ProductsPage({ searchParams }: PageProps) {
               totalCount={result.total}
               filters={{ search: search || undefined }}
             />
-            <Link
-              href="/products/new"
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-            >
-              <Plus className="h-4 w-4" />
-              {t("newProduct")}
-            </Link>
+            <Button asChild>
+              <Link href="/products/new">
+                <Plus className="h-4 w-4" />
+                {t("newProduct")}
+              </Link>
+            </Button>
           </>
         }
       />

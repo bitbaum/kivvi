@@ -8,6 +8,7 @@ import {
   apiSuccess,
   apiZodError,
 } from "@/lib/api-handler";
+import { withIdempotency } from "@/lib/api-idempotency";
 import {
   getInventoryItem,
   updateInventoryItem,
@@ -19,7 +20,6 @@ import { dispatchWebhookEvent } from "@kivvi/core/src/domain/webhooks";
 import { ITEM_STATUS_VALUES } from "@kivvi/database/src/enums";
 
 const patchSchema = updateInventoryItemSchema.extend({
-  // Allow status transitions via PATCH — validated against allowed transitions in domain
   status: z.enum(ITEM_STATUS_VALUES).optional(),
 });
 
@@ -48,45 +48,49 @@ export async function PATCH(
     const ctx = await authenticateApi(request, "member");
     if (ctx instanceof Response) return ctx;
 
-    const body = await request.json();
-    const parsed = patchSchema.safeParse(body);
-    if (!parsed.success) {
-      return apiZodError(parsed.error, "body");
-    }
+    return withIdempotency(request, ctx.companyId, async () => {
+      const body = await request.json();
+      const parsed = patchSchema.safeParse(body);
+      if (!parsed.success) {
+        return apiZodError(parsed.error, "body");
+      }
 
-    const { status, ...fields } = parsed.data;
-    const hasOtherFields = Object.keys(fields).length > 0;
+      const { status, ...fields } = parsed.data;
+      const hasOtherFields = Object.keys(fields).length > 0;
 
-    // Coalesce webhooks: one PATCH → at most one event (status_changed wins).
-    if (status) {
-      await updateItemStatus(db, ctx.companyId, params.id, status, undefined, {
-        skipWebhook: true,
-      });
-    }
+      if (status) {
+        await updateItemStatus(
+          db,
+          ctx.companyId,
+          params.id,
+          status,
+          undefined,
+          { skipWebhook: true },
+        );
+      }
 
-    const updated = hasOtherFields
-      ? await updateInventoryItem(db, ctx.companyId, params.id, fields, {
-          skipWebhook: true,
-        })
-      : status
-        ? await getInventoryItem(db, ctx.companyId, params.id)
+      const updated = hasOtherFields
+        ? await updateInventoryItem(db, ctx.companyId, params.id, fields, {
+            skipWebhook: true,
+          })
         : await getInventoryItem(db, ctx.companyId, params.id);
 
-    if (!updated) return apiError("Inventory item not found", 404);
+      if (!updated) return apiError("Inventory item not found", 404);
 
-    if (status || hasOtherFields) {
-      const event = status
-        ? "inventory_item.status_changed"
-        : "inventory_item.updated";
-      await dispatchWebhookEvent(
-        db,
-        ctx.companyId,
-        event,
-        buildInventoryItemWebhookPayload(updated),
-      );
-    }
+      if (status || hasOtherFields) {
+        const event = status
+          ? "inventory_item.status_changed"
+          : "inventory_item.updated";
+        await dispatchWebhookEvent(
+          db,
+          ctx.companyId,
+          event,
+          buildInventoryItemWebhookPayload(updated),
+        );
+      }
 
-    return apiSuccess(updated);
+      return apiSuccess(updated);
+    });
   } catch (error) {
     const message =
       error instanceof Error

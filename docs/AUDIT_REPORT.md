@@ -1,7 +1,7 @@
 # Codebase Audit Report
 
 **last_modified_date**: 2026-07-09
-**last_modified_summary**: Phase 1 UI migration — all settings subpages use SettingsSubpageHeader; CsvDropZone wired into inventory and product import panels.
+**last_modified_summary**: Phase 1 UI migration — all settings subpages use SettingsSubpageHeader; CsvDropZone wired into inventory and product import panels. Phase 2: idempotency on PATCH/PUT, OpenAPI webhooks docs, list page Buttons, POS responsive, revamp-it syncP2POrderToKivvi.
 **Previous Audit**: 2026-04-23
 **Auditor**: Claude (Cursor Agent)
 **Branch**: main
@@ -149,8 +149,9 @@ pnpm type-check                 → 4/4 packages green
 - [x] P2P sellerPayout validation
 - [x] Shared BackButton / SettingsSubpageHeader / CsvDropZone
 - [x] OpenAPI transition diagram fix
-- [ ] Migrate all settings subpages to SettingsSubpageHeader
-- [ ] Wire CsvDropZone into import panels
+- [x] Migrate all settings subpages to SettingsSubpageHeader
+- [x] Wire CsvDropZone into import panels (inventory + product)
+- [ ] Button migration on remaining list pages
 - [ ] revamp-it syncP2POrderToKivvi + webhook receiver deploy
 - [ ] OpenAPI webhooks + idempotency documentation
 - [ ] data-repair domain extraction

@@ -6,6 +6,7 @@ import {
   apiInternalError,
   apiSuccess,
 } from "@/lib/api-handler";
+import { withIdempotency } from "@/lib/api-idempotency";
 import {
   getDocument,
   updateDocument,
@@ -40,21 +41,23 @@ export async function PUT(
     if (ctx instanceof Response) return ctx;
 
     const { id } = await params;
-    const body = await request.json();
 
-    // If the body contains a 'status' field, use the status transition function
-    if (body.status && Object.keys(body).length === 1) {
-      const doc = await updateDocumentStatus(
-        db,
-        ctx.companyId,
-        id,
-        body.status,
-      );
+    return withIdempotency(request, ctx.companyId, async () => {
+      const body = await request.json();
+
+      if (body.status && Object.keys(body).length === 1) {
+        const doc = await updateDocumentStatus(
+          db,
+          ctx.companyId,
+          id,
+          body.status,
+        );
+        return apiSuccess(doc);
+      }
+
+      const doc = await updateDocument(db, ctx.companyId, id, body);
       return apiSuccess(doc);
-    }
-
-    const doc = await updateDocument(db, ctx.companyId, id, body);
-    return apiSuccess(doc);
+    });
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Failed to update document";
