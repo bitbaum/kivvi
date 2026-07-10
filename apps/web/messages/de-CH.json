@@ -50,6 +50,7 @@
     "clear": "Zurücksetzen",
     "selected": "ausgewählt",
     "items": "Artikel",
+    "contacts": "Kontakte",
     "view": "Anzeigen",
     "create": "Erstellen",
     "back": "Zurück",
@@ -524,6 +525,83 @@
       "openAIChatDesc": "Mit dem KI-Assistenten chatten",
       "showAll": "Alle anzeigen",
       "showLess": "Weniger anzeigen"
+    },
+    "revampitHub": {
+      "eyebrow": "revamp-it ERP-Begleiter",
+      "title": "Kivitendo-Aufgaben in Kivvi erledigen",
+      "subtitle": "Nutzen Sie Kivvi für die ERP-Arbeit rund um revamp-it: Inventar, Finanzkontakte, Dokumente, Zahlungen, Banking, Buchhaltung, Auswertungen und sichere Integrationsrückmeldungen. revamp-it behält die eigene App und Workflows.",
+      "askKivvi": "Kivvi fragen",
+      "inventory": {
+        "title": "Wareneingang und Status",
+        "description": "ERP-Artikeldaten, Reparaturstatus, Wert, Lagerort und Lebenszyklus erfassen, ohne den Marketplace-Backend zu verschieben.",
+        "primary": "Schnelleingang",
+        "secondary": "Inventar"
+      },
+      "contacts": {
+        "title": "Finanzkontakte",
+        "description": "Buchhalterische Gegenparteien für Kunden, Spender, Lieferanten, Verkäufer und Teilnehmende pflegen.",
+        "primary": "Kontakte öffnen",
+        "secondary": "Neuer Kontakt"
+      },
+      "sales": {
+        "title": "Rechnungen und Zahlungen",
+        "description": "Schweizer Dokumente, QR-Rechnungen, Gutschriften, Zahlungserfassung und Mahnwesen abwickeln.",
+        "primary": "Rechnungen",
+        "secondary": "Neue Rechnung"
+      },
+      "service": {
+        "title": "Reparaturen und Dienstleistungen",
+        "description": "Reparaturarbeit, IT-Hilfe, Workshops und Termine als nachvollziehbaren Dienstleistungsumsatz buchen.",
+        "primary": "Reparaturen",
+        "secondary": "Reparaturqueue"
+      },
+      "money": {
+        "title": "Banking und Buchhaltung",
+        "description": "Zahlungen zuordnen, Bankbewegungen importieren, Journal prüfen und MWST/Buchhaltung aktuell halten.",
+        "primary": "Money Hub",
+        "secondary": "Banking"
+      },
+      "purchasing": {
+        "title": "Einkauf und Kreditoren",
+        "description": "Lieferantenrechnungen, Bestellungen, Teilekosten und Verbindlichkeiten in der ERP-Schicht verfolgen.",
+        "primary": "Eingangsrechnungen",
+        "secondary": "Bestellungen"
+      },
+      "reports": {
+        "title": "Auswertungen und Compliance",
+        "description": "Umsatz, Fälligkeiten, MWST, Erfolgsrechnung, Bilanz, Impact und Betriebszustand prüfen.",
+        "primary": "Berichte",
+        "secondary": "MWST-Bericht"
+      },
+      "integrations": {
+        "title": "revamp-it Integrationsstatus",
+        "description": "API-Tokens, Webhooks, replay-sichere Ereignisse und Diagnosen für die ERP-Projektion verwalten.",
+        "primary": "Webhooks",
+        "secondary": "API-Tokens"
+      }
+    },
+    "revampitIntegrationHealth": {
+      "title": "Zustand der revamp-it ERP-Projektion",
+      "subtitle": "Prüfen, ob revamp-it finanzrelevante Ereignisse sicher nach Kivvi schreiben und signierte ERP-Rückmeldungen ohne manuelle Überwachung empfangen kann.",
+      "status": {
+        "healthy": "Integration gesund",
+        "warning": "Wiederherstellung offen",
+        "error": "Setup- oder Zustellproblem"
+      },
+      "webhooks": "Webhooks",
+      "apiTokens": "API-Tokens",
+      "metrics": {
+        "tokens": "Aktive API-Tokens",
+        "tokensDetail": "Für eingehende ERP-Schreibvorgänge aus revamp-it",
+        "endpoints": "Aktive Webhooks",
+        "endpointsDetail": "Signierte Rückmelde-Endpunkte konfiguriert",
+        "retries": "Offene Wiederholungen",
+        "failures": "{count, plural, one {# aufgegebene Zustellung} other {# aufgegebene Zustellungen}}",
+        "replay": "Replay-sichere Writes heute",
+        "pendingReplay": "{count, plural, one {# offener Idempotency-Key} other {# offene Idempotency-Keys}}"
+      },
+      "lastWebhook": "Letzter ausgehender Webhook: {value}",
+      "lastApiWrite": "Letzter eingehender API-Write: {value}"
     },
     "alerts": {
       "title": "Warnungen & Benachrichtigungen",

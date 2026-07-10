@@ -8,6 +8,8 @@ import {
   RecentActivity,
   AIAssistantPrompt,
   QuickActions,
+  RevampitIntegrationHealth,
+  RevampitWorkflowHub,
   WelcomeSection,
 } from "./sections";
 import { InventoryOverview } from "./sections/inventory-overview";
@@ -58,6 +60,16 @@ export default async function DashboardPage() {
 
       {/* Feature hint: Cmd+K */}
       <CmdKHint />
+
+      {/* Revamp-it ERP companion workflow map */}
+      <RevampitWorkflowHub />
+
+      {/* Revamp-it ERP projection diagnostics */}
+      <ErrorBoundary>
+        <Suspense fallback={null}>
+          <RevampitIntegrationHealth />
+        </Suspense>
+      </ErrorBoundary>
 
       {/* Section 1: "Good morning. Here's what matters." */}
       <ErrorBoundary>

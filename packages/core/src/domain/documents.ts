@@ -600,20 +600,31 @@ export async function createDocument(
   return doc;
 }
 
-async function getOrCreateRepairLaborProduct(
+/**
+ * Get or create a company-scoped service product, keyed by SKU. Service-type
+ * products route their invoice revenue to the service revenue account (3200)
+ * instead of goods revenue (3000). Used by repair-labor billing and the
+ * revamp-it service-sale bridge — one shared helper, one behaviour (DRY).
+ */
+export async function getOrCreateServiceProduct(
   db: Database,
   companyId: string,
-  hourlyRate: string,
-  vatRate: string,
+  opts: {
+    sku: string;
+    name: string;
+    description?: string;
+    unitPrice: string;
+    vatRate: string;
+    unit?: string;
+  },
 ): Promise<string> {
-  const sku = "repair-labor";
   const [existing] = await db
     .select({ id: products.id })
     .from(products)
     .where(
       and(
         eq(products.companyId, companyId),
-        eq(products.sku, sku),
+        eq(products.sku, opts.sku),
         eq(products.type, "service"),
       ),
     )
@@ -625,20 +636,36 @@ async function getOrCreateRepairLaborProduct(
     .insert(products)
     .values({
       companyId,
-      sku,
-      name: "Repair labor",
-      description: "Tracked repair labor billed from inventory repairs",
+      sku: opts.sku,
+      name: opts.name,
+      description: opts.description ?? null,
       type: "service",
-      unitPrice: hourlyRate,
+      unitPrice: opts.unitPrice,
       currency: DEFAULT_CURRENCY,
-      vatRate,
-      unit: "hour",
+      vatRate: opts.vatRate,
+      unit: opts.unit ?? "unit",
       isActive: true,
       shopVisible: false,
     })
     .returning({ id: products.id });
 
   return created.id;
+}
+
+function getOrCreateRepairLaborProduct(
+  db: Database,
+  companyId: string,
+  hourlyRate: string,
+  vatRate: string,
+): Promise<string> {
+  return getOrCreateServiceProduct(db, companyId, {
+    sku: "repair-labor",
+    name: "Repair labor",
+    description: "Tracked repair labor billed from inventory repairs",
+    unitPrice: hourlyRate,
+    vatRate,
+    unit: "hour",
+  });
 }
 
 /**

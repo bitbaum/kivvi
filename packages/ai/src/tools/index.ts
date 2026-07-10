@@ -48,6 +48,8 @@ import { resolveProductPriceTool } from "./resolve-product-price";
 import { createPriceRuleTool } from "./create-price-rule";
 import { createPriceListTool } from "./create-price-list";
 import { searchRepairOrdersTool } from "./search-repair-orders";
+import { classifyPaymentTool } from "./classify-payment";
+import { findUninvoicedRepairLaborTool } from "./find-uninvoiced-repair-labor";
 
 export {
   searchInvoicesTool,
@@ -96,6 +98,8 @@ export {
   createPriceRuleTool,
   createPriceListTool,
   searchRepairOrdersTool,
+  classifyPaymentTool,
+  findUninvoicedRepairLaborTool,
 };
 
 export function getDefaultTools(): Tool[] {
@@ -146,6 +150,8 @@ export function getDefaultTools(): Tool[] {
     createPriceRuleTool,
     createPriceListTool,
     searchRepairOrdersTool,
+    classifyPaymentTool,
+    findUninvoicedRepairLaborTool,
   ];
 }
 

@@ -1,7 +1,7 @@
 # Codebase Audit Report
 
 **last_modified_date**: 2026-07-09
-**last_modified_summary**: Phase 3 complete — data-repair domain extraction, DocumentList→PageHeader, responsive fixed-grid tables, dashboard Button migration; revamp-it P2P payout on CONFIRMED. Prod env/webhook wiring remains ops checklist (§3.2).
+**last_modified_summary**: revamp-it boundary clarified: Kivvi is the ERP companion replacing kivitendo, not revamp-it's operational backend. Prod env/webhook wiring remains ops checklist (§3.2).
 **Previous Audit**: 2026-04-23
 **Auditor**: Claude (Cursor Agent)
 **Branch**: main
@@ -101,7 +101,7 @@ This pass **fixed critical integration and correctness issues** and established 
 
 ### Phase 5 — Strategic
 
-1. Collapse revamp-it dual-write (storefront reads owned-item facts live from Kivvi).
+1. Harden revamp-it ↔ Kivvi reconciliation/read models so revamp-it keeps its operational database while Kivvi stays the ERP projection and accounting record.
 2. OpenAPI schemas generated from Zod/Drizzle (eliminate manual drift).
 3. Extract god components (roadmap page, data-quality-panel, contact-form, document-form).
 

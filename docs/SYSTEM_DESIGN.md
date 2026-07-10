@@ -2,10 +2,12 @@
 
 **created_date**: 2026-07-02
 **last_modified_date**: 2026-07-09
-**last_modified_summary**: revamp-it P2P payout on Payrexx CONFIRMED (`recordKivviPayout`); data-repair domain extraction; DocumentList→PageHeader; responsive fixed-grid tables; dashboard Button migration.
+**last_modified_summary**: revamp-it boundary clarified: Kivvi is the ERP companion replacing kivitendo, not revamp-it's operational backend.
 **Status**: Design reference (living doc)
 **Audience**: Kivvi engineers + revamp-it ops + the Verein's Treuhänder (for the flagged VAT/NPO items)
-**Scope**: How Kivvi + a storefront (revamp-it at `revampit.orangecat.ch`) form one coherent, automated, correct, and _helpful_ system.
+**Scope**: How Kivvi supports revamp-it as a modern ERP companion replacing kivitendo: accounting, documents, payments, banking, VAT, finance-relevant contacts, and ERP inventory records. revamp-it remains its own application, database, and workflow system.
+
+See also: `docs/REVAMPIT_ERP_COMPANION_ROADMAP.md` for the strict "like kivitendo / better than kivitendo / never absorb from revamp-it" boundary.
 
 ---
 
@@ -19,31 +21,35 @@
 
 ---
 
-## 2. Target architecture — hub-and-spoke, single source of truth
+## 2. Target architecture — ERP companion, not revamp-it backend
 
 ```
-                 ┌──────────────── Kivvi (system of record) ───────────────┐
-                 │  unique items · condition · price · lifecycle status     │
-                 │  customers · invoices · accounting/GL · VAT · impact     │
-                 └───────────────┬───────────────────────┬──────────────────┘
-                     v1 REST API + signed webhooks (first-party)
-        ┌───────────────────┬────┴───────────┬────────────────────┐
-   revamp-it site        Ricardo            POS            (future channels)
-   (marketplace,      (already a          (already a
-    P2P, checkout)     Kivvi channel)      Kivvi channel)
+┌──────────────────────────── revamp-it ────────────────────────────┐
+│ Own app/database: marketplace, checkout, P2P, workshops,          │
+│ appointments, IT-Hilfe, community/customer workflows, CMS          │
+└───────────────┬───────────────────────────────┬───────────────────┘
+                │ finance / ERP events          │ signed ERP feedback
+                ▼                               ▼
+┌───────────────────────────── Kivvi ───────────────────────────────┐
+│ ERP system of record: contacts for accounting, invoices, payments, │
+│ banking, VAT, GL, dunning, finance-relevant item records, AI help  │
+└───────────────────────────────────────────────────────────────────┘
 ```
 
-- **Kivvi owns** the item-of-record (for owned stock), all pricing/condition truth, and **all accounting**.
-- **The storefront owns** presentation, the P2P _relationship_, cart/checkout, and marketing/CMS — and **owns no catalog of its own truth**: it reads owned-item facts from Kivvi and writes back through the API.
-- **The rule that prevents drift**: the storefront never keeps a second authoritative copy of price/condition/stock. If it caches, it invalidates on Kivvi's webhooks. (Today revamp-it still dual-writes; §3 hardens it, §6 collapses it.)
+- **revamp-it owns** its operational product model, public marketplace, P2P relationships, cart/checkout, workshops, appointments, IT-Hilfe, community profiles, CMS, and local database.
+- **Kivvi owns** ERP outcomes: accounting/GL, invoices, payments, banking, VAT, dunning, financial counterparties, and finance-relevant inventory/accounting records.
+- **The rule that prevents drift**: each business event has a stable ERP projection in Kivvi, with idempotent writes, signed feedback, reconciliation, and diagnostics. Kivvi should behave like a much smarter kivitendo replacement, not like revamp-it's application backend.
 
 **Ownership split (SSOT per field):**
 | Fact | Authority |
 |---|---|
-| Item identity, condition, price, lifecycle status | **Kivvi** |
+| Marketplace listings, product copy, images, SEO, favourites, Q&A, cart | **revamp-it** |
+| Workshops, appointments, IT-Hilfe, community/customer workflows | **revamp-it** |
+| Operational inventory workflow and revamp-it local item records | **revamp-it** |
+| ERP inventory mirror / finance-relevant item record | **Kivvi** |
 | Accounting / GL / VAT / invoices | **Kivvi** |
-| Web images, SEO, favourites, Q&A, cart | storefront |
-| P2P seller relationship (`isRevampit=false`) | storefront (Kivvi only sees the agency economics — §4) |
+| Financial counterparty/contact record | **Kivvi** for accounting; revamp-it for community profile |
+| P2P seller relationship (`isRevampit=false`) | **revamp-it** (Kivvi only sees the agency economics — §4) |
 
 ---
 
@@ -51,12 +57,12 @@
 
 ### 3.1 Contract (verified to match Kivvi main and revamp-it PR #206)
 
-**Forward (storefront → Kivvi)** — item created/edited on revamp-it:
+**Forward (revamp-it → Kivvi)** — finance-relevant item created/edited on revamp-it:
 
 - `POST /api/v1/inventory-items` on intake (Erfassung); `PATCH /api/v1/inventory-items/{id}` on edit.
 - Bearer `kv_…` token; send an `Idempotency-Key` (revamp-it item id) so retries can't duplicate.
 
-**Reverse (Kivvi → storefront)** — item changed in Kivvi:
+**Reverse (Kivvi → revamp-it)** — ERP item/status changed in Kivvi:
 
 - Kivvi emits signed webhooks from the **domain layer**, so API-origin changes fire too.
 - Headers: `X-Kivvi-Event`, `X-Kivvi-Signature` = `HMAC-SHA256(rawBody, secret)` (hex).
@@ -65,7 +71,7 @@
 - Receiver verifies the HMAC over the **raw** body, joins `data.id → inventory_items.kivviInventoryItemId`, maps `askingPrice→sellingPriceChf`, `condition→conditionOverride`, and delists the listing on a terminal status (`sold/returned/recycled/donated`).
 - **Loop-safe**: receiver writes are internal and never push back; only human UI edits push forward.
 
-**Field ownership on the wire**: storefront pushes item _data_ (title/price/condition); Kivvi pushes _lifecycle status_. Minimal overlap, deterministic.
+**Field ownership on the wire**: revamp-it pushes the facts Kivvi needs for ERP/accounting projection; Kivvi pushes ERP lifecycle/status feedback. Minimal overlap, deterministic. This is integration between two systems, not a migration of revamp-it's backend.
 
 ### 3.2 Go-live checklist (the ops wiring — makes the connection actually work)
 
@@ -310,7 +316,7 @@ The importer de-duplicates on serial number (against existing items and within t
 
 **After Treuhänder sign-off (⚖️ items) — Swiss NPO/VAT correctness:** 4. Subvention/Spende classifier + Art. 33 input-VAT reduction. 5. Fiktiver Vorsteuerabzug (Art. 28a) for purchased used goods. 6. Bezugsteuer (Art. 45) tracking for foreign services. 7. Monetary donation/grant income + (if FER 21 applies) restricted-fund accounting.
 
-**Later — structural:** 8. ✅ P2P agency accounting (commission + pass-through liability + payout) — Kivvi domain + revamp-it caller (`syncP2POrderToKivvi` on PAID, `recordKivviPayout` on CONFIRMED). 9. Advance-payment liability routing. 10. Collapse the dual-write (storefront reads owned-item facts live from Kivvi) → true SSOT. 11. Fixed assets/depreciation; Postgres RLS (defense-in-depth before scaling tenants).
+**Later — structural:** 8. ✅ P2P agency accounting (commission + pass-through liability + payout) — Kivvi domain + revamp-it caller (`syncP2POrderToKivvi` on PAID, `recordKivviPayout` on CONFIRMED). 9. Advance-payment liability routing. 10. Reconciliation/read-model hardening so revamp-it can compare its local operational state against Kivvi's ERP projection without making Kivvi the revamp-it backend. 11. Fixed assets/depreciation; Postgres RLS (defense-in-depth before scaling tenants).
 
 ---
 

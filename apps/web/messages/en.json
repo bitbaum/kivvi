@@ -50,6 +50,7 @@
     "clear": "Clear",
     "selected": "selected",
     "items": "Items",
+    "contacts": "Contacts",
     "view": "View",
     "create": "Create",
     "back": "Back",
@@ -524,6 +525,83 @@
       "openAIChatDesc": "Chat with the AI assistant",
       "showAll": "Show All",
       "showLess": "Show Less"
+    },
+    "revampitHub": {
+      "eyebrow": "revamp-it ERP companion",
+      "title": "Run the kivitendo jobs in Kivvi",
+      "subtitle": "Use Kivvi for the ERP work around revamp-it: inventory records, financial contacts, documents, payments, banking, accounting, reporting, and safe integration feedback. revamp-it keeps its own app and workflows.",
+      "askKivvi": "Ask Kivvi",
+      "inventory": {
+        "title": "Inventory intake and status",
+        "description": "Record ERP item facts, repair state, value, warehouse, and lifecycle status without moving the marketplace backend.",
+        "primary": "Quick intake",
+        "secondary": "Inventory"
+      },
+      "contacts": {
+        "title": "Financial contacts",
+        "description": "Keep accounting counterparties for customers, donors, vendors, sellers, and workshop participants.",
+        "primary": "Open contacts",
+        "secondary": "New contact"
+      },
+      "sales": {
+        "title": "Invoices and payments",
+        "description": "Create Swiss documents, QR invoices, credit notes, payment records, and dunning follow-up.",
+        "primary": "Invoices",
+        "secondary": "New invoice"
+      },
+      "service": {
+        "title": "Repairs and service revenue",
+        "description": "Turn repair labor, IT-Hilfe, workshops, and appointment outcomes into auditable service revenue.",
+        "primary": "Repairs",
+        "secondary": "Repair queue"
+      },
+      "money": {
+        "title": "Banking and accounting",
+        "description": "Match payments, import bank movements, review the journal, and keep VAT/accounting ready.",
+        "primary": "Money hub",
+        "secondary": "Banking"
+      },
+      "purchasing": {
+        "title": "Purchasing and payables",
+        "description": "Track vendor bills, purchase orders, parts costs, and payables in the ERP layer.",
+        "primary": "Purchase invoices",
+        "secondary": "Purchase orders"
+      },
+      "reports": {
+        "title": "Reports and compliance",
+        "description": "Review revenue, aging, VAT, profit and loss, balance sheet, impact, and operational health.",
+        "primary": "Reports",
+        "secondary": "VAT report"
+      },
+      "integrations": {
+        "title": "revamp-it integration health",
+        "description": "Manage API tokens, webhooks, replay-safe events, and diagnostics for the ERP projection.",
+        "primary": "Webhooks",
+        "secondary": "API tokens"
+      }
+    },
+    "revampitIntegrationHealth": {
+      "title": "revamp-it ERP projection health",
+      "subtitle": "Check whether revamp-it can safely write finance-relevant events into Kivvi and receive signed ERP feedback without manual babysitting.",
+      "status": {
+        "healthy": "Integration healthy",
+        "warning": "Recovery work pending",
+        "error": "Setup or delivery issue"
+      },
+      "webhooks": "Webhooks",
+      "apiTokens": "API tokens",
+      "metrics": {
+        "tokens": "Active API tokens",
+        "tokensDetail": "Used by revamp-it for inbound ERP writes",
+        "endpoints": "Active webhooks",
+        "endpointsDetail": "Signed feedback endpoints configured",
+        "retries": "Pending retries",
+        "failures": "{count, plural, one {# abandoned delivery} other {# abandoned deliveries}}",
+        "replay": "Replay-safe writes today",
+        "pendingReplay": "{count, plural, one {# pending idempotency key} other {# pending idempotency keys}}"
+      },
+      "lastWebhook": "Last outbound webhook: {value}",
+      "lastApiWrite": "Last inbound API write: {value}"
     },
     "alerts": {
       "title": "Alerts & Notifications",
