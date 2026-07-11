@@ -30,10 +30,13 @@ export function StepDonor({
   onSubmit,
 }: StepDonorProps) {
   const ti = useTranslations("inventory");
+  // Category labels live under the "checklist" namespace (SSOT for
+  // checklist-template labelKeys); condition labels live under "inventory".
+  const tk = useTranslations("checklist");
 
-  const categoryLabel = ti(
+  const categoryLabel = tk(
     (QUICK_CATEGORIES.find((c) => c.value === category)?.labelKey ??
-      "categoryOther") as Parameters<typeof ti>[0],
+      "categoryOther") as Parameters<typeof tk>[0],
   );
 
   const conditionCfg = ITEM_CONDITION_CONFIG[condition];

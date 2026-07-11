@@ -46,6 +46,9 @@ export function StepDescription({
 }: StepDescriptionProps) {
   const ti = useTranslations("inventory");
   const tc = useTranslations("common");
+  // Category labels are defined once under the "checklist" namespace (the SSOT
+  // for checklist-template labelKeys) — same as every other consumer.
+  const tk = useTranslations("checklist");
 
   return (
     <div className="space-y-6">
@@ -87,7 +90,7 @@ export function StepDescription({
                     : "hover:bg-muted"
                 }`}
               >
-                {ti(cat.labelKey as Parameters<typeof ti>[0])}
+                {tk(cat.labelKey as Parameters<typeof tk>[0])}
               </button>
             ))}
           </div>
