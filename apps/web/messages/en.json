@@ -2385,6 +2385,7 @@
         "connectionFailed": "Connection failed",
         "testConnection": "Test connection",
         "scanNow": "Scan now",
+        "saveBeforeTesting": "Save the connection first. Then you can test and scan.",
         "syncImported": "{count} items found or already known",
         "syncFailed": "Scan failed",
         "status": {

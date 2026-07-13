@@ -2385,6 +2385,7 @@
         "connectionFailed": "Échec de la connexion",
         "testConnection": "Tester la connexion",
         "scanNow": "Scanner maintenant",
+        "saveBeforeTesting": "Enregistrez d'abord la connexion. Vous pourrez ensuite tester et scanner.",
         "syncImported": "{count} éléments trouvés ou déjà connus",
         "syncFailed": "Échec du scan",
         "status": {

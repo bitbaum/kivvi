@@ -69,6 +69,12 @@ export function OperationsSection({
   });
   const [nextcloudMessage, setNextcloudMessage] = useState<string | null>(null);
   const [mailMessage, setMailMessage] = useState<string | null>(null);
+  const [nextcloudConfigured, setNextcloudConfigured] = useState(
+    nextcloudStatus !== "not_configured",
+  );
+  const [mailConfigured, setMailConfigured] = useState(
+    mailStatus !== "not_configured",
+  );
   const [isSavingNextcloud, saveNextcloudTransition] = useTransition();
   const [isTestingNextcloud, testNextcloudTransition] = useTransition();
   const [isSyncingNextcloud, syncNextcloudTransition] = useTransition();
@@ -80,6 +86,7 @@ export function OperationsSection({
     setNextcloudMessage(null);
     saveNextcloudTransition(async () => {
       const result = await updateNextcloudIntegrationAction(nextcloudForm);
+      if (result.success) setNextcloudConfigured(true);
       setNextcloudMessage(
         result.success ? t("saved") : result.error || t("saveFailed"),
       );
@@ -114,6 +121,7 @@ export function OperationsSection({
     setMailMessage(null);
     saveMailTransition(async () => {
       const result = await updateMailIntegrationAction(mailForm);
+      if (result.success) setMailConfigured(true);
       setMailMessage(
         result.success ? t("saved") : result.error || t("saveFailed"),
       );
@@ -246,6 +254,11 @@ export function OperationsSection({
             {nextcloudMessage || nextcloud.lastError}
           </p>
         )}
+        {!nextcloudConfigured && !nextcloudMessage && (
+          <p className="mt-3 text-sm text-muted-foreground">
+            {t("saveBeforeTesting")}
+          </p>
+        )}
 
         <div className="mt-4 flex flex-wrap gap-2">
           <Button onClick={saveNextcloud} disabled={isSavingNextcloud}>
@@ -256,28 +269,32 @@ export function OperationsSection({
             )}
             {isSavingNextcloud ? tCommon("saving") : tCommon("save")}
           </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={testNextcloud}
-            disabled={
-              isTestingNextcloud || nextcloudStatus === "not_configured"
-            }
-          >
-            {isTestingNextcloud && <Loader2 className="h-4 w-4 animate-spin" />}
-            {t("testConnection")}
-          </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={syncNextcloud}
-            disabled={
-              isSyncingNextcloud || nextcloudStatus === "not_configured"
-            }
-          >
-            {isSyncingNextcloud && <Loader2 className="h-4 w-4 animate-spin" />}
-            {t("scanNow")}
-          </Button>
+          {nextcloudConfigured && (
+            <>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={testNextcloud}
+                disabled={isTestingNextcloud}
+              >
+                {isTestingNextcloud && (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                )}
+                {t("testConnection")}
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={syncNextcloud}
+                disabled={isSyncingNextcloud}
+              >
+                {isSyncingNextcloud && (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                )}
+                {t("scanNow")}
+              </Button>
+            </>
+          )}
         </div>
       </section>
 
@@ -404,6 +421,11 @@ export function OperationsSection({
             {mailMessage || mail.lastError}
           </p>
         )}
+        {!mailConfigured && !mailMessage && (
+          <p className="mt-3 text-sm text-muted-foreground">
+            {t("saveBeforeTesting")}
+          </p>
+        )}
 
         <div className="mt-4 flex flex-wrap gap-2">
           <Button onClick={saveMail} disabled={isSavingMail}>
@@ -414,24 +436,28 @@ export function OperationsSection({
             )}
             {isSavingMail ? tCommon("saving") : tCommon("save")}
           </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={testMail}
-            disabled={isTestingMail || mailStatus === "not_configured"}
-          >
-            {isTestingMail && <Loader2 className="h-4 w-4 animate-spin" />}
-            {t("testConnection")}
-          </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={syncMail}
-            disabled={isSyncingMail || mailStatus === "not_configured"}
-          >
-            {isSyncingMail && <Loader2 className="h-4 w-4 animate-spin" />}
-            {t("scanNow")}
-          </Button>
+          {mailConfigured && (
+            <>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={testMail}
+                disabled={isTestingMail}
+              >
+                {isTestingMail && <Loader2 className="h-4 w-4 animate-spin" />}
+                {t("testConnection")}
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={syncMail}
+                disabled={isSyncingMail}
+              >
+                {isSyncingMail && <Loader2 className="h-4 w-4 animate-spin" />}
+                {t("scanNow")}
+              </Button>
+            </>
+          )}
         </div>
       </section>
     </div>

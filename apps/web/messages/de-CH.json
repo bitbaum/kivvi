@@ -2385,6 +2385,7 @@
         "connectionFailed": "Verbindung fehlgeschlagen",
         "testConnection": "Verbindung testen",
         "scanNow": "Jetzt scannen",
+        "saveBeforeTesting": "Speichern Sie die Verbindung zuerst. Danach können Sie testen und scannen.",
         "syncImported": "{count} Elemente gefunden oder bereits bekannt",
         "syncFailed": "Scan fehlgeschlagen",
         "status": {
