@@ -9,12 +9,15 @@ import {
   testNextcloudIntegrationAction,
   syncMailIntegrationAction,
   syncNextcloudIntegrationAction,
+  testTalerIntegrationAction,
   updateMailIntegrationAction,
   updateNextcloudIntegrationAction,
+  updateTalerIntegrationAction,
 } from "@/app/actions/integrations";
 import type {
   MailIntegrationInput,
   NextcloudIntegrationInput,
+  TalerIntegrationInput,
 } from "@kivvi/core/src/domain/integrations";
 
 type Status = "not_configured" | "disabled" | "ok" | "error" | "untested";
@@ -32,6 +35,12 @@ interface OperationsSectionProps {
     lastTestedAt?: string;
   };
   mailStatus: Status;
+  taler: Partial<TalerIntegrationInput> & {
+    lastStatus?: "ok" | "error";
+    lastError?: string;
+    lastTestedAt?: string;
+  };
+  talerStatus: Status;
 }
 
 function statusClass(status: Status) {
@@ -46,6 +55,8 @@ export function OperationsSection({
   nextcloudStatus,
   mail,
   mailStatus,
+  taler,
+  talerStatus,
 }: OperationsSectionProps) {
   const t = useTranslations("settings.integrations.operations");
   const tCommon = useTranslations("common");
@@ -67,13 +78,23 @@ export function OperationsSection({
     useTls: mail.useTls ?? true,
     enabled: mail.enabled ?? true,
   });
+  const [talerForm, setTalerForm] = useState<TalerIntegrationInput>({
+    merchantBackendUrl: taler.merchantBackendUrl || "",
+    instance: taler.instance || "admin",
+    accessToken: taler.accessToken || "",
+    enabled: taler.enabled ?? true,
+  });
   const [nextcloudMessage, setNextcloudMessage] = useState<string | null>(null);
   const [mailMessage, setMailMessage] = useState<string | null>(null);
+  const [talerMessage, setTalerMessage] = useState<string | null>(null);
   const [nextcloudConfigured, setNextcloudConfigured] = useState(
     nextcloudStatus !== "not_configured",
   );
   const [mailConfigured, setMailConfigured] = useState(
     mailStatus !== "not_configured",
+  );
+  const [talerConfigured, setTalerConfigured] = useState(
+    talerStatus !== "not_configured",
   );
   const [isSavingNextcloud, saveNextcloudTransition] = useTransition();
   const [isTestingNextcloud, testNextcloudTransition] = useTransition();
@@ -81,6 +102,8 @@ export function OperationsSection({
   const [isSavingMail, saveMailTransition] = useTransition();
   const [isTestingMail, testMailTransition] = useTransition();
   const [isSyncingMail, syncMailTransition] = useTransition();
+  const [isSavingTaler, saveTalerTransition] = useTransition();
+  const [isTestingTaler, testTalerTransition] = useTransition();
 
   function saveNextcloud() {
     setNextcloudMessage(null);
@@ -148,6 +171,29 @@ export function OperationsSection({
         result.success
           ? t("syncImported", { count: result.data?.imported ?? 0 })
           : result.error || t("syncFailed"),
+      );
+    });
+  }
+
+  function saveTaler() {
+    setTalerMessage(null);
+    saveTalerTransition(async () => {
+      const result = await updateTalerIntegrationAction(talerForm);
+      if (result.success) setTalerConfigured(true);
+      setTalerMessage(
+        result.success ? t("saved") : result.error || t("saveFailed"),
+      );
+    });
+  }
+
+  function testTaler() {
+    setTalerMessage(null);
+    testTalerTransition(async () => {
+      const result = await testTalerIntegrationAction();
+      setTalerMessage(
+        result.success
+          ? t("connectionOk")
+          : result.error || t("connectionFailed"),
       );
     });
   }
@@ -294,6 +340,117 @@ export function OperationsSection({
                 {t("scanNow")}
               </Button>
             </>
+          )}
+        </div>
+      </section>
+
+      <section className="rounded-xl border bg-card p-6">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h3 className="font-semibold">{t("talerTitle")}</h3>
+            <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+              {t("talerDescription")}
+            </p>
+          </div>
+          <span className={`text-sm font-medium ${statusClass(talerStatus)}`}>
+            {t(`status.${talerStatus}`)}
+          </span>
+        </div>
+
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <label className="space-y-1.5 text-sm sm:col-span-2">
+            <span className="font-medium">{t("talerBackendUrl")}</span>
+            <input
+              value={talerForm.merchantBackendUrl}
+              onChange={(event) =>
+                setTalerForm((current) => ({
+                  ...current,
+                  merchantBackendUrl: event.target.value,
+                }))
+              }
+              placeholder="https://merchant.example.ch"
+              className="w-full rounded-lg border bg-background px-3 py-2"
+            />
+          </label>
+          <label className="space-y-1.5 text-sm">
+            <span className="font-medium">{t("talerInstance")}</span>
+            <input
+              value={talerForm.instance}
+              onChange={(event) =>
+                setTalerForm((current) => ({
+                  ...current,
+                  instance: event.target.value,
+                }))
+              }
+              placeholder="admin"
+              className="w-full rounded-lg border bg-background px-3 py-2"
+            />
+          </label>
+          <label className="space-y-1.5 text-sm">
+            <span className="font-medium">{t("talerAccessToken")}</span>
+            <input
+              type="password"
+              value={talerForm.accessToken}
+              onChange={(event) =>
+                setTalerForm((current) => ({
+                  ...current,
+                  accessToken: event.target.value,
+                }))
+              }
+              onFocus={() => {
+                if (talerForm.accessToken === "••••••••") {
+                  setTalerForm((current) => ({ ...current, accessToken: "" }));
+                }
+              }}
+              className="w-full rounded-lg border bg-background px-3 py-2"
+            />
+          </label>
+        </div>
+
+        <label className="mt-4 flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={talerForm.enabled}
+            onChange={(event) =>
+              setTalerForm((current) => ({
+                ...current,
+                enabled: event.target.checked,
+              }))
+            }
+          />
+          {t("enabled")}
+        </label>
+
+        {(taler.lastError || talerMessage) && (
+          <p className="mt-3 text-sm text-muted-foreground">
+            {talerMessage || taler.lastError}
+          </p>
+        )}
+        {!talerConfigured && !talerMessage && (
+          <p className="mt-3 text-sm text-muted-foreground">
+            {t("talerTokenHint")}
+          </p>
+        )}
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Button onClick={saveTaler} disabled={isSavingTaler}>
+            {isSavingTaler ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Check className="h-4 w-4" />
+            )}
+            {isSavingTaler ? tCommon("saving") : tCommon("save")}
+          </Button>
+          {talerConfigured && (
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={testTaler}
+              disabled={isTestingTaler}
+            >
+              {isTestingTaler && <Loader2 className="h-4 w-4 animate-spin" />}
+              {t("testConnection")}
+            </Button>
           )}
         </div>
       </section>

@@ -218,6 +218,13 @@
       "when": 1783943000000,
       "tag": "0030_external_integration_items",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "5",
+      "when": 1783947600000,
+      "tag": "0031_taler_orders",
+      "breakpoints": true
     }
   ]
 }

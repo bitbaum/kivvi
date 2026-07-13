@@ -20,9 +20,12 @@ import {
   maskSecret,
   mergeMailIntegration,
   mergeNextcloudIntegration,
+  mergeTalerIntegration,
   nextcloudIntegrationSchema,
+  talerIntegrationSchema,
   type MailIntegrationInput,
   type NextcloudIntegrationInput,
+  type TalerIntegrationInput,
 } from "@kivvi/core/src/domain/integrations";
 import { buildRicardoListingPayload } from "@kivvi/core/src/domain/ricardo";
 import { PUBLIC_ITEM_STATUSES } from "@kivvi/core/src/config/item-status-sets";
@@ -37,6 +40,7 @@ import {
   decryptIntegrationSecret,
   encryptIntegrationSecret,
 } from "@/lib/integration-secrets";
+import { testTalerConnection } from "@/lib/taler-client";
 
 const INTEGRATION_TEST_TIMEOUT_MS = 8000;
 const INTEGRATION_SYNC_LIMIT = 20;
@@ -444,6 +448,33 @@ export const updateMailIntegrationAction = createAction<
   minRole: "admin",
 });
 
+export const updateTalerIntegrationAction = createAction<
+  TalerIntegrationInput,
+  void
+>({
+  handler: async (input, { companyId }) => {
+    const settings = await loadCompanySettings(companyId);
+    if (input.accessToken === maskSecret(settings.taler?.accessToken)) {
+      if (!settings.taler?.accessToken) {
+        throw new Error("Invalid GNU Taler access token");
+      }
+    }
+
+    const parsed = talerIntegrationSchema.parse(input);
+    const merged = mergeTalerIntegration(settings.taler, parsed);
+    await saveCompanySettings(companyId, {
+      ...settings,
+      taler: {
+        ...merged,
+        accessToken: encryptIntegrationSecret(merged.accessToken),
+      },
+    });
+  },
+  revalidate: ["/settings/integrations"],
+  errorMessage: "GNU Taler settings could not be saved",
+  minRole: "admin",
+});
+
 export async function testNextcloudIntegrationAction(): Promise<
   ActionResult<void>
 > {
@@ -549,6 +580,65 @@ export async function testMailIntegrationAction(): Promise<ActionResult<void>> {
         mailIntake: settings.mailIntake
           ? {
               ...settings.mailIntake,
+              lastTestedAt: new Date().toISOString(),
+              lastStatus: "error",
+              lastError: sanitizeIntegrationError(error),
+            }
+          : undefined,
+      });
+    } catch {
+      // Keep the original error response.
+    }
+    return {
+      success: false,
+      error: sanitizeIntegrationError(error),
+    };
+  }
+}
+
+export async function testTalerIntegrationAction(): Promise<
+  ActionResult<void>
+> {
+  try {
+    const { companyId } = await requireRole("admin");
+    const settings = await loadCompanySettings(companyId);
+    const connection = settings.taler;
+
+    if (
+      !connection?.merchantBackendUrl ||
+      !connection.accessToken ||
+      !connection.instance
+    ) {
+      return { success: false, error: "GNU Taler is not configured." };
+    }
+
+    await testTalerConnection({
+      merchantBackendUrl: connection.merchantBackendUrl,
+      instance: connection.instance,
+      accessToken: decryptIntegrationSecret(connection.accessToken) || "",
+      enabled: connection.enabled ?? true,
+    });
+
+    await saveCompanySettings(companyId, {
+      ...settings,
+      taler: {
+        ...connection,
+        lastTestedAt: new Date().toISOString(),
+        lastStatus: "ok",
+        lastError: undefined,
+      },
+    });
+    revalidatePath("/settings/integrations");
+    return { success: true };
+  } catch (error) {
+    try {
+      const { companyId } = await requireRole("admin");
+      const settings = await loadCompanySettings(companyId);
+      await saveCompanySettings(companyId, {
+        ...settings,
+        taler: settings.taler
+          ? {
+              ...settings.taler,
               lastTestedAt: new Date().toISOString(),
               lastStatus: "error",
               lastError: sanitizeIntegrationError(error),

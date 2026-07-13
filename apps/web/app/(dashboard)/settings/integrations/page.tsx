@@ -61,6 +61,11 @@ export default async function IntegrationsPage() {
           password: maskSecret(settings.mailIntake?.password),
         }}
         mailStatus={summarizeIntegrationStatus(settings.mailIntake)}
+        taler={{
+          ...settings.taler,
+          accessToken: maskSecret(settings.taler?.accessToken),
+        }}
+        talerStatus={summarizeIntegrationStatus(settings.taler)}
       />
 
       <IntegrationReviewSection items={reviewItems} />

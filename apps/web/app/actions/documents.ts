@@ -1,7 +1,8 @@
 "use server";
 
 import { z } from "zod";
-import { eq } from "drizzle-orm";
+import Decimal from "decimal.js";
+import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   createDocument,
@@ -23,6 +24,7 @@ import {
   documentTypeEnum,
   PAYMENT_METHOD_VALUES,
   companies,
+  talerOrders,
   type DocumentType,
   type DocumentStatus,
   type CompanySettings,
@@ -51,6 +53,12 @@ import {
   AMOUNT_REGEX,
   DATE_REGEX,
 } from "@kivvi/core/src/utils/validation-patterns";
+import {
+  createTalerOrder,
+  getTalerOrderStatus,
+  talerTimestampToDate,
+} from "@/lib/taler-client";
+import { decryptIntegrationSecret } from "@/lib/integration-secrets";
 
 // ============================================================================
 // VALIDATION SCHEMAS FOR UNVALIDATED PARAMS
@@ -70,6 +78,51 @@ const recordPaymentSchema = z.object({
 const convertSchema = z.object({
   targetType: z.enum(documentTypeEnum.enumValues),
 });
+
+function sanitizeTalerError(error: unknown): string {
+  if (!(error instanceof Error)) return "GNU Taler request failed";
+  if (error.name === "AbortError") return "GNU Taler request timed out";
+  return error.message.replace(
+    /secret-token:[^\s"]+/g,
+    "secret-token:[redacted]",
+  );
+}
+
+function buildKivviOrderId(documentId: string) {
+  return `kivvi-${documentId.replace(/-/g, "").slice(0, 24)}-${Date.now()}`;
+}
+
+async function loadTalerConfig(companyId: string) {
+  const [company] = await db
+    .select({ settings: companies.settings })
+    .from(companies)
+    .where(eq(companies.id, companyId));
+  const settings = (company?.settings as CompanySettings) ?? {};
+  const config = settings.taler;
+
+  if (
+    !config?.enabled ||
+    !config.merchantBackendUrl ||
+    !config.accessToken ||
+    !config.instance
+  ) {
+    throw new Error("GNU Taler is not configured.");
+  }
+
+  return {
+    merchantBackendUrl: config.merchantBackendUrl,
+    instance: config.instance,
+    accessToken: decryptIntegrationSecret(config.accessToken) || "",
+    enabled: config.enabled ?? true,
+  };
+}
+
+function talerStatus(
+  status: Awaited<ReturnType<typeof getTalerOrderStatus>>,
+): "unpaid" | "claimed" | "paid" | "refunded" {
+  if (status.order_status === "paid" && status.refunded) return "refunded";
+  return status.order_status;
+}
 
 // ============================================================================
 // SERVER ACTIONS
@@ -308,6 +361,215 @@ export async function recordPaymentAction(
           tDomain(code as Parameters<typeof tDomain>[0], params),
       ),
     };
+  }
+}
+
+export async function createTalerPaymentOrderAction(
+  documentId: string,
+): Promise<ActionResult<{ paymentUrl: string | null; orderId: string }>> {
+  const t = await getTranslations("documents");
+  try {
+    const { companyId } = await requireRole("member");
+    const doc = await getDocument(db, companyId, documentId);
+    if (!doc) return { success: false, error: t("errorNotFound") };
+    if (doc.type !== "invoice") {
+      return { success: false, error: t("taler.invoiceOnly") };
+    }
+    if (doc.status === "draft" || doc.status === "cancelled") {
+      return { success: false, error: t("taler.invoiceNotReady") };
+    }
+
+    const existing = await db
+      .select()
+      .from(talerOrders)
+      .where(
+        and(
+          eq(talerOrders.companyId, companyId),
+          eq(talerOrders.documentId, documentId),
+        ),
+      )
+      .orderBy(desc(talerOrders.createdAt))
+      .limit(1);
+
+    const active = existing.find((order) =>
+      ["unpaid", "claimed"].includes(order.status),
+    );
+    if (active) {
+      return {
+        success: true,
+        data: {
+          paymentUrl: active.orderStatusUrl || active.talerPayUri || null,
+          orderId: active.orderId,
+        },
+      };
+    }
+
+    const outstanding = doc.payments?.length
+      ? new Decimal(doc.total || "0").minus(
+          doc.payments.reduce(
+            (sum, payment) => sum.plus(payment.amount || "0"),
+            new Decimal(0),
+          ),
+        )
+      : new Decimal(doc.total || "0");
+    if (outstanding.lte(0)) {
+      return { success: false, error: t("taler.nothingToCollect") };
+    }
+
+    const config = await loadTalerConfig(companyId);
+    const orderId = buildKivviOrderId(documentId);
+    const result = await createTalerOrder(config, {
+      orderId,
+      amount: outstanding.toFixed(2),
+      currency: doc.currency || "CHF",
+      summary: `${doc.number} ${doc.contact?.name || "Kivvi invoice"}`,
+      fulfillmentUrl: `${
+        process.env.NEXT_PUBLIC_APP_URL || "https://kivvi.orangecat.ch"
+      }/sales/invoices/${doc.id}`,
+      fulfillmentMessage: t("taler.fulfillmentMessage", {
+        number: doc.number,
+      }),
+      payDeadline: doc.dueDate || undefined,
+      products: doc.items?.map((item) => ({
+        description: item.description,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice,
+      })),
+    });
+
+    const status = talerStatus(result.status);
+    const [created] = await db
+      .insert(talerOrders)
+      .values({
+        companyId,
+        documentId,
+        orderId: result.response.order_id,
+        status,
+        amount: outstanding.toFixed(2),
+        currency: doc.currency || "CHF",
+        talerPayUri: result.status.taler_pay_uri,
+        orderStatusUrl: result.status.order_status_url,
+        payDeadline: talerTimestampToDate(
+          result.status.pay_deadline || result.response.pay_deadline,
+        ),
+        paidAt:
+          status === "paid"
+            ? talerTimestampToDate(result.status.last_payment) || new Date()
+            : null,
+        lastCheckedAt: new Date(),
+        raw: { create: result.response, status: result.status },
+      })
+      .returning();
+
+    revalidateDocumentPaths(doc.type, doc.id);
+    return {
+      success: true,
+      data: {
+        paymentUrl: created.orderStatusUrl || created.talerPayUri || null,
+        orderId: created.orderId,
+      },
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, sanitizeTalerError(error)),
+    };
+  }
+}
+
+export async function refreshTalerPaymentOrderAction(
+  talerOrderId: string,
+): Promise<ActionResult<{ status: string }>> {
+  try {
+    const { companyId } = await requireRole("member");
+    const [order] = await db
+      .select()
+      .from(talerOrders)
+      .where(
+        and(
+          eq(talerOrders.id, talerOrderId),
+          eq(talerOrders.companyId, companyId),
+        ),
+      )
+      .limit(1);
+
+    if (!order) return { success: false, error: "GNU Taler order not found." };
+
+    const config = await loadTalerConfig(companyId);
+    const statusResponse = await getTalerOrderStatus(config, order.orderId);
+    const status = talerStatus(statusResponse);
+    const paidAt =
+      status === "paid"
+        ? talerTimestampToDate(statusResponse.last_payment) || new Date()
+        : null;
+
+    await db
+      .update(talerOrders)
+      .set({
+        status,
+        talerPayUri: statusResponse.taler_pay_uri || order.talerPayUri,
+        orderStatusUrl: statusResponse.order_status_url || order.orderStatusUrl,
+        payDeadline:
+          talerTimestampToDate(statusResponse.pay_deadline) ||
+          order.payDeadline,
+        paidAt,
+        lastCheckedAt: new Date(),
+        lastError: null,
+        raw: statusResponse,
+        updatedAt: new Date(),
+      })
+      .where(eq(talerOrders.id, order.id));
+
+    if (status === "paid") {
+      const doc = await getDocument(db, companyId, order.documentId);
+      const alreadyRecorded = doc?.payments?.some(
+        (payment) => payment.reference === `GNU Taler ${order.orderId}`,
+      );
+      if (doc && !alreadyRecorded) {
+        const outstanding = new Decimal(doc.total || "0").minus(
+          (doc.payments || []).reduce(
+            (sum, payment) => sum.plus(payment.amount || "0"),
+            new Decimal(0),
+          ),
+        );
+        const amountToRecord = Decimal.min(
+          outstanding,
+          new Decimal(order.amount),
+        );
+        if (amountToRecord.gt(0)) {
+          await recordPayment(db, companyId, order.documentId, {
+            amount: amountToRecord.toFixed(2),
+            date: (paidAt || new Date()).toISOString().slice(0, 10),
+            method: "other",
+            reference: `GNU Taler ${order.orderId}`,
+          });
+        }
+      }
+    }
+
+    const doc = await getDocument(db, companyId, order.documentId);
+    if (doc) revalidateDocumentPaths(doc.type, doc.id);
+    return { success: true, data: { status } };
+  } catch (error) {
+    try {
+      const { companyId } = await requireRole("member");
+      await db
+        .update(talerOrders)
+        .set({
+          lastCheckedAt: new Date(),
+          lastError: sanitizeTalerError(error),
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(talerOrders.id, talerOrderId),
+            eq(talerOrders.companyId, companyId),
+          ),
+        );
+    } catch {
+      // Keep original response.
+    }
+    return { success: false, error: sanitizeTalerError(error) };
   }
 }
 

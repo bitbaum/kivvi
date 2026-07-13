@@ -18,6 +18,7 @@ import {
   documents,
   documentItems,
   documentPayments,
+  talerOrders,
   bankTransactions,
   bankAccounts,
   companies,
@@ -454,6 +455,9 @@ export async function getDocument(
         orderBy: [asc(documentItems.position)],
       },
       payments: true,
+      talerOrders: {
+        orderBy: [desc(talerOrders.createdAt)],
+      },
       convertedFrom: {
         columns: { id: true, type: true, number: true },
       },

@@ -2,8 +2,12 @@ import Decimal from "decimal.js";
 import Link from "next/link";
 import { CheckCircle2, Mail, Recycle } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { eq } from "drizzle-orm";
+import { db } from "@/lib/db";
+import { companies, type CompanySettings } from "@kivvi/database";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { PaymentForm } from "./payment-form";
+import { TalerPaymentPanel } from "./taler-payment-panel";
 import type { DocumentTypeConfig } from "@/lib/config/document-types";
 import {
   TERMINAL_STATUSES,
@@ -38,6 +42,20 @@ export async function DocumentDetailSidebar({
   const totalPaid = config.hasPayments
     ? new Decimal(doc.total || "0").minus(outstandingDecimal).toFixed(2)
     : "0.00";
+  const [company] =
+    doc.type === "invoice"
+      ? await db
+          .select({ settings: companies.settings })
+          .from(companies)
+          .where(eq(companies.id, doc.companyId))
+          .limit(1)
+      : [];
+  const settings = (company?.settings as CompanySettings) ?? {};
+  const talerConfigured = !!(
+    settings.taler?.enabled &&
+    settings.taler.merchantBackendUrl &&
+    settings.taler.accessToken
+  );
 
   // Impact callout: sum CO2 for all line items linked to inventory items
   const inventoryLineItems = (doc.items ?? []).filter(
@@ -159,6 +177,16 @@ export async function DocumentDetailSidebar({
             )}
         </div>
       )}
+
+      {doc.type === "invoice" &&
+        !TERMINAL_STATUSES.includes(doc.status) &&
+        doc.status !== STATUS.DRAFT && (
+          <TalerPaymentPanel
+            documentId={doc.id}
+            order={doc.talerOrders?.[0] ?? null}
+            isConfigured={talerConfigured}
+          />
+        )}
 
       {/* Last emailed */}
       {doc.lastEmailedAt && (

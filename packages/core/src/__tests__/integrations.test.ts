@@ -4,9 +4,11 @@ import {
   maskSecret,
   mergeMailIntegration,
   mergeNextcloudIntegration,
+  mergeTalerIntegration,
   nextcloudIntegrationSchema,
   normalizeFolderPath,
   summarizeIntegrationStatus,
+  talerIntegrationSchema,
 } from "../domain/integrations";
 
 describe("integration settings", () => {
@@ -108,5 +110,46 @@ describe("integration settings", () => {
     expect(
       summarizeIntegrationStatus({ enabled: true, lastStatus: "error" }),
     ).toBe("error");
+  });
+
+  it("requires HTTPS and a token for GNU Taler", () => {
+    expect(
+      talerIntegrationSchema.safeParse({
+        merchantBackendUrl: "http://merchant.example.ch",
+        instance: "revamp",
+        accessToken: "secret",
+        enabled: true,
+      }).success,
+    ).toBe(false);
+
+    expect(
+      talerIntegrationSchema.safeParse({
+        merchantBackendUrl: "https://merchant.example.ch/",
+        instance: "revamp",
+        accessToken: "secret",
+        enabled: true,
+      }).success,
+    ).toBe(true);
+  });
+
+  it("preserves existing masked GNU Taler token", () => {
+    const merged = mergeTalerIntegration(
+      {
+        merchantBackendUrl: "https://merchant.example.ch",
+        instance: "revamp",
+        accessToken: "existing-secret",
+        enabled: true,
+      },
+      {
+        merchantBackendUrl: "https://merchant.example.ch/",
+        instance: "revamp",
+        accessToken: maskSecret("existing-secret"),
+        enabled: false,
+      },
+    );
+
+    expect(merged.accessToken).toBe("existing-secret");
+    expect(merged.merchantBackendUrl).toBe("https://merchant.example.ch");
+    expect(merged.enabled).toBe(false);
   });
 });

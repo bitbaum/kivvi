@@ -677,6 +677,51 @@ export const documentPayments = pgTable(
   }),
 );
 
+export const talerOrders = pgTable(
+  "taler_orders",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    companyId: uuid("company_id")
+      .references(() => companies.id)
+      .notNull(),
+    documentId: uuid("document_id")
+      .references(() => documents.id, { onDelete: "cascade" })
+      .notNull(),
+    orderId: text("order_id").notNull(),
+    status: text("status")
+      .$type<"unpaid" | "claimed" | "paid" | "refunded" | "failed">()
+      .default("unpaid")
+      .notNull(),
+    amount: decimal("amount", { precision: 12, scale: 2 }).notNull(),
+    currency: text("currency").default("CHF").notNull(),
+    talerPayUri: text("taler_pay_uri"),
+    orderStatusUrl: text("order_status_url"),
+    payDeadline: timestamp("pay_deadline"),
+    paidAt: timestamp("paid_at"),
+    lastCheckedAt: timestamp("last_checked_at"),
+    lastError: text("last_error"),
+    raw: jsonb("raw").default({}).$type<Record<string, unknown>>(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    documentIdIdx: index("taler_orders_document_id_idx").on(table.documentId),
+    companyStatusIdx: index("taler_orders_company_status_idx").on(
+      table.companyId,
+      table.status,
+    ),
+    companyOrderUnique: uniqueIndex("taler_orders_company_order_id_idx").on(
+      table.companyId,
+      table.orderId,
+    ),
+    oneActivePerDocument: uniqueIndex(
+      "taler_orders_document_unpaid_claimed_idx",
+    )
+      .on(table.documentId)
+      .where(sql`${table.status} IN ('unpaid', 'claimed')`),
+  }),
+);
+
 // ============================================================================
 // NUMBER SEQUENCES
 // ============================================================================
@@ -1610,6 +1655,7 @@ export const documentsRelations = relations(documents, ({ one, many }) => ({
   }),
   items: many(documentItems),
   payments: many(documentPayments),
+  talerOrders: many(talerOrders),
 }));
 
 export const documentItemsRelations = relations(documentItems, ({ one }) => ({
@@ -1640,6 +1686,17 @@ export const documentPaymentsRelations = relations(
     }),
   }),
 );
+
+export const talerOrdersRelations = relations(talerOrders, ({ one }) => ({
+  company: one(companies, {
+    fields: [talerOrders.companyId],
+    references: [companies.id],
+  }),
+  document: one(documents, {
+    fields: [talerOrders.documentId],
+    references: [documents.id],
+  }),
+}));
 
 export const productsRelations = relations(products, ({ one, many }) => ({
   company: one(companies, {
@@ -2068,6 +2125,16 @@ export interface CompanySettings {
     password?: string;
     mailbox?: string;
     useTls?: boolean;
+    enabled?: boolean;
+    lastTestedAt?: string;
+    lastStatus?: "ok" | "error";
+    lastError?: string;
+  };
+  /** GNU Taler merchant backend connection for invoice payment links */
+  taler?: {
+    merchantBackendUrl?: string;
+    instance?: string;
+    accessToken?: string;
     enabled?: boolean;
     lastTestedAt?: string;
     lastStatus?: "ok" | "error";

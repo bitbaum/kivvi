@@ -28,10 +28,25 @@ export const mailIntegrationSchema = z.object({
   enabled: z.boolean().default(true),
 });
 
+export const talerIntegrationSchema = z.object({
+  merchantBackendUrl: z
+    .string()
+    .trim()
+    .url()
+    .refine((value) => value.startsWith("https://"), {
+      message: "GNU Taler merchant backend URL must use HTTPS.",
+    })
+    .transform((value) => value.replace(/\/+$/g, "")),
+  instance: z.string().trim().default("admin"),
+  accessToken: z.string().min(1, "Access token is required."),
+  enabled: z.boolean().default(true),
+});
+
 export type NextcloudIntegrationInput = z.infer<
   typeof nextcloudIntegrationSchema
 >;
 export type MailIntegrationInput = z.infer<typeof mailIntegrationSchema>;
+export type TalerIntegrationInput = z.infer<typeof talerIntegrationSchema>;
 
 export type StoredNextcloudIntegration = Partial<
   Omit<NextcloudIntegrationInput, "appPassword">
@@ -46,6 +61,15 @@ export type StoredMailIntegration = Partial<
   Omit<MailIntegrationInput, "password">
 > & {
   password?: string;
+  lastTestedAt?: string;
+  lastStatus?: "ok" | "error";
+  lastError?: string;
+};
+
+export type StoredTalerIntegration = Partial<
+  Omit<TalerIntegrationInput, "accessToken">
+> & {
+  accessToken?: string;
   lastTestedAt?: string;
   lastStatus?: "ok" | "error";
   lastError?: string;
@@ -89,6 +113,23 @@ export function mergeMailIntegration(
       input.password === maskSecret(existing?.password)
         ? existing?.password
         : input.password,
+    lastError: undefined,
+  };
+}
+
+export function mergeTalerIntegration(
+  existing: StoredTalerIntegration | undefined,
+  input: TalerIntegrationInput,
+): StoredTalerIntegration {
+  return {
+    ...existing,
+    ...input,
+    accessToken:
+      input.accessToken === maskSecret(existing?.accessToken)
+        ? existing?.accessToken
+        : input.accessToken,
+    merchantBackendUrl: input.merchantBackendUrl.replace(/\/+$/g, ""),
+    instance: input.instance || "admin",
     lastError: undefined,
   };
 }
