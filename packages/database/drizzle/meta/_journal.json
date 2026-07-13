@@ -1,0 +1,223 @@
+{
+  "version": "5",
+  "dialect": "pg",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1770845034633,
+      "tag": "0000_open_ma_gnuci",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1770890779617,
+      "tag": "0001_condemned_exiles",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1770917137327,
+      "tag": "0002_lucky_norman_osborn",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1771275321305,
+      "tag": "0003_blushing_liz_osborn",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1771432651842,
+      "tag": "0004_yielding_terrax",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1772639560653,
+      "tag": "0005_nervous_solo",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1772716117966,
+      "tag": "0006_icy_vivisector",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1773062548027,
+      "tag": "0007_lonely_hellion",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "5",
+      "when": 1773844653694,
+      "tag": "0008_fancy_bullseye",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1773922801699,
+      "tag": "0009_high_mister_fear",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1775341779970,
+      "tag": "0010_sloppy_lady_vermin",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "5",
+      "when": 1775347314145,
+      "tag": "0011_nosy_nextwave",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "5",
+      "when": 1775349523055,
+      "tag": "0012_slippery_infant_terrible",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "5",
+      "when": 1775409301941,
+      "tag": "0013_steady_jigsaw",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "5",
+      "when": 1776019765879,
+      "tag": "0014_grey_winter_soldier",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "5",
+      "when": 1776074674927,
+      "tag": "0015_orange_mesmero",
+      "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "5",
+      "when": 1776165504675,
+      "tag": "0016_amusing_the_professor",
+      "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "5",
+      "when": 1776173422320,
+      "tag": "0017_purple_stepford_cuckoos",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "5",
+      "when": 1776173590460,
+      "tag": "0018_talented_wasp",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "5",
+      "when": 1776864960959,
+      "tag": "0019_nice_vampiro",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "5",
+      "when": 1777031509626,
+      "tag": "0020_wonderful_sentry",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "5",
+      "when": 1777035241825,
+      "tag": "0021_striped_lethal_legion",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "5",
+      "when": 1777038179672,
+      "tag": "0022_smart_goliath",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "5",
+      "when": 1777794380801,
+      "tag": "0023_glossy_susan_delgado",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1778895806308,
+      "tag": "0024_swift_the_enforcers",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "5",
+      "when": 1778899107292,
+      "tag": "0025_amazing_stepford_cuckoos",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "5",
+      "when": 1778901698783,
+      "tag": "0026_mature_cargill",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "5",
+      "when": 1783450148327,
+      "tag": "0027_outgoing_dakota_north",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "5",
+      "when": 1783757129365,
+      "tag": "0028_tan_cardiac",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "5",
+      "when": 1783923300000,
+      "tag": "0029_team_participation",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "5",
+      "when": 1783943000000,
+      "tag": "0030_external_integration_items",
+      "breakpoints": true
+    }
+  ]
+}
