@@ -4,7 +4,7 @@ import {
   contacts,
   documents,
   inventoryItems,
-  users,
+  memberships,
   bankAccounts,
 } from "@kivvi/database";
 import type { Database, Company } from "@kivvi/database";
@@ -34,7 +34,7 @@ export async function getDashboardBootstrap(
     [contactRow],
     [documentRow],
     [inventoryRow],
-    [userRow],
+    [memberRow],
     [bankRow],
   ] = await Promise.all([
     db.query.companies.findFirst({ where: eq(companies.id, companyId) }),
@@ -52,8 +52,8 @@ export async function getDashboardBootstrap(
       .where(eq(inventoryItems.companyId, companyId)),
     db
       .select({ value: count() })
-      .from(users)
-      .where(eq(users.companyId, companyId)),
+      .from(memberships)
+      .where(eq(memberships.companyId, companyId)),
     db
       .select({ iban: bankAccounts.iban })
       .from(bankAccounts)
@@ -75,7 +75,7 @@ export async function getDashboardBootstrap(
       hasIntake: (inventoryRow?.value ?? 0) > 0,
       hasInvoice: documentCount > 0,
       hasBankAccount: !!(bankRow?.iban || settings.bankAccount?.iban),
-      hasTeamMember: (userRow?.value ?? 0) > 1,
+      hasTeamMember: (memberRow?.value ?? 0) > 1,
       hasShopUrl: !!company?.slug,
       companyAgeDays,
     },

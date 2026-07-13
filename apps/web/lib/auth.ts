@@ -106,6 +106,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           const settings = (company?.settings as CompanySettings) ?? {};
           token.onboardingComplete = !!settings.onboardingCompletedAt;
           token.enabledModules = settings.enabledModules ?? null;
+        } else if (user) {
+          token.companyId = null;
+          token.companyName = null;
+          token.role = "member";
+          token.onboardingComplete = false;
+          token.enabledModules = null;
         }
       }
       return token;

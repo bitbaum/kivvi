@@ -113,7 +113,7 @@ export default function DashboardLayout({
             {/* Cap content at --shell-max (1440px) and let it center on
                 wide displays. Without this, dashboard tables stretch to
                 the full window width on 4K monitors. */}
-            <div className="mx-auto w-full max-w-shell p-4 sm:p-6">
+            <div className="mx-auto w-full max-w-shell p-4 pb-24 sm:p-6 sm:pb-6">
               {children}
             </div>
           </main>

@@ -26,6 +26,7 @@ const PUBLIC_PREFIXES = [
   "/knowledge",
   "/faq",
   "/about",
+  "/orgs",
   "/impressum",
   "/datenschutz",
   "/shop",

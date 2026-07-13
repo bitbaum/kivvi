@@ -1,7 +1,13 @@
 import { redirect } from "next/navigation";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
-import { companies } from "@kivvi/database";
+import {
+  companies,
+  joinRequests,
+  organizationProfiles,
+  users,
+  vacancies,
+} from "@kivvi/database";
 import type { CompanySettings } from "@kivvi/database";
 import { eq } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
@@ -15,6 +21,7 @@ import { DEFAULT_PAYMENT_TERMS_DAYS } from "@/lib/config/document-types";
 import { CompanyForm } from "./company-form";
 import { Co2FactorsSection } from "./co2-factors-section";
 import { ShopUrlSection } from "./shop-url-section";
+import { OrganizationProfileSection } from "./organization-profile-section";
 
 export default async function CompanySettingsPage() {
   const session = await getSessionOrRedirect();
@@ -28,6 +35,31 @@ export default async function CompanySettingsPage() {
   if (!company) redirect("/settings");
 
   const settings = (company.settings as CompanySettings) ?? {};
+  const [organizationProfile, companyVacancies, companyJoinRequests] =
+    await Promise.all([
+      db.query.organizationProfiles.findFirst({
+        where: eq(organizationProfiles.companyId, company.id),
+      }),
+      db.query.vacancies.findMany({
+        where: eq(vacancies.companyId, company.id),
+        orderBy: (vacancies, { desc }) => [desc(vacancies.createdAt)],
+      }),
+      db
+        .select({
+          id: joinRequests.id,
+          status: joinRequests.status,
+          message: joinRequests.message,
+          createdAt: joinRequests.createdAt,
+          userName: users.name,
+          userEmail: users.email,
+          vacancyTitle: vacancies.title,
+        })
+        .from(joinRequests)
+        .innerJoin(users, eq(joinRequests.userId, users.id))
+        .leftJoin(vacancies, eq(joinRequests.vacancyId, vacancies.id))
+        .where(eq(joinRequests.companyId, company.id))
+        .orderBy(joinRequests.createdAt),
+    ]);
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -63,6 +95,13 @@ export default async function CompanySettingsPage() {
       />
 
       <ShopUrlSection currentSlug={company.slug ?? null} />
+
+      <OrganizationProfileSection
+        companyName={company.name}
+        initialProfile={organizationProfile ?? null}
+        vacancies={companyVacancies}
+        joinRequests={companyJoinRequests}
+      />
 
       <Co2FactorsSection initialFactors={settings.co2FactorsKg} />
     </div>

@@ -12,6 +12,13 @@ import type { MembershipRole, InvitationStatus } from "@kivvi/database";
 import { randomBytes } from "crypto";
 import { addMember } from "./memberships";
 import { DomainError } from "../domain-error";
+import {
+  PERMISSION_PRESETS,
+  normalizePermissionPreset,
+  presetForRole,
+  roleForPreset,
+  type PermissionPreset,
+} from "./permissions";
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -20,6 +27,7 @@ import { DomainError } from "../domain-error";
 export const createInvitationSchema = z.object({
   email: z.string().email("Invalid email address"),
   role: z.enum(INVITABLE_ROLES).default("member"),
+  permissionPreset: z.enum(PERMISSION_PRESETS).optional(),
 });
 
 export type CreateInvitationInput = z.infer<typeof createInvitationSchema>;
@@ -32,6 +40,7 @@ export interface InvitationWithCompany {
   id: string;
   email: string;
   role: MembershipRole;
+  permissionPreset: PermissionPreset;
   status: InvitationStatus;
   companyName: string;
   companyId: string;
@@ -44,10 +53,12 @@ export interface PendingInvitation {
   id: string;
   email: string;
   role: MembershipRole;
+  permissionPreset: PermissionPreset;
   status: InvitationStatus;
   expiresAt: Date;
   createdAt: Date;
   inviterName: string | null;
+  token: string;
 }
 
 // ============================================================================
@@ -70,8 +81,11 @@ export async function createInvitation(
   invitedBy: string,
   email: string,
   role: MembershipRole = "member",
+  permissionPreset: PermissionPreset = presetForRole(role),
 ) {
   const normalizedEmail = email.toLowerCase().trim();
+  const effectivePreset = normalizePermissionPreset(permissionPreset, role);
+  const effectiveRole = roleForPreset(effectivePreset);
 
   // Check for existing membership (user may already be a member)
   const existingUser = await db.query.users.findFirst({
@@ -124,7 +138,8 @@ export async function createInvitation(
     .values({
       companyId,
       email: normalizedEmail,
-      role,
+      role: effectiveRole,
+      permissionPreset: effectivePreset,
       invitedBy,
       token,
       expiresAt,
@@ -136,7 +151,7 @@ export async function createInvitation(
 
 /**
  * Accept an invitation. Creates membership, marks invite as accepted.
- * If user's active company is null, sets it to the invited company.
+ * Sets the invited company as the user's active workspace.
  */
 export async function acceptInvitation(
   db: Database,
@@ -188,6 +203,7 @@ export async function acceptInvitation(
       invitation.companyId,
       userId,
       invitation.role,
+      normalizePermissionPreset(invitation.permissionPreset, invitation.role),
     );
 
     await tx
@@ -195,13 +211,10 @@ export async function acceptInvitation(
       .set({ status: "accepted", acceptedAt: new Date() })
       .where(eq(invitations.id, invitation.id));
 
-    // If user has no active company, set this one
-    if (!user.companyId) {
-      await tx
-        .update(users)
-        .set({ companyId: invitation.companyId })
-        .where(eq(users.id, userId));
-    }
+    await tx
+      .update(users)
+      .set({ companyId: invitation.companyId })
+      .where(eq(users.id, userId));
 
     const company = await tx.query.companies.findFirst({
       where: eq(companies.id, invitation.companyId),
@@ -252,10 +265,12 @@ export async function getCompanyInvitations(
       id: invitations.id,
       email: invitations.email,
       role: invitations.role,
+      permissionPreset: invitations.permissionPreset,
       status: invitations.status,
       expiresAt: invitations.expiresAt,
       createdAt: invitations.createdAt,
       inviterName: users.name,
+      token: invitations.token,
     })
     .from(invitations)
     .innerJoin(users, eq(invitations.invitedBy, users.id))
@@ -266,7 +281,10 @@ export async function getCompanyInvitations(
       ),
     );
 
-  return rows;
+  return rows.map((row) => ({
+    ...row,
+    permissionPreset: normalizePermissionPreset(row.permissionPreset, row.role),
+  }));
 }
 
 /**
@@ -281,6 +299,7 @@ export async function getInvitationByToken(
       id: invitations.id,
       email: invitations.email,
       role: invitations.role,
+      permissionPreset: invitations.permissionPreset,
       status: invitations.status,
       companyName: companies.name,
       companyId: invitations.companyId,
@@ -293,5 +312,10 @@ export async function getInvitationByToken(
     .innerJoin(users, eq(invitations.invitedBy, users.id))
     .where(eq(invitations.token, token));
 
-  return rows[0] ?? null;
+  const row = rows[0];
+  if (!row) return null;
+  return {
+    ...row,
+    permissionPreset: normalizePermissionPreset(row.permissionPreset, row.role),
+  };
 }

@@ -2,22 +2,14 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import {
-  Users,
-  Mail,
-  Loader2,
-  Trash2,
-  ChevronDown,
-  UserPlus,
-  X,
-} from "lucide-react";
+import { Users, Mail, Loader2, Trash2, UserPlus, X } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
-import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
+import { CopyButton } from "@/components/copy-button";
 import {
   getTeamMembersAction,
   removeMemberAction,
-  updateMemberRoleAction,
+  updateMemberPresetAction,
 } from "@/app/actions/memberships";
 import {
   inviteMemberAction,
@@ -27,9 +19,9 @@ import {
 import type { CompanyMember } from "@kivvi/core/src/domain/memberships";
 import type { PendingInvitation } from "@kivvi/core/src/domain/invitations";
 import {
-  INVITABLE_ROLE_VALUES as INVITABLE_ROLES,
-  MEMBERSHIP_ROLE_VALUES as MEMBERSHIP_ROLES,
-  type MembershipRoleValue as MembershipRole,
+  INVITABLE_PERMISSION_PRESET_VALUES,
+  PERMISSION_PRESET_VALUES,
+  type PermissionPresetValue as PermissionPreset,
 } from "@kivvi/database/src/enums";
 import { useSession } from "next-auth/react";
 import { TeamInvitationsList } from "./team-invitations-list";
@@ -38,17 +30,18 @@ import { RoleBadge } from "./role-badge";
 export default function TeamPage() {
   const t = useTranslations("team");
   const tc = useTranslations("common");
-  const tAria = useTranslations("aria");
+  const tAria = useTranslations("common.aria");
   const { data: session } = useSession();
   const [members, setMembers] = useState<CompanyMember[]>([]);
   const [invites, setInvites] = useState<PendingInvitation[]>([]);
   const [loading, setLoading] = useState(true);
   const [showInviteForm, setShowInviteForm] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
-  const [inviteRole, setInviteRole] = useState<MembershipRole>("member");
+  const [invitePreset, setInvitePreset] = useState<PermissionPreset>("sales");
   const [inviting, setInviting] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [latestInviteUrl, setLatestInviteUrl] = useState("");
 
   const loadData = useCallback(async () => {
     const [membersResult, invitesResult] = await Promise.all([
@@ -74,10 +67,11 @@ export default function TeamPage() {
 
     const result = await inviteMemberAction({
       email: inviteEmail,
-      role: inviteRole,
+      permissionPreset: invitePreset,
     });
     if (result.success) {
       setSuccessMessage(t("invitationSent"));
+      setLatestInviteUrl(result.data?.inviteUrl ?? "");
       setInviteEmail("");
       setShowInviteForm(false);
       await loadData();
@@ -97,8 +91,11 @@ export default function TeamPage() {
     }
   };
 
-  const handleRoleChange = async (userId: string, newRole: MembershipRole) => {
-    const result = await updateMemberRoleAction({ userId, role: newRole });
+  const handlePresetChange = async (
+    userId: string,
+    permissionPreset: PermissionPreset,
+  ) => {
+    const result = await updateMemberPresetAction({ userId, permissionPreset });
     if (result.success) {
       await loadData();
     } else {
@@ -152,11 +149,25 @@ export default function TeamPage() {
         </div>
       )}
       {successMessage && (
-        <div className="flex items-center justify-between rounded-lg bg-success/5 p-3 text-sm text-success">
-          {successMessage}
+        <div className="flex items-center justify-between gap-3 rounded-lg bg-success/5 p-3 text-sm text-success">
+          <div className="min-w-0">
+            <p>{successMessage}</p>
+            {latestInviteUrl && (
+              <div className="mt-2 flex items-center gap-2 rounded-md border border-success/20 bg-background px-2 py-1 text-foreground">
+                <span className="truncate text-xs">{latestInviteUrl}</span>
+                <CopyButton
+                  value={latestInviteUrl}
+                  label={t("copyInviteLink")}
+                />
+              </div>
+            )}
+          </div>
           <button
             type="button"
-            onClick={() => setSuccessMessage("")}
+            onClick={() => {
+              setSuccessMessage("");
+              setLatestInviteUrl("");
+            }}
             aria-label={tAria("dismiss")}
             className="inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-success/10"
           >
@@ -190,24 +201,24 @@ export default function TeamPage() {
                 className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
-            <div className="w-full sm:w-40">
+            <div className="w-full sm:w-48">
               <label
-                htmlFor="invite-role"
+                htmlFor="invite-preset"
                 className="mb-1 block text-sm font-medium"
               >
-                {t("role")}
+                {t("permissionPreset")}
               </label>
               <select
-                id="invite-role"
-                value={inviteRole}
+                id="invite-preset"
+                value={invitePreset}
                 onChange={(e) =>
-                  setInviteRole(e.target.value as MembershipRole)
+                  setInvitePreset(e.target.value as PermissionPreset)
                 }
                 className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               >
-                {INVITABLE_ROLES.map((role) => (
-                  <option key={role} value={role}>
-                    {tc(`roleLabel.${role}`)}
+                {INVITABLE_PERMISSION_PRESET_VALUES.map((preset) => (
+                  <option key={preset} value={preset}>
+                    {tc(`permissionPresetLabel.${preset}`)}
                   </option>
                 ))}
               </select>
@@ -243,7 +254,10 @@ export default function TeamPage() {
         </div>
         <div className="divide-y">
           {members.map((member) => (
-            <div key={member.userId} className="flex items-center gap-4 p-4">
+            <div
+              key={member.userId}
+              className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:gap-4"
+            >
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-medium">
                 {(member.name || member.email).charAt(0).toUpperCase()}
               </div>
@@ -257,31 +271,33 @@ export default function TeamPage() {
               </div>
               <RoleBadge
                 role={member.role}
-                label={tc(`roleLabel.${member.role}`)}
+                label={tc(`permissionPresetLabel.${member.permissionPreset}`)}
               />
               {/* Role change + remove for owners/admins */}
               {session?.user?.id !== member.userId && (
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <select
-                    value={member.role}
+                    value={member.permissionPreset}
                     onChange={(e) =>
-                      handleRoleChange(
+                      handlePresetChange(
                         member.userId,
-                        e.target.value as MembershipRole,
+                        e.target.value as PermissionPreset,
                       )
                     }
                     className="rounded-lg border bg-background px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                   >
-                    {MEMBERSHIP_ROLES.map((role) => (
-                      <option key={role} value={role}>
-                        {tc(`roleLabel.${role}`)}
+                    {PERMISSION_PRESET_VALUES.map((preset) => (
+                      <option key={preset} value={preset}>
+                        {tc(`permissionPresetLabel.${preset}`)}
                       </option>
                     ))}
                   </select>
                   <button
+                    type="button"
                     onClick={() =>
                       handleRemoveMember(member.userId, member.name)
                     }
+                    aria-label={t("removeAccess")}
                     className="rounded-lg p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                     title={t("removeAccess")}
                   >

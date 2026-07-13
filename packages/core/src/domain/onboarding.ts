@@ -4,6 +4,7 @@ import type { Database, CompanySettings } from "@kivvi/database";
 import { seedChartOfAccounts, createFiscalYear } from "./accounting";
 import { initializeSequences } from "./number-sequences";
 import { createWarehouse } from "./inventory";
+import { seedCostCenters } from "./cost-centers";
 import { getDefaultTrialEnd } from "./billing";
 
 // ============================================================================
@@ -59,6 +60,9 @@ export async function initializeCompany(
       startDate: `${currentYear}-01-01`,
       endDate: `${currentYear}-12-31`,
     });
+
+    // 4b. Seed default operating activities (analytical dimension)
+    await seedCostCenters(tx, companyId);
 
     // 5. Update company settings
     const [company] = await tx

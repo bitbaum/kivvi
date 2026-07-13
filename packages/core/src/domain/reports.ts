@@ -6,6 +6,7 @@ import {
 } from "../config/document-constants";
 import {
   accounts,
+  costCenters,
   journalEntries,
   journalLines,
   documents,
@@ -14,6 +15,7 @@ import {
   products,
   productGroups,
 } from "@kivvi/database";
+import type { CostCenterKind } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
 
 // ============================================================================
@@ -204,7 +206,12 @@ export async function getProfitAndLoss(
   companyId: string,
   startDate: string,
   endDate: string,
+  /** Optional: restrict to one activity/fund (drill-down). */
+  costCenterId?: string,
 ): Promise<ProfitLossReport> {
+  const ccFilter = costCenterId
+    ? eq(journalLines.costCenterId, costCenterId)
+    : undefined;
   // Revenue accounts (credit - debit)
   const revenueRows = await db
     .select({
@@ -223,6 +230,7 @@ export async function getProfitAndLoss(
         eq(accounts.companyId, companyId),
         eq(accounts.type, "revenue"),
         sql`(${journalEntries.date} IS NULL OR (${journalEntries.date} >= ${startDate}::timestamp AND ${journalEntries.date} <= ${endDate}::timestamp))`,
+        ccFilter,
       ),
     )
     .groupBy(accounts.id, accounts.code, accounts.name)
@@ -249,6 +257,7 @@ export async function getProfitAndLoss(
         eq(accounts.companyId, companyId),
         eq(accounts.type, "expense"),
         sql`(${journalEntries.date} IS NULL OR (${journalEntries.date} >= ${startDate}::timestamp AND ${journalEntries.date} <= ${endDate}::timestamp))`,
+        ccFilter,
       ),
     )
     .groupBy(accounts.id, accounts.code, accounts.name)
@@ -278,6 +287,106 @@ export async function getProfitAndLoss(
     revenue,
     expenses,
     ...totals,
+    periodStart: startDate,
+    periodEnd: endDate,
+  };
+}
+
+// ============================================================================
+// ACTIVITY / FUND BREAKDOWN (Kostenstellen / Fondsrechnung)
+// ============================================================================
+
+export interface ActivityBreakdownRow {
+  costCenterId: string | null;
+  code: string | null;
+  name: string;
+  kind: CostCenterKind | null;
+  revenue: string;
+  expenses: string;
+  net: string;
+}
+
+export interface ActivityBreakdownReport {
+  rows: ActivityBreakdownRow[];
+  totalRevenue: string;
+  totalExpenses: string;
+  totalNet: string;
+  periodStart: string;
+  periodEnd: string;
+}
+
+/**
+ * Net result per analytical dimension for a period — the SSOT behind the
+ * per-activity P&L and the fund (FER-21) report. Postings with no cost center
+ * roll up into a single "Untagged" row so nothing is silently dropped.
+ */
+export async function getActivityBreakdown(
+  db: Database,
+  companyId: string,
+  startDate: string,
+  endDate: string,
+): Promise<ActivityBreakdownReport> {
+  const rows = await db
+    .select({
+      costCenterId: costCenters.id,
+      code: costCenters.code,
+      name: costCenters.name,
+      kind: costCenters.kind,
+      revenue: sql<string>`COALESCE(SUM(CASE WHEN ${accounts.type} = 'revenue' THEN CAST(${journalLines.credit} AS DECIMAL) - CAST(${journalLines.debit} AS DECIMAL) ELSE 0 END), 0)`,
+      expenses: sql<string>`COALESCE(SUM(CASE WHEN ${accounts.type} = 'expense' THEN CAST(${journalLines.debit} AS DECIMAL) - CAST(${journalLines.credit} AS DECIMAL) ELSE 0 END), 0)`,
+    })
+    .from(journalLines)
+    .innerJoin(accounts, eq(journalLines.accountId, accounts.id))
+    .innerJoin(
+      journalEntries,
+      eq(journalLines.journalEntryId, journalEntries.id),
+    )
+    .leftJoin(costCenters, eq(journalLines.costCenterId, costCenters.id))
+    .where(
+      and(
+        eq(accounts.companyId, companyId),
+        inArray(accounts.type, ["revenue", "expense"]),
+        gte(journalEntries.date, new Date(startDate)),
+        lte(journalEntries.date, new Date(endDate)),
+      ),
+    )
+    .groupBy(
+      costCenters.id,
+      costCenters.code,
+      costCenters.name,
+      costCenters.kind,
+    )
+    .orderBy(asc(costCenters.kind), asc(costCenters.code));
+
+  let totalRevenue = new Decimal(0);
+  let totalExpenses = new Decimal(0);
+
+  const resultRows: ActivityBreakdownRow[] = rows
+    .map((r) => {
+      const revenue = new Decimal(r.revenue || "0");
+      const expenses = new Decimal(r.expenses || "0");
+      totalRevenue = totalRevenue.plus(revenue);
+      totalExpenses = totalExpenses.plus(expenses);
+      return {
+        costCenterId: r.costCenterId,
+        code: r.code,
+        name: r.name ?? "Untagged",
+        kind: r.kind,
+        revenue: revenue.toFixed(2),
+        expenses: expenses.toFixed(2),
+        net: revenue.minus(expenses).toFixed(2),
+      };
+    })
+    // Drop rows that netted to zero AND had no activity (keeps the report tight).
+    .filter(
+      (r) => !(new Decimal(r.revenue).eq(0) && new Decimal(r.expenses).eq(0)),
+    );
+
+  return {
+    rows: resultRows,
+    totalRevenue: totalRevenue.toFixed(2),
+    totalExpenses: totalExpenses.toFixed(2),
+    totalNet: totalRevenue.minus(totalExpenses).toFixed(2),
     periodStart: startDate,
     periodEnd: endDate,
   };

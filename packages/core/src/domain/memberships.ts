@@ -11,6 +11,13 @@ import type { MembershipRole } from "@kivvi/database";
 import { DEFAULT_VAT_RATE } from "../config/vat-rates";
 import { DEFAULT_CURRENCY } from "../config/locale";
 import { DomainError } from "../domain-error";
+import {
+  PERMISSION_PRESETS,
+  normalizePermissionPreset,
+  presetForRole,
+  roleForPreset,
+  type PermissionPreset,
+} from "./permissions";
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -19,6 +26,12 @@ import { DomainError } from "../domain-error";
 export const updateMemberRoleSchema = z.object({
   userId: z.string().uuid(),
   role: z.enum(MEMBERSHIP_ROLES),
+  permissionPreset: z.enum(PERMISSION_PRESETS).optional(),
+});
+
+export const updateMemberPresetSchema = z.object({
+  userId: z.string().uuid(),
+  permissionPreset: z.enum(PERMISSION_PRESETS),
 });
 
 export const switchCompanySchema = z.object({
@@ -33,6 +46,7 @@ export interface MembershipInfo {
   companyId: string;
   companyName: string;
   role: MembershipRole;
+  permissionPreset: PermissionPreset;
 }
 
 export interface CompanyMember {
@@ -40,6 +54,7 @@ export interface CompanyMember {
   name: string | null;
   email: string;
   role: MembershipRole;
+  permissionPreset: PermissionPreset;
   joinedAt: Date;
 }
 
@@ -76,12 +91,16 @@ export async function getUserMemberships(
       companyId: memberships.companyId,
       companyName: companies.name,
       role: memberships.role,
+      permissionPreset: memberships.permissionPreset,
     })
     .from(memberships)
     .innerJoin(companies, eq(memberships.companyId, companies.id))
     .where(eq(memberships.userId, userId));
 
-  return rows;
+  return rows.map((row) => ({
+    ...row,
+    permissionPreset: normalizePermissionPreset(row.permissionPreset, row.role),
+  }));
 }
 
 /**
@@ -97,13 +116,17 @@ export async function getCompanyMembers(
       name: users.name,
       email: users.email,
       role: memberships.role,
+      permissionPreset: memberships.permissionPreset,
       joinedAt: memberships.createdAt,
     })
     .from(memberships)
     .innerJoin(users, eq(memberships.userId, users.id))
     .where(eq(memberships.companyId, companyId));
 
-  return rows;
+  return rows.map((row) => ({
+    ...row,
+    permissionPreset: normalizePermissionPreset(row.permissionPreset, row.role),
+  }));
 }
 
 /**
@@ -114,10 +137,11 @@ export async function addMember(
   companyId: string,
   userId: string,
   role: MembershipRole = "member",
+  permissionPreset: PermissionPreset = presetForRole(role),
 ) {
   const [membership] = await db
     .insert(memberships)
-    .values({ userId, companyId, role })
+    .values({ userId, companyId, role, permissionPreset })
     .returning();
 
   return membership;
@@ -195,6 +219,24 @@ export async function updateMemberRole(
   newRole: MembershipRole,
   requestedBy: string,
 ): Promise<void> {
+  await updateMemberAccess(
+    db,
+    companyId,
+    userId,
+    newRole,
+    requestedBy,
+    presetForRole(newRole),
+  );
+}
+
+export async function updateMemberAccess(
+  db: Database,
+  companyId: string,
+  userId: string,
+  newRoleOrPreset: MembershipRole | PermissionPreset,
+  requestedBy: string,
+  maybePreset?: PermissionPreset,
+): Promise<void> {
   await db.transaction(async (tx) => {
     // Verify requester has permission
     const requesterMembership = await findMembership(
@@ -210,6 +252,12 @@ export async function updateMemberRole(
     }
 
     // Only owners can promote to owner/admin
+    const newRole = maybePreset
+      ? (newRoleOrPreset as MembershipRole)
+      : roleForPreset(newRoleOrPreset as PermissionPreset);
+    const permissionPreset =
+      maybePreset ?? (newRoleOrPreset as PermissionPreset);
+
     if (
       ["owner", "admin"].includes(newRole) &&
       requesterMembership.role !== "owner"
@@ -243,7 +291,7 @@ export async function updateMemberRole(
 
     await tx
       .update(memberships)
-      .set({ role: newRole, updatedAt: new Date() })
+      .set({ role: newRole, permissionPreset, updatedAt: new Date() })
       .where(eq(memberships.id, targetMembership.id));
   });
 }
@@ -279,6 +327,7 @@ export async function createOwnedCompany(
     userId,
     companyId: company.id,
     role: "owner",
+    permissionPreset: "owner",
   });
 
   return { companyId: company.id, companyName: company.name };

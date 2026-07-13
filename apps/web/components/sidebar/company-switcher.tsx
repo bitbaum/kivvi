@@ -133,8 +133,8 @@ export function CompanySwitcher({ tc }: CompanySwitcherProps) {
             className="h-5 w-5 text-muted-foreground"
             aria-hidden="true"
           />
-          <div className="flex-1 truncate">
-            <p className="text-sm font-medium">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-medium">
               {session?.user?.companyName || tc("myCompany")}
             </p>
             <p className="text-xs text-muted-foreground">
@@ -211,8 +211,8 @@ export function CompanySwitcher({ tc }: CompanySwitcherProps) {
           className="h-5 w-5 text-muted-foreground"
           aria-hidden="true"
         />
-        <div className="flex-1 truncate">
-          <p className="text-sm font-medium">
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium">
             {session?.user?.companyName || tc("myCompany")}
           </p>
           <p className="text-xs text-muted-foreground">

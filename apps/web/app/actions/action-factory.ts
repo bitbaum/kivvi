@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { db } from "@/lib/db";
 import {
   type ActionResult,
+  getAuthOnlySession,
   getSession,
   requireRole,
   safeErrorMessage,
@@ -32,6 +33,7 @@ export function createAction<TInput, TResult>(opts: {
   errorMessage: string | (() => Promise<string>);
   minRole?: MembershipRole;
   translateDomainErrors?: boolean;
+  authOnly?: boolean;
 }): (input: TInput) => Promise<ActionResult<TResult>> {
   return async (input: TInput): Promise<ActionResult<TResult>> => {
     const [fallback, tDomain] = await Promise.all([
@@ -43,9 +45,11 @@ export function createAction<TInput, TResult>(opts: {
         : Promise.resolve(null),
     ]);
     try {
-      const { companyId, userId } = opts.minRole
-        ? await requireRole(opts.minRole)
-        : await getSession();
+      const { companyId, userId } = opts.authOnly
+        ? await getAuthOnlySession()
+        : opts.minRole
+          ? await requireRole(opts.minRole)
+          : await getSession();
       const result = await opts.handler(input, { companyId, userId, db });
 
       if (opts.revalidate) {

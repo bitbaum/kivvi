@@ -193,6 +193,16 @@
       "member": "Membre",
       "viewer": "Lecteur"
     },
+    "permissionPresetLabel": {
+      "owner": "Propriétaire",
+      "admin": "Admin",
+      "finance": "Finance",
+      "sales": "Ventes",
+      "intake": "Réception",
+      "repair": "Réparation",
+      "inventory": "Stock",
+      "viewer": "Lecteur"
+    },
     "itemTypes": {
       "invoice": "Facture",
       "quote": "Devis",
@@ -210,7 +220,8 @@
     "removeImage": "Supprimer l'image",
     "pleaseSelect": "Veuillez choisir…",
     "errorSearchFailed": "Recherche échouée",
-    "emailFooterAuto": "Cet e-mail a été envoyé automatiquement par Kivvi."
+    "emailFooterAuto": "Cet e-mail a été envoyé automatiquement par Kivvi.",
+    "products": "Produits"
   },
   "nav": {
     "home": "Accueil",
@@ -521,6 +532,8 @@
       "recordPaymentDesc": "Enregistrer un paiement pour une facture",
       "addContact": "Ajouter un contact",
       "addContactDesc": "Ajouter un nouveau client, donateur ou fournisseur",
+      "inviteTeammate": "Inviter un collègue",
+      "inviteTeammateDesc": "Ajouter un collègue à cet espace",
       "importData": "Importer des données",
       "importDataDesc": "Importer des données depuis des fichiers CSV",
       "openAIChat": "Ouvrir l'IA",
@@ -1294,6 +1307,7 @@
     "sale": "Vente",
     "adjustment": "Ajustement",
     "transfer": "Transfert",
+    "return": "Retour",
     "fromWarehouse": "Depuis l'entrepôt",
     "toWarehouse": "Vers l'entrepôt",
     "noMovements": "Aucun mouvement de stock trouvé",
@@ -1922,6 +1936,17 @@
       "title": "Profil utilisateur",
       "fullName": "Nom complet",
       "emailAddress": "Adresse e-mail",
+      "location": "Lieu",
+      "languages": "Langues",
+      "skills": "Compétences et intérêts",
+      "availabilityType": "Disponibilité",
+      "availability": {
+        "volunteer": "Bénévole",
+        "employee": "Employé·e",
+        "contractor": "Prestataire",
+        "founder": "Fondateur·rice",
+        "other": "Autre"
+      },
       "role": "Rôle",
       "changePassword": "Changer le mot de passe",
       "currentPassword": "Mot de passe actuel",
@@ -1937,6 +1962,72 @@
       "removeAvatar": "Supprimer la photo",
       "avatarHint": "PNG, JPEG ou SVG · Max 500Ko",
       "errorChangePasswordFailed": "Échec du changement de mot de passe"
+    },
+    "organizationProfile": {
+      "title": "Profil public de l'organisation",
+      "desc": "Publiez cette entreprise uniquement lorsqu'elle doit apparaître dans l'annuaire public.",
+      "publicName": "Nom public",
+      "publicSlug": "Slug public d'URL",
+      "shortDescription": "Description courte",
+      "category": "Catégorie",
+      "location": "Lieu",
+      "website": "Site web",
+      "isPublic": "Afficher dans l'annuaire public",
+      "acceptingApplications": "Accepter les candidatures",
+      "saved": "Profil d'organisation enregistré.",
+      "saveError": "Impossible d'enregistrer le profil d'organisation"
+    },
+    "vacancies": {
+      "title": "Postes",
+      "desc": "Publiez des rôles ouverts sans exposer les données ERP privées.",
+      "empty": "Aucun poste pour le moment.",
+      "newTitle": "Titre",
+      "typeLabel": "Type",
+      "locationModeLabel": "Mode de travail",
+      "workload": "Taux d'activité",
+      "statusLabel": "Statut",
+      "skills": "Compétences",
+      "add": "Ajouter un poste",
+      "saved": "Poste enregistré.",
+      "saveError": "Impossible d'enregistrer le poste",
+      "statusSaved": "Statut du poste mis à jour.",
+      "statusError": "Impossible de mettre à jour le statut du poste",
+      "type": {
+        "employee": "Employé·e",
+        "volunteer": "Bénévole",
+        "internship": "Stage",
+        "contractor": "Prestataire",
+        "board": "Conseil",
+        "other": "Autre"
+      },
+      "locationMode": {
+        "onsite": "Sur site",
+        "hybrid": "Hybride",
+        "remote": "À distance"
+      },
+      "status": {
+        "draft": "Brouillon",
+        "published": "Publié",
+        "closed": "Fermé"
+      }
+    },
+    "joinRequests": {
+      "title": "Candidatures",
+      "desc": "Examinez les personnes qui souhaitent rejoindre cette organisation.",
+      "empty": "Aucune candidature pour le moment.",
+      "accept": "Accepter",
+      "decline": "Refuser",
+      "accepted": "Candidature acceptée. Partagez le lien d'invitation avec la personne.",
+      "declined": "Candidature refusée.",
+      "copyInviteLink": "Copier le lien",
+      "acceptError": "Impossible d'accepter la candidature",
+      "statusError": "Impossible de mettre à jour le statut de candidature",
+      "status": {
+        "pending": "En attente",
+        "accepted": "Acceptée",
+        "declined": "Refusée",
+        "withdrawn": "Retirée"
+      }
     },
     "sequences": {
       "title": "Séquences de numérotation",
@@ -2272,6 +2363,48 @@
         "saved": "Enregistré",
         "testConnection": "Tester la connexion",
         "testing": "Test en cours…"
+      },
+      "operations": {
+        "nextcloudTitle": "Fichiers Nextcloud",
+        "nextcloudDescription": "Connectez le dossier Nextcloud partagé qui contient les demandes clients, photos, reçus et documents d'appareils. Kivvi utilise WebDAV et pourra ensuite rattacher les documents aux contacts, articles et flux de travail.",
+        "mailTitle": "Entrée e-mail",
+        "mailDescription": "Connectez la boîte IMAP que votre équipe utilise aussi dans Thunderbird. Kivvi pourra ensuite préparer les demandes clients depuis les conversations e-mail sans imposer un portail supplémentaire.",
+        "baseUrl": "URL Nextcloud",
+        "username": "Nom d'utilisateur",
+        "appPassword": "Mot de passe d'application",
+        "folderPath": "Chemin du dossier",
+        "imapHost": "Serveur IMAP",
+        "port": "Port",
+        "password": "Mot de passe",
+        "mailbox": "Boîte",
+        "useTls": "Utiliser TLS",
+        "enabled": "Actif",
+        "saved": "Enregistré",
+        "saveFailed": "Échec de l'enregistrement",
+        "connectionOk": "Connexion réussie",
+        "connectionFailed": "Échec de la connexion",
+        "testConnection": "Tester la connexion",
+        "scanNow": "Scanner maintenant",
+        "syncImported": "{count} éléments trouvés ou déjà connus",
+        "syncFailed": "Échec du scan",
+        "status": {
+          "not_configured": "Non configuré",
+          "disabled": "Désactivé",
+          "ok": "Connecté",
+          "error": "Erreur",
+          "untested": "Pas encore testé"
+        }
+      },
+      "review": {
+        "title": "Revue d'entrée",
+        "description": "Les nouveaux e-mails et fichiers arrivent d'abord ici. Vérifiez les suggestions avant que Kivvi crée des données CRM ou opérationnelles.",
+        "count": "{count} ouverts",
+        "empty": "Aucun e-mail ou fichier à vérifier pour le moment. Configurez une connexion et lancez un scan.",
+        "mail": "E-mail",
+        "nextcloud": "Nextcloud",
+        "openFile": "Ouvrir le fichier",
+        "createContact": "Créer un contact",
+        "ignore": "Ignorer"
       },
       "errorSaveApiKey": "Échec de l'enregistrement de la clé API"
     },
@@ -4157,6 +4290,8 @@
     "inviteMember": "Inviter un nouveau membre",
     "email": "Adresse e-mail",
     "role": "Rôle",
+    "permissionPreset": "Profil d'accès",
+    "copyInviteLink": "Copier le lien",
     "sendInvitation": "Envoyer l'invitation",
     "cancel": "Annuler",
     "invitationSent": "Invitation envoyée avec succès.",
@@ -4223,8 +4358,34 @@
     "creating": "Création...",
     "waitingForInvite": "En attente d'une invitation",
     "waitingDesc": "Votre administrateur vous enverra un lien d'invitation par e-mail. Cliquez dessus — vous rejoindrez l'organisation automatiquement.",
+    "profileTitle": "Profil personnel",
+    "profileDesc": "Gardez vos informations prêtes pour les équipes, invitations et la future découverte.",
+    "pendingInvites": "Invitations en attente",
+    "acceptInvite": "Accepter",
+    "copyInviteLink": "Copier le lien",
+    "expiresOn": "Expire le {date}",
+    "discoveryTitle": "Découverte d'organisations",
+    "discoveryDesc": "Les profils publics et postes apparaîtront ici lorsque les équipes les publieront.",
     "signOut": "Se déconnecter",
     "errorGeneric": "Une erreur s'est produite. Veuillez réessayer."
+  },
+  "orgs": {
+    "directoryTitle": "Organisations",
+    "directoryDesc": "Équipes de l'économie circulaire qui ont choisi la découverte publique.",
+    "emptyTitle": "Aucune organisation publique pour le moment",
+    "emptyDesc": "Les organisations sont privées par défaut et n'apparaissent ici qu'après publication par un admin.",
+    "backToDirectory": "Retour aux organisations",
+    "website": "Site web",
+    "vacanciesTitle": "Postes",
+    "vacanciesDesc": "Rôles ouverts et possibilités de participation.",
+    "noVacancies": "Aucun poste publié actuellement.",
+    "generalApplication": "Candidature spontanée",
+    "generalApplicationDesc": "Envoyez un message si vous souhaitez participer hors d'un poste listé.",
+    "messagePlaceholder": "Écrivez un court message sur la manière dont vous voulez aider.",
+    "apply": "Postuler",
+    "loginToApply": "Se connecter pour postuler",
+    "applySuccess": "Candidature envoyée.",
+    "applyError": "Impossible d'envoyer la candidature"
   },
   "dataQuality": {
     "contactIssue_no_email_with_invoices": "A des factures mais pas d'adresse e-mail",
@@ -4286,6 +4447,7 @@
     "errorNoProvider": "Aucun fournisseur d'IA disponible. Veuillez configurer une clé API valide dans les paramètres (Anthropic, OpenAI, OpenRouter ou Ollama).",
     "errorApiKeyInvalid": "La clé API est invalide ou expirée. Veuillez la mettre à jour dans votre fichier .env.local.",
     "errorUnreachable": "Le serveur d'IA est inaccessible. Veuillez vérifier la connexion.",
+    "errorTimeout": "La requête IA a pris trop de temps. Veuillez réessayer avec une question plus ciblée.",
     "errorGeneric": "Une erreur s'est produite. Veuillez réessayer.",
     "errorExtractItems": "Impossible d'extraire les articles",
     "errorExtractContact": "Impossible d'extraire les données du contact",

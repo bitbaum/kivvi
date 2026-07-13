@@ -87,6 +87,7 @@ export async function createInvoiceSentJournalEntry(
     vatAmount: string;
     subtotal: string;
     issueDate: Date;
+    costCenterId?: string | null;
   },
 ) {
   const { debitAccount, vatAccount } = ACCOUNT_MAPPINGS.invoiceSent;
@@ -135,6 +136,7 @@ export async function createInvoiceSentJournalEntry(
     description: `Invoice sent: ${doc.number}`,
     sourceType: "invoice_sent",
     sourceId: doc.id,
+    costCenterId: doc.costCenterId,
     lines,
   });
 }
@@ -153,6 +155,7 @@ export async function createCreditNoteSentJournalEntry(
     vatAmount: string;
     subtotal: string;
     issueDate: Date;
+    costCenterId?: string | null;
   },
 ) {
   const { debitAccount, creditAccount, vatAccount } =
@@ -190,6 +193,7 @@ export async function createCreditNoteSentJournalEntry(
     description: `Credit note sent: ${doc.number}`,
     sourceType: "credit_note_sent",
     sourceId: doc.id,
+    costCenterId: doc.costCenterId,
     lines,
   });
 }
@@ -209,6 +213,7 @@ export async function createCancellationReversalJournalEntry(
     vatAmount: string;
     subtotal: string;
     issueDate: Date;
+    costCenterId?: string | null;
   },
 ) {
   if (doc.type === "invoice") {
@@ -245,6 +250,7 @@ export async function createCancellationReversalJournalEntry(
       description: `Invoice cancelled: ${doc.number}`,
       sourceType: "invoice_cancelled",
       sourceId: doc.id,
+      costCenterId: doc.costCenterId,
       lines,
     });
   }
@@ -283,6 +289,7 @@ export async function createCancellationReversalJournalEntry(
       description: `Purchase invoice cancelled: ${doc.number}`,
       sourceType: "purchase_invoice_cancelled",
       sourceId: doc.id,
+      costCenterId: doc.costCenterId,
       lines,
     });
   }
@@ -624,7 +631,12 @@ export async function createConsignorPayoutJournalEntry(
 export async function createPaymentReceivedJournalEntry(
   db: Database,
   companyId: string,
-  doc: { id: string; number: string; type: string },
+  doc: {
+    id: string;
+    number: string;
+    type: string;
+    costCenterId?: string | null;
+  },
   payment: { amount: string; date: Date },
 ) {
   const isSales = doc.type === "invoice";
@@ -638,6 +650,7 @@ export async function createPaymentReceivedJournalEntry(
     description: `Payment ${isSales ? "received" : "made"}: ${doc.number}`,
     sourceType: "payment",
     sourceId: doc.id,
+    costCenterId: doc.costCenterId,
     lines: [
       {
         accountCode: mapping.debitAccount,
@@ -667,6 +680,7 @@ export async function createPurchaseInvoiceJournalEntry(
     vatAmount: string;
     subtotal: string;
     issueDate: Date;
+    costCenterId?: string | null;
   },
 ) {
   const { expenseAccount, creditAccount, vatAccount } =
@@ -704,6 +718,7 @@ export async function createPurchaseInvoiceJournalEntry(
     description: `Purchase invoice confirmed: ${doc.number}`,
     sourceType: "purchase_invoice_confirmed",
     sourceId: doc.id,
+    costCenterId: doc.costCenterId,
     lines,
   });
 }

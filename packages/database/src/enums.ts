@@ -48,6 +48,13 @@ export const ACCOUNT_TYPE_VALUES = [
 ] as const;
 export type AccountTypeValue = (typeof ACCOUNT_TYPE_VALUES)[number];
 
+/**
+ * Analytical dimension on bookings. `activity` = an ongoing operating segment
+ * (Refurb-Verkauf, Reparaturen, …); `fund` = a donor-restricted fund (FER-21).
+ */
+export const COST_CENTER_KIND_VALUES = ["activity", "fund"] as const;
+export type CostCenterKind = (typeof COST_CENTER_KIND_VALUES)[number];
+
 export const STOCK_MOVEMENT_TYPE_VALUES = [
   "purchase",
   "sale",
@@ -171,3 +178,59 @@ export const INVITABLE_ROLE_VALUES = [
 ] as const satisfies readonly MembershipRoleValue[];
 /** @deprecated use INVITABLE_ROLE_VALUES */
 export const INVITABLE_ROLES = INVITABLE_ROLE_VALUES;
+
+export const PERMISSION_PRESET_VALUES = [
+  "owner",
+  "admin",
+  "finance",
+  "sales",
+  "intake",
+  "repair",
+  "inventory",
+  "viewer",
+] as const;
+export type PermissionPresetValue = (typeof PERMISSION_PRESET_VALUES)[number];
+
+export const INVITABLE_PERMISSION_PRESET_VALUES = [
+  "admin",
+  "finance",
+  "sales",
+  "intake",
+  "repair",
+  "inventory",
+  "viewer",
+] as const satisfies readonly PermissionPresetValue[];
+
+export const AVAILABILITY_TYPE_VALUES = [
+  "volunteer",
+  "employee",
+  "contractor",
+  "founder",
+  "other",
+] as const;
+export type AvailabilityTypeValue = (typeof AVAILABILITY_TYPE_VALUES)[number];
+
+export const VACANCY_TYPE_VALUES = [
+  "employee",
+  "volunteer",
+  "internship",
+  "contractor",
+  "board",
+  "other",
+] as const;
+export type VacancyTypeValue = (typeof VACANCY_TYPE_VALUES)[number];
+
+export const LOCATION_MODE_VALUES = ["onsite", "hybrid", "remote"] as const;
+export type LocationModeValue = (typeof LOCATION_MODE_VALUES)[number];
+
+export const VACANCY_STATUS_VALUES = ["draft", "published", "closed"] as const;
+export type VacancyStatusValue = (typeof VACANCY_STATUS_VALUES)[number];
+
+export const JOIN_REQUEST_STATUS_VALUES = [
+  "pending",
+  "accepted",
+  "declined",
+  "withdrawn",
+] as const;
+export type JoinRequestStatusValue =
+  (typeof JOIN_REQUEST_STATUS_VALUES)[number];

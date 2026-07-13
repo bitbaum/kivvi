@@ -31,6 +31,18 @@ export async function getSession() {
   };
 }
 
+export async function getAuthOnlySession() {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error("Unauthorized");
+  }
+  return {
+    companyId: session.user.companyId ?? "",
+    userId: session.user.id,
+    role: (session.user.role || "member") as MembershipRole,
+  };
+}
+
 /**
  * Get session and verify the user has at least the required role.
  * Throws 'Unauthorized' if insufficient permissions.

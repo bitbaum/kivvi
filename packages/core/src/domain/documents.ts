@@ -97,6 +97,7 @@ export const createDocumentSchema = z.object({
   type: z.enum(DOCUMENT_TYPE_VALUES),
   contactId: z.string().uuid().optional().nullable(),
   projectId: z.string().uuid().optional().nullable(),
+  costCenterId: z.string().uuid().optional().nullable(),
   issueDate: z.string().optional(), // ISO date string
   dueDate: z.string().optional().nullable(),
   deliveryDate: z.string().optional().nullable(),
@@ -119,6 +120,7 @@ export const createDocumentSchema = z.object({
 export const updateDocumentSchema = z.object({
   contactId: z.string().uuid().optional().nullable(),
   projectId: z.string().uuid().optional().nullable(),
+  costCenterId: z.string().uuid().optional().nullable(),
   issueDate: z.string().optional(),
   dueDate: z.string().optional().nullable(),
   deliveryDate: z.string().optional().nullable(),
@@ -520,6 +522,7 @@ export async function createDocument(
         number,
         contactId: validated.contactId ?? null,
         projectId: validated.projectId ?? null,
+        costCenterId: validated.costCenterId ?? null,
         issueDate: validated.issueDate
           ? new Date(validated.issueDate)
           : new Date(),
@@ -947,6 +950,7 @@ async function handleJournalEntries(
     issueDate: Date;
     number: string;
     currency: string;
+    costCenterId?: string | null;
   },
   newStatus: DocumentStatus,
 ) {

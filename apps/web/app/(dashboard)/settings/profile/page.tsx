@@ -19,6 +19,10 @@ export default async function ProfileSettingsPage() {
       name: users.name,
       email: users.email,
       avatarBase64: users.avatarBase64,
+      location: users.location,
+      languages: users.languages,
+      skills: users.skills,
+      availabilityType: users.availabilityType,
     })
     .from(users)
     .where(eq(users.id, session.user.id));
@@ -41,6 +45,10 @@ export default async function ProfileSettingsPage() {
         initialData={{
           name: user.name || "",
           email: user.email,
+          location: user.location,
+          languages: user.languages,
+          skills: user.skills,
+          availabilityType: user.availabilityType,
         }}
       />
 

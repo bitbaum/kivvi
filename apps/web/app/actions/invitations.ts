@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { db } from "@/lib/db";
+import { auth as getAuthSession } from "@/lib/auth";
 import { safeErrorMessage } from "./utils";
 import type { ActionResult } from "./utils";
 import { createAction } from "./action-factory";
@@ -18,8 +19,15 @@ import type {
   InvitationWithCompany,
 } from "@kivvi/core/src/domain/invitations";
 import type { MembershipRole } from "@kivvi/database";
-import { companies, users, INVITABLE_ROLES } from "@kivvi/database";
-import { eq } from "drizzle-orm";
+import {
+  companies,
+  invitations,
+  users,
+  INVITABLE_ROLES,
+  INVITABLE_PERMISSION_PRESET_VALUES,
+} from "@kivvi/database";
+import type { PermissionPresetValue } from "@kivvi/database/src/enums";
+import { and, eq } from "drizzle-orm";
 import {
   buildInvitationEmailHtml,
   buildInvitationEmailSubject,
@@ -38,7 +46,7 @@ import { isEmailConfigured } from "@/lib/config/email";
  */
 export const inviteMemberAction = createAction<
   unknown,
-  { id: string; token: string }
+  { id: string; token: string; inviteUrl: string }
 >({
   translateDomainErrors: true,
   handler: async (input, { companyId, userId, db }) => {
@@ -49,6 +57,9 @@ export const inviteMemberAction = createAction<
       .object({
         email: z.string().email(t("emailInvalid")),
         role: z.enum(INVITABLE_ROLES).default("member"),
+        permissionPreset: z
+          .enum(INVITABLE_PERMISSION_PRESET_VALUES)
+          .default("sales"),
       })
       .safeParse(input);
 
@@ -64,6 +75,7 @@ export const inviteMemberAction = createAction<
       userId,
       parsed.data.email,
       parsed.data.role as MembershipRole,
+      parsed.data.permissionPreset as PermissionPresetValue,
     );
 
     // Send invitation email (best-effort — don't fail the action if email fails)
@@ -86,12 +98,8 @@ export const inviteMemberAction = createAction<
           companyName: company?.name || tc("unknown"),
           acceptUrl,
           role:
-            {
-              owner: tc("roleLabel.owner"),
-              admin: tc("roleLabel.admin"),
-              member: tc("roleLabel.member"),
-              viewer: tc("roleLabel.viewer"),
-            }[parsed.data.role] ?? parsed.data.role,
+            tc(`permissionPresetLabel.${parsed.data.permissionPreset}`) ??
+            parsed.data.permissionPreset,
         };
 
         const invStrings: InvitationEmailStrings = {
@@ -122,7 +130,12 @@ export const inviteMemberAction = createAction<
       }
     }
 
-    return { id: invitation.id, token: invitation.token };
+    const baseUrl = process.env.NEXTAUTH_URL || "https://kivvi.ch";
+    return {
+      id: invitation.id,
+      token: invitation.token,
+      inviteUrl: `${baseUrl}/invite/${invitation.token}`,
+    };
   },
   revalidate: ["/settings/team"],
   errorMessage: () =>
@@ -157,18 +170,27 @@ export const getInvitationsAction = createAction<void, PendingInvitation[]>({
 /**
  * Accept an invitation (logged-in user).
  */
-export const acceptInvitationAction = createAction<
-  unknown,
-  { companyId: string; companyName: string }
->({
-  errorMessage: () => getTranslations("team").then((t) => t("acceptFailed")),
-  translateDomainErrors: true,
-  handler: async (token, { userId, db }) => {
+export async function acceptInvitationAction(
+  token: unknown,
+): Promise<ActionResult<{ companyId: string; companyName: string }>> {
+  const t = await getTranslations("team");
+  const tDomain = await getTranslations("domainErrors");
+  try {
+    const session = await getAuthSession();
+    if (!session?.user?.id) throw new Error("Unauthorized");
     const parsed = z.string().min(1).safeParse(token);
     if (!parsed.success) throw new Error("bad_token");
-    return acceptInvitation(db, parsed.data, userId);
-  },
-});
+    const result = await acceptInvitation(db, parsed.data, session.user.id);
+    return { success: true, data: result };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, t("acceptFailed"), (code, params) =>
+        tDomain(code as Parameters<typeof tDomain>[0], params),
+      ),
+    };
+  }
+}
 
 /**
  * Get invitation details by token (for the accept page, no auth required).
@@ -189,6 +211,58 @@ export async function getInvitationDetailsAction(
     }
 
     return { success: true, data: invitation };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, t("errorLoadInvitation")),
+    };
+  }
+}
+
+export async function getMyPendingInvitationsAction(): Promise<
+  ActionResult<
+    Array<PendingInvitation & { companyName: string; inviteUrl: string }>
+  >
+> {
+  const t = await getTranslations("team");
+  try {
+    const session = await getAuthSession();
+    if (!session?.user?.email) throw new Error("Unauthorized");
+
+    const normalizedEmail = session.user.email.toLowerCase().trim();
+    const baseUrl = process.env.NEXTAUTH_URL || "https://kivvi.ch";
+    const rows = await db
+      .select({
+        id: invitations.id,
+        email: invitations.email,
+        role: invitations.role,
+        permissionPreset: invitations.permissionPreset,
+        status: invitations.status,
+        expiresAt: invitations.expiresAt,
+        createdAt: invitations.createdAt,
+        inviterName: users.name,
+        token: invitations.token,
+        companyName: companies.name,
+      })
+      .from(invitations)
+      .innerJoin(companies, eq(invitations.companyId, companies.id))
+      .innerJoin(users, eq(invitations.invitedBy, users.id))
+      .where(
+        and(
+          eq(invitations.email, normalizedEmail),
+          eq(invitations.status, "pending"),
+        ),
+      );
+
+    return {
+      success: true,
+      data: rows.map((row) => ({
+        ...row,
+        permissionPreset:
+          row.permissionPreset as PendingInvitation["permissionPreset"],
+        inviteUrl: `${baseUrl}/invite/${row.token}`,
+      })),
+    };
   } catch (error) {
     return {
       success: false,

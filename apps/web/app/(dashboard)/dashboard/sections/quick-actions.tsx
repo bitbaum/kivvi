@@ -66,6 +66,12 @@ export function QuickActions() {
       description: t("addContactDesc"),
     },
     {
+      label: t("inviteTeammate"),
+      href: "/settings/team",
+      icon: <UserPlus className="h-6 w-6" />,
+      description: t("inviteTeammateDesc"),
+    },
+    {
       label: t("importData"),
       href: "/onboarding",
       icon: <Upload className="h-6 w-6" />,

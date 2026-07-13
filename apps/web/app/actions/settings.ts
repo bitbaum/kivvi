@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { auth as getAuthSession } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { companies, users, numberSequences } from "@kivvi/database";
 import type { CompanySettings, Company } from "@kivvi/database";
@@ -22,6 +23,7 @@ import {
 import { createAction } from "./action-factory";
 import { getTranslations } from "next-intl/server";
 import { MAX_UPLOAD_SIZE_BYTES } from "@/lib/config/uploads";
+import { updateUserProfile } from "@kivvi/core/src/domain/profiles";
 
 // ============================================================================
 // COMPANY SETTINGS
@@ -260,31 +262,46 @@ export const removeLogoAction = createAction<void, void>({
 const updateProfileSchema = z.object({
   name: z.string().min(1).max(200),
   email: z.string().email(),
+  location: z.string().max(120).optional().nullable(),
+  languages: z.array(z.string().min(1).max(60)).max(20).optional(),
+  skills: z.array(z.string().min(1).max(60)).max(20).optional(),
+  availabilityType: z
+    .enum(["volunteer", "employee", "contractor", "founder", "other"])
+    .optional()
+    .nullable(),
 });
 
-export const updateProfileAction = createAction<
-  unknown,
-  { id: string; name: string | null; email: string }
->({
-  handler: async (input, { userId, db }) => {
+export async function updateProfileAction(
+  input: unknown,
+): Promise<ActionResult<{ id: string; name: string | null; email: string }>> {
+  const t = await getTranslations("settings");
+  try {
+    const session = await getAuthSession();
+    if (!session?.user?.id) throw new Error("Unauthorized");
     const parsed = updateProfileSchema.safeParse(input);
     if (!parsed.success)
       throw new Error(parsed.error.errors[0]?.message || "Invalid input");
-    const [user] = await db
-      .update(users)
-      .set({
-        name: parsed.data.name,
-        email: parsed.data.email,
-        updatedAt: new Date(),
-      })
-      .where(eq(users.id, userId))
-      .returning();
-    return { id: user.id, name: user.name, email: user.email };
-  },
-  revalidate: ["/settings"],
-  errorMessage: () =>
-    getTranslations("settings").then((t) => t("errorUpdateProfile")),
-});
+    const user = await updateUserProfile(db, session.user.id, {
+      name: parsed.data.name,
+      email: parsed.data.email,
+      location: parsed.data.location,
+      languages: parsed.data.languages ?? [],
+      skills: parsed.data.skills ?? [],
+      availabilityType: parsed.data.availabilityType,
+    });
+    revalidatePath("/settings");
+    revalidatePath("/join");
+    return {
+      success: true,
+      data: { id: user.id, name: user.name, email: user.email },
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: safeErrorMessage(error, t("errorUpdateProfile")),
+    };
+  }
+}
 
 // ============================================================================
 // CHANGE PASSWORD

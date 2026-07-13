@@ -98,7 +98,7 @@ export function ChatWidget() {
       <button
         onClick={toggle}
         className={cn(
-          "fixed z-50 flex h-14 w-14 items-center justify-center rounded-full shadow-lg",
+          "fixed z-50 hidden h-14 w-14 items-center justify-center rounded-full shadow-lg sm:flex",
           "brand-gradient text-white",
           "transition-all duration-200 hover:scale-105 hover:shadow-xl active:scale-95",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",

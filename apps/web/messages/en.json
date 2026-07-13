@@ -193,6 +193,16 @@
       "member": "Member",
       "viewer": "Viewer"
     },
+    "permissionPresetLabel": {
+      "owner": "Owner",
+      "admin": "Admin",
+      "finance": "Finance",
+      "sales": "Sales",
+      "intake": "Intake",
+      "repair": "Repair",
+      "inventory": "Inventory",
+      "viewer": "Viewer"
+    },
     "itemTypes": {
       "invoice": "Invoice",
       "quote": "Quote",
@@ -210,7 +220,8 @@
     "removeImage": "Remove image",
     "pleaseSelect": "Please select…",
     "errorSearchFailed": "Search failed",
-    "emailFooterAuto": "This email was automatically sent by Kivvi."
+    "emailFooterAuto": "This email was automatically sent by Kivvi.",
+    "products": "Products"
   },
   "nav": {
     "home": "Home",
@@ -521,6 +532,8 @@
       "recordPaymentDesc": "Record a payment for an invoice",
       "addContact": "Add Contact",
       "addContactDesc": "Add a new customer, donor, or vendor",
+      "inviteTeammate": "Invite Teammate",
+      "inviteTeammateDesc": "Add a colleague to this workspace",
       "importData": "Import Data",
       "importDataDesc": "Import data from CSV files",
       "openAIChat": "Open AI Chat",
@@ -1294,6 +1307,7 @@
     "sale": "Sale",
     "adjustment": "Adjustment",
     "transfer": "Transfer",
+    "return": "Return",
     "fromWarehouse": "From Warehouse",
     "toWarehouse": "To Warehouse",
     "noMovements": "No stock movements found",
@@ -1922,6 +1936,17 @@
       "title": "User Profile",
       "fullName": "Full Name",
       "emailAddress": "Email Address",
+      "location": "Location",
+      "languages": "Languages",
+      "skills": "Skills and interests",
+      "availabilityType": "Availability",
+      "availability": {
+        "volunteer": "Volunteer",
+        "employee": "Employee",
+        "contractor": "Contractor",
+        "founder": "Founder",
+        "other": "Other"
+      },
       "role": "Role",
       "changePassword": "Change Password",
       "currentPassword": "Current Password",
@@ -1937,6 +1962,72 @@
       "removeAvatar": "Remove picture",
       "avatarHint": "PNG, JPEG or SVG · Max 500KB",
       "errorChangePasswordFailed": "Failed to change password"
+    },
+    "organizationProfile": {
+      "title": "Public organization profile",
+      "desc": "Publish this company only when it should appear in the public directory.",
+      "publicName": "Public name",
+      "publicSlug": "Public URL slug",
+      "shortDescription": "Short description",
+      "category": "Category",
+      "location": "Location",
+      "website": "Website",
+      "isPublic": "Show in public directory",
+      "acceptingApplications": "Accept applications",
+      "saved": "Organization profile saved.",
+      "saveError": "Failed to save organization profile"
+    },
+    "vacancies": {
+      "title": "Vacancies",
+      "desc": "Publish roles people can apply for without exposing private ERP data.",
+      "empty": "No vacancies yet.",
+      "newTitle": "Title",
+      "typeLabel": "Type",
+      "locationModeLabel": "Location mode",
+      "workload": "Workload",
+      "statusLabel": "Status",
+      "skills": "Skills",
+      "add": "Add vacancy",
+      "saved": "Vacancy saved.",
+      "saveError": "Failed to save vacancy",
+      "statusSaved": "Vacancy status updated.",
+      "statusError": "Failed to update vacancy status",
+      "type": {
+        "employee": "Employee",
+        "volunteer": "Volunteer",
+        "internship": "Internship",
+        "contractor": "Contractor",
+        "board": "Board",
+        "other": "Other"
+      },
+      "locationMode": {
+        "onsite": "Onsite",
+        "hybrid": "Hybrid",
+        "remote": "Remote"
+      },
+      "status": {
+        "draft": "Draft",
+        "published": "Published",
+        "closed": "Closed"
+      }
+    },
+    "joinRequests": {
+      "title": "Applications",
+      "desc": "Review people who asked to join this organization.",
+      "empty": "No applications yet.",
+      "accept": "Accept",
+      "decline": "Decline",
+      "accepted": "Application accepted. Share the invite link with the applicant.",
+      "declined": "Application declined.",
+      "copyInviteLink": "Copy invite link",
+      "acceptError": "Failed to accept application",
+      "statusError": "Failed to update application status",
+      "status": {
+        "pending": "Pending",
+        "accepted": "Accepted",
+        "declined": "Declined",
+        "withdrawn": "Withdrawn"
+      }
     },
     "sequences": {
       "title": "Number Sequences",
@@ -2272,6 +2363,48 @@
         "saved": "Saved",
         "testConnection": "Test connection",
         "testing": "Testing…"
+      },
+      "operations": {
+        "nextcloudTitle": "Nextcloud files",
+        "nextcloudDescription": "Connect the shared Nextcloud folder that holds customer requests, photos, receipts, and device documents. Kivvi uses WebDAV and can later attach documents to contacts, items, and workflows.",
+        "mailTitle": "Mail intake",
+        "mailDescription": "Connect the IMAP mailbox your team also uses in Thunderbird. Kivvi can later prepare customer requests from email conversations without forcing another portal.",
+        "baseUrl": "Nextcloud URL",
+        "username": "Username",
+        "appPassword": "App password",
+        "folderPath": "Folder path",
+        "imapHost": "IMAP host",
+        "port": "Port",
+        "password": "Password",
+        "mailbox": "Mailbox",
+        "useTls": "Use TLS",
+        "enabled": "Enabled",
+        "saved": "Saved",
+        "saveFailed": "Failed to save",
+        "connectionOk": "Connection successful",
+        "connectionFailed": "Connection failed",
+        "testConnection": "Test connection",
+        "scanNow": "Scan now",
+        "syncImported": "{count} items found or already known",
+        "syncFailed": "Scan failed",
+        "status": {
+          "not_configured": "Not configured",
+          "disabled": "Disabled",
+          "ok": "Connected",
+          "error": "Error",
+          "untested": "Not tested yet"
+        }
+      },
+      "review": {
+        "title": "Intake review",
+        "description": "New emails and files land here first. Review suggestions before Kivvi creates CRM or operational records.",
+        "count": "{count} open",
+        "empty": "No emails or files to review yet. Configure a connection and start a scan.",
+        "mail": "Email",
+        "nextcloud": "Nextcloud",
+        "openFile": "Open file",
+        "createContact": "Create contact",
+        "ignore": "Ignore"
       },
       "errorSaveApiKey": "Failed to save API key"
     },
@@ -4157,6 +4290,8 @@
     "inviteMember": "Invite a New Member",
     "email": "Email Address",
     "role": "Role",
+    "permissionPreset": "Permission preset",
+    "copyInviteLink": "Copy invite link",
     "sendInvitation": "Send Invitation",
     "cancel": "Cancel",
     "invitationSent": "Invitation sent successfully.",
@@ -4223,8 +4358,34 @@
     "creating": "Creating...",
     "waitingForInvite": "Waiting for an invite",
     "waitingDesc": "Your admin will send you an invite link by email. Click it — you'll join the organisation automatically.",
+    "profileTitle": "Personal profile",
+    "profileDesc": "Keep your basics ready for teams, invitations, and future discovery.",
+    "pendingInvites": "Pending invitations",
+    "acceptInvite": "Accept",
+    "copyInviteLink": "Copy invite link",
+    "expiresOn": "Expires on {date}",
+    "discoveryTitle": "Organization discovery",
+    "discoveryDesc": "Public organization profiles and vacancies will appear here once teams opt in.",
     "signOut": "Sign out",
     "errorGeneric": "Something went wrong. Please try again."
+  },
+  "orgs": {
+    "directoryTitle": "Organizations",
+    "directoryDesc": "Circular-economy teams that have opted into public discovery.",
+    "emptyTitle": "No public organizations yet",
+    "emptyDesc": "Organizations are private by default and appear here only after an admin publishes them.",
+    "backToDirectory": "Back to organizations",
+    "website": "Website",
+    "vacanciesTitle": "Vacancies",
+    "vacanciesDesc": "Open roles and participation opportunities.",
+    "noVacancies": "No published vacancies right now.",
+    "generalApplication": "General application",
+    "generalApplicationDesc": "Send a message if you want to participate outside a listed vacancy.",
+    "messagePlaceholder": "Write a short message about how you would like to help.",
+    "apply": "Apply",
+    "loginToApply": "Log in to apply",
+    "applySuccess": "Application sent.",
+    "applyError": "Failed to send application"
   },
   "dataQuality": {
     "contactIssue_no_email_with_invoices": "Has invoices but no email address",
@@ -4286,6 +4447,7 @@
     "errorNoProvider": "No AI provider available. Please configure a valid API key in Settings (Anthropic, OpenAI, OpenRouter, or Ollama).",
     "errorApiKeyInvalid": "The API key is invalid or expired. Please update it in your .env.local file.",
     "errorUnreachable": "The AI server is unreachable. Please check the connection.",
+    "errorTimeout": "The AI request took too long. Please try again with a narrower question.",
     "errorGeneric": "An error occurred. Please try again.",
     "errorExtractItems": "Failed to extract items",
     "errorExtractContact": "Failed to extract contact data",

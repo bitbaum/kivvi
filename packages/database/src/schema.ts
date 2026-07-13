@@ -19,6 +19,7 @@ import {
   DOCUMENT_TYPE_VALUES,
   DOCUMENT_STATUS_VALUES,
   ACCOUNT_TYPE_VALUES,
+  COST_CENTER_KIND_VALUES,
   STOCK_MOVEMENT_TYPE_VALUES,
   PRICE_RULE_TYPE_VALUES,
   RECURRING_PERIODICITY_VALUES,
@@ -27,6 +28,11 @@ import {
   ITEM_STATUS_VALUES,
   WEBHOOK_EVENT_VALUES,
   MEMBERSHIP_ROLE_VALUES,
+  AVAILABILITY_TYPE_VALUES,
+  VACANCY_TYPE_VALUES,
+  LOCATION_MODE_VALUES,
+  VACANCY_STATUS_VALUES,
+  JOIN_REQUEST_STATUS_VALUES,
   type AiProviderValue,
   type WebhookEvent,
 } from "./enums";
@@ -49,6 +55,9 @@ export const documentStatusEnum = pgEnum("document_status", [
 ]);
 
 export const accountTypeEnum = pgEnum("account_type", [...ACCOUNT_TYPE_VALUES]);
+export const costCenterKindEnum = pgEnum("cost_center_kind", [
+  ...COST_CENTER_KIND_VALUES,
+]);
 
 export const stockMovementTypeEnum = pgEnum("stock_movement_type", [
   ...STOCK_MOVEMENT_TYPE_VALUES,
@@ -74,6 +83,24 @@ export const itemStatusEnum = pgEnum("item_status", [...ITEM_STATUS_VALUES]);
 
 export const membershipRoleEnum = pgEnum("membership_role", [
   ...MEMBERSHIP_ROLE_VALUES,
+]);
+
+export const availabilityTypeEnum = pgEnum("availability_type", [
+  ...AVAILABILITY_TYPE_VALUES,
+]);
+
+export const vacancyTypeEnum = pgEnum("vacancy_type", [...VACANCY_TYPE_VALUES]);
+
+export const locationModeEnum = pgEnum("location_mode", [
+  ...LOCATION_MODE_VALUES,
+]);
+
+export const vacancyStatusEnum = pgEnum("vacancy_status", [
+  ...VACANCY_STATUS_VALUES,
+]);
+
+export const joinRequestStatusEnum = pgEnum("join_request_status", [
+  ...JOIN_REQUEST_STATUS_VALUES,
 ]);
 
 export const invitationStatusEnum = pgEnum("invitation_status", [
@@ -109,6 +136,16 @@ export const users = pgTable("users", {
   name: text("name"),
   passwordHash: text("password_hash"),
   avatarBase64: text("avatar_base64"),
+  location: text("location"),
+  languages: text("languages")
+    .array()
+    .default(sql`ARRAY[]::text[]`)
+    .notNull(),
+  skills: text("skills")
+    .array()
+    .default(sql`ARRAY[]::text[]`)
+    .notNull(),
+  availabilityType: availabilityTypeEnum("availability_type"),
   companyId: uuid("company_id").references(() => companies.id),
   role: text("role").default("member"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -147,6 +184,7 @@ export const memberships = pgTable(
       .references(() => companies.id, { onDelete: "cascade" })
       .notNull(),
     role: membershipRoleEnum("role").default("member").notNull(),
+    permissionPreset: text("permission_preset").default("sales").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -166,6 +204,7 @@ export const invitations = pgTable(
       .notNull(),
     email: text("email").notNull(),
     role: membershipRoleEnum("role").default("member").notNull(),
+    permissionPreset: text("permission_preset").default("sales").notNull(),
     status: invitationStatusEnum("status").default("pending").notNull(),
     invitedBy: uuid("invited_by")
       .references(() => users.id)
@@ -180,6 +219,138 @@ export const invitations = pgTable(
     emailCompanyIdx: index("invitations_email_company_idx").on(
       table.email,
       table.companyId,
+    ),
+  }),
+);
+
+// ============================================================================
+// PUBLIC ORGANIZATION & PARTICIPATION
+// ============================================================================
+
+export const organizationProfiles = pgTable(
+  "organization_profiles",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    companyId: uuid("company_id")
+      .references(() => companies.id, { onDelete: "cascade" })
+      .notNull()
+      .unique(),
+    publicSlug: text("public_slug").notNull().unique(),
+    publicName: text("public_name").notNull(),
+    shortDescription: text("short_description"),
+    category: text("category"),
+    location: text("location"),
+    website: text("website"),
+    logoBase64: text("logo_base64"),
+    isPublic: boolean("is_public").default(false).notNull(),
+    acceptingApplications: boolean("accepting_applications")
+      .default(false)
+      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    companyIdx: index("organization_profiles_company_id_idx").on(
+      table.companyId,
+    ),
+    publicSlugIdx: index("organization_profiles_public_slug_idx").on(
+      table.publicSlug,
+    ),
+    publicIdx: index("organization_profiles_is_public_idx").on(table.isPublic),
+  }),
+);
+
+export const vacancies = pgTable(
+  "vacancies",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    companyId: uuid("company_id")
+      .references(() => companies.id, { onDelete: "cascade" })
+      .notNull(),
+    title: text("title").notNull(),
+    type: vacancyTypeEnum("type").notNull(),
+    locationMode: locationModeEnum("location_mode").notNull(),
+    workload: text("workload"),
+    skills: text("skills")
+      .array()
+      .default(sql`ARRAY[]::text[]`)
+      .notNull(),
+    status: vacancyStatusEnum("status").default("draft").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    companyIdx: index("vacancies_company_id_idx").on(table.companyId),
+    statusIdx: index("vacancies_status_idx").on(table.status),
+  }),
+);
+
+export const joinRequests = pgTable(
+  "join_requests",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    companyId: uuid("company_id")
+      .references(() => companies.id, { onDelete: "cascade" })
+      .notNull(),
+    vacancyId: uuid("vacancy_id").references(() => vacancies.id, {
+      onDelete: "set null",
+    }),
+    message: text("message"),
+    status: joinRequestStatusEnum("status").default("pending").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    userIdx: index("join_requests_user_id_idx").on(table.userId),
+    companyIdx: index("join_requests_company_id_idx").on(table.companyId),
+    statusIdx: index("join_requests_status_idx").on(table.status),
+  }),
+);
+
+// ============================================================================
+// EXTERNAL INTEGRATION INBOX (MAIL + FILES)
+// ============================================================================
+
+export const externalIntegrationItems = pgTable(
+  "external_integration_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    companyId: uuid("company_id")
+      .references(() => companies.id, { onDelete: "cascade" })
+      .notNull(),
+    source: text("source").notNull().$type<"mail" | "nextcloud">(),
+    externalId: text("external_id").notNull(),
+    kind: text("kind").notNull().$type<"email" | "file">(),
+    status: text("status")
+      .notNull()
+      .$type<"new" | "reviewed" | "converted" | "ignored">()
+      .default("new"),
+    title: text("title").notNull(),
+    summary: text("summary"),
+    fromName: text("from_name"),
+    fromEmail: text("from_email"),
+    occurredAt: timestamp("occurred_at"),
+    url: text("url"),
+    raw: jsonb("raw").default({}).$type<Record<string, unknown>>(),
+    contactId: uuid("contact_id").references(() => contacts.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    companySourceExternalIdx: uniqueIndex(
+      "external_integration_items_company_source_external_idx",
+    ).on(table.companyId, table.source, table.externalId),
+    companyStatusIdx: index("external_integration_items_company_status_idx").on(
+      table.companyId,
+      table.status,
+    ),
+    contactIdx: index("external_integration_items_contact_id_idx").on(
+      table.contactId,
     ),
   }),
 );
@@ -394,6 +565,9 @@ export const documents = pgTable(
       .notNull(),
     contactId: uuid("contact_id").references(() => contacts.id),
     projectId: uuid("project_id").references(() => projects.id),
+    // Analytical dimension — the activity/fund this document's postings belong to;
+    // auto-propagated to its journal lines when accounting entries are created.
+    costCenterId: uuid("cost_center_id").references(() => costCenters.id),
     // Type & status
     type: documentTypeEnum("type").notNull(),
     status: documentStatusEnum("status").default("draft").notNull(),
@@ -554,6 +728,30 @@ export const accounts = pgTable(
   }),
 );
 
+// Analytical dimension: tag bookings by operating activity or restricted fund.
+// The SSOT that per-activity P&L and fund reporting derive from. Adding one = one row.
+export const costCenters = pgTable(
+  "cost_centers",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    companyId: uuid("company_id")
+      .references(() => companies.id)
+      .notNull(),
+    code: text("code").notNull(), // short slug, e.g. "REFURB", "GRANT-KANTON-2026"
+    name: text("name").notNull(),
+    kind: costCenterKindEnum("kind").default("activity").notNull(),
+    isActive: boolean("is_active").default(true).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    uniqueCodePerCompany: uniqueIndex("cost_centers_company_id_code_idx").on(
+      table.companyId,
+      table.code,
+    ),
+    companyIdIdx: index("cost_centers_company_id_idx").on(table.companyId),
+  }),
+);
+
 export const journalEntries = pgTable(
   "journal_entries",
   {
@@ -585,6 +783,8 @@ export const journalLines = pgTable(
     accountId: uuid("account_id")
       .references(() => accounts.id)
       .notNull(),
+    // Analytical dimension — which activity/fund this posting belongs to.
+    costCenterId: uuid("cost_center_id").references(() => costCenters.id),
     debit: decimal("debit", { precision: 12, scale: 2 }),
     credit: decimal("credit", { precision: 12, scale: 2 }),
     description: text("description"),
@@ -594,6 +794,9 @@ export const journalLines = pgTable(
       table.journalEntryId,
     ),
     accountIdIdx: index("journal_lines_account_id_idx").on(table.accountId),
+    costCenterIdIdx: index("journal_lines_cost_center_id_idx").on(
+      table.costCenterId,
+    ),
   }),
 );
 
@@ -1238,10 +1441,16 @@ export const apiIdempotencyKeys = pgTable(
 // RELATIONS
 // ============================================================================
 
-export const companiesRelations = relations(companies, ({ many }) => ({
+export const companiesRelations = relations(companies, ({ one, many }) => ({
   users: many(users),
   memberships: many(memberships),
   invitations: many(invitations),
+  organizationProfile: one(organizationProfiles, {
+    fields: [companies.id],
+    references: [organizationProfiles.companyId],
+  }),
+  vacancies: many(vacancies),
+  joinRequests: many(joinRequests),
   contacts: many(contacts),
   documents: many(documents),
   products: many(products),
@@ -1284,6 +1493,7 @@ export const usersRelations = relations(users, ({ one, many }) => ({
     references: [companies.id],
   }),
   memberships: many(memberships),
+  joinRequests: many(joinRequests),
 }));
 
 export const membershipsRelations = relations(memberships, ({ one }) => ({
@@ -1307,6 +1517,53 @@ export const invitationsRelations = relations(invitations, ({ one }) => ({
     references: [users.id],
   }),
 }));
+
+export const organizationProfilesRelations = relations(
+  organizationProfiles,
+  ({ one }) => ({
+    company: one(companies, {
+      fields: [organizationProfiles.companyId],
+      references: [companies.id],
+    }),
+  }),
+);
+
+export const vacanciesRelations = relations(vacancies, ({ one, many }) => ({
+  company: one(companies, {
+    fields: [vacancies.companyId],
+    references: [companies.id],
+  }),
+  joinRequests: many(joinRequests),
+}));
+
+export const joinRequestsRelations = relations(joinRequests, ({ one }) => ({
+  user: one(users, {
+    fields: [joinRequests.userId],
+    references: [users.id],
+  }),
+  company: one(companies, {
+    fields: [joinRequests.companyId],
+    references: [companies.id],
+  }),
+  vacancy: one(vacancies, {
+    fields: [joinRequests.vacancyId],
+    references: [vacancies.id],
+  }),
+}));
+
+export const externalIntegrationItemsRelations = relations(
+  externalIntegrationItems,
+  ({ one }) => ({
+    company: one(companies, {
+      fields: [externalIntegrationItems.companyId],
+      references: [companies.id],
+    }),
+    contact: one(contacts, {
+      fields: [externalIntegrationItems.contactId],
+      references: [contacts.id],
+    }),
+  }),
+);
 
 export const contactsRelations = relations(contacts, ({ one, many }) => ({
   company: one(companies, {
@@ -1792,6 +2049,30 @@ export interface CompanySettings {
   co2FactorsKg?: Record<string, number>;
   /** Ricardo.ch seller API key for publishing items to the marketplace */
   ricardoApiKey?: string;
+  /** Nextcloud/WebDAV document connection for shared customer files */
+  nextcloud?: {
+    baseUrl?: string;
+    username?: string;
+    appPassword?: string;
+    folderPath?: string;
+    enabled?: boolean;
+    lastTestedAt?: string;
+    lastStatus?: "ok" | "error";
+    lastError?: string;
+  };
+  /** IMAP mailbox connection for customer-request intake. Thunderbird can use the same mailbox settings. */
+  mailIntake?: {
+    host?: string;
+    port?: number;
+    username?: string;
+    password?: string;
+    mailbox?: string;
+    useTls?: boolean;
+    enabled?: boolean;
+    lastTestedAt?: string;
+    lastStatus?: "ok" | "error";
+    lastError?: string;
+  };
   /** True if company was seeded with sample data during onboarding */
   isSampleData?: boolean;
   /** Post-onboarding guided checklist — keys are step IDs, value is ISO date completed */
@@ -1816,6 +2097,7 @@ export type NewDocumentItem = typeof documentItems.$inferInsert;
 export type DocumentPayment = typeof documentPayments.$inferSelect;
 export type NumberSequence = typeof numberSequences.$inferSelect;
 export type Account = typeof accounts.$inferSelect;
+export type CostCenter = typeof costCenters.$inferSelect;
 export type JournalEntry = typeof journalEntries.$inferSelect;
 export type JournalLine = typeof journalLines.$inferSelect;
 export type BankAccount = typeof bankAccounts.$inferSelect;
@@ -1851,6 +2133,16 @@ export type Membership = typeof memberships.$inferSelect;
 export type NewMembership = typeof memberships.$inferInsert;
 export type Invitation = typeof invitations.$inferSelect;
 export type NewInvitation = typeof invitations.$inferInsert;
+export type OrganizationProfile = typeof organizationProfiles.$inferSelect;
+export type NewOrganizationProfile = typeof organizationProfiles.$inferInsert;
+export type Vacancy = typeof vacancies.$inferSelect;
+export type NewVacancy = typeof vacancies.$inferInsert;
+export type JoinRequest = typeof joinRequests.$inferSelect;
+export type NewJoinRequest = typeof joinRequests.$inferInsert;
+export type ExternalIntegrationItem =
+  typeof externalIntegrationItems.$inferSelect;
+export type NewExternalIntegrationItem =
+  typeof externalIntegrationItems.$inferInsert;
 
 // Document type literals for type narrowing
 export type DocumentType = (typeof documentTypeEnum.enumValues)[number];
@@ -1861,5 +2153,11 @@ export type MembershipRole = (typeof membershipRoleEnum.enumValues)[number];
 /** All membership roles — re-exported from enums for convenience */
 export const MEMBERSHIP_ROLES = membershipRoleEnum.enumValues;
 export type InvitationStatus = (typeof invitationStatusEnum.enumValues)[number];
+export type AvailabilityType = (typeof availabilityTypeEnum.enumValues)[number];
+export type VacancyType = (typeof vacancyTypeEnum.enumValues)[number];
+export type LocationMode = (typeof locationModeEnum.enumValues)[number];
+export type VacancyStatus = (typeof vacancyStatusEnum.enumValues)[number];
+export type JoinRequestStatus =
+  (typeof joinRequestStatusEnum.enumValues)[number];
 export type RecurringPeriodicity =
   (typeof recurringPeriodicityEnum.enumValues)[number];

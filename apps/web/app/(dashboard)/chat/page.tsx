@@ -78,7 +78,7 @@ export default function ChatPage() {
           <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full brand-gradient">
             <Sparkles className="h-8 w-8 text-white" />
           </div>
-          <h2 className="mb-2 text-2xl font-semibold">{t("howCanIHelp")}</h2>
+          <h1 className="mb-2 text-2xl font-semibold">{t("howCanIHelp")}</h1>
           <p className="mb-8 text-center text-muted-foreground">
             {t("askDescription")}
           </p>

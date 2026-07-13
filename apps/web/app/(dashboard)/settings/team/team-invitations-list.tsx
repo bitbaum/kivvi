@@ -1,10 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Mail, Clock, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { PendingInvitation } from "@kivvi/core/src/domain/invitations";
 import { formatDate } from "@/lib/utils";
 import { RoleBadge } from "./role-badge";
+import { CopyButton } from "@/components/copy-button";
 
 interface TeamInvitationsListProps {
   invites: PendingInvitation[];
@@ -17,6 +19,11 @@ export function TeamInvitationsList({
 }: TeamInvitationsListProps) {
   const t = useTranslations("team");
   const tc = useTranslations("common");
+  const [origin, setOrigin] = useState("");
+
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
 
   if (invites.length === 0) return null;
 
@@ -30,7 +37,10 @@ export function TeamInvitationsList({
       </div>
       <div className="divide-y">
         {invites.map((invite) => (
-          <div key={invite.id} className="flex items-center gap-4 p-4">
+          <div
+            key={invite.id}
+            className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:gap-4"
+          >
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-muted-foreground">
               <Clock className="h-4 w-4" />
             </div>
@@ -44,10 +54,16 @@ export function TeamInvitationsList({
             </div>
             <RoleBadge
               role={invite.role}
-              label={tc(`roleLabel.${invite.role}`)}
+              label={tc(`permissionPresetLabel.${invite.permissionPreset}`)}
+            />
+            <CopyButton
+              value={`${origin}/invite/${invite.token}`}
+              label={t("copyInviteLink")}
             />
             <button
+              type="button"
               onClick={() => onRevoke(invite.id)}
+              aria-label={t("revokeInvitation")}
               className="rounded-lg p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
               title={t("revokeInvitation")}
             >

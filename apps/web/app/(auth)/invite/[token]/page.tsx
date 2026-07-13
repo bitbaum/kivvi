@@ -27,6 +27,7 @@ export default function InvitePage({ params }: InvitePageProps) {
   } = useSession();
   const router = useRouter();
   const t = useTranslations("team");
+  const tc = useTranslations("common");
 
   const [invitation, setInvitation] = useState<InvitationWithCompany | null>(
     null,
@@ -219,7 +220,11 @@ export default function InvitePage({ params }: InvitePageProps) {
               {t("invitedTo", { company: invitation?.companyName })}
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
-              {t("roleAssignment", { role: invitation?.role })}
+              {t("roleAssignment", {
+                role: invitation
+                  ? tc(`permissionPresetLabel.${invitation.permissionPreset}`)
+                  : "",
+              })}
             </p>
           </div>
 

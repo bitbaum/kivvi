@@ -39,6 +39,9 @@ test-results/
 
 # Drizzle
 drizzle/
+!packages/database/drizzle/
+packages/database/drizzle/*
+!packages/database/drizzle/0029_team_participation.sql
 
 # TypeScript build cache
 tsconfig.tsbuildinfo

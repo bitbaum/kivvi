@@ -6,6 +6,7 @@ import {
   getCompanyMembers,
   removeMember,
   updateMemberRole,
+  updateMemberAccess,
   switchCompany,
   switchCompanySchema,
   createCompanyForUser,
@@ -15,8 +16,9 @@ import type {
   MembershipInfo,
   CompanyMember,
 } from "@kivvi/core/src/domain/memberships";
-import { MEMBERSHIP_ROLES } from "@kivvi/database";
+import { MEMBERSHIP_ROLES, PERMISSION_PRESET_VALUES } from "@kivvi/database";
 import type { MembershipRole } from "@kivvi/database";
+import type { PermissionPresetValue } from "@kivvi/database/src/enums";
 import { createAction } from "./action-factory";
 import { getTranslations } from "next-intl/server";
 
@@ -109,6 +111,38 @@ export const updateMemberRoleAction = createAction<
 });
 
 /**
+ * Update a member's practical permission preset.
+ */
+export const updateMemberPresetAction = createAction<
+  { userId: unknown; permissionPreset: unknown },
+  void
+>({
+  handler: async (
+    { userId, permissionPreset },
+    { companyId, userId: currentUserId, db },
+  ) => {
+    const parsedUserId = z.string().uuid().safeParse(userId);
+    const parsedPreset = z
+      .enum(PERMISSION_PRESET_VALUES)
+      .safeParse(permissionPreset);
+    if (!parsedUserId.success) throw new Error("bad_user_id");
+    if (!parsedPreset.success) throw new Error("bad_permission_preset");
+    await updateMemberAccess(
+      db,
+      companyId,
+      parsedUserId.data,
+      parsedPreset.data as PermissionPresetValue,
+      currentUserId,
+    );
+  },
+  revalidate: ["/settings/team"],
+  errorMessage: () =>
+    getTranslations("team").then((t) => t("roleChangeFailed")),
+  minRole: "admin",
+  translateDomainErrors: true,
+});
+
+/**
  * Create a new company for the current user. User becomes owner.
  * New company starts un-onboarded → middleware redirects to /onboarding.
  */
@@ -116,6 +150,7 @@ export const createCompanyAction = createAction<
   unknown,
   { companyId: string; companyName: string }
 >({
+  authOnly: true,
   handler: async (input, { userId, db }) => {
     const parsed = createCompanySchema.safeParse(input);
     if (!parsed.success)

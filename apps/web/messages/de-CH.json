@@ -193,6 +193,16 @@
       "member": "Mitglied",
       "viewer": "Leser·in"
     },
+    "permissionPresetLabel": {
+      "owner": "Inhaber·in",
+      "admin": "Admin",
+      "finance": "Finanzen",
+      "sales": "Verkauf",
+      "intake": "Annahme",
+      "repair": "Reparatur",
+      "inventory": "Lager",
+      "viewer": "Leser·in"
+    },
     "itemTypes": {
       "invoice": "Rechnung",
       "quote": "Angebot",
@@ -210,7 +220,8 @@
     "removeImage": "Bild entfernen",
     "pleaseSelect": "Bitte wählen…",
     "errorSearchFailed": "Suche fehlgeschlagen",
-    "emailFooterAuto": "Diese E-Mail wurde automatisch von Kivvi versendet."
+    "emailFooterAuto": "Diese E-Mail wurde automatisch von Kivvi versendet.",
+    "products": "Produkte"
   },
   "nav": {
     "home": "Start",
@@ -521,6 +532,8 @@
       "recordPaymentDesc": "Eine Zahlung für eine Rechnung erfassen",
       "addContact": "Kontakt hinzufügen",
       "addContactDesc": "Neuen Kunden, Spender oder Lieferanten hinzufügen",
+      "inviteTeammate": "Teammitglied einladen",
+      "inviteTeammateDesc": "Kolleg·in zu diesem Arbeitsbereich hinzufügen",
       "importData": "Daten importieren",
       "importDataDesc": "Daten aus CSV-Dateien importieren",
       "openAIChat": "KI-Chat öffnen",
@@ -1294,6 +1307,7 @@
     "sale": "Verkauf",
     "adjustment": "Korrektur",
     "transfer": "Umlagerung",
+    "return": "Rückgabe",
     "fromWarehouse": "Von Lager",
     "toWarehouse": "Nach Lager",
     "noMovements": "Keine Lagerbewegungen vorhanden",
@@ -1922,6 +1936,17 @@
       "title": "Benutzerprofil",
       "fullName": "Vollständiger Name",
       "emailAddress": "E-Mail-Adresse",
+      "location": "Ort",
+      "languages": "Sprachen",
+      "skills": "Fähigkeiten und Interessen",
+      "availabilityType": "Verfügbarkeit",
+      "availability": {
+        "volunteer": "Freiwillig",
+        "employee": "Angestellt",
+        "contractor": "Auftragnehmer·in",
+        "founder": "Gründer·in",
+        "other": "Andere"
+      },
       "role": "Rolle",
       "changePassword": "Passwort ändern",
       "currentPassword": "Aktuelles Passwort",
@@ -1937,6 +1962,72 @@
       "removeAvatar": "Bild entfernen",
       "avatarHint": "PNG, JPEG oder SVG · Max 500KB",
       "errorChangePasswordFailed": "Passwort konnte nicht geändert werden"
+    },
+    "organizationProfile": {
+      "title": "Öffentliches Organisationsprofil",
+      "desc": "Veröffentlichen Sie diesen Betrieb nur, wenn er im öffentlichen Verzeichnis erscheinen soll.",
+      "publicName": "Öffentlicher Name",
+      "publicSlug": "Öffentlicher URL-Slug",
+      "shortDescription": "Kurzbeschreibung",
+      "category": "Kategorie",
+      "location": "Ort",
+      "website": "Website",
+      "isPublic": "Im öffentlichen Verzeichnis anzeigen",
+      "acceptingApplications": "Bewerbungen annehmen",
+      "saved": "Organisationsprofil gespeichert.",
+      "saveError": "Organisationsprofil konnte nicht gespeichert werden"
+    },
+    "vacancies": {
+      "title": "Stellen",
+      "desc": "Veröffentlichen Sie Rollen, auf die sich Personen bewerben können, ohne private ERP-Daten offenzulegen.",
+      "empty": "Noch keine Stellen.",
+      "newTitle": "Titel",
+      "typeLabel": "Art",
+      "locationModeLabel": "Arbeitsort",
+      "workload": "Pensum",
+      "statusLabel": "Status",
+      "skills": "Fähigkeiten",
+      "add": "Stelle hinzufügen",
+      "saved": "Stelle gespeichert.",
+      "saveError": "Stelle konnte nicht gespeichert werden",
+      "statusSaved": "Status der Stelle aktualisiert.",
+      "statusError": "Status der Stelle konnte nicht aktualisiert werden",
+      "type": {
+        "employee": "Angestellt",
+        "volunteer": "Freiwillig",
+        "internship": "Praktikum",
+        "contractor": "Auftragnehmer·in",
+        "board": "Vorstand",
+        "other": "Andere"
+      },
+      "locationMode": {
+        "onsite": "Vor Ort",
+        "hybrid": "Hybrid",
+        "remote": "Remote"
+      },
+      "status": {
+        "draft": "Entwurf",
+        "published": "Veröffentlicht",
+        "closed": "Geschlossen"
+      }
+    },
+    "joinRequests": {
+      "title": "Bewerbungen",
+      "desc": "Prüfen Sie Personen, die dieser Organisation beitreten möchten.",
+      "empty": "Noch keine Bewerbungen.",
+      "accept": "Annehmen",
+      "decline": "Ablehnen",
+      "accepted": "Bewerbung angenommen. Teilen Sie den Einladungslink mit der bewerbenden Person.",
+      "declined": "Bewerbung abgelehnt.",
+      "copyInviteLink": "Einladungslink kopieren",
+      "acceptError": "Bewerbung konnte nicht angenommen werden",
+      "statusError": "Status der Bewerbung konnte nicht aktualisiert werden",
+      "status": {
+        "pending": "Offen",
+        "accepted": "Angenommen",
+        "declined": "Abgelehnt",
+        "withdrawn": "Zurückgezogen"
+      }
     },
     "sequences": {
       "title": "Nummernkreise",
@@ -2272,6 +2363,48 @@
         "saved": "Gespeichert",
         "testConnection": "Verbindung testen",
         "testing": "Testen…"
+      },
+      "operations": {
+        "nextcloudTitle": "Nextcloud-Dateien",
+        "nextcloudDescription": "Verbinden Sie den gemeinsamen Nextcloud-Ordner, in dem Kundenanfragen, Fotos, Belege und Gerätedokumente liegen. Kivvi nutzt WebDAV und kann später Dokumente gezielt zu Kontakten, Artikeln und Vorgängen zuordnen.",
+        "mailTitle": "Mail-Eingang",
+        "mailDescription": "Verbinden Sie das IMAP-Postfach, das Ihr Team auch in Thunderbird nutzt. So kann Kivvi Kundenanfragen später aus E-Mail-Konversationen vorbereiten, ohne ein zusätzliches Portal zu erzwingen.",
+        "baseUrl": "Nextcloud-URL",
+        "username": "Benutzername",
+        "appPassword": "App-Passwort",
+        "folderPath": "Ordnerpfad",
+        "imapHost": "IMAP-Server",
+        "port": "Port",
+        "password": "Passwort",
+        "mailbox": "Mailbox",
+        "useTls": "TLS verwenden",
+        "enabled": "Aktiv",
+        "saved": "Gespeichert",
+        "saveFailed": "Speichern fehlgeschlagen",
+        "connectionOk": "Verbindung erfolgreich",
+        "connectionFailed": "Verbindung fehlgeschlagen",
+        "testConnection": "Verbindung testen",
+        "scanNow": "Jetzt scannen",
+        "syncImported": "{count} Elemente gefunden oder bereits bekannt",
+        "syncFailed": "Scan fehlgeschlagen",
+        "status": {
+          "not_configured": "Nicht eingerichtet",
+          "disabled": "Deaktiviert",
+          "ok": "Verbunden",
+          "error": "Fehler",
+          "untested": "Noch nicht getestet"
+        }
+      },
+      "review": {
+        "title": "Eingangsprüfung",
+        "description": "Neue E-Mails und Dateien landen zuerst hier. Prüfen Sie die Vorschläge, bevor Kivvi CRM- oder Betriebsdaten erstellt.",
+        "count": "{count} offen",
+        "empty": "Noch keine E-Mails oder Dateien zur Prüfung. Richten Sie eine Verbindung ein und starten Sie einen Scan.",
+        "mail": "E-Mail",
+        "nextcloud": "Nextcloud",
+        "openFile": "Datei öffnen",
+        "createContact": "Kontakt erstellen",
+        "ignore": "Ignorieren"
       },
       "errorSaveApiKey": "API-Schlüssel konnte nicht gespeichert werden"
     },
@@ -4157,6 +4290,8 @@
     "inviteMember": "Neues Mitglied einladen",
     "email": "E-Mail-Adresse",
     "role": "Rolle",
+    "permissionPreset": "Berechtigungsprofil",
+    "copyInviteLink": "Einladungslink kopieren",
     "sendInvitation": "Einladung senden",
     "cancel": "Abbrechen",
     "invitationSent": "Einladung erfolgreich gesendet.",
@@ -4223,8 +4358,34 @@
     "creating": "Wird erstellt...",
     "waitingForInvite": "Auf Einladungslink warten",
     "waitingDesc": "Ihr Admin schickt Ihnen einen Einladungslink per E-Mail. Klicken Sie auf den Link — Sie werden automatisch dem Betrieb beitreten.",
+    "profileTitle": "Persönliches Profil",
+    "profileDesc": "Halten Sie Ihre Angaben für Teams, Einladungen und spätere Suche bereit.",
+    "pendingInvites": "Offene Einladungen",
+    "acceptInvite": "Annehmen",
+    "copyInviteLink": "Einladungslink kopieren",
+    "expiresOn": "Läuft ab am {date}",
+    "discoveryTitle": "Organisationssuche",
+    "discoveryDesc": "Öffentliche Organisationsprofile und Stellen erscheinen hier, sobald Teams sie freigeben.",
     "signOut": "Abmelden",
     "errorGeneric": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+  },
+  "orgs": {
+    "directoryTitle": "Organisationen",
+    "directoryDesc": "Teams der Kreislaufwirtschaft, die sich für öffentliche Sichtbarkeit entschieden haben.",
+    "emptyTitle": "Noch keine öffentlichen Organisationen",
+    "emptyDesc": "Organisationen sind standardmässig privat und erscheinen hier erst nach Veröffentlichung durch einen Admin.",
+    "backToDirectory": "Zurück zu Organisationen",
+    "website": "Website",
+    "vacanciesTitle": "Stellen",
+    "vacanciesDesc": "Offene Rollen und Beteiligungsmöglichkeiten.",
+    "noVacancies": "Aktuell sind keine Stellen veröffentlicht.",
+    "generalApplication": "Allgemeine Bewerbung",
+    "generalApplicationDesc": "Senden Sie eine Nachricht, wenn Sie unabhängig von einer Stelle mitmachen möchten.",
+    "messagePlaceholder": "Schreiben Sie kurz, wie Sie mithelfen möchten.",
+    "apply": "Bewerben",
+    "loginToApply": "Einloggen zum Bewerben",
+    "applySuccess": "Bewerbung gesendet.",
+    "applyError": "Bewerbung konnte nicht gesendet werden"
   },
   "dataQuality": {
     "contactIssue_no_email_with_invoices": "Hat Rechnungen, aber keine E-Mail-Adresse",
@@ -4286,6 +4447,7 @@
     "errorNoProvider": "Kein AI-Anbieter verfügbar. Bitte konfigurieren Sie einen gültigen API-Schlüssel in den Einstellungen (Anthropic, OpenAI, OpenRouter oder Ollama).",
     "errorApiKeyInvalid": "Der API-Schlüssel ist ungültig oder abgelaufen. Bitte aktualisieren Sie ihn in der .env.local Datei.",
     "errorUnreachable": "Der AI-Server ist nicht erreichbar. Bitte prüfen Sie die Verbindung.",
+    "errorTimeout": "Die KI-Anfrage hat zu lange gedauert. Bitte versuchen Sie es mit einer engeren Frage erneut.",
     "errorGeneric": "Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
     "errorExtractItems": "Artikel konnten nicht extrahiert werden",
     "errorExtractContact": "Kontaktdaten konnten nicht extrahiert werden",

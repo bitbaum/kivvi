@@ -394,6 +394,7 @@ export async function getJournalEntry(
       id: journalLines.id,
       journalEntryId: journalLines.journalEntryId,
       accountId: journalLines.accountId,
+      costCenterId: journalLines.costCenterId,
       debit: journalLines.debit,
       credit: journalLines.credit,
       description: journalLines.description,
@@ -410,6 +411,7 @@ export async function getJournalEntry(
       id: l.id,
       journalEntryId: l.journalEntryId,
       accountId: l.accountId,
+      costCenterId: l.costCenterId,
       debit: l.debit,
       credit: l.credit,
       description: l.description,
@@ -477,6 +479,8 @@ export async function createAutoJournalEntry(
     description: string;
     sourceType: string;
     sourceId: string;
+    /** Analytical dimension applied to every line of this entry (activity/fund). */
+    costCenterId?: string | null;
     lines: Array<{
       accountCode: string;
       debit?: string;
@@ -536,6 +540,7 @@ export async function createAutoJournalEntry(
       input.lines.map((line) => ({
         journalEntryId: entry.id,
         accountId: codeToId.get(line.accountCode)!,
+        costCenterId: input.costCenterId ?? null,
         debit: line.debit || null,
         credit: line.credit || null,
         description: line.description || null,

@@ -4,6 +4,8 @@ import { useState, useCallback, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { logger } from "@/lib/logger";
 
+const CHAT_REQUEST_TIMEOUT_MS = 45_000;
+
 export interface ChatMessage {
   id: string;
   role: "user" | "assistant";
@@ -77,6 +79,16 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
 
       // Create abort controller
       abortControllerRef.current = new AbortController();
+      let timedOut = false;
+      let timeout: number | undefined;
+      const resetTimeout = () => {
+        if (timeout) window.clearTimeout(timeout);
+        timeout = window.setTimeout(() => {
+          timedOut = true;
+          abortControllerRef.current?.abort();
+        }, CHAT_REQUEST_TIMEOUT_MS);
+      };
+      resetTimeout();
 
       try {
         const response = await fetch("/api/chat", {
@@ -112,71 +124,95 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
           if (done) break;
 
           const chunk = decoder.decode(value, { stream: true });
+          resetTimeout();
           const lines = chunk.split("\n");
 
           for (const line of lines) {
             if (line.startsWith("data: ")) {
+              let data: {
+                type?: string;
+                content?: string;
+                conversationId?: string;
+                tool?: string;
+                result?: unknown;
+                error?: string;
+              };
               try {
-                const data = JSON.parse(line.slice(6));
-
-                if (data.type === "text" && data.content) {
-                  accumulatedContent += data.content;
-                  setMessages((prev) =>
-                    prev.map((m) =>
-                      m.id === assistantId
-                        ? { ...m, content: accumulatedContent }
-                        : m,
-                    ),
-                  );
-                } else if (data.type === "tool_result") {
-                  setMessages((prev) =>
-                    prev.map((m) =>
-                      m.id === assistantId
-                        ? {
-                            ...m,
-                            toolResults: [
-                              ...(m.toolResults || []),
-                              { tool: data.tool, result: data.result },
-                            ],
-                          }
-                        : m,
-                    ),
-                  );
-                } else if (data.type === "done") {
-                  if (data.conversationId) {
-                    setConversationId(data.conversationId);
-                  }
-                  // Mark message as done streaming
-                  setMessages((prev) =>
-                    prev.map((m) =>
-                      m.id === assistantId ? { ...m, isStreaming: false } : m,
-                    ),
-                  );
-                  // Call onFinish callback
-                  const finalMessage = {
-                    id: assistantId,
-                    role: "assistant" as const,
-                    content: accumulatedContent,
-                    timestamp: new Date(),
-                    isStreaming: false,
-                  };
-                  options.onFinish?.(finalMessage);
-                } else if (data.type === "error") {
-                  throw new Error(data.error);
-                }
+                data = JSON.parse(line.slice(6));
               } catch (parseError) {
                 // Ignore parse errors for incomplete JSON
                 if (line.length > 6) {
                   logger.warn("Failed to parse SSE data", line);
                 }
+                continue;
+              }
+
+              if (data.type === "text" && data.content) {
+                accumulatedContent += data.content;
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === assistantId
+                      ? { ...m, content: accumulatedContent }
+                      : m,
+                  ),
+                );
+              } else if (data.type === "tool_result") {
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === assistantId
+                      ? {
+                          ...m,
+                          toolResults: [
+                            ...(m.toolResults || []),
+                            { tool: data.tool || "", result: data.result },
+                          ],
+                        }
+                      : m,
+                  ),
+                );
+              } else if (data.type === "done") {
+                if (data.conversationId) {
+                  setConversationId(data.conversationId);
+                }
+                // Mark message as done streaming
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === assistantId ? { ...m, isStreaming: false } : m,
+                  ),
+                );
+                // Call onFinish callback
+                const finalMessage = {
+                  id: assistantId,
+                  role: "assistant" as const,
+                  content: accumulatedContent,
+                  timestamp: new Date(),
+                  isStreaming: false,
+                };
+                options.onFinish?.(finalMessage);
+              } else if (data.type === "error") {
+                throw new Error(data.error || "Failed to send message");
               }
             }
           }
         }
       } catch (error) {
         if (error instanceof Error && error.name === "AbortError") {
-          // Request was cancelled, clean up
-          setMessages((prev) => prev.filter((m) => m.id !== assistantId));
+          if (timedOut) {
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === assistantId
+                  ? {
+                      ...m,
+                      content: t("errorTimeout"),
+                      isStreaming: false,
+                    }
+                  : m,
+              ),
+            );
+          } else {
+            // Request was cancelled by the user, clean up
+            setMessages((prev) => prev.filter((m) => m.id !== assistantId));
+          }
         } else {
           logger.warn("Chat error", error);
           // Show actionable error for provider issues, generic for others
@@ -215,6 +251,7 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
           );
         }
       } finally {
+        if (timeout) window.clearTimeout(timeout);
         setIsLoading(false);
         abortControllerRef.current = null;
       }
