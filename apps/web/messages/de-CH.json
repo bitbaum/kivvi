@@ -517,6 +517,7 @@
     "viewAll": "Alle anzeigen",
     "noRecentInvoices": "Noch keine Rechnungen vorhanden.",
     "quickStats": "Schnellübersicht",
+    "commandHint": "Drücken Sie Cmd+K oder Ctrl+K, um zu suchen, Seiten zu öffnen oder Kivvi eine Aufgabe zu geben, z.B. «10 Laptops von Swisscom als Eingang erfassen».",
     "quickActions": {
       "title": "Schnellaktionen",
       "subtitle": "Ihre häufigsten täglichen Aufgaben",

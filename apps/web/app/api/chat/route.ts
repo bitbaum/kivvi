@@ -66,9 +66,36 @@ async function buildProviderFailureFallback({
           year: "numeric",
         })
       : undefined;
+  const inventoryStatusLabels: Record<string, { de: string; en: string }> = {
+    intake: { de: "Eingang", en: "Intake" },
+    testing: { de: "Test", en: "Testing" },
+    repair: { de: "Reparatur", en: "Repair" },
+    ready_for_sale: { de: "Verkaufsbereit", en: "Ready for sale" },
+    listed: { de: "Online inseriert", en: "Listed" },
+    sold: { de: "Verkauft", en: "Sold" },
+    donated: { de: "Gespendet", en: "Donated" },
+    recycled: { de: "Recycelt", en: "Recycled" },
+  };
+  const documentStatusLabels: Record<string, { de: string; en: string }> = {
+    draft: { de: "Entwurf", en: "Draft" },
+    sent: { de: "Versendet", en: "Sent" },
+    confirmed: { de: "Bestätigt", en: "Confirmed" },
+    delivered: { de: "Geliefert", en: "Delivered" },
+    paid: { de: "Bezahlt", en: "Paid" },
+    partially_paid: { de: "Teilbezahlt", en: "Partially paid" },
+    overdue: { de: "Überfällig", en: "Overdue" },
+    cancelled: { de: "Storniert", en: "Cancelled" },
+  };
+  const labelFor = (
+    labels: Record<string, { de: string; en: string }>,
+    key: string,
+  ) => labels[key]?.[isGerman ? "de" : "en"] || key.replace(/_/g, " ");
   const statusLines = Object.entries(inventory.byStatus)
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([status, count]) => `- ${status}: ${count}`)
+    .map(
+      ([status, count]) =>
+        `- ${labelFor(inventoryStatusLabels, status)}: ${count}`,
+    )
     .join("\n");
   const bankLines = business.bankBalances
     .map((account) => {
@@ -92,7 +119,10 @@ async function buildProviderFailureFallback({
       return `- ${doc.number}: ${formatMoney(
         doc.total,
         doc.currency,
-      )} ${isGerman ? "an" : "to"} ${contact} (${doc.status}${dueText})`;
+      )} ${isGerman ? "an" : "to"} ${contact} (${labelFor(
+        documentStatusLabels,
+        doc.status,
+      )}${dueText})`;
     })
     .join("\n");
 

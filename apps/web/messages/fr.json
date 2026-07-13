@@ -517,6 +517,7 @@
     "viewAll": "Voir tout",
     "noRecentInvoices": "Aucune facture pour le moment.",
     "quickStats": "Statistiques rapides",
+    "commandHint": "Appuyez sur Cmd+K ou Ctrl+K pour rechercher, ouvrir des pages ou demander une tâche à Kivvi, p.ex. « enregistrer 10 ordinateurs Swisscom en entrée ».",
     "quickActions": {
       "title": "Actions rapides",
       "subtitle": "Vos tâches quotidiennes les plus fréquentes",

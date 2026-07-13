@@ -517,6 +517,7 @@
     "viewAll": "View all",
     "noRecentInvoices": "No invoices yet.",
     "quickStats": "Quick Stats",
+    "commandHint": "Press Cmd+K or Ctrl+K to search, open pages, or ask Kivvi to do a task, e.g. “record 10 laptops from Swisscom as intake”.",
     "quickActions": {
       "title": "Quick Actions",
       "subtitle": "Your most common daily tasks",
