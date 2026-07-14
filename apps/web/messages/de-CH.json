@@ -4596,5 +4596,30 @@
     "warehouseHasStock": "Lager mit Bestand kann nicht gelöscht werden. Übertragen oder korrigieren Sie den Bestand zuerst auf null.",
     "cannotDeleteOnlyWarehouse": "Das einzige Lager kann nicht gelöscht werden.",
     "warehouseIsDefault": "Legen Sie zuerst ein anderes Lager als Standard fest, bevor Sie dieses löschen."
+  },
+  "repairs": {
+    "title": "Neue Reparatur",
+    "intro": "Erfassen Sie eine Reparatur an einem kundeneigenen Gerät. Das Gerät bleibt Eigentum der Kundin — es wird nie ins Inventar aufgenommen.",
+    "customer": "Kundin/Kunde",
+    "device": "Gerät",
+    "devicePlaceholder": "z. B. Lenovo ThinkPad T480",
+    "fault": "Gemeldeter Fehler",
+    "faultPlaceholder": "z. B. startet nicht, Bildschirm flackert",
+    "basePrice": "Grundpreis (netto)",
+    "vatRate": "MWST-Satz (%)",
+    "advance": "Anzahlung",
+    "advanceHint": "Jetzt kassiert, als Verbindlichkeit gebucht bis zur Schlussrechnung.",
+    "subsidyTitle": "Reparaturbonus",
+    "program": "Programm",
+    "programNone": "Keiner",
+    "bonusCode": "Bonus-Code",
+    "category": "Kategorie",
+    "categoryPlaceholder": "Elektronik / Kleidung / Schuhe",
+    "submit": "Reparaturauftrag erstellen",
+    "created": "Reparaturauftrag {number} erstellt",
+    "subsidyApplied": "Bonus angewendet: CHF {amount}",
+    "deviceOrFaultRequired": "Gerät oder Fehlerbeschreibung angeben",
+    "customerRequired": "Kundin/Kunde auswählen oder erfassen",
+    "submitError": "Reparaturauftrag konnte nicht erstellt werden"
   }
 }

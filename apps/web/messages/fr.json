@@ -4596,5 +4596,30 @@
     "warehouseHasStock": "Impossible de supprimer un entrepôt avec du stock. Transférez ou ajustez le stock à zéro d'abord.",
     "cannotDeleteOnlyWarehouse": "Impossible de supprimer le seul entrepôt.",
     "warehouseIsDefault": "Définissez un autre entrepôt par défaut avant de supprimer celui-ci."
+  },
+  "repairs": {
+    "title": "Nouvelle réparation",
+    "intro": "Enregistrez une réparation sur un appareil appartenant au client. L'appareil reste la propriété du client — il n'est jamais ajouté à l'inventaire.",
+    "customer": "Client",
+    "device": "Appareil",
+    "devicePlaceholder": "p. ex. Lenovo ThinkPad T480",
+    "fault": "Panne signalée",
+    "faultPlaceholder": "p. ex. ne démarre pas, écran scintille",
+    "basePrice": "Prix de base (net)",
+    "vatRate": "Taux TVA (%)",
+    "advance": "Acompte",
+    "advanceHint": "Encaissé maintenant, comptabilisé comme dette jusqu'à la facturation.",
+    "subsidyTitle": "Bonus de réparation",
+    "program": "Programme",
+    "programNone": "Aucun",
+    "bonusCode": "Code bonus",
+    "category": "Catégorie",
+    "categoryPlaceholder": "électronique / vêtements / chaussures",
+    "submit": "Créer l'ordre de réparation",
+    "created": "Ordre de réparation {number} créé",
+    "subsidyApplied": "Bonus appliqué : CHF {amount}",
+    "deviceOrFaultRequired": "Indiquez un appareil ou une description de panne",
+    "customerRequired": "Sélectionnez ou nommez un client",
+    "submitError": "Impossible de créer l'ordre de réparation"
   }
 }

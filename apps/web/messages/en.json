@@ -4596,5 +4596,30 @@
     "warehouseHasStock": "Cannot delete warehouse with stock. Transfer or adjust stock to zero first.",
     "cannotDeleteOnlyWarehouse": "Cannot delete the only warehouse.",
     "warehouseIsDefault": "Set another warehouse as default before deleting this one."
+  },
+  "repairs": {
+    "title": "New repair",
+    "intro": "Record a repair on a customer-owned device. The device stays the customer's property — it is never added to inventory.",
+    "customer": "Customer",
+    "device": "Device",
+    "devicePlaceholder": "e.g. Lenovo ThinkPad T480",
+    "fault": "Reported fault",
+    "faultPlaceholder": "e.g. won't boot, screen flickers",
+    "basePrice": "Base price (net)",
+    "vatRate": "VAT rate (%)",
+    "advance": "Advance / deposit",
+    "advanceHint": "Taken now, booked as a liability until the repair is billed.",
+    "subsidyTitle": "Reparaturbonus",
+    "program": "Program",
+    "programNone": "None",
+    "bonusCode": "Bonus code",
+    "category": "Category",
+    "categoryPlaceholder": "electronics / clothing / shoes",
+    "submit": "Create repair order",
+    "created": "Repair order {number} created",
+    "subsidyApplied": "Subsidy applied: CHF {amount}",
+    "deviceOrFaultRequired": "Enter a device or a fault description",
+    "customerRequired": "Select or name a customer",
+    "submitError": "Could not create the repair order"
   }
 }

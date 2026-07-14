@@ -1,5 +1,5 @@
-import { DocumentForm } from "@/components/documents/document-form";
+import { RepairIntakeForm } from "./repair-intake-form";
 
 export default function NewRepairOrderPage() {
-  return <DocumentForm type="repair_order" />;
+  return <RepairIntakeForm />;
 }
