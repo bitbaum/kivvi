@@ -246,3 +246,19 @@ export const JOIN_REQUEST_STATUS_VALUES = [
 ] as const;
 export type JoinRequestStatusValue =
   (typeof JOIN_REQUEST_STATUS_VALUES)[number];
+
+/**
+ * Lifecycle of a third-party subsidy claim (e.g. Reparaturbonus Stadt Zürich).
+ * `applied` = booked on the repair, reduces the customer's share;
+ * `claimed` = included in a settlement batch sent to the settling party (ERZ);
+ * `settled` = reimbursement received, receivable cleared;
+ * `rejected` = ineligible/expired code → no receivable, customer pays full price.
+ */
+export const SUBSIDY_CLAIM_STATUS_VALUES = [
+  "applied",
+  "claimed",
+  "settled",
+  "rejected",
+] as const;
+export type SubsidyClaimStatusValue =
+  (typeof SUBSIDY_CLAIM_STATUS_VALUES)[number];

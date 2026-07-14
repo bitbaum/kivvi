@@ -36,6 +36,7 @@ import {
   LOCATION_MODE_VALUES,
   VACANCY_STATUS_VALUES,
   JOIN_REQUEST_STATUS_VALUES,
+  SUBSIDY_CLAIM_STATUS_VALUES,
   type AiProviderValue,
   type WebhookEvent,
 } from "./enums";
@@ -63,6 +64,9 @@ export const fundRestrictionEnum = pgEnum("fund_restriction", [
 ]);
 export const costCenterKindEnum = pgEnum("cost_center_kind", [
   ...COST_CENTER_KIND_VALUES,
+]);
+export const subsidyClaimStatusEnum = pgEnum("subsidy_claim_status", [
+  ...SUBSIDY_CLAIM_STATUS_VALUES,
 ]);
 
 export const stockMovementTypeEnum = pgEnum("stock_movement_type", [
@@ -650,6 +654,13 @@ export const documents = pgTable(
     intakeSource: intakeSourceEnum("intake_source"),
     donorId: uuid("donor_id").references(() => contacts.id),
     consignmentRate: decimal("consignment_rate", { precision: 5, scale: 2 }),
+    // Repair-specific fields (for type='repair_order'). The device is the
+    // customer's property held in bailment — never inventory (spec §5.1), so
+    // these are descriptive snapshots + the advance liability, not stock.
+    deviceInfo: text("device_info"), // brand/model snapshot shown on the invoice
+    faultDescription: text("fault_description"), // customer's reported fault
+    advanceAmount: decimal("advance_amount", { precision: 12, scale: 2 }), // deposit booked to 2030
+    externalJobRef: text("external_job_ref"), // revamp-it appointment id (also in source key)
     // Email tracking
     lastEmailedAt: timestamp("last_emailed_at"),
     lastEmailedTo: text("last_emailed_to"),
@@ -893,6 +904,54 @@ export const funds = pgTable(
       table.code,
     ),
     companyIdIdx: index("funds_company_id_idx").on(table.companyId),
+  }),
+);
+
+/**
+ * Third-party subsidy claims (e.g. Reparaturbonus Stadt Zürich). An extension
+ * detail of `documents` keyed by documentId — the same relationship
+ * documentItems/documentPayments already have (unified document model: no
+ * per-type document table). A subsidy splits WHO pays a repair: the customer's
+ * reduced share stays on the invoice; the `appliedAmount` becomes a receivable
+ * from the settling party (ERZ), cleared out-of-band at the monthly Abrechnung.
+ * Whether it is taxable turnover or a non-taxable Subvention is a per-program
+ * config policy (subsidy-programs.ts) — the row structure is identical either
+ * way (spec §5.3).
+ */
+export const subsidyClaims = pgTable(
+  "subsidy_claims",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    companyId: uuid("company_id")
+      .references(() => companies.id)
+      .notNull(),
+    documentId: uuid("document_id")
+      .references(() => documents.id)
+      .notNull(),
+    programKey: text("program_key").notNull(), // FK to SUBSIDY_PROGRAMS config
+    code: text("code"), // the bonus code presented by the customer
+    faceAmount: decimal("face_amount", { precision: 12, scale: 2 }).notNull(),
+    appliedAmount: decimal("applied_amount", {
+      precision: 12,
+      scale: 2,
+    }).notNull(),
+    status: subsidyClaimStatusEnum("status").default("applied").notNull(),
+    settlementParty: text("settlement_party"), // 'ERZ Stadt Zürich'
+    receivableAccountId: uuid("receivable_account_id").references(
+      () => accounts.id,
+    ),
+    settledAt: timestamp("settled_at"),
+    externalRef: text("external_ref"), // ERZ settlement batch ref
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    companyIdIdx: index("subsidy_claims_company_id_idx").on(table.companyId),
+    documentIdIdx: index("subsidy_claims_document_id_idx").on(table.documentId),
+    companyStatusIdx: index("subsidy_claims_company_status_idx").on(
+      table.companyId,
+      table.status,
+    ),
   }),
 );
 

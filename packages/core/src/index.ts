@@ -16,6 +16,8 @@ export * from "./config/cost-centers";
 export * from "./domain/posting-groups";
 export * from "./domain/cutover";
 export * from "./domain/funds";
+export * from "./domain/repairs";
+export * from "./config/subsidy-programs";
 export * from "./domain/accounting-integration";
 export * from "./domain/banking";
 export * from "./domain/camt-parser";
