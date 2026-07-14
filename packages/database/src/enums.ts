@@ -55,6 +55,18 @@ export type AccountTypeValue = (typeof ACCOUNT_TYPE_VALUES)[number];
 export const COST_CENTER_KIND_VALUES = ["activity", "fund"] as const;
 export type CostCenterKind = (typeof COST_CENTER_KIND_VALUES)[number];
 
+/**
+ * FER-21 restriction class of a fund — the decisive test is WHO imposed the
+ * restriction. `extern_zweckgebunden` → Fondskapital (third-party purpose-bound,
+ * not equity); `intern_gebunden`/`frei` → Organisationskapital.
+ */
+export const FUND_RESTRICTION_VALUES = [
+  "extern_zweckgebunden",
+  "intern_gebunden",
+  "frei",
+] as const;
+export type FundRestriction = (typeof FUND_RESTRICTION_VALUES)[number];
+
 export const STOCK_MOVEMENT_TYPE_VALUES = [
   "purchase",
   "sale",

@@ -47,6 +47,14 @@ const contactBaseSchema = z.object({
   creditLimit: z.string().optional().nullable(),
   language: z.string().max(5).optional().nullable(),
   notes: z.string().max(5000).optional().nullable(),
+  // Mahnsperre. Robust across form values ("on"/"true"/"1"/true → true; anything
+  // else incl. "false" → false) to avoid z.coerce.boolean's non-empty-string trap.
+  dunningBlock: z
+    .preprocess(
+      (v) => v === true || v === "true" || v === "on" || v === "1",
+      z.boolean(),
+    )
+    .optional(),
 });
 
 // Create requires at least one of: name, firstName, lastName
@@ -201,6 +209,7 @@ export async function listContacts(
       language: contacts.language,
       notes: contacts.notes,
       isActive: contacts.isActive,
+      dunningBlock: contacts.dunningBlock,
       kivitendoId: contacts.kivitendoId,
       createdAt: contacts.createdAt,
       updatedAt: contacts.updatedAt,
@@ -323,6 +332,7 @@ export async function createContact(
       creditLimit: cleanedInput.creditLimit as string | null,
       language: (cleanedInput.language as string) || "de",
       notes: cleanedInput.notes as string | null,
+      dunningBlock: (cleanedInput.dunningBlock as boolean) ?? false,
     })
     .returning();
 

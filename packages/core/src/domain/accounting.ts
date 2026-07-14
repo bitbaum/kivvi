@@ -1,13 +1,34 @@
 import { z } from "zod";
 import Decimal from "decimal.js";
-import { eq, and, asc, desc, sql, ilike, between, inArray } from "drizzle-orm";
+import {
+  eq,
+  and,
+  asc,
+  desc,
+  sql,
+  ilike,
+  between,
+  inArray,
+  lte,
+  gte,
+  isNotNull,
+} from "drizzle-orm";
 import {
   accounts,
   journalEntries,
   journalLines,
   fiscalYears,
   fiscalPeriods,
+  ledgerHeads,
+  auditLog,
 } from "@kivvi/database";
+import {
+  GENESIS_HASH,
+  computeEntryHash,
+  verifyChain,
+  type ChainEntry,
+  type ChainVerification,
+} from "./ledger-hash";
 import type {
   Database,
   Account,
@@ -395,6 +416,7 @@ export async function getJournalEntry(
       journalEntryId: journalLines.journalEntryId,
       accountId: journalLines.accountId,
       costCenterId: journalLines.costCenterId,
+      fundId: journalLines.fundId,
       debit: journalLines.debit,
       credit: journalLines.credit,
       description: journalLines.description,
@@ -412,12 +434,198 @@ export async function getJournalEntry(
       journalEntryId: l.journalEntryId,
       accountId: l.accountId,
       costCenterId: l.costCenterId,
+      fundId: l.fundId,
       debit: l.debit,
       credit: l.credit,
       description: l.description,
       account: l.account || undefined,
     })),
   };
+}
+
+// ============================================================================
+// IMMUTABLE POSTING (GeBüV — A1). Every posted entry is hash-chained and
+// serialized per company; posted entries are never edited/deleted, only
+// reversed (Storno). See ledger-hash.ts and IMMUTABLE_BOOKS_SPEC.md.
+// ============================================================================
+
+/** The transaction type drizzle passes to db.transaction / tx.transaction. */
+type LedgerTx = Parameters<Parameters<Database["transaction"]>[0]>[0];
+
+interface PostLine {
+  accountId: string;
+  costCenterId?: string | null;
+  debit?: string | null;
+  credit?: string | null;
+  description?: string | null;
+}
+
+interface PostInput {
+  companyId: string;
+  date: Date;
+  reference?: string | null;
+  description?: string | null;
+  sourceType: string;
+  sourceId?: string | null;
+  createdBy?: string | null;
+  lines: PostLine[];
+  /** Set on a reversal entry → the entry it reverses. */
+  reversesEntryId?: string | null;
+  /** Audit metadata. */
+  actorUserId?: string | null;
+  auditAction?: string;
+}
+
+/** Reject a posting whose date falls in a closed fiscal year or period. */
+async function assertPeriodOpenTx(
+  tx: LedgerTx,
+  companyId: string,
+  date: Date,
+): Promise<void> {
+  const dateStr = date.toISOString().slice(0, 10);
+  const [closedYear] = await tx
+    .select({ id: fiscalYears.id })
+    .from(fiscalYears)
+    .where(
+      and(
+        eq(fiscalYears.companyId, companyId),
+        eq(fiscalYears.isClosed, true),
+        lte(fiscalYears.startDate, dateStr),
+        gte(fiscalYears.endDate, dateStr),
+      ),
+    )
+    .limit(1);
+  if (closedYear) {
+    throw new DomainError(
+      "periodClosed",
+      { date: dateStr },
+      "Cannot post into a closed fiscal year; reverse into the open period instead.",
+    );
+  }
+  const [closedPeriod] = await tx
+    .select({ id: fiscalPeriods.id })
+    .from(fiscalPeriods)
+    .innerJoin(fiscalYears, eq(fiscalPeriods.fiscalYearId, fiscalYears.id))
+    .where(
+      and(
+        eq(fiscalYears.companyId, companyId),
+        eq(fiscalPeriods.isClosed, true),
+        lte(fiscalPeriods.startDate, dateStr),
+        gte(fiscalPeriods.endDate, dateStr),
+      ),
+    )
+    .limit(1);
+  if (closedPeriod) {
+    throw new DomainError(
+      "periodClosed",
+      { date: dateStr },
+      "Cannot post into a closed period; reverse into the open period instead.",
+    );
+  }
+}
+
+/**
+ * Post a journal entry immutably: serialize on the per-company ledger head,
+ * assign gap-free sequenceNo + prevHash + entryHash, insert entry+lines, advance
+ * the head, and append one audit row. Runs inside the given transaction so the
+ * chain stays consistent even under concurrency and when nested in a larger tx.
+ */
+async function postEntryTx(
+  tx: LedgerTx,
+  input: PostInput,
+): Promise<JournalEntry> {
+  await assertPeriodOpenTx(tx, input.companyId, input.date);
+
+  // Lock (and lazily create) the company's ledger head — the serialization point.
+  await tx
+    .insert(ledgerHeads)
+    .values({ companyId: input.companyId })
+    .onConflictDoNothing();
+  const [head] = await tx
+    .select()
+    .from(ledgerHeads)
+    .where(eq(ledgerHeads.companyId, input.companyId))
+    .for("update");
+
+  const sequenceNo = (head?.lastSequenceNo ?? 0) + 1;
+  const prevHash = head?.lastHash ?? GENESIS_HASH;
+  const postedAt = new Date();
+  const entryHash = computeEntryHash({
+    companyId: input.companyId,
+    sequenceNo,
+    date: input.date,
+    reference: input.reference ?? null,
+    sourceType: input.sourceType,
+    sourceId: input.sourceId ?? null,
+    postedAt,
+    prevHash,
+    lines: input.lines.map((l) => ({
+      accountId: l.accountId,
+      debit: l.debit,
+      credit: l.credit,
+    })),
+  });
+
+  const [entry] = await tx
+    .insert(journalEntries)
+    .values({
+      companyId: input.companyId,
+      date: input.date,
+      reference: input.reference ?? null,
+      description: input.description ?? null,
+      sourceType: input.sourceType,
+      sourceId: input.sourceId ?? null,
+      createdBy: input.createdBy ?? null,
+      postedAt,
+      sequenceNo,
+      prevHash,
+      entryHash,
+      reversesEntryId: input.reversesEntryId ?? null,
+    })
+    .returning();
+
+  await tx.insert(journalLines).values(
+    input.lines.map((line) => ({
+      journalEntryId: entry.id,
+      accountId: line.accountId,
+      costCenterId: line.costCenterId ?? null,
+      debit: line.debit || null,
+      credit: line.credit || null,
+      description: line.description || null,
+    })),
+  );
+
+  await tx
+    .update(ledgerHeads)
+    .set({
+      lastSequenceNo: sequenceNo,
+      lastHash: entryHash,
+      updatedAt: new Date(),
+    })
+    .where(eq(ledgerHeads.companyId, input.companyId));
+
+  await tx.insert(auditLog).values({
+    companyId: input.companyId,
+    actorUserId: input.actorUserId ?? input.createdBy ?? null,
+    action: input.auditAction ?? "journal.posted",
+    entityType: "journal_entry",
+    entityId: entry.id,
+    detail: {
+      sequenceNo,
+      sourceType: input.sourceType,
+      reference: input.reference ?? null,
+    },
+  });
+
+  return entry;
+}
+
+/** Post a journal entry in its own (possibly nested) transaction. */
+async function postJournalEntry(
+  db: Database,
+  input: PostInput,
+): Promise<JournalEntry> {
+  return db.transaction((tx) => postEntryTx(tx, input));
 }
 
 export async function createJournalEntry(
@@ -438,32 +646,20 @@ export async function createJournalEntry(
     );
   }
 
-  // Wrap journal entry + lines insert in transaction
-  return db.transaction(async (tx) => {
-    const [entry] = await tx
-      .insert(journalEntries)
-      .values({
-        companyId,
-        date: new Date(validated.date),
-        reference: validated.reference || null,
-        description: validated.description,
-        sourceType: "manual",
-        createdBy: userId,
-      })
-      .returning();
-
-    // Insert lines
-    await tx.insert(journalLines).values(
-      validated.lines.map((line) => ({
-        journalEntryId: entry.id,
-        accountId: line.accountId,
-        debit: line.debit || null,
-        credit: line.credit || null,
-        description: line.description || null,
-      })),
-    );
-
-    return entry;
+  return postJournalEntry(db, {
+    companyId,
+    date: new Date(validated.date),
+    reference: validated.reference || null,
+    description: validated.description,
+    sourceType: "manual",
+    createdBy: userId,
+    actorUserId: userId,
+    lines: validated.lines.map((line) => ({
+      accountId: line.accountId,
+      debit: line.debit || null,
+      credit: line.credit || null,
+      description: line.description || null,
+    })),
   });
 }
 
@@ -522,32 +718,20 @@ export async function createAutoJournalEntry(
     );
   }
 
-  // Wrap journal entry + lines insert in transaction
-  return db.transaction(async (tx) => {
-    const [entry] = await tx
-      .insert(journalEntries)
-      .values({
-        companyId,
-        date: input.date,
-        reference: input.reference,
-        description: input.description,
-        sourceType: input.sourceType,
-        sourceId: input.sourceId,
-      })
-      .returning();
-
-    await tx.insert(journalLines).values(
-      input.lines.map((line) => ({
-        journalEntryId: entry.id,
-        accountId: codeToId.get(line.accountCode)!,
-        costCenterId: input.costCenterId ?? null,
-        debit: line.debit || null,
-        credit: line.credit || null,
-        description: line.description || null,
-      })),
-    );
-
-    return entry;
+  return postJournalEntry(db, {
+    companyId,
+    date: input.date,
+    reference: input.reference,
+    description: input.description,
+    sourceType: input.sourceType,
+    sourceId: input.sourceId,
+    lines: input.lines.map((line) => ({
+      accountId: codeToId.get(line.accountCode)!,
+      costCenterId: input.costCenterId ?? null,
+      debit: line.debit || null,
+      credit: line.credit || null,
+      description: line.description || null,
+    })),
   });
 }
 
@@ -567,11 +751,13 @@ export async function deleteJournalEntry(
     );
 
   if (!entry) throw new Error("Journal entry not found");
-  if (entry.sourceType !== "manual") {
+  // GeBüV: a POSTED entry is immutable — never deleted, only reversed (Storno).
+  // Only true drafts (postedAt IS NULL) may be deleted.
+  if (entry.postedAt) {
     throw new DomainError(
-      "onlyManualCanBeDeleted",
+      "cannotDeletePosted",
       undefined,
-      "Only manual journal entries can be deleted",
+      "A posted journal entry cannot be deleted; reverse it (Storno) instead.",
     );
   }
 
@@ -584,6 +770,321 @@ export async function deleteJournalEntry(
         eq(journalEntries.companyId, companyId),
       ),
     );
+}
+
+/**
+ * Reverse a posted journal entry with a Storno counter-entry (swapped debit/
+ * credit), dated into the OPEN period. The original is never mutated except for
+ * its reversal-link column (not part of the hash). This is the only way to undo
+ * a posted entry (GeBüV — A1).
+ */
+export async function reverseJournalEntry(
+  db: Database,
+  companyId: string,
+  entryId: string,
+  opts?: { date?: Date; userId?: string | null },
+): Promise<JournalEntry> {
+  return db.transaction(async (tx) => {
+    const [orig] = await tx
+      .select()
+      .from(journalEntries)
+      .where(
+        and(
+          eq(journalEntries.id, entryId),
+          eq(journalEntries.companyId, companyId),
+        ),
+      );
+    if (!orig) throw new Error("Journal entry not found");
+    if (orig.reversedByEntryId) {
+      throw new DomainError(
+        "alreadyReversed",
+        undefined,
+        "Journal entry already reversed",
+      );
+    }
+    const lines = await tx
+      .select()
+      .from(journalLines)
+      .where(eq(journalLines.journalEntryId, entryId));
+
+    const reversal = await postEntryTx(tx, {
+      companyId,
+      date: opts?.date ?? new Date(),
+      reference: orig.reference ? `Storno ${orig.reference}` : "Storno",
+      description: `Storno: ${orig.description ?? ""}`.trim(),
+      sourceType: "reversal",
+      sourceId: orig.id,
+      createdBy: opts?.userId ?? null,
+      actorUserId: opts?.userId ?? null,
+      auditAction: "journal.reversed",
+      reversesEntryId: orig.id,
+      lines: lines.map((l) => ({
+        accountId: l.accountId,
+        costCenterId: l.costCenterId,
+        debit: l.credit ?? null, // swap debit/credit
+        credit: l.debit ?? null,
+        description: l.description ? `Storno: ${l.description}` : "Storno",
+      })),
+    });
+
+    // Link original → reversal (metadata only, not hashed).
+    await tx
+      .update(journalEntries)
+      .set({ reversedByEntryId: reversal.id })
+      .where(eq(journalEntries.id, orig.id));
+
+    return reversal;
+  });
+}
+
+/**
+ * Recompute and verify a company's posted-entry hash chain end-to-end.
+ * Returns ok, or the first broken sequenceNo + reason (tamper/gap detected).
+ */
+export async function verifyLedgerIntegrity(
+  db: Database,
+  companyId: string,
+): Promise<ChainVerification> {
+  const entries = await db
+    .select()
+    .from(journalEntries)
+    .where(
+      and(
+        eq(journalEntries.companyId, companyId),
+        isNotNull(journalEntries.sequenceNo),
+      ),
+    )
+    .orderBy(asc(journalEntries.sequenceNo));
+
+  const chain: ChainEntry[] = [];
+  for (const e of entries) {
+    const lines = await db
+      .select()
+      .from(journalLines)
+      .where(eq(journalLines.journalEntryId, e.id));
+    chain.push({
+      companyId: e.companyId,
+      sequenceNo: e.sequenceNo as number,
+      date: e.date,
+      reference: e.reference,
+      sourceType: e.sourceType,
+      sourceId: e.sourceId,
+      postedAt: e.postedAt as Date,
+      prevHash: e.prevHash as string,
+      entryHash: e.entryHash as string,
+      lines: lines.map((l) => ({
+        accountId: l.accountId,
+        debit: l.debit,
+        credit: l.credit,
+      })),
+    });
+  }
+  return verifyChain(chain);
+}
+
+/**
+ * One-time migration: assign sequenceNo + postedAt + hash chain to a company's
+ * existing (pre-A1) journal entries, in (createdAt, id) order, so
+ * verifyLedgerIntegrity covers historical data. Safe to re-run — already-chained
+ * entries are skipped and only advance the pointers.
+ */
+export async function backfillLedgerChain(
+  db: Database,
+  companyId: string,
+): Promise<{ processed: number }> {
+  return db.transaction(async (tx) => {
+    const entries = await tx
+      .select()
+      .from(journalEntries)
+      .where(eq(journalEntries.companyId, companyId))
+      .orderBy(asc(journalEntries.createdAt), asc(journalEntries.id));
+
+    await tx.insert(ledgerHeads).values({ companyId }).onConflictDoNothing();
+    const [head] = await tx
+      .select()
+      .from(ledgerHeads)
+      .where(eq(ledgerHeads.companyId, companyId))
+      .for("update");
+
+    let seq = head?.lastSequenceNo ?? 0;
+    let prevHash = head?.lastHash ?? GENESIS_HASH;
+    let processed = 0;
+
+    for (const e of entries) {
+      if (e.sequenceNo != null) {
+        seq = e.sequenceNo;
+        prevHash = e.entryHash ?? prevHash;
+        continue;
+      }
+      const lines = await tx
+        .select()
+        .from(journalLines)
+        .where(eq(journalLines.journalEntryId, e.id));
+      seq += 1;
+      const postedAt = e.createdAt;
+      const entryHash = computeEntryHash({
+        companyId,
+        sequenceNo: seq,
+        date: e.date,
+        reference: e.reference,
+        sourceType: e.sourceType,
+        sourceId: e.sourceId,
+        postedAt,
+        prevHash,
+        lines: lines.map((l) => ({
+          accountId: l.accountId,
+          debit: l.debit,
+          credit: l.credit,
+        })),
+      });
+      await tx
+        .update(journalEntries)
+        .set({ sequenceNo: seq, postedAt, prevHash, entryHash })
+        .where(eq(journalEntries.id, e.id));
+      prevHash = entryHash;
+      processed += 1;
+    }
+
+    await tx
+      .update(ledgerHeads)
+      .set({ lastSequenceNo: seq, lastHash: prevHash, updatedAt: new Date() })
+      .where(eq(ledgerHeads.companyId, companyId));
+
+    return { processed };
+  });
+}
+
+// ============================================================================
+// ACCOUNT STATEMENT (Kontoauszug) — per-account ledger with running balance.
+// ============================================================================
+
+/** Assets and expenses are debit-normal; liabilities/equity/revenue credit-normal. */
+export function isDebitNormalAccount(type: string): boolean {
+  return type === "asset" || type === "expense";
+}
+
+/** Signed movement of a line on an account, respecting the account's nature. */
+export function accountSignedDelta(
+  type: string,
+  debit: string | null,
+  credit: string | null,
+): Decimal {
+  const d = new Decimal(debit || "0");
+  const c = new Decimal(credit || "0");
+  return isDebitNormalAccount(type) ? d.minus(c) : c.minus(d);
+}
+
+export interface AccountStatementRow {
+  entryId: string;
+  date: Date;
+  reference: string | null;
+  description: string | null;
+  debit: string | null;
+  credit: string | null;
+  runningBalance: string;
+}
+
+export interface AccountStatement {
+  accountCode: string;
+  accountName: string;
+  accountType: string;
+  openingBalance: string;
+  closingBalance: string;
+  rows: AccountStatementRow[];
+}
+
+/**
+ * Per-account statement (Kontoauszug): opening balance (signed sum before
+ * dateFrom), every posting in the period with a running balance, and the
+ * closing balance — the "show me all postings to 3400" view a Treuhänder needs.
+ */
+export async function getAccountStatement(
+  db: Database,
+  companyId: string,
+  params: { accountCode: string; dateFrom: string; dateTo: string },
+): Promise<AccountStatement> {
+  const [account] = await db
+    .select()
+    .from(accounts)
+    .where(
+      and(
+        eq(accounts.companyId, companyId),
+        eq(accounts.code, params.accountCode),
+      ),
+    )
+    .limit(1);
+  if (!account) {
+    throw new DomainError("accountNotFound", undefined, "Account not found");
+  }
+
+  const fromDate = new Date(params.dateFrom);
+  const toDate = new Date(params.dateTo);
+
+  const openingRows = await db
+    .select({ debit: journalLines.debit, credit: journalLines.credit })
+    .from(journalLines)
+    .innerJoin(
+      journalEntries,
+      eq(journalLines.journalEntryId, journalEntries.id),
+    )
+    .where(
+      and(
+        eq(journalEntries.companyId, companyId),
+        eq(journalLines.accountId, account.id),
+        sql`${journalEntries.date} < ${fromDate}`,
+      ),
+    );
+  let running = openingRows.reduce(
+    (acc, r) => acc.plus(accountSignedDelta(account.type, r.debit, r.credit)),
+    new Decimal(0),
+  );
+  const openingBalance = running.toFixed(2);
+
+  const periodRows = await db
+    .select({
+      entryId: journalEntries.id,
+      date: journalEntries.date,
+      reference: journalEntries.reference,
+      entryDesc: journalEntries.description,
+      lineDesc: journalLines.description,
+      debit: journalLines.debit,
+      credit: journalLines.credit,
+    })
+    .from(journalLines)
+    .innerJoin(
+      journalEntries,
+      eq(journalLines.journalEntryId, journalEntries.id),
+    )
+    .where(
+      and(
+        eq(journalEntries.companyId, companyId),
+        eq(journalLines.accountId, account.id),
+        between(journalEntries.date, fromDate, toDate),
+      ),
+    )
+    .orderBy(asc(journalEntries.date), asc(journalEntries.sequenceNo));
+
+  const rows: AccountStatementRow[] = periodRows.map((r) => {
+    running = running.plus(accountSignedDelta(account.type, r.debit, r.credit));
+    return {
+      entryId: r.entryId,
+      date: r.date,
+      reference: r.reference,
+      description: r.lineDesc ?? r.entryDesc,
+      debit: r.debit,
+      credit: r.credit,
+      runningBalance: running.toFixed(2),
+    };
+  });
+
+  return {
+    accountCode: account.code,
+    accountName: account.name,
+    accountType: account.type,
+    openingBalance,
+    closingBalance: running.toFixed(2),
+    rows,
+  };
 }
 
 // ============================================================================

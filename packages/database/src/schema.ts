@@ -4,6 +4,7 @@ import {
   text,
   timestamp,
   integer,
+  bigint,
   decimal,
   boolean,
   jsonb,
@@ -12,6 +13,7 @@ import {
   uniqueIndex,
   unique,
   index,
+  type AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 import {
@@ -20,6 +22,7 @@ import {
   DOCUMENT_STATUS_VALUES,
   ACCOUNT_TYPE_VALUES,
   COST_CENTER_KIND_VALUES,
+  FUND_RESTRICTION_VALUES,
   STOCK_MOVEMENT_TYPE_VALUES,
   PRICE_RULE_TYPE_VALUES,
   RECURRING_PERIODICITY_VALUES,
@@ -55,6 +58,9 @@ export const documentStatusEnum = pgEnum("document_status", [
 ]);
 
 export const accountTypeEnum = pgEnum("account_type", [...ACCOUNT_TYPE_VALUES]);
+export const fundRestrictionEnum = pgEnum("fund_restriction", [
+  ...FUND_RESTRICTION_VALUES,
+]);
 export const costCenterKindEnum = pgEnum("cost_center_kind", [
   ...COST_CENTER_KIND_VALUES,
 ]);
@@ -420,6 +426,9 @@ export const contacts = pgTable(
     language: text("language").default("de"),
     notes: text("notes"),
     isActive: boolean("is_active").default(true),
+    // Mahnsperre — exclude this contact from the dunning run (invoices still
+    // count as overdue; they just don't generate reminders).
+    dunningBlock: boolean("dunning_block").default(false),
     // Migration
     kivitendoId: integer("kivitendo_id"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -482,9 +491,49 @@ export const productGroups = pgTable(
       .notNull(),
     name: text("name").notNull(),
     parentId: uuid("parent_id"), // Self-referencing for hierarchy
+    // Default posting group for all products in this group (revenue routing, 1.1).
+    defaultPostingGroupId: uuid("default_posting_group_id").references(
+      (): AnyPgColumn => postingGroups.id,
+    ),
   },
   (table) => ({
     companyIdIdx: index("product_groups_company_id_idx").on(table.companyId),
+  }),
+);
+
+/**
+ * Posting group (Kivitendo "Buchungsgruppe") — a named bundle of GL accounts
+ * assigned to an article/line that decides which Erlöskonto a sale credits (and
+ * later which Aufwandskonto a purchase debits). Replaces the hardcoded
+ * product/service → 3000/3200 split. See POSTING_GROUP_REVENUE_ROUTING_SPEC.md.
+ */
+export const postingGroups = pgTable(
+  "posting_groups",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    companyId: uuid("company_id")
+      .references(() => companies.id)
+      .notNull(),
+    name: text("name").notNull(), // "Reparaturen", "Warenverkauf", "Spenden"
+    revenueAccountId: uuid("revenue_account_id")
+      .references(() => accounts.id)
+      .notNull(), // Erlöskonto Inland (the sale credit)
+    expenseAccountId: uuid("expense_account_id").references(() => accounts.id), // Aufwandskonto (purchase debit — follow-on)
+    inventoryAccountId: uuid("inventory_account_id").references(
+      () => accounts.id,
+    ),
+    isDefault: boolean("is_default").default(false).notNull(),
+    isActive: boolean("is_active").default(true).notNull(),
+    sortOrder: integer("sort_order").default(0).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    companyIdIdx: index("posting_groups_company_id_idx").on(table.companyId),
+    uniqueNamePerCompany: uniqueIndex("posting_groups_company_name_idx").on(
+      table.companyId,
+      table.name,
+    ),
   }),
 );
 
@@ -504,6 +553,10 @@ export const products = pgTable(
     // Categorization
     manufacturerId: uuid("manufacturer_id").references(() => manufacturers.id),
     productGroupId: uuid("product_group_id").references(() => productGroups.id),
+    // Revenue routing (1.1): overrides productGroup default; else company default.
+    postingGroupId: uuid("posting_group_id").references(
+      (): AnyPgColumn => postingGroups.id,
+    ),
     // Pricing
     unitPrice: decimal("unit_price", { precision: 12, scale: 2 }).notNull(),
     purchasePrice: decimal("purchase_price", { precision: 12, scale: 2 }),
@@ -600,6 +653,10 @@ export const documents = pgTable(
     // Email tracking
     lastEmailedAt: timestamp("last_emailed_at"),
     lastEmailedTo: text("last_emailed_to"),
+    // Cutover: an open item carried forward from a prior system as a balance.
+    // Its AR/AP is already in the opening-balance entry, so it must NOT generate
+    // its own journal entry (avoids double-counting 1100/2000).
+    isCarriedForward: boolean("is_carried_forward").default(false),
     // Tracking
     createdBy: uuid("created_by").references(() => users.id),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -640,6 +697,11 @@ export const documentItems = pgTable(
     productId: uuid("product_id").references(() => products.id),
     inventoryItemId: uuid("inventory_item_id").references(
       () => inventoryItems.id,
+    ),
+    // Revenue-routing override for this line (e.g. a freeform line with no
+    // product, or a per-line override); resolved before product/group defaults.
+    postingGroupId: uuid("posting_group_id").references(
+      (): AnyPgColumn => postingGroups.id,
     ),
     position: integer("position").default(0),
     description: text("description").notNull(),
@@ -797,6 +859,43 @@ export const costCenters = pgTable(
   }),
 );
 
+/**
+ * FER-21 fund — a restricted capital pot, ORTHOGONAL to cost centers (a grant
+ * fund can finance a repair activity). The restrictionType decides the
+ * balance-sheet block: extern → Fondskapital, else → Organisationskapital.
+ * See FER21_FUND_ACCOUNTING_SPEC.md.
+ */
+export const funds = pgTable(
+  "funds",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    companyId: uuid("company_id")
+      .references(() => companies.id)
+      .notNull(),
+    code: text("code").notNull(), // "GRANT-ZH-REPAIR-2026"
+    name: text("name").notNull(),
+    restrictionType: fundRestrictionEnum("restriction_type")
+      .default("extern_zweckgebunden")
+      .notNull(),
+    purpose: text("purpose"), // donor's stipulated purpose (audit + Anhang)
+    restrictedBy: text("restricted_by"), // third party (extern) / 'Vorstand' (intern)
+    capitalAccountId: uuid("capital_account_id").references(() => accounts.id),
+    openingBalance: decimal("opening_balance", { precision: 12, scale: 2 })
+      .default("0")
+      .notNull(),
+    isActive: boolean("is_active").default(true).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    uniqueCodePerCompany: uniqueIndex("funds_company_id_code_idx").on(
+      table.companyId,
+      table.code,
+    ),
+    companyIdIdx: index("funds_company_id_idx").on(table.companyId),
+  }),
+);
+
 export const journalEntries = pgTable(
   "journal_entries",
   {
@@ -807,14 +906,80 @@ export const journalEntries = pgTable(
     date: timestamp("date").notNull(),
     reference: text("reference"),
     description: text("description"),
-    sourceType: text("source_type"), // 'invoice', 'payment', 'manual'
+    sourceType: text("source_type"), // 'invoice', 'payment', 'manual', 'opening_balance', 'reversal'
     sourceId: uuid("source_id"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     createdBy: uuid("created_by").references(() => users.id),
+    // --- GeBüV immutability (A1) ---
+    // postedAt NULL = draft (editable/deletable); set once = posted (immutable,
+    // Storno-only). sequenceNo is the per-company gap-free posting order;
+    // entryHash chains to prevHash for tamper-evidence (see verifyLedgerIntegrity).
+    postedAt: timestamp("posted_at"),
+    sequenceNo: bigint("sequence_no", { mode: "number" }),
+    entryHash: text("entry_hash"),
+    prevHash: text("prev_hash"),
+    // Reversal (Storno) links — a posted entry is undone only by a counter-entry.
+    reversesEntryId: uuid("reverses_entry_id").references(
+      (): AnyPgColumn => journalEntries.id,
+    ),
+    reversedByEntryId: uuid("reversed_by_entry_id").references(
+      (): AnyPgColumn => journalEntries.id,
+    ),
   },
   (table) => ({
     companyIdIdx: index("journal_entries_company_id_idx").on(table.companyId),
     dateIdx: index("journal_entries_date_idx").on(table.date),
+    companySeqIdx: uniqueIndex("journal_entries_company_seq_idx").on(
+      table.companyId,
+      table.sequenceNo,
+    ),
+  }),
+);
+
+/**
+ * Per-company ledger head pointer — the serialization point + O(1) chain head
+ * for the immutable ledger (A1). Posting a journal entry locks this row
+ * (SELECT … FOR UPDATE), so concurrent posts get sequential sequenceNo and a
+ * correct prevHash. One row per company.
+ */
+export const ledgerHeads = pgTable("ledger_heads", {
+  companyId: uuid("company_id")
+    .primaryKey()
+    .references(() => companies.id, { onDelete: "cascade" }),
+  lastSequenceNo: bigint("last_sequence_no", { mode: "number" })
+    .default(0)
+    .notNull(),
+  lastHash: text("last_hash"), // NULL = genesis (no posted entry yet)
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+/**
+ * Append-only audit trail (A1). Records every ledger-affecting action
+ * (post/reverse/status change/period close). No code path updates or deletes it.
+ */
+export const auditLog = pgTable(
+  "audit_log",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    companyId: uuid("company_id")
+      .references(() => companies.id, { onDelete: "cascade" })
+      .notNull(),
+    actorUserId: uuid("actor_user_id").references(() => users.id), // NULL = system/cron
+    action: text("action").notNull(), // 'journal.posted' | 'journal.reversed' | 'period.closed' | …
+    entityType: text("entity_type").notNull(), // 'journal_entry' | 'document' | 'fiscal_period'
+    entityId: uuid("entity_id"),
+    at: timestamp("at").defaultNow().notNull(),
+    detail: jsonb("detail"),
+  },
+  (table) => ({
+    companyAtIdx: index("audit_log_company_at_idx").on(
+      table.companyId,
+      table.at,
+    ),
+    entityIdx: index("audit_log_entity_idx").on(
+      table.entityType,
+      table.entityId,
+    ),
   }),
 );
 
@@ -830,6 +995,9 @@ export const journalLines = pgTable(
       .notNull(),
     // Analytical dimension — which activity/fund this posting belongs to.
     costCenterId: uuid("cost_center_id").references(() => costCenters.id),
+    // FER-21 fund dimension (orthogonal to costCenterId) — which restricted fund
+    // this posting moves. NULL for non-fund postings.
+    fundId: uuid("fund_id").references(() => funds.id),
     debit: decimal("debit", { precision: 12, scale: 2 }),
     credit: decimal("credit", { precision: 12, scale: 2 }),
     description: text("description"),
@@ -2167,6 +2335,10 @@ export type Account = typeof accounts.$inferSelect;
 export type CostCenter = typeof costCenters.$inferSelect;
 export type JournalEntry = typeof journalEntries.$inferSelect;
 export type JournalLine = typeof journalLines.$inferSelect;
+export type LedgerHead = typeof ledgerHeads.$inferSelect;
+export type AuditLogEntry = typeof auditLog.$inferSelect;
+export type PostingGroup = typeof postingGroups.$inferSelect;
+export type Fund = typeof funds.$inferSelect;
 export type BankAccount = typeof bankAccounts.$inferSelect;
 export type BankTransaction = typeof bankTransactions.$inferSelect;
 export type Warehouse = typeof warehouses.$inferSelect;

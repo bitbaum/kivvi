@@ -29,6 +29,7 @@ export interface OverdueInvoice {
   status: string;
   daysOverdue: number;
   dunningLevel: number; // 0 = no dunning yet, 1-3 = dunning level
+  dunningBlock: boolean; // Mahnsperre — skip this contact in the dunning run
 }
 
 export interface DunningStats {
@@ -81,7 +82,7 @@ export async function detectOverdueInvoices(
       lt(documents.dueDate, now),
     ),
     with: {
-      contact: { columns: { id: true, name: true } },
+      contact: { columns: { id: true, name: true, dunningBlock: true } },
     },
     orderBy: [desc(documents.dueDate)],
   });
@@ -100,6 +101,7 @@ export async function detectOverdueInvoices(
         (1000 * 60 * 60 * 24),
     ),
     dunningLevel: getDunningLevel(doc.status),
+    dunningBlock: doc.contact?.dunningBlock ?? false,
   }));
 }
 
@@ -325,6 +327,9 @@ export async function processOverdueInvoices(
 
       for (const invoice of overdue) {
         try {
+          // Mahnsperre: never dun a blocked contact (invoice stays overdue).
+          if (invoice.dunningBlock) continue;
+
           // Determine if this invoice should be escalated
           const currentLevel = invoice.dunningLevel;
           let shouldEscalate = false;

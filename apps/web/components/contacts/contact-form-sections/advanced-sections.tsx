@@ -171,6 +171,18 @@ export function ContactFormAdvancedSections({
                   className="resize-y"
                 />
               </div>
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="dunningBlock"
+                  name="dunningBlock"
+                  defaultChecked={contact?.dunningBlock ?? false}
+                  className="h-4 w-4 rounded border-input"
+                />
+                <label htmlFor="dunningBlock" className="text-sm font-medium">
+                  {t("dunningBlock")}
+                </label>
+              </div>
             </div>
           </section>
         </>

@@ -172,6 +172,23 @@ export default async function SettingsPage() {
               </p>
             </div>
           </Link>
+          <Link
+            href="/settings/cutover"
+            className="group rounded-xl border bg-card p-6 transition-colors hover:bg-muted/50"
+          >
+            <div className="flex items-start justify-between">
+              <div className="rounded-lg border bg-background p-3">
+                <Database className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <ArrowRight className="h-5 w-5 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+            </div>
+            <div className="mt-4">
+              <h2 className="font-semibold">{t("cutover.title")}</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {t("cutover.description")}
+              </p>
+            </div>
+          </Link>
         </div>
       </div>
 

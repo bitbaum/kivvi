@@ -44,6 +44,8 @@ function thenable(rows: unknown[]) {
     from: () => b,
     where: () => b,
     innerJoin: () => b,
+    limit: () => b,
+    for: () => b,
     then: (
       resolve: (v: unknown[]) => unknown,
       reject?: (e: unknown) => unknown,
@@ -63,6 +65,11 @@ function makeMockDb() {
   } = { entries: [], lines: [] };
 
   const tx = {
+    // Immutable posting (A1) reads fiscal periods + the ledger head and writes
+    // ledger_heads / audit_log. The mock returns [] for reads (open period, no
+    // head → seq 1 / GENESIS) and no-ops those writes.
+    select: () => thenable([]),
+    update: () => ({ set: () => ({ where: async () => undefined }) }),
     insert: () => ({
       values: (v: Record<string, unknown> | Record<string, unknown>[]) => ({
         // journalEntries insert path
@@ -71,6 +78,8 @@ function makeMockDb() {
           captured.entries.push(entry);
           return [entry];
         },
+        // ledger_heads upsert path
+        onConflictDoNothing: async () => undefined,
         // journalLines insert path (awaited directly)
         then: (
           resolve: (v: unknown) => unknown,
@@ -78,6 +87,9 @@ function makeMockDb() {
         ) => {
           const rows = Array.isArray(v) ? v : [v];
           for (const row of rows) {
+            // Only capture real journal lines (they carry accountId); skip the
+            // ledger-head / audit-log rows introduced by immutable posting.
+            if (!row.accountId) continue;
             captured.lines.push({
               accountCode: ID_TO_CODE.get(row.accountId as string) ?? "?",
               debit: (row.debit as string) ?? null,

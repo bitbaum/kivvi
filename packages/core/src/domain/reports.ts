@@ -521,7 +521,9 @@ export async function getVatReport(
   const salesRows = await db
     .select({
       rate: documentItems.vatRate,
-      taxableAmount: sql<string>`SUM(CAST(${documentItems.total} AS DECIMAL))`,
+      // Credit notes REDUCE taxable turnover (Entgeltsminderung, MWST Ziffer 235) —
+      // they must subtract, not add, or the return over-states turnover and VAT.
+      taxableAmount: sql<string>`SUM(CASE WHEN ${documents.type} = 'credit_note' THEN -CAST(${documentItems.total} AS DECIMAL) ELSE CAST(${documentItems.total} AS DECIMAL) END)`,
       documentCount: sql<number>`COUNT(DISTINCT ${documents.id})::int`,
     })
     .from(documentItems)

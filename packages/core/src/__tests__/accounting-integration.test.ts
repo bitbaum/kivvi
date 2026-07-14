@@ -150,26 +150,39 @@ describe("Invoice sent journal entries", () => {
     expect(validateJournalBalance(lines).valid).toBe(true);
   });
 
-  it("splits service invoice revenue to account 3200", () => {
+  it("groups revenue by resolved Erlöskonto (posting groups)", () => {
     const revenueLines = buildInvoiceRevenueLines(
       [
-        { total: "120.00", productType: "product" },
-        { total: "80.00", productType: "service" },
+        { total: "120.00", revenueAccountCode: "3100" }, // Warenverkauf
+        { total: "80.00", revenueAccountCode: "3400" }, // Reparaturen
       ],
       "200.00",
     );
 
     expect(revenueLines).toEqual([
       {
-        accountCode: "3000",
+        accountCode: "3100",
         credit: "120.00",
         description: "Revenue",
       },
       {
-        accountCode: "3200",
+        accountCode: "3400",
         credit: "80.00",
-        description: "Service revenue",
+        description: "Revenue",
       },
+    ]);
+  });
+
+  it("sums lines that share the same Erlöskonto", () => {
+    const revenueLines = buildInvoiceRevenueLines(
+      [
+        { total: "120.00", revenueAccountCode: "3400" },
+        { total: "80.00", revenueAccountCode: "3400" },
+      ],
+      "200.00",
+    );
+    expect(revenueLines).toEqual([
+      { accountCode: "3400", credit: "200.00", description: "Revenue" },
     ]);
   });
 });

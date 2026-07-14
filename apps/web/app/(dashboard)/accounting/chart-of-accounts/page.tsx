@@ -215,7 +215,13 @@ export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
                         )}
                       >
                         <div className="font-mono text-sm font-medium">
-                          {account.code}
+                          <Link
+                            href={`/accounting/accounts/${account.code}`}
+                            className="text-primary hover:underline"
+                            title={t("accountStatement")}
+                          >
+                            {account.code}
+                          </Link>
                         </div>
                         <div>
                           <p className="text-sm font-medium">{account.name}</p>

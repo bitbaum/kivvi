@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import type { Database } from "@kivvi/database";
 import { documentItems, products } from "@kivvi/database";
 import { createAutoJournalEntry } from "./accounting";
+import { resolveLineRevenueAccounts } from "./posting-groups";
 import { ACCOUNT_MAPPINGS } from "../config/account-mappings";
 
 /** Validation for recording a consignor payout (Dr 2140 / Cr 1020). */
@@ -41,25 +42,29 @@ export async function recordConsignorPayout(
   });
 }
 
+/**
+ * Group already-resolved revenue lines by Erlöskonto and sum. Revenue-account
+ * resolution (posting groups / legacy fallback) happens upstream in
+ * resolveLineRevenueAccounts — this is pure grouping.
+ */
 export function buildInvoiceRevenueLines(
-  items: Array<{ total: string; productType: "product" | "service" | null }>,
+  items: Array<{ total: string; revenueAccountCode: string }>,
   fallbackSubtotal: string,
+  fallbackAccountCode: string = ACCOUNT_MAPPINGS.invoiceSent.revenueAccount,
 ): Array<{ accountCode: string; credit: string; description?: string }> {
-  const { revenueAccount, serviceRevenueAccount } =
-    ACCOUNT_MAPPINGS.invoiceSent;
   const totalsByAccount = new Map<string, Decimal>();
 
   if (items.length === 0) {
-    totalsByAccount.set(revenueAccount, new Decimal(fallbackSubtotal || "0"));
+    totalsByAccount.set(
+      fallbackAccountCode,
+      new Decimal(fallbackSubtotal || "0"),
+    );
   } else {
     for (const item of items) {
-      const accountCode =
-        item.productType === "service" ? serviceRevenueAccount : revenueAccount;
+      const code = item.revenueAccountCode;
       totalsByAccount.set(
-        accountCode,
-        (totalsByAccount.get(accountCode) ?? new Decimal(0)).plus(
-          item.total || "0",
-        ),
+        code,
+        (totalsByAccount.get(code) ?? new Decimal(0)).plus(item.total || "0"),
       );
     }
   }
@@ -69,8 +74,7 @@ export function buildInvoiceRevenueLines(
     .map(([accountCode, amount]) => ({
       accountCode,
       credit: amount.toFixed(2),
-      description:
-        accountCode === serviceRevenueAccount ? "Service revenue" : "Revenue",
+      description: "Revenue",
     }));
 }
 /**
@@ -92,21 +96,15 @@ export async function createInvoiceSentJournalEntry(
 ) {
   const { debitAccount, vatAccount } = ACCOUNT_MAPPINGS.invoiceSent;
 
-  const itemRows = await db
-    .select({
-      total: documentItems.total,
-      productType: products.type,
-    })
-    .from(documentItems)
-    .leftJoin(products, eq(documentItems.productId, products.id))
-    .where(eq(documentItems.documentId, doc.id));
-
-  const revenueLines = buildInvoiceRevenueLines(itemRows, doc.subtotal).map(
-    (line) => ({
-      ...line,
-      description: `${line.description} ${doc.number}`,
-    }),
-  );
+  // Resolve each line's Erlöskonto via the posting-group chain (1.1).
+  const resolvedItems = await resolveLineRevenueAccounts(db, companyId, doc.id);
+  const revenueLines = buildInvoiceRevenueLines(
+    resolvedItems,
+    doc.subtotal,
+  ).map((line) => ({
+    ...line,
+    description: `${line.description} ${doc.number}`,
+  }));
 
   const lines: Array<{
     accountCode: string;
@@ -158,8 +156,19 @@ export async function createCreditNoteSentJournalEntry(
     costCenterId?: string | null;
   },
 ) {
-  const { debitAccount, creditAccount, vatAccount } =
-    ACCOUNT_MAPPINGS.creditNoteSent;
+  const { creditAccount, vatAccount } = ACCOUNT_MAPPINGS.creditNoteSent;
+
+  // Debit the SAME Erlöskonten the original sale credited (resolved per line),
+  // not a flat 3000 — a Reparatur credit note must reduce 3400, not 3000.
+  const resolvedItems = await resolveLineRevenueAccounts(db, companyId, doc.id);
+  const revenueDebits = buildInvoiceRevenueLines(
+    resolvedItems,
+    doc.subtotal,
+  ).map((l) => ({
+    accountCode: l.accountCode,
+    debit: l.credit,
+    description: `Credit note ${doc.number}`,
+  }));
 
   const lines: Array<{
     accountCode: string;
@@ -167,11 +176,7 @@ export async function createCreditNoteSentJournalEntry(
     credit?: string;
     description?: string;
   }> = [
-    {
-      accountCode: debitAccount,
-      debit: doc.subtotal,
-      description: `Credit note ${doc.number}`,
-    },
+    ...revenueDebits,
     {
       accountCode: creditAccount,
       credit: doc.total,
@@ -217,9 +222,21 @@ export async function createCancellationReversalJournalEntry(
   },
 ) {
   if (doc.type === "invoice") {
-    // Reverse invoice sent: Debit Revenue + VAT, Credit AR
-    const { debitAccount, revenueAccount, vatAccount } =
-      ACCOUNT_MAPPINGS.invoiceSent;
+    // Reverse invoice sent: Debit Revenue (per resolved Erlöskonto) + VAT, Credit AR
+    const { debitAccount, vatAccount } = ACCOUNT_MAPPINGS.invoiceSent;
+    const resolvedItems = await resolveLineRevenueAccounts(
+      db,
+      companyId,
+      doc.id,
+    );
+    const revenueDebits = buildInvoiceRevenueLines(
+      resolvedItems,
+      doc.subtotal,
+    ).map((l) => ({
+      accountCode: l.accountCode,
+      debit: l.credit,
+      description: `Cancel ${doc.number}`,
+    }));
     const lines: Array<{
       accountCode: string;
       debit?: string;
@@ -231,11 +248,7 @@ export async function createCancellationReversalJournalEntry(
         credit: doc.total,
         description: `Cancel ${doc.number}`,
       },
-      {
-        accountCode: revenueAccount,
-        debit: doc.subtotal,
-        description: `Cancel ${doc.number}`,
-      },
+      ...revenueDebits,
     ];
     if (new Decimal(doc.vatAmount).gt(0)) {
       lines.push({

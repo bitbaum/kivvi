@@ -298,6 +298,23 @@ describe("generateInvoicePdf", () => {
     expect(pdf.length).toBeGreaterThan(noIban.length);
   });
 
+  it("normal IBAN + a QRR reference still renders the slip (reference gated out, not dropped)", async () => {
+    // Regression: a 27-digit QRR is invalid with a non-QR-IBAN. Previously the
+    // library threw and the catch silently dropped the WHOLE slip. Now the QRR
+    // is gated out for a normal IBAN so a valid (NON-reference) slip still renders.
+    const normalIbanWithQrr: InvoicePdfData = {
+      ...BASE_DATA,
+      companyIban: "CH56 0483 5012 3456 7800 9", // regular IBAN (IID not in QR range)
+      qrReference: VALID_QR_REFERENCE, // QRR present but must NOT be attached
+    };
+    const pdf = await generateInvoicePdf(normalIbanWithQrr);
+    const { text, compact } = reconstructPdfText(pdf);
+    // The payment slip is present (it was NOT dropped)...
+    expect(text).toContain("Zahlteil");
+    // ...and the invalid QRR was gated out (not rendered as a reference).
+    expect(compact).not.toContain(VALID_QR_REFERENCE);
+  });
+
   it("renders a Swiss QR-bill payment slip with valid reference, IBAN and amount", async () => {
     const pdf = await generateInvoicePdf(QR_DATA);
     const { text, compact } = reconstructPdfText(pdf);

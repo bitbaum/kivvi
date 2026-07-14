@@ -6,6 +6,7 @@ import {
   toggleAccount,
   createJournalEntry,
   deleteJournalEntry,
+  reverseJournalEntry,
   createFiscalYear,
   closeFiscalPeriod,
   closeFiscalYear,
@@ -111,6 +112,21 @@ export const deleteJournalEntryAction = createAction<string, void>({
   revalidate: ["/accounting/journal"],
   errorMessage: () =>
     getTranslations("accounting").then((t) => t("errorDeleteJournalEntry")),
+  minRole: "member",
+  translateDomainErrors: true,
+});
+
+/** GeBüV: a posted entry is corrected by a Storno counter-entry, not deleted. */
+export const reverseJournalEntryAction = createAction<string, { id: string }>({
+  handler: async (entryId, { companyId, userId, db }) => {
+    const reversal = await reverseJournalEntry(db, companyId, entryId, {
+      userId,
+    });
+    return { id: reversal.id };
+  },
+  revalidate: ["/accounting/journal"],
+  errorMessage: () =>
+    getTranslations("accounting").then((t) => t("errorReverseJournalEntry")),
   minRole: "member",
   translateDomainErrors: true,
 });

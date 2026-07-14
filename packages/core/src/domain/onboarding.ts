@@ -5,6 +5,7 @@ import { seedChartOfAccounts, createFiscalYear } from "./accounting";
 import { initializeSequences } from "./number-sequences";
 import { createWarehouse } from "./inventory";
 import { seedCostCenters } from "./cost-centers";
+import { seedDefaultPostingGroups } from "./posting-groups";
 import { getDefaultTrialEnd } from "./billing";
 
 // ============================================================================
@@ -63,6 +64,10 @@ export async function initializeCompany(
 
     // 4b. Seed default operating activities (analytical dimension)
     await seedCostCenters(tx, companyId);
+
+    // 4c. Seed default posting groups (revenue routing: Warenertrag→3000,
+    // Dienstleistungen→3200); richer streams are added per company later.
+    await seedDefaultPostingGroups(tx, companyId);
 
     // 5. Update company settings
     const [company] = await tx

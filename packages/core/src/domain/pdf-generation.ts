@@ -478,8 +478,17 @@ export async function generateInvoicePdf(
         };
       }
 
-      // Add QR reference if available
-      if (data.qrReference) {
+      // A 27-digit QR reference (QRR) is ONLY valid with a QR-IBAN (IID in
+      // 30000–31999). Attaching it to a normal IBAN makes swissqrbill throw,
+      // and the catch below then silently drops the ENTIRE payment slip — so a
+      // normal-IBAN company would ship invoices with no QR-bill at all. Gate the
+      // reference on the IBAN type so those companies still get a valid
+      // (NON-reference) slip. (SCOR creditor-reference generation is a follow-up.)
+      const normalizedIban = data.companyIban.replace(/\s/g, "").toUpperCase();
+      const iid = normalizedIban.slice(4, 9);
+      const isQrIban =
+        /^\d{5}$/.test(iid) && Number(iid) >= 30000 && Number(iid) <= 31999;
+      if (data.qrReference && isQrIban) {
         qrBillData.reference = data.qrReference;
       }
 
