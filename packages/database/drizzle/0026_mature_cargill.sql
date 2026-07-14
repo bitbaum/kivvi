@@ -1,0 +1,1 @@
+ALTER TABLE "documents" ADD COLUMN "consignment_rate" numeric(5, 2);

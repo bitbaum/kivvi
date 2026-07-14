@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS "bank_transactions_bank_account_id_idx" ON "bank_transactions" ("bank_account_id");

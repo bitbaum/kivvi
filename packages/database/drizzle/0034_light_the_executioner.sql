@@ -1,0 +1,1 @@
+ALTER TABLE "documents" ADD COLUMN "is_carried_forward" boolean DEFAULT false;

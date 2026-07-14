@@ -225,6 +225,41 @@
       "when": 1783947600000,
       "tag": "0031_taler_orders",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "5",
+      "when": 1783968942203,
+      "tag": "0032_chilly_shatterstar",
+      "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "5",
+      "when": 1783969735685,
+      "tag": "0033_yummy_scalphunter",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "5",
+      "when": 1783970846738,
+      "tag": "0034_light_the_executioner",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "5",
+      "when": 1783990716063,
+      "tag": "0035_square_meggan",
+      "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "5",
+      "when": 1783991149632,
+      "tag": "0036_spotty_starbolt",
+      "breakpoints": true
     }
   ]
 }

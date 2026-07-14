@@ -1,0 +1,1 @@
+ALTER TABLE "inventory_items" ADD COLUMN "consignment_rate" numeric(5, 2);

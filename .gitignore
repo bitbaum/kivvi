@@ -38,10 +38,11 @@ test-results/
 *.sqlite
 
 # Drizzle
+# Ignore any stray root-level drizzle output, but ALWAYS track the package's
+# migrations + meta snapshots — drizzle-kit migrate needs them in prod.
 drizzle/
 !packages/database/drizzle/
-packages/database/drizzle/*
-!packages/database/drizzle/0029_team_participation.sql
+!packages/database/drizzle/**
 
 # TypeScript build cache
 tsconfig.tsbuildinfo

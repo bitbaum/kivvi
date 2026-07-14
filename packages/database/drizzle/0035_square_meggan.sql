@@ -1,0 +1,1 @@
+ALTER TABLE "contacts" ADD COLUMN "dunning_block" boolean DEFAULT false;
