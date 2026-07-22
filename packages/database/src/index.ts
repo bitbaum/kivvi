@@ -8,7 +8,7 @@ import * as schema from "./schema";
 export * from "./schema";
 
 // WebSocket constructor for Neon serverless driver.
-// Required in Node.js environments (Vercel functions) where a global `WebSocket`
+// Required in Node.js serverless environments where a global `WebSocket`
 // is not available. The `ws` package is already a transitive dependency of
 // `@neondatabase/serverless`, so no extra install is needed.
 neonConfig.webSocketConstructor = ws;
@@ -29,7 +29,7 @@ neonConfig.poolQueryViaFetch = true;
  *   - neon-http: no native transaction support (HTTP is stateless)
  *   - neon-serverless (WebSocket): full ACID transactions via `db.transaction()`
  *
- * Use this on Vercel/serverless and when explicitly requested via USE_NEON.
+ * Use this for serverless (Neon) deployments, enabled via USE_NEON=true.
  *
  * The cast to `ReturnType<typeof createPostgresClient>` is safe because the
  * query interfaces are structurally identical (both implement the same Drizzle
@@ -59,10 +59,10 @@ export function createPostgresClient(connectionString: string) {
 
 // Default export based on environment
 export function createDb(connectionString: string) {
-  // On Vercel (VERCEL=1 set automatically) or when USE_NEON=true, use the
-  // Neon WebSocket driver which supports native db.transaction() calls.
-  // For self-hosted / local Postgres, postgres-js with connection pooling is used.
-  if (process.env.VERCEL || process.env.USE_NEON === "true") {
+  // When USE_NEON=true, use the Neon WebSocket driver which supports native
+  // db.transaction() calls. For self-hosted / local Postgres (the default),
+  // postgres-js with connection pooling is used.
+  if (process.env.USE_NEON === "true") {
     return createNeonClient(connectionString);
   }
   return createPostgresClient(connectionString);

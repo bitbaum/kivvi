@@ -15,7 +15,7 @@ import { logger } from "@/lib/logger";
 
 /**
  * Cron endpoint for automated dunning processing.
- * Called daily by Vercel Cron. Detects overdue invoices and auto-escalates
+ * Called daily by system cron (self-hosted). Detects overdue invoices and auto-escalates
  * dunning levels based on time thresholds (14/30/60 days).
  *
  * Protected by CRON_SECRET environment variable.
