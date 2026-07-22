@@ -34,6 +34,7 @@
     "lint": "turbo lint",
     "test": "turbo test",
     "type-check": "turbo type-check",
+    "verify": "pnpm lint && pnpm type-check && pnpm test",
     "smoke:production": "tsx scripts/production-smoke.ts",
     "clean": "turbo clean && rm -rf node_modules",
     "db:generate": "turbo db:generate",
