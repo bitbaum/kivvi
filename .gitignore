@@ -52,9 +52,6 @@ tsconfig.tsbuildinfo
 kivitendo-export/*
 !kivitendo-export/README.md
 
-# Vercel
-.vercel/
-.vercel
 # Screenshots (dev artifacts)
 /*.png
 /*.jpg

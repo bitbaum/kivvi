@@ -76,7 +76,7 @@ export default async function InventoryItemDetailPage({ params }: PageProps) {
   const specs = (item.specs as Record<string, string>) || {};
 
   // Generate QR code for label
-  const baseUrl = process.env.NEXTAUTH_URL || "https://kivvi.vercel.app";
+  const baseUrl = process.env.NEXTAUTH_URL || "https://kivvi.orangecat.ch";
   const qrDataUrl = await generateQrDataUrl(`${baseUrl}/intake/items/${id}`);
 
   // Build prefill URL for the "Sell" button: creates an invoice pre-filled with this item
