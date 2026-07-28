@@ -1961,7 +1961,7 @@
         "bankName": "e.g. UBS, ZKB, PostFinance",
         "documentFooter": "e.g. Payable within 30 days net",
         "vatNumber": "CHE-123.456.789 MWST",
-        "aiModel": "e.g. claude-sonnet-4-20250514",
+        "aiModel": "e.g. claude-sonnet-5",
         "aiApiKey": "sk-..."
       },
       "co2Factors": "CO₂ Impact Factors",
