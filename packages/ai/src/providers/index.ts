@@ -1,4 +1,4 @@
-export { AnthropicProvider } from "./anthropic";
+export { AnthropicProvider, ANTHROPIC_MODELS } from "./anthropic";
 export { GroqProvider } from "./groq";
 export { OllamaProvider } from "./ollama";
 export { OpenRouterProvider } from "./openrouter";
@@ -6,7 +6,7 @@ export { XaiProvider } from "./xai";
 export { OpenAICompatibleProvider } from "./openai-compatible";
 
 import type { AIProvider } from "../types";
-import { AnthropicProvider } from "./anthropic";
+import { AnthropicProvider, ANTHROPIC_MODELS } from "./anthropic";
 import { GroqProvider } from "./groq";
 import { OllamaProvider } from "./ollama";
 import { OpenRouterProvider } from "./openrouter";
@@ -284,7 +284,7 @@ export async function createProviderWithFallback(
     {
       type: "anthropic",
       apiKey: env.ANTHROPIC_API_KEY,
-      defaultModel: "claude-sonnet-4-20250514",
+      defaultModel: ANTHROPIC_MODELS.default,
     },
   ];
 

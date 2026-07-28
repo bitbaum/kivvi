@@ -11,6 +11,18 @@ import type {
   ToolCall,
 } from "../types";
 
+/**
+ * SSOT for Anthropic model IDs. Every Anthropic call site (provider registry,
+ * fallback chain, raw fetch in apps/web) must reference these — never a
+ * hardcoded model string — so a model upgrade is a one-line change.
+ */
+export const ANTHROPIC_MODELS = {
+  /** Default chat model */
+  default: "claude-sonnet-5",
+  /** Fast/cheap model for lightweight extraction tasks */
+  fast: "claude-haiku-4-5-20251001",
+} as const;
+
 export class AnthropicProvider implements AIProvider {
   id = "anthropic";
   name = "Anthropic Claude";
@@ -18,16 +30,16 @@ export class AnthropicProvider implements AIProvider {
 
   models: AIModel[] = [
     {
-      id: "claude-sonnet-4-20250514",
-      name: "Claude Sonnet 4",
-      contextWindow: 200000,
+      id: ANTHROPIC_MODELS.default,
+      name: "Claude Sonnet 5",
+      contextWindow: 1000000,
       supportsTools: true,
       supportsVision: true,
       costPer1kInput: 0.003,
       costPer1kOutput: 0.015,
     },
     {
-      id: "claude-haiku-4-5-20251001",
+      id: ANTHROPIC_MODELS.fast,
       name: "Claude Haiku 4.5",
       contextWindow: 200000,
       supportsTools: true,
@@ -50,7 +62,6 @@ export class AnthropicProvider implements AIProvider {
       system: request.systemPrompt,
       messages: this.formatMessages(request.messages),
       tools: request.tools?.map((t) => this.formatTool(t)),
-      temperature: request.temperature,
     });
 
     return this.parseResponse(response);
@@ -63,7 +74,6 @@ export class AnthropicProvider implements AIProvider {
       system: request.systemPrompt,
       messages: this.formatMessages(request.messages),
       tools: request.tools?.map((t) => this.formatTool(t)),
-      temperature: request.temperature,
     });
 
     for await (const event of stream) {

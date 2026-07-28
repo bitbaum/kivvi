@@ -9,6 +9,8 @@
  *   if (!text) { ...fallback... }
  */
 
+import { ANTHROPIC_MODELS } from "@kivvi/ai";
+
 type Provider = "groq" | "xai" | "anthropic" | "openrouter";
 
 function detectProvider(): { provider: Provider; apiKey: string } | null {
@@ -53,12 +55,28 @@ export async function callAIProvider(
 
   if (provider === "groq") {
     url = "https://api.groq.com/openai/v1/chat/completions";
-    headers = { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" };
-    body = { model: "llama-3.1-8b-instant", messages: openaiMessages, temperature: 0, max_tokens: maxTokens };
+    headers = {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    };
+    body = {
+      model: "llama-3.1-8b-instant",
+      messages: openaiMessages,
+      temperature: 0,
+      max_tokens: maxTokens,
+    };
   } else if (provider === "xai") {
     url = "https://api.x.ai/v1/chat/completions";
-    headers = { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" };
-    body = { model: "grok-3-mini", messages: openaiMessages, temperature: 0, max_tokens: maxTokens };
+    headers = {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    };
+    body = {
+      model: "grok-3-mini",
+      messages: openaiMessages,
+      temperature: 0,
+      max_tokens: maxTokens,
+    };
   } else if (provider === "anthropic") {
     url = "https://api.anthropic.com/v1/messages";
     headers = {
@@ -67,15 +85,17 @@ export async function callAIProvider(
       "anthropic-version": "2023-06-01",
     };
     body = {
-      model: "claude-haiku-4-5-20251001",
+      model: ANTHROPIC_MODELS.fast,
       system: systemPrompt,
       messages: [{ role: "user", content: userText }],
-      temperature: 0,
       max_tokens: maxTokens,
     };
   } else {
     url = "https://openrouter.ai/api/v1/chat/completions";
-    headers = { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" };
+    headers = {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    };
     body = {
       model: "meta-llama/llama-3.1-8b-instruct:free",
       messages: openaiMessages,
@@ -105,7 +125,10 @@ export async function callAIProvider(
 /** Extract a JSON object from an AI response that may contain markdown fences. */
 export function extractJSON<T>(text: string, arrayFallback: true): T[];
 export function extractJSON<T>(text: string, arrayFallback?: false): T | null;
-export function extractJSON<T>(text: string, arrayFallback = false): T | T[] | null {
+export function extractJSON<T>(
+  text: string,
+  arrayFallback = false,
+): T | T[] | null {
   const pattern = arrayFallback ? /\[[\s\S]*\]/ : /\{[\s\S]*\}/;
   const match = text.match(pattern);
   if (!match) return arrayFallback ? [] : null;
