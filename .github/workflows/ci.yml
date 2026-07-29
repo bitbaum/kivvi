@@ -44,14 +44,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Lint
-        run: pnpm lint
-
-      - name: Type check
-        run: pnpm type-check
-
-      - name: Test
-        run: pnpm test
+      # SSOT: lint + type-check + test are bundled in the `verify` script
+      # (package.json). CI and local runs invoke the exact same command.
+      - name: Verify (lint, type-check, test)
+        run: pnpm run verify
 
       - name: Build
         run: pnpm build
