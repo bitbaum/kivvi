@@ -63,5 +63,4 @@ module.exports = withSentryConfig(withNextIntl(nextConfig), {
   silent: !process.env.CI,
   widenClientFileUpload: true,
   disableLogger: true,
-  automaticVercelMonitors: true,
 });

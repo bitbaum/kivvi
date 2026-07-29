@@ -18,13 +18,13 @@ import { logger } from "@/lib/logger";
 
 /**
  * Cron endpoint for processing recurring invoices.
- * Called daily by Vercel Cron.
+ * Called daily by system cron (self-hosted).
  *
  * Protected by CRON_SECRET environment variable.
  */
 export async function GET(request: NextRequest) {
   try {
-    // Verify cron secret (Vercel automatically adds this header)
+    // Verify cron secret (system cron sends it in the Authorization header)
     const authHeader = request.headers.get("authorization");
     const cronSecret = process.env.CRON_SECRET;
 

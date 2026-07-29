@@ -47,7 +47,7 @@ export default async function IntakeLabelsPage({ params }: PageProps) {
   }
 
   // Generate QR codes server-side (parallel for speed)
-  const baseUrl = process.env.NEXTAUTH_URL || "https://kivvi.vercel.app";
+  const baseUrl = process.env.NEXTAUTH_URL || "https://kivvi.orangecat.ch";
   const qrCodes = await Promise.all(
     items.data.map((item) =>
       generateQrDataUrl(`${baseUrl}/intake/items/${item.id}`),

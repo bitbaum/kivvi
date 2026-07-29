@@ -1,8 +1,8 @@
 # Kivvi ERP — Deployment Guide
 
 **created_date**: 2026-06-18
-**last_modified_date**: 2026-07-08
-**last_modified_summary**: Documented post-deploy verification for smart inventory import (`/intake/items/import`) and P2P marketplace API (`/api/v1/marketplace/agency-sales`, `/payouts`).
+**last_modified_date**: 2026-07-22
+**last_modified_summary**: Vercel is fully decommissioned — replaced the Vercel + Neon deploy option with the self-hosted Hetzner (Caddy + systemd) production reality; the Neon serverless driver remains available via `USE_NEON`.
 
 Target audience: technical founder or DevOps engineer doing first deployment.
 
@@ -11,7 +11,7 @@ Target audience: technical founder or DevOps engineer doing first deployment.
 ## Contents
 
 1. [Prerequisites](#prerequisites)
-2. [Option A: Vercel + Neon (recommended)](#option-a-vercel--neon-recommended)
+2. [Option A: Self-hosted on Hetzner (production)](#option-a-self-hosted-on-hetzner-production)
 3. [Option B: Docker + self-hosted PostgreSQL](#option-b-docker--self-hosted-postgresql)
 4. [Option C: Railway or Render](#option-c-railway-or-render)
 5. [Environment variables reference](#environment-variables-reference)
@@ -31,55 +31,60 @@ Target audience: technical founder or DevOps engineer doing first deployment.
 
 ---
 
-## Option A: Vercel + Neon (recommended)
+## Option A: Self-hosted on Hetzner (production)
 
-Fastest path. Zero server management. Scales to zero when idle.
+This is how `kivvi.orangecat.ch` runs today: a build is produced, rsynced to the Hetzner box, and served by a persistent systemd-managed Node server behind Caddy (which terminates TLS). No serverless — a plain Node process with self-hosted PostgreSQL.
 
-### 1. Create a Neon database
+### 1. Provision PostgreSQL
 
-Go to [neon.tech](https://neon.tech), create a project in your preferred region (Frankfurt for Swiss data). Copy the **connection string** — it looks like:
+Use a PostgreSQL 14+ instance (on the box or managed). Note its connection string — it becomes `DATABASE_URL`.
 
-```
-postgresql://user:password@ep-xxx.eu-central-1.aws.neon.tech/neondb?sslmode=require
-```
+### 2. Run migrations
 
-### 2. Run migrations against Neon
-
-From your local machine:
+From your local machine or the box:
 
 ```bash
 DATABASE_URL="postgresql://..." pnpm db:migrate
 ```
 
-This runs all Drizzle migrations against the Neon database. Do this once before the first deployment and after every upgrade.
+This runs all Drizzle migrations. Do this once before the first deployment and after every upgrade with schema changes.
 
-### 3. Deploy to Vercel
+### 3. Build and deploy
+
+Deployment is push-to-deploy from `main`: the build runs, the standalone output is rsynced to the box, and the systemd service is restarted. The Hetzner deploy tooling lives outside this repo; the manual equivalent is:
 
 ```bash
-# Install Vercel CLI if needed
-npm i -g vercel
-
-# From repo root
-vercel
+pnpm build --filter=@kivvi/web                     # produce the standalone build
+rsync -a <build-output>/  <box>:/opt/kivvi/app/    # ship it to the box
+ssh <box> 'sudo systemctl restart kivvi'           # restart the service
 ```
 
-Or connect the GitHub repo via the Vercel dashboard (Settings → Git → Import Repository).
+### 4. Environment variables
 
-### 4. Set environment variables in Vercel
-
-In the Vercel dashboard → Project → Settings → Environment Variables, add all variables from the [reference table](#environment-variables-reference) below.
+Set the variables from the [reference table](#environment-variables-reference) in the service's environment file on the box (e.g. `/opt/kivvi/app/.env`).
 
 Minimum required set:
 
 ```
 DATABASE_URL
-NEXTAUTH_URL         # https://your-domain.vercel.app or custom domain
+NEXTAUTH_URL         # https://kivvi.orangecat.ch
 NEXTAUTH_SECRET      # openssl rand -hex 32
+CRON_SECRET          # openssl rand -hex 32
 ```
 
-### 5. Add `vercel.json` to the repo root (already present)
+### 5. Reverse proxy (Caddy)
 
-The `apps/web/vercel.json` configures cron jobs. Vercel picks it up automatically:
+Caddy terminates TLS and proxies to the app on port 3000:
+
+```caddyfile
+kivvi.orangecat.ch {
+    reverse_proxy localhost:3000
+}
+```
+
+### 6. Cron jobs
+
+There is no serverless cron. Schedule the `/api/cron/*` endpoints with system cron or systemd timers — see [Option B → schedule cron jobs](#6-schedule-cron-jobs):
 
 | Cron path                      | Schedule    | What it does                     |
 | ------------------------------ | ----------- | -------------------------------- |
@@ -87,15 +92,7 @@ The `apps/web/vercel.json` configures cron jobs. Vercel picks it up automaticall
 | `/api/cron/dunning`            | `0 7 * * *` | Escalate overdue invoice dunning |
 | `/api/cron/webhook-retry`      | `0 8 * * *` | Retry failed outbound webhooks   |
 
-Cron endpoints are protected by `CRON_SECRET`. Set it in Vercel env vars and Vercel will include it automatically in cron requests.
-
-### 6. Set the root directory
-
-In Vercel project settings → General → Root Directory, set to `apps/web`. Vercel builds from there.
-
-### 7. Configure custom domain
-
-Vercel Dashboard → Domains → Add your domain. Update DNS as instructed.
+Cron endpoints are protected by `CRON_SECRET`, sent as an `Authorization: Bearer` header.
 
 ---
 
@@ -104,9 +101,9 @@ Vercel Dashboard → Domains → Add your domain. Update DNS as instructed.
 `createDb()` in `packages/database/src/index.ts` picks the driver from the environment:
 
 - **Self-hosted / persistent server (default)**: `postgres-js` with connection pooling and full ACID `db.transaction()` support. This is what our hosted production (self-hosted Postgres on a Hetzner box) uses.
-- **Serverless (`VERCEL=1` or `USE_NEON=true`)**: the Neon **WebSocket** driver (`drizzle-orm/neon-serverless`), which also supports native ACID transactions. Single pool queries are routed via HTTPS fetch (`neonConfig.poolQueryViaFetch`) to avoid a webpack `ws` bundling issue.
+- **Serverless (`USE_NEON=true`)**: the Neon **WebSocket** driver (`drizzle-orm/neon-serverless`), which also supports native ACID transactions. Single pool queries are routed via HTTPS fetch (`neonConfig.poolQueryViaFetch`) to avoid a webpack `ws` bundling issue.
 
-No configuration is required — set `USE_NEON=true` only if you deploy to a serverless host that needs the Neon driver but does not set `VERCEL`.
+No configuration is required — set `USE_NEON=true` only if you deploy to a serverless host that needs the Neon driver.
 
 ---
 
@@ -340,7 +337,7 @@ server {
 
 ### 6. Schedule cron jobs
 
-Vercel Cron is not available for self-hosted. Use system cron instead.
+Serverless cron is not available for self-hosted. Use system cron instead.
 
 Add to `/etc/cron.d/kivvi`:
 
@@ -402,7 +399,7 @@ Both platforms support Docker deployments from a GitHub repo with minimal setup.
 5. Create a Render PostgreSQL database, copy the connection string to `DATABASE_URL`
 6. For cron: Render Cron Jobs (paid) or use an external scheduler (cron-job.org, Zapier)
 
-**DB driver note for Railway/Render**: These are persistent-server deployments, not serverless. The `VERCEL` env var is not set, so the app correctly uses the postgres-js driver with connection pooling and full ACID transaction support.
+**DB driver note for Railway/Render**: These are persistent-server deployments, not serverless. `USE_NEON` is left unset, so the app correctly uses the postgres-js driver with connection pooling and full ACID transaction support.
 
 ---
 
@@ -425,7 +422,7 @@ Both platforms support Docker deployments from a GitHub repo with minimal setup.
 | `EMAIL_PASS`          | Yes (email features) | SMTP password or API key                                             |
 | `EMAIL_FROM`          | Yes (email features) | From address, e.g. `Kivvi <noreply@your-domain.com>`                 |
 | `SENTRY_DSN`          | No                   | Sentry error tracking DSN                                            |
-| `USE_NEON`            | No                   | Set to `true` to force Neon HTTP driver outside Vercel               |
+| `USE_NEON`            | No                   | Set to `true` to force the Neon serverless driver                    |
 | `DB_POOL_MAX`         | No                   | postgres-js pool size, default `10`                                  |
 | `DB_IDLE_TIMEOUT`     | No                   | Connection idle timeout in seconds, default `20`                     |
 | `DB_CONNECT_TIMEOUT`  | No                   | Connection timeout in seconds, default `10`                          |
@@ -439,7 +436,7 @@ Both platforms support Docker deployments from a GitHub repo with minimal setup.
 
 ## Database setup
 
-### Neon (serverless, for Vercel)
+### Neon (serverless)
 
 1. Sign up at [neon.tech](https://neon.tech)
 2. Create a project — choose the region closest to your users (Frankfurt = `eu-central-1` for Switzerland)
@@ -517,13 +514,13 @@ After the first deployment, before going live:
 
 ## Upgrading
 
-### Vercel
+### Self-hosted (Hetzner)
 
 ```bash
 git pull
 # If schema changed: run migrations against the database first
 DATABASE_URL="..." pnpm db:migrate
-# Push to main branch — Vercel auto-deploys
+# Push to main — the deploy hook builds, rsyncs to the box, and restarts the service
 git push origin main
 ```
 
@@ -562,7 +559,7 @@ Database migrations cannot be rolled back automatically. Keep a pre-upgrade back
 ## Troubleshooting
 
 **App won't start**  
-Check logs: `docker compose logs app` or Vercel function logs. The most common cause is a missing or malformed `DATABASE_URL`.
+Check logs: `docker compose logs app`, or `journalctl -u kivvi` for the systemd service. The most common cause is a missing or malformed `DATABASE_URL`.
 
 **`DATABASE_URL` connection refused**  
 On Docker Compose: verify the `db` service is healthy (`docker compose ps`). The hostname must be `db`, not `localhost`.

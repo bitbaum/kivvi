@@ -26,7 +26,7 @@ labels: bug
 ## Environment
 
 - Kivvi version / commit:
-- Deploy target (Vercel / self-hosted / dev):
+- Deploy target (self-hosted / dev):
 - Browser + OS (if UI-related):
 - AI provider (Claude / GPT / Ollama / none):
 

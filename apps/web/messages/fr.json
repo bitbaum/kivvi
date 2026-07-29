@@ -1961,7 +1961,7 @@
         "bankName": "p.ex. UBS, ZKB, PostFinance",
         "documentFooter": "p.ex. Payable dans les 30 jours nets",
         "vatNumber": "CHE-123.456.789 TVA",
-        "aiModel": "p.ex. claude-sonnet-4-20250514",
+        "aiModel": "p.ex. claude-sonnet-5",
         "aiApiKey": "sk-..."
       },
       "co2Factors": "Facteurs CO₂",

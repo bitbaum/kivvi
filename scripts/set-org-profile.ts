@@ -133,7 +133,7 @@ const REVAMPIT_PROFILE: OrgProfile = {
       'Foundation grants for digital inclusion',
       'Crowdfunding for workshop equipment',
     ],
-    notes: 'Impact hub at revamp-info.vercel.app provides donors and partners with live impact data, financials, and project updates.',
+    notes: 'Impact hub at revamp-info.orangecat.ch provides donors and partners with live impact data, financials, and project updates.',
   },
   communicationStyle: {
     tone: 'Friendly, approachable, mission-driven. We speak practically about technology and passionately about social impact. Avoid corporate jargon.',

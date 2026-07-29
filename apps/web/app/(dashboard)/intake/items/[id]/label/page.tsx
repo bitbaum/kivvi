@@ -23,7 +23,7 @@ export default async function ItemLabelPage({ params }: PageProps) {
   const item = await getInventoryItem(db, session.user.companyId, id);
   if (!item) notFound();
 
-  const baseUrl = process.env.NEXTAUTH_URL || "https://kivvi.vercel.app";
+  const baseUrl = process.env.NEXTAUTH_URL || "https://kivvi.orangecat.ch";
   const qrDataUrl = await generateQrDataUrl(`${baseUrl}/intake/items/${id}`);
 
   return (
