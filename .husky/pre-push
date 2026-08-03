@@ -1,8 +1,22 @@
 #!/usr/bin/env sh
 # >>> fleetcrown push-deploy >>>
-# Pushing main deploys to the Hetzner box (background; see /tmp/push-deploy-kivvi.log)
-if git symbolic-ref --short HEAD 2>/dev/null | grep -qx main; then
-  ( sleep 5 && env -u CI -u VERCEL bash /home/g/dev/fleetcrown/scripts/hetzner/deploy.sh kivvi ) >> /tmp/push-deploy-kivvi.log 2>&1 & disown 2>/dev/null || true
-  echo "[push-deploy] kivvi: deploy started in background → /tmp/push-deploy-kivvi.log"
+# Pushing the repo's default branch deploys to the Hetzner box
+# (background; see /tmp/push-deploy-kivvi.log). Repos differ: some use
+# 'main', some still use 'master' — match either so push-to-deploy fires
+# regardless of the repo's branch convention.
+# CI GATE: the background deploy first waits for GitHub CI on the pushed
+# commit and is BLOCKED on a red — prod only receives what CI verified
+# (ci-gate.sh; repos without CI pass after a short grace window).
+if git symbolic-ref --short HEAD 2>/dev/null | grep -qxE 'main|master'; then
+  ( sleep 5
+    _sha=$(git rev-parse HEAD)
+    _nwo=$(git remote get-url origin 2>/dev/null | sed -E 's#(git@github.com:|https://github.com/)##; s#\.git$##')
+    if [ -n "$_nwo" ] && ! bash "/home/g/dev/fleetcrown/scripts/hetzner/ci-gate.sh" "$_nwo" "$_sha"; then
+      echo "[push-deploy] kivvi: BLOCKED by CI gate for ${_sha} — fix CI, then re-push or deploy manually"
+    else
+      env -u CI bash /home/g/dev/fleetcrown/scripts/hetzner/deploy.sh kivvi
+    fi
+  ) >> /tmp/push-deploy-kivvi.log 2>&1 & disown 2>/dev/null || true
+  echo "[push-deploy] kivvi: CI-gated deploy started in background → /tmp/push-deploy-kivvi.log"
 fi
 # <<< fleetcrown push-deploy <<<
