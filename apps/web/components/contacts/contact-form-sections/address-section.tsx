@@ -2,6 +2,8 @@
 
 import { useTranslations } from "next-intl";
 import type { Contact } from "@kivvi/database";
+import type { UseAiForm } from "@fleet/ai-forms/react";
+import { bindField, bindCheckbox } from "@/lib/ai-form-binding";
 import { COUNTRY_OPTIONS } from "@/lib/config/locales";
 import { FormInput, FormSelect } from "@/components/ui/form-field";
 import { DEFAULT_COUNTRY } from "@kivvi/core/src/config/locale";
@@ -9,9 +11,11 @@ import { DEFAULT_COUNTRY } from "@kivvi/core/src/config/locale";
 interface SectionProps {
   contact?: Contact;
   isEdit: boolean;
+  /** Shared store: the user and the assistant write to the same values. */
+  assist: UseAiForm;
 }
 
-export function ContactFormAddressSection({ contact, isEdit }: SectionProps) {
+export function ContactFormAddressSection({ contact, isEdit, assist }: SectionProps) {
   const t = useTranslations("contacts");
   const tc = useTranslations("common");
 
@@ -30,7 +34,7 @@ export function ContactFormAddressSection({ contact, isEdit }: SectionProps) {
             id="address"
             name="address"
             maxLength={500}
-            defaultValue={contact?.address || ""}
+            {...bindField(assist, "address")}
             placeholder={!isEdit ? "Bahnhofstrasse 1" : undefined}
           />
         </div>
@@ -46,7 +50,7 @@ export function ContactFormAddressSection({ contact, isEdit }: SectionProps) {
             id="postalCode"
             name="postalCode"
             maxLength={20}
-            defaultValue={contact?.postalCode || ""}
+            {...bindField(assist, "postalCode")}
             placeholder={!isEdit ? "8001" : undefined}
           />
         </div>
@@ -59,7 +63,7 @@ export function ContactFormAddressSection({ contact, isEdit }: SectionProps) {
             id="city"
             name="city"
             maxLength={100}
-            defaultValue={contact?.city || ""}
+            {...bindField(assist, "city")}
             placeholder={!isEdit ? "Zurich" : undefined}
           />
         </div>
@@ -70,7 +74,7 @@ export function ContactFormAddressSection({ contact, isEdit }: SectionProps) {
           <FormSelect
             id="country"
             name="country"
-            defaultValue={contact?.country || DEFAULT_COUNTRY}
+            {...bindField(assist, "country")}
           >
             {COUNTRY_OPTIONS.map((c) => (
               <option key={c} value={c}>

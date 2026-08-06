@@ -60,6 +60,9 @@ importers:
       '@dnd-kit/utilities':
         specifier: ^3.2.2
         version: 3.2.2(react@18.3.1)
+      '@fleet/ai-forms':
+        specifier: github:maonakamoto/ai-forms#v0.1.0
+        version: https://codeload.github.com/maonakamoto/ai-forms/tar.gz/68087895ab9d46d73d03b91ebf5e648b969ebd76(react@18.3.1)
       '@kivvi/ai':
         specifier: workspace:*
         version: link:../../packages/ai
@@ -220,6 +223,9 @@ importers:
       typescript:
         specifier: ^5.3.3
         version: 5.9.3
+      vitest:
+        specifier: ^3.0.0
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@20.19.30)(jiti@1.21.7)(terser@5.46.0)(tsx@4.21.0)(yaml@2.8.2)
 
   packages/ai:
     dependencies:
@@ -907,6 +913,15 @@ packages:
   '@eslint/js@8.57.1':
     resolution: {integrity: sha512-d9zaMRSTIKDLhctzH12MtXvJKSSUhaHcjV+2Z+GK+EEY7XKpP5yR4x+N3TAcHTcu963nIr+TMcCb4DBCYX1z6Q==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+
+  '@fleet/ai-forms@https://codeload.github.com/maonakamoto/ai-forms/tar.gz/68087895ab9d46d73d03b91ebf5e648b969ebd76':
+    resolution: {tarball: https://codeload.github.com/maonakamoto/ai-forms/tar.gz/68087895ab9d46d73d03b91ebf5e648b969ebd76}
+    version: 0.1.0
+    peerDependencies:
+      react: '>=18'
+    peerDependenciesMeta:
+      react:
+        optional: true
 
   '@floating-ui/core@1.7.3':
     resolution: {integrity: sha512-sGnvb5dmrJaKEZ+LDIpguvdX3bDlEllmv4/ClQ9awcmCZrlx5jQyyMWFM5kBI+EyNOCDDiKk8il0zeuX3Zlg/w==}
@@ -6130,6 +6145,10 @@ snapshots:
       - supports-color
 
   '@eslint/js@8.57.1': {}
+
+  '@fleet/ai-forms@https://codeload.github.com/maonakamoto/ai-forms/tar.gz/68087895ab9d46d73d03b91ebf5e648b969ebd76(react@18.3.1)':
+    optionalDependencies:
+      react: 18.3.1
 
   '@floating-ui/core@1.7.3':
     dependencies:
