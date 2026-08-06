@@ -1035,7 +1035,8 @@
     "errorSearchFailed": "Suche fehlgeschlagen",
     "errorFailedToCreateAddress": "Adresse konnte nicht erstellt werden",
     "errorFailedToUpdateAddress": "Adresse konnte nicht aktualisiert werden",
-    "errorFailedToDeleteAddress": "Adresse konnte nicht gelöscht werden"
+    "errorFailedToDeleteAddress": "Adresse konnte nicht gelöscht werden",
+    "aiRefinePlaceholder": "z.B. «ist ein Lieferant, und die Berner Adresse verwenden»"
   },
   "products": {
     "title": "Produkte",
@@ -4621,5 +4622,15 @@
     "deviceOrFaultRequired": "Gerät oder Fehlerbeschreibung angeben",
     "customerRequired": "Kundin/Kunde auswählen oder erfassen",
     "submitError": "Reparaturauftrag konnte nicht erstellt werden"
+  },
+  "aiForm": {
+    "fillTitle": "Mit KI ausfüllen",
+    "refineTitle": "Mit KI ändern",
+    "fillHint": "Beschreiben Sie es in eigenen Worten — das Formular füllt sich aus.",
+    "refineHint": "Sagen Sie, was geändert werden soll — z.B. «ist eigentlich ein Lieferant» oder «Notizen kürzer».",
+    "fillSubmit": "Felder ausfüllen",
+    "refineSubmit": "Änderung übernehmen",
+    "undo": "Rückgängig",
+    "changedFields": "{count, plural, one {# Feld geändert} other {# Felder geändert}}"
   }
 }

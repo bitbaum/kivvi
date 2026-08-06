@@ -1035,7 +1035,8 @@
     "errorSearchFailed": "Échec de la recherche",
     "errorFailedToCreateAddress": "Impossible de créer l'adresse",
     "errorFailedToUpdateAddress": "Impossible de mettre à jour l'adresse",
-    "errorFailedToDeleteAddress": "Impossible de supprimer l'adresse"
+    "errorFailedToDeleteAddress": "Impossible de supprimer l'adresse",
+    "aiRefinePlaceholder": "p.ex. «c'est un fournisseur, et utiliser l'adresse de Berne»"
   },
   "products": {
     "title": "Produits",
@@ -4621,5 +4622,15 @@
     "deviceOrFaultRequired": "Indiquez un appareil ou une description de panne",
     "customerRequired": "Sélectionnez ou nommez un client",
     "submitError": "Impossible de créer l'ordre de réparation"
+  },
+  "aiForm": {
+    "fillTitle": "Remplir avec l'IA",
+    "refineTitle": "Modifier avec l'IA",
+    "fillHint": "Décrivez-le avec vos mots — le formulaire se remplit.",
+    "refineHint": "Dites ce qu'il faut changer — p.ex. «c'est en fait un fournisseur» ou «notes plus courtes».",
+    "fillSubmit": "Remplir les champs",
+    "refineSubmit": "Appliquer la modification",
+    "undo": "Annuler",
+    "changedFields": "{count, plural, one {# champ modifié} other {# champs modifiés}}"
   }
 }

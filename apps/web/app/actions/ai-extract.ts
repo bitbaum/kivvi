@@ -7,19 +7,12 @@ import {
   isAIConfigured,
   extractJSON,
 } from "@/lib/ai/call-provider";
-import type { CreateContactInput } from "@kivvi/core/src/domain/contacts";
 import { ITEM_CATEGORIES } from "@kivvi/core/src/config/checklist-templates";
 import { getAllModels, type ModelConfig } from "@kivvi/ai";
 
 // ============================================================================
 // TYPES — derived from domain schemas (SSOT)
 // ============================================================================
-
-/**
- * AI-extracted contact fields. Type is Partial<CreateContactInput> so it can
- * never drift from the canonical schema in packages/core/src/domain/contacts.ts.
- */
-export type ExtractedContact = Partial<CreateContactInput>;
 
 /**
  * AI-extracted inventory line item. Matches the shape expected by the intake
@@ -58,24 +51,6 @@ Output: [{"brand":"Apple","model":"MacBook Pro 2019","quantity":"1","category":"
 
 Input: "Diverse Tastaturen ca 200 Stk, 15 Monitore Dell 24 Zoll"
 Output: [{"brand":"","model":"Tastaturen (diverse)","quantity":"200","category":"keyboard","estimatedPrice":""},{"brand":"Dell","model":"Monitor 24 Zoll","quantity":"15","category":"monitor","estimatedPrice":""}]`;
-
-const EXTRACT_CONTACT_PROMPT = `You extract structured contact/person data from natural language text.
-Return ONLY a JSON object with these optional fields (omit unknown ones):
-{"name","firstName","lastName","email","phone","mobile","website","address","postalCode","city","country","vatNumber","notes"}
-
-Rules:
-- name: company/organization name (e.g. "Swisscom AG") — only if it's a company name
-- firstName/lastName: individual's first and last name
-- country: ISO 2-letter code (CH, DE, AT, FR...), default CH if Swiss context
-- postalCode: 4 digits for Switzerland
-- vatNumber: Swiss UID format like "CHE-123.456.789" if mentioned
-
-Examples:
-Input: "Hans Müller, UBS AG, hans.mueller@ubs.com, Bahnhofstrasse 1, 8001 Zürich, +41 44 234 11 11"
-Output: {"firstName":"Hans","lastName":"Müller","name":"UBS AG","email":"hans.mueller@ubs.com","address":"Bahnhofstrasse 1","postalCode":"8001","city":"Zürich","country":"CH","phone":"+41 44 234 11 11"}
-
-Input: "Maria Rossi, maria@example.it, +39 02 1234567, Milano"
-Output: {"firstName":"Maria","lastName":"Rossi","email":"maria@example.it","phone":"+39 02 1234567","city":"Milano","country":"IT"}`;
 
 // ============================================================================
 // SERVER ACTIONS
@@ -159,41 +134,6 @@ export async function extractItemsFromTextAction(
   }
 }
 
-/**
- * Extract structured contact data from natural language text.
- * Returns a Partial<CreateContactInput> ready to prefill the contact form.
- *
- * Examples:
- *   "Hans Müller, hans@example.com, Zürich, +41 79 123 45 67"
- *   "UBS AG, Bahnhofstrasse 1, 8001 Zürich, CHE-101.329.561 MWST"
- */
-export async function extractContactFromTextAction(
-  text: string,
-): Promise<ActionResult<ExtractedContact>> {
-  const t = await getTranslations("ai");
-  try {
-    await requireRole("member");
-
-    if (!text.trim()) {
-      return { success: false, error: t("errorTextRequired") };
-    }
-
-    if (!isAIConfigured()) {
-      return { success: true, data: {} };
-    }
-
-    const raw = await callAIProvider(EXTRACT_CONTACT_PROMPT, text, 500);
-    if (!raw) return { success: true, data: {} };
-
-    const contact = extractJSON<ExtractedContact>(raw);
-    return { success: true, data: contact ?? {} };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorExtractContact")),
-    };
-  }
-}
 
 // ============================================================================
 // REGEX FALLBACK (no AI key required)

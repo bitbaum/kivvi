@@ -2,15 +2,19 @@
 
 import { useTranslations } from "next-intl";
 import type { Contact } from "@kivvi/database";
+import type { UseAiForm } from "@fleet/ai-forms/react";
+import { bindField, bindCheckbox } from "@/lib/ai-form-binding";
 import { CONTACT_TYPES } from "@/lib/config/contact-types";
 import { FormInput, FormSelect } from "@/components/ui/form-field";
 
 interface SectionProps {
   contact?: Contact;
   isEdit: boolean;
+  /** Shared store: the user and the assistant write to the same values. */
+  assist: UseAiForm;
 }
 
-export function ContactFormBasicSection({ contact, isEdit }: SectionProps) {
+export function ContactFormBasicSection({ contact, isEdit, assist }: SectionProps) {
   const t = useTranslations("contacts");
   const tc = useTranslations("common");
 
@@ -33,7 +37,7 @@ export function ContactFormBasicSection({ contact, isEdit }: SectionProps) {
             id="type"
             name="type"
             required
-            defaultValue={contact?.type || "customer"}
+            {...bindField(assist, "type")}
           >
             {contactTypeOptions.map((ct) => (
               <option key={ct.value} value={ct.value}>
@@ -55,7 +59,7 @@ export function ContactFormBasicSection({ contact, isEdit }: SectionProps) {
             id="firstName"
             name="firstName"
             maxLength={100}
-            defaultValue={contact?.firstName || ""}
+            {...bindField(assist, "firstName")}
             placeholder={!isEdit ? "Hans" : undefined}
           />
         </div>
@@ -72,7 +76,7 @@ export function ContactFormBasicSection({ contact, isEdit }: SectionProps) {
             id="lastName"
             name="lastName"
             maxLength={100}
-            defaultValue={contact?.lastName || ""}
+            {...bindField(assist, "lastName")}
             placeholder={!isEdit ? "Müller" : undefined}
           />
         </div>
@@ -89,7 +93,7 @@ export function ContactFormBasicSection({ contact, isEdit }: SectionProps) {
             id="name"
             name="name"
             maxLength={200}
-            defaultValue={contact?.name || ""}
+            {...bindField(assist, "name")}
             placeholder={!isEdit ? t("placeholders.companyOrName") : undefined}
           />
           <p className="mt-1 text-xs text-muted-foreground">

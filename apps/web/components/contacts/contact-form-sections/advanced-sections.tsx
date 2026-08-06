@@ -3,6 +3,8 @@
 import { useTranslations } from "next-intl";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import type { Contact } from "@kivvi/database";
+import type { UseAiForm } from "@fleet/ai-forms/react";
+import { bindField, bindCheckbox } from "@/lib/ai-form-binding";
 import { LANGUAGE_OPTIONS } from "@/lib/config/locales";
 import {
   FormInput,
@@ -15,6 +17,8 @@ import { Button } from "@/components/ui/button";
 interface AdvancedSectionsProps {
   contact?: Contact;
   isEdit: boolean;
+  /** Shared store: the user and the assistant write to the same values. */
+  assist: UseAiForm;
   showAdvanced: boolean;
   onToggleAdvanced: () => void;
 }
@@ -22,6 +26,7 @@ interface AdvancedSectionsProps {
 export function ContactFormAdvancedSections({
   contact,
   isEdit,
+  assist,
   showAdvanced,
   onToggleAdvanced,
 }: AdvancedSectionsProps) {
@@ -70,7 +75,7 @@ export function ContactFormAdvancedSections({
                   id="vatNumber"
                   name="vatNumber"
                   maxLength={30}
-                  defaultValue={contact?.vatNumber || ""}
+                  {...bindField(assist, "vatNumber")}
                   placeholder={
                     !isEdit ? t("placeholders.vatNumber") : undefined
                   }
@@ -88,7 +93,7 @@ export function ContactFormAdvancedSections({
                   id="iban"
                   name="iban"
                   maxLength={34}
-                  defaultValue={contact?.iban || ""}
+                  {...bindField(assist, "iban")}
                   placeholder={
                     !isEdit ? "CH93 0076 2011 6238 5295 7" : undefined
                   }
@@ -107,9 +112,7 @@ export function ContactFormAdvancedSections({
                   name="paymentTermsDays"
                   min={0}
                   max={365}
-                  defaultValue={
-                    contact?.paymentTermsDays ?? DEFAULT_PAYMENT_TERMS_DAYS
-                  }
+                  {...bindField(assist, "paymentTermsDays")}
                 />
               </div>
               <div>
@@ -123,7 +126,7 @@ export function ContactFormAdvancedSections({
                   type="text"
                   id="creditLimit"
                   name="creditLimit"
-                  defaultValue={contact?.creditLimit || ""}
+                  {...bindField(assist, "creditLimit")}
                   placeholder={!isEdit ? "10000.00" : undefined}
                 />
               </div>
@@ -145,7 +148,7 @@ export function ContactFormAdvancedSections({
                 <FormSelect
                   id="language"
                   name="language"
-                  defaultValue={contact?.language || "de"}
+                  {...bindField(assist, "language")}
                 >
                   {LANGUAGE_OPTIONS.map((l) => (
                     <option key={l.value} value={l.value}>
@@ -166,7 +169,7 @@ export function ContactFormAdvancedSections({
                   name="notes"
                   rows={4}
                   maxLength={5000}
-                  defaultValue={contact?.notes || ""}
+                  {...bindField(assist, "notes")}
                   placeholder={!isEdit ? t("internalNotes") : undefined}
                   className="resize-y"
                 />
@@ -176,7 +179,7 @@ export function ContactFormAdvancedSections({
                   type="checkbox"
                   id="dunningBlock"
                   name="dunningBlock"
-                  defaultChecked={contact?.dunningBlock ?? false}
+                  {...bindCheckbox(assist, "dunningBlock")}
                   className="h-4 w-4 rounded border-input"
                 />
                 <label htmlFor="dunningBlock" className="text-sm font-medium">

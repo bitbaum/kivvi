@@ -2,14 +2,18 @@
 
 import { useTranslations } from "next-intl";
 import type { Contact } from "@kivvi/database";
+import type { UseAiForm } from "@fleet/ai-forms/react";
+import { bindField, bindCheckbox } from "@/lib/ai-form-binding";
 import { FormInput } from "@/components/ui/form-field";
 
 interface SectionProps {
   contact?: Contact;
   isEdit: boolean;
+  /** Shared store: the user and the assistant write to the same values. */
+  assist: UseAiForm;
 }
 
-export function ContactFormContactSection({ contact, isEdit }: SectionProps) {
+export function ContactFormContactSection({ contact, isEdit, assist }: SectionProps) {
   const t = useTranslations("contacts");
   const tc = useTranslations("common");
 
@@ -27,7 +31,7 @@ export function ContactFormContactSection({ contact, isEdit }: SectionProps) {
             type="email"
             id="email"
             name="email"
-            defaultValue={contact?.email || ""}
+            {...bindField(assist, "email")}
             placeholder={!isEdit ? "hans@mueller-ag.ch" : undefined}
           />
         </div>
@@ -40,7 +44,7 @@ export function ContactFormContactSection({ contact, isEdit }: SectionProps) {
             id="phone"
             name="phone"
             maxLength={30}
-            defaultValue={contact?.phone || ""}
+            {...bindField(assist, "phone")}
             placeholder={!isEdit ? "+41 44 123 45 67" : undefined}
           />
         </div>
@@ -53,7 +57,7 @@ export function ContactFormContactSection({ contact, isEdit }: SectionProps) {
             id="mobile"
             name="mobile"
             maxLength={30}
-            defaultValue={contact?.mobile || ""}
+            {...bindField(assist, "mobile")}
             placeholder={!isEdit ? "+41 79 123 45 67" : undefined}
           />
         </div>
@@ -66,7 +70,7 @@ export function ContactFormContactSection({ contact, isEdit }: SectionProps) {
             id="website"
             name="website"
             maxLength={200}
-            defaultValue={contact?.website || ""}
+            {...bindField(assist, "website")}
             placeholder={!isEdit ? "www.mueller-ag.ch" : undefined}
           />
         </div>

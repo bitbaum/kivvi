@@ -5,15 +5,16 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { useAiForm } from "@fleet/ai-forms/react";
 import {
   createContactAction,
   updateContactAction,
 } from "@/app/actions/contacts";
 import type { Contact } from "@kivvi/database";
 import { toast } from "sonner";
-import { ContactAiFillButton } from "./ai-fill-button";
+import { AiFormBar } from "@/components/ui/ai-form-bar";
+import { CONTACT_FORM } from "@/lib/config/ai-forms";
 import { Button } from "@/components/ui/button";
-import type { ExtractedContact } from "@/app/actions/ai-extract";
 import {
   ContactFormBasicSection,
   ContactFormContactSection,
@@ -35,38 +36,28 @@ export function ContactForm({ mode, contact }: ContactFormProps) {
   const t = useTranslations("contacts");
   const tc = useTranslations("common");
 
-  function handleAiFill(data: ExtractedContact) {
-    if (!formRef.current) return;
-    const form = formRef.current;
-    const set = (name: string, value: string | null | undefined) => {
-      if (!value) return;
-      const el = form.elements.namedItem(name) as
-        | HTMLInputElement
-        | HTMLSelectElement
-        | HTMLTextAreaElement
-        | null;
-      if (el) {
-        el.value = value;
-        el.dispatchEvent(new Event("input", { bubbles: true }));
-        el.dispatchEvent(new Event("change", { bubbles: true }));
-      }
-    };
-    set("name", data.name);
-    set("firstName", data.firstName);
-    set("lastName", data.lastName);
-    set("email", data.email);
-    set("phone", data.phone);
-    set("mobile", data.mobile);
-    set("website", data.website);
-    set("address", data.address);
-    set("postalCode", data.postalCode);
-    set("city", data.city);
-    set("country", data.country);
-    set("vatNumber", data.vatNumber);
-    set("notes", data.notes);
-  }
-
   const isEdit = mode === "edit";
+
+  // The assistant and the user write to the same store — that is what makes a
+  // second instruction ("actually they are a supplier", "shorter") apply to
+  // what is already on screen. The previous fill wrote directly into the DOM,
+  // so it could fill an empty form once and never revise it, and it clobbered
+  // anything the user had already typed.
+  //
+  // Editing an existing contact starts non-empty, so `ask` refines by default
+  // there; a new contact starts empty and gets filled. The user never picks.
+  const assist = useAiForm({
+    target: CONTACT_FORM.key,
+    fields: CONTACT_FORM.fields,
+    initialValues: isEdit
+      ? Object.fromEntries(
+          CONTACT_FORM.fields.map((field) => [
+            field.name,
+            (contact as Record<string, unknown>)[field.name] ?? "",
+          ]),
+        )
+      : { type: "customer" },
+  });
   const backHref = isEdit ? `/contacts/${contact.id}` : "/contacts";
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -132,14 +123,33 @@ export function ContactForm({ mode, contact }: ContactFormProps) {
       )}
 
       <form ref={formRef} onSubmit={handleSubmit} className="space-y-8">
-        {!isEdit && <ContactAiFillButton onFill={handleAiFill} />}
+        {/* Available when editing too — refining an existing contact is the
+            half the old fill-only button could not do. */}
+        <AiFormBar
+          form={assist}
+          fillPlaceholder={t("aiFillPlaceholder")}
+          refinePlaceholder={t("aiRefinePlaceholder")}
+        />
 
-        <ContactFormBasicSection contact={contact} isEdit={isEdit} />
-        <ContactFormContactSection contact={contact} isEdit={isEdit} />
-        <ContactFormAddressSection contact={contact} isEdit={isEdit} />
+        <ContactFormBasicSection
+          contact={contact}
+          isEdit={isEdit}
+          assist={assist}
+        />
+        <ContactFormContactSection
+          contact={contact}
+          isEdit={isEdit}
+          assist={assist}
+        />
+        <ContactFormAddressSection
+          contact={contact}
+          isEdit={isEdit}
+          assist={assist}
+        />
         <ContactFormAdvancedSections
           contact={contact}
           isEdit={isEdit}
+          assist={assist}
           showAdvanced={showAdvanced}
           onToggleAdvanced={() => setShowAdvanced(!showAdvanced)}
         />
