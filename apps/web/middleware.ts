@@ -152,5 +152,12 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|public/).*)"],
+  // `opengraph-image` and `twitter-image` are Next's generated metadata routes.
+  // They were caught by this matcher, so /opengraph-image ran through the app
+  // and answered with 243 KB of HTML instead of a PNG — the site advertised a
+  // preview that every social scraper then discarded. Metadata routes are
+  // assets, not pages, and must bypass middleware like the other static paths.
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|public/|opengraph-image|twitter-image).*)",
+  ],
 };

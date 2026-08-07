@@ -1,5 +1,8 @@
 import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
-export const SITE_URL = "https://kivvi.ch";
+// Where the site ACTUALLY serves. kivvi.ch has no DNS A record, so everything
+// derived from this — metadataBase, canonical URLs, the social preview — named
+// a host that does not resolve. Point it back only once that domain is live.
+export const SITE_URL = "https://kivvi.orangecat.ch";
 export const CONTACT_EMAIL = "info@revamp-it.ch";
 
 /**
@@ -97,6 +100,10 @@ export function buildPageMeta(
   description: string,
   locale: string = DEFAULT_LOCALE,
 ) {
+  // No `images` here on purpose. /og-image.png does not exist in this repo, and
+  // naming it explicitly OVERRODE the generated opengraph-image.tsx cards that
+  // do — so the site advertised a preview file it had never shipped. Omitting
+  // the key lets Next's file convention supply the real image per route.
   return {
     openGraph: {
       title,
@@ -104,20 +111,11 @@ export function buildPageMeta(
       type: "website" as const,
       locale: OG_LOCALE_BY_NEXTINTL[locale] ?? "de_CH",
       siteName: "Kivvi",
-      images: [
-        {
-          url: `${SITE_URL}/og-image.png`,
-          width: 1200,
-          height: 630,
-          alt: title,
-        },
-      ],
     },
     twitter: {
       card: "summary_large_image" as const,
       title,
       description,
-      images: [`${SITE_URL}/og-image.png`],
     },
   };
 }
