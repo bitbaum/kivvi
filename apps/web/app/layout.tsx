@@ -62,21 +62,15 @@ export const metadata: Metadata = {
     type: "website",
     locale: "de_CH",
     siteName: "Kivvi",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Kivvi — Das Betriebssystem der Kreislaufwirtschaft",
-      },
-    ],
+    // No `images` key on purpose — see buildPageMeta in lib/config/site.ts.
+    // /og-image.png was never shipped, and naming it explicitly overrode the
+    // generated opengraph-image.tsx cards that do exist.
   },
   twitter: {
     card: "summary_large_image",
     title: "Kivvi — Das Betriebssystem der Kreislaufwirtschaft",
     description:
       "Das Open-Source-ERP für Brockenhäuser, IT-Refurbisher, Repair Cafés.",
-    images: ["/og-image.png"],
   },
 };
 
