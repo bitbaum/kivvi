@@ -22,6 +22,21 @@ export interface ProviderConfig {
   model?: string;
 }
 
+/**
+ * The OpenRouter model the fallback chain lands on.
+ *
+ * The `:free` suffix is load-bearing, not decoration: the id it replaced was
+ * the SAME model routed through the paid tier, one token apart and billed per
+ * call. Exported so the invariant ("the fallback default is a free id") can be
+ * asserted against the VALUE — a test that greps this file's source text passes
+ * or fails on comments instead, which is how a guard ends up vouching for
+ * nothing.
+ *
+ * Probed live 2026-08-15 for tool-call support; see the ai-ration chain for the
+ * full table and the models excluded on evidence.
+ */
+export const OPENROUTER_FALLBACK_MODEL = "openai/gpt-oss-20b:free";
+
 export interface ModelConfig {
   providerId: ProviderType;
   modelId: string;
@@ -217,8 +232,23 @@ export function getProviderAvailability(env: {
 
 /**
  * Try to create a provider with fallback.
- * Priority: preferred → groq → xai → openrouter → ollama → anthropic.
+ * Priority: preferred → groq → xai → openrouter → ollama → (anthropic, opt-in).
  * Returns the first provider that can be initialized AND validated.
+ *
+ * ── Fallback must never silently start spending money ────────────────────────
+ * This chain used to END at Anthropic with a paid model, and its OpenRouter
+ * link defaulted to `google/gemini-2.0-flash-001` — also paid. So the failure
+ * mode of "the free tiers are busy" was not a degraded answer or an honest
+ * refusal: it was an invoice, produced by a code path nobody looks at precisely
+ * because it only runs when something else broke.
+ *
+ * A fallback is a reliability mechanism. Paying is a business decision. Wiring
+ * the second to the first means the decision gets made by an outage, at the
+ * worst moment, without anyone choosing it.
+ *
+ * Paid links now require ALLOW_PAID_AI to be set. Unset (the default), the
+ * chain is free-only and simply runs out — which is the honest outcome, and the
+ * one the caller can report to the user.
  */
 export async function createProviderWithFallback(
   env: {
@@ -227,6 +257,8 @@ export async function createProviderWithFallback(
     OPENROUTER_API_KEY?: string;
     ANTHROPIC_API_KEY?: string;
     OLLAMA_BASE_URL?: string;
+    /** Opt in to paid links. Absent = free-only, and that is the default. */
+    ALLOW_PAID_AI?: string;
   },
   preferred?: ProviderConfig,
 ): Promise<{
@@ -258,12 +290,16 @@ export async function createProviderWithFallback(
     }
   }
 
-  // Fallback chain: groq → xai → openrouter → ollama → anthropic
+  const allowPaid = Boolean(env.ALLOW_PAID_AI?.trim());
+
+  // Fallback chain: groq → xai → openrouter → ollama → (anthropic, opt-in)
   const chain: Array<{
     type: ProviderType;
     apiKey?: string;
     baseUrl?: string;
     defaultModel: string;
+    /** Costs money. Skipped entirely unless ALLOW_PAID_AI is set. */
+    paid?: boolean;
   }> = [
     {
       type: "groq",
@@ -274,7 +310,7 @@ export async function createProviderWithFallback(
     {
       type: "openrouter",
       apiKey: env.OPENROUTER_API_KEY,
-      defaultModel: "google/gemini-2.0-flash-001",
+      defaultModel: OPENROUTER_FALLBACK_MODEL,
     },
     {
       type: "ollama",
@@ -285,10 +321,18 @@ export async function createProviderWithFallback(
       type: "anthropic",
       apiKey: env.ANTHROPIC_API_KEY,
       defaultModel: ANTHROPIC_MODELS.default,
+      paid: true,
     },
   ];
 
   for (const candidate of chain) {
+    // A paid link is invisible in normal operation and only reached when the
+    // free ones are gone — so it must be opted into, never fallen into.
+    if (candidate.paid && !allowPaid) {
+      errors.push(`${candidate.type}: skipped (paid; set ALLOW_PAID_AI to enable)`);
+      continue;
+    }
+
     // Skip if no credentials
     if (candidate.type === "ollama") {
       if (!candidate.baseUrl) continue;

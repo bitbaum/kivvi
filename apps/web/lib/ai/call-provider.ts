@@ -1,12 +1,24 @@
 /**
  * Shared AI provider caller — SSOT for all server-side AI text extraction.
  *
- * Provider priority: GROQ → XAI → ANTHROPIC → OPENROUTER
+ * Provider priority: GROQ → XAI → OPENROUTER → (ANTHROPIC, opt-in)
  * Falls back to null when no key is configured so callers can degrade gracefully.
  *
  * Usage:
  *   const text = await callAIProvider(systemPrompt, userText);
  *   if (!text) { ...fallback... }
+ *
+ * ── This SELECTS one provider; it does not chain ─────────────────────────────
+ * The header once read "GROQ → XAI → ANTHROPIC → OPENROUTER", which looks like a
+ * fallback chain and is not one: `detectProvider` returns the FIRST provider
+ * with a key and `callAIProvider` throws if that provider fails. A 429 ends the
+ * call — nothing tries the next vendor. Named honestly here so the next reader
+ * does not assume a resilience it never had; the real chain lives in
+ * `createProviderWithFallback` (@kivvi/ai) and is what /api/chat uses.
+ *
+ * Anthropic moved BELOW OpenRouter and behind ALLOW_PAID_AI. Ranked third with a
+ * key present, it was selected ahead of the free OpenRouter model on every
+ * single call — so a key added "just in case" silently became the default payer.
  */
 
 import { ANTHROPIC_MODELS } from "@kivvi/ai";
@@ -18,10 +30,12 @@ function detectProvider(): { provider: Provider; apiKey: string } | null {
     return { provider: "groq", apiKey: process.env.GROQ_API_KEY };
   if (process.env.XAI_API_KEY)
     return { provider: "xai", apiKey: process.env.XAI_API_KEY };
-  if (process.env.ANTHROPIC_API_KEY)
-    return { provider: "anthropic", apiKey: process.env.ANTHROPIC_API_KEY };
   if (process.env.OPENROUTER_API_KEY)
     return { provider: "openrouter", apiKey: process.env.OPENROUTER_API_KEY };
+  // Paid, and therefore last and opt-in: reaching it means every free option is
+  // absent, which is a decision to spend, not a fallback.
+  if (process.env.ANTHROPIC_API_KEY && process.env.ALLOW_PAID_AI?.trim())
+    return { provider: "anthropic", apiKey: process.env.ANTHROPIC_API_KEY };
   return null;
 }
 
