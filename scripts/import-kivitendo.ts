@@ -20,19 +20,14 @@ import { join, resolve } from 'path';
 import Papa from 'papaparse';
 import Decimal from 'decimal.js';
 import { eq, and } from 'drizzle-orm';
-import { neonConfig } from '@neondatabase/serverless';
-import nodeFetch from 'node-fetch';
 import {
-  createNeonClient,
+  createPostgresClient,
   documents,
   documentItems,
   users,
   warehouses,
 } from '@kivvi/database';
 import type { Database } from '@kivvi/database';
-
-// Set node-fetch before any neon() calls (must be at module level)
-neonConfig.fetchFunction = nodeFetch as any;
 import {
   applyMapping,
   cleanHeaders,
@@ -555,12 +550,7 @@ async function main(): Promise<void> {
       console.error('DATABASE_URL is required');
       process.exit(1);
     }
-    // Use Neon HTTP driver (TCP times out from this machine; node-fetch configured in package)
-    db = createNeonClient(process.env.DATABASE_URL) as unknown as Database;
-
-    // Neon HTTP driver doesn't support transactions — patch to run sequentially.
-    // For a migration script this is fine; individual inserts are still atomic.
-    (db as any).transaction = async (fn: (tx: any) => Promise<any>) => fn(db);
+    db = createPostgresClient(process.env.DATABASE_URL) as unknown as Database;
 
     // Look up first user for createdBy
     const [user] = await db
@@ -578,7 +568,7 @@ async function main(): Promise<void> {
   } else if (process.env.DATABASE_URL) {
     // In dry-run, connect if available (for lookup counts) but don't require it
     try {
-      db = createNeonClient(process.env.DATABASE_URL) as unknown as Database;
+      db = createPostgresClient(process.env.DATABASE_URL) as unknown as Database;
     } catch {
       // Fine, dry-run works without DB
     }

@@ -1,5 +1,5 @@
 import { type Page, type Locator, expect } from "@playwright/test";
-import { createNeonClient } from "@kivvi/database";
+import { createPostgresClient } from "@kivvi/database";
 import {
   accounts,
   apiTokens,
@@ -66,9 +66,9 @@ const SEQUENCES = [
   { type: "order_confirmation", prefix: "AB" },
 ];
 
-// Use Neon HTTP driver — stateless, no connection pool leaks
+// TCP postgres-js — production and local are Hetzner/local Postgres, not Neon
 function getDb() {
-  return createNeonClient(DB_URL);
+  return createPostgresClient(DB_URL);
 }
 
 // ---------------------------------------------------------------------------

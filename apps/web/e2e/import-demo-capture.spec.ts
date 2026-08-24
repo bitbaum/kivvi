@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import path from "path";
 import fs from "fs";
-import { createNeonClient, warehouses } from "@kivvi/database";
+import { createPostgresClient, warehouses } from "@kivvi/database";
 import { seed } from "./helpers";
 
 const OUT = path.resolve(
@@ -19,7 +19,7 @@ test.describe("Inventory import demo capture", () => {
     fs.mkdirSync(OUT, { recursive: true });
 
     const testData = await seed();
-    const db = createNeonClient(process.env.DATABASE_URL!);
+    const db = createPostgresClient(process.env.DATABASE_URL!);
     await db.insert(warehouses).values([
       { companyId: testData.companyId, name: "Shop", isDefault: true },
       { companyId: testData.companyId, name: "Lager A" },

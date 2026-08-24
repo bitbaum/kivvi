@@ -1,10 +1,12 @@
 # Kivvi ERP — Deployment Guide
 
 **created_date**: 2026-06-18
-**last_modified_date**: 2026-07-22
-**last_modified_summary**: Vercel is fully decommissioned — replaced the Vercel + Neon deploy option with the self-hosted Hetzner (Caddy + systemd) production reality; the Neon serverless driver remains available via `USE_NEON`.
+**last_modified_date**: 2026-08-17
+**last_modified_summary**: Production is Hetzner Postgres `kivvi` only. Neon / `USE_NEON` / neon.tech signup steps removed as live options.
 
 Target audience: technical founder or DevOps engineer doing first deployment.
+
+Production today is `kivvi.orangecat.ch` on Hetzner **bitbaum**. The database is Postgres **`kivvi`** on that box. Neon was decommissioned 2026-06-12. Do not sign up at neon.tech. Do not set `USE_NEON`. A laptop `.env.local` naming `neon.tech` is leftover garbage.
 
 ---
 
@@ -24,7 +26,7 @@ Target audience: technical founder or DevOps engineer doing first deployment.
 ## Prerequisites
 
 - **Node 20** and **pnpm 9** (local build) or Docker (container build)
-- **PostgreSQL 14+** — Neon serverless or self-hosted
+- **PostgreSQL 14+** — self-hosted (production is Postgres 17 on Hetzner bitbaum, database `kivvi`). Neon is not used.
 - **SMTP credentials** — Brevo free tier works (password resets, invoice emails)
 - **At least one AI API key** — OpenRouter free tier, Anthropic, or OpenAI (AI command bar requires this; all other ERP features work without it)
 - A domain name with DNS pointed at your deployment target
@@ -98,12 +100,9 @@ Cron endpoints are protected by `CRON_SECRET`, sent as an `Authorization: Bearer
 
 ## DB driver selection
 
-`createDb()` in `packages/database/src/index.ts` picks the driver from the environment:
+`createDb()` in `packages/database/src/index.ts` uses **postgres-js** (TCP pool, full ACID `db.transaction()`). That is what production on Hetzner uses.
 
-- **Self-hosted / persistent server (default)**: `postgres-js` with connection pooling and full ACID `db.transaction()` support. This is what our hosted production (self-hosted Postgres on a Hetzner box) uses.
-- **Serverless (`USE_NEON=true`)**: the Neon **WebSocket** driver (`drizzle-orm/neon-serverless`), which also supports native ACID transactions. Single pool queries are routed via HTTPS fetch (`neonConfig.poolQueryViaFetch`) to avoid a webpack `ws` bundling issue.
-
-No configuration is required — set `USE_NEON=true` only if you deploy to a serverless host that needs the Neon driver.
+`USE_NEON` is a leftover switch from before 2026-06-12. Leave it unset. Do not point `DATABASE_URL` at `neon.tech`.
 
 ---
 
@@ -399,7 +398,7 @@ Both platforms support Docker deployments from a GitHub repo with minimal setup.
 5. Create a Render PostgreSQL database, copy the connection string to `DATABASE_URL`
 6. For cron: Render Cron Jobs (paid) or use an external scheduler (cron-job.org, Zapier)
 
-**DB driver note for Railway/Render**: These are persistent-server deployments, not serverless. `USE_NEON` is left unset, so the app correctly uses the postgres-js driver with connection pooling and full ACID transaction support.
+**DB driver note for Railway/Render**: These are persistent-server deployments. Leave `USE_NEON` unset (retired). postgres-js is the driver. Our actual production is Hetzner, not Railway.
 
 ---
 
@@ -422,7 +421,7 @@ Both platforms support Docker deployments from a GitHub repo with minimal setup.
 | `EMAIL_PASS`          | Yes (email features) | SMTP password or API key                                             |
 | `EMAIL_FROM`          | Yes (email features) | From address, e.g. `Kivvi <noreply@your-domain.com>`                 |
 | `SENTRY_DSN`          | No                   | Sentry error tracking DSN                                            |
-| `USE_NEON`            | No                   | Set to `true` to force the Neon serverless driver                    |
+| `USE_NEON`            | No                   | Retired. Leave unset. Neon is not the database.                      |
 | `DB_POOL_MAX`         | No                   | postgres-js pool size, default `10`                                  |
 | `DB_IDLE_TIMEOUT`     | No                   | Connection idle timeout in seconds, default `20`                     |
 | `DB_CONNECT_TIMEOUT`  | No                   | Connection timeout in seconds, default `10`                          |
@@ -436,17 +435,11 @@ Both platforms support Docker deployments from a GitHub repo with minimal setup.
 
 ## Database setup
 
-### Neon (serverless)
+### Production PostgreSQL (Hetzner)
 
-1. Sign up at [neon.tech](https://neon.tech)
-2. Create a project — choose the region closest to your users (Frankfurt = `eu-central-1` for Switzerland)
-3. Copy the connection string from the dashboard (include `?sslmode=require`)
-4. Run migrations: `DATABASE_URL="..." pnpm db:migrate`
-5. Use this connection string as `DATABASE_URL` in your deployment
+Live database is **`kivvi`** on bitbaum (`127.0.0.1:5432` on the box). Env SSOT is the box `.env`, not a laptop file. Neon was decommissioned 2026-06-12 — do not create a Neon project.
 
-Neon free tier: 0.5 GB storage, 1 project. Sufficient for small deployments.
-
-### Self-hosted PostgreSQL
+### Self-hosted PostgreSQL (Docker / local)
 
 The Docker Compose setup runs PostgreSQL 16 Alpine. For production:
 
@@ -454,7 +447,7 @@ The Docker Compose setup runs PostgreSQL 16 Alpine. For production:
 - Do not expose port 5432 to the public internet (firewall rule)
 - Set `POSTGRES_PASSWORD` to a strong random value before first start
 
-For an external managed PostgreSQL (DigitalOcean, Hetzner, Supabase):
+For an external managed PostgreSQL (not our production — our production is the box):
 
 1. Create a database named `kivvi`
 2. Set `DATABASE_URL` to the connection string (include `?sslmode=require` for managed services)
@@ -565,7 +558,7 @@ Check logs: `docker compose logs app`, or `journalctl -u kivvi` for the systemd 
 On Docker Compose: verify the `db` service is healthy (`docker compose ps`). The hostname must be `db`, not `localhost`.
 
 **Migrations fail**  
-Ensure `DATABASE_URL` points to the correct database and the user has `CREATE TABLE` privileges. On Neon, check the database name matches the connection string.
+Ensure `DATABASE_URL` points to the correct database and the user has `CREATE TABLE` privileges. The database name in production is `kivvi` on Hetzner, not a cloud pooler.
 
 **Password reset emails not arriving**  
 Test SMTP credentials:

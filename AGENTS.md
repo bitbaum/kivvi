@@ -11,7 +11,7 @@ AI-first, Swiss-native ERP for refurbishers, Brockenhäuser, repair workshops, a
 - **Monorepo**: pnpm workspaces + Turbo. Apps in `apps/*`, packages in `packages/*`.
 - **Web**: Next.js 14 (App Router) in `apps/web`. Mutations via Server Actions only (no API routes except streaming + webhooks).
 - **Domain logic**: pure functions in `packages/core/src/domain/*.ts` — never in components or actions.
-- **DB**: Drizzle ORM + PostgreSQL. Schema SSOT: `packages/database/src/schema.ts` (types derived via `$inferSelect`/`$inferInsert`).
+- **DB**: Drizzle ORM + PostgreSQL on Hetzner (`kivvi` on bitbaum). Schema SSOT: `packages/database/src/schema.ts`. Neon is gone; `USE_NEON` stays unset. A laptop `.env.local` naming `neon.tech` is not production.
 - **Auth**: NextAuth v5 (`apps/web/lib/auth.ts`). **Money**: `decimal.js`, round per line item, CHF Rappen rounding (0.05).
 - **Deploy**: push to the default branch (`main`) → CI-gated background deploy to a self-hosted Hetzner PostgreSQL box (behind Caddy) via the FleetCrown push-deploy hook. Prod only receives commits CI verified green.
 

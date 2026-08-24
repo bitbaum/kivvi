@@ -2,9 +2,13 @@
 
 **Inherits**: `@~/.claude/CLAUDE.md` (global engineering standards)
 **Product Identity**: See `PRODUCT.md` for mission, vision, target customers, and positioning.
-**Last Updated**: 2026-04-03
+**Last Updated**: 2026-08-17
 
 ---
+
+## Where this runs
+
+Production is `https://kivvi.orangecat.ch` on the Hetzner box **bitbaum** (`167.233.22.31`), Postgres database **`kivvi`** on that box (loopback). Env SSOT is `/opt/kivvi/` on the box. Neon was decommissioned 2026-06-12. A laptop `.env.local` naming `neon.tech` is leftover garbage. `USE_NEON` is a leftover driver switch — leave it unset. Local dev uses Postgres on `localhost:5432/kivvi`.
 
 ## What Is Kivvi
 
@@ -538,10 +542,9 @@ OLLAMA_BASE_URL="http://localhost:11434"
 
 ### Database
 
-- **Development**: Local PostgreSQL via Docker
-- **Production**: Self-hosted PostgreSQL on a Hetzner box (behind Caddy)
-- DB client factory auto-detects environment (HTTP for serverless, TCP for traditional)
-- The `createDb()` function in `packages/database/src/index.ts` handles both
+- **Development**: Local PostgreSQL (`localhost:5432/kivvi`)
+- **Production**: PostgreSQL 17 on Hetzner bitbaum, database `kivvi` (TCP, postgres-js)
+- Neon / `USE_NEON` is retired. Do not point `DATABASE_URL` at `neon.tech`.
 
 ### Key Dependencies
 
