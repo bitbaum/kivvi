@@ -25,17 +25,44 @@ export interface ProviderConfig {
 /**
  * The OpenRouter model the fallback chain lands on.
  *
- * The `:free` suffix is load-bearing, not decoration: the id it replaced was
- * the SAME model routed through the paid tier, one token apart and billed per
- * call. Exported so the invariant ("the fallback default is a free id") can be
- * asserted against the VALUE — a test that greps this file's source text passes
- * or fails on comments instead, which is how a guard ends up vouching for
- * nothing.
+ * DERIVED from `OpenRouterProvider.models`, not written out again. It used to be
+ * the literal `openai/gpt-oss-20b:free`, and that id has since been retired —
+ * so this constant and the provider list beside it disagreed about what
+ * OpenRouter serves, while both were wrong in different ways. One list, one
+ * answer: the first free model the provider actually offers.
  *
- * Probed live 2026-08-15 for tool-call support; see the ai-ration chain for the
- * full table and the models excluded on evidence.
+ * The `:free` suffix is load-bearing, not decoration: the id this replaced was
+ * once the SAME model routed through the paid tier, one token apart and billed
+ * per call. Free-ness is therefore taken from the cost fields rather than from
+ * the spelling of the id — a suffix can be typed, a zero has to be meant.
  */
-export const OPENROUTER_FALLBACK_MODEL = "openai/gpt-oss-20b:free";
+export const OPENROUTER_FALLBACK_MODEL: string = (() => {
+  const free = new OpenRouterProvider("").models.find(
+    (m) => m.costPer1kInput === 0 && m.costPer1kOutput === 0,
+  );
+  if (!free) {
+    // Not a soft failure. A fallback chain landing on a paid model bills
+    // precisely when the free tier is spent and nobody is watching, so this
+    // must break the build rather than quietly cost money.
+    throw new Error(
+      "No free OpenRouter model is configured for the fallback chain",
+    );
+  }
+  return free.id;
+})();
+
+/**
+ * The model Groq calls by default.
+ *
+ * Exported for the same reason: `apps/web/lib/ai/call-provider.ts` used to
+ * carry its own copy of a Groq id, inline in the request body, which drifted
+ * from this list and was retired without anything noticing. One registry.
+ */
+export const GROQ_DEFAULT_MODEL: string = (() => {
+  const [first] = new GroqProvider("").models;
+  if (!first) throw new Error("No Groq model is configured");
+  return first.id;
+})();
 
 export interface ModelConfig {
   providerId: ProviderType;
@@ -329,7 +356,9 @@ export async function createProviderWithFallback(
     // A paid link is invisible in normal operation and only reached when the
     // free ones are gone — so it must be opted into, never fallen into.
     if (candidate.paid && !allowPaid) {
-      errors.push(`${candidate.type}: skipped (paid; set ALLOW_PAID_AI to enable)`);
+      errors.push(
+        `${candidate.type}: skipped (paid; set ALLOW_PAID_AI to enable)`,
+      );
       continue;
     }
 

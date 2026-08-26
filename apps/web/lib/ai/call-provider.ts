@@ -19,9 +19,19 @@
  * Anthropic moved BELOW OpenRouter and behind ALLOW_PAID_AI. Ranked third with a
  * key present, it was selected ahead of the free OpenRouter model on every
  * single call — so a key added "just in case" silently became the default payer.
+ *
+ * ── Model ids come from @kivvi/ai, never from this file ──────────────────────
+ * They used to be written inline in the request bodies below, duplicating ids
+ * that `packages/ai` already owned. Both copies were retired by their vendors
+ * and neither was updated, because a duplicate is only ever noticed by whoever
+ * happens to edit the other one. The registry is the single answer now.
  */
 
-import { ANTHROPIC_MODELS } from "@kivvi/ai";
+import {
+  ANTHROPIC_MODELS,
+  GROQ_DEFAULT_MODEL,
+  OPENROUTER_FALLBACK_MODEL,
+} from "@kivvi/ai";
 
 type Provider = "groq" | "xai" | "anthropic" | "openrouter";
 
@@ -74,7 +84,11 @@ export async function callAIProvider(
       "Content-Type": "application/json",
     };
     body = {
-      model: "llama-3.1-8b-instant",
+      // From the registry in @kivvi/ai, not written out here. This line used to
+      // read "llama-3.1-8b-instant" — a copy of an id that lived in the
+      // registry too, and Groq retired it. Two places to update meant one place
+      // got updated.
+      model: GROQ_DEFAULT_MODEL,
       messages: openaiMessages,
       temperature: 0,
       max_tokens: maxTokens,
@@ -111,7 +125,10 @@ export async function callAIProvider(
       "Content-Type": "application/json",
     };
     body = {
-      model: "meta-llama/llama-3.1-8b-instruct:free",
+      // Likewise: "meta-llama/llama-3.1-8b-instruct:free", also retired. And
+      // this is the branch reached only when every free option above is gone,
+      // so a stale id here fails at the worst possible moment.
+      model: OPENROUTER_FALLBACK_MODEL,
       messages: openaiMessages,
       temperature: 0,
       max_tokens: maxTokens,
