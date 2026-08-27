@@ -331,7 +331,10 @@ export async function createProviderWithFallback(
     {
       type: "groq",
       apiKey: env.GROQ_API_KEY,
-      defaultModel: "llama-3.3-70b-versatile",
+      // From the registry above, not spelled out again. This literal was the
+      // last surviving copy of the retired id, sitting in the fallback chain
+      // itself — the one place a stale model id is guaranteed to matter.
+      defaultModel: GROQ_DEFAULT_MODEL,
     },
     { type: "xai", apiKey: env.XAI_API_KEY, defaultModel: "grok-3-mini" },
     {
