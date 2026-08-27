@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { GroqProvider } from "@kivvi/ai/src/providers/groq";
+import { OpenRouterProvider } from "@kivvi/ai/src/providers/openrouter";
+import { XaiProvider } from "@kivvi/ai/src/providers/xai";
 import { logger } from "@/lib/logger";
 
 export interface ModelSelection {
@@ -10,20 +13,45 @@ export interface ModelSelection {
 
 const STORAGE_KEY = "kivvi-selected-model";
 
-// Fallback default — used before API loads or when stored model is unavailable
+/**
+ * Both of these come from the registry in `@kivvi/ai`. Neither is written here.
+ *
+ * This file used to hold a fourth copy of Kivvi's model knowledge, and it had
+ * rotted the furthest. `FALLBACK_MODEL` pinned `llama-3.3-70b-versatile`, gone
+ * with the rest of Groq's llama-3.x family, so the model shown before the API
+ * responds — and used verbatim if the stored selection is unavailable — named a
+ * model that cannot be called. The display table beside it listed five ids of
+ * which `gemma2-9b-it` had been decommissioned even earlier.
+ *
+ * A display name that lags is cosmetic. A fallback id that lags is an outage,
+ * and both were in the same untended table.
+ *
+ * The provider LEAVES are imported rather than the package root on purpose:
+ * this is a "use client" hook, and `@kivvi/ai` re-exports the conversation
+ * engine, the tool registry and an Anthropic provider that pulls
+ * `@anthropic-ai/sdk`. None of that belongs in a browser bundle. Groq,
+ * OpenRouter and xAI each import only their types and the shared
+ * OpenAI-compatible base.
+ */
+const [groq, openrouter, xai] = [
+  new GroqProvider(""),
+  new OpenRouterProvider(""),
+  new XaiProvider(""),
+];
+
+// Fallback default — used before the API loads, or when the stored model is
+// unavailable. First model of the default provider, whatever that now is.
 const FALLBACK_MODEL: ModelSelection = {
-  providerId: "groq",
-  modelId: "llama-3.3-70b-versatile",
+  providerId: groq.id,
+  modelId: groq.models[0].id,
 };
 
-// Known model display names for fallback (before API loads)
-const MODEL_DISPLAY_NAMES: Record<string, string> = {
-  "llama-3.3-70b-versatile": "Llama 3.3 70B",
-  "llama-3.1-8b-instant": "Llama 3.1 8B",
-  "gemma2-9b-it": "Gemma 2 9B",
-  "grok-3-mini": "Grok 3 Mini",
-  "google/gemini-2.0-flash-001": "Gemini 2.0 Flash",
-};
+// Display names for the same window, keyed by id.
+const MODEL_DISPLAY_NAMES: Record<string, string> = Object.fromEntries(
+  [groq, openrouter, xai].flatMap((provider) =>
+    provider.models.map((model) => [model.id, model.name]),
+  ),
+);
 
 export function useModelSelection() {
   const [selection, setSelection] = useState<ModelSelection>(FALLBACK_MODEL);
