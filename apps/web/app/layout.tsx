@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -108,6 +109,15 @@ export default async function RootLayout({
             </ThemeProvider>
           </SessionProvider>
         </NextIntlClientProvider>
+
+        {/* FleetCrown feedback widget — env-gated, see docs/architecture/feedback-widget.md */}
+        {process.env.NEXT_PUBLIC_FC_WIDGET_TOKEN && (
+          <Script
+            src="https://fleetcrown.orangecat.ch/widget.js"
+            strategy="afterInteractive"
+            data-fc-project={process.env.NEXT_PUBLIC_FC_WIDGET_TOKEN}
+          />
+        )}
       </body>
     </html>
   );
