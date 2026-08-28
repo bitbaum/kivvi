@@ -41,11 +41,11 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fleetcrown.orangecat.ch",
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: blob:",
               "font-src 'self' data:",
-              "connect-src 'self' *.sentry.io *.ingest.sentry.io https://api.anthropic.com https://openrouter.ai https://api.openai.com https://api.groq.com https://api.x.ai",
+              "connect-src 'self' *.sentry.io *.ingest.sentry.io https://api.anthropic.com https://openrouter.ai https://api.openai.com https://api.groq.com https://api.x.ai https://fleetcrown.orangecat.ch",
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",
