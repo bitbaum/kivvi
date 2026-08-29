@@ -10,11 +10,11 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.115.0",
+    "@anthropic-ai/sdk": "^0.120.0",
     "@kivvi/core": "workspace:*",
     "@kivvi/database": "workspace:*",
     "decimal.js": "^10.4.3",
-    "drizzle-orm": "^0.30.10",
+    "drizzle-orm": "^0.45.2",
     "openai": "^4.28.0",
     "zod": "^3.22.4"
   },
