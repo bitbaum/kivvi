@@ -62,7 +62,7 @@ importers:
         version: 3.2.2(react@18.3.1)
       '@fleet/ai-forms':
         specifier: github:catomean/ai-forms#v0.1.0
-        version: git+git@github.com:catomean/ai-forms.git#68087895ab9d46d73d03b91ebf5e648b969ebd76(react@18.3.1)
+        version: git+https://git@github.com:catomean/ai-forms.git#68087895ab9d46d73d03b91ebf5e648b969ebd76(react@18.3.1)
       '@kivvi/ai':
         specifier: workspace:*
         version: link:../../packages/ai
@@ -913,6 +913,15 @@ packages:
   '@eslint/js@8.57.1':
     resolution: {integrity: sha512-d9zaMRSTIKDLhctzH12MtXvJKSSUhaHcjV+2Z+GK+EEY7XKpP5yR4x+N3TAcHTcu963nIr+TMcCb4DBCYX1z6Q==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+
+  '@fleet/ai-forms@git+https://git@github.com:catomean/ai-forms.git#68087895ab9d46d73d03b91ebf5e648b969ebd76':
+    resolution: {commit: 68087895ab9d46d73d03b91ebf5e648b969ebd76, repo: git@github.com:catomean/ai-forms.git, type: git}
+    version: 0.1.0
+    peerDependencies:
+      react: '>=18'
+    peerDependenciesMeta:
+      react:
+        optional: true
 
   '@floating-ui/core@1.7.3':
     resolution: {integrity: sha512-sGnvb5dmrJaKEZ+LDIpguvdX3bDlEllmv4/ClQ9awcmCZrlx5jQyyMWFM5kBI+EyNOCDDiKk8il0zeuX3Zlg/w==}
@@ -6140,6 +6149,10 @@ snapshots:
 
   '@eslint/js@8.57.1': {}
 
+  '@fleet/ai-forms@git+https://git@github.com:catomean/ai-forms.git#68087895ab9d46d73d03b91ebf5e648b969ebd76(react@18.3.1)':
+    optionalDependencies:
+      react: 18.3.1
+
   '@floating-ui/core@1.7.3':
     dependencies:
       '@floating-ui/utils': 0.2.10
@@ -8751,7 +8764,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.12.1(@typescript-eslint/parser@7.2.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@8.57.1))(eslint@8.57.1):
+  eslint-module-utils@2.12.1(@typescript-eslint/parser@7.2.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
@@ -8773,7 +8786,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.12.1(@typescript-eslint/parser@7.2.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@8.57.1))(eslint@8.57.1)
+      eslint-module-utils: 2.12.1(@typescript-eslint/parser@7.2.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
       hasown: 2.0.2
       is-core-module: 2.16.1
       is-glob: 4.0.3
