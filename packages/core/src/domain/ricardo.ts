@@ -33,7 +33,11 @@ export interface RicardoListingPayload {
 }
 
 export type RicardoCondition =
-  "new" | "used_like_new" | "used_good" | "used_acceptable" | "for_parts";
+  | "new"
+  | "used_like_new"
+  | "used_good"
+  | "used_acceptable"
+  | "for_parts";
 
 export interface RicardoListingResult {
   listingId: string;

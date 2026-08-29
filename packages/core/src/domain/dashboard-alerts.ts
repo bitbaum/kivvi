@@ -31,7 +31,8 @@ export interface AlertLowStockProduct {
 }
 
 export type DashboardAlertMetadata =
-  { breakdown: AlertDraftBreakdown[] } | { products: AlertLowStockProduct[] };
+  | { breakdown: AlertDraftBreakdown[] }
+  | { products: AlertLowStockProduct[] };
 
 export interface DashboardAlert {
   id: string;

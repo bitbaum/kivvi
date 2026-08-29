@@ -253,7 +253,8 @@ export async function POST(request: NextRequest) {
 
     // Determine provider and model — user selection > company settings > env fallback
     const selectedProvider = (providerId || settings.aiProvider || process.env.AI_PROVIDER) as
-      ProviderType | undefined;
+      | ProviderType
+      | undefined;
     const selectedModel = (modelId || settings.aiModel) as string | undefined;
 
     // Build execution context

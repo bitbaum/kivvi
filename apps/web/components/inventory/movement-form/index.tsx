@@ -29,7 +29,8 @@ interface Warehouse {
 export type MovementFormProps = {
   products: Product[];
 } & (
-  { warehouseId: string; warehouses?: never } | { warehouseId?: never; warehouses: Warehouse[] }
+  | { warehouseId: string; warehouses?: never }
+  | { warehouseId?: never; warehouses: Warehouse[] }
 );
 
 export function MovementForm(props: MovementFormProps) {
