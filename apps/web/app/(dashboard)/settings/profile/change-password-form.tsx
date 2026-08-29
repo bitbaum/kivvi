@@ -67,18 +67,12 @@ export function ChangePasswordForm() {
 
       <section className="rounded-xl border bg-card">
         <div className="border-b px-6 py-4">
-          <h2 className="font-semibold">
-            {t("profileSection.changePassword")}
-          </h2>
+          <h2 className="font-semibold">{t("profileSection.changePassword")}</h2>
         </div>
         <div className="grid gap-6 p-6">
           <div>
-            <label
-              htmlFor="currentPassword"
-              className="mb-1.5 block text-sm font-medium"
-            >
-              {t("profileSection.currentPassword")}{" "}
-              <span className="text-destructive">*</span>
+            <label htmlFor="currentPassword" className="mb-1.5 block text-sm font-medium">
+              {t("profileSection.currentPassword")} <span className="text-destructive">*</span>
             </label>
             <FormInput
               type="password"
@@ -90,12 +84,8 @@ export function ChangePasswordForm() {
           </div>
 
           <div>
-            <label
-              htmlFor="newPassword"
-              className="mb-1.5 block text-sm font-medium"
-            >
-              {t("profileSection.newPassword")}{" "}
-              <span className="text-destructive">*</span>
+            <label htmlFor="newPassword" className="mb-1.5 block text-sm font-medium">
+              {t("profileSection.newPassword")} <span className="text-destructive">*</span>
             </label>
             <FormInput
               type="password"
@@ -111,12 +101,8 @@ export function ChangePasswordForm() {
           </div>
 
           <div>
-            <label
-              htmlFor="confirmPassword"
-              className="mb-1.5 block text-sm font-medium"
-            >
-              {t("profileSection.confirmPassword")}{" "}
-              <span className="text-destructive">*</span>
+            <label htmlFor="confirmPassword" className="mb-1.5 block text-sm font-medium">
+              {t("profileSection.confirmPassword")} <span className="text-destructive">*</span>
             </label>
             <FormInput
               type="password"

@@ -2,13 +2,7 @@
  * Kivvi Logo — kiwi fruit cross-section SVG.
  * SSOT: Use this component everywhere a logo is needed.
  */
-export function KivviLogo({
-  size = 32,
-  className,
-}: {
-  size?: number;
-  className?: string;
-}) {
+export function KivviLogo({ size = 32, className }: { size?: number; className?: string }) {
   return (
     <svg
       width={size}

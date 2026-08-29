@@ -37,9 +37,7 @@ export function useChecklistState({
   currentStatus,
   askingPrice,
 }: UseChecklistStateProps) {
-  const existingMap = new Map(
-    (existingData?.completions ?? []).map((c) => [c.id, c]),
-  );
+  const existingMap = new Map((existingData?.completions ?? []).map((c) => [c.id, c]));
 
   const [states, setStates] = useState<Record<string, CheckState>>(() =>
     Object.fromEntries(
@@ -104,14 +102,11 @@ export function useChecklistState({
         c,
       ): c is typeof c & {
         failSuggestsStatus: NonNullable<typeof c.failSuggestsStatus>;
-      } =>
-        c.blocking && !!c.failSuggestsStatus && states[c.id]?.result === "fail",
+      } => c.blocking && !!c.failSuggestsStatus && states[c.id]?.result === "fail",
     )
     .map((c) => c.failSuggestsStatus);
 
-  const completedCount = Object.values(states).filter(
-    (s) => s.result !== null,
-  ).length;
+  const completedCount = Object.values(states).filter((s) => s.result !== null).length;
 
   const canApprove =
     blockingOk &&

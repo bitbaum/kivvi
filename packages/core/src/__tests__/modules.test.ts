@@ -16,30 +16,19 @@ import {
 
 describe("TOGGLEABLE_MODULES registry", () => {
   it("contains the five documented toggleable modules", () => {
-    expect(TOGGLEABLE_MODULE_KEYS).toEqual([
-      "intake",
-      "repairs",
-      "pos",
-      "purchasing",
-      "projects",
-    ]);
+    expect(TOGGLEABLE_MODULE_KEYS).toEqual(["intake", "repairs", "pos", "purchasing", "projects"]);
   });
 
   it("every entry has a key, labelKey and a default of true", () => {
     for (const mod of TOGGLEABLE_MODULES) {
       expect(mod.key, "key must be non-empty").toBeTruthy();
-      expect(
-        mod.labelKey,
-        `${mod.key}: labelKey must be non-empty`,
-      ).toBeTruthy();
+      expect(mod.labelKey, `${mod.key}: labelKey must be non-empty`).toBeTruthy();
       expect(mod.default, `${mod.key}: default must be true`).toBe(true);
     }
   });
 
   it("keys are unique", () => {
-    expect(new Set(TOGGLEABLE_MODULE_KEYS).size).toBe(
-      TOGGLEABLE_MODULE_KEYS.length,
-    );
+    expect(new Set(TOGGLEABLE_MODULE_KEYS).size).toBe(TOGGLEABLE_MODULE_KEYS.length);
   });
 });
 
@@ -118,9 +107,7 @@ describe("isModuleEnabled", () => {
 
 describe("getEnabledToggleableModules", () => {
   it("undefined → returns all toggleable modules", () => {
-    expect(getEnabledToggleableModules(undefined)).toEqual(
-      TOGGLEABLE_MODULE_KEYS,
-    );
+    expect(getEnabledToggleableModules(undefined)).toEqual(TOGGLEABLE_MODULE_KEYS);
   });
 
   it("empty array → returns none", () => {
@@ -134,9 +121,7 @@ describe("getEnabledToggleableModules", () => {
   });
 
   it("ignores unknown keys in the input list", () => {
-    expect(getEnabledToggleableModules(["intake", "nope"])).toEqual<
-      ModuleKey[]
-    >(["intake"]);
+    expect(getEnabledToggleableModules(["intake", "nope"])).toEqual<ModuleKey[]>(["intake"]);
   });
 });
 

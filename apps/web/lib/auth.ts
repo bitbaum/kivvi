@@ -91,11 +91,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           token.companyId = user.companyId;
 
           // Look up role from memberships table (SSOT for roles)
-          const membership = await findMembership(
-            db,
-            token.id as string,
-            user.companyId,
-          );
+          const membership = await findMembership(db, token.id as string, user.companyId);
           token.role = membership?.role ?? "member";
 
           // Refresh company name and onboarding status
@@ -123,8 +119,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.companyName = token.companyName as string;
         session.user.role = token.role as string;
         session.user.onboardingComplete = token.onboardingComplete as boolean;
-        session.user.enabledModules =
-          (token.enabledModules as string[] | null) ?? null;
+        session.user.enabledModules = (token.enabledModules as string[] | null) ?? null;
       }
       return session;
     },

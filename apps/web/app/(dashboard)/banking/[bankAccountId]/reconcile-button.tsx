@@ -3,14 +3,8 @@
 import { useState, useTransition, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Link2, Unlink, Search, FileText } from "lucide-react";
-import {
-  reconcileTransactionAction,
-  unreconcileTransactionAction,
-} from "@/app/actions/banking";
-import {
-  searchDocumentsAction,
-  type DocumentSearchResult,
-} from "@/app/actions/documents";
+import { reconcileTransactionAction, unreconcileTransactionAction } from "@/app/actions/banking";
+import { searchDocumentsAction, type DocumentSearchResult } from "@/app/actions/documents";
 import { useTranslations } from "next-intl";
 
 interface MatchedDocument {
@@ -44,17 +38,13 @@ export function ReconcileButton({
   // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(e.target as Node)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setIsOpen(false);
       }
     }
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
-      return () =>
-        document.removeEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [isOpen]);
 
@@ -167,13 +157,9 @@ export function ReconcileButton({
 
           <div className="max-h-48 overflow-y-auto border-t">
             {isSearching ? (
-              <p className="p-3 text-center text-xs text-muted-foreground">
-                {t("searching")}
-              </p>
+              <p className="p-3 text-center text-xs text-muted-foreground">{t("searching")}</p>
             ) : search.length < 2 ? (
-              <p className="p-3 text-center text-xs text-muted-foreground">
-                {t("typeAtLeast")}
-              </p>
+              <p className="p-3 text-center text-xs text-muted-foreground">{t("typeAtLeast")}</p>
             ) : results.length === 0 ? (
               <p className="p-3 text-center text-xs text-muted-foreground">
                 {t("noDocumentsFound")}
@@ -190,22 +176,16 @@ export function ReconcileButton({
                     <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">
-                          {doc.number ?? "-"}
-                        </span>
+                        <span className="text-sm font-medium">{doc.number ?? "-"}</span>
                         <span className="rounded-full bg-muted px-1.5 py-0.5 text-micro font-medium uppercase">
                           {doc.type}
                         </span>
                       </div>
                       {doc.contact?.name && (
-                        <p className="truncate text-xs text-muted-foreground">
-                          {doc.contact.name}
-                        </p>
+                        <p className="truncate text-xs text-muted-foreground">{doc.contact.name}</p>
                       )}
                     </div>
-                    <span className="shrink-0 text-sm font-medium">
-                      {doc.total ?? "—"}
-                    </span>
+                    <span className="shrink-0 text-sm font-medium">{doc.total ?? "—"}</span>
                   </button>
                 ))}
               </div>

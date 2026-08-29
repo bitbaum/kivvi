@@ -63,16 +63,10 @@ export function RepairPartAddForm({ itemId, onAdded, onClose }: Props) {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="mb-4 space-y-3 rounded-lg border bg-muted/30 p-4"
-    >
+    <form onSubmit={handleSubmit} className="mb-4 space-y-3 rounded-lg border bg-muted/30 p-4">
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="sm:col-span-2">
-          <label
-            htmlFor="repair-part-description"
-            className="mb-1 block text-sm font-medium"
-          >
+          <label htmlFor="repair-part-description" className="mb-1 block text-sm font-medium">
             {t("repairPartDescription")}
             <span className="ml-0.5 text-destructive">*</span>
           </label>
@@ -94,10 +88,7 @@ export function RepairPartAddForm({ itemId, onAdded, onClose }: Props) {
           />
         </div>
         <div>
-          <label
-            htmlFor="repair-part-quantity"
-            className="mb-1 block text-sm font-medium"
-          >
+          <label htmlFor="repair-part-quantity" className="mb-1 block text-sm font-medium">
             {t("repairPartQuantity")}
           </label>
           <input
@@ -112,10 +103,7 @@ export function RepairPartAddForm({ itemId, onAdded, onClose }: Props) {
           />
         </div>
         <div>
-          <label
-            htmlFor="repair-part-unit-cost"
-            className="mb-1 block text-sm font-medium"
-          >
+          <label htmlFor="repair-part-unit-cost" className="mb-1 block text-sm font-medium">
             {t("repairPartUnitCost")}
             <span className="ml-0.5 text-destructive">*</span>
           </label>
@@ -132,10 +120,7 @@ export function RepairPartAddForm({ itemId, onAdded, onClose }: Props) {
           />
         </div>
         <div className="sm:col-span-2">
-          <label
-            htmlFor="repair-part-notes"
-            className="mb-1 block text-sm font-medium"
-          >
+          <label htmlFor="repair-part-notes" className="mb-1 block text-sm font-medium">
             {t("repairPartNotes")}
           </label>
           <input

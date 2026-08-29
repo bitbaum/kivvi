@@ -14,8 +14,7 @@ export const getDashboardSummaryTool: Tool = {
     context: ExecutionContext,
   ): Promise<ToolResult> => {
     try {
-      const { getDashboardStats, getDashboardAlerts } =
-        await import("@kivvi/core");
+      const { getDashboardStats, getDashboardAlerts } = await import("@kivvi/core");
       const db = getDb(context);
 
       const [stats, alerts] = await Promise.all([
@@ -27,10 +26,7 @@ export const getDashboardSummaryTool: Tool = {
 
       const formatStat = (stat: typeof stats.revenueThisMonth) => ({
         label: stat.labelKey,
-        value:
-          stat.type === "currency"
-            ? `${currency} ${stat.value.toFixed(2)}`
-            : stat.value,
+        value: stat.type === "currency" ? `${currency} ${stat.value.toFixed(2)}` : stat.value,
         count: stat.count,
         changePercent: stat.changePercent,
       });
@@ -52,23 +48,18 @@ export const getDashboardSummaryTool: Tool = {
             activeProducts: formatStat(stats.activeProducts),
           },
           alerts: alerts
-            .sort(
-              (a, b) => severityOrder[a.severity] - severityOrder[b.severity],
-            )
+            .sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity])
             .map((alert) => ({
               type: alert.type,
               severity: alert.severity,
               title: alert.titleKey,
               description: alert.descriptionKey,
               count: alert.count,
-              amount: alert.amount
-                ? `${currency} ${alert.amount.toFixed(2)}`
-                : null,
+              amount: alert.amount ? `${currency} ${alert.amount.toFixed(2)}` : null,
               linkTo: alert.linkTo,
             })),
           alertCount: alerts.length,
-          urgentAlertCount: alerts.filter((a) => a.severity === "urgent")
-            .length,
+          urgentAlertCount: alerts.filter((a) => a.severity === "urgent").length,
         },
       };
     } catch (error) {

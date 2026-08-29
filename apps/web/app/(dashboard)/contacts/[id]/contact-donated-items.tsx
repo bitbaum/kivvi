@@ -19,10 +19,7 @@ interface ContactDonatedItemsProps {
   companyId: string;
 }
 
-export async function ContactDonatedItems({
-  contactId,
-  companyId,
-}: ContactDonatedItemsProps) {
+export async function ContactDonatedItems({ contactId, companyId }: ContactDonatedItemsProps) {
   const t = await getTranslations("contacts");
   const ti = await getTranslations("inventory");
 
@@ -51,9 +48,7 @@ export async function ContactDonatedItems({
                 <span className="font-mono text-xs text-muted-foreground shrink-0">
                   {item.itemNumber}
                 </span>
-                <span className="truncate">
-                  {item.description || item.productName || "—"}
-                </span>
+                <span className="truncate">{item.description || item.productName || "—"}</span>
               </div>
               <div className="flex items-center gap-1.5 shrink-0">
                 {item.condition && (

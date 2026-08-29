@@ -33,19 +33,12 @@ export const updateContactTool: Tool = {
       if (updateFields.name !== undefined) input.name = updateFields.name;
       if (updateFields.email !== undefined) input.email = updateFields.email;
       if (updateFields.phone !== undefined) input.phone = updateFields.phone;
-      if (updateFields.address !== undefined)
-        input.address = updateFields.address;
+      if (updateFields.address !== undefined) input.address = updateFields.address;
       if (updateFields.city !== undefined) input.city = updateFields.city;
-      if (updateFields.postalCode !== undefined)
-        input.postalCode = updateFields.postalCode;
+      if (updateFields.postalCode !== undefined) input.postalCode = updateFields.postalCode;
       if (updateFields.notes !== undefined) input.notes = updateFields.notes;
 
-      const contact = await updateContact(
-        db,
-        context.companyId,
-        contactId,
-        input,
-      );
+      const contact = await updateContact(db, context.companyId, contactId, input);
 
       return {
         success: true,

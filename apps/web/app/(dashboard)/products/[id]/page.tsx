@@ -1,23 +1,13 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import {
-  ArrowLeft,
-  Pencil,
-  Trash2,
-  Receipt,
-  FileText,
-  Warehouse,
-} from "lucide-react";
+import { ArrowLeft, Pencil, Trash2, Receipt, FileText, Warehouse } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { getProduct } from "@kivvi/core";
 import { isValidUUID } from "@/lib/utils";
 import { deleteProductAction } from "@/app/actions/products";
-import {
-  QuickActionsBar,
-  type QuickAction,
-} from "@/components/quick-actions-bar";
+import { QuickActionsBar, type QuickAction } from "@/components/quick-actions-bar";
 import { StatusBadge } from "@/components/status-badge";
 import { ProductDetailMain } from "./product-detail-main";
 import { ProductDetailSidebar } from "./product-detail-sidebar";

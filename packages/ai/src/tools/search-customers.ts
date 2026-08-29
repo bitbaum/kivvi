@@ -5,14 +5,8 @@ import { getDb } from "./utils";
 import { CONTACT_TYPE_VALUES } from "@kivvi/database/src/enums";
 
 const searchCustomersSchema = z.object({
-  query: z
-    .string()
-    .optional()
-    .describe("Search query for customer name, email, or contact number"),
-  type: z
-    .enum(CONTACT_TYPE_VALUES)
-    .optional()
-    .describe("Filter by contact type"),
+  query: z.string().optional().describe("Search query for customer name, email, or contact number"),
+  type: z.enum(CONTACT_TYPE_VALUES).optional().describe("Filter by contact type"),
   limit: z.number().default(10).describe("Maximum number of results to return"),
 });
 

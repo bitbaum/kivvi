@@ -75,15 +75,11 @@ export async function getRecentActivity(
     if (doc.type === "invoice") linkTo = `/sales/invoices/${doc.id}`;
     else if (doc.type === "quote") linkTo = `/sales/quotes/${doc.id}`;
     else if (doc.type === "order") linkTo = `/sales/orders/${doc.id}`;
-    else if (doc.type === "delivery_note")
-      linkTo = `/sales/delivery-notes/${doc.id}`;
-    else if (doc.type === "credit_note")
-      linkTo = `/sales/credit-notes/${doc.id}`;
+    else if (doc.type === "delivery_note") linkTo = `/sales/delivery-notes/${doc.id}`;
+    else if (doc.type === "credit_note") linkTo = `/sales/credit-notes/${doc.id}`;
     else if (doc.type === "dunning") linkTo = `/sales/dunning/${doc.id}`;
-    else if (doc.type === "purchase_order")
-      linkTo = `/purchasing/purchase-orders/${doc.id}`;
-    else if (doc.type === "purchase_invoice")
-      linkTo = `/purchasing/purchase-invoices/${doc.id}`;
+    else if (doc.type === "purchase_order") linkTo = `/purchasing/purchase-orders/${doc.id}`;
+    else if (doc.type === "purchase_invoice") linkTo = `/purchasing/purchase-invoices/${doc.id}`;
 
     return {
       id: doc.id,

@@ -2,13 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import {
-  ChevronDown,
-  ChevronUp,
-  AlertCircle,
-  AlertTriangle,
-  Info,
-} from "lucide-react";
+import { ChevronDown, ChevronUp, AlertCircle, AlertTriangle, Info } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { useTranslations } from "next-intl";
 import type { DashboardAlert } from "@kivvi/core/src/domain/dashboard";
@@ -48,11 +42,7 @@ export function AlertCard({ alert }: AlertCardProps) {
   const styles = severityStyles[alert.severity];
 
   const Icon =
-    alert.severity === "urgent"
-      ? AlertCircle
-      : alert.severity === "warning"
-        ? AlertTriangle
-        : Info;
+    alert.severity === "urgent" ? AlertCircle : alert.severity === "warning" ? AlertTriangle : Info;
 
   // Extract items from metadata if available (for expandable alerts).
   // metadata is a discriminated union of `{ products }` or `{ breakdown }`.
@@ -94,8 +84,7 @@ export function AlertCard({ alert }: AlertCardProps) {
               </span>
               {alert.count && (
                 <span className="text-xs text-muted-foreground">
-                  {alert.count}{" "}
-                  {alert.count === 1 ? t("alerts.item") : t("alerts.items")}
+                  {alert.count} {alert.count === 1 ? t("alerts.item") : t("alerts.items")}
                 </span>
               )}
             </div>
@@ -106,12 +95,8 @@ export function AlertCard({ alert }: AlertCardProps) {
             <div className="space-y-2">
               <div className="space-y-1">
                 {displayItems.map((item, index) => (
-                  <div
-                    key={index}
-                    className="rounded-md border bg-card/50 p-2 text-sm"
-                  >
-                    {item.name || item.type}{" "}
-                    {item.articleNumber && `(${item.articleNumber})`}
+                  <div key={index} className="rounded-md border bg-card/50 p-2 text-sm">
+                    {item.name || item.type} {item.articleNumber && `(${item.articleNumber})`}
                     {item.count && ` - ${item.count} items`}
                   </div>
                 ))}

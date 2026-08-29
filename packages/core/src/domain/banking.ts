@@ -3,12 +3,7 @@ import Decimal from "decimal.js";
 import { DEFAULT_CURRENCY } from "../config/locale";
 import { NON_TERMINAL_STATUSES } from "../config/document-constants";
 import { eq, and, asc, desc, sql, inArray } from "drizzle-orm";
-import {
-  bankAccounts,
-  bankTransactions,
-  documents,
-  contacts,
-} from "@kivvi/database";
+import { bankAccounts, bankTransactions, documents, contacts } from "@kivvi/database";
 import type { Database, BankAccount, BankTransaction } from "@kivvi/database";
 import { recordPayment } from "./documents";
 import { logger } from "../logger";
@@ -45,10 +40,7 @@ export const importTransactionSchema = z.object({
 // BANK ACCOUNTS
 // ============================================================================
 
-export async function listBankAccounts(
-  db: Database,
-  companyId: string,
-): Promise<BankAccount[]> {
+export async function listBankAccounts(db: Database, companyId: string): Promise<BankAccount[]> {
   return db
     .select()
     .from(bankAccounts)
@@ -64,12 +56,7 @@ export async function getBankAccount(
   const [account] = await db
     .select()
     .from(bankAccounts)
-    .where(
-      and(
-        eq(bankAccounts.id, bankAccountId),
-        eq(bankAccounts.companyId, companyId),
-      ),
-    );
+    .where(and(eq(bankAccounts.id, bankAccountId), eq(bankAccounts.companyId, companyId)));
   return account || null;
 }
 
@@ -112,12 +99,7 @@ export async function updateBankAccount(
       currency: validated.currency,
       accountId: validated.accountId || null,
     })
-    .where(
-      and(
-        eq(bankAccounts.id, bankAccountId),
-        eq(bankAccounts.companyId, companyId),
-      ),
-    )
+    .where(and(eq(bankAccounts.id, bankAccountId), eq(bankAccounts.companyId, companyId)))
     .returning();
 
   if (!account) throw new Error("Bank account not found");
@@ -161,16 +143,10 @@ export async function listTransactions(
   const pageSize = filters.pageSize || 50;
 
   // Verify bank account belongs to company
-  const bankAccount = await getBankAccount(
-    db,
-    companyId,
-    filters.bankAccountId,
-  );
+  const bankAccount = await getBankAccount(db, companyId, filters.bankAccountId);
   if (!bankAccount) throw new Error("Bank account not found");
 
-  const conditions = [
-    eq(bankTransactions.bankAccountId, filters.bankAccountId),
-  ];
+  const conditions = [eq(bankTransactions.bankAccountId, filters.bankAccountId)];
 
   if (filters.isReconciled !== undefined) {
     conditions.push(eq(bankTransactions.isReconciled, filters.isReconciled));
@@ -198,10 +174,7 @@ export async function listTransactions(
       contactName: contacts.name,
     })
     .from(bankTransactions)
-    .leftJoin(
-      documents,
-      eq(bankTransactions.reconciledDocumentId, documents.id),
-    )
+    .leftJoin(documents, eq(bankTransactions.reconciledDocumentId, documents.id))
     .leftJoin(contacts, eq(documents.contactId, contacts.id))
     .where(whereClause)
     .orderBy(desc(bankTransactions.date))
@@ -299,18 +272,12 @@ export async function importTransactions(
       await tx.insert(bankTransactions).values(values);
     }
 
-    const balanceToSet =
-      options?.closingBalance || transactions[transactions.length - 1].balance;
+    const balanceToSet = options?.closingBalance || transactions[transactions.length - 1].balance;
     if (balanceToSet) {
       await tx
         .update(bankAccounts)
         .set({ balance: balanceToSet, lastSyncAt: new Date() })
-        .where(
-          and(
-            eq(bankAccounts.id, bankAccountId),
-            eq(bankAccounts.companyId, companyId),
-          ),
-        );
+        .where(and(eq(bankAccounts.id, bankAccountId), eq(bankAccounts.companyId, companyId)));
     }
 
     return { imported: values.length, skippedDuplicates };
@@ -350,8 +317,8 @@ export async function importCamtStatement(
   }
 
   // Map CAMT entries to import schema
-  const transactions: z.infer<typeof importTransactionSchema>[] =
-    statement.entries.map((entry) => ({
+  const transactions: z.infer<typeof importTransactionSchema>[] = statement.entries.map(
+    (entry) => ({
       date: entry.bookingDate,
       description: entry.description || null,
       reference: entry.reference || null,
@@ -362,19 +329,14 @@ export async function importCamtStatement(
       debtorName: entry.debtorName || null,
       creditorName: entry.creditorName || null,
       remittanceInfo: entry.remittanceInfo || null,
-    }));
+    }),
+  );
 
   const closingBalance = statement.closingBalance?.amount;
 
-  const result = await importTransactions(
-    db,
-    companyId,
-    bankAccountId,
-    transactions,
-    {
-      closingBalance,
-    },
-  );
+  const result = await importTransactions(db, companyId, bankAccountId, transactions, {
+    closingBalance,
+  });
 
   return {
     imported: result.imported,
@@ -396,16 +358,8 @@ export async function reconcileTransaction(
   const [txn] = await db
     .select({ transaction: bankTransactions, bankAccount: bankAccounts })
     .from(bankTransactions)
-    .innerJoin(
-      bankAccounts,
-      eq(bankTransactions.bankAccountId, bankAccounts.id),
-    )
-    .where(
-      and(
-        eq(bankTransactions.id, transactionId),
-        eq(bankAccounts.companyId, companyId),
-      ),
-    );
+    .innerJoin(bankAccounts, eq(bankTransactions.bankAccountId, bankAccounts.id))
+    .where(and(eq(bankTransactions.id, transactionId), eq(bankAccounts.companyId, companyId)));
 
   if (!txn) throw new Error("Transaction not found");
   if (txn.transaction.isReconciled)
@@ -419,9 +373,7 @@ export async function reconcileTransaction(
   const [doc] = await db
     .select()
     .from(documents)
-    .where(
-      and(eq(documents.id, documentId), eq(documents.companyId, companyId)),
-    );
+    .where(and(eq(documents.id, documentId), eq(documents.companyId, companyId)));
 
   if (!doc) throw new Error("Document not found");
 
@@ -484,9 +436,7 @@ export async function matchTransactionToDocument(
 
   // 1. QR reference match (check both reference and remittanceInfo fields)
   let matchedDoc = null;
-  const refFields = [txn.reference, txn.remittanceInfo].filter(
-    Boolean,
-  ) as string[];
+  const refFields = [txn.reference, txn.remittanceInfo].filter(Boolean) as string[];
   for (const ref of refFields) {
     matchedDoc = await db.query.documents.findFirst({
       where: (documents, { eq, and, sql: sqlFn }) =>
@@ -529,16 +479,8 @@ export async function unreconcileTransaction(
   const [txn] = await db
     .select({ transaction: bankTransactions, bankAccount: bankAccounts })
     .from(bankTransactions)
-    .innerJoin(
-      bankAccounts,
-      eq(bankTransactions.bankAccountId, bankAccounts.id),
-    )
-    .where(
-      and(
-        eq(bankTransactions.id, transactionId),
-        eq(bankAccounts.companyId, companyId),
-      ),
-    );
+    .innerJoin(bankAccounts, eq(bankTransactions.bankAccountId, bankAccounts.id))
+    .where(and(eq(bankTransactions.id, transactionId), eq(bankAccounts.companyId, companyId)));
 
   if (!txn) throw new Error("Transaction not found");
 
@@ -606,9 +548,7 @@ export async function autoMatchTransactions(
 
   for (const txn of unreconciledTxns) {
     // 1. Try matching by QR reference (check both reference and remittanceInfo)
-    const refFields = [txn.reference, txn.remittanceInfo].filter(
-      Boolean,
-    ) as string[];
+    const refFields = [txn.reference, txn.remittanceInfo].filter(Boolean) as string[];
 
     if (refFields.length > 0) {
       const matchByRef = openInvoices.find(
@@ -693,9 +633,7 @@ export async function getReconciliationSummary(
     totalTransactions: stats.total,
     reconciled: stats.reconciled,
     unreconciled: stats.unreconciled,
-    totalUnreconciledAmount: new Decimal(
-      stats.unreconciledAmount || "0",
-    ).toNumber(),
+    totalUnreconciledAmount: new Decimal(stats.unreconciledAmount || "0").toNumber(),
   };
 }
 
@@ -716,10 +654,7 @@ export async function getBankTransactionsSummary(
       lastTransactionDate: sql<Date | null>`max(${bankTransactions.date})`,
     })
     .from(bankTransactions)
-    .innerJoin(
-      bankAccounts,
-      eq(bankTransactions.bankAccountId, bankAccounts.id),
-    )
+    .innerJoin(bankAccounts, eq(bankTransactions.bankAccountId, bankAccounts.id))
     .where(eq(bankAccounts.companyId, companyId));
 
   return {

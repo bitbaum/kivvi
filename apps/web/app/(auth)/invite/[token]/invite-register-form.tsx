@@ -9,11 +9,7 @@ interface InviteRegisterFormProps {
   invitationEmail: string | undefined;
   error: string;
   isPending: boolean;
-  onSubmit: (form: {
-    name: string;
-    email: string;
-    password: string;
-  }) => Promise<void>;
+  onSubmit: (form: { name: string; email: string; password: string }) => Promise<void>;
   onBack: () => void;
 }
 
@@ -51,26 +47,19 @@ export function InviteRegisterForm({
           </div>
 
           {error && (
-            <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
-              {error}
-            </div>
+            <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label
-                htmlFor="reg-name"
-                className="mb-1.5 block text-sm font-medium"
-              >
+              <label htmlFor="reg-name" className="mb-1.5 block text-sm font-medium">
                 {t("fullName")}
               </label>
               <input
                 id="reg-name"
                 type="text"
                 value={form.name}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, name: e.target.value }))
-                }
+                onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
                 required
                 autoComplete="name"
                 className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/20"
@@ -78,19 +67,14 @@ export function InviteRegisterForm({
             </div>
 
             <div>
-              <label
-                htmlFor="reg-email"
-                className="mb-1.5 block text-sm font-medium"
-              >
+              <label htmlFor="reg-email" className="mb-1.5 block text-sm font-medium">
                 {t("email")}
               </label>
               <input
                 id="reg-email"
                 type="email"
                 value={form.email}
-                onChange={(e) =>
-                  setForm((p) => ({ ...p, email: e.target.value }))
-                }
+                onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
                 required
                 autoComplete="email"
                 className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/20"
@@ -98,10 +82,7 @@ export function InviteRegisterForm({
             </div>
 
             <div>
-              <label
-                htmlFor="reg-password"
-                className="mb-1.5 block text-sm font-medium"
-              >
+              <label htmlFor="reg-password" className="mb-1.5 block text-sm font-medium">
                 {t("password")}
               </label>
               <div className="relative">
@@ -109,9 +90,7 @@ export function InviteRegisterForm({
                   id="reg-password"
                   type={showPassword ? "text" : "password"}
                   value={form.password}
-                  onChange={(e) =>
-                    setForm((p) => ({ ...p, password: e.target.value }))
-                  }
+                  onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
                   required
                   minLength={8}
                   autoComplete="new-password"
@@ -123,11 +102,7 @@ export function InviteRegisterForm({
                   tabIndex={-1}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
             </div>

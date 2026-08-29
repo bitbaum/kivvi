@@ -19,9 +19,7 @@ export function RegisterFeaturesPanel() {
   return (
     <div className="hidden flex-1 items-center justify-center brand-gradient p-12 lg:flex">
       <div className="max-w-md text-white">
-        <h2 className="mb-3 text-3xl font-bold leading-tight">
-          {t("businessOnAutopilot")}
-        </h2>
+        <h2 className="mb-3 text-3xl font-bold leading-tight">{t("businessOnAutopilot")}</h2>
         <p className="mb-8 text-white/80">{t("heroSubtitle")}</p>
 
         <ul className="space-y-4">

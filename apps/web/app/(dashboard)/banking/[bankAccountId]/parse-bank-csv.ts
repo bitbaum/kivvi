@@ -16,9 +16,7 @@ export function parseCsv(text: string): ParsedTransaction[] {
   const descIdx = header.findIndex(
     (h) => h === "description" || h === "beschreibung" || h === "text",
   );
-  const refIdx = header.findIndex(
-    (h) => h === "reference" || h === "referenz" || h === "ref",
-  );
+  const refIdx = header.findIndex((h) => h === "reference" || h === "referenz" || h === "ref");
   const amountIdx = header.findIndex((h) => h === "amount" || h === "betrag");
   const balanceIdx = header.findIndex((h) => h === "balance" || h === "saldo");
 
@@ -43,10 +41,7 @@ export function parseCsv(text: string): ParsedTransaction[] {
       description: descIdx >= 0 ? cols[descIdx]?.trim() || "" : "",
       reference: refIdx >= 0 ? cols[refIdx]?.trim() || "" : "",
       amount,
-      balance:
-        balanceIdx >= 0
-          ? cols[balanceIdx]?.trim().replace(/['\s]/g, "") || ""
-          : "",
+      balance: balanceIdx >= 0 ? cols[balanceIdx]?.trim().replace(/['\s]/g, "") || "" : "",
     });
   }
 

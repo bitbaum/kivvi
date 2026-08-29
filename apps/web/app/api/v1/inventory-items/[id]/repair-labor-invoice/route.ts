@@ -1,22 +1,11 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
-import {
-  authenticateApi,
-  apiError,
-  apiSuccess,
-  apiZodError,
-} from "@/lib/api-handler";
-import {
-  createRepairLaborInvoice,
-  createRepairLaborInvoiceSchema,
-} from "@kivvi/core";
+import { authenticateApi, apiError, apiSuccess, apiZodError } from "@/lib/api-handler";
+import { createRepairLaborInvoice, createRepairLaborInvoiceSchema } from "@kivvi/core";
 
 const bodySchema = createRepairLaborInvoiceSchema.omit({ itemId: true });
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await authenticateApi(request, "member");
     if (ctx instanceof Response) return ctx;
@@ -45,9 +34,7 @@ export async function POST(
     });
   } catch (error) {
     const message =
-      error instanceof Error
-        ? error.message
-        : "Failed to create repair labor invoice";
+      error instanceof Error ? error.message : "Failed to create repair labor invoice";
     return apiError(message, 400);
   }
 }

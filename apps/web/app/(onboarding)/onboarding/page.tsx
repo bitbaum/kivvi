@@ -4,15 +4,9 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Loader2 } from "lucide-react";
-import {
-  getOnboardingStateAction,
-  getCompanyDetailsAction,
-} from "@/app/actions/onboarding";
+import { getOnboardingStateAction, getCompanyDetailsAction } from "@/app/actions/onboarding";
 import { OnboardingShell } from "../components/OnboardingShell";
-import {
-  StepCompanyInfo,
-  type CompanyData,
-} from "../components/StepCompanyInfo";
+import { StepCompanyInfo, type CompanyData } from "../components/StepCompanyInfo";
 import { StepBusinessConfig } from "../components/StepBusinessConfig";
 import { StepDataImport } from "../components/StepDataImport";
 
@@ -73,10 +67,7 @@ export default function OnboardingPage() {
   return (
     <OnboardingShell currentStep={currentStep} totalSteps={3}>
       {currentStep === 1 && (
-        <StepCompanyInfo
-          companyData={companyData}
-          onComplete={() => handleStepComplete(2)}
-        />
+        <StepCompanyInfo companyData={companyData} onComplete={() => handleStepComplete(2)} />
       )}
       {currentStep === 2 && (
         <StepBusinessConfig
@@ -84,9 +75,7 @@ export default function OnboardingPage() {
           onBack={() => setCurrentStep(1)}
         />
       )}
-      {currentStep >= 3 && (
-        <StepDataImport onComplete={() => handleStepComplete(5)} />
-      )}
+      {currentStep >= 3 && <StepDataImport onComplete={() => handleStepComplete(5)} />}
     </OnboardingShell>
   );
 }

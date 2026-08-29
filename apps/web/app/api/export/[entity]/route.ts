@@ -2,12 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import Papa from "papaparse";
-import {
-  listContacts,
-  listProducts,
-  listDocuments,
-  listJournalEntries,
-} from "@kivvi/core";
+import { listContacts, listProducts, listDocuments, listJournalEntries } from "@kivvi/core";
 import type { DocumentType } from "@kivvi/database";
 import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 
@@ -84,12 +79,8 @@ export async function GET(
       const rows = result.data.map((d) => ({
         Number: d.number,
         Status: d.status,
-        Date: d.issueDate
-          ? new Date(d.issueDate).toISOString().split("T")[0]
-          : "",
-        "Due Date": d.dueDate
-          ? new Date(d.dueDate).toISOString().split("T")[0]
-          : "",
+        Date: d.issueDate ? new Date(d.issueDate).toISOString().split("T")[0] : "",
+        "Due Date": d.dueDate ? new Date(d.dueDate).toISOString().split("T")[0] : "",
         Contact: d.contact?.name || "",
         Subtotal: d.subtotal,
         VAT: d.vatAmount,

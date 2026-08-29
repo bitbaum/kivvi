@@ -67,18 +67,13 @@ export function parseCamtXml(xml: string): CamtStatement {
 
   // Detect message type: camt.053 vs camt.054
   const stmt053 = doc.BkToCstmrStmt as Record<string, unknown> | undefined;
-  const ntfctn054 = doc.BkToCstmrDbtCdtNtfctn as
-    | Record<string, unknown>
-    | undefined;
+  const ntfctn054 = doc.BkToCstmrDbtCdtNtfctn as Record<string, unknown> | undefined;
 
   if (stmt053) {
     return parseStatement(stmt053.Stmt as Record<string, unknown>, "camt.053");
   }
   if (ntfctn054) {
-    return parseStatement(
-      ntfctn054.Ntfctn as Record<string, unknown>,
-      "camt.054",
-    );
+    return parseStatement(ntfctn054.Ntfctn as Record<string, unknown>, "camt.054");
   }
 
   throw new Error("Invalid CAMT XML: not a camt.053 or camt.054 document");
@@ -104,10 +99,7 @@ function parseStatement(
 
   if (messageType === "camt.053") {
     const balances = ensureArray(
-      stmt.Bal as
-        | Record<string, unknown>[]
-        | Record<string, unknown>
-        | undefined,
+      stmt.Bal as Record<string, unknown>[] | Record<string, unknown> | undefined,
     );
     for (const bal of balances) {
       const tp = bal?.Tp as Record<string, unknown> | undefined;
@@ -133,10 +125,7 @@ function parseStatement(
 
   // Entries
   const rawEntries = ensureArray(
-    stmt.Ntry as
-      | Record<string, unknown>[]
-      | Record<string, unknown>
-      | undefined,
+    stmt.Ntry as Record<string, unknown>[] | Record<string, unknown> | undefined,
   );
   const entries: CamtEntry[] = [];
 
@@ -170,8 +159,7 @@ function parseEntry(ntry: Record<string, unknown>): CamtEntry {
   const bookingDate = String(bookDt?.Dt ?? bookDt?.DtTm ?? "");
 
   const valDt = ntry.ValDt as Record<string, unknown> | undefined;
-  const valueDate =
-    (valDt?.Dt ?? valDt?.DtTm) ? String(valDt?.Dt ?? valDt?.DtTm) : null;
+  const valueDate = (valDt?.Dt ?? valDt?.DtTm) ? String(valDt?.Dt ?? valDt?.DtTm) : null;
 
   // Amount + direction
   const amt = ntry.Amt as Record<string, unknown> | undefined;
@@ -193,10 +181,7 @@ function parseEntry(ntry: Record<string, unknown>): CamtEntry {
   // Transaction details
   const ntryDtls = ntry.NtryDtls as Record<string, unknown> | undefined;
   const txDtlsList = ensureArray(
-    ntryDtls?.TxDtls as
-      | Record<string, unknown>[]
-      | Record<string, unknown>
-      | undefined,
+    ntryDtls?.TxDtls as Record<string, unknown>[] | Record<string, unknown> | undefined,
   );
 
   let reference: string | null = null;

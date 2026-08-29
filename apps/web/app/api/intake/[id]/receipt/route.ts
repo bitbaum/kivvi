@@ -8,15 +8,9 @@ import { and, eq } from "drizzle-orm";
 import { getCompany } from "@kivvi/core/src/domain/companies";
 import Decimal from "decimal.js";
 import { logger } from "@/lib/logger";
-import {
-  DEFAULT_LOCALE,
-  DEFAULT_CURRENCY,
-} from "@kivvi/core/src/config/locale";
+import { DEFAULT_LOCALE, DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 
-export async function GET(
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await auth();
     if (!session?.user?.companyId) {
@@ -72,18 +66,12 @@ export async function GET(
     }
 
     // Fetch items — documentId is already validated to belong to companyId above
-    const items = await db
-      .select()
-      .from(documentItems)
-      .where(eq(documentItems.documentId, id));
+    const items = await db.select().from(documentItems).where(eq(documentItems.documentId, id));
 
     // Calculate estimated total using Decimal (never float arithmetic on money)
     let estimatedTotal: string | undefined;
     const total = items.reduce(
-      (sum, item) =>
-        sum.plus(
-          new Decimal(item.unitPrice || "0").times(item.quantity || "1"),
-        ),
+      (sum, item) => sum.plus(new Decimal(item.unitPrice || "0").times(item.quantity || "1")),
       new Decimal(0),
     );
     if (total.gt(0)) estimatedTotal = total.toFixed(2);
@@ -122,9 +110,6 @@ export async function GET(
     });
   } catch (error) {
     logger.error("Receipt generation error:", error);
-    return NextResponse.json(
-      { error: "Failed to generate receipt" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Failed to generate receipt" }, { status: 500 });
   }
 }

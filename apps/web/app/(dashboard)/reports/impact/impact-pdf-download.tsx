@@ -48,12 +48,7 @@ export function ImpactPdfDownload() {
         />
         {tr("impactAnonymizeDonors")}
       </label>
-      <Button
-        variant="secondary"
-        onClick={handleDownload}
-        disabled={loading}
-        className="gap-2"
-      >
+      <Button variant="secondary" onClick={handleDownload} disabled={loading} className="gap-2">
         <Download className="h-4 w-4" />
         {loading ? tr("impactGeneratingPdf") : tr("impactDownloadPdf")}
       </Button>

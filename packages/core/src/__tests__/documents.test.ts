@@ -156,18 +156,11 @@ describe("VALID_CONVERSIONS", () => {
   });
 
   it("order can convert to order_confirmation, delivery_note, and invoice", () => {
-    expect(VALID_CONVERSIONS.order).toEqual([
-      "order_confirmation",
-      "delivery_note",
-      "invoice",
-    ]);
+    expect(VALID_CONVERSIONS.order).toEqual(["order_confirmation", "delivery_note", "invoice"]);
   });
 
   it("order_confirmation can convert to delivery_note and invoice", () => {
-    expect(VALID_CONVERSIONS.order_confirmation).toEqual([
-      "delivery_note",
-      "invoice",
-    ]);
+    expect(VALID_CONVERSIONS.order_confirmation).toEqual(["delivery_note", "invoice"]);
   });
 
   it("delivery_note can convert to invoice", () => {
@@ -274,9 +267,7 @@ describe("createDocumentSchema", () => {
     });
     expect(result.success).toBe(false);
     if (!result.success) {
-      const itemsError = result.error.issues.find((i) =>
-        i.path.includes("items"),
-      );
+      const itemsError = result.error.issues.find((i) => i.path.includes("items"));
       expect(itemsError).toBeDefined();
     }
   });

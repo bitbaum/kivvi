@@ -23,9 +23,7 @@ import type {
 // HELPERS
 // ============================================================================
 
-function makeInvoiceEmailData(
-  overrides: Partial<InvoiceEmailData> = {},
-): InvoiceEmailData {
+function makeInvoiceEmailData(overrides: Partial<InvoiceEmailData> = {}): InvoiceEmailData {
   return {
     recipientEmail: "kunde@example.ch",
     recipientName: "Hans Muster",
@@ -203,9 +201,7 @@ describe("buildInvoiceEmailHtml", () => {
   });
 
   it("omits Kivvi branding for premium plan", () => {
-    const html = buildInvoiceEmailHtml(
-      makeInvoiceEmailData({ plan: "premium" }),
-    );
+    const html = buildInvoiceEmailHtml(makeInvoiceEmailData({ plan: "premium" }));
     expect(html).not.toContain("Versendet mit");
   });
 
@@ -351,17 +347,13 @@ const XSS_SAFE = "&lt;script&gt;";
 
 describe("XSS escaping in email builders", () => {
   it("buildInvoiceEmailHtml escapes malicious companyName", () => {
-    const html = buildInvoiceEmailHtml(
-      makeInvoiceEmailData({ companyName: XSS }),
-    );
+    const html = buildInvoiceEmailHtml(makeInvoiceEmailData({ companyName: XSS }));
     expect(html).not.toContain("<script>");
     expect(html).toContain(XSS_SAFE);
   });
 
   it("buildInvoiceEmailHtml escapes malicious recipientName", () => {
-    const html = buildInvoiceEmailHtml(
-      makeInvoiceEmailData({ recipientName: XSS }),
-    );
+    const html = buildInvoiceEmailHtml(makeInvoiceEmailData({ recipientName: XSS }));
     expect(html).not.toContain("<script>");
     expect(html).toContain(XSS_SAFE);
   });

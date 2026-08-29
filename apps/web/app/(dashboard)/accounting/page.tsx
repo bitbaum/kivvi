@@ -178,9 +178,7 @@ function NavCard({
       <div className="flex items-start gap-4">
         <div className="rounded-lg bg-primary/10 p-3 text-primary">{icon}</div>
         <div className="flex-1">
-          <h3 className="font-semibold group-hover:text-primary transition-colors">
-            {title}
-          </h3>
+          <h3 className="font-semibold group-hover:text-primary transition-colors">{title}</h3>
           <p className="mt-1 text-sm text-muted-foreground">{description}</p>
         </div>
         <ArrowRight className="h-5 w-5 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
@@ -208,9 +206,7 @@ function SummaryCard({
         <div className={`rounded-md p-1.5 ${bgColor} ${color}`}>{icon}</div>
         <span className="text-sm text-muted-foreground">{label}</span>
       </div>
-      <p className={`mt-2 text-xl font-bold ${color}`}>
-        {formatCurrency(value)}
-      </p>
+      <p className={`mt-2 text-xl font-bold ${color}`}>{formatCurrency(value)}</p>
     </div>
   );
 }

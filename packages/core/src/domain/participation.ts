@@ -91,17 +91,11 @@ export async function upsertOrganizationProfile(
     return profile;
   }
 
-  const [profile] = await db
-    .insert(organizationProfiles)
-    .values(values)
-    .returning();
+  const [profile] = await db.insert(organizationProfiles).values(values).returning();
   return profile;
 }
 
-export async function getPublicOrganizationProfile(
-  db: Database,
-  publicSlug: string,
-) {
+export async function getPublicOrganizationProfile(db: Database, publicSlug: string) {
   return db.query.organizationProfiles.findFirst({
     where: and(
       eq(organizationProfiles.publicSlug, publicSlug),
@@ -219,12 +213,7 @@ export async function transitionJoinRequestStatus(
   const [request] = await db
     .update(joinRequests)
     .set({ status, updatedAt: new Date() })
-    .where(
-      and(
-        eq(joinRequests.id, requestId),
-        eq(joinRequests.companyId, companyId),
-      ),
-    )
+    .where(and(eq(joinRequests.id, requestId), eq(joinRequests.companyId, companyId)))
     .returning();
   if (!request) throw new DomainError("joinRequestNotFound");
   return request;
@@ -237,10 +226,7 @@ export async function createInvitationForAcceptedRequest(
   invitedBy: string,
 ) {
   const request = await db.query.joinRequests.findFirst({
-    where: and(
-      eq(joinRequests.id, requestId),
-      eq(joinRequests.companyId, companyId),
-    ),
+    where: and(eq(joinRequests.id, requestId), eq(joinRequests.companyId, companyId)),
   });
   if (!request) throw new DomainError("joinRequestNotFound");
 

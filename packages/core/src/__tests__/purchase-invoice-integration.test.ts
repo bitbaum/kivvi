@@ -46,10 +46,8 @@ function selectBuilder(rows: unknown[]) {
   const b: Record<string, unknown> = {
     from: () => b,
     where: () => b,
-    then: (
-      resolve: (v: unknown[]) => unknown,
-      reject?: (e: unknown) => unknown,
-    ) => Promise.resolve(rows).then(resolve, reject),
+    then: (resolve: (v: unknown[]) => unknown, reject?: (e: unknown) => unknown) =>
+      Promise.resolve(rows).then(resolve, reject),
   };
   return b;
 }
@@ -101,11 +99,7 @@ describe("createInventoryItemsFromPurchaseInvoice", () => {
 
   it("creates nothing when the document has no line items", async () => {
     const { db, inserted } = makeMockDb([], []);
-    const result = await createInventoryItemsFromPurchaseInvoice(
-      db,
-      COMPANY_ID,
-      DOC,
-    );
+    const result = await createInventoryItemsFromPurchaseInvoice(db, COMPANY_ID, DOC);
     expect(result).toEqual({ created: 0 });
     expect(inserted).toHaveLength(0);
     // No product lookup needed when there are no items.
@@ -124,11 +118,7 @@ describe("createInventoryItemsFromPurchaseInvoice", () => {
       ],
       [],
     );
-    const result = await createInventoryItemsFromPurchaseInvoice(
-      db,
-      COMPANY_ID,
-      DOC,
-    );
+    const result = await createInventoryItemsFromPurchaseInvoice(db, COMPANY_ID, DOC);
     expect(result).toEqual({ created: 0 });
     expect(inserted).toHaveLength(0);
   });
@@ -145,11 +135,7 @@ describe("createInventoryItemsFromPurchaseInvoice", () => {
       ],
       [{ id: UNTRACKED_PRODUCT, serialNumberTracking: false }],
     );
-    const result = await createInventoryItemsFromPurchaseInvoice(
-      db,
-      COMPANY_ID,
-      DOC,
-    );
+    const result = await createInventoryItemsFromPurchaseInvoice(db, COMPANY_ID, DOC);
     expect(result).toEqual({ created: 0 });
     expect(inserted).toHaveLength(0);
   });
@@ -166,11 +152,7 @@ describe("createInventoryItemsFromPurchaseInvoice", () => {
       ],
       [{ id: TRACKED_PRODUCT, serialNumberTracking: true }],
     );
-    const result = await createInventoryItemsFromPurchaseInvoice(
-      db,
-      COMPANY_ID,
-      DOC,
-    );
+    const result = await createInventoryItemsFromPurchaseInvoice(db, COMPANY_ID, DOC);
     expect(result).toEqual({ created: 3 });
     expect(inserted).toHaveLength(3);
     // Every item carries the intake provenance and per-unit cost.
@@ -203,11 +185,7 @@ describe("createInventoryItemsFromPurchaseInvoice", () => {
       ],
       [{ id: TRACKED_PRODUCT, serialNumberTracking: true }],
     );
-    const result = await createInventoryItemsFromPurchaseInvoice(
-      db,
-      COMPANY_ID,
-      DOC,
-    );
+    const result = await createInventoryItemsFromPurchaseInvoice(db, COMPANY_ID, DOC);
     expect(result).toEqual({ created: 2 });
     expect(inserted).toHaveLength(2);
   });
@@ -224,11 +202,7 @@ describe("createInventoryItemsFromPurchaseInvoice", () => {
       ],
       [{ id: TRACKED_PRODUCT, serialNumberTracking: true }],
     );
-    const result = await createInventoryItemsFromPurchaseInvoice(
-      db,
-      COMPANY_ID,
-      DOC,
-    );
+    const result = await createInventoryItemsFromPurchaseInvoice(db, COMPANY_ID, DOC);
     expect(result).toEqual({ created: 1 });
     expect(inserted).toHaveLength(1);
   });
@@ -261,11 +235,7 @@ describe("createInventoryItemsFromPurchaseInvoice", () => {
       ],
       [{ id: TRACKED_PRODUCT, serialNumberTracking: true }],
     );
-    const result = await createInventoryItemsFromPurchaseInvoice(
-      db,
-      COMPANY_ID,
-      DOC,
-    );
+    const result = await createInventoryItemsFromPurchaseInvoice(db, COMPANY_ID, DOC);
     // 250 > MAX_INDIVIDUAL_ITEMS (100) → one bulk-lot row, not 250 rows.
     expect(result).toEqual({ created: 1 });
     expect(inserted).toHaveLength(1);
@@ -297,11 +267,7 @@ describe("createInventoryItemsFromPurchaseInvoice", () => {
         { id: UNTRACKED_PRODUCT, serialNumberTracking: false },
       ],
     );
-    const result = await createInventoryItemsFromPurchaseInvoice(
-      db,
-      COMPANY_ID,
-      DOC,
-    );
+    const result = await createInventoryItemsFromPurchaseInvoice(db, COMPANY_ID, DOC);
     // Only the 2 tracked laptops materialise; the 100 screws stay quantity-only.
     expect(result).toEqual({ created: 2 });
     expect(inserted).toHaveLength(2);

@@ -24,9 +24,7 @@ export function PriceRulesTable({ rules, priceListId }: Props) {
 
   if (rules.length === 0) {
     return (
-      <div className="px-6 py-8 text-center text-sm text-muted-foreground">
-        {t("noRules")}
-      </div>
+      <div className="px-6 py-8 text-center text-sm text-muted-foreground">{t("noRules")}</div>
     );
   }
 
@@ -55,9 +53,7 @@ export function PriceRulesTable({ rules, priceListId }: Props) {
             <div className="font-medium">
               {rule.productName ?? t("allProducts")}
               {rule.productSku && (
-                <span className="ml-1.5 text-xs text-muted-foreground">
-                  {rule.productSku}
-                </span>
+                <span className="ml-1.5 text-xs text-muted-foreground">{rule.productSku}</span>
               )}
             </div>
             <div className="text-muted-foreground">
@@ -67,9 +63,7 @@ export function PriceRulesTable({ rules, priceListId }: Props) {
               {rule.value}
               {rule.type !== "fixed" && "%"}
             </div>
-            <div className="text-muted-foreground">
-              {rule.minQuantity ?? "—"}
-            </div>
+            <div className="text-muted-foreground">{rule.minQuantity ?? "—"}</div>
             <button
               onClick={() => handleDelete(rule.id)}
               disabled={isPending}

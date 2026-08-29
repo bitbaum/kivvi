@@ -135,10 +135,7 @@ export async function updateOnboardingStep(
 /**
  * Mark onboarding as complete. Sets onboardingCompletedAt to now.
  */
-export async function completeOnboarding(
-  db: Database,
-  companyId: string,
-): Promise<void> {
+export async function completeOnboarding(db: Database, companyId: string): Promise<void> {
   const [company] = await db
     .select({ settings: companies.settings })
     .from(companies)

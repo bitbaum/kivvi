@@ -6,9 +6,7 @@ import { getDb } from "./utils";
 const journalLineSchema = z.object({
   accountCode: z
     .string()
-    .describe(
-      'Account code from the chart of accounts (e.g. "1020" for bank, "3000" for revenue)',
-    ),
+    .describe('Account code from the chart of accounts (e.g. "1020" for bank, "3000" for revenue)'),
   debit: z
     .string()
     .optional()
@@ -24,17 +22,11 @@ const journalLineSchema = z.object({
 });
 
 const createJournalEntrySchema = z.object({
-  date: z
-    .string()
-    .describe("Journal entry date in ISO 8601 format (YYYY-MM-DD)"),
-  reference: z
-    .string()
-    .describe("Reference number or identifier for this entry"),
+  date: z.string().describe("Journal entry date in ISO 8601 format (YYYY-MM-DD)"),
+  reference: z.string().describe("Reference number or identifier for this entry"),
   description: z
     .string()
-    .describe(
-      'Description of the journal entry (e.g. "Rent payment January 2026")',
-    ),
+    .describe('Description of the journal entry (e.g. "Rent payment January 2026")'),
   lines: z
     .array(journalLineSchema)
     .min(2)
@@ -80,9 +72,7 @@ export const createJournalEntryTool: Tool = {
       const resolvedLines = params.lines.map((line) => {
         const account = codeToAccount.get(line.accountCode);
         if (!account) {
-          throw new Error(
-            `Account with code "${line.accountCode}" not found in chart of accounts`,
-          );
+          throw new Error(`Account with code "${line.accountCode}" not found in chart of accounts`);
         }
         return {
           accountId: account.id,
@@ -91,17 +81,12 @@ export const createJournalEntryTool: Tool = {
         };
       });
 
-      const entry = await createJournalEntry(
-        db,
-        context.companyId,
-        context.userId,
-        {
-          date: params.date,
-          reference: params.reference,
-          description: params.description,
-          lines: resolvedLines,
-        },
-      );
+      const entry = await createJournalEntry(db, context.companyId, context.userId, {
+        date: params.date,
+        reference: params.reference,
+        description: params.description,
+        lines: resolvedLines,
+      });
 
       return {
         success: true,

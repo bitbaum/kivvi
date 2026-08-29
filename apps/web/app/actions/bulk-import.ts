@@ -20,12 +20,7 @@ import {
   updateSequencesAfterImport,
 } from "@kivvi/core/src/domain/import-bulk";
 // Types removed — bulk insert functions use Record<string, string | null> directly
-import {
-  type ActionResult,
-  getSession,
-  requireRole,
-  safeErrorMessage,
-} from "./utils";
+import { type ActionResult, getSession, requireRole, safeErrorMessage } from "./utils";
 import { getTranslations } from "next-intl/server";
 import { DEFAULT_COUNTRY } from "@kivvi/core/src/config/locale";
 import { DEFAULT_UNIT } from "@/lib/config/products";
@@ -39,14 +34,7 @@ const bulkImportSchema = z.object({
   exportDir: z.string().min(1, "Export directory is required"),
   batchSize: z.number().int().min(1).max(10000).default(500),
   importType: z
-    .enum([
-      "all",
-      "contacts",
-      "products",
-      "documents",
-      "accounting",
-      "inventory",
-    ])
+    .enum(["all", "contacts", "products", "documents", "accounting", "inventory"])
     .default("all"),
   cleanStart: z.boolean().default(false),
 });
@@ -161,24 +149,14 @@ export async function bulkImportAction(
             SELECT id FROM documents WHERE company_id = ${companyId}
           )
         `);
-        await tx.execute(
-          sql`DELETE FROM documents WHERE company_id = ${companyId}`,
-        );
-        await tx.execute(
-          sql`DELETE FROM stock_levels WHERE company_id = ${companyId}`,
-        );
+        await tx.execute(sql`DELETE FROM documents WHERE company_id = ${companyId}`);
+        await tx.execute(sql`DELETE FROM stock_levels WHERE company_id = ${companyId}`);
         await tx.execute(sql`DELETE FROM journal_lines WHERE journal_entry_id IN (
           SELECT id FROM journal_entries WHERE company_id = ${companyId}
         )`);
-        await tx.execute(
-          sql`DELETE FROM journal_entries WHERE company_id = ${companyId}`,
-        );
-        await tx.execute(
-          sql`DELETE FROM products WHERE company_id = ${companyId}`,
-        );
-        await tx.execute(
-          sql`DELETE FROM contacts WHERE company_id = ${companyId}`,
-        );
+        await tx.execute(sql`DELETE FROM journal_entries WHERE company_id = ${companyId}`);
+        await tx.execute(sql`DELETE FROM products WHERE company_id = ${companyId}`);
+        await tx.execute(sql`DELETE FROM contacts WHERE company_id = ${companyId}`);
       });
     }
 
@@ -188,41 +166,29 @@ export async function bulkImportAction(
         // Import customers
         const customersPath = join(exportDir, "kunden_customers.csv");
         const customersCsv = readFileSync(customersPath, "utf-8");
-        const customersParsed = Papa.parse<Record<string, string>>(
-          customersCsv,
-          {
-            header: true,
-            skipEmptyLines: true,
-            transformHeader: cleanColumnName,
-          },
-        );
+        const customersParsed = Papa.parse<Record<string, string>>(customersCsv, {
+          header: true,
+          skipEmptyLines: true,
+          transformHeader: cleanColumnName,
+        });
 
         const customersToImport = customersParsed.data
           .slice(0, batchSize)
-          .filter(
-            (row: Record<string, string>) =>
-              row["Nummer"] && row["Firma / Kundenname"],
-          )
-          .map(
-            (row: Record<string, string>): Record<string, string | null> => ({
-              contactNumber: row["Nummer"],
-              name: row["Firma / Kundenname"],
-              email: row["E-Mail"] || null,
-              phone: row["Telefon"] || null,
-              type: "customer",
-              street: row["Straße"] || null,
-              city: row["Stadt"] || null,
-              postalCode: row["PLZ"] || null,
-              country: row["Land"] || DEFAULT_COUNTRY,
-              vatNumber: row["USt-IdNr."] || null,
-            }),
-          );
+          .filter((row: Record<string, string>) => row["Nummer"] && row["Firma / Kundenname"])
+          .map((row: Record<string, string>): Record<string, string | null> => ({
+            contactNumber: row["Nummer"],
+            name: row["Firma / Kundenname"],
+            email: row["E-Mail"] || null,
+            phone: row["Telefon"] || null,
+            type: "customer",
+            street: row["Straße"] || null,
+            city: row["Stadt"] || null,
+            postalCode: row["PLZ"] || null,
+            country: row["Land"] || DEFAULT_COUNTRY,
+            vatNumber: row["USt-IdNr."] || null,
+          }));
 
-        const customerResults = await bulkInsertContacts(
-          db,
-          companyId,
-          customersToImport,
-        );
+        const customerResults = await bulkInsertContacts(db, companyId, customersToImport);
         result.customersInserted = customerResults.inserted;
         result.customersSkipped = customerResults.skipped;
 
@@ -237,30 +203,21 @@ export async function bulkImportAction(
 
         const vendorsToImport = vendorsParsed.data
           .slice(0, batchSize)
-          .filter(
-            (row: Record<string, string>) =>
-              row["Nummer"] && row["Firma / Lieferantenname"],
-          )
-          .map(
-            (row: Record<string, string>): Record<string, string | null> => ({
-              contactNumber: row["Nummer"],
-              name: row["Firma / Lieferantenname"],
-              email: row["E-Mail"] || null,
-              phone: row["Telefon"] || null,
-              type: "vendor",
-              street: row["Straße"] || null,
-              city: row["Stadt"] || null,
-              postalCode: row["PLZ"] || null,
-              country: row["Land"] || DEFAULT_COUNTRY,
-              vatNumber: row["USt-IdNr."] || null,
-            }),
-          );
+          .filter((row: Record<string, string>) => row["Nummer"] && row["Firma / Lieferantenname"])
+          .map((row: Record<string, string>): Record<string, string | null> => ({
+            contactNumber: row["Nummer"],
+            name: row["Firma / Lieferantenname"],
+            email: row["E-Mail"] || null,
+            phone: row["Telefon"] || null,
+            type: "vendor",
+            street: row["Straße"] || null,
+            city: row["Stadt"] || null,
+            postalCode: row["PLZ"] || null,
+            country: row["Land"] || DEFAULT_COUNTRY,
+            vatNumber: row["USt-IdNr."] || null,
+          }));
 
-        const vendorResults = await bulkInsertContacts(
-          db,
-          companyId,
-          vendorsToImport,
-        );
+        const vendorResults = await bulkInsertContacts(db, companyId, vendorsToImport);
         result.vendorsInserted = vendorResults.inserted;
         result.vendorsSkipped = vendorResults.skipped;
       } catch {
@@ -281,28 +238,13 @@ export async function bulkImportAction(
 
         const filteredProducts = productsParsed.data
           .slice(0, batchSize)
-          .filter(
-            (row: Record<string, string>) =>
-              row["Artikelnummer"] && row["Beschreibung"],
-          );
+          .filter((row: Record<string, string>) => row["Artikelnummer"] && row["Beschreibung"]);
 
         // Extract unique group/manufacturer names and ensure they exist
-        const groupNames = filteredProducts
-          .map((r) => r["Warengruppe"])
-          .filter(Boolean);
-        const manufacturerNames = filteredProducts
-          .map((r) => r["Hersteller"])
-          .filter(Boolean);
-        const productGroupMap = await ensureProductGroups(
-          db,
-          companyId,
-          groupNames,
-        );
-        const manufacturerMap = await ensureManufacturers(
-          db,
-          companyId,
-          manufacturerNames,
-        );
+        const groupNames = filteredProducts.map((r) => r["Warengruppe"]).filter(Boolean);
+        const manufacturerNames = filteredProducts.map((r) => r["Hersteller"]).filter(Boolean);
+        const productGroupMap = await ensureProductGroups(db, companyId, groupNames);
+        const manufacturerMap = await ensureManufacturers(db, companyId, manufacturerNames);
 
         const productsToImport = filteredProducts.map(
           (row: Record<string, string>): Record<string, string | null> => ({
@@ -363,30 +305,21 @@ export async function bulkImportAction(
         });
 
         const glRows = glParsed.data
-          .filter(
-            (row) => row["Buchungsdatum"] && (row["Soll"] || row["Haben"]),
-          )
-          .map(
-            (row): Record<string, string | null> => ({
-              date: row["Buchungsdatum"] || null,
-              reference: row["Buchungsnummer"] || null,
-              description: row["Beschreibung"] || null,
-              notes: row["Bemerkungen"] || null,
-              debitAmount: parseAmount(row["Soll"]),
-              debitAccount: row["Sollkonto"] || null,
-              creditAmount: parseAmount(row["Haben"]),
-              creditAccount: row["Habenkonto"] || null,
-              voucher: row["Beleg"] || null,
-            }),
-          );
+          .filter((row) => row["Buchungsdatum"] && (row["Soll"] || row["Haben"]))
+          .map((row): Record<string, string | null> => ({
+            date: row["Buchungsdatum"] || null,
+            reference: row["Buchungsnummer"] || null,
+            description: row["Beschreibung"] || null,
+            notes: row["Bemerkungen"] || null,
+            debitAmount: parseAmount(row["Soll"]),
+            debitAccount: row["Sollkonto"] || null,
+            creditAmount: parseAmount(row["Haben"]),
+            creditAccount: row["Habenkonto"] || null,
+            voucher: row["Beleg"] || null,
+          }));
 
         const accountCodeMap = await buildAccountCodeMap(db, companyId);
-        const glResults = await bulkInsertJournalEntries(
-          db,
-          companyId,
-          glRows,
-          accountCodeMap,
-        );
+        const glResults = await bulkInsertJournalEntries(db, companyId, glRows, accountCodeMap);
         result.journalEntriesInserted = glResults.inserted;
         result.journalEntriesSkipped = glResults.skipped;
       } catch {
@@ -407,15 +340,13 @@ export async function bulkImportAction(
 
         const stockRows = stockParsed.data
           .filter((row) => row["Artikelnummer"] && row["Menge"])
-          .map(
-            (row): Record<string, string | null> => ({
-              articleNumber: row["Artikelnummer"] || null,
-              quantity: parseAmount(row["Menge"]),
-              warehouse: row["Lager"] || null,
-              location: row["Lagerplatz"] || null,
-              productName: row["Artikelbeschreibung"] || null,
-            }),
-          );
+          .map((row): Record<string, string | null> => ({
+            articleNumber: row["Artikelnummer"] || null,
+            quantity: parseAmount(row["Menge"]),
+            warehouse: row["Lager"] || null,
+            location: row["Lagerplatz"] || null,
+            productName: row["Artikelbeschreibung"] || null,
+          }));
 
         const { warehouses } = await import("@kivvi/database");
         const [defaultWarehouse] = await db

@@ -41,11 +41,7 @@ export function ToggleButton({ accountId, isActive }: ToggleButtonProps) {
             : "text-success hover:bg-success/10 dark:hover:bg-success/20"
         }`}
       >
-        {isPending ? (
-          <Loader2 className="h-3 w-3 animate-spin" />
-        ) : (
-          <Power className="h-3 w-3" />
-        )}
+        {isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Power className="h-3 w-3" />}
         {isActive ? tc("inactive") : tc("active")}
       </button>
       {error && (

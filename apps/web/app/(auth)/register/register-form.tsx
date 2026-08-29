@@ -130,11 +130,7 @@ export function RegisterForm({ prefillEmail, callbackUrl }: RegisterFormProps) {
 
       {error && (
         <div className="mb-4 flex items-center gap-2 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
-          <svg
-            className="h-4 w-4 shrink-0"
-            viewBox="0 0 16 16"
-            fill="currentColor"
-          >
+          <svg className="h-4 w-4 shrink-0" viewBox="0 0 16 16" fill="currentColor">
             <path
               fillRule="evenodd"
               d="M8 15A7 7 0 108 1a7 7 0 000 14zM8 4a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 018 4zm0 8a1 1 0 100-2 1 1 0 000 2z"
@@ -165,10 +161,7 @@ export function RegisterForm({ prefillEmail, callbackUrl }: RegisterFormProps) {
 
           {mode === "new" && (
             <div>
-              <label
-                htmlFor="companyName"
-                className="mb-1.5 block text-sm font-medium"
-              >
+              <label htmlFor="companyName" className="mb-1.5 block text-sm font-medium">
                 {t("companyName")}
               </label>
               <input
@@ -182,9 +175,7 @@ export function RegisterForm({ prefillEmail, callbackUrl }: RegisterFormProps) {
                 autoComplete="organization"
                 className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/20"
               />
-              <p className="mt-1.5 text-xs text-muted-foreground">
-                {t("companyNameHint")}
-              </p>
+              <p className="mt-1.5 text-xs text-muted-foreground">{t("companyNameHint")}</p>
             </div>
           )}
         </div>
@@ -207,10 +198,7 @@ export function RegisterForm({ prefillEmail, callbackUrl }: RegisterFormProps) {
         </div>
 
         <div>
-          <label
-            htmlFor="password"
-            className="mb-1.5 block text-sm font-medium"
-          >
+          <label htmlFor="password" className="mb-1.5 block text-sm font-medium">
             {t("password")}
           </label>
           <div className="relative">
@@ -233,16 +221,10 @@ export function RegisterForm({ prefillEmail, callbackUrl }: RegisterFormProps) {
               tabIndex={-1}
               aria-label={showPassword ? t("hidePassword") : t("showPassword")}
             >
-              {showPassword ? (
-                <EyeOff className="h-4 w-4" />
-              ) : (
-                <Eye className="h-4 w-4" />
-              )}
+              {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
-          <p className="mt-1.5 text-xs text-muted-foreground">
-            {t("passwordMinLength")}
-          </p>
+          <p className="mt-1.5 text-xs text-muted-foreground">{t("passwordMinLength")}</p>
         </div>
 
         <Button type="submit" disabled={isLoading} className="w-full shadow-sm">
@@ -253,10 +235,7 @@ export function RegisterForm({ prefillEmail, callbackUrl }: RegisterFormProps) {
 
       <div className="mt-6 text-center text-sm text-muted-foreground">
         {t("hasAccount")}{" "}
-        <Link
-          href="/login"
-          className="font-medium text-primary hover:underline"
-        >
+        <Link href="/login" className="font-medium text-primary hover:underline">
           {t("signIn")}
         </Link>
       </div>

@@ -9,10 +9,7 @@ import { users } from "@kivvi/database";
 import { listInventoryItems } from "@kivvi/core";
 import { PageHeader } from "@/components/page-header";
 import { cn, formatCurrency } from "@/lib/utils";
-import {
-  getConditionStyle,
-  getConditionLabelKey,
-} from "@/lib/config/inventory-items";
+import { getConditionStyle, getConditionLabelKey } from "@/lib/config/inventory-items";
 import { PIPELINE_THRESHOLDS } from "@kivvi/core/src/config/pipeline-thresholds";
 import { RepairQueueAssignButton } from "@/components/inventory/repair-queue-assign-button";
 import { RepairQueueDoneButton } from "@/components/inventory/repair-queue-done-button";
@@ -23,10 +20,8 @@ function daysAgo(date: Date | string): number {
 }
 
 function ageClass(days: number): string {
-  if (days >= PIPELINE_THRESHOLDS.repair.alert)
-    return "text-destructive font-semibold";
-  if (days >= PIPELINE_THRESHOLDS.repair.warn)
-    return "text-warning font-medium";
+  if (days >= PIPELINE_THRESHOLDS.repair.alert) return "text-destructive font-semibold";
+  if (days >= PIPELINE_THRESHOLDS.repair.warn) return "text-warning font-medium";
   return "text-muted-foreground";
 }
 
@@ -53,12 +48,8 @@ export default async function RepairQueuePage() {
     label: u.name ?? u.id,
   }));
 
-  const unassignedItems = allRepairResult.data.filter(
-    (item) => item.assignedToUserId === null,
-  );
-  const assignedItems = allRepairResult.data.filter(
-    (item) => item.assignedToUserId !== null,
-  );
+  const unassignedItems = allRepairResult.data.filter((item) => item.assignedToUserId === null);
+  const assignedItems = allRepairResult.data.filter((item) => item.assignedToUserId !== null);
 
   return (
     <div className="space-y-6">
@@ -106,9 +97,7 @@ export default async function RepairQueuePage() {
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-sm font-medium">
-                            {item.itemNumber}
-                          </span>
+                          <span className="text-sm font-medium">{item.itemNumber}</span>
                           <span
                             className={cn(
                               "rounded-full px-2 py-0.5 text-xs font-medium",
@@ -126,12 +115,11 @@ export default async function RepairQueuePage() {
                         <span className={cn("text-xs", ageClass(days))}>
                           {ti("ageInRepair", { days })}
                         </span>
-                        {item.effectiveCost &&
-                          new Decimal(item.effectiveCost).gt(0) && (
-                            <p className="text-xs text-muted-foreground">
-                              {formatCurrency(item.effectiveCost)}
-                            </p>
-                          )}
+                        {item.effectiveCost && new Decimal(item.effectiveCost).gt(0) && (
+                          <p className="text-xs text-muted-foreground">
+                            {formatCurrency(item.effectiveCost)}
+                          </p>
+                        )}
                       </div>
                       <div className="relative z-10">
                         <RepairQueueDoneButton itemId={item.id} />
@@ -175,9 +163,7 @@ export default async function RepairQueuePage() {
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-sm font-medium">
-                            {item.itemNumber}
-                          </span>
+                          <span className="text-sm font-medium">{item.itemNumber}</span>
                           <span
                             className={cn(
                               "rounded-full px-2 py-0.5 text-xs font-medium",
@@ -195,12 +181,11 @@ export default async function RepairQueuePage() {
                         <span className={cn("text-xs", ageClass(days))}>
                           {ti("ageInRepair", { days })}
                         </span>
-                        {item.effectiveCost &&
-                          new Decimal(item.effectiveCost).gt(0) && (
-                            <p className="text-xs text-muted-foreground">
-                              {formatCurrency(item.effectiveCost)}
-                            </p>
-                          )}
+                        {item.effectiveCost && new Decimal(item.effectiveCost).gt(0) && (
+                          <p className="text-xs text-muted-foreground">
+                            {formatCurrency(item.effectiveCost)}
+                          </p>
+                        )}
                       </div>
                       <div className="relative z-10">
                         <RepairQueueDoneButton itemId={item.id} />

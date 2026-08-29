@@ -1,16 +1,8 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
-import {
-  authenticateApi,
-  apiError,
-  apiSuccess,
-  apiZodError,
-} from "@/lib/api-handler";
+import { authenticateApi, apiError, apiSuccess, apiZodError } from "@/lib/api-handler";
 import { withIdempotency } from "@/lib/api-idempotency";
-import {
-  recordServiceSale,
-  recordServiceSaleSchema,
-} from "@kivvi/core/src/domain/service-sales";
+import { recordServiceSale, recordServiceSaleSchema } from "@kivvi/core/src/domain/service-sales";
 
 /**
  * POST /api/v1/services/sales
@@ -37,19 +29,11 @@ export async function POST(request: NextRequest) {
         return apiZodError(parsed.error, "body");
       }
 
-      const result = await recordServiceSale(
-        db,
-        ctx.companyId,
-        ctx.userId,
-        parsed.data,
-      );
+      const result = await recordServiceSale(db, ctx.companyId, ctx.userId, parsed.data);
 
       return apiSuccess(result);
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Failed to record service sale";
+      const message = error instanceof Error ? error.message : "Failed to record service sale";
       return apiError(message, 400);
     }
   });

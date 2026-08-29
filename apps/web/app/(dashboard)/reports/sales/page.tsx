@@ -24,12 +24,7 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
   const startDate = (params.start as string) || `${now.getFullYear()}-01-01`;
   const endDate = (params.end as string) || `${now.getFullYear()}-12-31`;
 
-  const report = await getSalesReport(
-    db,
-    session.user.companyId,
-    startDate,
-    endDate,
-  );
+  const report = await getSalesReport(db, session.user.companyId, startDate, endDate);
 
   const hasData = report.rows.length > 0;
 
@@ -82,9 +77,7 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  <th className="sticky left-0 bg-card px-4 py-3 md:px-6">
-                    {t("month")}
-                  </th>
+                  <th className="sticky left-0 bg-card px-4 py-3 md:px-6">{t("month")}</th>
                   <th className="hidden px-4 py-3 text-right md:table-cell md:px-6">
                     {t("invoiceCount")}
                   </th>
@@ -100,9 +93,7 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
                   <th className="hidden px-4 py-3 text-right md:table-cell md:px-6">
                     {tc("amount")}
                   </th>
-                  <th className="px-4 py-3 text-right md:px-6">
-                    {t("netRevenue")}
-                  </th>
+                  <th className="px-4 py-3 text-right md:px-6">{t("netRevenue")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
@@ -130,9 +121,7 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
                     </td>
                     <td
                       className={`px-4 py-3 text-right font-medium md:px-6 ${
-                        Number(row.netRevenue) >= 0
-                          ? "text-success"
-                          : "text-destructive"
+                        Number(row.netRevenue) >= 0 ? "text-success" : "text-destructive"
                       }`}
                     >
                       {formatCurrency(row.netRevenue)}
@@ -142,9 +131,7 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
               </tbody>
               <tfoot>
                 <tr className="border-t-2 font-semibold">
-                  <td className="sticky left-0 bg-card px-4 py-3 md:px-6">
-                    {tc("totals")}
-                  </td>
+                  <td className="sticky left-0 bg-card px-4 py-3 md:px-6">{tc("totals")}</td>
                   <td className="hidden px-4 py-3 text-right text-muted-foreground md:table-cell md:px-6">
                     {report.totals.invoiceCount}
                   </td>
@@ -155,9 +142,7 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
                     {formatCurrency(report.totals.vatAmount)}
                   </td>
                   <td className="hidden px-4 py-3 text-right text-muted-foreground md:table-cell md:px-6">
-                    {report.totals.creditNoteCount > 0
-                      ? report.totals.creditNoteCount
-                      : "-"}
+                    {report.totals.creditNoteCount > 0 ? report.totals.creditNoteCount : "-"}
                   </td>
                   <td className="hidden px-4 py-3 text-right text-destructive md:table-cell md:px-6">
                     {Number(report.totals.creditNoteAmount) > 0
@@ -166,9 +151,7 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
                   </td>
                   <td
                     className={`px-4 py-3 text-right text-lg md:px-6 ${
-                      Number(report.totals.netRevenue) >= 0
-                        ? "text-success"
-                        : "text-destructive"
+                      Number(report.totals.netRevenue) >= 0 ? "text-success" : "text-destructive"
                     }`}
                   >
                     {formatCurrency(report.totals.netRevenue)}
@@ -185,9 +168,7 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
                 <LayoutGrid className="h-5 w-5 text-primary" />
                 <div>
                   <h2 className="font-semibold">{t("salesByCategory")}</h2>
-                  <p className="text-xs text-muted-foreground">
-                    {t("salesByCategoryDesc")}
-                  </p>
+                  <p className="text-xs text-muted-foreground">{t("salesByCategoryDesc")}</p>
                 </div>
               </div>
               <div className="overflow-x-auto">
@@ -198,12 +179,8 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
                       <th className="hidden px-4 py-3 text-right sm:table-cell md:px-6">
                         {t("categoryItems")}
                       </th>
-                      <th className="px-4 py-3 text-right md:px-6">
-                        {t("categoryRevenue")}
-                      </th>
-                      <th className="px-4 py-3 text-right md:px-6">
-                        {t("categoryShare")}
-                      </th>
+                      <th className="px-4 py-3 text-right md:px-6">{t("categoryRevenue")}</th>
+                      <th className="px-4 py-3 text-right md:px-6">{t("categoryShare")}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
@@ -228,9 +205,7 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
                                 style={{ width: `${row.percentage}%` }}
                               />
                             </div>
-                            <span className="tabular-nums">
-                              {row.percentage}%
-                            </span>
+                            <span className="tabular-nums">{row.percentage}%</span>
                           </div>
                         </td>
                       </tr>
@@ -248,17 +223,13 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
                 <p className="text-sm text-muted-foreground">
                   {ta("revenue")} {tc("total")}
                 </p>
-                <p className="mt-1 text-xl font-bold">
-                  {formatCurrency(report.totals.revenue)}
-                </p>
+                <p className="mt-1 text-xl font-bold">{formatCurrency(report.totals.revenue)}</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">
                   {t("fromInvoices", { count: report.totals.invoiceCount })}
                 </p>
               </div>
               <div className="rounded-lg border bg-background p-4">
-                <p className="text-sm text-muted-foreground">
-                  {t("creditNoteCount")}
-                </p>
+                <p className="text-sm text-muted-foreground">{t("creditNoteCount")}</p>
                 <p className="mt-1 text-xl font-bold text-destructive">
                   {Number(report.totals.creditNoteAmount) > 0
                     ? `- ${formatCurrency(report.totals.creditNoteAmount)}`
@@ -271,14 +242,10 @@ export default async function SalesReportPage({ searchParams }: PageProps) {
                 </p>
               </div>
               <div className="rounded-lg border-2 border-primary/20 bg-primary/5 p-4">
-                <p className="text-sm font-medium text-muted-foreground">
-                  {t("netRevenue")}
-                </p>
+                <p className="text-sm font-medium text-muted-foreground">{t("netRevenue")}</p>
                 <p
                   className={`mt-1 text-2xl font-bold ${
-                    Number(report.totals.netRevenue) >= 0
-                      ? "text-success"
-                      : "text-destructive"
+                    Number(report.totals.netRevenue) >= 0 ? "text-success" : "text-destructive"
                   }`}
                 >
                   {formatCurrency(report.totals.netRevenue)}

@@ -9,10 +9,7 @@ interface ProductExportButtonProps {
   filters?: { search?: string };
 }
 
-export function ProductExportButton({
-  totalCount,
-  filters,
-}: ProductExportButtonProps) {
+export function ProductExportButton({ totalCount, filters }: ProductExportButtonProps) {
   const t = useTranslations("common");
   return (
     <CsvExportButton

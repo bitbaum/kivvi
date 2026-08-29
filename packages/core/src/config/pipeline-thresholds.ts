@@ -18,6 +18,4 @@ export const PIPELINE_THRESHOLDS = {
 
 export type PipelineStatus = keyof typeof PIPELINE_THRESHOLDS;
 
-export const PIPELINE_STATUSES = Object.keys(
-  PIPELINE_THRESHOLDS,
-) as PipelineStatus[];
+export const PIPELINE_STATUSES = Object.keys(PIPELINE_THRESHOLDS) as PipelineStatus[];

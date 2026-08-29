@@ -31,10 +31,7 @@ interface ItemSpecsEditorProps {
   inputName?: string;
 }
 
-export function ItemSpecsEditor({
-  initialSpecs,
-  inputName = "specs",
-}: ItemSpecsEditorProps) {
+export function ItemSpecsEditor({ initialSpecs, inputName = "specs" }: ItemSpecsEditorProps) {
   const t = useTranslations("inventory");
   const [rows, setRows] = useState<SpecRow[]>(() => {
     if (!initialSpecs || Object.keys(initialSpecs).length === 0) return [];
@@ -43,19 +40,14 @@ export function ItemSpecsEditor({
 
   const addRow = () => setRows((prev) => [...prev, { key: "", value: "" }]);
 
-  const removeRow = (idx: number) =>
-    setRows((prev) => prev.filter((_, i) => i !== idx));
+  const removeRow = (idx: number) => setRows((prev) => prev.filter((_, i) => i !== idx));
 
   const updateRow = (idx: number, field: "key" | "value", val: string) =>
-    setRows((prev) =>
-      prev.map((r, i) => (i === idx ? { ...r, [field]: val } : r)),
-    );
+    setRows((prev) => prev.map((r, i) => (i === idx ? { ...r, [field]: val } : r)));
 
   // Serialize non-empty rows to JSON for form submission
   const specsJson = JSON.stringify(
-    Object.fromEntries(
-      rows.filter((r) => r.key.trim()).map((r) => [r.key.trim(), r.value]),
-    ),
+    Object.fromEntries(rows.filter((r) => r.key.trim()).map((r) => [r.key.trim(), r.value])),
   );
 
   return (

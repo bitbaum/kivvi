@@ -177,11 +177,7 @@ export function RepairIntakeForm() {
           {programKey && (
             <div>
               <label className={labelCls}>{t("bonusCode")}</label>
-              <input
-                className={inputCls}
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-              />
+              <input className={inputCls} value={code} onChange={(e) => setCode(e.target.value)} />
             </div>
           )}
         </div>

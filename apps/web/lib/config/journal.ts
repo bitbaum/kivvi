@@ -9,7 +9,7 @@ export const SOURCE_TYPE_STYLES: Record<string, string> = {
 };
 
 /** Source type values (SSOT). */
-export const SOURCE_TYPES = ['manual', 'invoice', 'payment'] as const;
+export const SOURCE_TYPES = ["manual", "invoice", "payment"] as const;
 
 /** Build translated source type labels from SOURCE_TYPES (SSOT). */
 export function getSourceTypeLabels(t: (key: string) => string): Record<string, string> {

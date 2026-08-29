@@ -1,10 +1,4 @@
-import {
-  BookOpen,
-  MessageSquare,
-  Keyboard,
-  Mail,
-  ExternalLink,
-} from "lucide-react";
+import { BookOpen, MessageSquare, Keyboard, Mail, ExternalLink } from "lucide-react";
 import { getSessionOrRedirect } from "@/lib/session";
 import { getTranslations } from "next-intl/server";
 
@@ -43,9 +37,7 @@ export default async function HelpPage() {
             <MessageSquare className="h-5 w-5 text-muted-foreground" />
           </div>
           <h2 className="mt-4 font-semibold">{t("aiAssistant")}</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {t("aiAssistantDesc")}
-          </p>
+          <p className="mt-1 text-sm text-muted-foreground">{t("aiAssistantDesc")}</p>
         </div>
 
         <div className="rounded-xl border bg-card p-6">
@@ -53,9 +45,7 @@ export default async function HelpPage() {
             <BookOpen className="h-5 w-5 text-muted-foreground" />
           </div>
           <h2 className="mt-4 font-semibold">{t("gettingStarted")}</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {t("gettingStartedDesc")}
-          </p>
+          <p className="mt-1 text-sm text-muted-foreground">{t("gettingStartedDesc")}</p>
         </div>
 
         <div className="rounded-xl border bg-card p-6">
@@ -65,10 +55,7 @@ export default async function HelpPage() {
           <h2 className="mt-4 font-semibold">{t("support")}</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {t("supportDesc")}{" "}
-            <a
-              href="mailto:support@revamp-it.ch"
-              className="text-primary hover:underline"
-            >
+            <a href="mailto:support@revamp-it.ch" className="text-primary hover:underline">
               support@revamp-it.ch
             </a>
           </p>
@@ -88,9 +75,7 @@ export default async function HelpPage() {
               <kbd className="inline-flex h-7 min-w-[28px] items-center justify-center rounded border bg-muted px-2 font-mono text-xs">
                 {shortcut.keys}
               </kbd>
-              <span className="text-sm text-muted-foreground">
-                {shortcut.description}
-              </span>
+              <span className="text-sm text-muted-foreground">{shortcut.description}</span>
             </div>
           ))}
         </div>

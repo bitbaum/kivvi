@@ -36,10 +36,7 @@ export function SendAndMarkButton({
 
       // Step 2: Send email if contact has email
       if (contactEmail) {
-        const emailResult = await sendDocumentEmailAction(
-          documentId,
-          contactEmail,
-        );
+        const emailResult = await sendDocumentEmailAction(documentId, contactEmail);
         if (emailResult.success) {
           toast.success(t("sentAndEmailed"));
         } else {
@@ -61,11 +58,7 @@ export function SendAndMarkButton({
       disabled={isPending}
       className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 min-h-[44px] disabled:opacity-50"
     >
-      {isPending ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
-      ) : (
-        <Send className="h-4 w-4" />
-      )}
+      {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
       {t("sendDocument")}
     </button>
   );

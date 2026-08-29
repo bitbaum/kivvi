@@ -150,16 +150,12 @@ export async function updateProject(
 
   const updates: Record<string, unknown> = { updatedAt: new Date() };
   if (validated.name !== undefined) updates.name = validated.name;
-  if (validated.description !== undefined)
-    updates.description = validated.description || null;
-  if (validated.contactId !== undefined)
-    updates.contactId = validated.contactId || null;
+  if (validated.description !== undefined) updates.description = validated.description || null;
+  if (validated.contactId !== undefined) updates.contactId = validated.contactId || null;
   if (validated.status !== undefined) updates.status = validated.status;
   if (validated.budget !== undefined) updates.budget = validated.budget || null;
-  if (validated.startDate !== undefined)
-    updates.startDate = validated.startDate || null;
-  if (validated.endDate !== undefined)
-    updates.endDate = validated.endDate || null;
+  if (validated.startDate !== undefined) updates.startDate = validated.startDate || null;
+  if (validated.endDate !== undefined) updates.endDate = validated.endDate || null;
   if (validated.isActive !== undefined) updates.isActive = validated.isActive;
 
   const [project] = await db
@@ -199,12 +195,7 @@ export async function getProjectDocuments(
     })
     .from(documents)
     .leftJoin(contacts, eq(documents.contactId, contacts.id))
-    .where(
-      and(
-        eq(documents.projectId, projectId),
-        eq(documents.companyId, companyId),
-      ),
-    )
+    .where(and(eq(documents.projectId, projectId), eq(documents.companyId, companyId)))
     .orderBy(desc(documents.issueDate));
 
   return rows.map((r) => ({
@@ -229,12 +220,7 @@ export async function getProjectSummary(
       totalInvoiced: sql<number>`COALESCE(SUM(CASE WHEN ${documents.type} = 'invoice' THEN CAST(${documents.total} AS DECIMAL) ELSE 0 END), 0)`,
     })
     .from(documents)
-    .where(
-      and(
-        eq(documents.projectId, projectId),
-        eq(documents.companyId, companyId),
-      ),
-    );
+    .where(and(eq(documents.projectId, projectId), eq(documents.companyId, companyId)));
 
   return {
     totalDocuments: stats.totalDocuments,

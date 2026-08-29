@@ -9,9 +9,7 @@ import { getChecklistTemplate } from "@kivvi/core/src/config/checklist-templates
 import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
 
 function formatCo2(kg: number, locale: string): string {
-  return kg >= 1000
-    ? `${(kg / 1000).toFixed(1)} t`
-    : `${kg.toLocaleString(locale)} kg`;
+  return kg >= 1000 ? `${(kg / 1000).toFixed(1)} t` : `${kg.toLocaleString(locale)} kg`;
 }
 
 export async function ImpactOverview() {
@@ -33,14 +31,8 @@ export async function ImpactOverview() {
 
   if (allTime.itemsProcessed === 0) return null;
 
-  const monthCo2Display = formatCo2(
-    Number(metricsThisMonth.co2AvoidedKg),
-    DEFAULT_LOCALE,
-  );
-  const allTimeCo2Display = formatCo2(
-    Number(allTime.co2AvoidedKg),
-    DEFAULT_LOCALE,
-  );
+  const monthCo2Display = formatCo2(Number(metricsThisMonth.co2AvoidedKg), DEFAULT_LOCALE);
+  const allTimeCo2Display = formatCo2(Number(allTime.co2AvoidedKg), DEFAULT_LOCALE);
 
   const topCategories = allTime.co2ByCategory.slice(0, 3);
 
@@ -49,9 +41,7 @@ export async function ImpactOverview() {
       <div className="flex items-center justify-between">
         <div className="flex items-baseline gap-2">
           <h2 className="text-lg font-semibold">{ti("impact")}</h2>
-          <span className="text-sm text-muted-foreground">
-            — {ti("thisMonth")}
-          </span>
+          <span className="text-sm text-muted-foreground">— {ti("thisMonth")}</span>
         </div>
         <Link
           href="/reports/impact"
@@ -67,12 +57,9 @@ export async function ImpactOverview() {
             <Recycle className="h-5 w-5" />
             <span className="text-xs font-medium">{ti("itemsReused")}</span>
           </div>
-          <div className="text-2xl font-bold">
-            {metricsThisMonth.itemsReused}
-          </div>
+          <div className="text-2xl font-bold">{metricsThisMonth.itemsReused}</div>
           <p className="mt-1 text-xs text-muted-foreground">
-            {allTime.itemsReused} {ti("allTime")} · {allTime.reuseRatePercent}%{" "}
-            {ti("reuseRate")}
+            {allTime.itemsReused} {ti("allTime")} · {allTime.reuseRatePercent}% {ti("reuseRate")}
           </p>
         </div>
 
@@ -95,16 +82,9 @@ export async function ImpactOverview() {
           {topCategories.length > 0 ? (
             <div className="space-y-1.5 mt-1">
               {topCategories.map((cat) => (
-                <div
-                  key={cat.category}
-                  className="flex items-center justify-between text-xs"
-                >
+                <div key={cat.category} className="flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">
-                    {tck(
-                      getChecklistTemplate(cat.category).labelKey as Parameters<
-                        typeof tck
-                      >[0],
-                    )}
+                    {tck(getChecklistTemplate(cat.category).labelKey as Parameters<typeof tck>[0])}
                   </span>
                   <span className="font-medium tabular-nums">
                     {Number(cat.co2TotalKg) >= 1000

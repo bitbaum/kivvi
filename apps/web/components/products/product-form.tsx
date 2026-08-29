@@ -5,10 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import {
-  createProductAction,
-  updateProductAction,
-} from "@/app/actions/products";
+import { createProductAction, updateProductAction } from "@/app/actions/products";
 import type { Product } from "@kivvi/database";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -19,9 +16,7 @@ import {
   ProductFormVisibilitySection,
 } from "./product-form-sections";
 
-type ProductFormProps =
-  | { mode: "create"; product?: never }
-  | { mode: "edit"; product: Product };
+type ProductFormProps = { mode: "create"; product?: never } | { mode: "edit"; product: Product };
 
 export function ProductForm({ mode, product }: ProductFormProps) {
   const router = useRouter();
@@ -75,9 +70,7 @@ export function ProductForm({ mode, product }: ProductFormProps) {
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <div>
-          <h1 className="text-3xl font-bold">
-            {isEdit ? t("editProduct") : t("newProduct")}
-          </h1>
+          <h1 className="text-3xl font-bold">{isEdit ? t("editProduct") : t("newProduct")}</h1>
           <p className="text-muted-foreground">
             {isEdit
               ? `${product.name}${product.articleNumber ? ` (${product.articleNumber})` : ""}`
@@ -120,9 +113,7 @@ export function ProductForm({ mode, product }: ProductFormProps) {
             disabled={isSubmitting}
             className={cn(
               "inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground transition-colors",
-              isSubmitting
-                ? "cursor-not-allowed opacity-70"
-                : "hover:bg-primary/90",
+              isSubmitting ? "cursor-not-allowed opacity-70" : "hover:bg-primary/90",
             )}
           >
             {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}

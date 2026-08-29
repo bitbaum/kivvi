@@ -53,9 +53,7 @@ export function PosPaymentPanel({
     <div className="flex w-72 shrink-0 flex-col gap-4">
       <div className="rounded-xl border bg-card p-6 text-center">
         <p className="text-sm text-muted-foreground">{tc("total")}</p>
-        <p className="mt-2 text-4xl font-bold tabular-nums">
-          {formatCurrency(total)}
-        </p>
+        <p className="mt-2 text-4xl font-bold tabular-nums">{formatCurrency(total)}</p>
         <p className="mt-1 text-xs text-muted-foreground">
           {cartCount} {cartCount === 1 ? tc("item") : tc("items")}
         </p>

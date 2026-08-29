@@ -5,10 +5,7 @@
  * Every UI component imports from here — no hardcoded maps elsewhere.
  */
 
-import {
-  ITEM_STATUS_VALUES,
-  ITEM_CONDITION_VALUES,
-} from "@kivvi/database/src/enums";
+import { ITEM_STATUS_VALUES, ITEM_CONDITION_VALUES } from "@kivvi/database/src/enums";
 import { ITEM_STATUS_TRANSITIONS } from "@kivvi/core/src/config/item-transitions";
 import { SELLABLE_ITEM_STATUSES } from "@kivvi/core/src/config/item-status-sets";
 
@@ -78,8 +75,7 @@ const _statusConfig = {
   },
 } satisfies Record<ItemStatusValue, ItemStatusConfig>;
 
-export const ITEM_STATUS_CONFIG: Record<string, ItemStatusConfig | undefined> =
-  _statusConfig;
+export const ITEM_STATUS_CONFIG: Record<string, ItemStatusConfig | undefined> = _statusConfig;
 
 // Re-export from core SSOT — same set as PIPELINE_ITEM_STATUSES.
 export { PIPELINE_ITEM_STATUSES as PIPELINE_STATUSES } from "@kivvi/core/src/config/item-status-sets";
@@ -148,10 +144,8 @@ const _conditionConfig = {
   },
 } satisfies Record<ItemConditionValue, ItemConditionConfig>;
 
-export const ITEM_CONDITION_CONFIG: Record<
-  string,
-  ItemConditionConfig | undefined
-> = _conditionConfig;
+export const ITEM_CONDITION_CONFIG: Record<string, ItemConditionConfig | undefined> =
+  _conditionConfig;
 
 // ============================================================================
 // SELLABLE STATUSES — items that can appear on an invoice
@@ -171,9 +165,7 @@ export function getStatusStyle(status: string): string {
 
 /** Get condition style or fallback */
 export function getConditionStyle(condition: string): string {
-  return (
-    ITEM_CONDITION_CONFIG[condition]?.style || "bg-neutral/10 text-neutral"
-  );
+  return ITEM_CONDITION_CONFIG[condition]?.style || "bg-neutral/10 text-neutral";
 }
 
 /** Get label key for a status. Use with t(getStatusLabelKey(status)) */
@@ -188,29 +180,19 @@ export function getConditionLabelKey(condition: string): string {
 
 /** Get valid next statuses for a given status (SSOT: packages/core/src/config/item-transitions.ts) */
 export function getValidTransitions(status: string): string[] {
-  return (
-    ITEM_STATUS_TRANSITIONS[status as keyof typeof ITEM_STATUS_TRANSITIONS] ||
-    []
-  );
+  return ITEM_STATUS_TRANSITIONS[status as keyof typeof ITEM_STATUS_TRANSITIONS] || [];
 }
 
 /** Build translated status labels (for dropdowns etc.) */
-export function getStatusLabels(
-  t: (key: string) => string,
-): Record<string, string> {
+export function getStatusLabels(t: (key: string) => string): Record<string, string> {
   return Object.fromEntries(
     ITEM_STATUS_VALUES.map((s) => [s, t(ITEM_STATUS_CONFIG[s]?.labelKey || s)]),
   );
 }
 
 /** Build translated condition labels */
-export function getConditionLabels(
-  t: (key: string) => string,
-): Record<string, string> {
+export function getConditionLabels(t: (key: string) => string): Record<string, string> {
   return Object.fromEntries(
-    ITEM_CONDITION_VALUES.map((c) => [
-      c,
-      t(ITEM_CONDITION_CONFIG[c]?.labelKey || c),
-    ]),
+    ITEM_CONDITION_VALUES.map((c) => [c, t(ITEM_CONDITION_CONFIG[c]?.labelKey || c)]),
   );
 }

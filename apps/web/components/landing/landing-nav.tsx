@@ -3,14 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Menu,
-  X,
-  ChevronDown,
-  Recycle,
-  ArrowRight,
-  BookOpen,
-} from "lucide-react";
+import { Menu, X, ChevronDown, Recycle, ArrowRight, BookOpen } from "lucide-react";
 import { VERTICAL_ICONS } from "./vertical-icons";
 import { Button } from "@/components/ui/button";
 import { MobileNavPanel } from "./mobile-nav-panel";
@@ -113,12 +106,10 @@ export function LandingNav({
     return () => document.removeEventListener("keydown", onKeyDown);
   }, []);
 
-  const isActive = (href: string) =>
-    pathname === href || pathname.startsWith(href + "/");
+  const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
 
   const isVerticalActive = verticals.some((v) => isActive(v.href));
-  const isWissenActive =
-    isActive("/knowledge") || isActive("/circular-economy");
+  const isWissenActive = isActive("/knowledge") || isActive("/circular-economy");
 
   return (
     <>
@@ -163,9 +154,7 @@ export function LandingNav({
                           {Icon && <Icon className="h-4 w-4" />}
                         </div>
                         <div>
-                          <div className="text-sm font-medium leading-snug">
-                            {v.title}
-                          </div>
+                          <div className="text-sm font-medium leading-snug">{v.title}</div>
                           <div className="mt-0.5 text-xs text-muted-foreground leading-snug">
                             {v.description}
                           </div>

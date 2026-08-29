@@ -1,16 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Key,
-  Plus,
-  Loader2,
-  Copy,
-  Check,
-  Trash2,
-  Ban,
-  Code2,
-} from "lucide-react";
+import { Key, Plus, Loader2, Copy, Check, Trash2, Ban, Code2 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import { formatDate } from "@/lib/utils";
@@ -73,9 +64,7 @@ export function ApiTokensPanel({ initialTokens }: { initialTokens: Token[] }) {
     if (!confirm(t("confirmRevoke"))) return;
     const result = await revokeApiTokenAction(tokenId);
     if (result.success) {
-      setTokens((prev) =>
-        prev.map((t) => (t.id === tokenId ? { ...t, isActive: false } : t)),
-      );
+      setTokens((prev) => prev.map((t) => (t.id === tokenId ? { ...t, isActive: false } : t)));
       toast.success(t("revoked"));
     } else {
       toast.error(result.error || tc("error"));
@@ -106,9 +95,7 @@ export function ApiTokensPanel({ initialTokens }: { initialTokens: Token[] }) {
       {/* Created token display */}
       {createdToken && (
         <div className="rounded-xl border border-success/20 bg-success/5 p-6">
-          <h3 className="mb-2 font-semibold text-success">
-            {t("tokenCreatedDesc")}
-          </h3>
+          <h3 className="mb-2 font-semibold text-success">{t("tokenCreatedDesc")}</h3>
           <div className="flex items-center gap-2">
             <code className="flex-1 rounded-lg bg-white px-4 py-2 font-mono text-sm dark:bg-black/20">
               {createdToken}
@@ -117,11 +104,7 @@ export function ApiTokensPanel({ initialTokens }: { initialTokens: Token[] }) {
               onClick={handleCopy}
               className="flex items-center gap-1 rounded-lg border px-3 py-2 text-sm font-medium hover:bg-muted/50"
             >
-              {copied ? (
-                <Check className="h-4 w-4 text-success" />
-              ) : (
-                <Copy className="h-4 w-4" />
-              )}
+              {copied ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
               {copied ? t("copied") : t("copyToken")}
             </button>
           </div>
@@ -139,10 +122,7 @@ export function ApiTokensPanel({ initialTokens }: { initialTokens: Token[] }) {
         <div className="rounded-xl border bg-card p-6">
           <div className="flex items-end gap-3">
             <div className="flex-1">
-              <label
-                htmlFor="new-token-name"
-                className="mb-1.5 block text-sm font-medium"
-              >
+              <label htmlFor="new-token-name" className="mb-1.5 block text-sm font-medium">
                 {t("tokenName")}
               </label>
               <input
@@ -189,17 +169,12 @@ export function ApiTokensPanel({ initialTokens }: { initialTokens: Token[] }) {
         <div className="rounded-xl border bg-card p-8 text-center">
           <Key className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
           <p className="font-medium">{t("noTokens")}</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {t("noTokensDesc")}
-          </p>
+          <p className="mt-1 text-sm text-muted-foreground">{t("noTokensDesc")}</p>
         </div>
       ) : (
         <div className="rounded-xl border bg-card divide-y">
           {tokens.map((token) => (
-            <div
-              key={token.id}
-              className="flex items-center justify-between p-4"
-            >
+            <div key={token.id} className="flex items-center justify-between p-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <span className="font-medium">{token.name}</span>
@@ -214,10 +189,7 @@ export function ApiTokensPanel({ initialTokens }: { initialTokens: Token[] }) {
                     {t("created")}: {formatDate(token.createdAt)}
                   </span>
                   <span>
-                    {t("lastUsed")}:{" "}
-                    {token.lastUsedAt
-                      ? formatDate(token.lastUsedAt)
-                      : t("never")}
+                    {t("lastUsed")}: {token.lastUsedAt ? formatDate(token.lastUsedAt) : t("never")}
                   </span>
                 </div>
               </div>

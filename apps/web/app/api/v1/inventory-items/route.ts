@@ -23,9 +23,7 @@ const querySchema = z.object({
   condition: z.string().optional(),
   warehouseId: z.string().uuid().optional(),
   search: z.string().optional(),
-  sortBy: z
-    .enum(["createdAt", "description", "status", "condition"])
-    .optional(),
+  sortBy: z.enum(["createdAt", "description", "status", "condition"]).optional(),
   sortOrder: z.enum(["asc", "desc"]).optional(),
 });
 
@@ -76,10 +74,7 @@ export async function POST(request: NextRequest) {
       const item = await createInventoryItem(db, ctx.companyId, parsed.data);
       return apiSuccess(item);
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Failed to create inventory item";
+      const message = error instanceof Error ? error.message : "Failed to create inventory item";
       return apiError(message, 400);
     }
   });

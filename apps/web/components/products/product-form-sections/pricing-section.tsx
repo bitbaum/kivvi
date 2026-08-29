@@ -33,12 +33,8 @@ export function ProductFormPricingSection({ product, isEdit }: SectionProps) {
       <div className="space-y-4 p-6">
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label
-              htmlFor="unitPrice"
-              className="mb-1.5 block text-sm font-medium"
-            >
-              {t("unitPrice")} ({currency}){" "}
-              <span className="text-destructive">*</span>
+            <label htmlFor="unitPrice" className="mb-1.5 block text-sm font-medium">
+              {t("unitPrice")} ({currency}) <span className="text-destructive">*</span>
             </label>
             <FormInput
               type="text"
@@ -51,10 +47,7 @@ export function ProductFormPricingSection({ product, isEdit }: SectionProps) {
             />
           </div>
           <div>
-            <label
-              htmlFor="purchasePrice"
-              className="mb-1.5 block text-sm font-medium"
-            >
+            <label htmlFor="purchasePrice" className="mb-1.5 block text-sm font-medium">
               {t("purchasePrice")} ({currency})
             </label>
             <FormInput
@@ -81,9 +74,7 @@ export function ProductFormPricingSection({ product, isEdit }: SectionProps) {
             />
             {t("flexiblePricing")}
           </label>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {t("flexiblePricingDesc")}
-          </p>
+          <p className="mt-1 text-xs text-muted-foreground">{t("flexiblePricingDesc")}</p>
           <div className="mt-3 grid gap-4 sm:grid-cols-2">
             <div>
               <label
@@ -122,10 +113,7 @@ export function ProductFormPricingSection({ product, isEdit }: SectionProps) {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label
-              htmlFor="vatRate"
-              className="mb-1.5 block text-sm font-medium"
-            >
+            <label htmlFor="vatRate" className="mb-1.5 block text-sm font-medium">
               {t("vatRate")} <span className="text-destructive">*</span>
             </label>
             <FormSelect
@@ -145,11 +133,7 @@ export function ProductFormPricingSection({ product, isEdit }: SectionProps) {
             <label htmlFor="unit" className="mb-1.5 block text-sm font-medium">
               {t("unit")}
             </label>
-            <FormSelect
-              id="unit"
-              name="unit"
-              defaultValue={product?.unit || DEFAULT_UNIT}
-            >
+            <FormSelect id="unit" name="unit" defaultValue={product?.unit || DEFAULT_UNIT}>
               {unitOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
                   {opt.label}

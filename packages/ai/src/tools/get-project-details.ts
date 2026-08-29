@@ -1,20 +1,23 @@
-import { z } from 'zod';
-import Decimal from 'decimal.js';
-import type { Tool, ExecutionContext, ToolResult } from '../types';
-import { getDb } from './utils';
+import { z } from "zod";
+import Decimal from "decimal.js";
+import type { Tool, ExecutionContext, ToolResult } from "../types";
+import { getDb } from "./utils";
 
 const getProjectDetailsSchema = z.object({
-  projectId: z.string().uuid().describe('The UUID of the project to retrieve'),
+  projectId: z.string().uuid().describe("The UUID of the project to retrieve"),
 });
 
 export const getProjectDetailsTool: Tool = {
-  name: 'get_project_details',
+  name: "get_project_details",
   description: `Get detailed information about a specific project including its budget, associated contact, linked documents, and financial summary (total revenue and invoiced amounts). Requires the project ID.`,
   parameters: getProjectDetailsSchema,
-  requiredPermissions: ['project:read'],
-  execute: async (params: z.infer<typeof getProjectDetailsSchema>, context: ExecutionContext): Promise<ToolResult> => {
+  requiredPermissions: ["project:read"],
+  execute: async (
+    params: z.infer<typeof getProjectDetailsSchema>,
+    context: ExecutionContext,
+  ): Promise<ToolResult> => {
     try {
-      const { getProject, getProjectSummary, getProjectDocuments } = await import('@kivvi/core');
+      const { getProject, getProjectSummary, getProjectDocuments } = await import("@kivvi/core");
       const db = getDb(context);
       const currency = context.defaultCurrency;
 
@@ -23,7 +26,7 @@ export const getProjectDetailsTool: Tool = {
       if (!project) {
         return {
           success: false,
-          error: 'Project not found or you do not have access to it.',
+          error: "Project not found or you do not have access to it.",
         };
       }
 
@@ -58,22 +61,22 @@ export const getProjectDetailsTool: Tool = {
             status: doc.status,
             total: `${currency} ${new Decimal(doc.total).toFixed(2)}`,
             contactName: doc.contactName,
-            date: doc.issueDate.toISOString().split('T')[0],
+            date: doc.issueDate.toISOString().split("T")[0],
           })),
         },
         actions: [
           {
-            label: 'View Project',
-            action: 'navigate',
+            label: "View Project",
+            action: "navigate",
             params: { url: `/projects/${project.id}` },
-            variant: 'primary',
+            variant: "primary",
           },
         ],
       };
     } catch (error) {
       return {
         success: false,
-        error: `Failed to get project details: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        error: `Failed to get project details: ${error instanceof Error ? error.message : "Unknown error"}`,
       };
     }
   },

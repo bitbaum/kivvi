@@ -4,10 +4,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import type { NavBadges } from "@/hooks/use-nav-badges";
 import type { MembershipRole } from "@kivvi/database";
-import {
-  isModuleEnabled,
-  type ModuleKey,
-} from "@kivvi/core/src/config/modules";
+import { isModuleEnabled, type ModuleKey } from "@kivvi/core/src/config/modules";
 
 export type UserRole = MembershipRole;
 
@@ -18,10 +15,7 @@ export const ROLE_RANK: Record<UserRole, number> = {
   owner: 3,
 };
 
-export function hasMinRole(
-  userRole: string | undefined,
-  minRole: UserRole,
-): boolean {
+export function hasMinRole(userRole: string | undefined, minRole: UserRole): boolean {
   const rank = ROLE_RANK[userRole as UserRole] ?? 0;
   return rank >= ROLE_RANK[minRole];
 }
@@ -45,8 +39,7 @@ export interface NavItem {
 }
 
 export function isNavActive(item: NavItem, pathname: string): boolean {
-  if (pathname === item.href || pathname.startsWith(item.href + "/"))
-    return true;
+  if (pathname === item.href || pathname.startsWith(item.href + "/")) return true;
   if (item.activePrefixes) {
     return item.activePrefixes.some(
       (prefix) => pathname === prefix || pathname.startsWith(prefix + "/"),
@@ -65,9 +58,7 @@ export function filterNavByModules<T extends { moduleKey?: ModuleKey }>(
   enabledModules: readonly string[] | null | undefined,
 ): T[] {
   const list = enabledModules ?? undefined;
-  return items.filter(
-    (item) => !item.moduleKey || isModuleEnabled(list, item.moduleKey),
-  );
+  return items.filter((item) => !item.moduleKey || isModuleEnabled(list, item.moduleKey));
 }
 
 export function NavLink({
@@ -100,9 +91,7 @@ export function NavLink({
         <span
           className={cn(
             "ml-auto inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-medium",
-            isWarning
-              ? "bg-warning/10 text-warning"
-              : "bg-destructive/10 text-destructive",
+            isWarning ? "bg-warning/10 text-warning" : "bg-destructive/10 text-destructive",
           )}
           aria-label={`${badgeCount}`}
         >

@@ -97,8 +97,7 @@ export async function detectOverdueInvoices(
     total: doc.total,
     status: doc.status,
     daysOverdue: Math.floor(
-      (now.getTime() - new Date(doc.dueDate!).getTime()) /
-        (1000 * 60 * 60 * 24),
+      (now.getTime() - new Date(doc.dueDate!).getTime()) / (1000 * 60 * 60 * 24),
     ),
     dunningLevel: getDunningLevel(doc.status),
     dunningBlock: doc.contact?.dunningBlock ?? false,
@@ -108,10 +107,7 @@ export async function detectOverdueInvoices(
 /**
  * Get dunning statistics for a company.
  */
-export async function getDunningStats(
-  db: Database,
-  companyId: string,
-): Promise<DunningStats> {
+export async function getDunningStats(db: Database, companyId: string): Promise<DunningStats> {
   const overdue = await detectOverdueInvoices(db, companyId);
 
   // Bulk fetch payments for all overdue invoices (avoids N+1)
@@ -127,14 +123,10 @@ export async function getDunningStats(
       .where(inArray(documentPayments.documentId, overdueIds))
       .groupBy(documentPayments.documentId);
 
-    const paidMap = new Map(
-      paymentsByDoc.map((p) => [p.documentId, p.totalPaid]),
-    );
+    const paidMap = new Map(paymentsByDoc.map((p) => [p.documentId, p.totalPaid]));
 
     for (const inv of overdue) {
-      const outstanding = new Decimal(inv.total).minus(
-        new Decimal(paidMap.get(inv.id) || "0"),
-      );
+      const outstanding = new Decimal(inv.total).minus(new Decimal(paidMap.get(inv.id) || "0"));
       if (outstanding.greaterThan(0)) {
         totalOverdueAmount = totalOverdueAmount.plus(outstanding);
       }
@@ -246,9 +238,7 @@ export async function createDunning(
         status: nextStatus,
         updatedAt: new Date(),
       })
-      .where(
-        and(eq(documents.id, invoiceId), eq(documents.companyId, companyId)),
-      );
+      .where(and(eq(documents.id, invoiceId), eq(documents.companyId, companyId)));
 
     return { dunningDoc, newLevel: nextStatus };
   });
@@ -285,10 +275,7 @@ export interface DunningInfo {
 }
 
 export interface ProcessDunningOptions {
-  onDunningCreated?: (
-    info: DunningInfo,
-    emailRecipients: string[],
-  ) => Promise<void>;
+  onDunningCreated?: (info: DunningInfo, emailRecipients: string[]) => Promise<void>;
 }
 
 /**
@@ -334,20 +321,11 @@ export async function processOverdueInvoices(
           const currentLevel = invoice.dunningLevel;
           let shouldEscalate = false;
 
-          if (
-            currentLevel === 0 &&
-            invoice.daysOverdue >= DUNNING_THRESHOLDS.dunning_1
-          ) {
+          if (currentLevel === 0 && invoice.daysOverdue >= DUNNING_THRESHOLDS.dunning_1) {
             shouldEscalate = true;
-          } else if (
-            currentLevel === 1 &&
-            invoice.daysOverdue >= DUNNING_THRESHOLDS.dunning_2
-          ) {
+          } else if (currentLevel === 1 && invoice.daysOverdue >= DUNNING_THRESHOLDS.dunning_2) {
             shouldEscalate = true;
-          } else if (
-            currentLevel === 2 &&
-            invoice.daysOverdue >= DUNNING_THRESHOLDS.dunning_3
-          ) {
+          } else if (currentLevel === 2 && invoice.daysOverdue >= DUNNING_THRESHOLDS.dunning_3) {
             shouldEscalate = true;
           }
 
@@ -381,10 +359,7 @@ export async function processOverdueInvoices(
           // Send email if callback provided and contact has email
           if (options?.onDunningCreated && invoice.contactId) {
             const contact = await db.query.contacts.findFirst({
-              where: and(
-                eq(contacts.id, invoice.contactId),
-                eq(contacts.companyId, company.id),
-              ),
+              where: and(eq(contacts.id, invoice.contactId), eq(contacts.companyId, company.id)),
               columns: { email: true, name: true },
             });
 
@@ -408,10 +383,7 @@ export async function processOverdueInvoices(
                   [contact.email],
                 );
               } catch (emailError) {
-                logger.error(
-                  `Failed to send dunning email for ${invoice.number}`,
-                  emailError,
-                );
+                logger.error(`Failed to send dunning email for ${invoice.number}`, emailError);
               }
             }
           }
@@ -419,10 +391,7 @@ export async function processOverdueInvoices(
           result.errors.push({
             companyId: company.id,
             invoiceId: invoice.id,
-            error:
-              invoiceError instanceof Error
-                ? invoiceError.message
-                : "Unknown error",
+            error: invoiceError instanceof Error ? invoiceError.message : "Unknown error",
           });
         }
       }
@@ -430,10 +399,7 @@ export async function processOverdueInvoices(
       result.errors.push({
         companyId: company.id,
         invoiceId: "",
-        error:
-          companyError instanceof Error
-            ? companyError.message
-            : "Unknown error",
+        error: companyError instanceof Error ? companyError.message : "Unknown error",
       });
     }
   }

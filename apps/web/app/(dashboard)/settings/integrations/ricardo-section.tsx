@@ -3,10 +3,7 @@
 import { useState, useTransition } from "react";
 import { Check, Loader2, ExternalLink } from "lucide-react";
 import { useTranslations } from "next-intl";
-import {
-  updateRicardoApiKeyAction,
-  testRicardoConnectionAction,
-} from "@/app/actions/integrations";
+import { updateRicardoApiKeyAction, testRicardoConnectionAction } from "@/app/actions/integrations";
 
 interface Props {
   hasApiKey: boolean;
@@ -48,9 +45,7 @@ export function RicardoSection({ hasApiKey }: Props) {
       const result = await testRicardoConnectionAction();
       setTestResult({
         ok: result.success,
-        msg: result.success
-          ? t("connectionSuccess")
-          : (result.error ?? t("connectionFailed")),
+        msg: result.success ? t("connectionSuccess") : (result.error ?? t("connectionFailed")),
       });
     });
   }
@@ -77,10 +72,7 @@ export function RicardoSection({ hasApiKey }: Props) {
 
       <div className="mt-4 space-y-3">
         <div>
-          <label
-            htmlFor="ricardo-api-key"
-            className="mb-1.5 block text-sm font-medium"
-          >
+          <label htmlFor="ricardo-api-key" className="mb-1.5 block text-sm font-medium">
             {t("apiKey")}
           </label>
           <input
@@ -99,9 +91,7 @@ export function RicardoSection({ hasApiKey }: Props) {
         {error && <p className="text-sm text-destructive">{error}</p>}
 
         {testResult && (
-          <p
-            className={`text-sm ${testResult.ok ? "text-success" : "text-destructive"}`}
-          >
+          <p className={`text-sm ${testResult.ok ? "text-success" : "text-destructive"}`}>
             {testResult.ok ? "✓ " : "✗ "}
             {testResult.msg}
           </p>
@@ -118,11 +108,7 @@ export function RicardoSection({ hasApiKey }: Props) {
             ) : saved ? (
               <Check className="h-4 w-4" />
             ) : null}
-            {saved
-              ? t("saved")
-              : isPending
-                ? tCommon("saving")
-                : tCommon("save")}
+            {saved ? t("saved") : isPending ? tCommon("saving") : tCommon("save")}
           </button>
           {hasApiKey && (
             <button

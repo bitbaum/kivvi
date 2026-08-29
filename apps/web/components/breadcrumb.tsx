@@ -1,7 +1,7 @@
-import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
-import { Fragment } from 'react';
-import { useTranslations } from 'next-intl';
+import Link from "next/link";
+import { ChevronRight } from "lucide-react";
+import { Fragment } from "react";
+import { useTranslations } from "next-intl";
 
 export interface BreadcrumbItem {
   label: string;
@@ -28,11 +28,11 @@ interface BreadcrumbProps {
  * ```
  */
 export function Breadcrumb({ items }: BreadcrumbProps) {
-  const tc = useTranslations('common');
+  const tc = useTranslations("common");
   if (items.length === 0) return null;
 
   return (
-    <nav aria-label={tc('aria.breadcrumb')} className="flex items-center gap-1 text-sm">
+    <nav aria-label={tc("aria.breadcrumb")} className="flex items-center gap-1 text-sm">
       {items.map((item, index) => {
         const isLast = index === items.length - 1;
 
@@ -50,8 +50,8 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
               </Link>
             ) : (
               <span
-                className={isLast ? 'font-medium text-foreground' : 'text-muted-foreground'}
-                aria-current={isLast ? 'page' : undefined}
+                className={isLast ? "font-medium text-foreground" : "text-muted-foreground"}
+                aria-current={isLast ? "page" : undefined}
               >
                 {item.label}
               </span>

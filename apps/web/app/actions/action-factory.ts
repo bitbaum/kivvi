@@ -40,9 +40,7 @@ export function createAction<TInput, TResult>(opts: {
       typeof opts.errorMessage === "function"
         ? opts.errorMessage()
         : Promise.resolve(opts.errorMessage),
-      opts.translateDomainErrors
-        ? getTranslations("domainErrors")
-        : Promise.resolve(null),
+      opts.translateDomainErrors ? getTranslations("domainErrors") : Promise.resolve(null),
     ]);
     try {
       const { companyId, userId } = opts.authOnly

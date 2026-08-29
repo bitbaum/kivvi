@@ -37,12 +37,7 @@ export const QR_REFERENCE_TYPES = ["invoice"] as const;
  * Statuses where a document has an outstanding receivable/payable balance.
  * Used in financial summaries and overdue detection.
  */
-export const OPEN_STATUSES = [
-  "sent",
-  "confirmed",
-  "delivered",
-  "partially_paid",
-] as const;
+export const OPEN_STATUSES = ["sent", "confirmed", "delivered", "partially_paid"] as const;
 
 /**
  * Statuses where a document is still active but excludes draft.

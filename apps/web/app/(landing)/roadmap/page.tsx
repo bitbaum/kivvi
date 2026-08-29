@@ -45,10 +45,8 @@ interface PipelineItem {
 }
 
 function SupportIcon({ value }: { value: Support }) {
-  if (value === "yes")
-    return <Check className="mx-auto h-4 w-4 text-success" />;
-  if (value === "partial")
-    return <Minus className="mx-auto h-4 w-4 text-warning" />;
+  if (value === "yes") return <Check className="mx-auto h-4 w-4 text-success" />;
+  if (value === "partial") return <Minus className="mx-auto h-4 w-4 text-warning" />;
   return <X className="mx-auto h-4 w-4 text-muted-foreground/40" />;
 }
 
@@ -63,9 +61,7 @@ export default async function RoadmapPage() {
       {/* Header */}
       <div className="text-center space-y-4">
         <h1 className="text-4xl font-bold sm:text-5xl">{t("hero.title")}</h1>
-        <p className="mx-auto max-w-2xl text-lg text-muted-foreground">
-          {t("hero.description")}
-        </p>
+        <p className="mx-auto max-w-2xl text-lg text-muted-foreground">{t("hero.description")}</p>
       </div>
 
       {/* ── Competitor comparison ────────────────────────────────────────────── */}
@@ -90,13 +86,9 @@ export default async function RoadmapPage() {
             >
               <div className="flex items-baseline justify-between gap-2">
                 <span className="font-semibold">{c.name}</span>
-                <span className="text-xs text-muted-foreground shrink-0">
-                  {c.note}
-                </span>
+                <span className="text-xs text-muted-foreground shrink-0">{c.note}</span>
               </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {c.verdict}
-              </p>
+              <p className="text-sm text-muted-foreground leading-relaxed">{c.verdict}</p>
             </div>
           ))}
         </div>
@@ -113,15 +105,11 @@ export default async function RoadmapPage() {
                   <th
                     key={c.key}
                     className={`px-3 py-3 text-center font-medium w-20 ${
-                      c.key === "kivvi"
-                        ? "text-success"
-                        : "text-muted-foreground"
+                      c.key === "kivvi" ? "text-success" : "text-muted-foreground"
                     }`}
                   >
                     {c.name.replace(" ★", "")}
-                    {c.key === "kivitendo" && (
-                      <span className="ml-1 text-info">★</span>
-                    )}
+                    {c.key === "kivitendo" && <span className="ml-1 text-info">★</span>}
                   </th>
                 ))}
               </tr>
@@ -133,12 +121,8 @@ export default async function RoadmapPage() {
                   className={`border-b last:border-0 ${i % 2 === 0 ? "" : "bg-muted/20"}`}
                 >
                   <td className="px-4 py-3">
-                    <div className="font-medium leading-snug">
-                      {row.feature}
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-0.5">
-                      {row.desc}
-                    </div>
+                    <div className="font-medium leading-snug">{row.feature}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">{row.desc}</div>
                   </td>
                   {COMPETITOR_KEYS.map((k) => (
                     <td key={k} className="px-3 py-3 text-center">
@@ -153,20 +137,15 @@ export default async function RoadmapPage() {
 
         <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
           <span className="flex items-center gap-2">
-            <Check className="h-4 w-4 text-success" />{" "}
-            {t("comparison.legend.native")}
+            <Check className="h-4 w-4 text-success" /> {t("comparison.legend.native")}
           </span>
           <span className="flex items-center gap-2">
-            <Minus className="h-4 w-4 text-warning" />{" "}
-            {t("comparison.legend.partial")}
+            <Minus className="h-4 w-4 text-warning" /> {t("comparison.legend.partial")}
           </span>
           <span className="flex items-center gap-2">
-            <X className="h-4 w-4 text-muted-foreground/40" />{" "}
-            {t("comparison.legend.missing")}
+            <X className="h-4 w-4 text-muted-foreground/40" /> {t("comparison.legend.missing")}
           </span>
-          <span className="ml-auto text-xs">
-            {t("comparison.legend.kivitendoInspired")}
-          </span>
+          <span className="ml-auto text-xs">{t("comparison.legend.kivitendoInspired")}</span>
         </div>
 
         <div className="text-sm">
@@ -188,9 +167,7 @@ export default async function RoadmapPage() {
           </div>
         </div>
         <h2 className="text-xl font-semibold">{t("donate.title")}</h2>
-        <p className="mx-auto max-w-lg text-muted-foreground">
-          {t("donate.description")}
-        </p>
+        <p className="mx-auto max-w-lg text-muted-foreground">{t("donate.description")}</p>
         <a
           href="https://revamp-it.ch"
           target="_blank"
@@ -207,12 +184,8 @@ export default async function RoadmapPage() {
       {/* ── Pipeline ────────────────────────────────────────────────────────── */}
       <section id="pipeline" className="space-y-4">
         <div>
-          <h2 className="text-2xl font-semibold">
-            {t("pipelineHeader.title")}
-          </h2>
-          <p className="mt-2 text-muted-foreground">
-            {t("pipelineHeader.intro")}
-          </p>
+          <h2 className="text-2xl font-semibold">{t("pipelineHeader.title")}</h2>
+          <p className="mt-2 text-muted-foreground">{t("pipelineHeader.intro")}</p>
         </div>
 
         {/* Status legend */}
@@ -247,12 +220,8 @@ export default async function RoadmapPage() {
                 <Icon className={`h-5 w-5 ${cfg.color}`} />
               </div>
               <div>
-                <h3 className="text-xl font-semibold">
-                  {t(`stages.${stage}.title`)}
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  {t(`stages.${stage}.desc`)}
-                </p>
+                <h3 className="text-xl font-semibold">{t(`stages.${stage}.title`)}</h3>
+                <p className="text-sm text-muted-foreground">{t(`stages.${stage}.desc`)}</p>
               </div>
             </div>
 
@@ -263,18 +232,14 @@ export default async function RoadmapPage() {
                   className={`rounded-xl border ${cfg.border} bg-card p-5 space-y-2`}
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <span className="font-medium text-sm leading-snug">
-                      {item.title}
-                    </span>
+                    <span className="font-medium text-sm leading-snug">{item.title}</span>
                     <span
                       className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${cfg.bg} ${cfg.color}`}
                     >
                       {item.category}
                     </span>
                   </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {item.desc}
-                  </p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
                 </div>
               ))}
             </div>
@@ -297,10 +262,7 @@ export default async function RoadmapPage() {
         </p>
         <p>
           {t("footer.suggestText")}{" "}
-          <Link
-            href="/contact"
-            className="font-medium text-foreground hover:underline"
-          >
+          <Link href="/contact" className="font-medium text-foreground hover:underline">
             {t("footer.suggestLink")}
           </Link>
         </p>

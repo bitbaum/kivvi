@@ -1,10 +1,4 @@
-import {
-  Check,
-  Hammer,
-  Calendar,
-  Lightbulb,
-  type LucideIcon,
-} from "lucide-react";
+import { Check, Hammer, Calendar, Lightbulb, type LucideIcon } from "lucide-react";
 
 /**
  * Structural metadata for the roadmap page. Translated content
@@ -17,13 +11,7 @@ import {
 export type Support = "yes" | "partial" | "no";
 export type PipelineStatus = "live" | "building" | "planned" | "vision";
 
-export type CompetitorKey =
-  | "bexio"
-  | "odoo"
-  | "abacus"
-  | "kivitendo"
-  | "repairshopr"
-  | "kivvi";
+export type CompetitorKey = "bexio" | "odoo" | "abacus" | "kivitendo" | "repairshopr" | "kivvi";
 
 export const COMPETITOR_KEYS: readonly CompetitorKey[] = [
   "bexio",
@@ -163,9 +151,4 @@ export const STATUS_CONFIG: Record<PipelineStatus, StatusVisualConfig> = {
   },
 };
 
-export const STAGES: readonly PipelineStatus[] = [
-  "live",
-  "building",
-  "planned",
-  "vision",
-];
+export const STAGES: readonly PipelineStatus[] = ["live", "building", "planned", "vision"];

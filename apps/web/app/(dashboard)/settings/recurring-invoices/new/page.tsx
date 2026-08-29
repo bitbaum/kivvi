@@ -10,10 +10,7 @@ export default async function NewRecurringInvoicePage() {
   const t = await getTranslations("settings");
   const tc = await getTranslations("common");
 
-  const rawOptions = await getOrderOptionsForRecurring(
-    db,
-    session.user.companyId,
-  );
+  const rawOptions = await getOrderOptionsForRecurring(db, session.user.companyId);
   const orderOptions = rawOptions.map((o) => ({
     ...o,
     contactName: o.contactName ?? tc("noContact"),

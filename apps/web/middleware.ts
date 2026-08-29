@@ -4,13 +4,7 @@ import { checkRateLimit, getRateLimitConfig } from "@/lib/rate-limit";
 import { moduleForPath, isModuleEnabled } from "@kivvi/core/src/config/modules";
 
 // Only these routes are accessible without authentication
-const PUBLIC_PATHS = [
-  "/",
-  "/login",
-  "/register",
-  "/forgot-password",
-  "/reset-password",
-];
+const PUBLIC_PATHS = ["/", "/login", "/register", "/forgot-password", "/reset-password"];
 // Landing pages are public — all start with these prefixes
 const PUBLIC_PREFIXES = [
   "/api/auth",
@@ -50,8 +44,7 @@ export default auth((req) => {
       status: 204,
       headers: {
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods":
-          "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
         "Access-Control-Max-Age": "86400",
       },
@@ -67,9 +60,7 @@ export default auth((req) => {
     return new NextResponse("Too Many Requests", {
       status: 429,
       headers: {
-        "Retry-After": Math.ceil(
-          rateLimitResult.retryAfterMs / 1000,
-        ).toString(),
+        "Retry-After": Math.ceil(rateLimitResult.retryAfterMs / 1000).toString(),
       },
     });
   }
@@ -97,8 +88,7 @@ export default auth((req) => {
     const onboardingComplete = (req.auth as any)?.user?.onboardingComplete;
     const isOnboardingPath = pathname.startsWith("/onboarding");
     // /join and /invite are the valid holding areas for no-company users
-    const isJoinPath =
-      pathname.startsWith("/join") || pathname.startsWith("/invite");
+    const isJoinPath = pathname.startsWith("/join") || pathname.startsWith("/invite");
 
     // No active company → must join or create one before using the app
     if (!companyId && !isJoinPath && !pathname.startsWith("/api/")) {
@@ -106,12 +96,7 @@ export default auth((req) => {
     }
 
     // Has company but hasn't finished onboarding
-    if (
-      companyId &&
-      !onboardingComplete &&
-      !isOnboardingPath &&
-      !pathname.startsWith("/api/")
-    ) {
+    if (companyId && !onboardingComplete && !isOnboardingPath && !pathname.startsWith("/api/")) {
       return NextResponse.redirect(new URL("/onboarding", req.url));
     }
 
@@ -128,9 +113,7 @@ export default auth((req) => {
       if (mod) {
         // Justified: next-auth middleware types don't include custom fields
         const enabledModules = (req.auth as any)?.user?.enabledModules as
-          | string[]
-          | null
-          | undefined;
+          string[] | null | undefined;
         if (!isModuleEnabled(enabledModules ?? undefined, mod)) {
           return NextResponse.redirect(new URL("/dashboard", req.url));
         }
@@ -157,7 +140,5 @@ export const config = {
   // and answered with 243 KB of HTML instead of a PNG — the site advertised a
   // preview that every social scraper then discarded. Metadata routes are
   // assets, not pages, and must bypass middleware like the other static paths.
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|public/|opengraph-image|twitter-image).*)",
-  ],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|public/|opengraph-image|twitter-image).*)"],
 };

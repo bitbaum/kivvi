@@ -8,9 +8,7 @@ import { ITEM_STATUS_TRANSITIONS } from "../config/item-transitions";
 
 describe("calculateEffectiveCost", () => {
   it("returns null when both values are absent", () => {
-    expect(
-      calculateEffectiveCost({ estimatedValue: null, repairCost: null }),
-    ).toBeNull();
+    expect(calculateEffectiveCost({ estimatedValue: null, repairCost: null })).toBeNull();
   });
 
   it("returns acquisition cost alone when no repairs", () => {

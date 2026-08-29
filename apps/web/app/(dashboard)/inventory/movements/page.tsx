@@ -7,10 +7,7 @@ import { db } from "@/lib/db";
 import { listStockMovements, listWarehouses, listProducts } from "@kivvi/core";
 import { formatDate, cn, paginationRange } from "@/lib/utils";
 import { getTranslations } from "next-intl/server";
-import {
-  getMovementTypeLabels,
-  MOVEMENT_TYPE_STYLES,
-} from "@/lib/config/inventory";
+import { getMovementTypeLabels, MOVEMENT_TYPE_STYLES } from "@/lib/config/inventory";
 import { MovementForm } from "@/components/inventory/movement-form";
 
 interface PageProps {
@@ -66,10 +63,7 @@ export default async function MovementsPage({ searchParams }: PageProps) {
             <h1 className="text-3xl font-bold">{t("stockMovements")}</h1>
             <p className="text-muted-foreground">{t("subtitle")}</p>
           </div>
-          <MovementForm
-            warehouses={warehouses}
-            products={productsResult.data}
-          />
+          <MovementForm warehouses={warehouses} products={productsResult.data} />
         </div>
       </div>
 
@@ -77,9 +71,7 @@ export default async function MovementsPage({ searchParams }: PageProps) {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         {/* Warehouse filter */}
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-muted-foreground">
-            {t("warehouses")}:
-          </span>
+          <span className="text-sm font-medium text-muted-foreground">{t("warehouses")}:</span>
           <div className="flex items-center gap-1 rounded-lg border bg-card p-1">
             <FilterLink
               href={buildFilterUrl({ type: typeFilter })}
@@ -99,9 +91,7 @@ export default async function MovementsPage({ searchParams }: PageProps) {
 
         {/* Type filter */}
         <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-muted-foreground">
-            {tc("type")}:
-          </span>
+          <span className="text-sm font-medium text-muted-foreground">{tc("type")}:</span>
           <div className="flex items-center gap-1 rounded-lg border bg-card p-1">
             <FilterLink
               href={buildFilterUrl({ warehouseId: warehouseFilter })}
@@ -129,11 +119,7 @@ export default async function MovementsPage({ searchParams }: PageProps) {
           <EmptyState
             icon={warehouseFilter || typeFilter ? Search : ArrowUpDown}
             title={t("noMovements")}
-            description={
-              warehouseFilter || typeFilter
-                ? t("adjustFilters")
-                : t("noMovementsDesc")
-            }
+            description={warehouseFilter || typeFilter ? t("adjustFilters") : t("noMovementsDesc")}
           />
         ) : (
           <>
@@ -141,45 +127,28 @@ export default async function MovementsPage({ searchParams }: PageProps) {
               <table className="w-full">
                 <thead>
                   <tr className="border-b text-left text-sm text-muted-foreground">
-                    <th className="whitespace-nowrap px-4 py-3 font-medium">
-                      {tc("date")}
-                    </th>
-                    <th className="whitespace-nowrap px-4 py-3 font-medium">
-                      {tc("name")}
-                    </th>
-                    <th className="whitespace-nowrap px-4 py-3 font-medium">
-                      {t("warehouses")}
-                    </th>
-                    <th className="whitespace-nowrap px-4 py-3 font-medium">
-                      {tc("type")}
-                    </th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">{tc("date")}</th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">{tc("name")}</th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">{t("warehouses")}</th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">{tc("type")}</th>
                     <th className="whitespace-nowrap px-4 py-3 font-medium text-right">
                       {tc("amount")}
                     </th>
-                    <th className="whitespace-nowrap px-4 py-3 font-medium">
-                      {tc("number")}
-                    </th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">{tc("number")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
                   {movements.data.map((movement) => {
                     const qty = Number(movement.quantity);
-                    const isPositive =
-                      movement.type === "purchase" ||
-                      movement.type === "return";
+                    const isPositive = movement.type === "purchase" || movement.type === "return";
 
                     return (
-                      <tr
-                        key={movement.id}
-                        className="transition-colors hover:bg-muted/50"
-                      >
+                      <tr key={movement.id} className="transition-colors hover:bg-muted/50">
                         <td className="whitespace-nowrap px-4 py-3 text-sm text-muted-foreground">
                           {formatDate(movement.createdAt)}
                         </td>
                         <td className="whitespace-nowrap px-4 py-3">
-                          <span className="font-medium">
-                            {movement.productName}
-                          </span>
+                          <span className="font-medium">{movement.productName}</span>
                         </td>
                         <td className="whitespace-nowrap px-4 py-3 text-sm text-muted-foreground">
                           {movement.warehouseName}
@@ -227,11 +196,7 @@ export default async function MovementsPage({ searchParams }: PageProps) {
               labels={{
                 showing: tc(
                   "showing",
-                  paginationRange(
-                    movements.page,
-                    movements.pageSize,
-                    movements.total,
-                  ),
+                  paginationRange(movements.page, movements.pageSize, movements.total),
                 ),
                 previous: tc("previous"),
                 next: tc("next"),
@@ -252,15 +217,7 @@ export default async function MovementsPage({ searchParams }: PageProps) {
 // HELPER COMPONENTS
 // ============================================================================
 
-function FilterLink({
-  href,
-  active,
-  label,
-}: {
-  href: string;
-  active: boolean;
-  label: string;
-}) {
+function FilterLink({ href, active, label }: { href: string; active: boolean; label: string }) {
   return (
     <Link
       href={href}
@@ -279,16 +236,11 @@ function FilterLink({
 // URL BUILDER
 // ============================================================================
 
-function buildFilterUrl(params: {
-  warehouseId?: string;
-  type?: string;
-  page?: number;
-}) {
+function buildFilterUrl(params: { warehouseId?: string; type?: string; page?: number }) {
   const searchParams = new URLSearchParams();
   if (params.warehouseId) searchParams.set("warehouseId", params.warehouseId);
   if (params.type) searchParams.set("type", params.type);
-  if (params.page && params.page > 1)
-    searchParams.set("page", String(params.page));
+  if (params.page && params.page > 1) searchParams.set("page", String(params.page));
   const qs = searchParams.toString();
   return `/inventory/movements${qs ? `?${qs}` : ""}`;
 }

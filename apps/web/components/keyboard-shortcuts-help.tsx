@@ -10,10 +10,7 @@ interface KeyboardShortcutsHelpProps {
   onClose: () => void;
 }
 
-export function KeyboardShortcutsHelp({
-  isOpen,
-  onClose,
-}: KeyboardShortcutsHelpProps) {
+export function KeyboardShortcutsHelp({ isOpen, onClose }: KeyboardShortcutsHelpProps) {
   const tc = useTranslations("common");
   const modalRef = useRef<HTMLDivElement>(null);
   useFocusTrap(modalRef, isOpen, onClose);
@@ -77,22 +74,15 @@ export function KeyboardShortcutsHelp({
           <h2 id="shortcuts-title" className="text-xl font-semibold">
             {tc("shortcuts.title")}
           </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {tc("shortcuts.subtitle")}
-          </p>
+          <p className="mt-1 text-sm text-muted-foreground">{tc("shortcuts.subtitle")}</p>
         </div>
 
         {/* Shortcuts list */}
         <div className="space-y-3">
           {shortcuts.map((shortcut, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between rounded-lg border p-3"
-            >
+            <div key={index} className="flex items-center justify-between rounded-lg border p-3">
               <div className="flex items-center gap-3">
-                {shortcut.icon && (
-                  <div className="text-muted-foreground">{shortcut.icon}</div>
-                )}
+                {shortcut.icon && <div className="text-muted-foreground">{shortcut.icon}</div>}
                 <span className="text-sm">{shortcut.description}</span>
               </div>
               <div className="flex gap-1">
@@ -102,9 +92,7 @@ export function KeyboardShortcutsHelp({
                       {key}
                     </kbd>
                     {i < shortcut.keys.length - 1 && (
-                      <span className="mx-1 text-xs text-muted-foreground">
-                        {tc("or")}
-                      </span>
+                      <span className="mx-1 text-xs text-muted-foreground">{tc("or")}</span>
                     )}
                   </span>
                 ))}

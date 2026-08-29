@@ -28,10 +28,7 @@ export default function Loading() {
           <Skeleton className="h-4 w-24" />
         </div>
         {[...Array(5)].map((_, i) => (
-          <div
-            key={i}
-            className="flex items-center gap-4 border-b px-6 py-4 last:border-b-0"
-          >
+          <div key={i} className="flex items-center gap-4 border-b px-6 py-4 last:border-b-0">
             <Skeleton className="h-4 w-40 flex-1" />
             <Skeleton className="h-4 w-24" />
             <Skeleton className="h-4 w-24" />

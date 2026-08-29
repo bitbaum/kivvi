@@ -5,20 +5,14 @@ import { getDb, resolveProduct, resolvePriceList } from "./utils";
 const resolveProductPriceSchema = z.object({
   product_identifier: z
     .string()
-    .describe(
-      "Product name (partial match), article number (ART-xxxxx), or UUID.",
-    ),
-  price_list_name: z
-    .string()
-    .describe("Name of the price list to check (partial match)."),
+    .describe("Product name (partial match), article number (ART-xxxxx), or UUID."),
+  price_list_name: z.string().describe("Name of the price list to check (partial match)."),
   quantity: z
     .number()
     .int()
     .min(1)
     .optional()
-    .describe(
-      "Quantity ordered. Required for tiered/volume rules to apply correctly.",
-    ),
+    .describe("Quantity ordered. Required for tiered/volume rules to apply correctly."),
 });
 
 export const resolveProductPriceTool: Tool = {
@@ -36,15 +30,10 @@ Examples:
     context: ExecutionContext,
   ): Promise<ToolResult> => {
     try {
-      const { resolvePriceForProduct } =
-        await import("@kivvi/core/src/domain/pricing");
+      const { resolvePriceForProduct } = await import("@kivvi/core/src/domain/pricing");
       const db = getDb(context);
 
-      const productRow = await resolveProduct(
-        db,
-        context.companyId,
-        params.product_identifier,
-      );
+      const productRow = await resolveProduct(db, context.companyId, params.product_identifier);
 
       if (!productRow) {
         return {
@@ -53,11 +42,7 @@ Examples:
         };
       }
 
-      const listRow = await resolvePriceList(
-        db,
-        context.companyId,
-        params.price_list_name,
-      );
+      const listRow = await resolvePriceList(db, context.companyId, params.price_list_name);
 
       if (!listRow) {
         return {
@@ -99,9 +84,7 @@ Examples:
       }
 
       const resolvedFormatted = Number(resolved.price).toFixed(2);
-      const savings = (Number(basePrice) - Number(resolvedFormatted)).toFixed(
-        2,
-      );
+      const savings = (Number(basePrice) - Number(resolvedFormatted)).toFixed(2);
       const savingsPct = (
         ((Number(basePrice) - Number(resolvedFormatted)) / Number(basePrice)) *
         100

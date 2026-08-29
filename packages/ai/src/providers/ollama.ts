@@ -5,17 +5,17 @@ import type {
   ChatResponse,
   Message,
   StreamChunk,
-} from '../types';
+} from "../types";
 
 export class OllamaProvider implements AIProvider {
-  id = 'ollama';
-  name = 'Self-Hosted (Ollama)';
-  type = 'self-hosted' as const;
+  id = "ollama";
+  name = "Self-Hosted (Ollama)";
+  type = "self-hosted" as const;
 
   models: AIModel[] = [];
   private baseUrl: string;
 
-  constructor(baseUrl: string = 'http://localhost:11434') {
+  constructor(baseUrl: string = "http://localhost:11434") {
     this.baseUrl = baseUrl;
   }
 
@@ -34,19 +34,20 @@ export class OllamaProvider implements AIProvider {
 
       const data = await response.json();
 
-      this.models = data.models?.map((model: any) => ({
-        id: model.name,
-        name: model.name,
-        contextWindow: this.getContextWindow(model.name),
-        supportsTools: this.supportsTools(model.name),
-        supportsVision: model.name.includes('vision') || model.name.includes('llava'),
-      })) || [];
+      this.models =
+        data.models?.map((model: any) => ({
+          id: model.name,
+          name: model.name,
+          contextWindow: this.getContextWindow(model.name),
+          supportsTools: this.supportsTools(model.name),
+          supportsVision: model.name.includes("vision") || model.name.includes("llava"),
+        })) || [];
 
       if (this.models.length === 0) {
-        throw new Error('No Ollama models installed');
+        throw new Error("No Ollama models installed");
       }
     } catch {
-      throw new Error('Ollama server not reachable at ' + this.baseUrl);
+      throw new Error("Ollama server not reachable at " + this.baseUrl);
     } finally {
       clearTimeout(timeout);
     }
@@ -54,10 +55,10 @@ export class OllamaProvider implements AIProvider {
 
   async chat(request: ChatRequest): Promise<ChatResponse> {
     const response = await fetch(`${this.baseUrl}/api/chat`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: request.model || 'qwen2.5:32b',
+        model: request.model || "qwen2.5:32b",
         messages: this.formatMessages(request.messages, request.systemPrompt),
         stream: false,
         options: {
@@ -70,7 +71,7 @@ export class OllamaProvider implements AIProvider {
     const data = await response.json();
 
     return {
-      content: data.message?.content || '',
+      content: data.message?.content || "",
       model: data.model,
       usage: {
         inputTokens: data.prompt_eval_count || 0,
@@ -81,10 +82,10 @@ export class OllamaProvider implements AIProvider {
 
   async *streamChat(request: ChatRequest): AsyncIterable<StreamChunk> {
     const response = await fetch(`${this.baseUrl}/api/chat`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: request.model || 'qwen2.5:32b',
+        model: request.model || "qwen2.5:32b",
         messages: this.formatMessages(request.messages, request.systemPrompt),
         stream: true,
         options: {
@@ -95,7 +96,7 @@ export class OllamaProvider implements AIProvider {
     });
 
     const reader = response.body?.getReader();
-    if (!reader) throw new Error('No response body');
+    if (!reader) throw new Error("No response body");
 
     const decoder = new TextDecoder();
 
@@ -103,15 +104,15 @@ export class OllamaProvider implements AIProvider {
       const { done, value } = await reader.read();
       if (done) break;
 
-      const lines = decoder.decode(value).split('\n').filter(Boolean);
+      const lines = decoder.decode(value).split("\n").filter(Boolean);
       for (const line of lines) {
         try {
           const data = JSON.parse(line);
           if (data.message?.content) {
-            yield { type: 'text', content: data.message.content };
+            yield { type: "text", content: data.message.content };
           }
           if (data.done) {
-            yield { type: 'done' };
+            yield { type: "done" };
           }
         } catch {
           // Skip invalid JSON
@@ -122,23 +123,23 @@ export class OllamaProvider implements AIProvider {
 
   private formatMessages(
     messages: Message[],
-    systemPrompt?: string
+    systemPrompt?: string,
   ): Array<{ role: string; content: string }> {
     const formatted: Array<{ role: string; content: string }> = [];
 
     if (systemPrompt) {
-      formatted.push({ role: 'system', content: systemPrompt });
+      formatted.push({ role: "system", content: systemPrompt });
     }
 
     for (const msg of messages) {
-      if (msg.role === 'system') continue; // Already handled
+      if (msg.role === "system") continue; // Already handled
 
       formatted.push({
-        role: msg.role === 'tool' ? 'user' : msg.role,
+        role: msg.role === "tool" ? "user" : msg.role,
         content:
-          typeof msg.content === 'string'
+          typeof msg.content === "string"
             ? msg.content
-            : msg.content.map((p) => p.text || '').join('\n'),
+            : msg.content.map((p) => p.text || "").join("\n"),
       });
     }
 
@@ -146,15 +147,15 @@ export class OllamaProvider implements AIProvider {
   }
 
   private getContextWindow(modelName: string): number {
-    if (modelName.includes('llama3')) return 128000;
-    if (modelName.includes('qwen')) return 32768;
-    if (modelName.includes('mistral')) return 32768;
-    if (modelName.includes('mixtral')) return 32768;
+    if (modelName.includes("llama3")) return 128000;
+    if (modelName.includes("qwen")) return 32768;
+    if (modelName.includes("mistral")) return 32768;
+    if (modelName.includes("mixtral")) return 32768;
     return 8192; // Default
   }
 
   private supportsTools(modelName: string): boolean {
-    const toolModels = ['qwen', 'llama3', 'mistral', 'mixtral', 'command-r'];
+    const toolModels = ["qwen", "llama3", "mistral", "mixtral", "command-r"];
     return toolModels.some((m) => modelName.toLowerCase().includes(m));
   }
 }

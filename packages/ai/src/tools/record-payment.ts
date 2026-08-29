@@ -10,10 +10,7 @@ const recordPaymentSchema = z.object({
     .describe("The UUID of the invoice or document to record a payment for"),
   amount: z
     .string()
-    .regex(
-      /^\d+(\.\d+)?$/,
-      'Amount must be a positive number string (e.g. "1500.00")',
-    )
+    .regex(/^\d+(\.\d+)?$/, 'Amount must be a positive number string (e.g. "1500.00")')
     .describe('The payment amount (e.g. "1500.00")'),
   date: z
     .string()
@@ -24,10 +21,7 @@ const recordPaymentSchema = z.object({
     .enum(["bank_transfer", "cash", "card", "other"])
     .optional()
     .describe("Payment method. Defaults to bank_transfer."),
-  reference: z
-    .string()
-    .optional()
-    .describe("Payment reference or transaction ID"),
+  reference: z.string().optional().describe("Payment reference or transaction ID"),
 });
 
 export const recordPaymentTool: Tool = {

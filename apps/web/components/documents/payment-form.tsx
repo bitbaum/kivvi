@@ -61,8 +61,7 @@ export function PaymentForm({
       const result = await recordPaymentAction(documentId, {
         amount: formData.get("amount") as string,
         date: formData.get("date") as string,
-        method:
-          (formData.get("method") as PaymentMethodValue) || "bank_transfer",
+        method: (formData.get("method") as PaymentMethodValue) || "bank_transfer",
         reference: (formData.get("reference") as string) || undefined,
       });
 
@@ -85,15 +84,10 @@ export function PaymentForm({
       {/* Outstanding context */}
       <p className="text-xs text-muted-foreground">
         {t("outstanding")}:{" "}
-        <span className="font-medium text-foreground">
-          {formatCurrency(outstanding)}
-        </span>
+        <span className="font-medium text-foreground">{formatCurrency(outstanding)}</span>
       </p>
       <div>
-        <label
-          htmlFor="pay-amount"
-          className="block text-xs font-medium text-muted-foreground"
-        >
+        <label htmlFor="pay-amount" className="block text-xs font-medium text-muted-foreground">
           {t("paymentAmount")} ({currency})
         </label>
         <FormInput
@@ -102,9 +96,7 @@ export function PaymentForm({
           type="number"
           step="0.01"
           value={amount}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setAmount(e.target.value)
-          }
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAmount(e.target.value)}
           required
           className="mt-1"
           ref={amountInputRef}
@@ -117,10 +109,7 @@ export function PaymentForm({
         )}
       </div>
       <div>
-        <label
-          htmlFor="pay-date"
-          className="block text-xs font-medium text-muted-foreground"
-        >
+        <label htmlFor="pay-date" className="block text-xs font-medium text-muted-foreground">
           {t("paymentDate")}
         </label>
         <FormInput
@@ -133,26 +122,18 @@ export function PaymentForm({
         />
       </div>
       <div>
-        <label
-          htmlFor="pay-method"
-          className="block text-xs font-medium text-muted-foreground"
-        >
+        <label htmlFor="pay-method" className="block text-xs font-medium text-muted-foreground">
           {t("paymentMethod")}
         </label>
         <FormSelect id="pay-method" name="method" className="mt-1">
-          <option value="bank_transfer">
-            {t("paymentMethods.bank_transfer")}
-          </option>
+          <option value="bank_transfer">{t("paymentMethods.bank_transfer")}</option>
           <option value="cash">{t("paymentMethods.cash")}</option>
           <option value="card">{t("paymentMethods.card")}</option>
           <option value="other">{t("paymentMethods.other")}</option>
         </FormSelect>
       </div>
       <div>
-        <label
-          htmlFor="pay-reference"
-          className="block text-xs font-medium text-muted-foreground"
-        >
+        <label htmlFor="pay-reference" className="block text-xs font-medium text-muted-foreground">
           {t("paymentReferenceLabel")}
         </label>
         <FormInput
@@ -177,11 +158,7 @@ export function PaymentForm({
           {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
           {isPending ? tc("saving") : t("savePayment")}
         </Button>
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={() => setIsOpen(false)}
-        >
+        <Button type="button" variant="secondary" onClick={() => setIsOpen(false)}>
           {tc("cancel")}
         </Button>
       </div>

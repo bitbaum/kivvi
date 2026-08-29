@@ -3,16 +3,10 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Save, X, Loader2 } from "lucide-react";
-import {
-  createAccountAction,
-  updateAccountAction,
-} from "@/app/actions/accounting";
+import { createAccountAction, updateAccountAction } from "@/app/actions/accounting";
 import type { Account } from "@kivvi/database";
 import { useTranslations } from "next-intl";
-import {
-  ACCOUNT_TYPES,
-  ACCOUNT_TYPE_LABEL_KEYS,
-} from "@/lib/config/accounting";
+import { ACCOUNT_TYPES, ACCOUNT_TYPE_LABEL_KEYS } from "@/lib/config/accounting";
 import { FormInput, FormSelect } from "@/components/ui/form-field";
 
 interface AccountFormProps {
@@ -71,9 +65,7 @@ export function AccountForm({ account, parentAccounts }: AccountFormProps) {
     <div className="rounded-xl border bg-card">
       <div className="flex items-center justify-between border-b p-4">
         <h2 className="font-semibold">
-          {isEditing
-            ? `${t("editAccount")}: ${account.code} ${account.name}`
-            : t("addAccount")}
+          {isEditing ? `${t("editAccount")}: ${account.code} ${account.name}` : t("addAccount")}
         </h2>
         <button
           onClick={handleCancel}
@@ -123,12 +115,7 @@ export function AccountForm({ account, parentAccounts }: AccountFormProps) {
             <label htmlFor="type" className="mb-1.5 block text-sm font-medium">
               {t("accountType")}
             </label>
-            <FormSelect
-              id="type"
-              name="type"
-              required
-              defaultValue={account?.type || ""}
-            >
+            <FormSelect id="type" name="type" required defaultValue={account?.type || ""}>
               <option value="" disabled>
                 {t("accountType")}...
               </option>
@@ -142,20 +129,11 @@ export function AccountForm({ account, parentAccounts }: AccountFormProps) {
 
           {/* Parent Account */}
           <div>
-            <label
-              htmlFor="parentId"
-              className="mb-1.5 block text-sm font-medium"
-            >
+            <label htmlFor="parentId" className="mb-1.5 block text-sm font-medium">
               {t("parentAccount")}
-              <span className="ml-1 text-xs text-muted-foreground">
-                {tc("optional")}
-              </span>
+              <span className="ml-1 text-xs text-muted-foreground">{tc("optional")}</span>
             </label>
-            <FormSelect
-              id="parentId"
-              name="parentId"
-              defaultValue={account?.parentId || ""}
-            >
+            <FormSelect id="parentId" name="parentId" defaultValue={account?.parentId || ""}>
               <option value="">{tc("none")}</option>
               {availableParents.map((a) => (
                 <option key={a.id} value={a.id}>

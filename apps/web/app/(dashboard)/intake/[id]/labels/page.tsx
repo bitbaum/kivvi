@@ -49,9 +49,7 @@ export default async function IntakeLabelsPage({ params }: PageProps) {
   // Generate QR codes server-side (parallel for speed)
   const baseUrl = process.env.NEXTAUTH_URL || "https://kivvi.orangecat.ch";
   const qrCodes = await Promise.all(
-    items.data.map((item) =>
-      generateQrDataUrl(`${baseUrl}/intake/items/${item.id}`),
-    ),
+    items.data.map((item) => generateQrDataUrl(`${baseUrl}/intake/items/${item.id}`)),
   );
 
   return (
@@ -79,10 +77,7 @@ export default async function IntakeLabelsPage({ params }: PageProps) {
       </div>
 
       {/* Label grid — print-optimized */}
-      <div
-        className="mx-auto flex flex-wrap justify-center gap-0"
-        style={{ maxWidth: "210mm" }}
-      >
+      <div className="mx-auto flex flex-wrap justify-center gap-0" style={{ maxWidth: "210mm" }}>
         {items.data.map((item, i) => (
           <ItemLabel
             key={item.id}

@@ -7,12 +7,7 @@ import Decimal from "decimal.js";
 import net from "node:net";
 import tls from "node:tls";
 import { db } from "@/lib/db";
-import {
-  contacts,
-  externalIntegrationItems,
-  inventoryItems,
-  companies,
-} from "@kivvi/database";
+import { contacts, externalIntegrationItems, inventoryItems, companies } from "@kivvi/database";
 import type { CompanySettings } from "@kivvi/database";
 import { createContact } from "@kivvi/core";
 import {
@@ -29,17 +24,10 @@ import {
 } from "@kivvi/core/src/domain/integrations";
 import { buildRicardoListingPayload } from "@kivvi/core/src/domain/ricardo";
 import { PUBLIC_ITEM_STATUSES } from "@kivvi/core/src/config/item-status-sets";
-import {
-  publishListing,
-  deleteListing,
-  testConnection,
-} from "@/lib/ricardo-client";
+import { publishListing, deleteListing, testConnection } from "@/lib/ricardo-client";
 import { requireRole, safeErrorMessage, type ActionResult } from "./utils";
 import { createAction } from "./action-factory";
-import {
-  decryptIntegrationSecret,
-  encryptIntegrationSecret,
-} from "@/lib/integration-secrets";
+import { decryptIntegrationSecret, encryptIntegrationSecret } from "@/lib/integration-secrets";
 import { testTalerConnection } from "@/lib/taler-client";
 
 const INTEGRATION_TEST_TIMEOUT_MS = 8000;
@@ -60,10 +48,7 @@ async function loadCompanySettings(companyId: string) {
   return (existing?.settings as CompanySettings) ?? {};
 }
 
-async function saveCompanySettings(
-  companyId: string,
-  settings: CompanySettings,
-) {
+async function saveCompanySettings(companyId: string, settings: CompanySettings) {
   await db
     .update(companies)
     .set({ settings, updatedAt: new Date() })
@@ -72,33 +57,23 @@ async function saveCompanySettings(
 
 async function testNextcloudWebDavConnection(
   input: Required<
-    Pick<
-      NextcloudIntegrationInput,
-      "baseUrl" | "username" | "appPassword" | "folderPath"
-    >
+    Pick<NextcloudIntegrationInput, "baseUrl" | "username" | "appPassword" | "folderPath">
   >,
 ) {
   const baseUrl = input.baseUrl.replace(/\/+$/g, "");
-  const folder = input.folderPath
-    .split("/")
-    .filter(Boolean)
-    .map(encodeURIComponent)
-    .join("/");
+  const folder = input.folderPath.split("/").filter(Boolean).map(encodeURIComponent).join("/");
   const username = encodeURIComponent(input.username);
   const url = `${baseUrl}/remote.php/dav/files/${username}/${folder}`;
   const controller = new AbortController();
-  const timeout = setTimeout(
-    () => controller.abort(),
-    INTEGRATION_TEST_TIMEOUT_MS,
-  );
+  const timeout = setTimeout(() => controller.abort(), INTEGRATION_TEST_TIMEOUT_MS);
 
   try {
     const response = await fetch(url, {
       method: "PROPFIND",
       headers: {
-        Authorization: `Basic ${Buffer.from(
-          `${input.username}:${input.appPassword}`,
-        ).toString("base64")}`,
+        Authorization: `Basic ${Buffer.from(`${input.username}:${input.appPassword}`).toString(
+          "base64",
+        )}`,
         Depth: "0",
       },
       signal: controller.signal,
@@ -114,33 +89,23 @@ async function testNextcloudWebDavConnection(
 
 async function fetchNextcloudItems(
   input: Required<
-    Pick<
-      NextcloudIntegrationInput,
-      "baseUrl" | "username" | "appPassword" | "folderPath"
-    >
+    Pick<NextcloudIntegrationInput, "baseUrl" | "username" | "appPassword" | "folderPath">
   >,
 ) {
   const baseUrl = input.baseUrl.replace(/\/+$/g, "");
-  const folder = input.folderPath
-    .split("/")
-    .filter(Boolean)
-    .map(encodeURIComponent)
-    .join("/");
+  const folder = input.folderPath.split("/").filter(Boolean).map(encodeURIComponent).join("/");
   const username = encodeURIComponent(input.username);
   const url = `${baseUrl}/remote.php/dav/files/${username}/${folder}`;
   const controller = new AbortController();
-  const timeout = setTimeout(
-    () => controller.abort(),
-    INTEGRATION_TEST_TIMEOUT_MS,
-  );
+  const timeout = setTimeout(() => controller.abort(), INTEGRATION_TEST_TIMEOUT_MS);
 
   try {
     const response = await fetch(url, {
       method: "PROPFIND",
       headers: {
-        Authorization: `Basic ${Buffer.from(
-          `${input.username}:${input.appPassword}`,
-        ).toString("base64")}`,
+        Authorization: `Basic ${Buffer.from(`${input.username}:${input.appPassword}`).toString(
+          "base64",
+        )}`,
         Depth: "1",
       },
       signal: controller.signal,
@@ -150,10 +115,7 @@ async function fetchNextcloudItems(
       throw new Error(`Nextcloud returned HTTP ${response.status}`);
     }
 
-    return parseDavResponses(await response.text(), baseUrl).slice(
-      0,
-      INTEGRATION_SYNC_LIMIT,
-    );
+    return parseDavResponses(await response.text(), baseUrl).slice(0, INTEGRATION_SYNC_LIMIT);
   } finally {
     clearTimeout(timeout);
   }
@@ -169,9 +131,7 @@ function decodeHeaderValue(value: string | undefined) {
     .replace(/=\?utf-8\?q\?([^?]+)\?=/gi, (_, encoded: string) =>
       encoded
         .replace(/_/g, " ")
-        .replace(/=([a-f0-9]{2})/gi, (_m, hex) =>
-          String.fromCharCode(parseInt(hex, 16)),
-        ),
+        .replace(/=([a-f0-9]{2})/gi, (_m, hex) => String.fromCharCode(parseInt(hex, 16))),
     )
     .replace(/=\?utf-8\?b\?([^?]+)\?=/gi, (_, encoded: string) =>
       Buffer.from(encoded, "base64").toString("utf8"),
@@ -196,8 +156,7 @@ function parseAddress(value: string | undefined) {
 
 function parseMailHeaders(raw: string) {
   const unfolded = raw.replace(/\r?\n[ \t]+/g, " ");
-  const get = (name: string) =>
-    unfolded.match(new RegExp(`^${name}:\\s*(.+)$`, "im"))?.[1]?.trim();
+  const get = (name: string) => unfolded.match(new RegExp(`^${name}:\\s*(.+)$`, "im"))?.[1]?.trim();
   const from = parseAddress(get("from"));
   const messageId = get("message-id")?.replace(/[<>]/g, "") || "";
   const subject = decodeHeaderValue(get("subject")) || "(no subject)";
@@ -214,76 +173,68 @@ function parseMailHeaders(raw: string) {
 }
 
 async function fetchRecentImapHeaders(input: MailIntegrationInput) {
-  return new Promise<ReturnType<typeof parseMailHeaders>[]>(
-    (resolve, reject) => {
-      const socket = input.useTls
-        ? tls.connect({
-            host: input.host,
-            port: input.port,
-            servername: input.host,
-            timeout: INTEGRATION_TEST_TIMEOUT_MS,
-          })
-        : net.connect({
-            host: input.host,
-            port: input.port,
-            timeout: INTEGRATION_TEST_TIMEOUT_MS,
-          });
-      let buffer = "";
-      let selected = false;
-      let fetched = false;
-      let done = false;
+  return new Promise<ReturnType<typeof parseMailHeaders>[]>((resolve, reject) => {
+    const socket = input.useTls
+      ? tls.connect({
+          host: input.host,
+          port: input.port,
+          servername: input.host,
+          timeout: INTEGRATION_TEST_TIMEOUT_MS,
+        })
+      : net.connect({
+          host: input.host,
+          port: input.port,
+          timeout: INTEGRATION_TEST_TIMEOUT_MS,
+        });
+    let buffer = "";
+    let selected = false;
+    let fetched = false;
+    let done = false;
 
-      const finish = (error?: Error) => {
-        if (done) return;
-        done = true;
-        socket.destroy();
-        if (error) reject(error);
-      };
+    const finish = (error?: Error) => {
+      if (done) return;
+      done = true;
+      socket.destroy();
+      if (error) reject(error);
+    };
 
-      socket.setTimeout(INTEGRATION_TEST_TIMEOUT_MS * 2);
-      socket.on("timeout", () => finish(new Error("Connection timed out")));
-      socket.on("error", finish);
-      socket.on("data", (chunk) => {
-        buffer += chunk.toString("utf8");
-        if (buffer.includes("* OK") && !buffer.includes("a1 ")) {
-          socket.write(
-            `a1 LOGIN ${quoteImap(input.username)} ${quoteImap(input.password)}\r\n`,
-          );
-        }
-        if (buffer.includes("a1 OK") && !selected) {
-          selected = true;
-          socket.write(`a2 SELECT ${quoteImap(input.mailbox || "INBOX")}\r\n`);
-        }
-        if (buffer.includes("a2 OK") && !fetched) {
-          fetched = true;
-          socket.write(
-            `a3 FETCH 1:* (BODY.PEEK[HEADER.FIELDS (MESSAGE-ID FROM SUBJECT DATE)])\r\n`,
-          );
-        }
-        if (buffer.includes("a1 NO") || buffer.includes("a1 BAD")) {
-          finish(new Error("IMAP login failed"));
-        }
-        if (buffer.includes("a2 NO") || buffer.includes("a2 BAD")) {
-          finish(new Error("IMAP mailbox could not be opened"));
-        }
-        if (buffer.includes("a3 OK")) {
-          socket.write("a4 LOGOUT\r\n");
-          const headerBlocks = buffer
-            .split(/\* \d+ FETCH/g)
-            .slice(1)
-            .map((part) => part.replace(/\)\r?\n.*$/s, "").trim())
-            .filter((part) => /subject:|from:|message-id:/i.test(part));
-          resolve(
-            headerBlocks.slice(-INTEGRATION_SYNC_LIMIT).map(parseMailHeaders),
-          );
-          finish();
-        }
-        if (buffer.includes("a3 NO") || buffer.includes("a3 BAD")) {
-          finish(new Error("IMAP messages could not be fetched"));
-        }
-      });
-    },
-  );
+    socket.setTimeout(INTEGRATION_TEST_TIMEOUT_MS * 2);
+    socket.on("timeout", () => finish(new Error("Connection timed out")));
+    socket.on("error", finish);
+    socket.on("data", (chunk) => {
+      buffer += chunk.toString("utf8");
+      if (buffer.includes("* OK") && !buffer.includes("a1 ")) {
+        socket.write(`a1 LOGIN ${quoteImap(input.username)} ${quoteImap(input.password)}\r\n`);
+      }
+      if (buffer.includes("a1 OK") && !selected) {
+        selected = true;
+        socket.write(`a2 SELECT ${quoteImap(input.mailbox || "INBOX")}\r\n`);
+      }
+      if (buffer.includes("a2 OK") && !fetched) {
+        fetched = true;
+        socket.write(`a3 FETCH 1:* (BODY.PEEK[HEADER.FIELDS (MESSAGE-ID FROM SUBJECT DATE)])\r\n`);
+      }
+      if (buffer.includes("a1 NO") || buffer.includes("a1 BAD")) {
+        finish(new Error("IMAP login failed"));
+      }
+      if (buffer.includes("a2 NO") || buffer.includes("a2 BAD")) {
+        finish(new Error("IMAP mailbox could not be opened"));
+      }
+      if (buffer.includes("a3 OK")) {
+        socket.write("a4 LOGOUT\r\n");
+        const headerBlocks = buffer
+          .split(/\* \d+ FETCH/g)
+          .slice(1)
+          .map((part) => part.replace(/\)\r?\n.*$/s, "").trim())
+          .filter((part) => /subject:|from:|message-id:/i.test(part));
+        resolve(headerBlocks.slice(-INTEGRATION_SYNC_LIMIT).map(parseMailHeaders));
+        finish();
+      }
+      if (buffer.includes("a3 NO") || buffer.includes("a3 BAD")) {
+        finish(new Error("IMAP messages could not be fetched"));
+      }
+    });
+  });
 }
 
 function parseDavResponses(xml: string, baseUrl: string) {
@@ -296,12 +247,8 @@ function parseDavResponses(xml: string, baseUrl: string) {
         response.match(/<d?:displayname>([\s\S]*?)<\/d?:displayname>/i)?.[1] ||
         decodedHref.split("/").filter(Boolean).pop() ||
         "Nextcloud file";
-      const size = response.match(
-        /<d?:getcontentlength>([\s\S]*?)<\/d?:getcontentlength>/i,
-      )?.[1];
-      const modified = response.match(
-        /<d?:getlastmodified>([\s\S]*?)<\/d?:getlastmodified>/i,
-      )?.[1];
+      const size = response.match(/<d?:getcontentlength>([\s\S]*?)<\/d?:getcontentlength>/i)?.[1];
+      const modified = response.match(/<d?:getlastmodified>([\s\S]*?)<\/d?:getlastmodified>/i)?.[1];
       return {
         externalId: decodedHref,
         title: name,
@@ -344,9 +291,7 @@ async function testImapConnection(input: MailIntegrationInput) {
     socket.on("data", (chunk) => {
       buffer += chunk.toString("utf8");
       if (buffer.includes("* OK") && !buffer.includes("a1 ")) {
-        socket.write(
-          `a1 LOGIN ${quoteImap(input.username)} ${quoteImap(input.password)}\r\n`,
-        );
+        socket.write(`a1 LOGIN ${quoteImap(input.username)} ${quoteImap(input.password)}\r\n`);
       }
       if (buffer.includes("a1 OK")) {
         socket.write("a2 LOGOUT\r\n");
@@ -385,8 +330,7 @@ export const updateRicardoApiKeyAction = createAction<string | null, void>({
       .where(eq(companies.id, companyId));
   },
   revalidate: ["/settings/integrations"],
-  errorMessage: () =>
-    getTranslations("settings.integrations").then((t) => t("errorSaveApiKey")),
+  errorMessage: () => getTranslations("settings.integrations").then((t) => t("errorSaveApiKey")),
   minRole: "admin",
 });
 
@@ -394,10 +338,7 @@ export const updateRicardoApiKeyAction = createAction<string | null, void>({
 // NEXTCLOUD / MAIL SETTINGS
 // ============================================================================
 
-export const updateNextcloudIntegrationAction = createAction<
-  NextcloudIntegrationInput,
-  void
->({
+export const updateNextcloudIntegrationAction = createAction<NextcloudIntegrationInput, void>({
   handler: async (input, { companyId }) => {
     const settings = await loadCompanySettings(companyId);
     if (input.appPassword === maskSecret(settings.nextcloud?.appPassword)) {
@@ -421,10 +362,7 @@ export const updateNextcloudIntegrationAction = createAction<
   minRole: "admin",
 });
 
-export const updateMailIntegrationAction = createAction<
-  MailIntegrationInput,
-  void
->({
+export const updateMailIntegrationAction = createAction<MailIntegrationInput, void>({
   handler: async (input, { companyId }) => {
     const settings = await loadCompanySettings(companyId);
     if (input.password === maskSecret(settings.mailIntake?.password)) {
@@ -448,10 +386,7 @@ export const updateMailIntegrationAction = createAction<
   minRole: "admin",
 });
 
-export const updateTalerIntegrationAction = createAction<
-  TalerIntegrationInput,
-  void
->({
+export const updateTalerIntegrationAction = createAction<TalerIntegrationInput, void>({
   handler: async (input, { companyId }) => {
     const settings = await loadCompanySettings(companyId);
     if (input.accessToken === maskSecret(settings.taler?.accessToken)) {
@@ -475,9 +410,7 @@ export const updateTalerIntegrationAction = createAction<
   minRole: "admin",
 });
 
-export async function testNextcloudIntegrationAction(): Promise<
-  ActionResult<void>
-> {
+export async function testNextcloudIntegrationAction(): Promise<ActionResult<void>> {
   try {
     const { companyId } = await requireRole("admin");
     const settings = await loadCompanySettings(companyId);
@@ -541,12 +474,7 @@ export async function testMailIntegrationAction(): Promise<ActionResult<void>> {
     const settings = await loadCompanySettings(companyId);
     const connection = settings.mailIntake;
 
-    if (
-      !connection?.host ||
-      !connection.port ||
-      !connection.username ||
-      !connection.password
-    ) {
+    if (!connection?.host || !connection.port || !connection.username || !connection.password) {
       return { success: false, error: "Mailbox is not configured." };
     }
 
@@ -596,19 +524,13 @@ export async function testMailIntegrationAction(): Promise<ActionResult<void>> {
   }
 }
 
-export async function testTalerIntegrationAction(): Promise<
-  ActionResult<void>
-> {
+export async function testTalerIntegrationAction(): Promise<ActionResult<void>> {
   try {
     const { companyId } = await requireRole("admin");
     const settings = await loadCompanySettings(companyId);
     const connection = settings.taler;
 
-    if (
-      !connection?.merchantBackendUrl ||
-      !connection.accessToken ||
-      !connection.instance
-    ) {
+    if (!connection?.merchantBackendUrl || !connection.accessToken || !connection.instance) {
       return { success: false, error: "GNU Taler is not configured." };
     }
 
@@ -715,9 +637,7 @@ export async function syncNextcloudIntegrationAction(): Promise<
   }
 }
 
-export async function syncMailIntegrationAction(): Promise<
-  ActionResult<{ imported: number }>
-> {
+export async function syncMailIntegrationAction(): Promise<ActionResult<{ imported: number }>> {
   try {
     const { companyId } = await requireRole("admin");
     const settings = await loadCompanySettings(companyId);
@@ -787,10 +707,7 @@ export const ignoreExternalIntegrationItemAction = createAction<string, void>({
       .update(externalIntegrationItems)
       .set({ status: "ignored", updatedAt: new Date() })
       .where(
-        and(
-          eq(externalIntegrationItems.id, id),
-          eq(externalIntegrationItems.companyId, companyId),
-        ),
+        and(eq(externalIntegrationItems.id, id), eq(externalIntegrationItems.companyId, companyId)),
       );
   },
   revalidate: ["/settings/integrations"],
@@ -798,19 +715,13 @@ export const ignoreExternalIntegrationItemAction = createAction<string, void>({
   minRole: "member",
 });
 
-export const createContactFromIntegrationItemAction = createAction<
-  string,
-  { contactId: string }
->({
+export const createContactFromIntegrationItemAction = createAction<string, { contactId: string }>({
   handler: async (id, { companyId, db }) => {
     const [item] = await db
       .select()
       .from(externalIntegrationItems)
       .where(
-        and(
-          eq(externalIntegrationItems.id, id),
-          eq(externalIntegrationItems.companyId, companyId),
-        ),
+        and(eq(externalIntegrationItems.id, id), eq(externalIntegrationItems.companyId, companyId)),
       );
 
     if (!item) throw new Error("Integration item not found");
@@ -819,12 +730,7 @@ export const createContactFromIntegrationItemAction = createAction<
     const [existing] = await db
       .select({ id: contacts.id })
       .from(contacts)
-      .where(
-        and(
-          eq(contacts.companyId, companyId),
-          eq(contacts.email, item.fromEmail),
-        ),
-      )
+      .where(and(eq(contacts.companyId, companyId), eq(contacts.email, item.fromEmail)))
       .limit(1);
 
     const contactId =
@@ -851,9 +757,7 @@ export const createContactFromIntegrationItemAction = createAction<
   minRole: "member",
 });
 
-export async function testRicardoConnectionAction(): Promise<
-  ActionResult<void>
-> {
+export async function testRicardoConnectionAction(): Promise<ActionResult<void>> {
   const t = await getTranslations("ricardo");
   try {
     const { companyId } = await requireRole("admin");
@@ -907,12 +811,7 @@ export async function publishToRicardoAction(
     const [item] = await db
       .select()
       .from(inventoryItems)
-      .where(
-        and(
-          eq(inventoryItems.id, itemId),
-          eq(inventoryItems.companyId, companyId),
-        ),
-      );
+      .where(and(eq(inventoryItems.id, itemId), eq(inventoryItems.companyId, companyId)));
 
     if (!item) return { success: false, error: t("errorItemNotFound") };
 
@@ -959,9 +858,7 @@ export async function publishToRicardoAction(
   }
 }
 
-export async function unpublishFromRicardoAction(
-  itemId: string,
-): Promise<ActionResult<void>> {
+export async function unpublishFromRicardoAction(itemId: string): Promise<ActionResult<void>> {
   const t = await getTranslations("ricardo");
   try {
     const { companyId } = await requireRole("member");
@@ -979,12 +876,7 @@ export async function unpublishFromRicardoAction(
         companyId: inventoryItems.companyId,
       })
       .from(inventoryItems)
-      .where(
-        and(
-          eq(inventoryItems.id, itemId),
-          eq(inventoryItems.companyId, companyId),
-        ),
-      );
+      .where(and(eq(inventoryItems.id, itemId), eq(inventoryItems.companyId, companyId)));
 
     if (!item) return { success: false, error: t("errorItemNotFound") };
 

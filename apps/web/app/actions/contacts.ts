@@ -15,12 +15,7 @@ import {
   createAddressSchema,
   updateAddressSchema,
 } from "@kivvi/core";
-import {
-  type ActionResult,
-  requireRole,
-  safeErrorMessage,
-  formatZodError,
-} from "./utils";
+import { type ActionResult, requireRole, safeErrorMessage, formatZodError } from "./utils";
 import { createAction } from "./action-factory";
 import { parseFormData } from "./parse-form-data";
 import { getTranslations } from "next-intl/server";
@@ -53,9 +48,7 @@ export async function createContactAction(
       vatNumber: raw.vatNumber,
       iban: raw.iban,
       bic: raw.bic,
-      paymentTermsDays: raw.paymentTermsDays
-        ? parseInt(raw.paymentTermsDays, 10)
-        : null,
+      paymentTermsDays: raw.paymentTermsDays ? parseInt(raw.paymentTermsDays, 10) : null,
       creditLimit: raw.creditLimit,
       language: raw.language,
       notes: raw.notes,
@@ -105,9 +98,7 @@ export async function updateContactAction(
       vatNumber: raw.vatNumber,
       iban: raw.iban,
       bic: raw.bic,
-      paymentTermsDays: raw.paymentTermsDays
-        ? parseInt(raw.paymentTermsDays, 10)
-        : undefined,
+      paymentTermsDays: raw.paymentTermsDays ? parseInt(raw.paymentTermsDays, 10) : undefined,
       creditLimit: raw.creditLimit,
       language: raw.language,
       notes: raw.notes,
@@ -138,8 +129,7 @@ export const deleteContactAction = createAction<string, void>({
     await deleteContact(db, companyId, id);
   },
   revalidate: ["/contacts"],
-  errorMessage: () =>
-    getTranslations("contacts").then((t) => t("errorFailedToDelete")),
+  errorMessage: () => getTranslations("contacts").then((t) => t("errorFailedToDelete")),
   minRole: "member",
 });
 
@@ -147,10 +137,8 @@ export const searchContactsAction = createAction<
   string,
   Awaited<ReturnType<typeof searchContacts>>
 >({
-  handler: async (query, { companyId, db }) =>
-    searchContacts(db, companyId, query),
-  errorMessage: () =>
-    getTranslations("contacts").then((t) => t("errorSearchFailed")),
+  handler: async (query, { companyId, db }) => searchContacts(db, companyId, query),
+  errorMessage: () => getTranslations("contacts").then((t) => t("errorSearchFailed")),
 });
 
 // ============================================================================
@@ -170,12 +158,7 @@ export async function createContactAddressAction(
       return { success: false, error, fieldErrors };
     }
 
-    const addr = await createContactAddress(
-      db,
-      companyId,
-      contactId,
-      parsed.data,
-    );
+    const addr = await createContactAddress(db, companyId, contactId, parsed.data);
 
     revalidatePath(`/contacts/${contactId}`);
     return { success: true, data: { id: addr.id } };
@@ -201,13 +184,7 @@ export async function updateContactAddressAction(
       return { success: false, error, fieldErrors };
     }
 
-    const addr = await updateContactAddress(
-      db,
-      companyId,
-      contactId,
-      addressId,
-      parsed.data,
-    );
+    const addr = await updateContactAddress(db, companyId, contactId, addressId, parsed.data);
 
     revalidatePath(`/contacts/${contactId}`);
     return { success: true, data: { id: addr.id } };

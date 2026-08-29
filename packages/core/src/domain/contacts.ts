@@ -3,10 +3,7 @@ import { eq, and, or, ilike, sql, desc, asc, count, gte } from "drizzle-orm";
 import { contacts, contactAddresses, documents } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
 import type { Contact, ContactAddress } from "@kivvi/database";
-import {
-  CONTACT_TYPE_VALUES,
-  ADDRESS_TYPE_VALUES,
-} from "@kivvi/database/src/enums";
+import { CONTACT_TYPE_VALUES, ADDRESS_TYPE_VALUES } from "@kivvi/database/src/enums";
 import { getNextNumber } from "./number-sequences";
 import { DEFAULT_PAYMENT_TERMS_DAYS } from "../config/document-constants";
 
@@ -21,12 +18,7 @@ const contactBaseSchema = z.object({
   name: z.string().min(1).max(200).optional().nullable(),
   firstName: z.string().max(100).optional().nullable(),
   lastName: z.string().max(100).optional().nullable(),
-  email: z
-    .string()
-    .email("Invalid email")
-    .optional()
-    .nullable()
-    .or(z.literal("")),
+  email: z.string().email("Invalid email").optional().nullable().or(z.literal("")),
   phone: z.string().max(30).optional().nullable(),
   mobile: z.string().max(30).optional().nullable(),
   website: z.string().max(200).optional().nullable(),
@@ -37,40 +29,29 @@ const contactBaseSchema = z.object({
   vatNumber: z.string().max(30).optional().nullable(),
   iban: z.string().max(34).optional().nullable(),
   bic: z.string().max(11).optional().nullable(),
-  paymentTermsDays: z.coerce
-    .number()
-    .int()
-    .min(0)
-    .max(365)
-    .optional()
-    .nullable(),
+  paymentTermsDays: z.coerce.number().int().min(0).max(365).optional().nullable(),
   creditLimit: z.string().optional().nullable(),
   language: z.string().max(5).optional().nullable(),
   notes: z.string().max(5000).optional().nullable(),
   // Mahnsperre. Robust across form values ("on"/"true"/"1"/true → true; anything
   // else incl. "false" → false) to avoid z.coerce.boolean's non-empty-string trap.
   dunningBlock: z
-    .preprocess(
-      (v) => v === true || v === "true" || v === "on" || v === "1",
-      z.boolean(),
-    )
+    .preprocess((v) => v === true || v === "true" || v === "on" || v === "1", z.boolean())
     .optional(),
 });
 
 // Create requires at least one of: name, firstName, lastName
-export const createContactSchema = contactBaseSchema.superRefine(
-  (data, ctx) => {
-    const hasName = data.name?.trim();
-    const hasFirstOrLast = data.firstName?.trim() || data.lastName?.trim();
-    if (!hasName && !hasFirstOrLast) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Name oder Vor-/Nachname erforderlich",
-        path: ["name"],
-      });
-    }
-  },
-);
+export const createContactSchema = contactBaseSchema.superRefine((data, ctx) => {
+  const hasName = data.name?.trim();
+  const hasFirstOrLast = data.firstName?.trim() || data.lastName?.trim();
+  if (!hasName && !hasFirstOrLast) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Name oder Vor-/Nachname erforderlich",
+      path: ["name"],
+    });
+  }
+});
 
 // Update allows partial fields — no name requirement (patch semantics)
 export const updateContactSchema = contactBaseSchema.partial();
@@ -270,12 +251,7 @@ export async function getContact(
       issueDate: documents.issueDate,
     })
     .from(documents)
-    .where(
-      and(
-        eq(documents.contactId, contactId),
-        eq(documents.companyId, companyId),
-      ),
-    )
+    .where(and(eq(documents.contactId, contactId), eq(documents.companyId, companyId)))
     .orderBy(desc(documents.issueDate))
     .limit(10);
 
@@ -295,8 +271,7 @@ export async function createContact(
   // Auto-derive display name from firstName + lastName if name not provided
   // Schema guarantees at least one of name/firstName/lastName is present
   const effectiveName =
-    validated.name?.trim() ||
-    [validated.firstName, validated.lastName].filter(Boolean).join(" ");
+    validated.name?.trim() || [validated.firstName, validated.lastName].filter(Boolean).join(" ");
 
   // Generate contact number
   const contactNumber = await getNextNumber(db, companyId, "contact");
@@ -327,8 +302,7 @@ export async function createContact(
       vatNumber: cleanedInput.vatNumber as string | null,
       iban: cleanedInput.iban as string | null,
       bic: cleanedInput.bic as string | null,
-      paymentTermsDays:
-        (cleanedInput.paymentTermsDays as number) ?? DEFAULT_PAYMENT_TERMS_DAYS,
+      paymentTermsDays: (cleanedInput.paymentTermsDays as number) ?? DEFAULT_PAYMENT_TERMS_DAYS,
       creditLimit: cleanedInput.creditLimit as string | null,
       language: (cleanedInput.language as string) || "de",
       notes: cleanedInput.notes as string | null,
@@ -405,10 +379,7 @@ export async function searchContacts(
   companyId: string,
   query: string,
 ): Promise<
-  Pick<
-    Contact,
-    "id" | "name" | "contactNumber" | "email" | "type" | "paymentTermsDays"
-  >[]
+  Pick<Contact, "id" | "name" | "contactNumber" | "email" | "type" | "paymentTermsDays">[]
 > {
   if (!query || !query.trim()) return [];
 
@@ -486,10 +457,7 @@ export async function createContactAddress(
         .update(contactAddresses)
         .set({ isDefault: false })
         .where(
-          and(
-            eq(contactAddresses.contactId, contactId),
-            eq(contactAddresses.type, validated.type),
-          ),
+          and(eq(contactAddresses.contactId, contactId), eq(contactAddresses.type, validated.type)),
         );
     }
 
@@ -538,10 +506,7 @@ export async function updateContactAddress(
         .update(contactAddresses)
         .set({ isDefault: false })
         .where(
-          and(
-            eq(contactAddresses.contactId, contactId),
-            eq(contactAddresses.type, validated.type),
-          ),
+          and(eq(contactAddresses.contactId, contactId), eq(contactAddresses.type, validated.type)),
         );
     }
 
@@ -550,12 +515,7 @@ export async function updateContactAddress(
       .set({
         ...validated,
       })
-      .where(
-        and(
-          eq(contactAddresses.id, addressId),
-          eq(contactAddresses.contactId, contactId),
-        ),
-      )
+      .where(and(eq(contactAddresses.id, addressId), eq(contactAddresses.contactId, contactId)))
       .returning();
 
     if (!updated) throw new Error("Address not found");
@@ -582,12 +542,7 @@ export async function deleteContactAddress(
 
   const result = await db
     .delete(contactAddresses)
-    .where(
-      and(
-        eq(contactAddresses.id, addressId),
-        eq(contactAddresses.contactId, contactId),
-      ),
-    )
+    .where(and(eq(contactAddresses.id, addressId), eq(contactAddresses.contactId, contactId)))
     .returning();
 
   if (result.length === 0) throw new Error("Address not found");
@@ -614,12 +569,7 @@ export async function resolveOrCreateContact(
     const [byEmail] = await db
       .select({ id: contacts.id })
       .from(contacts)
-      .where(
-        and(
-          eq(contacts.companyId, companyId),
-          ilike(contacts.email, email.trim()),
-        ),
-      )
+      .where(and(eq(contacts.companyId, companyId), ilike(contacts.email, email.trim())))
       .limit(1);
     if (byEmail) return byEmail.id;
   }
@@ -628,9 +578,7 @@ export async function resolveOrCreateContact(
   const [byName] = await db
     .select({ id: contacts.id })
     .from(contacts)
-    .where(
-      and(eq(contacts.companyId, companyId), ilike(contacts.name, name.trim())),
-    )
+    .where(and(eq(contacts.companyId, companyId), ilike(contacts.name, name.trim())))
     .limit(1);
   if (byName) return byName.id;
 
@@ -649,33 +597,19 @@ export interface ContactStats {
   newThisMonth: number;
 }
 
-export async function getContactStats(
-  db: Database,
-  companyId: string,
-): Promise<ContactStats> {
-  const startOfMonth = new Date(
-    new Date().getFullYear(),
-    new Date().getMonth(),
-    1,
-  );
+export async function getContactStats(db: Database, companyId: string): Promise<ContactStats> {
+  const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 
   const [typeCounts, [newRow]] = await Promise.all([
     db
       .select({ type: contacts.type, total: count() })
       .from(contacts)
-      .where(
-        and(eq(contacts.companyId, companyId), eq(contacts.isActive, true)),
-      )
+      .where(and(eq(contacts.companyId, companyId), eq(contacts.isActive, true)))
       .groupBy(contacts.type),
     db
       .select({ total: count() })
       .from(contacts)
-      .where(
-        and(
-          eq(contacts.companyId, companyId),
-          gte(contacts.createdAt, startOfMonth),
-        ),
-      ),
+      .where(and(eq(contacts.companyId, companyId), gte(contacts.createdAt, startOfMonth))),
   ]);
 
   // "both" contacts count toward both customers and vendors

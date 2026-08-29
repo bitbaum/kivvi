@@ -15,10 +15,7 @@ interface RepairPartsSectionProps {
   initialParts: RepairPartWithProduct[];
 }
 
-export function RepairPartsSection({
-  itemId,
-  initialParts,
-}: RepairPartsSectionProps) {
+export function RepairPartsSection({ itemId, initialParts }: RepairPartsSectionProps) {
   const t = useTranslations("inventory");
   const tc = useTranslations("common");
   const [parts, setParts] = useState<RepairPartWithProduct[]>(initialParts);

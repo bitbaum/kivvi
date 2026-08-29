@@ -17,9 +17,7 @@ interface ImageUploadProps {
   /** Current base64 data URI (or null if no image) */
   currentImage: string | null;
   /** Server action to upload: receives FormData with file under `fieldName` */
-  onUpload: (
-    formData: FormData,
-  ) => Promise<{ success: boolean; error?: string }>;
+  onUpload: (formData: FormData) => Promise<{ success: boolean; error?: string }>;
   /** Server action to remove the image */
   onRemove: () => Promise<{ success: boolean; error?: string }>;
   /** Form field name for the file input (default: "photo") */

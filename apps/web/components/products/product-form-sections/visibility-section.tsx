@@ -29,9 +29,7 @@ export function ProductFormVisibilitySection({ product }: SectionProps) {
             <label htmlFor="shopVisible" className="text-sm font-medium">
               {t("visibleInShop")}
             </label>
-            <p className="text-xs text-muted-foreground">
-              {t("shopVisibleDescription")}
-            </p>
+            <p className="text-xs text-muted-foreground">{t("shopVisibleDescription")}</p>
           </div>
         </div>
       </div>

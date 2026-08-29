@@ -9,10 +9,5 @@ interface PageProps {
 export default async function EditOrderPage({ params }: PageProps) {
   const { id } = await params;
   if (!isValidUUID(id)) notFound();
-  return (
-    <EditDocumentPage
-      documentId={id}
-      allowedTypes={["order", "order_confirmation"]}
-    />
-  );
+  return <EditDocumentPage documentId={id} allowedTypes={["order", "order_confirmation"]} />;
 }

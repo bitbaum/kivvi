@@ -8,11 +8,7 @@ import { SettingsSubpageHeader } from "@/components/settings-subpage-header";
 import { RecurringConfigForm } from "../recurring-config-form";
 import { isValidUUID } from "@/lib/utils";
 
-export default async function EditRecurringInvoicePage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function EditRecurringInvoicePage({ params }: { params: { id: string } }) {
   const session = await getSessionOrRedirect();
   if (!isValidUUID(params.id)) notFound();
 
@@ -27,10 +23,7 @@ export default async function EditRecurringInvoicePage({
     notFound();
   }
 
-  const rawOptions = await getOrderOptionsForRecurring(
-    db,
-    session.user.companyId,
-  );
+  const rawOptions = await getOrderOptionsForRecurring(db, session.user.companyId);
   const orderOptions = rawOptions.map((o) => ({
     ...o,
     contactName: o.contactName ?? tc("noContact"),

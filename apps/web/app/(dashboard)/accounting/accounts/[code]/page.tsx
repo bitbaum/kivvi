@@ -13,10 +13,7 @@ interface PageProps {
   searchParams: Promise<{ dateFrom?: string; dateTo?: string }>;
 }
 
-export default async function AccountStatementPage({
-  params,
-  searchParams,
-}: PageProps) {
+export default async function AccountStatementPage({ params, searchParams }: PageProps) {
   const session = await getSessionOrRedirect();
   const t = await getTranslations("accounting");
   const tc = await getTranslations("common");
@@ -61,11 +58,7 @@ export default async function AccountStatementPage({
       </div>
 
       {!statement ? (
-        <EmptyState
-          icon={FileText}
-          title={tc("noResults")}
-          description={code}
-        />
+        <EmptyState icon={FileText} title={tc("noResults")} description={code} />
       ) : (
         <>
           {/* Period filter */}
@@ -117,9 +110,7 @@ export default async function AccountStatementPage({
 
             {/* Opening balance */}
             <div className="grid min-w-[820px] grid-cols-[110px_140px_1fr_130px_130px_150px] gap-4 border-b bg-muted/40 px-6 py-3 text-sm">
-              <div className="col-span-3 font-medium">
-                {t("openingBalance")}
-              </div>
+              <div className="col-span-3 font-medium">{t("openingBalance")}</div>
               <div />
               <div />
               <div className="text-right font-mono font-medium">
@@ -150,18 +141,14 @@ export default async function AccountStatementPage({
                   <div className="text-right font-mono">
                     {row.credit ? formatCurrency(row.credit) : ""}
                   </div>
-                  <div className="text-right font-mono">
-                    {formatCurrency(row.runningBalance)}
-                  </div>
+                  <div className="text-right font-mono">{formatCurrency(row.runningBalance)}</div>
                 </div>
               ))}
             </div>
 
             {/* Closing balance */}
             <div className="grid min-w-[820px] grid-cols-[110px_140px_1fr_130px_130px_150px] gap-4 border-t bg-muted/40 px-6 py-3 text-sm">
-              <div className="col-span-3 font-semibold">
-                {t("closingBalance")}
-              </div>
+              <div className="col-span-3 font-semibold">{t("closingBalance")}</div>
               <div />
               <div />
               <div

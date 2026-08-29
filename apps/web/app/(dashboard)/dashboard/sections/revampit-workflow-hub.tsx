@@ -99,9 +99,7 @@ export async function RevampitWorkflowHub() {
                     <Icon className="h-5 w-5" />
                   </div>
                   <div className="min-w-0">
-                    <h3 className="font-medium leading-tight">
-                      {t(`${lane.key}.title`)}
-                    </h3>
+                    <h3 className="font-medium leading-tight">{t(`${lane.key}.title`)}</h3>
                     <p className="mt-1 text-sm text-muted-foreground">
                       {t(`${lane.key}.description`)}
                     </p>
@@ -116,9 +114,7 @@ export async function RevampitWorkflowHub() {
                     </Link>
                   </Button>
                   <Button asChild variant="ghost" size="sm">
-                    <Link href={lane.secondaryHref}>
-                      {t(`${lane.key}.secondary`)}
-                    </Link>
+                    <Link href={lane.secondaryHref}>{t(`${lane.key}.secondary`)}</Link>
                   </Button>
                 </div>
               </div>

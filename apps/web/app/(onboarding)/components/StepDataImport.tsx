@@ -45,9 +45,7 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
   const t = useTranslations("onboarding");
   const tc = useTranslations("common");
   const [mode, setMode] = useState<ImportMode>("choice");
-  const [pendingImports, setPendingImports] = useState<
-    Map<string, PendingImport>
-  >(new Map());
+  const [pendingImports, setPendingImports] = useState<Map<string, PendingImport>>(new Map());
   const [importStatuses, setImportStatuses] = useState<ImportStatus[]>([]);
   const [isImporting, setIsImporting] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
@@ -102,32 +100,29 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
     [],
   );
 
-  const handleMappingConfirmed = useCallback(
-    (entityType: string, mapping: MappingField[]) => {
-      setPendingImports((prev) => {
-        const next = new Map(prev);
-        const pending = next.get(entityType);
-        if (!pending) return prev;
+  const handleMappingConfirmed = useCallback((entityType: string, mapping: MappingField[]) => {
+    setPendingImports((prev) => {
+      const next = new Map(prev);
+      const pending = next.get(entityType);
+      if (!pending) return prev;
 
-        const keyColumn = pending.headers[0] || "";
-        const mappedRows = pending.rawRows
-          .filter((row) => !isSubtotalRow(row, keyColumn))
-          .map((row) => {
-            const result: Record<string, string | null> = {};
-            for (const field of mapping) {
-              const rawValue = row[field.source] ?? "";
-              result[field.target] = applyTransform(rawValue, field.transform);
-            }
-            return result;
-          })
-          .filter((row) => Object.values(row).filter(Boolean).length >= 1);
+      const keyColumn = pending.headers[0] || "";
+      const mappedRows = pending.rawRows
+        .filter((row) => !isSubtotalRow(row, keyColumn))
+        .map((row) => {
+          const result: Record<string, string | null> = {};
+          for (const field of mapping) {
+            const rawValue = row[field.source] ?? "";
+            result[field.target] = applyTransform(rawValue, field.transform);
+          }
+          return result;
+        })
+        .filter((row) => Object.values(row).filter(Boolean).length >= 1);
 
-        next.set(entityType, { ...pending, mappedRows, confirmed: true });
-        return next;
-      });
-    },
-    [],
-  );
+      next.set(entityType, { ...pending, mappedRows, confirmed: true });
+      return next;
+    });
+  }, []);
 
   const handleRunImport = async () => {
     setIsImporting(true);
@@ -164,10 +159,7 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
       );
 
       let structuredItems: Record<string, ParsedLineItem[]> | undefined;
-      if (
-        imp.entityType === "invoice" ||
-        imp.entityType === "purchase_invoice"
-      ) {
+      if (imp.entityType === "invoice" || imp.entityType === "purchase_invoice") {
         const positionenIdx = imp.headers.indexOf("Positionen");
         const buchungsnummerIdx = imp.headers.indexOf("Buchungsnummer");
         if (positionenIdx !== -1 && buchungsnummerIdx !== -1) {
@@ -196,9 +188,7 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
                 state: result.success ? "done" : "error",
                 inserted: result.data?.inserted,
                 skipped: result.data?.skipped,
-                errors: result.success
-                  ? result.data?.errors
-                  : [result.error || tc("error")],
+                errors: result.success ? result.data?.errors : [result.error || tc("error")],
               }
             : s,
         ),
@@ -208,9 +198,7 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
     setIsImporting(false);
   };
 
-  const confirmedCount = Array.from(pendingImports.values()).filter(
-    (p) => p.confirmed,
-  ).length;
+  const confirmedCount = Array.from(pendingImports.values()).filter((p) => p.confirmed).length;
   const allImportsDone =
     importStatuses.length > 0 &&
     importStatuses.every((s) => s.state === "done" || s.state === "error");
@@ -273,14 +261,12 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
           </Button>
 
           <div className="flex gap-3">
-            {!allImportsDone &&
-              importStatuses.length === 0 &&
-              confirmedCount > 0 && (
-                <Button onClick={handleRunImport} disabled={isImporting}>
-                  {isImporting && <Loader2 className="h-4 w-4 animate-spin" />}
-                  {t("importFiles", { count: confirmedCount })}
-                </Button>
-              )}
+            {!allImportsDone && importStatuses.length === 0 && confirmedCount > 0 && (
+              <Button onClick={handleRunImport} disabled={isImporting}>
+                {isImporting && <Loader2 className="h-4 w-4 animate-spin" />}
+                {t("importFiles", { count: confirmedCount })}
+              </Button>
+            )}
 
             {allImportsDone && (
               <Button onClick={handleComplete} disabled={isCompleting}>
@@ -289,17 +275,11 @@ export function StepDataImport({ onComplete }: StepDataImportProps) {
               </Button>
             )}
 
-            {!allImportsDone &&
-              importStatuses.length === 0 &&
-              confirmedCount === 0 && (
-                <Button
-                  variant="secondary"
-                  onClick={handleComplete}
-                  disabled={isCompleting}
-                >
-                  {isCompleting ? t("completing") : t("skipAndFinish")}
-                </Button>
-              )}
+            {!allImportsDone && importStatuses.length === 0 && confirmedCount === 0 && (
+              <Button variant="secondary" onClick={handleComplete} disabled={isCompleting}>
+                {isCompleting ? t("completing") : t("skipAndFinish")}
+              </Button>
+            )}
           </div>
         </div>
       </div>

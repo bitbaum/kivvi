@@ -71,11 +71,7 @@ function LoginForm() {
 
           {error && (
             <div className="mb-4 flex items-center gap-2 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
-              <svg
-                className="h-4 w-4 shrink-0"
-                viewBox="0 0 16 16"
-                fill="currentColor"
-              >
+              <svg className="h-4 w-4 shrink-0" viewBox="0 0 16 16" fill="currentColor">
                 <path
                   fillRule="evenodd"
                   d="M8 15A7 7 0 108 1a7 7 0 000 14zM8 4a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 018 4zm0 8a1 1 0 100-2 1 1 0 000 2z"
@@ -87,10 +83,7 @@ function LoginForm() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label
-                htmlFor="email"
-                className="mb-1.5 block text-sm font-medium"
-              >
+              <label htmlFor="email" className="mb-1.5 block text-sm font-medium">
                 {t("emailAddress")}
               </label>
               <input
@@ -110,10 +103,7 @@ function LoginForm() {
                 <label htmlFor="password" className="text-sm font-medium">
                   {t("password")}
                 </label>
-                <Link
-                  href="/forgot-password"
-                  className="text-sm text-primary hover:underline"
-                >
+                <Link href="/forgot-password" className="text-sm text-primary hover:underline">
                   {t("forgotPassword")}
                 </Link>
               </div>
@@ -133,24 +123,14 @@ function LoginForm() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
                   tabIndex={-1}
-                  aria-label={
-                    showPassword ? t("hidePassword") : t("showPassword")
-                  }
+                  aria-label={showPassword ? t("hidePassword") : t("showPassword")}
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
             </div>
 
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="w-full shadow-sm"
-            >
+            <Button type="submit" disabled={isLoading} className="w-full shadow-sm">
               {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
               {isLoading ? t("signingIn") : t("signIn")}
             </Button>
@@ -158,10 +138,7 @@ function LoginForm() {
 
           <div className="mt-6 text-center text-sm text-muted-foreground">
             {t("noAccount")}{" "}
-            <Link
-              href="/register"
-              className="font-medium text-primary hover:underline"
-            >
+            <Link href="/register" className="font-medium text-primary hover:underline">
               {t("createAccount")}
             </Link>
           </div>
@@ -186,9 +163,7 @@ function LoginForm() {
       {/* Right side - Brand & Features */}
       <div className="hidden flex-1 items-center justify-center brand-gradient p-12 lg:flex">
         <div className="max-w-md text-white">
-          <h2 className="mb-3 text-3xl font-bold leading-tight">
-            {t("businessOnAutopilot")}
-          </h2>
+          <h2 className="mb-3 text-3xl font-bold leading-tight">{t("businessOnAutopilot")}</h2>
           <p className="mb-8 text-white/80">{t("heroSubtitle")}</p>
 
           <ul className="space-y-4">

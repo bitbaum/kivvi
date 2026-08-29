@@ -50,9 +50,7 @@ export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
   const editAccountId = params.edit;
 
   const accounts = await listAccounts(db, session.user.companyId, {
-    type: (typeFilter || undefined) as
-      | import("@kivvi/database").AccountType
-      | undefined,
+    type: (typeFilter || undefined) as import("@kivvi/database").AccountType | undefined,
     search: search || undefined,
   });
 
@@ -77,9 +75,7 @@ export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
           <div>
             <h1 className="text-3xl font-bold">{t("chartOfAccounts")}</h1>
             <p className="text-muted-foreground">
-              {isEmpty
-                ? t("noAccounts")
-                : t("accountsConfigured", { count: allAccounts.length })}
+              {isEmpty ? t("noAccounts") : t("accountsConfigured", { count: allAccounts.length })}
             </p>
           </div>
         </div>
@@ -102,10 +98,7 @@ export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
 
       {/* Add/Edit Account Form */}
       {(showAddForm || editAccount) && (
-        <AccountForm
-          account={editAccount || undefined}
-          parentAccounts={allAccounts}
-        />
+        <AccountForm account={editAccount || undefined} parentAccounts={allAccounts} />
       )}
 
       {/* Empty state with seed option */}
@@ -147,9 +140,7 @@ export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
                 defaultValue={search}
                 className="w-full rounded-lg border bg-background py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               />
-              {typeFilter && (
-                <input type="hidden" name="type" value={typeFilter} />
-              )}
+              {typeFilter && <input type="hidden" name="type" value={typeFilter} />}
             </form>
 
             {/* Type filter */}
@@ -182,11 +173,7 @@ export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
           {/* Table */}
           <div className="overflow-x-auto rounded-xl border bg-card">
             {accounts.length === 0 ? (
-              <EmptyState
-                icon={Search}
-                title={tc("noResults")}
-                description={t("searchAccounts")}
-              />
+              <EmptyState icon={Search} title={tc("noResults")} description={t("searchAccounts")} />
             ) : (
               <>
                 {/* Table header */}
@@ -201,9 +188,7 @@ export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
                 {/* Table rows */}
                 <div className="divide-y">
                   {accounts.map((account) => {
-                    const parent = account.parentId
-                      ? accountMap.get(account.parentId)
-                      : null;
+                    const parent = account.parentId ? accountMap.get(account.parentId) : null;
                     const isEditing = editAccountId === account.id;
 
                     return (
@@ -247,9 +232,7 @@ export default async function ChartOfAccountsPage({ searchParams }: PageProps) {
                         <div className="flex items-center justify-center">
                           <StatusBadge
                             variant={account.isActive ? "active" : "inactive"}
-                            label={
-                              account.isActive ? tc("active") : tc("inactive")
-                            }
+                            label={account.isActive ? tc("active") : tc("inactive")}
                           />
                         </div>
                         <div className="flex items-center justify-end gap-2">

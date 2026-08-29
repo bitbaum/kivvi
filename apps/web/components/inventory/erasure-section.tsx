@@ -68,16 +68,12 @@ export function ErasureSection({
             <div className="flex items-center gap-2 text-sm">
               <ShieldCheck className="h-4 w-4 text-success" />
               <span className="font-medium text-success">
-                {ti(
-                  `erasureMethod_${erasureMethod}` as Parameters<typeof ti>[0],
-                )}
+                {ti(`erasureMethod_${erasureMethod}` as Parameters<typeof ti>[0])}
               </span>
             </div>
             <p className="text-xs text-muted-foreground">
               {ti("erasureDate")}{" "}
-              {formatDate(
-                typeof erasuredAt === "string" ? erasuredAt : erasuredAt!,
-              )}
+              {formatDate(typeof erasuredAt === "string" ? erasuredAt : erasuredAt!)}
             </p>
             <a
               href={`/api/inventory/items/${itemId}/erasure-certificate`}
@@ -91,9 +87,7 @@ export function ErasureSection({
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              {ti("erasureNotRecorded")}
-            </p>
+            <p className="text-sm text-muted-foreground">{ti("erasureNotRecorded")}</p>
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
                 <label

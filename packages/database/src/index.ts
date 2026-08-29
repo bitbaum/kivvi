@@ -39,9 +39,7 @@ neonConfig.poolQueryViaFetch = true;
 export function createNeonClient(connectionString: string) {
   const pool = new Pool({ connectionString });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return drizzleNeonWs(pool, { schema }) as any as ReturnType<
-    typeof createPostgresClient
-  >;
+  return drizzleNeonWs(pool, { schema }) as any as ReturnType<typeof createPostgresClient>;
 }
 
 // For local development / traditional hosting

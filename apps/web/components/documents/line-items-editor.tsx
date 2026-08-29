@@ -9,10 +9,7 @@ import {
   type SensorDescriptor,
   type SensorOptions,
 } from "@dnd-kit/core";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import type { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { SortableLineItem } from "./sortable-line-item";
@@ -23,11 +20,7 @@ interface LineItemsEditorProps {
   sensors: SensorDescriptor<SensorOptions>[];
   onDragEnd: (event: DragEndEvent) => void;
   onAddItem: () => void;
-  onUpdateItem: (
-    id: string,
-    field: keyof LineItem,
-    value: string | null,
-  ) => void;
+  onUpdateItem: (id: string, field: keyof LineItem, value: string | null) => void;
   onRemoveItem: (id: string) => void;
   hideFinancials?: boolean;
   priceLabel?: string;
@@ -63,11 +56,7 @@ export function LineItemsEditor({
         </div>
       </div>
 
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={onDragEnd}
-      >
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
         <SortableContext
           items={items.map((item) => item.id)}
           strategy={verticalListSortingStrategy}
@@ -78,9 +67,7 @@ export function LineItemsEditor({
                 key={item.id}
                 item={item}
                 index={index}
-                updateItem={(id, field, value) =>
-                  onUpdateItem(id, field, value)
-                }
+                updateItem={(id, field, value) => onUpdateItem(id, field, value)}
                 removeItem={onRemoveItem}
                 canRemove={items.length > 1}
                 hideFinancials={hideFinancials}

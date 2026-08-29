@@ -5,10 +5,7 @@ import { Plus, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTranslations } from "next-intl";
 import type { WebhookEndpoint, WebhookEvent } from "@kivvi/database";
-import {
-  deleteWebhookEndpointAction,
-  toggleWebhookEndpointAction,
-} from "@/app/actions/webhooks";
+import { deleteWebhookEndpointAction, toggleWebhookEndpointAction } from "@/app/actions/webhooks";
 import { WebhookEndpointCard } from "./_components/webhook-endpoint-card";
 import { WebhookCreateForm } from "./_components/webhook-create-form";
 
@@ -37,9 +34,7 @@ export function WebhooksPanel({ initialEndpoints }: Props) {
       isActive: !current,
     });
     if (result.success) {
-      setEndpoints((prev) =>
-        prev.map((ep) => (ep.id === id ? { ...ep, isActive: !current } : ep)),
-      );
+      setEndpoints((prev) => prev.map((ep) => (ep.id === id ? { ...ep, isActive: !current } : ep)));
     }
   }
 
@@ -58,10 +53,7 @@ export function WebhooksPanel({ initialEndpoints }: Props) {
         <h2 className="font-semibold">{t("howItWorks")}</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           {t("howItWorksDesc")} (Header:{" "}
-          <code className="rounded bg-muted px-1 py-0.5 text-xs">
-            X-Kivvi-Signature
-          </code>
-          )
+          <code className="rounded bg-muted px-1 py-0.5 text-xs">X-Kivvi-Signature</code>)
         </p>
       </div>
 
@@ -84,11 +76,7 @@ export function WebhooksPanel({ initialEndpoints }: Props) {
         <div className="rounded-xl border bg-card p-10 text-center text-muted-foreground">
           <Globe className="mx-auto mb-3 h-8 w-8 opacity-40" />
           <p className="mb-4 text-sm">{t("emptyState")}</p>
-          <Button
-            variant="outline"
-            onClick={() => setShowForm(true)}
-            className="gap-2"
-          >
+          <Button variant="outline" onClick={() => setShowForm(true)} className="gap-2">
             <Plus className="h-4 w-4" />
             {t("addEndpoint")}
           </Button>
@@ -105,11 +93,7 @@ export function WebhooksPanel({ initialEndpoints }: Props) {
           onCancel={() => setShowForm(false)}
         />
       ) : (
-        <Button
-          variant="outline"
-          onClick={() => setShowForm(true)}
-          className="gap-2"
-        >
+        <Button variant="outline" onClick={() => setShowForm(true)} className="gap-2">
           <Plus className="h-4 w-4" />
           {t("addEndpoint")}
         </Button>

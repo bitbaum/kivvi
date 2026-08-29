@@ -61,8 +61,7 @@ export async function POST(request: NextRequest) {
     const product = await createProduct(db, ctx.companyId, parsed.data);
     return apiSuccess(product);
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to create product";
+    const message = error instanceof Error ? error.message : "Failed to create product";
     return apiError(message, 400);
   }
 }

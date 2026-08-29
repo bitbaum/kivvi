@@ -2,10 +2,7 @@ import Decimal from "decimal.js";
 import { useState, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import {
-  createJournalEntryAction,
-  listAccountsAction,
-} from "@/app/actions/accounting";
+import { createJournalEntryAction, listAccountsAction } from "@/app/actions/accounting";
 import type { Account } from "./account-picker";
 
 export interface JournalLineItem {
@@ -41,10 +38,7 @@ export function useJournalEntryForm() {
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [reference, setReference] = useState("");
   const [description, setDescription] = useState("");
-  const [lines, setLines] = useState<JournalLineItem[]>([
-    emptyLine(),
-    emptyLine(),
-  ]);
+  const [lines, setLines] = useState<JournalLineItem[]>([emptyLine(), emptyLine()]);
 
   // Fetch accounts on mount
   useEffect(() => {
@@ -66,11 +60,7 @@ export function useJournalEntryForm() {
     setLines(lines.filter((l) => l.id !== id));
   };
 
-  const updateLine = (
-    id: string,
-    field: keyof JournalLineItem,
-    value: string,
-  ) => {
+  const updateLine = (id: string, field: keyof JournalLineItem, value: string) => {
     setLines(lines.map((l) => (l.id === id ? { ...l, [field]: value } : l)));
   };
 
@@ -95,9 +85,7 @@ export function useJournalEntryForm() {
       return;
     }
 
-    const validLines = lines.filter(
-      (l) => l.accountId && (l.debit || l.credit),
-    );
+    const validLines = lines.filter((l) => l.accountId && (l.debit || l.credit));
     if (validLines.length < 2) {
       setError(t("minTwoLines"));
       return;
@@ -122,9 +110,7 @@ export function useJournalEntryForm() {
       });
 
       if (result.success && result.data) {
-        router.push(
-          `/accounting/journal/${(result.data as { id: string }).id}`,
-        );
+        router.push(`/accounting/journal/${(result.data as { id: string }).id}`);
       } else {
         setError(result.error || tc("error"));
       }

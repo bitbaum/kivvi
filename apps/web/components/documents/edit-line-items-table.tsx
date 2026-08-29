@@ -13,11 +13,7 @@ interface EditLineItemsTableProps {
   items: LineItem[];
   onAddItem: () => void;
   onRemoveItem: (id: string) => void;
-  onUpdateItem: (
-    id: string,
-    field: keyof LineItem,
-    value: string | null,
-  ) => void;
+  onUpdateItem: (id: string, field: keyof LineItem, value: string | null) => void;
   /** Optional slot rendered left of the "Add item" button in the header */
   priceListSlot?: ReactNode;
 }
@@ -51,16 +47,12 @@ export function EditLineItemsTable({
         {items.map((item, index) => (
           <div key={item.id} className="space-y-3 p-4">
             <div className="flex items-start gap-3">
-              <span className="mt-2.5 w-6 text-sm text-muted-foreground">
-                {index + 1}
-              </span>
+              <span className="mt-2.5 w-6 text-sm text-muted-foreground">{index + 1}</span>
               <div className="flex-1 space-y-3">
                 <FormInput
                   type="text"
                   value={item.description}
-                  onChange={(e) =>
-                    onUpdateItem(item.id, "description", e.target.value)
-                  }
+                  onChange={(e) => onUpdateItem(item.id, "description", e.target.value)}
                   placeholder={tc("description")}
                 />
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
@@ -76,9 +68,7 @@ export function EditLineItemsTable({
                       type="number"
                       step="0.01"
                       value={item.quantity}
-                      onChange={(e) =>
-                        onUpdateItem(item.id, "quantity", e.target.value)
-                      }
+                      onChange={(e) => onUpdateItem(item.id, "quantity", e.target.value)}
                       className="mt-1"
                     />
                   </div>
@@ -94,9 +84,7 @@ export function EditLineItemsTable({
                       type="number"
                       step="0.01"
                       value={item.unitPrice}
-                      onChange={(e) =>
-                        onUpdateItem(item.id, "unitPrice", e.target.value)
-                      }
+                      onChange={(e) => onUpdateItem(item.id, "unitPrice", e.target.value)}
                       className="mt-1"
                     />
                   </div>
@@ -112,9 +100,7 @@ export function EditLineItemsTable({
                       type="number"
                       step="0.1"
                       value={item.discount}
-                      onChange={(e) =>
-                        onUpdateItem(item.id, "discount", e.target.value)
-                      }
+                      onChange={(e) => onUpdateItem(item.id, "discount", e.target.value)}
                       className="mt-1"
                     />
                   </div>
@@ -128,9 +114,7 @@ export function EditLineItemsTable({
                     <FormSelect
                       id={`edit-vatRate-${item.id}`}
                       value={item.vatRate}
-                      onChange={(e) =>
-                        onUpdateItem(item.id, "vatRate", e.target.value)
-                      }
+                      onChange={(e) => onUpdateItem(item.id, "vatRate", e.target.value)}
                       className="mt-1"
                     >
                       {SWISS_VAT_RATES.map((rate) => (
@@ -141,9 +125,7 @@ export function EditLineItemsTable({
                     </FormSelect>
                   </div>
                   <div>
-                    <label className="block text-sm text-muted-foreground">
-                      {tc("total")}
-                    </label>
+                    <label className="block text-sm text-muted-foreground">{tc("total")}</label>
                     <p className="mt-1 rounded-lg border bg-muted/50 px-3 py-2 text-sm font-medium">
                       {formatCurrency(calculateItemTotal(item).toFixed(2))}
                     </p>

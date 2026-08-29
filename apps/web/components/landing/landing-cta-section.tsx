@@ -8,17 +8,10 @@ interface LandingCtaSectionProps {
   id?: string;
 }
 
-export async function LandingCtaSection({
-  title,
-  description,
-  id,
-}: LandingCtaSectionProps) {
+export async function LandingCtaSection({ title, description, id }: LandingCtaSectionProps) {
   const t = await getTranslations("landing");
   return (
-    <section
-      id={id}
-      className="mx-auto max-w-2xl py-16 text-center scroll-mt-16"
-    >
+    <section id={id} className="mx-auto max-w-2xl py-16 text-center scroll-mt-16">
       <h2 className="mb-4 text-2xl font-bold">{title}</h2>
       <p className="mb-8 text-muted-foreground">{description}</p>
       <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">

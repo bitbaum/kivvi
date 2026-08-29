@@ -19,10 +19,7 @@ interface EditDocumentPageProps {
  * Shared server component for all document edit pages.
  * Handles auth, doc fetch, draft validation, breadcrumbs, and form rendering.
  */
-export async function EditDocumentPage({
-  documentId,
-  allowedTypes,
-}: EditDocumentPageProps) {
+export async function EditDocumentPage({ documentId, allowedTypes }: EditDocumentPageProps) {
   const session = await auth();
   if (!session?.user?.companyId) {
     redirect("/login");
@@ -61,12 +58,8 @@ export async function EditDocumentPage({
         initialData={{
           contactId: doc.contactId,
           contactName: doc.contact?.name || "",
-          issueDate: doc.issueDate
-            ? new Date(doc.issueDate).toISOString().split("T")[0]
-            : "",
-          dueDate: doc.dueDate
-            ? new Date(doc.dueDate).toISOString().split("T")[0]
-            : "",
+          issueDate: doc.issueDate ? new Date(doc.issueDate).toISOString().split("T")[0] : "",
+          dueDate: doc.dueDate ? new Date(doc.dueDate).toISOString().split("T")[0] : "",
           deliveryDate: doc.deliveryDate
             ? new Date(doc.deliveryDate).toISOString().split("T")[0]
             : "",
@@ -90,8 +83,7 @@ export async function EditDocumentPage({
               quantity: item.quantity.replace(/\.?0+$/, "") || "0",
               unitPrice: item.unitPrice.replace(/\.?0+$/, "") || "0",
               discount: (item.discount || "0").replace(/\.?0+$/, "") || "0",
-              vatRate:
-                (item.vatRate || DEFAULT_VAT_RATE).replace(/\.?0+$/, "") || "0",
+              vatRate: (item.vatRate || DEFAULT_VAT_RATE).replace(/\.?0+$/, "") || "0",
               stockQuantity: null,
               minPrice: null,
               maxPrice: null,

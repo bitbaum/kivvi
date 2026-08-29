@@ -13,19 +13,12 @@ interface Props {
   onRemove: (id: string) => void;
 }
 
-export function RepairPartsList({
-  parts,
-  partsTotal,
-  isPending,
-  onRemove,
-}: Props) {
+export function RepairPartsList({ parts, partsTotal, isPending, onRemove }: Props) {
   const t = useTranslations("inventory");
   const tc = useTranslations("common");
 
   if (parts.length === 0) {
-    return (
-      <p className="text-sm text-muted-foreground">{t("repairPartsEmpty")}</p>
-    );
+    return <p className="text-sm text-muted-foreground">{t("repairPartsEmpty")}</p>;
   }
 
   return (
@@ -40,9 +33,7 @@ export function RepairPartsList({
         let lineTotal = "—";
         try {
           lineTotal = formatCurrency(
-            new Decimal(part.quantity)
-              .times(new Decimal(part.unitCost))
-              .toFixed(2),
+            new Decimal(part.quantity).times(new Decimal(part.unitCost)).toFixed(2),
           );
         } catch {
           // malformed decimals
@@ -59,9 +50,7 @@ export function RepairPartsList({
                   ({part.product.articleNumber})
                 </span>
               )}
-              {part.notes && (
-                <p className="text-xs text-muted-foreground">{part.notes}</p>
-              )}
+              {part.notes && <p className="text-xs text-muted-foreground">{part.notes}</p>}
             </div>
             <span className="text-right tabular-nums">
               {new Decimal(part.quantity).toFixed(2).replace(/\.?0+$/, "")}×
@@ -70,9 +59,7 @@ export function RepairPartsList({
               {formatCurrency(part.unitCost)}
             </span>
             <div className="flex items-center gap-1.5">
-              <span className="text-right tabular-nums font-medium">
-                {lineTotal}
-              </span>
+              <span className="text-right tabular-nums font-medium">{lineTotal}</span>
               <button
                 onClick={() => onRemove(part.id)}
                 disabled={isPending}
@@ -87,9 +74,7 @@ export function RepairPartsList({
       })}
       <div className="flex justify-between border-t px-2 pt-2 text-sm font-medium">
         <span>{t("repairPartsTotal")}</span>
-        <span className="tabular-nums">
-          {formatCurrency(partsTotal.toFixed(2))}
-        </span>
+        <span className="tabular-nums">{formatCurrency(partsTotal.toFixed(2))}</span>
       </div>
     </div>
   );

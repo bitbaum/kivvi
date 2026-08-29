@@ -2,15 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import {
-  ChevronDown,
-  Cpu,
-  Cloud,
-  Server,
-  Sparkles,
-  Zap,
-  Check,
-} from "lucide-react";
+import { ChevronDown, Cpu, Cloud, Server, Sparkles, Zap, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface ModelOption {
@@ -107,57 +99,51 @@ export function ModelSelector({
             {t("free")}
           </span>
         )}
-        <ChevronDown
-          className={cn("h-4 w-4 transition-transform", isOpen && "rotate-180")}
-        />
+        <ChevronDown className={cn("h-4 w-4 transition-transform", isOpen && "rotate-180")} />
       </button>
 
       {isOpen && (
         <div className="absolute left-0 top-full z-50 mt-1 w-72 rounded-lg border bg-card shadow-lg">
           <div className="max-h-80 overflow-y-auto p-1">
-            {Object.entries(groupedModels).map(
-              ([providerId, providerModels]) => {
-                const ProviderIcon = providerIcons[providerId] || Cpu;
-                return (
-                  <div key={providerId}>
-                    <div className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-muted-foreground">
-                      <ProviderIcon className="h-3.5 w-3.5" />
-                      {providerLabels[providerId] || providerId}
-                    </div>
-                    {providerModels.map((model) => (
-                      <button
-                        key={model.modelId}
-                        onClick={() => {
-                          onModelChange(model.providerId, model.modelId);
-                          setIsOpen(false);
-                        }}
-                        className={cn(
-                          "flex w-full items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-muted",
-                          selectedModel === model.modelId && "bg-muted",
-                        )}
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="truncate">{model.name}</span>
-                          {model.isFree && (
-                            <span className="rounded bg-success/10 px-1.5 py-0.5 text-xs font-medium text-success">
-                              {t("free")}
-                            </span>
-                          )}
-                        </div>
-                        {selectedModel === model.modelId && (
-                          <Check className="h-4 w-4 text-primary" />
-                        )}
-                      </button>
-                    ))}
+            {Object.entries(groupedModels).map(([providerId, providerModels]) => {
+              const ProviderIcon = providerIcons[providerId] || Cpu;
+              return (
+                <div key={providerId}>
+                  <div className="flex items-center gap-2 px-3 py-2 text-xs font-medium text-muted-foreground">
+                    <ProviderIcon className="h-3.5 w-3.5" />
+                    {providerLabels[providerId] || providerId}
                   </div>
-                );
-              },
-            )}
+                  {providerModels.map((model) => (
+                    <button
+                      key={model.modelId}
+                      onClick={() => {
+                        onModelChange(model.providerId, model.modelId);
+                        setIsOpen(false);
+                      }}
+                      className={cn(
+                        "flex w-full items-center justify-between rounded-md px-3 py-2 text-sm hover:bg-muted",
+                        selectedModel === model.modelId && "bg-muted",
+                      )}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span className="truncate">{model.name}</span>
+                        {model.isFree && (
+                          <span className="rounded bg-success/10 px-1.5 py-0.5 text-xs font-medium text-success">
+                            {t("free")}
+                          </span>
+                        )}
+                      </div>
+                      {selectedModel === model.modelId && (
+                        <Check className="h-4 w-4 text-primary" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              );
+            })}
           </div>
           <div className="border-t p-2">
-            <p className="text-xs text-muted-foreground">
-              {t("freeModelsRateLimit")}
-            </p>
+            <p className="text-xs text-muted-foreground">{t("freeModelsRateLimit")}</p>
           </div>
         </div>
       )}

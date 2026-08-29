@@ -68,9 +68,7 @@ export function ActionPreviewCard({ toolResult }: ActionPreviewCardProps) {
       <div className="flex items-center gap-2 rounded-lg border bg-muted/30 p-3 text-sm">
         <User className="h-4 w-4 text-primary" />
         <span className="font-medium">{String(data.name)}</span>
-        <span className="text-xs text-muted-foreground">
-          {String(data.contactNumber)}
-        </span>
+        <span className="text-xs text-muted-foreground">{String(data.contactNumber)}</span>
       </div>
     );
   }
@@ -81,9 +79,7 @@ export function ActionPreviewCard({ toolResult }: ActionPreviewCardProps) {
       <div className="flex items-center gap-2 rounded-lg border bg-muted/30 p-3 text-sm">
         <Package className="h-4 w-4 text-primary" />
         <span className="font-medium">{String(data.name)}</span>
-        <span className="text-xs text-muted-foreground">
-          {String(data.articleNumber)}
-        </span>
+        <span className="text-xs text-muted-foreground">{String(data.articleNumber)}</span>
       </div>
     );
   }

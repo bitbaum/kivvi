@@ -41,31 +41,20 @@ test.describe("Intake", () => {
     }
 
     // Fill line item description
-    const descInput = page
-      .getByPlaceholder(/description|beschreibung/i)
-      .first();
+    const descInput = page.getByPlaceholder(/description|beschreibung/i).first();
     if ((await descInput.count()) > 0) {
       await descInput.fill("ThinkPad T480 — E2E Test Donation");
     }
 
     // Quantity
-    const qtyInput = page
-      .locator('input[name*="quantity"], input[id*="quantity"]')
-      .first();
+    const qtyInput = page.locator('input[name*="quantity"], input[id*="quantity"]').first();
     if ((await qtyInput.count()) > 0) {
       await qtyInput.fill("1");
     }
 
     // Submit
-    const submitBtn = page
-      .getByRole("button", { name: /save|submit|create|erfassen/i })
-      .first();
-    await submitAndWaitForUrl(
-      page,
-      submitBtn,
-      /\/intake\/[0-9a-f]{8}-/,
-      30_000,
-    );
+    const submitBtn = page.getByRole("button", { name: /save|submit|create|erfassen/i }).first();
+    await submitAndWaitForUrl(page, submitBtn, /\/intake\/[0-9a-f]{8}-/, 30_000);
 
     intakeUrl = page.url();
     expect(intakeUrl).toMatch(/\/intake\/[0-9a-f-]{36}/);

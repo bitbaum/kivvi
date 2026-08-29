@@ -66,9 +66,7 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         {/* Search */}
         <form className="relative flex-1" action="/projects" method="GET">
-          {statusFilter && (
-            <input type="hidden" name="status" value={statusFilter} />
-          )}
+          {statusFilter && <input type="hidden" name="status" value={statusFilter} />}
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
@@ -91,9 +89,7 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
               key={status}
               href={buildFilterUrl({ search, status })}
               active={statusFilter === status}
-              label={t(
-                PROJECT_STATUS_LABEL_KEYS[status] as Parameters<typeof t>[0],
-              )}
+              label={t(PROJECT_STATUS_LABEL_KEYS[status] as Parameters<typeof t>[0])}
             />
           ))}
         </div>
@@ -104,14 +100,8 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
         {result.data.length === 0 ? (
           <EmptyState
             icon={search || statusFilter ? Search : FolderKanban}
-            title={
-              search || statusFilter ? t("adjustFilters") : t("noProjects")
-            }
-            description={
-              search || statusFilter
-                ? t("adjustFilters")
-                : t("createFirstProject")
-            }
+            title={search || statusFilter ? t("adjustFilters") : t("noProjects")}
+            description={search || statusFilter ? t("adjustFilters") : t("createFirstProject")}
             actionLabel={!search && !statusFilter ? t("newProject") : undefined}
             actionHref={!search && !statusFilter ? "/projects/new" : undefined}
           />
@@ -121,32 +111,19 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
               <table className="w-full">
                 <thead>
                   <tr className="border-b text-left text-sm text-muted-foreground">
-                    <th className="whitespace-nowrap px-4 py-3 font-medium">
-                      {tc("name")}
-                    </th>
-                    <th className="whitespace-nowrap px-4 py-3 font-medium">
-                      {t("client")}
-                    </th>
-                    <th className="whitespace-nowrap px-4 py-3 font-medium">
-                      {tc("status")}
-                    </th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">{tc("name")}</th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">{t("client")}</th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">{tc("status")}</th>
                     <th className="whitespace-nowrap px-4 py-3 font-medium text-right">
                       {t("budget")}
                     </th>
-                    <th className="whitespace-nowrap px-4 py-3 font-medium">
-                      {t("startDate")}
-                    </th>
-                    <th className="whitespace-nowrap px-4 py-3 font-medium">
-                      {t("endDate")}
-                    </th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">{t("startDate")}</th>
+                    <th className="whitespace-nowrap px-4 py-3 font-medium">{t("endDate")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
                   {result.data.map((project) => (
-                    <ProjectTableRow
-                      key={project.id}
-                      href={`/projects/${project.id}`}
-                    >
+                    <ProjectTableRow key={project.id} href={`/projects/${project.id}`}>
                       <td className="px-4 py-3">
                         {/* Preserve Link for right-click / Ctrl+click / keyboard navigation */}
                         <Link
@@ -174,8 +151,7 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
                         >
                           {t(
                             PROJECT_STATUS_LABEL_KEYS[
-                              (project.status ??
-                                "active") as keyof typeof PROJECT_STATUS_LABEL_KEYS
+                              (project.status ?? "active") as keyof typeof PROJECT_STATUS_LABEL_KEYS
                             ] || "statusActive",
                           )}
                         </span>
@@ -184,9 +160,7 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
                         {project.budget ? formatCurrency(project.budget) : "-"}
                       </td>
                       <td className="whitespace-nowrap px-4 py-3 text-sm text-muted-foreground">
-                        {project.startDate
-                          ? formatDate(project.startDate)
-                          : "-"}
+                        {project.startDate ? formatDate(project.startDate) : "-"}
                       </td>
                       <td className="whitespace-nowrap px-4 py-3 text-sm text-muted-foreground">
                         {project.endDate ? formatDate(project.endDate) : "-"}
@@ -200,14 +174,9 @@ export default async function ProjectsPage({ searchParams }: PageProps) {
             <Pagination
               page={result.page}
               totalPages={result.totalPages}
-              buildHref={(p) =>
-                buildFilterUrl({ search, status: statusFilter, page: p })
-              }
+              buildHref={(p) => buildFilterUrl({ search, status: statusFilter, page: p })}
               labels={{
-                showing: tc(
-                  "showing",
-                  paginationRange(result.page, result.pageSize, result.total),
-                ),
+                showing: tc("showing", paginationRange(result.page, result.pageSize, result.total)),
                 previous: tc("previous"),
                 next: tc("next"),
                 pageOf: tc("pageOf", {
@@ -254,16 +223,11 @@ function StatusFilterLink({
 // URL BUILDER
 // ============================================================================
 
-function buildFilterUrl(params: {
-  search?: string;
-  status?: string;
-  page?: number;
-}) {
+function buildFilterUrl(params: { search?: string; status?: string; page?: number }) {
   const searchParams = new URLSearchParams();
   if (params.search) searchParams.set("search", params.search);
   if (params.status) searchParams.set("status", params.status);
-  if (params.page && params.page > 1)
-    searchParams.set("page", String(params.page));
+  if (params.page && params.page > 1) searchParams.set("page", String(params.page));
   const qs = searchParams.toString();
   return `/projects${qs ? `?${qs}` : ""}`;
 }

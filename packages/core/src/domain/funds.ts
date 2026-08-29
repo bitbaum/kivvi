@@ -17,9 +17,7 @@ import type { Database, Fund, FundRestriction } from "@kivvi/database";
 export function capitalBlockOf(
   restriction: FundRestriction,
 ): "fondskapital" | "organisationskapital" {
-  return restriction === "extern_zweckgebunden"
-    ? "fondskapital"
-    : "organisationskapital";
+  return restriction === "extern_zweckgebunden" ? "fondskapital" : "organisationskapital";
 }
 
 export interface FundMovement {
@@ -68,10 +66,7 @@ export const createFundSchema = z.object({
     .optional(),
 });
 
-export async function listFunds(
-  db: Database,
-  companyId: string,
-): Promise<Fund[]> {
+export async function listFunds(db: Database, companyId: string): Promise<Fund[]> {
   return db.select().from(funds).where(eq(funds.companyId, companyId));
 }
 
@@ -122,10 +117,7 @@ export async function getFundStatement(
         debit: sql<string>`COALESCE(SUM(${journalLines.debit}::numeric), 0)`,
       })
       .from(journalLines)
-      .innerJoin(
-        journalEntries,
-        eq(journalLines.journalEntryId, journalEntries.id),
-      )
+      .innerJoin(journalEntries, eq(journalLines.journalEntryId, journalEntries.id))
       .where(
         and(
           eq(journalLines.fundId, f.id),
@@ -139,10 +131,7 @@ export async function getFundStatement(
         debit: sql<string>`COALESCE(SUM(${journalLines.debit}::numeric), 0)`,
       })
       .from(journalLines)
-      .innerJoin(
-        journalEntries,
-        eq(journalLines.journalEntryId, journalEntries.id),
-      )
+      .innerJoin(journalEntries, eq(journalLines.journalEntryId, journalEntries.id))
       .where(
         and(
           eq(journalLines.fundId, f.id),
@@ -156,11 +145,7 @@ export async function getFundStatement(
       .plus(pre?.credit || "0")
       .minus(pre?.debit || "0")
       .toFixed(2);
-    const movement = computeFundMovement(
-      opening,
-      period?.credit || "0",
-      period?.debit || "0",
-    );
+    const movement = computeFundMovement(opening, period?.credit || "0", period?.debit || "0");
     rows.push({
       fundId: f.id,
       code: f.code,

@@ -8,10 +8,7 @@ import { finalizeRepairInvoice } from "@kivvi/core/src/domain/repairs";
  * Recognize service revenue, clear any advance, and book any subsidy receivable
  * in one balanced entry (config-driven VAT treatment). Marks the repair billed.
  */
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const ctx = await authenticateApi(request, "member");
   if (ctx instanceof Response) return ctx;
 
@@ -22,8 +19,7 @@ export async function POST(
     });
     return apiSuccess(result);
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to finalize repair";
+    const message = error instanceof Error ? error.message : "Failed to finalize repair";
     return apiError(message, 400);
   }
 }

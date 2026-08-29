@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import type { Product } from '@kivvi/database';
-import { ProductForm } from '@/components/products/product-form';
+import type { Product } from "@kivvi/database";
+import { ProductForm } from "@/components/products/product-form";
 
 interface EditProductFormProps {
   product: Product;

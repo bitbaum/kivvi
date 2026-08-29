@@ -22,9 +22,7 @@ export default async function ImpressumPage() {
 
       <div className="space-y-8 text-sm text-muted-foreground leading-relaxed">
         <div>
-          <h2 className="mb-2 text-base font-semibold text-foreground">
-            {t("providerHeader")}
-          </h2>
+          <h2 className="mb-2 text-base font-semibold text-foreground">{t("providerHeader")}</h2>
           <p>
             {t("providerName")}
             <br />
@@ -37,31 +35,22 @@ export default async function ImpressumPage() {
         </div>
 
         <div>
-          <h2 className="mb-2 text-base font-semibold text-foreground">
-            {t("contactHeader")}
-          </h2>
+          <h2 className="mb-2 text-base font-semibold text-foreground">{t("contactHeader")}</h2>
           <p>
             {t("emailLabel")}{" "}
-            <a
-              href={`mailto:${CONTACT_EMAIL}`}
-              className="text-foreground hover:underline"
-            >
+            <a href={`mailto:${CONTACT_EMAIL}`} className="text-foreground hover:underline">
               {CONTACT_EMAIL}
             </a>
           </p>
         </div>
 
         <div>
-          <h2 className="mb-2 text-base font-semibold text-foreground">
-            {t("responsibleHeader")}
-          </h2>
+          <h2 className="mb-2 text-base font-semibold text-foreground">{t("responsibleHeader")}</h2>
           <p>{t("responsibleText")}</p>
         </div>
 
         <div>
-          <h2 className="mb-2 text-base font-semibold text-foreground">
-            {t("sourceCodeHeader")}
-          </h2>
+          <h2 className="mb-2 text-base font-semibold text-foreground">{t("sourceCodeHeader")}</h2>
           <p>
             {t("sourceCodeText")}{" "}
             <a
@@ -76,9 +65,7 @@ export default async function ImpressumPage() {
         </div>
 
         <div>
-          <h2 className="mb-2 text-base font-semibold text-foreground">
-            {t("disclaimerHeader")}
-          </h2>
+          <h2 className="mb-2 text-base font-semibold text-foreground">{t("disclaimerHeader")}</h2>
           <p>{t("disclaimerText")}</p>
         </div>
       </div>

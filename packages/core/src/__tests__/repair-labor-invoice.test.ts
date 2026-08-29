@@ -49,10 +49,8 @@ function selectBuilder(getRows: (table: unknown) => unknown[]) {
     limit: () => b,
     leftJoin: () => b,
     innerJoin: () => b,
-    then: (
-      resolve: (v: unknown[]) => unknown,
-      reject?: (e: unknown) => unknown,
-    ) => Promise.resolve(getRows(b._table)).then(resolve, reject),
+    then: (resolve: (v: unknown[]) => unknown, reject?: (e: unknown) => unknown) =>
+      Promise.resolve(getRows(b._table)).then(resolve, reject),
   };
   return b;
 }
@@ -72,8 +70,7 @@ function makeDb(opts: {
 
   function getRows(table: unknown): unknown[] {
     if (table === inventoryItems) return opts.item ? [opts.item] : [];
-    if (table === products)
-      return opts.existingProduct ? [opts.existingProduct] : [];
+    if (table === products) return opts.existingProduct ? [opts.existingProduct] : [];
     if (table === contacts) return opts.contactTerms ? [opts.contactTerms] : [];
     if (table === companies)
       return opts.companySettings !== undefined
@@ -200,9 +197,7 @@ describe("createRepairLaborInvoice", () => {
       hourlyRate: "95.00",
     });
     // The only update is the number-sequence increment; the item is untouched.
-    expect(captured.updates.some((u) => u.table === inventoryItems)).toBe(
-      false,
-    );
+    expect(captured.updates.some((u) => u.table === inventoryItems)).toBe(false);
   });
 
   it("prefers explicitly provided hours over the item's tracked hours", async () => {
@@ -260,9 +255,7 @@ describe("createRepairLaborInvoice", () => {
       hourlyRate: "95.00",
     });
     expect(captured.productInsert).toBeUndefined();
-    expect(captured.documentItemsInsert![0].productId).toBe(
-      EXISTING_PRODUCT_ID,
-    );
+    expect(captured.documentItemsInsert![0].productId).toBe(EXISTING_PRODUCT_ID);
   });
 
   it("throws when the inventory item does not exist", async () => {

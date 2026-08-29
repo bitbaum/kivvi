@@ -66,10 +66,7 @@ export function DropdownMenuTrigger({
   );
 }
 
-export function DropdownMenuContent({
-  children,
-  align = "end",
-}: DropdownMenuContentProps) {
+export function DropdownMenuContent({ children, align = "end" }: DropdownMenuContentProps) {
   const { open, setOpen } = React.useContext(DropdownMenuContext);
   const ref = React.useRef<HTMLDivElement>(null);
 
@@ -82,8 +79,7 @@ export function DropdownMenuContent({
 
     if (open) {
       document.addEventListener("mousedown", handleClickOutside);
-      return () =>
-        document.removeEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [open, setOpen]);
 

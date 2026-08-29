@@ -35,22 +35,19 @@ export function StepDonor({
   const tk = useTranslations("checklist");
 
   const categoryLabel = tk(
-    (QUICK_CATEGORIES.find((c) => c.value === category)?.labelKey ??
-      "categoryOther") as Parameters<typeof tk>[0],
+    (QUICK_CATEGORIES.find((c) => c.value === category)?.labelKey ?? "categoryOther") as Parameters<
+      typeof tk
+    >[0],
   );
 
   const conditionCfg = ITEM_CONDITION_CONFIG[condition];
-  const conditionLabel = ti(
-    (conditionCfg?.labelKey ?? condition) as Parameters<typeof ti>[0],
-  );
+  const conditionLabel = ti((conditionCfg?.labelKey ?? condition) as Parameters<typeof ti>[0]);
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-semibold">{ti("quickDonor")}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {ti("quickDonorHint")}
-        </p>
+        <p className="mt-1 text-sm text-muted-foreground">{ti("quickDonorHint")}</p>
       </div>
 
       <ContactPicker
@@ -65,9 +62,7 @@ export function StepDonor({
       <div className="rounded-xl border bg-muted/30 p-4 space-y-2 text-sm">
         <div className="flex justify-between">
           <span className="text-muted-foreground">{ti("description")}</span>
-          <span className="font-medium text-right max-w-[60%] truncate">
-            {description}
-          </span>
+          <span className="font-medium text-right max-w-[60%] truncate">{description}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">{ti("category")}</span>
@@ -75,9 +70,7 @@ export function StepDonor({
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">{ti("condition")}</span>
-          <span className={`font-medium ${conditionCfg?.style ?? ""}`}>
-            {conditionLabel}
-          </span>
+          <span className={`font-medium ${conditionCfg?.style ?? ""}`}>{conditionLabel}</span>
         </div>
       </div>
 

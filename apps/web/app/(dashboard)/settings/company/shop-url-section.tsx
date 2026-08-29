@@ -90,11 +90,7 @@ export function ShopUrlSection({ currentSlug }: Props) {
             className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
             title={t("copyTitle")}
           >
-            {copied ? (
-              <Check className="h-4 w-4 text-success" />
-            ) : (
-              <Copy className="h-4 w-4" />
-            )}
+            {copied ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
           </button>
           <a
             href={`/shop/${slug}`}

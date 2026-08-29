@@ -14,10 +14,7 @@ export function DocumentFooterSection({ defaultDocumentFooter }: Props) {
         <h2 className="font-semibold">{t("company.documentFooter")}</h2>
       </div>
       <div className="p-6">
-        <label
-          htmlFor="defaultDocumentFooter"
-          className="mb-1.5 block text-sm font-medium"
-        >
+        <label htmlFor="defaultDocumentFooter" className="mb-1.5 block text-sm font-medium">
           {t("company.defaultDocumentFooter")}
         </label>
         <textarea

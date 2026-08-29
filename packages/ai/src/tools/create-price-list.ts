@@ -6,14 +6,8 @@ const createPriceListSchema = z.object({
   name: z
     .string()
     .min(1)
-    .describe(
-      'Name for the price list (e.g. "Wholesale", "Student Discount", "Spring Sale 2026")',
-    ),
-  currency: z
-    .string()
-    .length(3)
-    .default("CHF")
-    .describe("ISO currency code (default: CHF)"),
+    .describe('Name for the price list (e.g. "Wholesale", "Student Discount", "Spring Sale 2026")'),
+  currency: z.string().length(3).default("CHF").describe("ISO currency code (default: CHF)"),
   is_default: z
     .boolean()
     .default(false)
@@ -37,8 +31,7 @@ Examples:
     context: ExecutionContext,
   ): Promise<ToolResult> => {
     try {
-      const { createPriceList } =
-        await import("@kivvi/core/src/domain/pricing");
+      const { createPriceList } = await import("@kivvi/core/src/domain/pricing");
       const db = getDb(context);
 
       const list = await createPriceList(db, context.companyId, {

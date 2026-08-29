@@ -1,23 +1,10 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
-import {
-  authenticateApi,
-  apiError,
-  apiInternalError,
-  apiSuccess,
-} from "@/lib/api-handler";
+import { authenticateApi, apiError, apiInternalError, apiSuccess } from "@/lib/api-handler";
 import { withIdempotency } from "@/lib/api-idempotency";
-import {
-  getDocument,
-  updateDocument,
-  updateDocumentStatus,
-  deleteDocument,
-} from "@kivvi/core";
+import { getDocument, updateDocument, updateDocumentStatus, deleteDocument } from "@kivvi/core";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await authenticateApi(request);
     if (ctx instanceof Response) return ctx;
@@ -32,10 +19,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await authenticateApi(request, "member");
     if (ctx instanceof Response) return ctx;
@@ -46,12 +30,7 @@ export async function PUT(
       const body = await request.json();
 
       if (body.status && Object.keys(body).length === 1) {
-        const doc = await updateDocumentStatus(
-          db,
-          ctx.companyId,
-          id,
-          body.status,
-        );
+        const doc = await updateDocumentStatus(db, ctx.companyId, id, body.status);
         return apiSuccess(doc);
       }
 
@@ -59,8 +38,7 @@ export async function PUT(
       return apiSuccess(doc);
     });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to update document";
+    const message = error instanceof Error ? error.message : "Failed to update document";
     return apiError(message, 400);
   }
 }
@@ -77,8 +55,7 @@ export async function DELETE(
     await deleteDocument(db, ctx.companyId, id);
     return apiSuccess({ deleted: true });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to delete document";
+    const message = error instanceof Error ? error.message : "Failed to delete document";
     return apiError(message, 400);
   }
 }

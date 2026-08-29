@@ -11,9 +11,7 @@ import type { CompanySettings } from "@kivvi/database";
 // HELPERS
 // ============================================================================
 
-function makeSettings(
-  overrides: Partial<CompanySettings> = {},
-): CompanySettings {
+function makeSettings(overrides: Partial<CompanySettings> = {}): CompanySettings {
   return {
     ...overrides,
   };

@@ -3,11 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
 import type { MonthlyBreakdown } from "@kivvi/core/src/domain/impact";
 
-export async function MonthlyTrendSection({
-  data,
-}: {
-  data: MonthlyBreakdown[];
-}) {
+export async function MonthlyTrendSection({ data }: { data: MonthlyBreakdown[] }) {
   if (data.length === 0) return null;
 
   const t = await getTranslations("inventory");
@@ -30,22 +26,18 @@ export async function MonthlyTrendSection({
           .slice(-12)
           .reverse()
           .map((row) => {
-            const label = new Date(row.month + "-01").toLocaleDateString(
-              DEFAULT_LOCALE,
-              { year: "2-digit", month: "short" },
-            );
+            const label = new Date(row.month + "-01").toLocaleDateString(DEFAULT_LOCALE, {
+              year: "2-digit",
+              month: "short",
+            });
             return (
               <div
                 key={row.month}
                 className="grid grid-cols-[1fr_auto_auto_3fr] items-center gap-4 text-sm"
               >
-                <span className="text-muted-foreground tabular-nums">
-                  {label}
-                </span>
+                <span className="text-muted-foreground tabular-nums">{label}</span>
                 <span className="text-right tabular-nums">{row.processed}</span>
-                <span className="text-right tabular-nums text-success">
-                  {row.reused}
-                </span>
+                <span className="text-right tabular-nums text-success">{row.reused}</span>
                 <div className="flex items-center gap-2">
                   <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
                     <div

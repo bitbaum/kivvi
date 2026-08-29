@@ -32,10 +32,7 @@ export default async function SettingsPage() {
     .from(companies)
     .where(eq(companies.id, session.user.companyId));
 
-  const [user] = await db
-    .select()
-    .from(users)
-    .where(eq(users.id, session.user.id));
+  const [user] = await db.select().from(users).where(eq(users.id, session.user.id));
 
   const sections = [
     {
@@ -126,9 +123,7 @@ export default async function SettingsPage() {
             </div>
             <div className="mt-4">
               <h2 className="font-semibold">{section.title}</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {section.subtitle}
-              </p>
+              <p className="mt-1 text-sm text-muted-foreground">{section.subtitle}</p>
             </div>
           </Link>
         ))}
@@ -150,9 +145,7 @@ export default async function SettingsPage() {
             </div>
             <div className="mt-4">
               <h2 className="font-semibold">{t("repairImport.title")}</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {t("repairImport.description")}
-              </p>
+              <p className="mt-1 text-sm text-muted-foreground">{t("repairImport.description")}</p>
             </div>
           </Link>
           <Link
@@ -167,9 +160,7 @@ export default async function SettingsPage() {
             </div>
             <div className="mt-4">
               <h2 className="font-semibold">{t("dataRepair.title")}</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {t("dataRepair.description")}
-              </p>
+              <p className="mt-1 text-sm text-muted-foreground">{t("dataRepair.description")}</p>
             </div>
           </Link>
           <Link
@@ -184,9 +175,7 @@ export default async function SettingsPage() {
             </div>
             <div className="mt-4">
               <h2 className="font-semibold">{t("cutover.title")}</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {t("cutover.description")}
-              </p>
+              <p className="mt-1 text-sm text-muted-foreground">{t("cutover.description")}</p>
             </div>
           </Link>
         </div>

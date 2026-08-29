@@ -12,10 +12,7 @@ import {
   createCompanyForUser,
   createCompanySchema,
 } from "@kivvi/core/src/domain/memberships";
-import type {
-  MembershipInfo,
-  CompanyMember,
-} from "@kivvi/core/src/domain/memberships";
+import type { MembershipInfo, CompanyMember } from "@kivvi/core/src/domain/memberships";
 import { MEMBERSHIP_ROLES, PERMISSION_PRESET_VALUES } from "@kivvi/database";
 import type { MembershipRole } from "@kivvi/database";
 import type { PermissionPresetValue } from "@kivvi/database/src/enums";
@@ -31,8 +28,7 @@ import { getTranslations } from "next-intl/server";
  */
 export const getMyMembershipsAction = createAction<void, MembershipInfo[]>({
   handler: async (_input, { userId, db }) => getUserMemberships(db, userId),
-  errorMessage: () =>
-    getTranslations("team").then((t) => t("errorLoadMemberships")),
+  errorMessage: () => getTranslations("team").then((t) => t("errorLoadMemberships")),
 });
 
 /**
@@ -43,26 +39,22 @@ export const switchCompanyAction = createAction<
   { companyId: string; companyName: string }
 >({
   handler: async (targetCompanyId, { userId, db }) => {
-    const parsed =
-      switchCompanySchema.shape.companyId.safeParse(targetCompanyId);
+    const parsed = switchCompanySchema.shape.companyId.safeParse(targetCompanyId);
     if (!parsed.success) {
       const t = await getTranslations("team");
       throw new Error(t("errorInvalidCompanyId"));
     }
     return switchCompany(db, userId, parsed.data);
   },
-  errorMessage: () =>
-    getTranslations("team").then((t) => t("errorSwitchCompany")),
+  errorMessage: () => getTranslations("team").then((t) => t("errorSwitchCompany")),
 });
 
 /**
  * Get all members of the current company (for team management page).
  */
 export const getTeamMembersAction = createAction<void, CompanyMember[]>({
-  handler: async (_input, { companyId, db }) =>
-    getCompanyMembers(db, companyId),
-  errorMessage: () =>
-    getTranslations("team").then((t) => t("errorLoadTeamMembers")),
+  handler: async (_input, { companyId, db }) => getCompanyMembers(db, companyId),
+  errorMessage: () => getTranslations("team").then((t) => t("errorLoadTeamMembers")),
 });
 
 /**
@@ -83,14 +75,8 @@ export const removeMemberAction = createAction<string, void>({
 /**
  * Update a member's role in the current company.
  */
-export const updateMemberRoleAction = createAction<
-  { userId: unknown; role: unknown },
-  void
->({
-  handler: async (
-    { userId, role },
-    { companyId, userId: currentUserId, db },
-  ) => {
+export const updateMemberRoleAction = createAction<{ userId: unknown; role: unknown }, void>({
+  handler: async ({ userId, role }, { companyId, userId: currentUserId, db }) => {
     const parsedUserId = z.string().uuid().safeParse(userId);
     const parsedRole = z.enum(MEMBERSHIP_ROLES).safeParse(role);
     if (!parsedUserId.success) throw new Error("bad_user_id");
@@ -104,8 +90,7 @@ export const updateMemberRoleAction = createAction<
     );
   },
   revalidate: ["/settings/team"],
-  errorMessage: () =>
-    getTranslations("team").then((t) => t("roleChangeFailed")),
+  errorMessage: () => getTranslations("team").then((t) => t("roleChangeFailed")),
   minRole: "admin",
   translateDomainErrors: true,
 });
@@ -117,14 +102,9 @@ export const updateMemberPresetAction = createAction<
   { userId: unknown; permissionPreset: unknown },
   void
 >({
-  handler: async (
-    { userId, permissionPreset },
-    { companyId, userId: currentUserId, db },
-  ) => {
+  handler: async ({ userId, permissionPreset }, { companyId, userId: currentUserId, db }) => {
     const parsedUserId = z.string().uuid().safeParse(userId);
-    const parsedPreset = z
-      .enum(PERMISSION_PRESET_VALUES)
-      .safeParse(permissionPreset);
+    const parsedPreset = z.enum(PERMISSION_PRESET_VALUES).safeParse(permissionPreset);
     if (!parsedUserId.success) throw new Error("bad_user_id");
     if (!parsedPreset.success) throw new Error("bad_permission_preset");
     await updateMemberAccess(
@@ -136,8 +116,7 @@ export const updateMemberPresetAction = createAction<
     );
   },
   revalidate: ["/settings/team"],
-  errorMessage: () =>
-    getTranslations("team").then((t) => t("roleChangeFailed")),
+  errorMessage: () => getTranslations("team").then((t) => t("roleChangeFailed")),
   minRole: "admin",
   translateDomainErrors: true,
 });
@@ -153,10 +132,8 @@ export const createCompanyAction = createAction<
   authOnly: true,
   handler: async (input, { userId, db }) => {
     const parsed = createCompanySchema.safeParse(input);
-    if (!parsed.success)
-      throw new Error(parsed.error.errors[0]?.message || "Validation failed");
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Validation failed");
     return createCompanyForUser(db, userId, parsed.data.companyName);
   },
-  errorMessage: () =>
-    getTranslations("team").then((t) => t("errorCreateCompany")),
+  errorMessage: () => getTranslations("team").then((t) => t("errorCreateCompany")),
 });

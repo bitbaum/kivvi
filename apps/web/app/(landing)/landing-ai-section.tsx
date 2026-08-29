@@ -1,10 +1,4 @@
-import {
-  Sparkles,
-  MessageSquare,
-  Zap,
-  Tag,
-  ClipboardCheck,
-} from "lucide-react";
+import { Sparkles, MessageSquare, Zap, Tag, ClipboardCheck } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 
 function AIFeature({ icon, text }: { icon: React.ReactNode; text: string }) {
@@ -37,16 +31,10 @@ export async function AIAutopilotSection() {
           <span className="text-primary">{t("exampleAction")}</span>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
-          <AIFeature
-            icon={<MessageSquare className="h-4 w-4" />}
-            text={t("feature1")}
-          />
+          <AIFeature icon={<MessageSquare className="h-4 w-4" />} text={t("feature1")} />
           <AIFeature icon={<Zap className="h-4 w-4" />} text={t("feature2")} />
           <AIFeature icon={<Tag className="h-4 w-4" />} text={t("feature3")} />
-          <AIFeature
-            icon={<ClipboardCheck className="h-4 w-4" />}
-            text={t("feature4")}
-          />
+          <AIFeature icon={<ClipboardCheck className="h-4 w-4" />} text={t("feature4")} />
         </div>
       </div>
     </section>

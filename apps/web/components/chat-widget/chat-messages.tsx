@@ -53,9 +53,7 @@ export function ChatMessages({
               className={cn(
                 "max-w-[80%] rounded-lg px-4 py-3",
                 compact && "px-3 py-2",
-                message.role === "user"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted",
+                message.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted",
               )}
             >
               {message.content ? (
@@ -64,16 +62,12 @@ export function ChatMessages({
                     <ReactMarkdown>{message.content}</ReactMarkdown>
                   </div>
                 ) : (
-                  <p className="whitespace-pre-wrap text-sm">
-                    {message.content}
-                  </p>
+                  <p className="whitespace-pre-wrap text-sm">{message.content}</p>
                 )
               ) : message.isStreaming ? (
                 <div className="flex items-center gap-1">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  <span className="text-sm text-muted-foreground">
-                    {t("thinking")}
-                  </span>
+                  <span className="text-sm text-muted-foreground">{t("thinking")}</span>
                 </div>
               ) : null}
               {message.isStreaming && message.content && (
@@ -95,16 +89,9 @@ export function ChatMessages({
                         }
                       | undefined;
                     return (
-                      <div
-                        key={idx}
-                        className="rounded border bg-background/50 p-2 text-xs"
-                      >
-                        <span className="font-medium text-primary">
-                          {tr.tool}
-                        </span>
-                        {result?.message && (
-                          <p className="mt-1 text-sm">{result.message}</p>
-                        )}
+                      <div key={idx} className="rounded border bg-background/50 p-2 text-xs">
+                        <span className="font-medium text-primary">{tr.tool}</span>
+                        {result?.message && <p className="mt-1 text-sm">{result.message}</p>}
                         {result?.actions && result.actions.length > 0 && (
                           <div className="mt-2 flex flex-wrap gap-2">
                             {result.actions.map((act, actIdx) =>
@@ -118,8 +105,7 @@ export function ChatMessages({
                                       "bg-primary text-primary-foreground hover:bg-primary/90",
                                     act.variant === "destructive" &&
                                       "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-                                    (!act.variant ||
-                                      act.variant === "default") &&
+                                    (!act.variant || act.variant === "default") &&
                                       "border bg-background hover:bg-muted",
                                   )}
                                 >

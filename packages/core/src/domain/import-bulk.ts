@@ -128,10 +128,7 @@ export async function ensureProductGroups(
   // Create missing
   const missing = unique.filter((name) => !map.has(name));
   for (const name of missing) {
-    const [created] = await db
-      .insert(productGroups)
-      .values({ companyId, name })
-      .returning();
+    const [created] = await db.insert(productGroups).values({ companyId, name }).returning();
     map.set(name, created.id);
   }
 
@@ -164,10 +161,7 @@ export async function ensureManufacturers(
   // Create missing
   const missing = unique.filter((name) => !map.has(name));
   for (const name of missing) {
-    const [created] = await db
-      .insert(manufacturers)
-      .values({ companyId, name })
-      .returning();
+    const [created] = await db.insert(manufacturers).values({ companyId, name }).returning();
     map.set(name, created.id);
   }
 
@@ -214,23 +208,16 @@ export async function bulkInsertContacts(
         vatNumber: row.vatNumber || null,
         creditLimit: row.creditLimit || null,
         notes: row.notes || null,
-        kivitendoId: row.kivitendoId
-          ? parseInt(row.kivitendoId, 10) || null
-          : null,
+        kivitendoId: row.kivitendoId ? parseInt(row.kivitendoId, 10) || null : null,
       });
     }
 
     if (values.length > 0) {
       try {
-        const result = await db
-          .insert(contacts)
-          .values(values)
-          .onConflictDoNothing();
+        const result = await db.insert(contacts).values(values).onConflictDoNothing();
         inserted += values.length;
       } catch (err) {
-        errors.push(
-          `Batch ${Math.floor(i / BATCH_SIZE) + 1}: ${(err as Error).message}`,
-        );
+        errors.push(`Batch ${Math.floor(i / BATCH_SIZE) + 1}: ${(err as Error).message}`);
         skipped += values.length;
       }
     }
@@ -306,9 +293,7 @@ export async function bulkInsertContactAddresses(
       await db.insert(contactAddresses).values(batch).onConflictDoNothing();
       inserted += batch.length;
     } catch (err) {
-      errors.push(
-        `Batch ${Math.floor(i / BATCH_SIZE) + 1}: ${(err as Error).message}`,
-      );
+      errors.push(`Batch ${Math.floor(i / BATCH_SIZE) + 1}: ${(err as Error).message}`);
       skipped += batch.length;
     }
   }
@@ -346,9 +331,7 @@ export async function bulkInsertProducts(
         articleNumber: row.articleNumber || null,
         name: row.name,
         description: row.description || null,
-        type: (row.type === "service" ? "service" : "product") as
-          | "product"
-          | "service",
+        type: (row.type === "service" ? "service" : "product") as "product" | "service",
         ean: row.ean || null,
         unitPrice: row.unitPrice || "0",
         purchasePrice: row.purchasePrice || null,
@@ -357,12 +340,8 @@ export async function bulkInsertProducts(
         weight: row.weight || null,
         minStock: row.minStock ? parseInt(row.minStock, 10) || null : null,
         shopVisible: row.shopVisible === "J" || row.shopVisible === "true",
-        productGroupId: row.productGroup
-          ? productGroupMap.get(row.productGroup) || null
-          : null,
-        manufacturerId: row.manufacturer
-          ? manufacturerMap.get(row.manufacturer) || null
-          : null,
+        productGroupId: row.productGroup ? productGroupMap.get(row.productGroup) || null : null,
+        manufacturerId: row.manufacturer ? manufacturerMap.get(row.manufacturer) || null : null,
       });
     }
 
@@ -371,9 +350,7 @@ export async function bulkInsertProducts(
         await db.insert(products).values(values).onConflictDoNothing();
         inserted += values.length;
       } catch (err) {
-        errors.push(
-          `Batch ${Math.floor(i / BATCH_SIZE) + 1}: ${(err as Error).message}`,
-        );
+        errors.push(`Batch ${Math.floor(i / BATCH_SIZE) + 1}: ${(err as Error).message}`);
         skipped += values.length;
       }
     }
@@ -396,10 +373,7 @@ export async function bulkInsertProjects(
   const errors: string[] = [];
 
   // Map kivitendo status → kivvi project status
-  const statusMap: Record<
-    string,
-    "active" | "completed" | "on_hold" | "cancelled"
-  > = {
+  const statusMap: Record<string, "active" | "completed" | "on_hold" | "cancelled"> = {
     "In Bearbeitung": "active",
     Fertiggestellt: "completed",
     Abgebrochen: "cancelled",
@@ -417,9 +391,7 @@ export async function bulkInsertProjects(
     const isActive = row.isActive?.trim() === "Aktiv";
 
     // Store Projektnummer in description since kivvi has no projectNumber field
-    const description = row.projectNumber
-      ? `Projektnummer: ${row.projectNumber}`
-      : null;
+    const description = row.projectNumber ? `Projektnummer: ${row.projectNumber}` : null;
 
     try {
       await db
@@ -460,12 +432,7 @@ export async function bulkInsertDocuments(
   userId: string,
   rows: Array<Record<string, string | null>>,
   contactLookup: Map<string, string>,
-  documentType:
-    | "invoice"
-    | "purchase_invoice"
-    | "quote"
-    | "order"
-    | "delivery_note",
+  documentType: "invoice" | "purchase_invoice" | "quote" | "order" | "delivery_note",
   structuredItems?: Map<string, ParsedLineItem[]>,
   productLookup?: Map<string, { id: string; unitPrice: string }>,
 ): Promise<BulkInsertResult> {
@@ -494,9 +461,7 @@ export async function bulkInsertDocuments(
 
       // Resolve contact
       const contactNumber = firstRow.contactNumber;
-      const contactId = contactNumber
-        ? contactLookup.get(contactNumber) || null
-        : null;
+      const contactId = contactNumber ? contactLookup.get(contactNumber) || null : null;
 
       // Determine status from payment info
       let status: "draft" | "paid" | "sent" = "sent";
@@ -521,9 +486,7 @@ export async function bulkInsertDocuments(
         continue;
       }
       const dueDate = firstRow.dueDate ? new Date(firstRow.dueDate) : null;
-      const deliveryDate = firstRow.deliveryDate
-        ? new Date(firstRow.deliveryDate)
-        : null;
+      const deliveryDate = firstRow.deliveryDate ? new Date(firstRow.deliveryDate) : null;
       const paidDate = firstRow.paidDate ? new Date(firstRow.paidDate) : null;
 
       // Wrap document + items insert in transaction
@@ -558,9 +521,7 @@ export async function bulkInsertDocuments(
         const structured = structuredItems?.get(docNumber);
         if (structured && structured.length > 0) {
           const vatRate = firstRow.vatRate || DEFAULT_VAT_RATE;
-          const docTotal = firstRow.total
-            ? new Decimal(firstRow.total)
-            : new Decimal(0);
+          const docTotal = firstRow.total ? new Decimal(firstRow.total) : new Decimal(0);
 
           await tx.insert(documentItems).values(
             structured.map((item) => {
@@ -578,10 +539,7 @@ export async function bulkInsertDocuments(
                 // Single line item: derive unitPrice from document total
                 const qtyDec = new Decimal(qty || "1");
                 if (qtyDec.gt(0)) {
-                  unitPrice = docTotal
-                    .div(qtyDec)
-                    .toDecimalPlaces(2)
-                    .toString();
+                  unitPrice = docTotal.div(qtyDec).toDecimalPlaces(2).toString();
                 }
               }
 
@@ -610,10 +568,7 @@ export async function bulkInsertDocuments(
           // structuredItems from parseKivitendoLineItems().
           const positions = firstRow.positions;
           if (positions) {
-            const items = parsePositions(
-              positions,
-              firstRow.vatRate || DEFAULT_VAT_RATE,
-            );
+            const items = parsePositions(positions, firstRow.vatRate || DEFAULT_VAT_RATE);
             if (items.length > 0) {
               await tx.insert(documentItems).values(
                 items.map((item, idx) => ({
@@ -681,16 +636,12 @@ function parsePositions(
 
   for (const line of lines) {
     // Try to parse structured format: "qty x description @ price"
-    const match = line.match(
-      /^([\d.,]+)\s*(?:Stck|Stk|Std|x)?\s+(.+?)(?:\s+@\s*([\d.,]+))?$/i,
-    );
+    const match = line.match(/^([\d.,]+)\s*(?:Stck|Stk|Std|x)?\s+(.+?)(?:\s+@\s*([\d.,]+))?$/i);
     if (match) {
       const qty = match[1].replace(/'/g, "") || "1";
       const desc = match[2].trim();
       const price = match[3]?.replace(/'/g, "") || "0";
-      const total = new Decimal(qty || "0")
-        .times(new Decimal(price || "0"))
-        .toFixed(2);
+      const total = new Decimal(qty || "0").times(new Decimal(price || "0")).toFixed(2);
       items.push({
         description: desc,
         quantity: qty,
@@ -761,8 +712,7 @@ export async function bulkInsertJournalEntries(
               companyId,
               date: entryDate,
               reference: row.reference || null,
-              description:
-                row.description || row.notes || "Imported from kivitendo",
+              description: row.description || row.notes || "Imported from kivitendo",
               sourceType: "manual",
             })
             .returning();
@@ -859,12 +809,7 @@ export async function bulkInsertStockLevels(
           await tx
             .update(products)
             .set({ stockQuantity: quantity })
-            .where(
-              and(
-                eq(products.id, productId),
-                eq(products.companyId, companyId),
-              ),
-            );
+            .where(and(eq(products.id, productId), eq(products.companyId, companyId)));
         });
 
         inserted++;
@@ -897,10 +842,7 @@ function extractNextNumber(value: string): number | null {
   return num + 1;
 }
 
-export async function updateSequencesAfterImport(
-  db: Database,
-  companyId: string,
-): Promise<void> {
+export async function updateSequencesAfterImport(db: Database, companyId: string): Promise<void> {
   // Update contact sequence
   const [maxContact] = await db
     .select({ max: sql<string>`MAX(${contacts.contactNumber})` })
@@ -913,12 +855,7 @@ export async function updateSequencesAfterImport(
       await db
         .update(numberSequences)
         .set({ nextNumber: nextNum })
-        .where(
-          and(
-            eq(numberSequences.companyId, companyId),
-            eq(numberSequences.type, "contact"),
-          ),
-        );
+        .where(and(eq(numberSequences.companyId, companyId), eq(numberSequences.type, "contact")));
     }
   }
 
@@ -928,9 +865,7 @@ export async function updateSequencesAfterImport(
     const [maxDoc] = await db
       .select({ max: sql<string>`MAX(${documents.number})` })
       .from(documents)
-      .where(
-        and(eq(documents.companyId, companyId), eq(documents.type, docType)),
-      );
+      .where(and(eq(documents.companyId, companyId), eq(documents.type, docType)));
 
     if (maxDoc?.max) {
       const nextNum = extractNextNumber(maxDoc.max);
@@ -938,12 +873,7 @@ export async function updateSequencesAfterImport(
         await db
           .update(numberSequences)
           .set({ nextNumber: nextNum })
-          .where(
-            and(
-              eq(numberSequences.companyId, companyId),
-              eq(numberSequences.type, seqType),
-            ),
-          );
+          .where(and(eq(numberSequences.companyId, companyId), eq(numberSequences.type, seqType)));
       }
     }
   }
@@ -960,12 +890,7 @@ export async function updateSequencesAfterImport(
       await db
         .update(numberSequences)
         .set({ nextNumber: nextNum })
-        .where(
-          and(
-            eq(numberSequences.companyId, companyId),
-            eq(numberSequences.type, "product"),
-          ),
-        );
+        .where(and(eq(numberSequences.companyId, companyId), eq(numberSequences.type, "product")));
     }
   }
 }

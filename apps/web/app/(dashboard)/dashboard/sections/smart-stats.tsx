@@ -5,13 +5,7 @@ import Link from "next/link";
 import { formatCurrency } from "@/lib/utils";
 import { getTranslations } from "next-intl/server";
 import { logger } from "@/lib/logger";
-import {
-  TrendingUp,
-  TrendingDown,
-  FileText,
-  Wallet,
-  AlertTriangle,
-} from "lucide-react";
+import { TrendingUp, TrendingDown, FileText, Wallet, AlertTriangle } from "lucide-react";
 
 export async function SmartStats({ sinceDate }: { sinceDate?: Date }) {
   const session = await getSessionOrRedirect();
@@ -26,9 +20,7 @@ export async function SmartStats({ sinceDate }: { sinceDate?: Date }) {
     return (
       <div className="rounded-xl border border-warning/20 bg-warning/5 p-6 text-center">
         <AlertTriangle className="mx-auto mb-2 h-6 w-6 text-warning" />
-        <p className="text-sm text-warning">
-          {t("stats.loadError")}
-        </p>
+        <p className="text-sm text-warning">{t("stats.loadError")}</p>
       </div>
     );
   }
@@ -64,25 +56,18 @@ export async function SmartStats({ sinceDate }: { sinceDate?: Date }) {
           className="group rounded-xl border bg-card p-4 transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-muted-foreground">
-              {t(stat.labelKey)}
-            </span>
-            <div
-              className={`flex h-8 w-8 items-center justify-center rounded-lg ${stat.bgColor}`}
-            >
+            <span className="text-sm font-medium text-muted-foreground">{t(stat.labelKey)}</span>
+            <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${stat.bgColor}`}>
               <div className={stat.color}>{stat.icon}</div>
             </div>
           </div>
           <div className="mt-2">
             <p className="text-2xl font-bold">
-              {stat.type === "currency"
-                ? formatCurrency(stat.value)
-                : stat.value}
+              {stat.type === "currency" ? formatCurrency(stat.value) : stat.value}
             </p>
             {stat.count !== undefined && stat.count > 0 && (
               <p className="text-sm text-muted-foreground">
-                {stat.count}{" "}
-                {stat.count === 1 ? t("stats.document") : t("stats.documents")}
+                {stat.count} {stat.count === 1 ? t("stats.document") : t("stats.documents")}
               </p>
             )}
             {stat.changePercent !== undefined && (

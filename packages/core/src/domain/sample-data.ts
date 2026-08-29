@@ -11,11 +11,7 @@
 import type { Database } from "@kivvi/database";
 import { createContact } from "./contacts";
 import { createProduct } from "./products";
-import {
-  createDocument,
-  updateDocumentStatus,
-  recordPayment,
-} from "./documents";
+import { createDocument, updateDocumentStatus, recordPayment } from "./documents";
 import { createInventoryItem, updateItemStatus } from "./inventory-items";
 import { warehouses, companies } from "@kivvi/database";
 import type { CompanySettings } from "@kivvi/database";
@@ -314,10 +310,7 @@ export async function seedSampleData(
  * created by sample seeding (identified by "Beispiel" in their notes/name).
  * Then clears the isSampleData flag.
  */
-export async function clearSampleData(
-  db: Database,
-  companyId: string,
-): Promise<void> {
+export async function clearSampleData(db: Database, companyId: string): Promise<void> {
   // We rely on cascade deletes — clearing contacts clears documents indirectly
   // For safety, just clear the flag and let the user manually delete if needed.
   // Full cascade clear would be too destructive if mixed with real data.

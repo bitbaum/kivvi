@@ -27,9 +27,7 @@ export const findUninvoicedRepairLaborTool: Tool = {
         description: i.description,
         status: i.status,
         repairHours: i.repairHours,
-        suggestedAmount: i.suggestedAmount
-          ? `${currency} ${i.suggestedAmount}`
-          : null,
+        suggestedAmount: i.suggestedAmount ? `${currency} ${i.suggestedAmount}` : null,
       }));
 
       if (items.length === 0) {

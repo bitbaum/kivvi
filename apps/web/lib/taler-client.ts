@@ -87,9 +87,7 @@ async function requestTaler<T>(
 
     if (!response.ok) {
       const suffix = parseErrorBody(body);
-      throw new Error(
-        `GNU Taler returned HTTP ${response.status}${suffix ? `: ${suffix}` : ""}`,
-      );
+      throw new Error(`GNU Taler returned HTTP ${response.status}${suffix ? `: ${suffix}` : ""}`);
     }
 
     return body as T;
@@ -106,49 +104,39 @@ export async function createTalerOrder(
   config: TalerIntegrationInput,
   input: TalerCreateOrderInput,
 ) {
-  const response = await requestTaler<TalerPostOrderResponse>(
-    config,
-    "/orders",
-    {
-      method: "POST",
-      body: JSON.stringify({
-        order: {
-          version: 0,
-          order_id: input.orderId,
-          amount: amount(input.currency, input.amount),
-          summary: input.summary,
-          fulfillment_url: input.fulfillmentUrl,
-          fulfillment_message: input.fulfillmentMessage,
-          pay_deadline: input.payDeadline
-            ? timestamp(input.payDeadline)
-            : timestamp(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),
-          products: input.products?.map((product) => ({
-            description: product.description,
-            quantity: product.quantity,
-            unit: "piece",
-            price: amount(input.currency, product.unitPrice),
-          })),
-          extra: {
-            kivvi_document_id: input.orderId,
-          },
+  const response = await requestTaler<TalerPostOrderResponse>(config, "/orders", {
+    method: "POST",
+    body: JSON.stringify({
+      order: {
+        version: 0,
+        order_id: input.orderId,
+        amount: amount(input.currency, input.amount),
+        summary: input.summary,
+        fulfillment_url: input.fulfillmentUrl,
+        fulfillment_message: input.fulfillmentMessage,
+        pay_deadline: input.payDeadline
+          ? timestamp(input.payDeadline)
+          : timestamp(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),
+        products: input.products?.map((product) => ({
+          description: product.description,
+          quantity: product.quantity,
+          unit: "piece",
+          price: amount(input.currency, product.unitPrice),
+        })),
+        extra: {
+          kivvi_document_id: input.orderId,
         },
-        create_token: true,
-      }),
-    },
-  );
+      },
+      create_token: true,
+    }),
+  });
 
   const status = await getTalerOrderStatus(config, response.order_id);
   return { response, status };
 }
 
-export async function getTalerOrderStatus(
-  config: TalerIntegrationInput,
-  orderId: string,
-) {
-  return requestTaler<TalerOrderStatus>(
-    config,
-    `/orders/${encodeURIComponent(orderId)}`,
-  );
+export async function getTalerOrderStatus(config: TalerIntegrationInput, orderId: string) {
+  return requestTaler<TalerOrderStatus>(config, `/orders/${encodeURIComponent(orderId)}`);
 }
 
 export function talerTimestampToDate(value?: TalerTimestamp | null) {

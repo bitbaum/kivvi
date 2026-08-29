@@ -1,4 +1,4 @@
-import { Skeleton } from '@/components/ui/skeleton';
+import { Skeleton } from "@/components/ui/skeleton";
 
 /**
  * Loading skeleton for report pages (P&L, Balance Sheet, VAT, Sales, Aging).

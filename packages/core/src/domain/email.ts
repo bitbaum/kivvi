@@ -33,9 +33,8 @@ function getDocumentBody(data: InvoiceEmailData): {
   closing: string;
 } {
   const typeLabel =
-    DOCUMENT_TYPE_LABELS_DE[
-      data.documentType as keyof typeof DOCUMENT_TYPE_LABELS_DE
-    ] || data.documentType;
+    DOCUMENT_TYPE_LABELS_DE[data.documentType as keyof typeof DOCUMENT_TYPE_LABELS_DE] ||
+    data.documentType;
   const formattedTotal = formatCurrency(data.total, data.currency);
 
   const greeting = `Guten Tag ${e(data.recipientName)}`;
@@ -126,9 +125,7 @@ export function buildPasswordResetEmailHtml(
   strings?: PasswordResetEmailStrings,
 ): string {
   const companyName = e(data.companyName || "Kivvi");
-  const greeting = strings
-    ? strings.greeting
-    : `Guten Tag ${e(data.recipientName)}`;
+  const greeting = strings ? strings.greeting : `Guten Tag ${e(data.recipientName)}`;
   const bodyText = strings
     ? strings.bodyText
     : "Sie haben eine Anfrage zum Zurücksetzen Ihres Passworts gestellt. Klicken Sie auf den untenstehenden Button, um Ihr Passwort zurückzusetzen.";
@@ -142,9 +139,7 @@ export function buildPasswordResetEmailHtml(
   const footerAuto = strings
     ? strings.footerAuto
     : `Diese E-Mail wurde automatisch von ${companyName} versendet.`;
-  const title = strings
-    ? e(strings.subject)
-    : e(buildPasswordResetEmailSubject(data));
+  const title = strings ? e(strings.subject) : e(buildPasswordResetEmailSubject(data));
 
   return `<!DOCTYPE html>
 <html lang="de">
@@ -246,16 +241,12 @@ export function buildInvitationEmailHtml(
   data: InvitationEmailData,
   strings?: InvitationEmailStrings,
 ): string {
-  const title = strings
-    ? e(strings.subject)
-    : e(buildInvitationEmailSubject(data));
+  const title = strings ? e(strings.subject) : e(buildInvitationEmailSubject(data));
   const greeting = strings ? strings.greeting : "Guten Tag";
   const bodyHtml = strings
     ? strings.bodyHtml
     : `${e(data.inviterName)} hat Sie eingeladen, <strong>${e(data.companyName)}</strong> auf Kivvi beizutreten.`;
-  const roleText = strings
-    ? strings.roleText
-    : `Rolle: <strong>${e(data.role)}</strong>`;
+  const roleText = strings ? strings.roleText : `Rolle: <strong>${e(data.role)}</strong>`;
   const buttonText = strings ? strings.buttonText : "Einladung annehmen";
   const expiryText = strings
     ? strings.expiryText
@@ -263,9 +254,7 @@ export function buildInvitationEmailHtml(
   const fallbackText = strings
     ? strings.fallbackText
     : "Falls der Button nicht funktioniert, kopieren Sie diesen Link in Ihren Browser:";
-  const footerAuto = strings
-    ? strings.footerAuto
-    : "Diese E-Mail wurde automatisch versendet.";
+  const footerAuto = strings ? strings.footerAuto : "Diese E-Mail wurde automatisch versendet.";
 
   return `<!DOCTYPE html>
 <html lang="de">
@@ -378,12 +367,8 @@ export function buildPaymentConfirmationEmailHtml(
   const safeCompanyName = e(data.companyName);
   const safeRecipientName = e(data.recipientName);
 
-  const title = strings
-    ? e(strings.subject)
-    : e(buildPaymentConfirmationEmailSubject(data));
-  const greeting = strings
-    ? strings.greeting
-    : `Guten Tag ${safeRecipientName}`;
+  const title = strings ? e(strings.subject) : e(buildPaymentConfirmationEmailSubject(data));
+  const greeting = strings ? strings.greeting : `Guten Tag ${safeRecipientName}`;
   const bodyHtml = strings
     ? strings.bodyHtml
     : `Wir bestätigen den Eingang Ihrer Zahlung über <strong>${formattedAmount}</strong> für Rechnung <strong>${data.documentNumber}</strong> vom <strong>${formattedDate}</strong>.`;
@@ -513,12 +498,8 @@ export function buildDonationReceiptEmailHtml(
       ? ` im geschätzten Wert von <strong>${formatCurrency(data.estimatedValue, data.currency)}</strong>`
       : "";
 
-  const title = strings
-    ? e(strings.subject)
-    : e(buildDonationReceiptEmailSubject(data));
-  const greeting = strings
-    ? strings.greeting
-    : `Guten Tag ${safeRecipientName}`;
+  const title = strings ? e(strings.subject) : e(buildDonationReceiptEmailSubject(data));
+  const greeting = strings ? strings.greeting : `Guten Tag ${safeRecipientName}`;
   const bodyLine1 = strings
     ? strings.bodyLine1
     : `Herzlichen Dank für Ihre Spende vom <strong>${formattedDate}</strong>. Wir haben <strong>${data.itemCount} ${data.itemCount === 1 ? "Artikel" : "Artikel"}</strong>${valueText} erhalten.`;
@@ -616,9 +597,8 @@ export function buildInvoiceEmailSubject(
 ): string {
   if (strings) return strings.subject;
   const typeLabel =
-    DOCUMENT_TYPE_LABELS_DE[
-      data.documentType as keyof typeof DOCUMENT_TYPE_LABELS_DE
-    ] || data.documentType;
+    DOCUMENT_TYPE_LABELS_DE[data.documentType as keyof typeof DOCUMENT_TYPE_LABELS_DE] ||
+    data.documentType;
   return `${typeLabel} ${data.documentNumber} - ${data.companyName}`;
 }
 
@@ -763,9 +743,7 @@ export function buildWelcomeEmailHtml(
     ? strings.body2
     : "Mit Kivvi kannst du Rechnungen, Kontakte, Lagerbestand und mehr verwalten — alles auf Schweizer Standards ausgerichtet.";
   const buttonText = strings ? strings.buttonText : "Zu Kivvi →";
-  const featuresHeading = strings
-    ? strings.featuresHeading
-    : "Was dich erwartet";
+  const featuresHeading = strings ? strings.featuresHeading : "Was dich erwartet";
   const feature1 = strings
     ? strings.feature1
     : "Rechnungen mit QR-Einzahlungsschein (gesetzlich vorgeschrieben)";

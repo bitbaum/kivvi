@@ -31,15 +31,9 @@ export default async function ProfileSettingsPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <SettingsSubpageHeader
-        title={t("userProfile")}
-        description={t("userProfileDesc")}
-      />
+      <SettingsSubpageHeader title={t("userProfile")} description={t("userProfileDesc")} />
 
-      <AvatarUpload
-        initialAvatarBase64={user.avatarBase64}
-        userName={user.name || ""}
-      />
+      <AvatarUpload initialAvatarBase64={user.avatarBase64} userName={user.name || ""} />
 
       <ProfileForm
         initialData={{

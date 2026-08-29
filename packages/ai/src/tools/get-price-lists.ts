@@ -12,9 +12,7 @@ const getPriceListsSchema = z.object({
   list_name: z
     .string()
     .optional()
-    .describe(
-      "Optional partial name filter to narrow results (e.g. 'wholesale', 'student')",
-    ),
+    .describe("Optional partial name filter to narrow results (e.g. 'wholesale', 'student')"),
 });
 
 export const getPriceListsTool: Tool = {
@@ -32,8 +30,7 @@ Examples:
     context: ExecutionContext,
   ): Promise<ToolResult> => {
     try {
-      const { listPriceLists, getPriceList } =
-        await import("@kivvi/core/src/domain/pricing");
+      const { listPriceLists, getPriceList } = await import("@kivvi/core/src/domain/pricing");
       const db = getDb(context);
 
       let lists = await listPriceLists(db, context.companyId);
@@ -63,8 +60,7 @@ Examples:
 
       if (!params.include_rules) {
         const lines = lists.map(
-          (l) =>
-            `• ${l.name} (${l.currency})${l.isDefault ? " — default" : ""}`,
+          (l) => `• ${l.name} (${l.currency})${l.isDefault ? " — default" : ""}`,
         );
         return {
           success: true,
@@ -107,9 +103,7 @@ Examples:
                   ? `${r.value}% discount`
                   : `${r.value}% tiered (min qty ${r.minQuantity ?? "—"})`;
             const dates =
-              r.validFrom || r.validTo
-                ? ` [${r.validFrom ?? "∞"} – ${r.validTo ?? "∞"}]`
-                : "";
+              r.validFrom || r.validTo ? ` [${r.validFrom ?? "∞"} – ${r.validTo ?? "∞"}]` : "";
             return `  – ${scope}: ${ruleDesc}${dates}`;
           });
           const header = `${list.name} (${list.currency})${list.isDefault ? " — default" : ""}`;

@@ -13,9 +13,7 @@ export function NotesSection({ defaultNotes }: Props) {
     <section className="rounded-xl border bg-card">
       <div className="border-b px-6 py-4">
         <h2 className="font-semibold">{t("recurring.notesSection")}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t("recurring.notesDesc")}
-        </p>
+        <p className="mt-1 text-sm text-muted-foreground">{t("recurring.notesDesc")}</p>
       </div>
       <div className="p-6">
         <FormTextarea

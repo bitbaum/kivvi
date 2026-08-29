@@ -13,9 +13,7 @@ interface DeleteJournalEntryButtonProps {
 
 // GeBüV: a posted entry is never deleted — it is reversed with a Storno
 // counter-entry. This control posts that reversal.
-export function DeleteJournalEntryButton({
-  entryId,
-}: DeleteJournalEntryButtonProps) {
+export function DeleteJournalEntryButton({ entryId }: DeleteJournalEntryButtonProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [confirming, setConfirming] = useState(false);
@@ -36,9 +34,7 @@ export function DeleteJournalEntryButton({
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm text-destructive">
-        {t("reverseEntryConfirm")}
-      </span>
+      <span className="text-sm text-destructive">{t("reverseEntryConfirm")}</span>
       <button
         onClick={() => {
           startTransition(async () => {

@@ -1,11 +1,7 @@
 import Link from "next/link";
 import { FileText, Search } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
-import {
-  DOCUMENT_TYPES,
-  STATUS_STYLES,
-  toCamelCase,
-} from "@/lib/config/document-types";
+import { DOCUMENT_TYPES, STATUS_STYLES, toCamelCase } from "@/lib/config/document-types";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { getTranslations } from "next-intl/server";
 import { cn } from "@/lib/utils";
@@ -13,9 +9,7 @@ import { SortableHeader } from "@/components/sortable-header";
 import type { listDocuments } from "@kivvi/core";
 import type { DocumentType } from "@kivvi/database";
 
-type DocumentListItem = Awaited<
-  ReturnType<typeof listDocuments>
->["data"][number];
+type DocumentListItem = Awaited<ReturnType<typeof listDocuments>>["data"][number];
 
 interface DocumentListTableProps {
   documents: DocumentListItem[];
@@ -79,9 +73,7 @@ export async function DocumentListTable({
             : undefined
         }
         actionHref={
-          !(search || status || dateFrom || dateTo)
-            ? "/documents/new?type=invoice"
-            : undefined
+          !(search || status || dateFrom || dateTo) ? "/documents/new?type=invoice" : undefined
         }
       />
     );
@@ -98,16 +90,11 @@ export async function DocumentListTable({
                 field="number"
                 currentSort={sort}
                 currentOrder={order}
-                href={buildSortUrl(
-                  "number",
-                  sort === "number" && order === "asc" ? "desc" : "asc",
-                )}
+                href={buildSortUrl("number", sort === "number" && order === "asc" ? "desc" : "asc")}
               />
             </th>
             {!selectedType && (
-              <th className="hidden px-4 py-3 font-medium sm:table-cell">
-                {tc("type")}
-              </th>
+              <th className="hidden px-4 py-3 font-medium sm:table-cell">{tc("type")}</th>
             )}
             <th className="px-4 py-3 font-medium">{td("customer")}</th>
             <th className="px-4 py-3 text-right font-medium">
@@ -116,10 +103,7 @@ export async function DocumentListTable({
                 field="total"
                 currentSort={sort}
                 currentOrder={order}
-                href={buildSortUrl(
-                  "total",
-                  sort === "total" && order === "asc" ? "desc" : "asc",
-                )}
+                href={buildSortUrl("total", sort === "total" && order === "asc" ? "desc" : "asc")}
               />
             </th>
             <th className="px-4 py-3 font-medium">{tc("status")}</th>
@@ -142,15 +126,9 @@ export async function DocumentListTable({
             const typeConfig = DOCUMENT_TYPES[doc.type];
             const detailHref = `${typeConfig.basePath}/${doc.id}`;
             return (
-              <tr
-                key={doc.id}
-                className="border-b transition-colors hover:bg-muted/50"
-              >
+              <tr key={doc.id} className="border-b transition-colors hover:bg-muted/50">
                 <td className="px-4 py-3">
-                  <Link
-                    href={detailHref}
-                    className="font-medium text-primary hover:underline"
-                  >
+                  <Link href={detailHref} className="font-medium text-primary hover:underline">
                     {doc.number}
                   </Link>
                 </td>
@@ -160,9 +138,7 @@ export async function DocumentListTable({
                   </td>
                 )}
                 <td className="px-4 py-3">
-                  {doc.contact?.name || (
-                    <span className="text-muted-foreground">—</span>
-                  )}
+                  {doc.contact?.name || <span className="text-muted-foreground">—</span>}
                 </td>
                 <td className="px-4 py-3 text-right font-mono">
                   {doc.total ? formatCurrency(doc.total) : "—"}

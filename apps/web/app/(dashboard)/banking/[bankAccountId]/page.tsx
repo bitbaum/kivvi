@@ -1,20 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  ArrowLeft,
-  CreditCard,
-  CheckCircle2,
-  AlertCircle,
-  FileText,
-} from "lucide-react";
+import { ArrowLeft, CreditCard, CheckCircle2, AlertCircle, FileText } from "lucide-react";
 import { getSessionOrRedirect } from "@/lib/session";
 import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 import { db } from "@/lib/db";
-import {
-  getBankAccount,
-  listTransactions,
-  getReconciliationSummary,
-} from "@kivvi/core";
+import { getBankAccount, listTransactions, getReconciliationSummary } from "@kivvi/core";
 import { formatCurrency, formatDate, cn, isValidUUID } from "@/lib/utils";
 import { AutoMatchButton } from "./auto-match-button";
 import { ImportTransactions } from "./import-transactions";
@@ -30,10 +20,7 @@ interface PageProps {
   }>;
 }
 
-export default async function BankAccountDetailPage({
-  params,
-  searchParams,
-}: PageProps) {
+export default async function BankAccountDetailPage({ params, searchParams }: PageProps) {
   const session = await getSessionOrRedirect();
   const t = await getTranslations("banking");
   const tc = await getTranslations("common");
@@ -42,11 +29,7 @@ export default async function BankAccountDetailPage({
   if (!isValidUUID(bankAccountId)) notFound();
   const sp = await searchParams;
 
-  const account = await getBankAccount(
-    db,
-    session.user.companyId,
-    bankAccountId,
-  );
+  const account = await getBankAccount(db, session.user.companyId, bankAccountId);
   if (!account) notFound();
 
   const filter = sp.filter;
@@ -54,11 +37,7 @@ export default async function BankAccountDetailPage({
   const page = parseInt(sp.page || "1", 10);
 
   const isReconciled =
-    filter === "reconciled"
-      ? true
-      : filter === "unreconciled"
-        ? false
-        : undefined;
+    filter === "reconciled" ? true : filter === "unreconciled" ? false : undefined;
 
   const [transactions, summary] = await Promise.all([
     listTransactions(db, session.user.companyId, {
@@ -94,23 +73,16 @@ export default async function BankAccountDetailPage({
               )}
             </div>
             {account.iban && (
-              <p className="mt-1 font-mono text-sm text-muted-foreground">
-                {account.iban}
-              </p>
+              <p className="mt-1 font-mono text-sm text-muted-foreground">{account.iban}</p>
             )}
             {account.bankName && (
-              <p className="text-sm text-muted-foreground">
-                {account.bankName}
-              </p>
+              <p className="text-sm text-muted-foreground">{account.bankName}</p>
             )}
           </div>
           <div className="text-right">
             <p className="text-xs text-muted-foreground">{t("balance")}</p>
             <p className="text-2xl font-bold">
-              {formatCurrency(
-                account.balance || "0",
-                account.currency || DEFAULT_CURRENCY,
-              )}
+              {formatCurrency(account.balance || "0", account.currency || DEFAULT_CURRENCY)}
             </p>
           </div>
         </div>
@@ -168,11 +140,7 @@ export default async function BankAccountDetailPage({
         <div className="flex gap-2">
           {(["all", "unreconciled", "reconciled"] as const).map((f) => {
             const isActive = f === "all" ? !filter : filter === f;
-            const href = buildFilterUrl(
-              bankAccountId,
-              f === "all" ? undefined : f,
-              search,
-            );
+            const href = buildFilterUrl(bankAccountId, f === "all" ? undefined : f, search);
             return (
               <Link
                 key={f}
@@ -236,11 +204,7 @@ function SummaryCard({
 // HELPER FUNCTIONS
 // ============================================================================
 
-function buildFilterUrl(
-  bankAccountId: string,
-  filter?: string,
-  search?: string,
-): string {
+function buildFilterUrl(bankAccountId: string, filter?: string, search?: string): string {
   const params = new URLSearchParams();
   if (filter) params.set("filter", filter);
   if (search) params.set("search", search);

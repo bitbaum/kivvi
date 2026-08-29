@@ -26,10 +26,7 @@ export function PreferencesSection({
       </div>
       <div className="grid gap-6 p-6 sm:grid-cols-2">
         <div>
-          <label
-            htmlFor="currency"
-            className="mb-1.5 block text-sm font-medium"
-          >
+          <label htmlFor="currency" className="mb-1.5 block text-sm font-medium">
             {t("company.defaultCurrency")}
           </label>
           <FormSelect id="currency" name="currency" defaultValue={currency}>
@@ -42,17 +39,10 @@ export function PreferencesSection({
         </div>
 
         <div>
-          <label
-            htmlFor="defaultVatRate"
-            className="mb-1.5 block text-sm font-medium"
-          >
+          <label htmlFor="defaultVatRate" className="mb-1.5 block text-sm font-medium">
             {t("company.defaultVatRate")}
           </label>
-          <FormSelect
-            id="defaultVatRate"
-            name="defaultVatRate"
-            defaultValue={defaultVatRate}
-          >
+          <FormSelect id="defaultVatRate" name="defaultVatRate" defaultValue={defaultVatRate}>
             {SWISS_VAT_RATES.map((r) => (
               <option key={r.value} value={r.value}>
                 {t(`vatRates.${r.labelKey}`)}
@@ -62,10 +52,7 @@ export function PreferencesSection({
         </div>
 
         <div>
-          <label
-            htmlFor="defaultPaymentTermsDays"
-            className="mb-1.5 block text-sm font-medium"
-          >
+          <label htmlFor="defaultPaymentTermsDays" className="mb-1.5 block text-sm font-medium">
             {t("company.paymentTermsDays")}
           </label>
           <FormInput
@@ -76,16 +63,11 @@ export function PreferencesSection({
             max={365}
             defaultValue={defaultPaymentTermsDays}
           />
-          <p className="mt-1 text-xs text-muted-foreground">
-            {t("company.paymentTermsDaysHint")}
-          </p>
+          <p className="mt-1 text-xs text-muted-foreground">{t("company.paymentTermsDaysHint")}</p>
         </div>
 
         <div>
-          <label
-            htmlFor="defaultRepairHourlyRate"
-            className="mb-1.5 block text-sm font-medium"
-          >
+          <label htmlFor="defaultRepairHourlyRate" className="mb-1.5 block text-sm font-medium">
             {t("company.defaultRepairHourlyRate")}
           </label>
           <FormInput

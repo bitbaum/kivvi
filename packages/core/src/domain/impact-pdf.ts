@@ -10,12 +10,7 @@
  */
 
 import PDFDocument from "pdfkit";
-import type {
-  ImpactMetrics,
-  MonthlyBreakdown,
-  TopDonor,
-  DestinationBreakdown,
-} from "./impact";
+import type { ImpactMetrics, MonthlyBreakdown, TopDonor, DestinationBreakdown } from "./impact";
 import { CO2_TREE_KG_PER_YEAR, CO2_CAR_KG_PER_KM } from "../config/co2-factors";
 import { DEFAULT_LOCALE } from "../config/locale";
 
@@ -69,12 +64,7 @@ export function generateImpactPdf(data: ImpactPdfData): Promise<Buffer> {
       .fillColor(GREEN)
       .text(` ${data.year}`);
 
-    doc
-      .moveDown(0.3)
-      .fontSize(12)
-      .fillColor(MUTED)
-      .font("Helvetica")
-      .text(data.companyName);
+    doc.moveDown(0.3).fontSize(12).fillColor(MUTED).font("Helvetica").text(data.companyName);
 
     // Divider
     doc
@@ -183,11 +173,7 @@ export function generateImpactPdf(data: ImpactPdfData): Promise<Buffer> {
         const x = 56 + i * (equivW + 8);
         const y = equivStartY;
 
-        doc
-          .roundedRect(x, y, equivW, 52, 6)
-          .strokeColor(BORDER)
-          .lineWidth(1)
-          .stroke();
+        doc.roundedRect(x, y, equivW, 52, 6).strokeColor(BORDER).lineWidth(1).stroke();
 
         doc
           .fontSize(18)
@@ -224,13 +210,7 @@ export function generateImpactPdf(data: ImpactPdfData): Promise<Buffer> {
         PAGE_W * 0.16, // CO₂
         PAGE_W * 0.16, // Share
       ];
-      const headers = [
-        "Kategorie",
-        "Artikel",
-        "Faktor (kg)",
-        "CO₂ (kg)",
-        "Anteil",
-      ];
+      const headers = ["Kategorie", "Artikel", "Faktor (kg)", "CO₂ (kg)", "Anteil"];
 
       // Header row
       let xPos = 56;
@@ -254,8 +234,7 @@ export function generateImpactPdf(data: ImpactPdfData): Promise<Buffer> {
       topCategories.forEach((cat) => {
         const catCo2 = Number(cat.co2TotalKg);
         const pct = co2Kg > 0 ? Math.round((catCo2 / co2Kg) * 100) : 0;
-        const catLabel =
-          cat.category.charAt(0).toUpperCase() + cat.category.slice(1);
+        const catLabel = cat.category.charAt(0).toUpperCase() + cat.category.slice(1);
 
         xPos = 56;
         doc.fontSize(9).fillColor("#111827").font("Helvetica");
@@ -279,11 +258,7 @@ export function generateImpactPdf(data: ImpactPdfData): Promise<Buffer> {
         doc
           .fontSize(8)
           .fillColor(MUTED)
-          .text(
-            `… und ${metrics.co2ByCategory.length - 8} weitere Kategorien`,
-            56,
-            rowY,
-          );
+          .text(`… und ${metrics.co2ByCategory.length - 8} weitere Kategorien`, 56, rowY);
         rowY += 14;
       }
 
@@ -352,23 +327,18 @@ export function generateImpactPdf(data: ImpactPdfData): Promise<Buffer> {
           .fontSize(8)
           .fillColor(MUTED)
           .font("Helvetica")
-          .text(
-            `${data.previousYear}: ${c.fmt(c.prev)}`,
-            x + 10,
-            ycStartY + 44,
-            { width: (colW - 20) * 0.6 },
-          );
+          .text(`${data.previousYear}: ${c.fmt(c.prev)}`, x + 10, ycStartY + 44, {
+            width: (colW - 20) * 0.6,
+          });
 
         doc
           .fontSize(8)
           .fillColor(diffColor)
           .font("Helvetica-Bold")
-          .text(
-            `${diffSign}${c.fmt(diff)}`,
-            x + 10 + (colW - 20) * 0.6,
-            ycStartY + 44,
-            { width: (colW - 20) * 0.4, align: "right" },
-          );
+          .text(`${diffSign}${c.fmt(diff)}`, x + 10 + (colW - 20) * 0.6, ycStartY + 44, {
+            width: (colW - 20) * 0.4,
+            align: "right",
+          });
       });
 
       doc.y = ycStartY + 74;
@@ -377,8 +347,7 @@ export function generateImpactPdf(data: ImpactPdfData): Promise<Buffer> {
     // ── Destination Breakdown ─────────────────────────────────────────────
     if (data.destinationBreakdown) {
       const dest = data.destinationBreakdown;
-      const total =
-        dest.sold + dest.donated + dest.recycled + dest.inStock || 1;
+      const total = dest.sold + dest.donated + dest.recycled + dest.inStock || 1;
 
       doc
         .moveDown(0.8)
@@ -403,23 +372,15 @@ export function generateImpactPdf(data: ImpactPdfData): Promise<Buffer> {
         const x = 56 + i * (destColW + 12);
         const pct = Math.round((d.count / total) * 100);
 
-        doc
-          .roundedRect(x, destStartY, destColW, 58, 6)
-          .fillColor(BG_GREEN)
-          .fill();
+        doc.roundedRect(x, destStartY, destColW, 58, 6).fillColor(BG_GREEN).fill();
 
         doc
           .fontSize(20)
           .fillColor(d.color)
           .font("Helvetica-Bold")
-          .text(
-            d.count.toLocaleString(DEFAULT_LOCALE),
-            x + 10,
-            destStartY + 8,
-            {
-              width: destColW - 20,
-            },
-          );
+          .text(d.count.toLocaleString(DEFAULT_LOCALE), x + 10, destStartY + 8, {
+            width: destColW - 20,
+          });
 
         doc
           .fontSize(8)
@@ -449,18 +410,8 @@ export function generateImpactPdf(data: ImpactPdfData): Promise<Buffer> {
       doc.moveDown(0.4);
 
       const mbStartY = doc.y;
-      const mbColWidths = [
-        PAGE_W * 0.22,
-        PAGE_W * 0.26,
-        PAGE_W * 0.26,
-        PAGE_W * 0.26,
-      ];
-      const mbHeaders = [
-        "Monat",
-        "Verarbeitet",
-        "Wiederverwendet",
-        "Wiederverwendungsrate",
-      ];
+      const mbColWidths = [PAGE_W * 0.22, PAGE_W * 0.26, PAGE_W * 0.26, PAGE_W * 0.26];
+      const mbHeaders = ["Monat", "Verarbeitet", "Wiederverwendet", "Wiederverwendungsrate"];
 
       let xPos = 56;
       doc.fontSize(8).fillColor(MUTED).font("Helvetica-Bold");
@@ -482,14 +433,13 @@ export function generateImpactPdf(data: ImpactPdfData): Promise<Buffer> {
 
       months.forEach((m) => {
         const [year, month] = m.month.split("-");
-        const monthLabel = new Date(
-          Number(year),
-          Number(month) - 1,
-          1,
-        ).toLocaleDateString(DEFAULT_LOCALE, {
-          month: "long",
-          year: "numeric",
-        });
+        const monthLabel = new Date(Number(year), Number(month) - 1, 1).toLocaleDateString(
+          DEFAULT_LOCALE,
+          {
+            month: "long",
+            year: "numeric",
+          },
+        );
 
         xPos = 56;
         doc.fontSize(9).fillColor("#111827").font("Helvetica");
@@ -545,9 +495,7 @@ export function generateImpactPdf(data: ImpactPdfData): Promise<Buffer> {
 
       data.topDonors.forEach((donor) => {
         const reuseRate =
-          donor.itemsDonated > 0
-            ? Math.round((donor.itemsReused / donor.itemsDonated) * 100)
-            : 0;
+          donor.itemsDonated > 0 ? Math.round((donor.itemsReused / donor.itemsDonated) * 100) : 0;
 
         xPos = 56;
         doc.fontSize(9).fillColor("#111827").font("Helvetica");
@@ -577,21 +525,20 @@ export function generateImpactPdf(data: ImpactPdfData): Promise<Buffer> {
       .lineWidth(0.5)
       .stroke();
 
-    const generatedDate = new Date(data.generatedAt).toLocaleDateString(
-      DEFAULT_LOCALE,
-      { day: "2-digit", month: "2-digit", year: "numeric" },
-    );
+    const generatedDate = new Date(data.generatedAt).toLocaleDateString(DEFAULT_LOCALE, {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
 
     doc
       .fontSize(8)
       .fillColor(MUTED)
       .font("Helvetica")
-      .text(
-        `Generiert am ${generatedDate} mit Kivvi ERP — kivvi.ch`,
-        56,
-        footerY + 8,
-        { width: PAGE_W, align: "left" },
-      );
+      .text(`Generiert am ${generatedDate} mit Kivvi ERP — kivvi.ch`, 56, footerY + 8, {
+        width: PAGE_W,
+        align: "left",
+      });
 
     doc.end();
   });

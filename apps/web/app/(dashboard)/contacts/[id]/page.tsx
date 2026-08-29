@@ -17,20 +17,14 @@ import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { getContact } from "@kivvi/core";
 import { isValidUUID } from "@/lib/utils";
-import {
-  CONTACT_TYPE_STYLES,
-  getContactTypeLabels,
-} from "@/lib/config/contact-types";
+import { CONTACT_TYPE_STYLES, getContactTypeLabels } from "@/lib/config/contact-types";
 import { Breadcrumb } from "@/components/breadcrumb";
 import { CardSection } from "@/components/card-section";
 import { InfoRow } from "@/components/info-display";
 import { StatusBadge } from "@/components/status-badge";
 import { DeleteContactButton } from "./delete-button";
 import { AddressManager } from "./address-manager";
-import {
-  QuickActionsBar,
-  type QuickAction,
-} from "@/components/quick-actions-bar";
+import { QuickActionsBar, type QuickAction } from "@/components/quick-actions-bar";
 import { ContactDetailSidebar } from "./contact-detail-sidebar";
 import { ContactRecentDocuments } from "./contact-recent-documents";
 import { ContactDonorImpact } from "./contact-donor-impact";
@@ -41,9 +35,7 @@ interface ContactDetailPageProps {
   params: { id: string };
 }
 
-export default async function ContactDetailPage({
-  params,
-}: ContactDetailPageProps) {
+export default async function ContactDetailPage({ params }: ContactDetailPageProps) {
   const session = await getSessionOrRedirect();
 
   const t = await getTranslations("contacts");
@@ -105,9 +97,7 @@ export default async function ContactDetailPage({
             )}
             {(contact.firstName || contact.lastName) && (
               <p className="text-muted-foreground">
-                {[contact.firstName, contact.lastName]
-                  .filter(Boolean)
-                  .join(" ")}
+                {[contact.firstName, contact.lastName].filter(Boolean).join(" ")}
               </p>
             )}
           </div>
@@ -120,10 +110,7 @@ export default async function ContactDetailPage({
               <Pencil className="h-4 w-4" />
               {tc("edit")}
             </Link>
-            <DeleteContactButton
-              contactId={contact.id}
-              contactName={contact.name}
-            />
+            <DeleteContactButton contactId={contact.id} contactName={contact.name} />
           </div>
         </div>
       </div>
@@ -165,10 +152,7 @@ export default async function ContactDetailPage({
           </CardSection>
 
           {/* Address */}
-          <CardSection
-            title={t("primaryAddress")}
-            icon={<MapPin className="h-4 w-4" />}
-          >
+          <CardSection title={t("primaryAddress")} icon={<MapPin className="h-4 w-4" />}>
             {contact.address || contact.city || contact.postalCode ? (
               <div className="text-sm space-y-1">
                 {contact.address && <p>{contact.address}</p>}
@@ -188,22 +172,13 @@ export default async function ContactDetailPage({
           <AddressManager contactId={contact.id} addresses={addresses} />
 
           {/* Donor Impact — only shows if this contact has donated items */}
-          <ContactDonorImpact
-            contactId={contact.id}
-            companyId={session.user.companyId}
-          />
+          <ContactDonorImpact contactId={contact.id} companyId={session.user.companyId} />
 
           {/* Donated Items — only shows if this contact has donated items */}
-          <ContactDonatedItems
-            contactId={contact.id}
-            companyId={session.user.companyId}
-          />
+          <ContactDonatedItems contactId={contact.id} companyId={session.user.companyId} />
 
           {/* Recent Documents */}
-          <ContactRecentDocuments
-            contactId={contact.id}
-            documents={recentDocuments}
-          />
+          <ContactRecentDocuments contactId={contact.id} documents={recentDocuments} />
         </div>
 
         {/* Right column: Financial & settings */}

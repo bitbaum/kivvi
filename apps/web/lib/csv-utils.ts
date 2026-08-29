@@ -6,9 +6,7 @@
 const BOM = "\uFEFF";
 
 /** Escape a CSV value: wrap in quotes if it contains commas, quotes, or newlines */
-export function escapeCsvValue(
-  value: string | number | null | undefined,
-): string {
+export function escapeCsvValue(value: string | number | null | undefined): string {
   if (value === null || value === undefined) return "";
   const str = String(value);
   if (str.includes(",") || str.includes('"') || str.includes("\n")) {

@@ -17,9 +17,7 @@ import {
 
 // Every posting the repair domain emits must balance to the franc (GT #2/#6).
 function sum(lines: JournalLineSpec[], side: "debit" | "credit"): string {
-  return lines
-    .reduce((acc, l) => acc.plus(new Decimal(l[side] ?? "0")), new Decimal(0))
-    .toFixed(2);
+  return lines.reduce((acc, l) => acc.plus(new Decimal(l[side] ?? "0")), new Decimal(0)).toFixed(2);
 }
 function expectBalanced(lines: JournalLineSpec[]) {
   expect(sum(lines, "debit")).toBe(sum(lines, "credit"));
@@ -36,9 +34,7 @@ describe("netVatFromGross — exact split, sums to gross", () => {
   it("net + vat always equals the gross (no lost Rappen)", () => {
     for (const g of ["30.00", "22.50", "13.37", "99.95", "1000.00"]) {
       const { net, vat } = netVatFromGross(new Decimal(g), "8.1");
-      expect(new Decimal(net).plus(vat).toFixed(2)).toBe(
-        new Decimal(g).toFixed(2),
-      );
+      expect(new Decimal(net).plus(vat).toFixed(2)).toBe(new Decimal(g).toFixed(2));
     }
   });
 
@@ -188,8 +184,6 @@ describe("subsidy program config", () => {
 
 describe("repairSourceKey — durable idempotency marker", () => {
   it("namespaces source + id", () => {
-    expect(repairSourceKey("revampit", "appt_42")).toBe(
-      "repair:revampit:appt_42",
-    );
+    expect(repairSourceKey("revampit", "appt_42")).toBe("repair:revampit:appt_42");
   });
 });

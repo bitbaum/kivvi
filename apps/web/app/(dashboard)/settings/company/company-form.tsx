@@ -65,12 +65,9 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
         iban: (formData.get("iban") as string) || null,
         bankName: (formData.get("bankName") as string) || null,
         defaultVatRate: (formData.get("defaultVatRate") as string) || null,
-        defaultPaymentTermsDays:
-          (formData.get("defaultPaymentTermsDays") as string) || null,
-        defaultRepairHourlyRate:
-          (formData.get("defaultRepairHourlyRate") as string) || null,
-        defaultDocumentFooter:
-          (formData.get("defaultDocumentFooter") as string) || null,
+        defaultPaymentTermsDays: (formData.get("defaultPaymentTermsDays") as string) || null,
+        defaultRepairHourlyRate: (formData.get("defaultRepairHourlyRate") as string) || null,
+        defaultDocumentFooter: (formData.get("defaultDocumentFooter") as string) || null,
         aiProvider: (formData.get("aiProvider") as string) || null,
         aiModel: (formData.get("aiModel") as string) || null,
         aiApiKey: (formData.get("aiApiKey") as string) || null,
@@ -106,10 +103,7 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
         </div>
       )}
 
-      <LogoUpload
-        initialLogoBase64={initialData.logoBase64}
-        onError={setError}
-      />
+      <LogoUpload initialLogoBase64={initialData.logoBase64} onError={setError} />
 
       <CompanyInfoSection
         name={initialData.name}
@@ -124,10 +118,7 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
         country={initialData.country}
       />
 
-      <BankDetailsSection
-        iban={initialData.iban}
-        bankName={initialData.bankName}
-      />
+      <BankDetailsSection iban={initialData.iban} bankName={initialData.bankName} />
 
       <PreferencesSection
         currency={initialData.currency}
@@ -136,9 +127,7 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
         defaultRepairHourlyRate={initialData.defaultRepairHourlyRate}
       />
 
-      <DocumentFooterSection
-        defaultDocumentFooter={initialData.defaultDocumentFooter}
-      />
+      <DocumentFooterSection defaultDocumentFooter={initialData.defaultDocumentFooter} />
 
       <AIConfigSection initialData={initialData} />
 

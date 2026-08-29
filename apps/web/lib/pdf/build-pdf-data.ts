@@ -68,10 +68,7 @@ export function buildInvoicePdfData(
 
     // Document info
     number: doc.number,
-    issueDate:
-      doc.issueDate instanceof Date
-        ? doc.issueDate.toISOString()
-        : String(doc.issueDate),
+    issueDate: doc.issueDate instanceof Date ? doc.issueDate.toISOString() : String(doc.issueDate),
     dueDate: doc.dueDate
       ? doc.dueDate instanceof Date
         ? doc.dueDate.toISOString()

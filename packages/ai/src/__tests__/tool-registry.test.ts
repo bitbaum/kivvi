@@ -93,9 +93,7 @@ describe("getToolsForPermissions", () => {
   it("returns only tools whose permissions are all satisfied", () => {
     const tools = getToolsForPermissions(["product:read"]);
     for (const tool of tools) {
-      expect(tool.requiredPermissions.every((p) => p === "product:read")).toBe(
-        true,
-      );
+      expect(tool.requiredPermissions.every((p) => p === "product:read")).toBe(true);
     }
   });
 

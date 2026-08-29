@@ -11,13 +11,7 @@
 
 import Decimal from "decimal.js";
 import { eq, and, sql, isNull, ne, lt, or, inArray } from "drizzle-orm";
-import {
-  contacts,
-  contactAddresses,
-  documents,
-  documentItems,
-  products,
-} from "@kivvi/database";
+import { contacts, contactAddresses, documents, documentItems, products } from "@kivvi/database";
 import type { Database, DocumentStatusValue } from "@kivvi/database";
 import { ACTIVE_STATUSES } from "../config/document-constants";
 
@@ -114,16 +108,12 @@ export async function findDuplicateContacts(
   }
 
   // Filter to groups with 2+ contacts
-  const duplicateGroups = [...groups.entries()].filter(
-    ([, members]) => members.length >= 2,
-  );
+  const duplicateGroups = [...groups.entries()].filter(([, members]) => members.length >= 2);
 
   if (duplicateGroups.length === 0) return [];
 
   // Get document counts for all contacts in duplicate groups
-  const allContactIds = duplicateGroups.flatMap(([, members]) =>
-    members.map((m) => m.id),
-  );
+  const allContactIds = duplicateGroups.flatMap(([, members]) => members.map((m) => m.id));
 
   const docCounts = await db
     .select({
@@ -131,17 +121,10 @@ export async function findDuplicateContacts(
       count: sql<number>`COUNT(*)`,
     })
     .from(documents)
-    .where(
-      and(
-        eq(documents.companyId, companyId),
-        inArray(documents.contactId, allContactIds),
-      ),
-    )
+    .where(and(eq(documents.companyId, companyId), inArray(documents.contactId, allContactIds)))
     .groupBy(documents.contactId);
 
-  const countMap = new Map(
-    docCounts.map((r) => [r.contactId, Number(r.count)]),
-  );
+  const countMap = new Map(docCounts.map((r) => [r.contactId, Number(r.count)]));
 
   return duplicateGroups.map(([normalizedName, members]) => ({
     normalizedName,
@@ -158,10 +141,7 @@ export async function findDuplicateContacts(
  * - Contacts with no billing address (neither inline fields nor a contactAddress)
  * - Inactive contacts that have open (non-paid, non-cancelled) documents
  */
-export async function findContactIssues(
-  db: Database,
-  companyId: string,
-): Promise<ContactIssue[]> {
+export async function findContactIssues(db: Database, companyId: string): Promise<ContactIssue[]> {
   const issues: ContactIssue[] = [];
 
   // 1. Customers with invoices but no email
@@ -183,19 +163,9 @@ export async function findContactIssues(
       ),
     )
     .where(
-      and(
-        eq(contacts.companyId, companyId),
-        eq(contacts.isActive, true),
-        isNull(contacts.email),
-      ),
+      and(eq(contacts.companyId, companyId), eq(contacts.isActive, true), isNull(contacts.email)),
     )
-    .groupBy(
-      contacts.id,
-      contacts.name,
-      contacts.contactNumber,
-      contacts.type,
-      contacts.email,
-    );
+    .groupBy(contacts.id, contacts.name, contacts.contactNumber, contacts.type, contacts.email);
 
   for (const c of customersWithInvoices) {
     issues.push({ ...c, issue: "no_email_with_invoices" });
@@ -208,9 +178,7 @@ export async function findContactIssues(
     .innerJoin(contacts, eq(contacts.id, contactAddresses.contactId))
     .where(eq(contacts.companyId, companyId));
 
-  const contactsWithAddressSet = new Set(
-    contactsWithAddresses.map((r) => r.contactId),
-  );
+  const contactsWithAddressSet = new Set(contactsWithAddresses.map((r) => r.contactId));
 
   const allContacts = await db
     .select({
@@ -248,10 +216,7 @@ export async function findContactIssues(
     .from(contacts)
     .innerJoin(
       documents,
-      and(
-        eq(documents.contactId, contacts.id),
-        inArray(documents.status, [...ACTIVE_STATUSES]),
-      ),
+      and(eq(documents.contactId, contacts.id), inArray(documents.status, [...ACTIVE_STATUSES])),
     )
     .where(and(eq(contacts.companyId, companyId), eq(contacts.isActive, false)))
     .groupBy(contacts.id, contacts.name, contacts.contactNumber, contacts.type);
@@ -298,12 +263,7 @@ export async function findDocumentIssues(
     })
     .from(documents)
     .leftJoin(contacts, eq(contacts.id, documents.contactId))
-    .where(
-      and(
-        eq(documents.companyId, companyId),
-        ne(documents.status, "cancelled"),
-      ),
-    );
+    .where(and(eq(documents.companyId, companyId), ne(documents.status, "cancelled")));
 
   // Get document IDs that have at least one item
   const docsWithItems = await db
@@ -342,21 +302,13 @@ export async function findDocumentIssues(
     }
 
     // No line items on non-draft, non-intake docs
-    if (
-      doc.status !== "draft" &&
-      doc.type !== "intake" &&
-      !docsWithItemsSet.has(doc.id)
-    ) {
+    if (doc.status !== "draft" && doc.type !== "intake" && !docsWithItemsSet.has(doc.id)) {
       issues.push({ ...doc, total: doc.total ?? "0", issue: "no_items" });
       continue;
     }
 
     // Stale drafts
-    if (
-      doc.status === "draft" &&
-      doc.issueDate &&
-      doc.issueDate < staleThreshold
-    ) {
+    if (doc.status === "draft" && doc.issueDate && doc.issueDate < staleThreshold) {
       issues.push({ ...doc, total: doc.total ?? "0", issue: "stale_draft" });
     }
   }
@@ -373,10 +325,7 @@ export async function findDocumentIssues(
  * - Active products with zero price and non-flexible pricing
  * - Active products with no product group (uncategorized)
  */
-export async function findProductIssues(
-  db: Database,
-  companyId: string,
-): Promise<ProductIssue[]> {
+export async function findProductIssues(db: Database, companyId: string): Promise<ProductIssue[]> {
   const issues: ProductIssue[] = [];
 
   const allProducts = await db
@@ -423,13 +372,12 @@ export async function getDataQualityReport(
   db: Database,
   companyId: string,
 ): Promise<DataQualityReport> {
-  const [duplicateContactGroups, contactIssues, documentIssues, productIssues] =
-    await Promise.all([
-      findDuplicateContacts(db, companyId),
-      findContactIssues(db, companyId),
-      findDocumentIssues(db, companyId),
-      findProductIssues(db, companyId),
-    ]);
+  const [duplicateContactGroups, contactIssues, documentIssues, productIssues] = await Promise.all([
+    findDuplicateContacts(db, companyId),
+    findContactIssues(db, companyId),
+    findDocumentIssues(db, companyId),
+    findProductIssues(db, companyId),
+  ]);
 
   return {
     duplicateContactGroups,

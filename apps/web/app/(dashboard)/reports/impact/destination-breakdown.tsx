@@ -2,11 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
 import type { DestinationBreakdown } from "@kivvi/core/src/domain/impact";
 
-export async function DestinationBreakdownSection({
-  data,
-}: {
-  data: DestinationBreakdown;
-}) {
+export async function DestinationBreakdownSection({ data }: { data: DestinationBreakdown }) {
   const t = await getTranslations("inventory");
   const tr = await getTranslations("reports");
 
@@ -59,10 +55,7 @@ export async function DestinationBreakdownSection({
               {d.label}
             </div>
             <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
-              <div
-                className={`h-full rounded-full ${d.bar}`}
-                style={{ width: `${d.pct}%` }}
-              />
+              <div className={`h-full rounded-full ${d.bar}`} style={{ width: `${d.pct}%` }} />
             </div>
             <p className="mt-1 text-xs text-muted-foreground">{d.pct}%</p>
           </div>

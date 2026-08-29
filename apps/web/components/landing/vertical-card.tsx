@@ -10,13 +10,7 @@ interface VerticalCardProps {
   bullets: ReadonlyArray<string>;
 }
 
-export function VerticalCard({
-  id,
-  href,
-  title,
-  hook,
-  bullets,
-}: VerticalCardProps) {
+export function VerticalCard({ id, href, title, hook, bullets }: VerticalCardProps) {
   const Icon = VERTICAL_ICONS[id];
   return (
     <Link
@@ -35,10 +29,7 @@ export function VerticalCard({
       <p className="text-sm font-medium">{hook}</p>
       <ul className="space-y-1.5">
         {bullets.map((b) => (
-          <li
-            key={b}
-            className="flex items-start gap-2 text-sm text-muted-foreground"
-          >
+          <li key={b} className="flex items-start gap-2 text-sm text-muted-foreground">
             <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
             {b}
           </li>

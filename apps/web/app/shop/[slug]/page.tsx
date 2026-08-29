@@ -5,10 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { DEFAULT_COUNTRY } from "@kivvi/core/src/config/locale";
 import { SHOP_CONDITION_VALUES } from "@kivvi/core/src/config/item-status-sets";
 import { db } from "@/lib/db";
-import {
-  getPublicCompanyBySlug,
-  listPublicItems,
-} from "@kivvi/core/src/domain/shop";
+import { getPublicCompanyBySlug, listPublicItems } from "@kivvi/core/src/domain/shop";
 import { formatCurrency } from "@/lib/utils";
 import { ITEM_CONDITION_CONFIG } from "@/lib/config/inventory-items";
 
@@ -60,9 +57,7 @@ export default async function ShopPage({ params, searchParams }: PageProps) {
                 </p>
               )}
             </div>
-            <p className="text-sm text-muted-foreground">
-              {t("itemsAvailable", { count: total })}
-            </p>
+            <p className="text-sm text-muted-foreground">{t("itemsAvailable", { count: total })}</p>
           </div>
 
           {/* Filter bar */}
@@ -83,9 +78,7 @@ export default async function ShopPage({ params, searchParams }: PageProps) {
               {SHOP_CONDITION_VALUES.map((c) => (
                 <option key={c} value={c}>
                   {tInventory(
-                    ITEM_CONDITION_CONFIG[c]!.labelKey as Parameters<
-                      typeof tInventory
-                    >[0],
+                    ITEM_CONDITION_CONFIG[c]!.labelKey as Parameters<typeof tInventory>[0],
                   )}
                 </option>
               ))}
@@ -96,9 +89,7 @@ export default async function ShopPage({ params, searchParams }: PageProps) {
             >
               {t("filter")}
             </button>
-            {(searchParams.search ||
-              searchParams.condition ||
-              searchParams.category) && (
+            {(searchParams.search || searchParams.condition || searchParams.category) && (
               <Link
                 href={`/shop/${params.slug}`}
                 className="rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted"
@@ -116,9 +107,7 @@ export default async function ShopPage({ params, searchParams }: PageProps) {
           <div className="flex flex-col items-center justify-center gap-3 py-24 text-center">
             <Package className="h-12 w-12 text-muted-foreground/30" />
             <p className="text-muted-foreground">
-              {searchParams.search || searchParams.condition
-                ? t("noItemsFound")
-                : t("noItemsYet")}
+              {searchParams.search || searchParams.condition ? t("noItemsFound") : t("noItemsYet")}
             </p>
           </div>
         ) : (

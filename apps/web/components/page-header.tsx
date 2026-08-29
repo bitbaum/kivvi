@@ -15,9 +15,7 @@ export function PageHeader({ title, subtitle, actions }: PageHeaderProps) {
         <h1>{title}</h1>
         {subtitle && <p className="text-muted-foreground">{subtitle}</p>}
       </div>
-      {actions && (
-        <div className="flex flex-wrap items-center gap-2">{actions}</div>
-      )}
+      {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
     </div>
   );
 }
@@ -61,9 +59,7 @@ export async function DetailPageHeader({
             {subtitle && <p className="text-muted-foreground">{subtitle}</p>}
           </div>
         </div>
-        {actions && (
-          <div className="flex flex-wrap items-center gap-2">{actions}</div>
-        )}
+        {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
       </div>
     </div>
   );

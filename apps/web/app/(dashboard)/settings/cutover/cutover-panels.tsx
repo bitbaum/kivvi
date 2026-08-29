@@ -4,10 +4,7 @@ import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { CheckCircle2, AlertTriangle } from "lucide-react";
-import {
-  importOpeningBalancesAction,
-  importOpenItemsAction,
-} from "@/app/actions/cutover";
+import { importOpeningBalancesAction, importOpenItemsAction } from "@/app/actions/cutover";
 import { formatCurrency, cn } from "@/lib/utils";
 
 type Recon = {
@@ -26,9 +23,7 @@ export function CutoverPanels() {
   const [obDate, setObDate] = useState(`${new Date().getFullYear()}-01-01`);
   const [obText, setObText] = useState("");
 
-  const [oiType, setOiType] = useState<"invoice" | "purchase_invoice">(
-    "invoice",
-  );
+  const [oiType, setOiType] = useState<"invoice" | "purchase_invoice">("invoice");
   const [oiText, setOiText] = useState("");
   const [recon, setRecon] = useState<Recon | null>(null);
 
@@ -65,9 +60,7 @@ export function CutoverPanels() {
       <section className="space-y-4 rounded-xl border bg-card p-6">
         <div>
           <h2 className="text-lg font-semibold">{t("cutover.openingTitle")}</h2>
-          <p className="text-sm text-muted-foreground">
-            {t("cutover.openingHint")}
-          </p>
+          <p className="text-sm text-muted-foreground">{t("cutover.openingHint")}</p>
         </div>
         <div className="flex flex-wrap items-end gap-3">
           <div>
@@ -89,9 +82,7 @@ export function CutoverPanels() {
           placeholder={"1020;13760.15;\n1100;21642.50;\n2000;;15300.00"}
           className={textareaCls}
         />
-        <p className="text-xs text-muted-foreground">
-          {t("cutover.formatOpening")}
-        </p>
+        <p className="text-xs text-muted-foreground">{t("cutover.formatOpening")}</p>
         <button
           onClick={submitOpening}
           disabled={pending || !obText.trim()}
@@ -104,12 +95,8 @@ export function CutoverPanels() {
       {/* Open items */}
       <section className="space-y-4 rounded-xl border bg-card p-6">
         <div>
-          <h2 className="text-lg font-semibold">
-            {t("cutover.openItemsTitle")}
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            {t("cutover.openItemsHint")}
-          </p>
+          <h2 className="text-lg font-semibold">{t("cutover.openItemsTitle")}</h2>
+          <p className="text-sm text-muted-foreground">{t("cutover.openItemsHint")}</p>
         </div>
         <div className="flex items-center gap-1 rounded-lg border bg-background p-1 w-fit">
           {(["invoice", "purchase_invoice"] as const).map((v) => (
@@ -123,9 +110,7 @@ export function CutoverPanels() {
                   : "text-muted-foreground hover:text-foreground",
               )}
             >
-              {v === "invoice"
-                ? t("cutover.receivables")
-                : t("cutover.payables")}
+              {v === "invoice" ? t("cutover.receivables") : t("cutover.payables")}
             </button>
           ))}
         </div>
@@ -138,9 +123,7 @@ export function CutoverPanels() {
           }
           className={textareaCls}
         />
-        <p className="text-xs text-muted-foreground">
-          {t("cutover.formatOpenItems")}
-        </p>
+        <p className="text-xs text-muted-foreground">{t("cutover.formatOpenItems")}</p>
         <button
           onClick={submitOpenItems}
           disabled={pending || !oiText.trim()}
@@ -165,9 +148,7 @@ export function CutoverPanels() {
             )}
             <div className="space-y-1">
               <p className="font-medium">
-                {recon.matches
-                  ? t("cutover.reconciled")
-                  : t("cutover.mismatch")}
+                {recon.matches ? t("cutover.reconciled") : t("cutover.mismatch")}
               </p>
               <p className="text-muted-foreground">
                 {t("cutover.reconLine", {

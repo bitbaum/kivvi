@@ -19,11 +19,7 @@ interface Props {
   onSelect: (product: Product | null) => void;
 }
 
-export function MovementProductPicker({
-  products,
-  selectedProduct,
-  onSelect,
-}: Props) {
+export function MovementProductPicker({ products, selectedProduct, onSelect }: Props) {
   const t = useTranslations("inventory");
   const tc = useTranslations("common");
   const [productSearch, setProductSearch] = useState("");
@@ -40,10 +36,7 @@ export function MovementProductPicker({
 
   return (
     <div className="relative">
-      <label
-        htmlFor="movement-product-search"
-        className="mb-1 block text-sm font-medium"
-      >
+      <label htmlFor="movement-product-search" className="mb-1 block text-sm font-medium">
         {t("product")} <span className="text-destructive">*</span>
       </label>
       {selectedProduct ? (
@@ -87,9 +80,7 @@ export function MovementProductPicker({
           {showProductDropdown && (
             <div className="absolute left-0 right-0 z-10 mt-1 max-h-48 overflow-y-auto rounded-lg border bg-card shadow-lg">
               {filteredProducts.length === 0 ? (
-                <p className="p-3 text-center text-sm text-muted-foreground">
-                  {tc("noResults")}
-                </p>
+                <p className="p-3 text-center text-sm text-muted-foreground">{tc("noResults")}</p>
               ) : (
                 filteredProducts.slice(0, 20).map((product) => (
                   <button

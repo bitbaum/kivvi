@@ -37,8 +37,10 @@ export default async function DashboardPage() {
   const t = await getTranslations("dashboard");
 
   const companyId = session.user.companyId;
-  const { company, contactCount, documentCount, checklistState } =
-    await getDashboardBootstrap(db, companyId);
+  const { company, contactCount, documentCount, checklistState } = await getDashboardBootstrap(
+    db,
+    companyId,
+  );
   const sinceDate = company?.createdAt;
   const companyName = company?.name ?? "";
   const settings = company?.settings ?? {};

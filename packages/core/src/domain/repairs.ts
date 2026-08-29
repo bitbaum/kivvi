@@ -22,12 +22,7 @@
 import { z } from "zod";
 import Decimal from "decimal.js";
 import { and, eq } from "drizzle-orm";
-import {
-  documents,
-  documentItems,
-  subsidyClaims,
-  accounts,
-} from "@kivvi/database";
+import { documents, documentItems, subsidyClaims, accounts } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
 import { PAYMENT_METHOD_VALUES } from "@kivvi/database";
 import { createDocument } from "./documents";
@@ -65,10 +60,7 @@ export interface JournalLineSpec {
 }
 
 /** Split a VAT-inclusive (gross) amount into { net, vat } that sum EXACTLY to it. */
-export function netVatFromGross(
-  gross: Decimal,
-  vatRatePct: string,
-): { net: string; vat: string } {
+export function netVatFromGross(gross: Decimal, vatRatePct: string): { net: string; vat: string } {
   const rate = new Decimal(vatRatePct || "0");
   const net = gross.div(new Decimal(1).plus(rate.div(100))).toDecimalPlaces(2);
   const vat = gross.minus(net); // exact remainder → net + vat === gross
@@ -80,10 +72,7 @@ export function netVatFromGross(
  * never more than the repair itself. `repairTotalGross` is the VAT-inclusive
  * repair price.
  */
-export function computeAppliedSubsidy(
-  program: SubsidyProgram,
-  repairTotalGross: string,
-): string {
+export function computeAppliedSubsidy(program: SubsidyProgram, repairTotalGross: string): string {
   const total = new Decimal(repairTotalGross);
   if (total.lte(0)) return "0.00";
   const cap = total.times(program.maxPct).div(100);
@@ -154,9 +143,7 @@ export interface RepairFinalizeInput {
  * Debits always sum to `total`; credits always sum to `total`. Verified in tests
  * against the spec §5.3 example (total 60, bonus 30) for both treatments.
  */
-export function buildRepairFinalizeLines(
-  input: RepairFinalizeInput,
-): JournalLineSpec[] {
+export function buildRepairFinalizeLines(input: RepairFinalizeInput): JournalLineSpec[] {
   const total = new Decimal(input.repairTotalGross);
   const subsidy = new Decimal(input.subsidyGross || "0");
   const advance = new Decimal(input.advanceGross || "0");
@@ -244,10 +231,7 @@ export const createRepairOrderSchema = z
     deviceInfo: z.string().max(500).optional(),
     faultDescription: z.string().max(1000).optional(),
     /** NET quoted base price (VAT added on top), consistent with the doc model. */
-    quotedAmount: z
-      .string()
-      .regex(AMOUNT_REGEX, "Amount must be a decimal like 30.00")
-      .optional(),
+    quotedAmount: z.string().regex(AMOUNT_REGEX, "Amount must be a decimal like 30.00").optional(),
     vatRate: z.string().regex(AMOUNT_REGEX).default(DEFAULT_VAT_RATE),
     /** External system + id (revamp-it appointment) — enables idempotent replay. */
     source: z.string().max(60).optional(),
@@ -279,8 +263,7 @@ export async function createRepairOrder(
   input: CreateRepairOrderInput,
 ): Promise<RepairOrderResult> {
   const v = createRepairOrderSchema.parse(input);
-  const key =
-    v.source && v.sourceId ? repairSourceKey(v.source, v.sourceId) : null;
+  const key = v.source && v.sourceId ? repairSourceKey(v.source, v.sourceId) : null;
 
   if (key) {
     const [existing] = await db
@@ -294,21 +277,14 @@ export async function createRepairOrder(
         ),
       )
       .limit(1);
-    if (existing)
-      return { id: existing.id, number: existing.number, replayed: true };
+    if (existing) return { id: existing.id, number: existing.number, replayed: true };
   }
 
   const issueDate = v.issueDate ?? new Date().toISOString().split("T")[0];
 
   return db.transaction(async (tx) => {
     const contactId =
-      v.contactId ??
-      (await resolveOrCreateContact(
-        tx,
-        companyId,
-        v.contactName!,
-        v.contactEmail,
-      ));
+      v.contactId ?? (await resolveOrCreateContact(tx, companyId, v.contactName!, v.contactEmail));
 
     const created = await createDocument(tx, companyId, userId, {
       type: "repair_order",
@@ -320,9 +296,7 @@ export async function createRepairOrder(
         ? [
             {
               position: 0,
-              description: v.deviceInfo
-                ? `Reparatur: ${v.deviceInfo}`
-                : "Reparatur",
+              description: v.deviceInfo ? `Reparatur: ${v.deviceInfo}` : "Reparatur",
               quantity: "1",
               unitPrice: v.quotedAmount,
               vatRate: v.vatRate,
@@ -356,9 +330,7 @@ export const recordRepairAdvanceSchema = z.object({
   date: z.string().optional(),
 });
 
-export type RecordRepairAdvanceInput = z.input<
-  typeof recordRepairAdvanceSchema
->;
+export type RecordRepairAdvanceInput = z.input<typeof recordRepairAdvanceSchema>;
 
 /** Book an intake deposit as a liability: Dr Bank / Cr Erhaltene Anzahlungen. */
 export async function recordRepairAdvance(
@@ -393,10 +365,7 @@ export async function recordRepairAdvance(
       lines: buildAdvanceReceiptLines(v.amount),
     });
 
-    await tx
-      .update(documents)
-      .set({ advanceAmount: v.amount })
-      .where(eq(documents.id, doc.id));
+    await tx.update(documents).set({ advanceAmount: v.amount }).where(eq(documents.id, doc.id));
 
     return { documentId: doc.id, advanceAmount: v.amount };
   });
@@ -437,9 +406,7 @@ export async function applySubsidy(
   if (!program) throw new Error(`Unknown subsidy program: ${v.programKey}`);
 
   const eligible = isCategoryEligible(program, v.category);
-  const appliedAmount = eligible
-    ? computeAppliedSubsidy(program, v.repairTotal)
-    : "0.00";
+  const appliedAmount = eligible ? computeAppliedSubsidy(program, v.repairTotal) : "0.00";
   const status: "applied" | "rejected" =
     eligible && new Decimal(appliedAmount).gt(0) ? "applied" : "rejected";
 
@@ -462,10 +429,7 @@ export async function applySubsidy(
       .select({ id: accounts.id })
       .from(accounts)
       .where(
-        and(
-          eq(accounts.companyId, companyId),
-          eq(accounts.code, program.receivableAccountCode),
-        ),
+        and(eq(accounts.companyId, companyId), eq(accounts.code, program.receivableAccountCode)),
       )
       .limit(1);
 
@@ -580,10 +544,8 @@ export async function finalizeRepairInvoice(
       subsidyGross,
       advanceGross,
       vatTreatment: program?.vatTreatment ?? "third_party_consideration",
-      receivableAccountCode:
-        program?.receivableAccountCode ?? CUSTOMER_AR_ACCOUNT,
-      subventionAccountCode:
-        program?.subventionAccountCode ?? SERVICE_REVENUE_ACCOUNT,
+      receivableAccountCode: program?.receivableAccountCode ?? CUSTOMER_AR_ACCOUNT,
+      subventionAccountCode: program?.subventionAccountCode ?? SERVICE_REVENUE_ACCOUNT,
     });
 
     await createAutoJournalEntry(tx, companyId, {

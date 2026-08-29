@@ -1,25 +1,19 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
-import React from 'react';
-import {
-  Plus,
-  Clock,
-  User,
-  Package,
-  FileText,
-} from 'lucide-react';
-import { useRecentItems } from '@/hooks/use-recent-items';
-import { globalSearchAction, type GlobalSearchResults } from '@/app/actions/search';
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import React from "react";
+import { Plus, Clock, User, Package, FileText } from "lucide-react";
+import { useRecentItems } from "@/hooks/use-recent-items";
+import { globalSearchAction, type GlobalSearchResults } from "@/app/actions/search";
 import {
   NAVIGATION_ITEMS,
   QUICK_ACTIONS,
   DOCUMENT_ROUTE_PREFIX,
   SECTION_ORDER,
   SECTION_LABEL_KEYS,
-} from '@/lib/config/command-palette-items';
+} from "@/lib/config/command-palette-items";
 
 export interface PaletteItem {
   id: string;
@@ -37,9 +31,9 @@ export interface PaletteSection {
 
 export function useCommandPalette(isOpen: boolean, onClose: () => void) {
   const router = useRouter();
-  const t = useTranslations('commandPalette');
-  const tn = useTranslations('nav');
-  const [query, setQuery] = useState('');
+  const t = useTranslations("commandPalette");
+  const tn = useTranslations("nav");
+  const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [searchResults, setSearchResults] = useState<GlobalSearchResults | null>(null);
   const [isSearching, setIsSearching] = useState(false);
@@ -55,10 +49,10 @@ export function useCommandPalette(isOpen: boolean, onClose: () => void) {
         id: item.id,
         label: tn(item.nameKey),
         href: item.href,
-        icon: React.createElement(item.icon, { className: 'h-4 w-4' }),
-        section: 'navigation',
+        icon: React.createElement(item.icon, { className: "h-4 w-4" }),
+        section: "navigation",
       })),
-    [tn]
+    [tn],
   );
 
   const quickActions: PaletteItem[] = useMemo(
@@ -67,10 +61,10 @@ export function useCommandPalette(isOpen: boolean, onClose: () => void) {
         id: item.id,
         label: t(item.nameKey),
         href: item.href,
-        icon: React.createElement(Plus, { className: 'h-4 w-4' }),
-        section: 'actions',
+        icon: React.createElement(Plus, { className: "h-4 w-4" }),
+        section: "actions",
       })),
-    [t]
+    [t],
   );
 
   // Build recent items
@@ -80,10 +74,10 @@ export function useCommandPalette(isOpen: boolean, onClose: () => void) {
         id: `recent-${item.id}`,
         label: item.label,
         href: item.href,
-        icon: React.createElement(Clock, { className: 'h-4 w-4' }),
-        section: 'recent',
+        icon: React.createElement(Clock, { className: "h-4 w-4" }),
+        section: "recent",
       })),
-    [getRecentItems]
+    [getRecentItems],
   );
 
   // Filter static items by query
@@ -100,14 +94,12 @@ export function useCommandPalette(isOpen: boolean, onClose: () => void) {
     }
 
     const matchNav = navigationItems.filter((item) =>
-      item.label.toLowerCase().includes(lowerQuery)
+      item.label.toLowerCase().includes(lowerQuery),
     );
     const matchActions = quickActions.filter((item) =>
-      item.label.toLowerCase().includes(lowerQuery)
+      item.label.toLowerCase().includes(lowerQuery),
     );
-    const matchRecent = recentItems.filter((item) =>
-      item.label.toLowerCase().includes(lowerQuery)
-    );
+    const matchRecent = recentItems.filter((item) => item.label.toLowerCase().includes(lowerQuery));
 
     return [...matchNav, ...matchActions, ...matchRecent];
   }, [query, navigationItems, quickActions, recentItems]);
@@ -120,20 +112,20 @@ export function useCommandPalette(isOpen: boolean, onClose: () => void) {
     for (const c of searchResults.contacts) {
       items.push({
         id: `contact-${c.id}`,
-        label: `${c.name}${c.contactNumber ? ` (${c.contactNumber})` : ''}`,
+        label: `${c.name}${c.contactNumber ? ` (${c.contactNumber})` : ""}`,
         href: `/contacts/${c.id}`,
-        icon: React.createElement(User, { className: 'h-4 w-4' }),
-        section: 'contacts',
+        icon: React.createElement(User, { className: "h-4 w-4" }),
+        section: "contacts",
       });
     }
 
     for (const p of searchResults.products) {
       items.push({
         id: `product-${p.id}`,
-        label: `${p.name}${p.articleNumber ? ` (${p.articleNumber})` : ''}`,
+        label: `${p.name}${p.articleNumber ? ` (${p.articleNumber})` : ""}`,
         href: `/products/${p.id}`,
-        icon: React.createElement(Package, { className: 'h-4 w-4' }),
-        section: 'products',
+        icon: React.createElement(Package, { className: "h-4 w-4" }),
+        section: "products",
       });
     }
 
@@ -141,10 +133,10 @@ export function useCommandPalette(isOpen: boolean, onClose: () => void) {
       const routePrefix = DOCUMENT_ROUTE_PREFIX[d.type] || `/sales/${d.type}s`;
       items.push({
         id: `doc-${d.id}`,
-        label: `${d.number || d.type}${d.contactName ? ` \u2014 ${d.contactName}` : ''}`,
+        label: `${d.number || d.type}${d.contactName ? ` \u2014 ${d.contactName}` : ""}`,
         href: `${routePrefix}/${d.id}`,
-        icon: React.createElement(FileText, { className: 'h-4 w-4' }),
-        section: 'documents',
+        icon: React.createElement(FileText, { className: "h-4 w-4" }),
+        section: "documents",
       });
     }
 
@@ -152,10 +144,7 @@ export function useCommandPalette(isOpen: boolean, onClose: () => void) {
   }, [searchResults]);
 
   // All visible items
-  const allItems = useMemo(
-    () => [...filteredItems, ...serverItems],
-    [filteredItems, serverItems]
-  );
+  const allItems = useMemo(() => [...filteredItems, ...serverItems], [filteredItems, serverItems]);
 
   // Debounced server search with stale-result protection
   const queryRef = useRef(query);
@@ -191,7 +180,7 @@ export function useCommandPalette(isOpen: boolean, onClose: () => void) {
   // Reset on open/close
   useEffect(() => {
     if (isOpen) {
-      setQuery('');
+      setQuery("");
       setSelectedIndex(0);
       setSearchResults(null);
       requestAnimationFrame(() => inputRef.current?.focus());
@@ -208,7 +197,7 @@ export function useCommandPalette(isOpen: boolean, onClose: () => void) {
   // Scroll selected item into view
   useEffect(() => {
     const selected = listRef.current?.querySelector('[data-selected="true"]');
-    selected?.scrollIntoView({ block: 'nearest' });
+    selected?.scrollIntoView({ block: "nearest" });
   }, [selectedIndex]);
 
   const navigate = useCallback(
@@ -216,33 +205,33 @@ export function useCommandPalette(isOpen: boolean, onClose: () => void) {
       onClose();
       router.push(href);
     },
-    [onClose, router]
+    [onClose, router],
   );
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       switch (e.key) {
-        case 'ArrowDown':
+        case "ArrowDown":
           e.preventDefault();
           setSelectedIndex((prev) => (prev + 1) % Math.max(1, allItems.length));
           break;
-        case 'ArrowUp':
+        case "ArrowUp":
           e.preventDefault();
           setSelectedIndex((prev) => (prev - 1 + allItems.length) % Math.max(1, allItems.length));
           break;
-        case 'Enter':
+        case "Enter":
           e.preventDefault();
           if (allItems[selectedIndex]) {
             navigate(allItems[selectedIndex].href);
           }
           break;
-        case 'Escape':
+        case "Escape":
           e.preventDefault();
           onClose();
           break;
       }
     },
-    [allItems, selectedIndex, navigate, onClose]
+    [allItems, selectedIndex, navigate, onClose],
   );
 
   // Build sections for rendering
@@ -269,7 +258,7 @@ export function useCommandPalette(isOpen: boolean, onClose: () => void) {
     listRef,
     navigate,
     handleKeyDown,
-    placeholder: t('placeholder'),
-    noResultsLabel: t('noResults'),
+    placeholder: t("placeholder"),
+    noResultsLabel: t("noResults"),
   };
 }

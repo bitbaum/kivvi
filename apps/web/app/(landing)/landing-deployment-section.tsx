@@ -27,9 +27,7 @@ function DeploymentCard({
       </div>
       <div className="font-semibold">{title}</div>
       <div className="mb-3 text-xs text-muted-foreground">{subtitle}</div>
-      <p className="mb-6 flex-1 text-sm text-muted-foreground leading-relaxed">
-        {description}
-      </p>
+      <p className="mb-6 flex-1 text-sm text-muted-foreground leading-relaxed">{description}</p>
       {external ? (
         <Button asChild variant="link" className="px-0 text-sm gap-1.5">
           <a href={href} target="_blank" rel="noopener noreferrer">

@@ -1,9 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  applyPriceRule,
-  createPriceListSchema,
-  createPriceRuleSchema,
-} from "../domain/pricing";
+import { applyPriceRule, createPriceListSchema, createPriceRuleSchema } from "../domain/pricing";
 
 // ============================================================================
 // applyPriceRule — pure calculation, no DB required
@@ -24,10 +20,7 @@ describe("applyPriceRule — fixed", () => {
 describe("applyPriceRule — percentage discount", () => {
   it("applies 10% discount to base price", () => {
     // CHF 100 - 10% = CHF 90
-    const result = applyPriceRule(
-      { type: "percentage", value: "10" },
-      "100.00",
-    );
+    const result = applyPriceRule({ type: "percentage", value: "10" }, "100.00");
     expect(result).toEqual({ price: "90.00", ruleType: "percentage" });
   });
 
@@ -44,10 +37,7 @@ describe("applyPriceRule — percentage discount", () => {
   });
 
   it("100% discount produces CHF 0.00", () => {
-    const result = applyPriceRule(
-      { type: "percentage", value: "100" },
-      "150.00",
-    );
+    const result = applyPriceRule({ type: "percentage", value: "100" }, "150.00");
     expect(result?.price).toBe("0.00");
   });
 
@@ -60,57 +50,34 @@ describe("applyPriceRule — percentage discount", () => {
 describe("applyPriceRule — tiered", () => {
   it("applies discount when quantity meets threshold", () => {
     // Buy 10+: 20% off CHF 50 = CHF 40
-    const result = applyPriceRule(
-      { type: "tiered", value: "20", minQuantity: "10" },
-      "50.00",
-      10,
-    );
+    const result = applyPriceRule({ type: "tiered", value: "20", minQuantity: "10" }, "50.00", 10);
     expect(result).toEqual({ price: "40.00", ruleType: "tiered" });
   });
 
   it("returns null when quantity is below threshold", () => {
-    const result = applyPriceRule(
-      { type: "tiered", value: "20", minQuantity: "10" },
-      "50.00",
-      9,
-    );
+    const result = applyPriceRule({ type: "tiered", value: "20", minQuantity: "10" }, "50.00", 9);
     expect(result).toBeNull();
   });
 
   it("applies discount when quantity exactly meets threshold", () => {
-    const result = applyPriceRule(
-      { type: "tiered", value: "15", minQuantity: "5" },
-      "100.00",
-      5,
-    );
+    const result = applyPriceRule({ type: "tiered", value: "15", minQuantity: "5" }, "100.00", 5);
     expect(result).not.toBeNull();
     expect(result?.price).toBe("85.00");
   });
 
   it("applies discount when quantity exceeds threshold", () => {
-    const result = applyPriceRule(
-      { type: "tiered", value: "15", minQuantity: "5" },
-      "100.00",
-      50,
-    );
+    const result = applyPriceRule({ type: "tiered", value: "15", minQuantity: "5" }, "100.00", 50);
     expect(result?.price).toBe("85.00");
   });
 
   it("applies discount when no quantity provided (threshold irrelevant)", () => {
     // No quantity = no threshold check → discount applies
-    const result = applyPriceRule(
-      { type: "tiered", value: "10", minQuantity: "100" },
-      "200.00",
-    );
+    const result = applyPriceRule({ type: "tiered", value: "10", minQuantity: "100" }, "200.00");
     expect(result?.price).toBe("180.00");
   });
 
   it("applies discount when minQuantity is null", () => {
-    const result = applyPriceRule(
-      { type: "tiered", value: "10", minQuantity: null },
-      "200.00",
-      1,
-    );
+    const result = applyPriceRule({ type: "tiered", value: "10", minQuantity: null }, "200.00", 1);
     expect(result?.price).toBe("180.00");
   });
 });

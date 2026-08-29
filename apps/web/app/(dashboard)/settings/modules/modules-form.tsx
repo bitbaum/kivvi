@@ -5,10 +5,7 @@ import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { updateEnabledModulesAction } from "@/app/actions/settings";
-import {
-  TOGGLEABLE_MODULES,
-  isModuleEnabled,
-} from "@kivvi/core/src/config/modules";
+import { TOGGLEABLE_MODULES, isModuleEnabled } from "@kivvi/core/src/config/modules";
 
 interface ModulesFormProps {
   /** Persisted enabled module keys from settings.enabledModules (undefined = all on) */
@@ -23,10 +20,7 @@ export function ModulesForm({ initialEnabledModules }: ModulesFormProps) {
 
   const [enabled, setEnabled] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(
-      TOGGLEABLE_MODULES.map((m) => [
-        m.key,
-        isModuleEnabled(initialEnabledModules, m.key),
-      ]),
+      TOGGLEABLE_MODULES.map((m) => [m.key, isModuleEnabled(initialEnabledModules, m.key)]),
     ),
   );
 
@@ -37,9 +31,7 @@ export function ModulesForm({ initialEnabledModules }: ModulesFormProps) {
   function handleSave() {
     // Persist the exact set the admin chose. Leaving everything on stores the
     // full array (not undefined) — that reflects an explicit choice.
-    const enabledModules = TOGGLEABLE_MODULES.filter((m) => enabled[m.key]).map(
-      (m) => m.key,
-    );
+    const enabledModules = TOGGLEABLE_MODULES.filter((m) => enabled[m.key]).map((m) => m.key);
     startTransition(async () => {
       const result = await updateEnabledModulesAction({ enabledModules });
       if (result.success) {
@@ -59,10 +51,7 @@ export function ModulesForm({ initialEnabledModules }: ModulesFormProps) {
           const isOn = enabled[m.key];
           const labelId = `module-${m.key}-label`;
           return (
-            <div
-              key={m.key}
-              className="flex items-center justify-between gap-4 py-3"
-            >
+            <div key={m.key} className="flex items-center justify-between gap-4 py-3">
               <span id={labelId} className="text-sm font-medium">
                 {tn(m.labelKey as Parameters<typeof tn>[0])}
               </span>

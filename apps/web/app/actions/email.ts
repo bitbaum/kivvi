@@ -3,19 +3,10 @@
 import { z } from "zod";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import {
-  companies,
-  contacts,
-  documentItems,
-  documents,
-  users,
-} from "@kivvi/database";
+import { companies, contacts, documentItems, documents, users } from "@kivvi/database";
 import type { CompanySettings } from "@kivvi/database";
 import { getDocument } from "@kivvi/core";
-import {
-  updateDocumentStatus,
-  isValidTransition,
-} from "@kivvi/core/src/domain/documents";
+import { updateDocumentStatus, isValidTransition } from "@kivvi/core/src/domain/documents";
 import {
   generateInvoicePdf,
   generateDonationReceiptPdf,
@@ -36,12 +27,7 @@ import {
 } from "@kivvi/core/src/domain/email";
 import { escapeHtml } from "@kivvi/core/src/utils/html";
 import Decimal from "decimal.js";
-import {
-  type ActionResult,
-  getSession,
-  requireRole,
-  safeErrorMessage,
-} from "./utils";
+import { type ActionResult, getSession, requireRole, safeErrorMessage } from "./utils";
 import { revalidatePath } from "next/cache";
 import { getTransporter, getFromEmail } from "@/lib/email/transporter";
 import { isEmailConfigured } from "@/lib/config/email";
@@ -92,10 +78,7 @@ export async function sendDocumentEmailAction(
     const transporter = getTransporter();
 
     // Fetch full company record for email + PDF generation
-    const [company] = await db
-      .select()
-      .from(companies)
-      .where(eq(companies.id, companyId));
+    const [company] = await db.select().from(companies).where(eq(companies.id, companyId));
 
     const companyName = company?.name || "Kivvi";
     const settings = (company?.settings as CompanySettings) ?? {};
@@ -109,9 +92,7 @@ export async function sendDocumentEmailAction(
       documentType: doc.type,
       total: doc.total,
       currency: doc.currency,
-      dueDate: doc.dueDate
-        ? new Date(doc.dueDate).toISOString().split("T")[0]
-        : undefined,
+      dueDate: doc.dueDate ? new Date(doc.dueDate).toISOString().split("T")[0] : undefined,
       plan,
     };
 
@@ -147,21 +128,15 @@ export async function sendDocumentEmailAction(
       purchase_invoice: "purchaseInvoice",
     };
     const typeLabel = t(
-      (DOC_TYPE_I18N_KEY[emailData.documentType] ?? "document") as Parameters<
-        typeof t
-      >[0],
+      (DOC_TYPE_I18N_KEY[emailData.documentType] ?? "document") as Parameters<typeof t>[0],
     );
 
     const formattedTotal = formatCurrency(emailData.total, emailData.currency);
-    const formattedDueDate = emailData.dueDate
-      ? formatDate(emailData.dueDate)
-      : null;
+    const formattedDueDate = emailData.dueDate ? formatDate(emailData.dueDate) : null;
 
     const numHtml = `<strong>${emailData.documentNumber}</strong>`;
     const amtHtml = `<strong>${formattedTotal}</strong>`;
-    const dueDateHtml = formattedDueDate
-      ? `<strong>${formattedDueDate}</strong>`
-      : null;
+    const dueDateHtml = formattedDueDate ? `<strong>${formattedDueDate}</strong>` : null;
 
     let bodyHtml: string;
     if (emailData.documentType === "dunning") {
@@ -169,8 +144,7 @@ export async function sendDocumentEmailAction(
         `${t("emailBodyDunningIntro")}<br><br>` +
         `${typeLabel}: ${numHtml}<br>` +
         `${t("emailBodyDunningAmount")}: ${amtHtml}`;
-      if (dueDateHtml)
-        bodyHtml += `<br>${t("emailBodyDunningOverdue")}: ${dueDateHtml}`;
+      if (dueDateHtml) bodyHtml += `<br>${t("emailBodyDunningOverdue")}: ${dueDateHtml}`;
       bodyHtml += `<br><br>${t("emailBodyDunningIgnore")}`;
     } else if (emailData.documentType === "delivery_note") {
       bodyHtml = t("emailBodyDeliveryLine", {
@@ -183,8 +157,7 @@ export async function sendDocumentEmailAction(
         number: numHtml,
         amount: amtHtml,
       });
-      if (dueDateHtml)
-        bodyHtml += `<br><br>${t("emailBodyValidUntil")}: ${dueDateHtml}`;
+      if (dueDateHtml) bodyHtml += `<br><br>${t("emailBodyValidUntil")}: ${dueDateHtml}`;
       bodyHtml += `<br><br>${t("emailBodyFeedback")}`;
     } else {
       bodyHtml = t("emailBodyStandardLine", {
@@ -230,12 +203,7 @@ export async function sendDocumentEmailAction(
         lastEmailedAt: new Date(),
         lastEmailedTo: parsed.data.recipientEmail,
       })
-      .where(
-        and(
-          eq(documents.id, parsed.data.documentId),
-          eq(documents.companyId, companyId),
-        ),
-      );
+      .where(and(eq(documents.id, parsed.data.documentId), eq(documents.companyId, companyId)));
 
     // Auto-transition to "sent" if the document is still in draft/confirmed
     // (emailing IS the act of sending — no need for a separate status change)
@@ -272,12 +240,10 @@ export async function sendDonationReceiptEmailAction(
     // Fetch intake document with tenant isolation
     const doc = await getDocument(db, companyId, intakeId);
     if (!doc) return { success: false, error: t("errorNotFound") };
-    if (doc.type !== "intake")
-      return { success: false, error: t("errorNotAnIntake") };
+    if (doc.type !== "intake") return { success: false, error: t("errorNotAnIntake") };
     if (doc.intakeSource !== "donation")
       return { success: false, error: t("errorReceiptDonationOnly") };
-    if (doc.status === "draft")
-      return { success: false, error: t("errorReceiptConfirmFirst") };
+    if (doc.status === "draft") return { success: false, error: t("errorReceiptConfirmFirst") };
 
     // Resolve donor contact
     const donorId = doc.donorId || doc.contactId;
@@ -303,10 +269,7 @@ export async function sendDonationReceiptEmailAction(
     const transporter = getTransporter();
 
     // Fetch company
-    const [company] = await db
-      .select()
-      .from(companies)
-      .where(eq(companies.id, companyId));
+    const [company] = await db.select().from(companies).where(eq(companies.id, companyId));
 
     const companyName = company?.name || "Kivvi";
     const settings = (company?.settings as CompanySettings) ?? {};
@@ -320,18 +283,13 @@ export async function sendDonationReceiptEmailAction(
 
     // Calculate estimated total with Decimal (never float arithmetic on money)
     const total = items.reduce(
-      (sum, item) =>
-        sum.plus(
-          new Decimal(item.unitPrice || "0").times(item.quantity || "1"),
-        ),
+      (sum, item) => sum.plus(new Decimal(item.unitPrice || "0").times(item.quantity || "1")),
       new Decimal(0),
     );
     const estimatedValue = total.gt(0) ? total.toFixed(2) : undefined;
 
     // Format date
-    const date = doc.issueDate
-      ? formatDate(doc.issueDate)
-      : formatDate(new Date());
+    const date = doc.issueDate ? formatDate(doc.issueDate) : formatDate(new Date());
 
     // Generate PDF
     const pdfBuffer = await generateDonationReceiptPdf({
@@ -367,9 +325,7 @@ export async function sendDonationReceiptEmailAction(
     };
 
     const currency = doc.currency || DEFAULT_CURRENCY;
-    const fmtAmount = estimatedValue
-      ? formatCurrency(estimatedValue, currency)
-      : null;
+    const fmtAmount = estimatedValue ? formatCurrency(estimatedValue, currency) : null;
     const itemUnit =
       items.length === 1
         ? t("donationReceiptEmailItemSingular")
@@ -390,10 +346,7 @@ export async function sendDonationReceiptEmailAction(
       footerAuto: t("donationReceiptEmailFooterAuto", {
         companyName: escapeHtml(companyName),
       }),
-      footerBranding:
-        plan !== "premium"
-          ? t("donationReceiptEmailFooterBranding")
-          : undefined,
+      footerBranding: plan !== "premium" ? t("donationReceiptEmailFooterBranding") : undefined,
       attachmentFilename: t("donationReceiptEmailFilename", {
         receiptNumber: doc.number,
       }),

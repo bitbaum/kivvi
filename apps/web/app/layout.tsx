@@ -70,16 +70,11 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Kivvi — Das Betriebssystem der Kreislaufwirtschaft",
-    description:
-      "Das Open-Source-ERP für Brockenhäuser, IT-Refurbisher, Repair Cafés.",
+    description: "Das Open-Source-ERP für Brockenhäuser, IT-Refurbisher, Repair Cafés.",
   },
 };
 
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale();
   const messages = await getMessages();
   const session = await auth();

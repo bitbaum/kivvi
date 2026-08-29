@@ -5,10 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { db } from "@/lib/db";
 import { getInventoryDashboard } from "@kivvi/core/src/domain/inventory-dashboard";
 import { formatCurrency } from "@/lib/utils";
-import {
-  getStatusLabelKey,
-  PIPELINE_STATUSES,
-} from "@/lib/config/inventory-items";
+import { getStatusLabelKey, PIPELINE_STATUSES } from "@/lib/config/inventory-items";
 
 export async function InventoryOverview() {
   const session = await getSessionOrRedirect();
@@ -33,9 +30,7 @@ export async function InventoryOverview() {
           label={ti("avgMargin")}
           value={`${data.averageMarginPercent}%`}
           sub={`${formatCurrency(data.totalProfit)} ${ti("metricProfit")}`}
-          positive={
-            data.soldCount > 0 ? data.averageMarginPercent > 0 : undefined
-          }
+          positive={data.soldCount > 0 ? data.averageMarginPercent > 0 : undefined}
         />
         <MetricCard
           icon={<Clock className="h-5 w-5" />}
@@ -48,17 +43,13 @@ export async function InventoryOverview() {
           label={ti("sellThrough")}
           value={`${data.sellThroughRate}%`}
           sub={ti("ofProcessedItemsSold")}
-          positive={
-            data.intakeCount > 0 ? data.sellThroughRate > 50 : undefined
-          }
+          positive={data.intakeCount > 0 ? data.sellThroughRate > 50 : undefined}
         />
       </div>
 
       {data.unsoldCount > 0 && (
         <div className="rounded-xl border bg-card p-4">
-          <h3 className="mb-3 text-sm font-medium text-muted-foreground">
-            {ti("pipeline")}
-          </h3>
+          <h3 className="mb-3 text-sm font-medium text-muted-foreground">{ti("pipeline")}</h3>
           <div className="flex flex-wrap gap-3">
             {PIPELINE_STATUSES.map((status) => {
               const count = data.byStatus[status] || 0;
@@ -67,16 +58,12 @@ export async function InventoryOverview() {
                 <a
                   key={status}
                   href={
-                    status === "repair"
-                      ? "/intake/repair-queue"
-                      : `/intake/items?status=${status}`
+                    status === "repair" ? "/intake/repair-queue" : `/intake/items?status=${status}`
                   }
                   className="flex items-center gap-2 rounded-lg border px-3 py-2 text-sm hover:bg-muted transition-colors"
                 >
                   <span className="font-medium">{count}</span>
-                  <span className="text-muted-foreground">
-                    {ti(getStatusLabelKey(status))}
-                  </span>
+                  <span className="text-muted-foreground">{ti(getStatusLabelKey(status))}</span>
                 </a>
               );
             })}
@@ -87,9 +74,7 @@ export async function InventoryOverview() {
       {data.topItems.length > 0 && (
         <div className="rounded-xl border bg-card">
           <div className="border-b px-4 py-3">
-            <h3 className="text-sm font-medium text-muted-foreground">
-              {ti("recentSales")}
-            </h3>
+            <h3 className="text-sm font-medium text-muted-foreground">{ti("recentSales")}</h3>
           </div>
           <div className="divide-y">
             {data.topItems.slice(0, 5).map((item) => (
@@ -99,14 +84,10 @@ export async function InventoryOverview() {
               >
                 <div>
                   <span className="font-medium">{item.description}</span>
-                  <span className="ml-2 text-xs text-muted-foreground">
-                    {item.itemNumber}
-                  </span>
+                  <span className="ml-2 text-xs text-muted-foreground">{item.itemNumber}</span>
                 </div>
                 <div className="text-right">
-                  <span className="font-medium">
-                    {formatCurrency(item.soldPrice)}
-                  </span>
+                  <span className="font-medium">{formatCurrency(item.soldPrice)}</span>
                   <span
                     className={`ml-2 text-xs ${new Decimal(item.margin || "0").gt(0) ? "text-success" : "text-destructive"}`}
                   >

@@ -4,10 +4,7 @@ import { db } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { companies, inventoryItems } from "@kivvi/database";
 import type { CompanySettings } from "@kivvi/database";
-import {
-  buildWebhookSignature,
-  parseRicardoWebhookEvent,
-} from "@kivvi/core/src/domain/ricardo";
+import { buildWebhookSignature, parseRicardoWebhookEvent } from "@kivvi/core/src/domain/ricardo";
 
 async function resolveCompanyIdBySignature(
   rawBody: string,
@@ -46,10 +43,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
 
-  const verifiedCompanyId = await resolveCompanyIdBySignature(
-    rawBody,
-    signature,
-  );
+  const verifiedCompanyId = await resolveCompanyIdBySignature(rawBody, signature);
   if (signature && !verifiedCompanyId) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
@@ -92,12 +86,7 @@ export async function POST(request: NextRequest) {
           : {}),
         updatedAt: new Date(),
       })
-      .where(
-        and(
-          eq(inventoryItems.id, item.id),
-          eq(inventoryItems.companyId, item.companyId),
-        ),
-      );
+      .where(and(eq(inventoryItems.id, item.id), eq(inventoryItems.companyId, item.companyId)));
 
     return NextResponse.json({ received: true, matched: true });
   } catch (error) {

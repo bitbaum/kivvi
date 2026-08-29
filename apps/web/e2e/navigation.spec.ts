@@ -19,12 +19,8 @@ test.describe("Navigation", () => {
     await expect(
       page.getByRole("heading", { name: "Run the kivitendo jobs in Kivvi" }),
     ).toBeVisible();
-    await expect(
-      page.getByRole("link", { name: /Quick intake/ }),
-    ).toBeVisible();
-    await expect(
-      page.getByRole("link", { name: /Open contacts/ }),
-    ).toBeVisible();
+    await expect(page.getByRole("link", { name: /Quick intake/ })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Open contacts/ })).toBeVisible();
     await expect(page.getByRole("link", { name: /^Invoices/ })).toBeVisible();
     await expect(page.getByRole("link", { name: /Money hub/ })).toBeVisible();
     await expect(page.getByRole("link", { name: /Webhooks/ })).toBeVisible();

@@ -8,10 +8,7 @@ import { SettingsSubpageHeader } from "@/components/settings-subpage-header";
 import { RicardoSection } from "./ricardo-section";
 import { OperationsSection } from "./operations-section";
 import { IntegrationReviewSection } from "./integration-review-section";
-import {
-  maskSecret,
-  summarizeIntegrationStatus,
-} from "@kivvi/core/src/domain/integrations";
+import { maskSecret, summarizeIntegrationStatus } from "@kivvi/core/src/domain/integrations";
 
 export default async function IntegrationsPage() {
   const session = await getSessionOrRedirect();

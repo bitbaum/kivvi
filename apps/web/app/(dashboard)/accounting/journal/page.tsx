@@ -71,11 +71,7 @@ export default async function JournalPage({ searchParams }: PageProps) {
       {/* Filters */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
         {/* Search */}
-        <form
-          className="relative flex-1 sm:max-w-sm"
-          action="/accounting/journal"
-          method="GET"
-        >
+        <form className="relative flex-1 sm:max-w-sm" action="/accounting/journal" method="GET">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
@@ -84,9 +80,7 @@ export default async function JournalPage({ searchParams }: PageProps) {
             defaultValue={search}
             className="w-full rounded-lg border bg-background py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           />
-          {sourceType && (
-            <input type="hidden" name="sourceType" value={sourceType} />
-          )}
+          {sourceType && <input type="hidden" name="sourceType" value={sourceType} />}
           {dateFrom && <input type="hidden" name="dateFrom" value={dateFrom} />}
           {dateTo && <input type="hidden" name="dateTo" value={dateTo} />}
         </form>
@@ -129,20 +123,11 @@ export default async function JournalPage({ searchParams }: PageProps) {
       </div>
 
       {/* Date range filter */}
-      <form
-        className="flex flex-wrap items-end gap-3"
-        action="/accounting/journal"
-        method="GET"
-      >
+      <form className="flex flex-wrap items-end gap-3" action="/accounting/journal" method="GET">
         {search && <input type="hidden" name="search" value={search} />}
-        {sourceType && (
-          <input type="hidden" name="sourceType" value={sourceType} />
-        )}
+        {sourceType && <input type="hidden" name="sourceType" value={sourceType} />}
         <div>
-          <label
-            htmlFor="journal-dateFrom"
-            className="block text-sm text-muted-foreground mb-1"
-          >
+          <label htmlFor="journal-dateFrom" className="block text-sm text-muted-foreground mb-1">
             {tc("from")}
           </label>
           <input
@@ -154,10 +139,7 @@ export default async function JournalPage({ searchParams }: PageProps) {
           />
         </div>
         <div>
-          <label
-            htmlFor="journal-dateTo"
-            className="block text-sm text-muted-foreground mb-1"
-          >
+          <label htmlFor="journal-dateTo" className="block text-sm text-muted-foreground mb-1">
             {tc("to")}
           </label>
           <input

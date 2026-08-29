@@ -12,8 +12,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 // committed store if the callback resolves. A throw discards the staged writes
 // — exactly what a real ROLLBACK does.
 vi.mock("../domain/accounting-integration", async (importActual) => {
-  const actual =
-    await importActual<typeof import("../domain/accounting-integration")>();
+  const actual = await importActual<typeof import("../domain/accounting-integration")>();
   return { ...actual, createPaymentReceivedJournalEntry: vi.fn() };
 });
 
@@ -52,10 +51,8 @@ function selectBuilder(rows: unknown[]) {
     where: () => b,
     limit: () => b,
     innerJoin: () => b,
-    then: (
-      resolve: (v: unknown[]) => unknown,
-      reject?: (e: unknown) => unknown,
-    ) => Promise.resolve(rows).then(resolve, reject),
+    then: (resolve: (v: unknown[]) => unknown, reject?: (e: unknown) => unknown) =>
+      Promise.resolve(rows).then(resolve, reject),
   };
   return b;
 }
@@ -143,9 +140,9 @@ describe("recordPayment — atomicity of payment + journal entry", () => {
     journalMock.mockRejectedValue(new Error("journal entry failed"));
     const { db, committed } = makeMockDb();
 
-    await expect(
-      recordPayment(db, COMPANY_ID, DOC_ID, PAYMENT_INPUT),
-    ).rejects.toThrow("journal entry failed");
+    await expect(recordPayment(db, COMPANY_ID, DOC_ID, PAYMENT_INPUT)).rejects.toThrow(
+      "journal entry failed",
+    );
 
     // Nothing committed — the staged payment + status update were discarded.
     expect(committed.payments).toHaveLength(0);

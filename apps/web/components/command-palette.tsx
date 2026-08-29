@@ -40,8 +40,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
 
   const ai = useCommandBarAI();
 
-  const aiActive =
-    ai.isProcessing || ai.message || ai.actions.length > 0 || ai.error;
+  const aiActive = ai.isProcessing || ai.message || ai.actions.length > 0 || ai.error;
   const showAI = looksLikeAIQuery(query) || !!aiActive;
 
   // Reset AI state when palette closes
@@ -60,8 +59,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
     // Enter when AI has actions: activate first primary action
     if (e.key === "Enter" && ai.actions.length > 0) {
       e.preventDefault();
-      const primary =
-        ai.actions.find((a) => a.variant === "primary") || ai.actions[0];
+      const primary = ai.actions.find((a) => a.variant === "primary") || ai.actions[0];
       const url = primary?.params?.url as string | undefined;
       if (url) {
         onClose();
@@ -92,15 +90,9 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
         {/* Search input */}
         <div className="flex items-center gap-3 border-b px-4 py-3">
           {showAI ? (
-            <Sparkles
-              className="h-4 w-4 shrink-0 text-brand"
-              aria-hidden="true"
-            />
+            <Sparkles className="h-4 w-4 shrink-0 text-brand" aria-hidden="true" />
           ) : (
-            <Search
-              className="h-4 w-4 shrink-0 text-muted-foreground"
-              aria-hidden="true"
-            />
+            <Search className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
           )}
           <input
             ref={inputRef}
@@ -140,11 +132,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
         </div>
 
         {/* Static results */}
-        <div
-          ref={listRef}
-          className="max-h-[40vh] overflow-y-auto p-2"
-          role="listbox"
-        >
+        <div ref={listRef} className="max-h-[40vh] overflow-y-auto p-2" role="listbox">
           {sections.length === 0 && !isSearching && !showAI ? (
             <div className="px-3 py-8 text-center text-sm text-muted-foreground">
               {t("noResults")}
@@ -174,11 +162,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
                       aria-selected={isSelected}
                     >
                       <span
-                        className={
-                          isSelected
-                            ? "text-primary-foreground"
-                            : "text-muted-foreground"
-                        }
+                        className={isSelected ? "text-primary-foreground" : "text-muted-foreground"}
                         aria-hidden="true"
                       >
                         {item.icon}

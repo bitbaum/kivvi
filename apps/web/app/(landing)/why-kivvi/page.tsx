@@ -41,9 +41,7 @@ export default async function WhyKivviPage() {
         <p className="mb-3 text-sm font-medium uppercase tracking-wider text-primary">
           {t("hero.label")}
         </p>
-        <h1 className="mb-4 text-4xl font-bold sm:text-5xl">
-          {t("hero.title")}
-        </h1>
+        <h1 className="mb-4 text-4xl font-bold sm:text-5xl">{t("hero.title")}</h1>
         <p className="text-xl text-muted-foreground">{t("hero.description")}</p>
       </section>
 
@@ -54,9 +52,7 @@ export default async function WhyKivviPage() {
           <p className="text-muted-foreground leading-relaxed mb-4">
             {t("coreArgument.paragraph1")}
           </p>
-          <p className="text-muted-foreground leading-relaxed">
-            {t("coreArgument.paragraph2")}
-          </p>
+          <p className="text-muted-foreground leading-relaxed">{t("coreArgument.paragraph2")}</p>
         </div>
       </section>
 
@@ -64,12 +60,7 @@ export default async function WhyKivviPage() {
       <section className="mx-auto max-w-4xl py-16">
         <div className="space-y-6">
           {dimensions.map((d, i) => (
-            <DimensionCard
-              key={d.title}
-              number={i + 1}
-              {...d}
-              headers={headers}
-            />
+            <DimensionCard key={d.title} number={i + 1} {...d} headers={headers} />
           ))}
         </div>
       </section>
@@ -78,15 +69,9 @@ export default async function WhyKivviPage() {
       <section className="mx-auto max-w-3xl py-8">
         <div className="rounded-2xl border bg-primary/5 p-8">
           <h2 className="mb-4 text-xl font-bold">{t("summary.title")}</h2>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            {t("summary.paragraph1")}
-          </p>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            {t("summary.paragraph2")}
-          </p>
-          <p className="font-medium text-foreground">
-            {t("summary.conclusion")}
-          </p>
+          <p className="text-muted-foreground leading-relaxed mb-4">{t("summary.paragraph1")}</p>
+          <p className="text-muted-foreground leading-relaxed mb-4">{t("summary.paragraph2")}</p>
+          <p className="font-medium text-foreground">{t("summary.conclusion")}</p>
         </div>
       </section>
 
@@ -158,17 +143,13 @@ function DimensionCard({
           <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-destructive/70">
             {headers.erpAssumption}
           </p>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            {erpAssumption}
-          </p>
+          <p className="text-sm text-muted-foreground leading-relaxed">{erpAssumption}</p>
         </div>
         <div className="p-5">
           <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-warning">
             {headers.circularReality}
           </p>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            {circularReality}
-          </p>
+          <p className="text-sm text-muted-foreground leading-relaxed">{circularReality}</p>
         </div>
         <div className="p-5 bg-primary/5">
           <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-primary/70">

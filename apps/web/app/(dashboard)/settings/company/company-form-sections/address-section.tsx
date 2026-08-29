@@ -34,10 +34,7 @@ export function AddressSection({ address, city, postalCode, country }: Props) {
         </div>
 
         <div>
-          <label
-            htmlFor="postalCode"
-            className="mb-1.5 block text-sm font-medium"
-          >
+          <label htmlFor="postalCode" className="mb-1.5 block text-sm font-medium">
             {t("company.postalCode")}
           </label>
           <FormInput
@@ -53,13 +50,7 @@ export function AddressSection({ address, city, postalCode, country }: Props) {
           <label htmlFor="city" className="mb-1.5 block text-sm font-medium">
             {t("company.city")}
           </label>
-          <FormInput
-            type="text"
-            id="city"
-            name="city"
-            maxLength={100}
-            defaultValue={city}
-          />
+          <FormInput type="text" id="city" name="city" maxLength={100} defaultValue={city} />
         </div>
 
         <div>

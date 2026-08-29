@@ -11,15 +11,7 @@
 export const PRODUCT_TYPE_VALUES = ["product", "service"] as const;
 export type ProductTypeValue = (typeof PRODUCT_TYPE_VALUES)[number];
 
-export const UNIT_TYPE_VALUES = [
-  "piece",
-  "hour",
-  "kg",
-  "m",
-  "m2",
-  "m3",
-  "liter",
-] as const;
+export const UNIT_TYPE_VALUES = ["piece", "hour", "kg", "m", "m2", "m3", "liter"] as const;
 export type UnitTypeValue = (typeof UNIT_TYPE_VALUES)[number];
 
 export const DEFAULT_UNIT: UnitTypeValue = "piece";

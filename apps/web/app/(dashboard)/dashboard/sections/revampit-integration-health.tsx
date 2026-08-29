@@ -52,9 +52,7 @@ export async function RevampitIntegrationHealth() {
             {t(`status.${health.status}`)}
           </div>
           <h2 className="text-lg font-semibold">{t("title")}</h2>
-          <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
-            {t("subtitle")}
-          </p>
+          <p className="mt-1 max-w-3xl text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row">
@@ -107,12 +105,8 @@ export async function RevampitIntegrationHealth() {
       </div>
 
       <div className="mt-4 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
-        <p>
-          {t("lastWebhook", { value: formatDateTime(health.lastWebhookAt) })}
-        </p>
-        <p>
-          {t("lastApiWrite", { value: formatDateTime(health.lastApiWriteAt) })}
-        </p>
+        <p>{t("lastWebhook", { value: formatDateTime(health.lastWebhookAt) })}</p>
+        <p>{t("lastApiWrite", { value: formatDateTime(health.lastApiWriteAt) })}</p>
       </div>
     </section>
   );

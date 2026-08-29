@@ -9,7 +9,5 @@ export default function ProductsError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  return (
-    <SectionErrorBoundary error={error} reset={reset} backHref="/products" />
-  );
+  return <SectionErrorBoundary error={error} reset={reset} backHref="/products" />;
 }

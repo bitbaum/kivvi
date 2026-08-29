@@ -33,12 +33,7 @@ export function ContactFormBasicSection({ contact, isEdit, assist }: SectionProp
           <label htmlFor="type" className="mb-1.5 block text-sm font-medium">
             {tc("type")} <span className="text-destructive">*</span>
           </label>
-          <FormSelect
-            id="type"
-            name="type"
-            required
-            {...bindField(assist, "type")}
-          >
+          <FormSelect id="type" name="type" required {...bindField(assist, "type")}>
             {contactTypeOptions.map((ct) => (
               <option key={ct.value} value={ct.value}>
                 {ct.label}
@@ -48,10 +43,7 @@ export function ContactFormBasicSection({ contact, isEdit, assist }: SectionProp
         </div>
 
         <div>
-          <label
-            htmlFor="firstName"
-            className="mb-1.5 block text-sm font-medium"
-          >
+          <label htmlFor="firstName" className="mb-1.5 block text-sm font-medium">
             {t("firstName")}
           </label>
           <FormInput
@@ -65,10 +57,7 @@ export function ContactFormBasicSection({ contact, isEdit, assist }: SectionProp
         </div>
 
         <div>
-          <label
-            htmlFor="lastName"
-            className="mb-1.5 block text-sm font-medium"
-          >
+          <label htmlFor="lastName" className="mb-1.5 block text-sm font-medium">
             {t("lastName")}
           </label>
           <FormInput
@@ -96,9 +85,7 @@ export function ContactFormBasicSection({ contact, isEdit, assist }: SectionProp
             {...bindField(assist, "name")}
             placeholder={!isEdit ? t("placeholders.companyOrName") : undefined}
           />
-          <p className="mt-1 text-xs text-muted-foreground">
-            {t("nameOrFirstLastHint")}
-          </p>
+          <p className="mt-1 text-xs text-muted-foreground">{t("nameOrFirstLastHint")}</p>
         </div>
       </div>
     </section>

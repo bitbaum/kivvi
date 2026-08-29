@@ -1,20 +1,13 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import {
-  authenticateApi,
-  apiError,
-  apiSuccess,
-  apiZodError,
-} from "@/lib/api-handler";
+import { authenticateApi, apiError, apiSuccess, apiZodError } from "@/lib/api-handler";
 import { withIdempotency } from "@/lib/api-idempotency";
 import { recordPayment } from "@kivvi/core";
 import { PAYMENT_METHOD_VALUES } from "@kivvi/database/src/enums";
 
 const recordPaymentSchema = z.object({
-  amount: z
-    .string()
-    .regex(/^\d+(\.\d{1,2})?$/, "Amount must be a decimal string"),
+  amount: z.string().regex(/^\d+(\.\d{1,2})?$/, "Amount must be a decimal string"),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be YYYY-MM-DD"),
   method: z.enum(PAYMENT_METHOD_VALUES).optional().default("bank_transfer"),
   reference: z.string().max(200).optional(),
@@ -28,10 +21,7 @@ const recordPaymentSchema = z.object({
  * marking it sent to close the accounting loop from external systems (e.g.
  * RevampIT Payrexx webhook).
  */
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const ctx = await authenticateApi(request, "member");
   if (ctx instanceof Response) return ctx;
 
@@ -50,8 +40,7 @@ export async function POST(
       const payment = await recordPayment(db, ctx.companyId, id, parsed.data);
       return apiSuccess(payment);
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to record payment";
+      const message = error instanceof Error ? error.message : "Failed to record payment";
       return apiError(message, 400);
     }
   });

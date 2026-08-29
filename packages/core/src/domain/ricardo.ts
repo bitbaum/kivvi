@@ -33,11 +33,7 @@ export interface RicardoListingPayload {
 }
 
 export type RicardoCondition =
-  | "new"
-  | "used_like_new"
-  | "used_good"
-  | "used_acceptable"
-  | "for_parts";
+  "new" | "used_like_new" | "used_good" | "used_acceptable" | "for_parts";
 
 export interface RicardoListingResult {
   listingId: string;
@@ -86,10 +82,7 @@ export function buildRicardoListingPayload(item: {
   category?: string | null;
   notes?: string | null;
 }): RicardoListingPayload {
-  const priceCents = new Decimal(item.askingPrice ?? "0")
-    .times(100)
-    .round()
-    .toNumber();
+  const priceCents = new Decimal(item.askingPrice ?? "0").times(100).round().toNumber();
 
   // Strip data-URI prefix for API upload
   let imageBase64: string | undefined;
@@ -99,9 +92,7 @@ export function buildRicardoListingPayload(item: {
   }
 
   // Build description — include notes if present
-  const description = [item.description, item.notes]
-    .filter(Boolean)
-    .join("\n\n");
+  const description = [item.description, item.notes].filter(Boolean).join("\n\n");
 
   return {
     title: item.description.slice(0, 100), // Ricardo title max 100 chars
@@ -130,25 +121,15 @@ export function parseRicardoWebhookEvent(
     return null;
   }
 
-  const validTypes = [
-    "item_sold",
-    "item_expired",
-    "item_removed",
-    "bid_placed",
-  ] as const;
+  const validTypes = ["item_sold", "item_expired", "item_removed", "bid_placed"] as const;
   if (!validTypes.includes(eventType as never)) return null;
 
   return {
     eventType: eventType as RicardoWebhookEvent["eventType"],
     listingId,
-    buyerUsername:
-      typeof body.buyer_username === "string" ? body.buyer_username : undefined,
-    soldPrice:
-      typeof body.sold_price === "string" ? body.sold_price : undefined,
-    timestamp:
-      typeof body.timestamp === "string"
-        ? body.timestamp
-        : new Date().toISOString(),
+    buyerUsername: typeof body.buyer_username === "string" ? body.buyer_username : undefined,
+    soldPrice: typeof body.sold_price === "string" ? body.sold_price : undefined,
+    timestamp: typeof body.timestamp === "string" ? body.timestamp : new Date().toISOString(),
   };
 }
 

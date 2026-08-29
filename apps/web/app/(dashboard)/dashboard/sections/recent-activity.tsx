@@ -88,9 +88,7 @@ export async function RecentActivity() {
 
   const getRelativeTime = (date: Date) => {
     const now = new Date();
-    const diffInSeconds = Math.floor(
-      (now.getTime() - new Date(date).getTime()) / 1000,
-    );
+    const diffInSeconds = Math.floor((now.getTime() - new Date(date).getTime()) / 1000);
 
     if (diffInSeconds < 60) return t("activity.justNow");
     if (diffInSeconds < 3600)
@@ -117,9 +115,7 @@ export async function RecentActivity() {
           <Clock className="h-6 w-6 text-muted-foreground" />
         </div>
         <h3 className="font-semibold">{t("activity.noActivity")}</h3>
-        <p className="text-sm text-muted-foreground">
-          {t("activity.noActivityDesc")}
-        </p>
+        <p className="text-sm text-muted-foreground">{t("activity.noActivityDesc")}</p>
       </div>
     );
   }
@@ -129,9 +125,7 @@ export async function RecentActivity() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold">{t("activity.title")}</h2>
-          <p className="text-sm text-muted-foreground">
-            {t("activity.subtitle")}
-          </p>
+          <p className="text-sm text-muted-foreground">{t("activity.subtitle")}</p>
         </div>
       </div>
       <div className="rounded-xl border bg-card">
@@ -155,9 +149,7 @@ export async function RecentActivity() {
                   <div className="flex items-center gap-2">
                     <p className="font-medium">{activity.number}</p>
                     <span className="text-xs text-muted-foreground">•</span>
-                    <p className="text-sm text-muted-foreground">
-                      {t(activity.actionKey)}
-                    </p>
+                    <p className="text-sm text-muted-foreground">{t(activity.actionKey)}</p>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     {activity.contactName && (
@@ -172,9 +164,7 @@ export async function RecentActivity() {
 
                 {/* Amount */}
                 <div className="text-right">
-                  <p className="font-medium">
-                    {formatCurrency(activity.amount)}
-                  </p>
+                  <p className="font-medium">{formatCurrency(activity.amount)}</p>
                 </div>
               </div>
             </Link>

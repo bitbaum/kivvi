@@ -64,8 +64,7 @@ export async function POST(request: NextRequest) {
 
     return apiSuccess(contact, undefined);
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to create contact";
+    const message = error instanceof Error ? error.message : "Failed to create contact";
     return apiError(message, 400);
   }
 }

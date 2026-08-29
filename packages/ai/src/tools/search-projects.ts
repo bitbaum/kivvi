@@ -1,21 +1,27 @@
-import { z } from 'zod';
-import Decimal from 'decimal.js';
-import type { Tool, ExecutionContext, ToolResult } from '../types';
-import { listProjects } from '@kivvi/core';
-import { getDb } from './utils';
+import { z } from "zod";
+import Decimal from "decimal.js";
+import type { Tool, ExecutionContext, ToolResult } from "../types";
+import { listProjects } from "@kivvi/core";
+import { getDb } from "./utils";
 
 const searchProjectsSchema = z.object({
-  query: z.string().optional().describe('Search query for project name or number'),
-  status: z.enum(['active', 'completed', 'on_hold', 'cancelled']).optional().describe('Filter by project status'),
-  limit: z.number().default(10).describe('Maximum number of results to return'),
+  query: z.string().optional().describe("Search query for project name or number"),
+  status: z
+    .enum(["active", "completed", "on_hold", "cancelled"])
+    .optional()
+    .describe("Filter by project status"),
+  limit: z.number().default(10).describe("Maximum number of results to return"),
 });
 
 export const searchProjectsTool: Tool = {
-  name: 'search_projects',
+  name: "search_projects",
   description: `Search for projects in the system. Can filter by status or search by name/number. Returns a list of projects with their status, budget, and associated contact.`,
   parameters: searchProjectsSchema,
-  requiredPermissions: ['project:read'],
-  execute: async (params: z.infer<typeof searchProjectsSchema>, context: ExecutionContext): Promise<ToolResult> => {
+  requiredPermissions: ["project:read"],
+  execute: async (
+    params: z.infer<typeof searchProjectsSchema>,
+    context: ExecutionContext,
+  ): Promise<ToolResult> => {
     try {
       const db = getDb(context);
       const currency = context.defaultCurrency;
@@ -39,7 +45,7 @@ export const searchProjectsTool: Tool = {
       if (projectList.length === 0) {
         return {
           success: true,
-          message: 'No projects found matching your criteria.',
+          message: "No projects found matching your criteria.",
           data: { projects: [], count: 0 },
         };
       }
@@ -55,7 +61,7 @@ export const searchProjectsTool: Tool = {
     } catch (error) {
       return {
         success: false,
-        error: `Failed to search projects: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        error: `Failed to search projects: ${error instanceof Error ? error.message : "Unknown error"}`,
       };
     }
   },

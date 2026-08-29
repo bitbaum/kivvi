@@ -6,10 +6,7 @@ import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { getInventoryItem } from "@kivvi/core";
 import { isValidUUID } from "@/lib/utils";
-import {
-  getChecklistTemplate,
-  ITEM_CATEGORIES,
-} from "@kivvi/core/src/config/checklist-templates";
+import { getChecklistTemplate, ITEM_CATEGORIES } from "@kivvi/core/src/config/checklist-templates";
 import { TESTABLE_STATUSES } from "@/lib/config/inventory-items";
 import type { ChecklistData } from "@kivvi/core/src/config/checklist-templates";
 import { ChecklistForm } from "./checklist-form";
@@ -26,10 +23,7 @@ interface PageProps {
  * If the item has no category yet, shows a category selector first.
  * The category determines which checklist template to load.
  */
-export default async function TestItemPage({
-  params,
-  searchParams,
-}: PageProps) {
+export default async function TestItemPage({ params, searchParams }: PageProps) {
   const session = await getSessionOrRedirect();
   const tc = await getTranslations("inventory");
   const tl = await getTranslations("checklist");
@@ -48,9 +42,7 @@ export default async function TestItemPage({
   const checklistData = item.checklistData as ChecklistData | null;
   // Category resolution: query param > saved on item > from existing checklist data
   const category =
-    (categoryParam && ITEM_CATEGORIES.includes(categoryParam)
-      ? categoryParam
-      : null) ??
+    (categoryParam && ITEM_CATEGORIES.includes(categoryParam) ? categoryParam : null) ??
     item.category ??
     checklistData?.category ??
     null;
@@ -75,9 +67,7 @@ export default async function TestItemPage({
             <ClipboardList className="h-5 w-5 text-primary" />
             <h2 className="font-semibold">{tc("selectCategory")}</h2>
           </div>
-          <p className="text-sm text-muted-foreground">
-            {tl("noCategorySelected")}
-          </p>
+          <p className="text-sm text-muted-foreground">{tl("noCategorySelected")}</p>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {ITEM_CATEGORIES.map((cat) => {
               const template = getChecklistTemplate(cat);

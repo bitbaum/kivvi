@@ -14,9 +14,7 @@ interface LogoUploadProps {
 export function LogoUpload({ initialLogoBase64, onError }: LogoUploadProps) {
   const t = useTranslations("settings");
   const tc = useTranslations("common");
-  const [logoPreview, setLogoPreview] = useState<string | null>(
-    initialLogoBase64,
-  );
+  const [logoPreview, setLogoPreview] = useState<string | null>(initialLogoBase64);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -76,11 +74,7 @@ export function LogoUpload({ initialLogoBase64, onError }: LogoUploadProps) {
           <div className="flex h-24 w-full max-w-[176px] shrink-0 items-center justify-center rounded-lg border-2 border-dashed bg-muted/30">
             {logoPreview ? (
               /* eslint-disable-next-line @next/next/no-img-element -- base64 data URI, next/image optimization not applicable */
-              <img
-                src={logoPreview}
-                alt={t("logo")}
-                className="max-h-20 max-w-40 object-contain"
-              />
+              <img src={logoPreview} alt={t("logo")} className="max-h-20 max-w-40 object-contain" />
             ) : (
               <ImageIcon className="h-8 w-8 text-muted-foreground/50" />
             )}

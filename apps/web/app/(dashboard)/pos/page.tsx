@@ -69,9 +69,7 @@ export default function PosPage() {
   }
 
   function updateSoldPrice(id: string, price: string) {
-    setCart((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, soldPrice: price } : c)),
-    );
+    setCart((prev) => prev.map((c) => (c.id === id ? { ...c, soldPrice: price } : c)));
   }
 
   const total = cart.reduce(
@@ -110,12 +108,7 @@ export default function PosPage() {
       const payResult = await recordPaymentAction(invoiceId, {
         amount: total.toFixed(2),
         date: new Date().toISOString().split("T")[0],
-        method:
-          paymentMethod === "cash"
-            ? "cash"
-            : paymentMethod === "card"
-              ? "card"
-              : "other",
+        method: paymentMethod === "cash" ? "cash" : paymentMethod === "card" ? "card" : "other",
         reference: paymentMethod === "twint" ? "TWINT" : undefined,
       });
 

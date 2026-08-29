@@ -14,9 +14,7 @@ interface ProjectDetailSidebarProps {
   project: Project;
 }
 
-export async function ProjectDetailSidebar({
-  project,
-}: ProjectDetailSidebarProps) {
+export async function ProjectDetailSidebar({ project }: ProjectDetailSidebarProps) {
   const t = await getTranslations("projects");
   const tc = await getTranslations("common");
 
@@ -51,9 +49,7 @@ export async function ProjectDetailSidebar({
         </div>
         <div className="divide-y">
           <div className="flex items-center justify-between px-6 py-3">
-            <span className="text-sm text-muted-foreground">
-              {tc("status")}
-            </span>
+            <span className="text-sm text-muted-foreground">{tc("status")}</span>
             <span
               className={cn(
                 "inline-block rounded-full px-2 py-0.5 text-xs font-medium",
@@ -62,48 +58,35 @@ export async function ProjectDetailSidebar({
             >
               {t(
                 PROJECT_STATUS_LABEL_KEYS[
-                  (project.status ??
-                    "active") as keyof typeof PROJECT_STATUS_LABEL_KEYS
+                  (project.status ?? "active") as keyof typeof PROJECT_STATUS_LABEL_KEYS
                 ] || "statusActive",
               )}
             </span>
           </div>
           {project.budget && (
             <div className="flex items-center justify-between px-6 py-3">
-              <span className="text-sm text-muted-foreground">
-                {t("budget")}
-              </span>
-              <span className="text-sm font-medium">
-                {formatCurrency(project.budget)}
-              </span>
+              <span className="text-sm text-muted-foreground">{t("budget")}</span>
+              <span className="text-sm font-medium">{formatCurrency(project.budget)}</span>
             </div>
           )}
           <div className="flex items-center justify-between px-6 py-3">
-            <span className="text-sm text-muted-foreground">
-              {t("startDate")}
-            </span>
+            <span className="text-sm text-muted-foreground">{t("startDate")}</span>
             <span className="text-sm">
               {project.startDate ? formatDate(project.startDate) : tc("notSet")}
             </span>
           </div>
           <div className="flex items-center justify-between px-6 py-3">
-            <span className="text-sm text-muted-foreground">
-              {t("endDate")}
-            </span>
+            <span className="text-sm text-muted-foreground">{t("endDate")}</span>
             <span className="text-sm">
               {project.endDate ? formatDate(project.endDate) : tc("notSet")}
             </span>
           </div>
           <div className="flex items-center justify-between px-6 py-3">
-            <span className="text-sm text-muted-foreground">
-              {t("createdAt")}
-            </span>
+            <span className="text-sm text-muted-foreground">{t("createdAt")}</span>
             <span className="text-sm">{formatDate(project.createdAt)}</span>
           </div>
           <div className="flex items-center justify-between px-6 py-3">
-            <span className="text-sm text-muted-foreground">
-              {t("updatedAt")}
-            </span>
+            <span className="text-sm text-muted-foreground">{t("updatedAt")}</span>
             <span className="text-sm">{formatDate(project.updatedAt)}</span>
           </div>
         </div>

@@ -39,13 +39,7 @@ export const DOCUMENT_STATUS_VALUES = [
 ] as const;
 export type DocumentStatusValue = (typeof DOCUMENT_STATUS_VALUES)[number];
 
-export const ACCOUNT_TYPE_VALUES = [
-  "asset",
-  "liability",
-  "equity",
-  "revenue",
-  "expense",
-] as const;
+export const ACCOUNT_TYPE_VALUES = ["asset", "liability", "equity", "revenue", "expense"] as const;
 export type AccountTypeValue = (typeof ACCOUNT_TYPE_VALUES)[number];
 
 /**
@@ -60,11 +54,7 @@ export type CostCenterKind = (typeof COST_CENTER_KIND_VALUES)[number];
  * restriction. `extern_zweckgebunden` → Fondskapital (third-party purpose-bound,
  * not equity); `intern_gebunden`/`frei` → Organisationskapital.
  */
-export const FUND_RESTRICTION_VALUES = [
-  "extern_zweckgebunden",
-  "intern_gebunden",
-  "frei",
-] as const;
+export const FUND_RESTRICTION_VALUES = ["extern_zweckgebunden", "intern_gebunden", "frei"] as const;
 export type FundRestriction = (typeof FUND_RESTRICTION_VALUES)[number];
 
 export const STOCK_MOVEMENT_TYPE_VALUES = [
@@ -74,33 +64,18 @@ export const STOCK_MOVEMENT_TYPE_VALUES = [
   "transfer",
   "return",
 ] as const;
-export type StockMovementTypeValue =
-  (typeof STOCK_MOVEMENT_TYPE_VALUES)[number];
+export type StockMovementTypeValue = (typeof STOCK_MOVEMENT_TYPE_VALUES)[number];
 
-export const PRICE_RULE_TYPE_VALUES = [
-  "fixed",
-  "percentage",
-  "tiered",
-] as const;
+export const PRICE_RULE_TYPE_VALUES = ["fixed", "percentage", "tiered"] as const;
 export type PriceRuleTypeValue = (typeof PRICE_RULE_TYPE_VALUES)[number];
 
-export const RECURRING_PERIODICITY_VALUES = [
-  "monthly",
-  "quarterly",
-  "annual",
-] as const;
-export type RecurringPeriodicityValue =
-  (typeof RECURRING_PERIODICITY_VALUES)[number];
+export const RECURRING_PERIODICITY_VALUES = ["monthly", "quarterly", "annual"] as const;
+export type RecurringPeriodicityValue = (typeof RECURRING_PERIODICITY_VALUES)[number];
 
 export const PRODUCT_TYPE_VALUES = ["product", "service"] as const;
 export type ProductTypeValue = (typeof PRODUCT_TYPE_VALUES)[number];
 
-export const PAYMENT_METHOD_VALUES = [
-  "bank_transfer",
-  "cash",
-  "card",
-  "other",
-] as const;
+export const PAYMENT_METHOD_VALUES = ["bank_transfer", "cash", "card", "other"] as const;
 export type PaymentMethodValue = (typeof PAYMENT_METHOD_VALUES)[number];
 
 // ============================================================================
@@ -147,13 +122,7 @@ export type ItemStatusValue = (typeof ITEM_STATUS_VALUES)[number];
 export const ADDRESS_TYPE_VALUES = ["billing", "shipping", "other"] as const;
 export type AddressTypeValue = (typeof ADDRESS_TYPE_VALUES)[number];
 
-export const AI_PROVIDER_VALUES = [
-  "anthropic",
-  "groq",
-  "openrouter",
-  "ollama",
-  "xai",
-] as const;
+export const AI_PROVIDER_VALUES = ["anthropic", "groq", "openrouter", "ollama", "xai"] as const;
 export type AiProviderValue = (typeof AI_PROVIDER_VALUES)[number];
 
 /** Display names for AI providers — brand names, no translation needed */
@@ -175,12 +144,7 @@ export const WEBHOOK_EVENT_VALUES = [
 ] as const;
 export type WebhookEvent = (typeof WEBHOOK_EVENT_VALUES)[number];
 
-export const MEMBERSHIP_ROLE_VALUES = [
-  "owner",
-  "admin",
-  "member",
-  "viewer",
-] as const;
+export const MEMBERSHIP_ROLE_VALUES = ["owner", "admin", "member", "viewer"] as const;
 export type MembershipRoleValue = (typeof MEMBERSHIP_ROLE_VALUES)[number];
 /** Roles assignable via invitation (owner excluded — granted at company creation) */
 export const INVITABLE_ROLE_VALUES = [
@@ -238,14 +202,8 @@ export type LocationModeValue = (typeof LOCATION_MODE_VALUES)[number];
 export const VACANCY_STATUS_VALUES = ["draft", "published", "closed"] as const;
 export type VacancyStatusValue = (typeof VACANCY_STATUS_VALUES)[number];
 
-export const JOIN_REQUEST_STATUS_VALUES = [
-  "pending",
-  "accepted",
-  "declined",
-  "withdrawn",
-] as const;
-export type JoinRequestStatusValue =
-  (typeof JOIN_REQUEST_STATUS_VALUES)[number];
+export const JOIN_REQUEST_STATUS_VALUES = ["pending", "accepted", "declined", "withdrawn"] as const;
+export type JoinRequestStatusValue = (typeof JOIN_REQUEST_STATUS_VALUES)[number];
 
 /**
  * Lifecycle of a third-party subsidy claim (e.g. Reparaturbonus Stadt Zürich).
@@ -254,11 +212,5 @@ export type JoinRequestStatusValue =
  * `settled` = reimbursement received, receivable cleared;
  * `rejected` = ineligible/expired code → no receivable, customer pays full price.
  */
-export const SUBSIDY_CLAIM_STATUS_VALUES = [
-  "applied",
-  "claimed",
-  "settled",
-  "rejected",
-] as const;
-export type SubsidyClaimStatusValue =
-  (typeof SUBSIDY_CLAIM_STATUS_VALUES)[number];
+export const SUBSIDY_CLAIM_STATUS_VALUES = ["applied", "claimed", "settled", "rejected"] as const;
+export type SubsidyClaimStatusValue = (typeof SUBSIDY_CLAIM_STATUS_VALUES)[number];

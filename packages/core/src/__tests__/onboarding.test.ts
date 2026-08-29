@@ -1,8 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type {
-  InitializeCompanyConfig,
-  InitializeCompanyResult,
-} from "../domain/onboarding";
+import type { InitializeCompanyConfig, InitializeCompanyResult } from "../domain/onboarding";
 
 /**
  * Tests for the onboarding domain module.

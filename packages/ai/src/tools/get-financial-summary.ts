@@ -50,10 +50,8 @@ export const getFinancialSummaryTool: Tool = {
 
       // The domain function returns monthly revenue, yearly revenue, outstanding, overdue, and drafts.
       // Map to the tool's output format based on the requested period.
-      const revenueAmount =
-        period === "year" ? summary.revenueThisYear : summary.revenueThisMonth;
-      const revenueCount =
-        period === "year" ? undefined : summary.revenueThisMonthCount;
+      const revenueAmount = period === "year" ? summary.revenueThisYear : summary.revenueThisMonth;
+      const revenueCount = period === "year" ? undefined : summary.revenueThisMonthCount;
 
       return {
         success: true,

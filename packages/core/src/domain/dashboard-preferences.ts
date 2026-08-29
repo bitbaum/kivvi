@@ -1,16 +1,16 @@
-import { eq } from 'drizzle-orm';
-import { companies, type CompanySettings } from '@kivvi/database';
-import type { Database } from '@kivvi/database';
+import { eq } from "drizzle-orm";
+import { companies, type CompanySettings } from "@kivvi/database";
+import type { Database } from "@kivvi/database";
 
 // Derived from CompanySettings.dashboardPreferences — SSOT is the schema
-export type DashboardPreferences = NonNullable<CompanySettings['dashboardPreferences']>;
+export type DashboardPreferences = NonNullable<CompanySettings["dashboardPreferences"]>;
 
 /**
  * Get dashboard preferences for a company
  */
 export async function getDashboardPreferences(
   db: Database,
-  companyId: string
+  companyId: string,
 ): Promise<DashboardPreferences> {
   const [company] = await db
     .select({ settings: companies.settings })
@@ -33,7 +33,7 @@ export async function getDashboardPreferences(
 export async function updateDashboardPreferences(
   db: Database,
   companyId: string,
-  preferences: Partial<DashboardPreferences>
+  preferences: Partial<DashboardPreferences>,
 ): Promise<void> {
   // Get current settings
   const [company] = await db
@@ -55,19 +55,13 @@ export async function updateDashboardPreferences(
   };
 
   // Update company settings
-  await db
-    .update(companies)
-    .set({ settings: updatedSettings })
-    .where(eq(companies.id, companyId));
+  await db.update(companies).set({ settings: updatedSettings }).where(eq(companies.id, companyId));
 }
 
 /**
  * Reset dashboard preferences to defaults
  */
-export async function resetDashboardPreferences(
-  db: Database,
-  companyId: string
-): Promise<void> {
+export async function resetDashboardPreferences(db: Database, companyId: string): Promise<void> {
   // Get current settings
   const [company] = await db
     .select({ settings: companies.settings })
@@ -84,8 +78,5 @@ export async function resetDashboardPreferences(
   };
 
   // Update company settings
-  await db
-    .update(companies)
-    .set({ settings: updatedSettings })
-    .where(eq(companies.id, companyId));
+  await db.update(companies).set({ settings: updatedSettings }).where(eq(companies.id, companyId));
 }

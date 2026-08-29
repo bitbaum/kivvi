@@ -1,19 +1,28 @@
-import { z } from 'zod';
-import type { Tool, ExecutionContext, ToolResult } from '../types';
-import { getDb } from './utils';
+import { z } from "zod";
+import type { Tool, ExecutionContext, ToolResult } from "../types";
+import { getDb } from "./utils";
 
 const getStockLevelsSchema = z.object({
-  warehouseId: z.string().uuid().optional().describe('Filter by specific warehouse ID. If omitted, shows low-stock products across all warehouses.'),
+  warehouseId: z
+    .string()
+    .uuid()
+    .optional()
+    .describe(
+      "Filter by specific warehouse ID. If omitted, shows low-stock products across all warehouses.",
+    ),
 });
 
 export const getStockLevelsTool: Tool = {
-  name: 'get_stock_levels',
+  name: "get_stock_levels",
   description: `Get an inventory overview. Without a warehouse ID, returns products with low stock levels across all warehouses. With a warehouse ID, returns all stock levels for that warehouse.`,
   parameters: getStockLevelsSchema,
-  requiredPermissions: ['product:read'],
-  execute: async (params: z.infer<typeof getStockLevelsSchema>, context: ExecutionContext): Promise<ToolResult> => {
+  requiredPermissions: ["product:read"],
+  execute: async (
+    params: z.infer<typeof getStockLevelsSchema>,
+    context: ExecutionContext,
+  ): Promise<ToolResult> => {
     try {
-      const { getStockLevelsByWarehouse, getLowStockProducts } = await import('@kivvi/core');
+      const { getStockLevelsByWarehouse, getLowStockProducts } = await import("@kivvi/core");
       const db = getDb(context);
 
       if (params.warehouseId) {
@@ -42,7 +51,7 @@ export const getStockLevelsTool: Tool = {
       if (lowStock.length === 0) {
         return {
           success: true,
-          message: 'No products with low stock levels found.',
+          message: "No products with low stock levels found.",
           data: { products: [], count: 0 },
         };
       }
@@ -65,7 +74,7 @@ export const getStockLevelsTool: Tool = {
     } catch (error) {
       return {
         success: false,
-        error: `Failed to get stock levels: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        error: `Failed to get stock levels: ${error instanceof Error ? error.message : "Unknown error"}`,
       };
     }
   },

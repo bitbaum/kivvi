@@ -25,16 +25,8 @@ import {
 import type { ImportInventoryResult } from "@kivvi/core";
 import { DATA_ERASURE_METHODS } from "@kivvi/core/src/config/checklist-templates";
 import type { ChecklistItemCompletion } from "@kivvi/core/src/config/checklist-templates";
-import {
-  ITEM_STATUS_VALUES,
-  ITEM_CONDITION_VALUES,
-} from "@kivvi/database/src/enums";
-import {
-  type ActionResult,
-  requireRole,
-  safeErrorMessage,
-  formatZodError,
-} from "./utils";
+import { ITEM_STATUS_VALUES, ITEM_CONDITION_VALUES } from "@kivvi/database/src/enums";
+import { type ActionResult, requireRole, safeErrorMessage, formatZodError } from "./utils";
 import { createAction } from "./action-factory";
 import { revalidatePath } from "next/cache";
 import { getTranslations } from "next-intl/server";
@@ -48,8 +40,7 @@ export async function createInventoryItemAction(
   try {
     const { companyId } = await requireRole("member");
     const parsed = createInventoryItemSchema.safeParse(input);
-    if (!parsed.success)
-      return { success: false, ...formatZodError(parsed.error) };
+    if (!parsed.success) return { success: false, ...formatZodError(parsed.error) };
 
     // Domain function emits inventory_item.created post-write (best-effort).
     const item = await createInventoryItem(db, companyId, parsed.data);
@@ -102,8 +93,7 @@ export async function updateInventoryItemAction(
   try {
     const { companyId } = await requireRole("member");
     const parsed = updateInventoryItemSchema.safeParse(input);
-    if (!parsed.success)
-      return { success: false, ...formatZodError(parsed.error) };
+    if (!parsed.success) return { success: false, ...formatZodError(parsed.error) };
 
     // Domain function emits inventory_item.updated post-write (best-effort).
     const item = await updateInventoryItem(db, companyId, itemId, parsed.data);
@@ -135,17 +125,10 @@ export async function updateItemStatusAction(
   try {
     const { companyId, userId } = await requireRole("member");
     const parsed = updateStatusSchema.safeParse(input);
-    if (!parsed.success)
-      return { success: false, ...formatZodError(parsed.error) };
+    if (!parsed.success) return { success: false, ...formatZodError(parsed.error) };
 
     // Domain function emits inventory_item.status_changed post-write (best-effort).
-    const item = await updateItemStatus(
-      db,
-      companyId,
-      itemId,
-      parsed.data.newStatus,
-      userId,
-    );
+    const item = await updateItemStatus(db, companyId, itemId, parsed.data.newStatus, userId);
 
     revalidatePath("/intake");
     revalidatePath("/intake/items");
@@ -155,11 +138,8 @@ export async function updateItemStatusAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(
-        error,
-        t("errorFailedToUpdateStatus"),
-        (code, params) =>
-          tDomain(code as Parameters<typeof tDomain>[0], params),
+      error: safeErrorMessage(error, t("errorFailedToUpdateStatus"), (code, params) =>
+        tDomain(code as Parameters<typeof tDomain>[0], params),
       ),
     };
   }
@@ -175,8 +155,7 @@ export const updateItemConditionAction = createAction<
 >({
   handler: async ({ itemId, input }, { companyId, db }) => {
     const parsed = updateConditionSchema.safeParse(input);
-    if (!parsed.success)
-      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
     const item = await db.transaction(async (tx) =>
       updateItemCondition(tx, companyId, itemId, parsed.data.condition),
     );
@@ -184,8 +163,7 @@ export const updateItemConditionAction = createAction<
     return { id: item.id, condition: item.condition };
   },
   revalidate: ["/intake"],
-  errorMessage: () =>
-    getTranslations("inventory").then((t) => t("errorFailedToUpdateCondition")),
+  errorMessage: () => getTranslations("inventory").then((t) => t("errorFailedToUpdateCondition")),
   minRole: "member",
 });
 
@@ -200,18 +178,11 @@ export const bulkUpdateItemStatusAction = createAction<
 >({
   handler: async (input, { companyId, db }) => {
     const parsed = bulkStatusSchema.safeParse(input);
-    if (!parsed.success)
-      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
-    return bulkUpdateStatus(
-      db,
-      companyId,
-      parsed.data.itemIds,
-      parsed.data.newStatus,
-    );
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    return bulkUpdateStatus(db, companyId, parsed.data.itemIds, parsed.data.newStatus);
   },
   revalidate: ["/intake"],
-  errorMessage: () =>
-    getTranslations("inventory").then((t) => t("errorFailedToUpdateItems")),
+  errorMessage: () => getTranslations("inventory").then((t) => t("errorFailedToUpdateItems")),
   minRole: "member",
 });
 
@@ -242,8 +213,7 @@ export async function uploadItemPhotoAction(
     const buffer = Buffer.from(await file.arrayBuffer());
     const base64 = `data:${file.type};base64,${buffer.toString("base64")}`;
 
-    const { inventoryItems: inventoryItemsTable } =
-      await import("@kivvi/database");
+    const { inventoryItems: inventoryItemsTable } = await import("@kivvi/database");
     const { eq, and } = await import("drizzle-orm");
 
     const result = await db
@@ -253,12 +223,7 @@ export async function uploadItemPhotoAction(
         photoMimeType: file.type,
         updatedAt: new Date(),
       })
-      .where(
-        and(
-          eq(inventoryItemsTable.id, itemId),
-          eq(inventoryItemsTable.companyId, companyId),
-        ),
-      )
+      .where(and(eq(inventoryItemsTable.id, itemId), eq(inventoryItemsTable.companyId, companyId)))
       .returning({ id: inventoryItemsTable.id });
 
     if (result.length === 0) {
@@ -276,14 +241,11 @@ export async function uploadItemPhotoAction(
   }
 }
 
-export async function removeItemPhotoAction(
-  itemId: string,
-): Promise<ActionResult> {
+export async function removeItemPhotoAction(itemId: string): Promise<ActionResult> {
   const t = await getTranslations("inventory");
   try {
     const { companyId } = await requireRole("member");
-    const { inventoryItems: inventoryItemsTable } =
-      await import("@kivvi/database");
+    const { inventoryItems: inventoryItemsTable } = await import("@kivvi/database");
     const { eq, and } = await import("drizzle-orm");
 
     await db
@@ -293,12 +255,7 @@ export async function removeItemPhotoAction(
         photoMimeType: null,
         updatedAt: new Date(),
       })
-      .where(
-        and(
-          eq(inventoryItemsTable.id, itemId),
-          eq(inventoryItemsTable.companyId, companyId),
-        ),
-      );
+      .where(and(eq(inventoryItemsTable.id, itemId), eq(inventoryItemsTable.companyId, companyId)));
 
     revalidatePath(`/intake/items/${itemId}`);
     revalidatePath("/intake/items");
@@ -313,11 +270,7 @@ export async function removeItemPhotoAction(
 
 const recordRepairSchema = z.object({
   cost: z.string().regex(AMOUNT_REGEX, "Invalid cost"),
-  hours: z
-    .string()
-    .regex(AMOUNT_REGEX, "Invalid hours")
-    .optional()
-    .or(z.literal("")),
+  hours: z.string().regex(AMOUNT_REGEX, "Invalid hours").optional().or(z.literal("")),
   note: z.string().max(500).optional(),
 });
 
@@ -327,8 +280,7 @@ export const recordRepairAction = createAction<
 >({
   handler: async ({ itemId, input }, { companyId, db }) => {
     const parsed = recordRepairSchema.safeParse(input);
-    if (!parsed.success)
-      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
     const item = await db.transaction(async (tx) =>
       recordRepair(tx, companyId, itemId, {
         cost: parsed.data.cost,
@@ -339,42 +291,32 @@ export const recordRepairAction = createAction<
     revalidatePath(`/intake/items/${itemId}`);
     return { id: item.id, repairCost: item.repairCost };
   },
-  errorMessage: () =>
-    getTranslations("inventory").then((t) => t("errorFailedToRecordRepair")),
+  errorMessage: () => getTranslations("inventory").then((t) => t("errorFailedToRecordRepair")),
   minRole: "member",
 });
 
-export const addRepairPartAction = createAction<
-  { itemId: string; input: unknown },
-  { id: string }
->({
-  handler: async ({ itemId, input }, { companyId, userId, db }) => {
-    const parsed = addRepairPartSchema.safeParse(input);
-    if (!parsed.success)
-      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
-    const part = await db.transaction(async (tx) =>
-      addRepairPart(tx, companyId, itemId, parsed.data, userId),
-    );
-    revalidatePath(`/intake/items/${itemId}`);
-    return { id: part.id };
+export const addRepairPartAction = createAction<{ itemId: string; input: unknown }, { id: string }>(
+  {
+    handler: async ({ itemId, input }, { companyId, userId, db }) => {
+      const parsed = addRepairPartSchema.safeParse(input);
+      if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+      const part = await db.transaction(async (tx) =>
+        addRepairPart(tx, companyId, itemId, parsed.data, userId),
+      );
+      revalidatePath(`/intake/items/${itemId}`);
+      return { id: part.id };
+    },
+    errorMessage: () => getTranslations("inventory").then((t) => t("errorFailedToAddRepairPart")),
+    minRole: "member",
   },
-  errorMessage: () =>
-    getTranslations("inventory").then((t) => t("errorFailedToAddRepairPart")),
-  minRole: "member",
-});
+);
 
-export const removeRepairPartAction = createAction<
-  { partId: string; itemId: string },
-  void
->({
+export const removeRepairPartAction = createAction<{ partId: string; itemId: string }, void>({
   handler: async ({ partId, itemId }, { companyId, db }) => {
     await db.transaction(async (tx) => removeRepairPart(tx, companyId, partId));
     revalidatePath(`/intake/items/${itemId}`);
   },
-  errorMessage: () =>
-    getTranslations("inventory").then((t) =>
-      t("errorFailedToRemoveRepairPart"),
-    ),
+  errorMessage: () => getTranslations("inventory").then((t) => t("errorFailedToRemoveRepairPart")),
   minRole: "member",
 });
 
@@ -389,8 +331,7 @@ export const bulkUpdateItemConditionAction = createAction<
 >({
   handler: async (input, { companyId, db }) => {
     const parsed = bulkConditionSchema.safeParse(input);
-    if (!parsed.success)
-      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
     let succeeded = 0;
     let failed = 0;
     for (const id of parsed.data.itemIds) {
@@ -404,8 +345,7 @@ export const bulkUpdateItemConditionAction = createAction<
     return { succeeded, failed };
   },
   revalidate: ["/intake/items"],
-  errorMessage: () =>
-    getTranslations("inventory").then((t) => t("errorFailedToUpdateItems")),
+  errorMessage: () => getTranslations("inventory").then((t) => t("errorFailedToUpdateItems")),
   minRole: "member",
 });
 
@@ -420,8 +360,7 @@ export const bulkUpdateItemAskingPriceAction = createAction<
 >({
   handler: async (input, { companyId, db }) => {
     const parsed = bulkPriceSchema.safeParse(input);
-    if (!parsed.success)
-      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
     let succeeded = 0;
     let failed = 0;
     for (const id of parsed.data.itemIds) {
@@ -437,8 +376,7 @@ export const bulkUpdateItemAskingPriceAction = createAction<
     return { succeeded, failed };
   },
   revalidate: ["/intake/items"],
-  errorMessage: () =>
-    getTranslations("inventory").then((t) => t("errorFailedToUpdatePrices")),
+  errorMessage: () => getTranslations("inventory").then((t) => t("errorFailedToUpdatePrices")),
   minRole: "member",
 });
 
@@ -452,8 +390,7 @@ export const assignItemTechnicianAction = createAction<
 >({
   handler: async ({ itemId, input }, { companyId, db }) => {
     const parsed = assignTechnicianSchema.safeParse(input);
-    if (!parsed.success)
-      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
     const item = await db.transaction(async (tx) =>
       updateInventoryItem(tx, companyId, itemId, {
         assignedToUserId: parsed.data.assignedToUserId,
@@ -463,10 +400,7 @@ export const assignItemTechnicianAction = createAction<
     return { id: item.id };
   },
   revalidate: ["/intake/repair-queue"],
-  errorMessage: () =>
-    getTranslations("inventory").then((t) =>
-      t("errorFailedToAssignTechnician"),
-    ),
+  errorMessage: () => getTranslations("inventory").then((t) => t("errorFailedToAssignTechnician")),
   minRole: "member",
 });
 
@@ -475,8 +409,7 @@ export const deleteInventoryItemAction = createAction<string, void>({
     await deleteInventoryItem(db, companyId, itemId);
   },
   revalidate: ["/intake"],
-  errorMessage: () =>
-    getTranslations("inventory").then((t) => t("errorFailedToDelete")),
+  errorMessage: () => getTranslations("inventory").then((t) => t("errorFailedToDelete")),
   minRole: "member",
 });
 
@@ -493,10 +426,8 @@ export const listInventoryItemsAction = createAction<
   | undefined,
   Awaited<ReturnType<typeof listInventoryItems>>
 >({
-  handler: async (options, { companyId, db }) =>
-    listInventoryItems(db, companyId, options),
-  errorMessage: () =>
-    getTranslations("inventory").then((t) => t("errorFailedToList")),
+  handler: async (options, { companyId, db }) => listInventoryItems(db, companyId, options),
+  errorMessage: () => getTranslations("inventory").then((t) => t("errorFailedToList")),
   minRole: "member",
 });
 
@@ -509,8 +440,7 @@ export const getInventoryItemAction = createAction<
     if (!item) throw new Error("Item not found");
     return item;
   },
-  errorMessage: () =>
-    getTranslations("inventory").then((t) => t("errorFailedToGet")),
+  errorMessage: () => getTranslations("inventory").then((t) => t("errorFailedToGet")),
   minRole: "member",
 });
 
@@ -538,8 +468,7 @@ export const recordChecklistAction = createAction<
 >({
   handler: async ({ itemId, input }, { companyId, userId, db }) => {
     const parsed = checklistSchema.safeParse(input);
-    if (!parsed.success)
-      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
     const item = await db.transaction(async (tx) =>
       recordChecklist(tx, companyId, itemId, {
         ...parsed.data,
@@ -550,8 +479,7 @@ export const recordChecklistAction = createAction<
     revalidatePath(`/intake/items/${itemId}`);
     return { id: item.id };
   },
-  errorMessage: () =>
-    getTranslations("inventory").then((t) => t("errorFailedToRecordChecklist")),
+  errorMessage: () => getTranslations("inventory").then((t) => t("errorFailedToRecordChecklist")),
   minRole: "member",
 });
 
@@ -572,15 +500,13 @@ export const recordDataErasureAction = createAction<
 >({
   handler: async ({ itemId, input }, { companyId, userId, db }) => {
     const parsed = dataErasureSchema.safeParse(input);
-    if (!parsed.success)
-      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
     const item = await db.transaction(async (tx) =>
       recordDataErasure(tx, companyId, itemId, { ...parsed.data, userId }),
     );
     revalidatePath(`/intake/items/${itemId}`);
     return { id: item.id };
   },
-  errorMessage: () =>
-    getTranslations("inventory").then((t) => t("errorFailedToRecordErasure")),
+  errorMessage: () => getTranslations("inventory").then((t) => t("errorFailedToRecordErasure")),
   minRole: "member",
 });

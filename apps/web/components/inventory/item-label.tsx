@@ -34,9 +34,7 @@ export function ItemLabel({
   currency = DEFAULT_CURRENCY,
 }: ItemLabelProps) {
   const priceText =
-    askingPrice && Number(askingPrice) > 0
-      ? formatCurrency(askingPrice, currency)
-      : null;
+    askingPrice && Number(askingPrice) > 0 ? formatCurrency(askingPrice, currency) : null;
   return (
     <div
       className="flex items-center gap-2 border border-border p-2"
@@ -44,18 +42,12 @@ export function ItemLabel({
     >
       {/* QR code */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={qrDataUrl}
-        alt={`QR: ${itemNumber}`}
-        className="h-[30mm] w-[30mm] shrink-0"
-      />
+      <img src={qrDataUrl} alt={`QR: ${itemNumber}`} className="h-[30mm] w-[30mm] shrink-0" />
 
       {/* Text info */}
       <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
         <div>
-          <div className="text-[11pt] font-bold leading-tight">
-            {itemNumber}
-          </div>
+          <div className="text-[11pt] font-bold leading-tight">{itemNumber}</div>
           <div className="mt-0.5 line-clamp-2 text-[7pt] leading-tight text-foreground">
             {description}
           </div>
@@ -64,11 +56,7 @@ export function ItemLabel({
           <span className="inline-block rounded border px-1 py-0.5 text-[7pt] font-bold">
             {CONDITION_SHORT[condition] || condition}
           </span>
-          {priceText && (
-            <span className="text-[8pt] font-bold tabular-nums">
-              {priceText}
-            </span>
-          )}
+          {priceText && <span className="text-[8pt] font-bold tabular-nums">{priceText}</span>}
         </div>
       </div>
     </div>

@@ -23,10 +23,7 @@ export default async function ModulesSettingsPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <SettingsSubpageHeader
-        title={t("modules.title")}
-        description={t("modules.subtitle")}
-      />
+      <SettingsSubpageHeader title={t("modules.title")} description={t("modules.subtitle")} />
 
       <ModulesForm initialEnabledModules={settings.enabledModules} />
     </div>

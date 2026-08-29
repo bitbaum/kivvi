@@ -14,8 +14,7 @@ export function getDb(context: ExecutionContext): Database {
 // Shared identifier-resolution helpers
 // ============================================================================
 
-const UUID_RE =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ARTICLE_NUMBER_RE = /^ART-\d+$/i;
 
 export type ResolvedInventoryItem = {
@@ -104,9 +103,7 @@ export async function resolveProduct(
 
   if (UUID_RE.test(identifier)) {
     [row] = await base
-      .where(
-        and(eq(products.id, identifier), eq(products.companyId, companyId)),
-      )
+      .where(and(eq(products.id, identifier), eq(products.companyId, companyId)))
       .limit(1);
   } else if (ARTICLE_NUMBER_RE.test(identifier)) {
     [row] = await base
@@ -119,12 +116,7 @@ export async function resolveProduct(
       .limit(1);
   } else {
     [row] = await base
-      .where(
-        and(
-          ilike(products.name, `%${identifier}%`),
-          eq(products.companyId, companyId),
-        ),
-      )
+      .where(and(ilike(products.name, `%${identifier}%`), eq(products.companyId, companyId)))
       .limit(1);
   }
 
@@ -151,12 +143,7 @@ export async function resolvePriceList(
   const [row] = await db
     .select({ id: priceLists.id, name: priceLists.name })
     .from(priceLists)
-    .where(
-      and(
-        eq(priceLists.companyId, companyId),
-        ilike(priceLists.name, `%${nameQuery}%`),
-      ),
-    )
+    .where(and(eq(priceLists.companyId, companyId), ilike(priceLists.name, `%${nameQuery}%`)))
     .limit(1);
 
   return row ?? null;

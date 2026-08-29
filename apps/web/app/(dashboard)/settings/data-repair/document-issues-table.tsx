@@ -52,9 +52,7 @@ export function DocumentIssuesTable({
   }
 
   async function cancelSelected(type: "zero_total" | "stale_draft") {
-    const toCancel = issues
-      .filter((i) => i.issue === type && selected.has(i.id))
-      .map((i) => i.id);
+    const toCancel = issues.filter((i) => i.issue === type && selected.has(i.id)).map((i) => i.id);
 
     if (toCancel.length === 0) {
       toast.error(tDQ("noneSelected"));
@@ -62,10 +60,7 @@ export function DocumentIssuesTable({
     }
 
     setProcessing(true);
-    const fn =
-      type === "zero_total"
-        ? cancelZeroTotalDocumentsAction
-        : cancelStaleDraftsAction;
+    const fn = type === "zero_total" ? cancelZeroTotalDocumentsAction : cancelStaleDraftsAction;
     const result = await fn(toCancel);
     if (result.success && result.data) {
       toast.success(tDQ("cancelSuccess", { count: result.data.cancelled }));
@@ -117,9 +112,7 @@ export function DocumentIssuesTable({
                         onChange={() =>
                           setSelected((prev) => {
                             const next = new Set(prev);
-                            next.has(doc.id)
-                              ? next.delete(doc.id)
-                              : next.add(doc.id);
+                            next.has(doc.id) ? next.delete(doc.id) : next.add(doc.id);
                             return next;
                           })
                         }
@@ -137,9 +130,7 @@ export function DocumentIssuesTable({
                   </td>
                   <td className="px-3 py-2 text-muted-foreground">
                     {doc.contactName ?? (
-                      <span className="italic text-destructive">
-                        {tDQ("noContactLabel")}
-                      </span>
+                      <span className="italic text-destructive">{tDQ("noContactLabel")}</span>
                     )}
                   </td>
                   <td className="px-3 py-2 text-right font-mono text-xs">

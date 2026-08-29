@@ -30,8 +30,7 @@ export default async function IntakePage({ searchParams }: PageProps) {
   const status = params.status as DocumentStatus | undefined;
   const search = params.search;
   const intakeSource =
-    params.intakeSource &&
-    (INTAKE_SOURCE_VALUES as readonly string[]).includes(params.intakeSource)
+    params.intakeSource && (INTAKE_SOURCE_VALUES as readonly string[]).includes(params.intakeSource)
       ? (params.intakeSource as IntakeSourceValue)
       : undefined;
 
@@ -118,9 +117,7 @@ export default async function IntakePage({ searchParams }: PageProps) {
             }
           >
             <Wrench className="h-4 w-4" />
-            {repairCount > 0
-              ? `${repairCount} ${ti("inRepair")}`
-              : ti("repairQueue")}
+            {repairCount > 0 ? `${repairCount} ${ti("inRepair")}` : ti("repairQueue")}
           </Link>
           <Link
             href="/intake/items"

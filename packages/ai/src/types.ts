@@ -47,12 +47,7 @@ export interface ChatResponse {
 }
 
 export interface StreamChunk {
-  type:
-    | "text"
-    | "tool_call_start"
-    | "tool_call_delta"
-    | "tool_call_end"
-    | "done";
+  type: "text" | "tool_call_start" | "tool_call_delta" | "tool_call_end" | "done";
   content?: string;
   toolCall?: Partial<ToolCall>;
 }
@@ -122,13 +117,7 @@ export interface ExecutionContext {
 }
 
 export type VerticalType =
-  | "general"
-  | "financial-advisory"
-  | "legal"
-  | "medical"
-  | "nonprofit"
-  | "retail"
-  | "manufacturing";
+  "general" | "financial-advisory" | "legal" | "medical" | "nonprofit" | "retail" | "manufacturing";
 
 export type Permission =
   | "invoice:read"

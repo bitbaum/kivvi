@@ -7,7 +7,7 @@ import type {
   StreamChunk,
   Tool,
   ToolCall,
-} from '../types';
+} from "../types";
 
 /**
  * Abstract base class for OpenAI-compatible API providers.
@@ -16,7 +16,7 @@ import type {
 export abstract class OpenAICompatibleProvider implements AIProvider {
   abstract id: string;
   abstract name: string;
-  abstract type: 'cloud' | 'self-hosted' | 'openrouter';
+  abstract type: "cloud" | "self-hosted" | "openrouter";
   abstract models: AIModel[];
 
   protected abstract baseUrl: string;
@@ -37,8 +37,10 @@ export abstract class OpenAICompatibleProvider implements AIProvider {
       });
 
       if (!response.ok) {
-        const text = await response.text().catch(() => '');
-        throw new Error(`${this.name}: API key invalid (${response.status}${text ? ': ' + text.slice(0, 100) : ''})`);
+        const text = await response.text().catch(() => "");
+        throw new Error(
+          `${this.name}: API key invalid (${response.status}${text ? ": " + text.slice(0, 100) : ""})`,
+        );
       }
     } catch (error) {
       if (error instanceof Error && error.message.startsWith(this.name)) {
@@ -52,7 +54,7 @@ export abstract class OpenAICompatibleProvider implements AIProvider {
 
   async chat(request: ChatRequest): Promise<ChatResponse> {
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
-      method: 'POST',
+      method: "POST",
       headers: this.getHeaders(),
       body: JSON.stringify({
         model: request.model || this.models[0].id,
@@ -83,7 +85,7 @@ export abstract class OpenAICompatibleProvider implements AIProvider {
     };
 
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
-      method: 'POST',
+      method: "POST",
       headers: this.getHeaders(),
       body: JSON.stringify(body),
     });
@@ -94,10 +96,10 @@ export abstract class OpenAICompatibleProvider implements AIProvider {
     }
 
     const reader = response.body?.getReader();
-    if (!reader) throw new Error('No response body');
+    if (!reader) throw new Error("No response body");
 
     const decoder = new TextDecoder();
-    let buffer = '';
+    let buffer = "";
     let hasActiveToolCall = false;
 
     while (true) {
@@ -105,20 +107,20 @@ export abstract class OpenAICompatibleProvider implements AIProvider {
       if (done) break;
 
       buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop() || '';
+      const lines = buffer.split("\n");
+      buffer = lines.pop() || "";
 
       for (const line of lines) {
-        if (line.startsWith('data: ')) {
+        if (line.startsWith("data: ")) {
           const data = line.slice(6).trim();
           if (!data) continue;
-          if (data === '[DONE]') {
+          if (data === "[DONE]") {
             // If a tool call was in progress, close it before done
             if (hasActiveToolCall) {
-              yield { type: 'tool_call_end' };
+              yield { type: "tool_call_end" };
               hasActiveToolCall = false;
             }
-            yield { type: 'done' };
+            yield { type: "done" };
             continue;
           }
 
@@ -128,7 +130,7 @@ export abstract class OpenAICompatibleProvider implements AIProvider {
             const finishReason = parsed.choices?.[0]?.finish_reason;
 
             if (delta?.content) {
-              yield { type: 'text', content: delta.content };
+              yield { type: "text", content: delta.content };
             }
 
             if (delta?.tool_calls) {
@@ -136,23 +138,23 @@ export abstract class OpenAICompatibleProvider implements AIProvider {
                 if (tc.function?.name) {
                   // New tool call starting — close previous if any
                   if (hasActiveToolCall) {
-                    yield { type: 'tool_call_end' };
+                    yield { type: "tool_call_end" };
                   }
                   hasActiveToolCall = true;
                   yield {
-                    type: 'tool_call_start',
+                    type: "tool_call_start",
                     toolCall: { id: tc.id, name: tc.function.name },
                   };
                 }
                 if (tc.function?.arguments) {
-                  yield { type: 'tool_call_delta', content: tc.function.arguments };
+                  yield { type: "tool_call_delta", content: tc.function.arguments };
                 }
               }
             }
 
             // Close tool call when finish_reason indicates completion
             if (finishReason && hasActiveToolCall) {
-              yield { type: 'tool_call_end' };
+              yield { type: "tool_call_end" };
               hasActiveToolCall = false;
             }
           } catch {
@@ -165,33 +167,33 @@ export abstract class OpenAICompatibleProvider implements AIProvider {
 
   protected formatMessages(
     messages: Message[],
-    systemPrompt?: string
+    systemPrompt?: string,
   ): Array<{ role: string; content: string | any[] }> {
     const formatted: Array<{ role: string; content: string | any[] }> = [];
 
     if (systemPrompt) {
-      formatted.push({ role: 'system', content: systemPrompt });
+      formatted.push({ role: "system", content: systemPrompt });
     }
 
     for (const msg of messages) {
-      if (msg.role === 'system') continue;
+      if (msg.role === "system") continue;
 
-      if (msg.role === 'tool') {
+      if (msg.role === "tool") {
         formatted.push({
-          role: 'tool',
+          role: "tool",
           tool_call_id: msg.toolCallId,
-          content: typeof msg.content === 'string' ? msg.content : JSON.stringify(msg.content),
+          content: typeof msg.content === "string" ? msg.content : JSON.stringify(msg.content),
         } as any);
         continue;
       }
 
-      if (msg.role === 'assistant' && msg.toolCalls?.length) {
+      if (msg.role === "assistant" && msg.toolCalls?.length) {
         formatted.push({
-          role: 'assistant',
-          content: msg.content as string || '',
+          role: "assistant",
+          content: (msg.content as string) || "",
           tool_calls: msg.toolCalls.map((tc) => ({
             id: tc.id,
-            type: 'function',
+            type: "function",
             function: {
               name: tc.name,
               arguments: JSON.stringify(tc.arguments),
@@ -204,12 +206,12 @@ export abstract class OpenAICompatibleProvider implements AIProvider {
       formatted.push({
         role: msg.role,
         content:
-          typeof msg.content === 'string'
+          typeof msg.content === "string"
             ? msg.content
             : msg.content.map((p) =>
-                p.type === 'text'
-                  ? { type: 'text', text: p.text }
-                  : { type: 'image_url', image_url: { url: p.imageUrl } }
+                p.type === "text"
+                  ? { type: "text", text: p.text }
+                  : { type: "image_url", image_url: { url: p.imageUrl } },
               ),
       });
     }
@@ -220,7 +222,7 @@ export abstract class OpenAICompatibleProvider implements AIProvider {
   protected formatTool(tool: Tool): any {
     const jsonSchema = this.zodToJsonSchema(tool.parameters);
     return {
-      type: 'function',
+      type: "function",
       function: {
         name: tool.name,
         description: tool.description,
@@ -232,7 +234,7 @@ export abstract class OpenAICompatibleProvider implements AIProvider {
   protected zodToJsonSchema(schema: any): Record<string, unknown> {
     if (schema._def) {
       const def = schema._def;
-      if (def.typeName === 'ZodObject') {
+      if (def.typeName === "ZodObject") {
         const properties: Record<string, unknown> = {};
         const required: string[] = [];
 
@@ -244,31 +246,31 @@ export abstract class OpenAICompatibleProvider implements AIProvider {
         }
 
         return {
-          type: 'object',
+          type: "object",
           properties,
           required: required.length > 0 ? required : undefined,
         };
       }
-      if (def.typeName === 'ZodString') {
-        return { type: 'string', description: def.description };
+      if (def.typeName === "ZodString") {
+        return { type: "string", description: def.description };
       }
-      if (def.typeName === 'ZodNumber') {
-        return { type: 'number', description: def.description };
+      if (def.typeName === "ZodNumber") {
+        return { type: "number", description: def.description };
       }
-      if (def.typeName === 'ZodBoolean') {
-        return { type: 'boolean', description: def.description };
+      if (def.typeName === "ZodBoolean") {
+        return { type: "boolean", description: def.description };
       }
-      if (def.typeName === 'ZodArray') {
-        return { type: 'array', items: this.zodToJsonSchema(def.type) };
+      if (def.typeName === "ZodArray") {
+        return { type: "array", items: this.zodToJsonSchema(def.type) };
       }
-      if (def.typeName === 'ZodEnum') {
-        return { type: 'string', enum: def.values };
+      if (def.typeName === "ZodEnum") {
+        return { type: "string", enum: def.values };
       }
-      if (def.typeName === 'ZodOptional') {
+      if (def.typeName === "ZodOptional") {
         return this.zodToJsonSchema(def.innerType);
       }
     }
-    return { type: 'string' };
+    return { type: "string" };
   }
 
   protected parseResponse(data: any): ChatResponse {
@@ -280,13 +282,13 @@ export abstract class OpenAICompatibleProvider implements AIProvider {
         toolCalls.push({
           id: tc.id,
           name: tc.function.name,
-          arguments: JSON.parse(tc.function.arguments || '{}'),
+          arguments: JSON.parse(tc.function.arguments || "{}"),
         });
       }
     }
 
     return {
-      content: message?.content || '',
+      content: message?.content || "",
       toolCalls: toolCalls.length > 0 ? toolCalls : undefined,
       model: data.model,
       usage: {

@@ -60,15 +60,13 @@ export function OperationsSection({
 }: OperationsSectionProps) {
   const t = useTranslations("settings.integrations.operations");
   const tCommon = useTranslations("common");
-  const [nextcloudForm, setNextcloudForm] = useState<NextcloudIntegrationInput>(
-    {
-      baseUrl: nextcloud.baseUrl || "",
-      username: nextcloud.username || "",
-      appPassword: nextcloud.appPassword || "",
-      folderPath: nextcloud.folderPath || "/Kivvi",
-      enabled: nextcloud.enabled ?? true,
-    },
-  );
+  const [nextcloudForm, setNextcloudForm] = useState<NextcloudIntegrationInput>({
+    baseUrl: nextcloud.baseUrl || "",
+    username: nextcloud.username || "",
+    appPassword: nextcloud.appPassword || "",
+    folderPath: nextcloud.folderPath || "/Kivvi",
+    enabled: nextcloud.enabled ?? true,
+  });
   const [mailForm, setMailForm] = useState<MailIntegrationInput>({
     host: mail.host || "",
     port: mail.port || 993,
@@ -90,12 +88,8 @@ export function OperationsSection({
   const [nextcloudConfigured, setNextcloudConfigured] = useState(
     nextcloudStatus !== "not_configured",
   );
-  const [mailConfigured, setMailConfigured] = useState(
-    mailStatus !== "not_configured",
-  );
-  const [talerConfigured, setTalerConfigured] = useState(
-    talerStatus !== "not_configured",
-  );
+  const [mailConfigured, setMailConfigured] = useState(mailStatus !== "not_configured");
+  const [talerConfigured, setTalerConfigured] = useState(talerStatus !== "not_configured");
   const [isSavingNextcloud, saveNextcloudTransition] = useTransition();
   const [isTestingNextcloud, testNextcloudTransition] = useTransition();
   const [isSyncingNextcloud, syncNextcloudTransition] = useTransition();
@@ -110,9 +104,7 @@ export function OperationsSection({
     saveNextcloudTransition(async () => {
       const result = await updateNextcloudIntegrationAction(nextcloudForm);
       if (result.success) setNextcloudConfigured(true);
-      setNextcloudMessage(
-        result.success ? t("saved") : result.error || t("saveFailed"),
-      );
+      setNextcloudMessage(result.success ? t("saved") : result.error || t("saveFailed"));
     });
   }
 
@@ -121,9 +113,7 @@ export function OperationsSection({
     testNextcloudTransition(async () => {
       const result = await testNextcloudIntegrationAction();
       setNextcloudMessage(
-        result.success
-          ? t("connectionOk")
-          : result.error || t("connectionFailed"),
+        result.success ? t("connectionOk") : result.error || t("connectionFailed"),
       );
     });
   }
@@ -145,9 +135,7 @@ export function OperationsSection({
     saveMailTransition(async () => {
       const result = await updateMailIntegrationAction(mailForm);
       if (result.success) setMailConfigured(true);
-      setMailMessage(
-        result.success ? t("saved") : result.error || t("saveFailed"),
-      );
+      setMailMessage(result.success ? t("saved") : result.error || t("saveFailed"));
     });
   }
 
@@ -155,11 +143,7 @@ export function OperationsSection({
     setMailMessage(null);
     testMailTransition(async () => {
       const result = await testMailIntegrationAction();
-      setMailMessage(
-        result.success
-          ? t("connectionOk")
-          : result.error || t("connectionFailed"),
-      );
+      setMailMessage(result.success ? t("connectionOk") : result.error || t("connectionFailed"));
     });
   }
 
@@ -180,9 +164,7 @@ export function OperationsSection({
     saveTalerTransition(async () => {
       const result = await updateTalerIntegrationAction(talerForm);
       if (result.success) setTalerConfigured(true);
-      setTalerMessage(
-        result.success ? t("saved") : result.error || t("saveFailed"),
-      );
+      setTalerMessage(result.success ? t("saved") : result.error || t("saveFailed"));
     });
   }
 
@@ -190,11 +172,7 @@ export function OperationsSection({
     setTalerMessage(null);
     testTalerTransition(async () => {
       const result = await testTalerIntegrationAction();
-      setTalerMessage(
-        result.success
-          ? t("connectionOk")
-          : result.error || t("connectionFailed"),
-      );
+      setTalerMessage(result.success ? t("connectionOk") : result.error || t("connectionFailed"));
     });
   }
 
@@ -208,9 +186,7 @@ export function OperationsSection({
               {t("nextcloudDescription")}
             </p>
           </div>
-          <span
-            className={`text-sm font-medium ${statusClass(nextcloudStatus)}`}
-          >
+          <span className={`text-sm font-medium ${statusClass(nextcloudStatus)}`}>
             {t(`status.${nextcloudStatus}`)}
           </span>
         </div>
@@ -301,9 +277,7 @@ export function OperationsSection({
           </p>
         )}
         {!nextcloudConfigured && !nextcloudMessage && (
-          <p className="mt-3 text-sm text-muted-foreground">
-            {t("saveBeforeTesting")}
-          </p>
+          <p className="mt-3 text-sm text-muted-foreground">{t("saveBeforeTesting")}</p>
         )}
 
         <div className="mt-4 flex flex-wrap gap-2">
@@ -323,9 +297,7 @@ export function OperationsSection({
                 onClick={testNextcloud}
                 disabled={isTestingNextcloud}
               >
-                {isTestingNextcloud && (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                )}
+                {isTestingNextcloud && <Loader2 className="h-4 w-4 animate-spin" />}
                 {t("testConnection")}
               </Button>
               <Button
@@ -334,9 +306,7 @@ export function OperationsSection({
                 onClick={syncNextcloud}
                 disabled={isSyncingNextcloud}
               >
-                {isSyncingNextcloud && (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                )}
+                {isSyncingNextcloud && <Loader2 className="h-4 w-4 animate-spin" />}
                 {t("scanNow")}
               </Button>
             </>
@@ -348,9 +318,7 @@ export function OperationsSection({
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h3 className="font-semibold">{t("talerTitle")}</h3>
-            <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-              {t("talerDescription")}
-            </p>
+            <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{t("talerDescription")}</p>
           </div>
           <span className={`text-sm font-medium ${statusClass(talerStatus)}`}>
             {t(`status.${talerStatus}`)}
@@ -422,14 +390,10 @@ export function OperationsSection({
         </label>
 
         {(taler.lastError || talerMessage) && (
-          <p className="mt-3 text-sm text-muted-foreground">
-            {talerMessage || taler.lastError}
-          </p>
+          <p className="mt-3 text-sm text-muted-foreground">{talerMessage || taler.lastError}</p>
         )}
         {!talerConfigured && !talerMessage && (
-          <p className="mt-3 text-sm text-muted-foreground">
-            {t("talerTokenHint")}
-          </p>
+          <p className="mt-3 text-sm text-muted-foreground">{t("talerTokenHint")}</p>
         )}
 
         <div className="mt-4 flex flex-wrap gap-2">
@@ -442,12 +406,7 @@ export function OperationsSection({
             {isSavingTaler ? tCommon("saving") : tCommon("save")}
           </Button>
           {talerConfigured && (
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={testTaler}
-              disabled={isTestingTaler}
-            >
+            <Button type="button" variant="secondary" onClick={testTaler} disabled={isTestingTaler}>
               {isTestingTaler && <Loader2 className="h-4 w-4 animate-spin" />}
               {t("testConnection")}
             </Button>
@@ -459,9 +418,7 @@ export function OperationsSection({
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h3 className="font-semibold">{t("mailTitle")}</h3>
-            <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-              {t("mailDescription")}
-            </p>
+            <p className="mt-1 max-w-2xl text-sm text-muted-foreground">{t("mailDescription")}</p>
           </div>
           <span className={`text-sm font-medium ${statusClass(mailStatus)}`}>
             {t(`status.${mailStatus}`)}
@@ -574,14 +531,10 @@ export function OperationsSection({
         </div>
 
         {(mail.lastError || mailMessage) && (
-          <p className="mt-3 text-sm text-muted-foreground">
-            {mailMessage || mail.lastError}
-          </p>
+          <p className="mt-3 text-sm text-muted-foreground">{mailMessage || mail.lastError}</p>
         )}
         {!mailConfigured && !mailMessage && (
-          <p className="mt-3 text-sm text-muted-foreground">
-            {t("saveBeforeTesting")}
-          </p>
+          <p className="mt-3 text-sm text-muted-foreground">{t("saveBeforeTesting")}</p>
         )}
 
         <div className="mt-4 flex flex-wrap gap-2">
@@ -595,21 +548,11 @@ export function OperationsSection({
           </Button>
           {mailConfigured && (
             <>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={testMail}
-                disabled={isTestingMail}
-              >
+              <Button type="button" variant="secondary" onClick={testMail} disabled={isTestingMail}>
                 {isTestingMail && <Loader2 className="h-4 w-4 animate-spin" />}
                 {t("testConnection")}
               </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={syncMail}
-                disabled={isSyncingMail}
-              >
+              <Button type="button" variant="secondary" onClick={syncMail} disabled={isSyncingMail}>
                 {isSyncingMail && <Loader2 className="h-4 w-4 animate-spin" />}
                 {t("scanNow")}
               </Button>

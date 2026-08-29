@@ -33,31 +33,27 @@ export async function OverviewTab({ companyId }: { companyId: string }) {
   const next30 = new Date(now);
   next30.setDate(next30.getDate() + 30);
 
-  const [bankAccounts, financialSummary, trialBalance, dueThisWeek, dueNext30] =
-    await Promise.all([
-      listBankAccounts(db, companyId),
-      getFinancialSummary(db, companyId),
-      getTrialBalance(db, companyId),
-      listDocuments(db, companyId, {
-        status: "sent" as const,
-        type: "invoice" as const,
-        dateTo: nextWeek.toISOString().split("T")[0],
-        page: 1,
-        pageSize: 100,
-      }),
-      listDocuments(db, companyId, {
-        status: "confirmed" as const,
-        type: "purchase_invoice" as const,
-        dateTo: next30.toISOString().split("T")[0],
-        page: 1,
-        pageSize: 100,
-      }),
-    ]);
+  const [bankAccounts, financialSummary, trialBalance, dueThisWeek, dueNext30] = await Promise.all([
+    listBankAccounts(db, companyId),
+    getFinancialSummary(db, companyId),
+    getTrialBalance(db, companyId),
+    listDocuments(db, companyId, {
+      status: "sent" as const,
+      type: "invoice" as const,
+      dateTo: nextWeek.toISOString().split("T")[0],
+      page: 1,
+      pageSize: 100,
+    }),
+    listDocuments(db, companyId, {
+      status: "confirmed" as const,
+      type: "purchase_invoice" as const,
+      dateTo: next30.toISOString().split("T")[0],
+      page: 1,
+      pageSize: 100,
+    }),
+  ]);
 
-  const totalBankBalance = bankAccounts.reduce(
-    (sum, a) => sum + Number(a.balance || 0),
-    0,
-  );
+  const totalBankBalance = bankAccounts.reduce((sum, a) => sum + Number(a.balance || 0), 0);
 
   const totals = calculateTrialBalanceTotals(trialBalance);
 
@@ -103,17 +99,14 @@ export async function OverviewTab({ companyId }: { companyId: string }) {
       </div>
 
       {/* Cash flow forecast */}
-      {(financialSummary.outstandingTotal > 0 ||
-        financialSummary.overdueTotal > 0) && (
+      {(financialSummary.outstandingTotal > 0 || financialSummary.overdueTotal > 0) && (
         <div className="rounded-xl border bg-card">
           <div className="border-b p-4">
             <h2 className="font-semibold">{t("cashFlowForecast")}</h2>
           </div>
           <div className="grid gap-4 p-4 sm:grid-cols-3">
             <div className="rounded-lg bg-success/5 p-4">
-              <p className="text-xs font-medium text-success">
-                {t("expectedInflows")}
-              </p>
+              <p className="text-xs font-medium text-success">{t("expectedInflows")}</p>
               <p className="mt-1 text-lg font-bold text-success">
                 {formatCurrency(financialSummary.outstandingTotal)}
               </p>
@@ -122,14 +115,11 @@ export async function OverviewTab({ companyId }: { companyId: string }) {
               </p>
             </div>
             <div className="rounded-lg bg-warning/5 p-4">
-              <p className="text-xs font-medium text-warning">
-                {t("expectedOutflows")}
-              </p>
+              <p className="text-xs font-medium text-warning">{t("expectedOutflows")}</p>
               <p className="mt-1 text-lg font-bold text-warning">
                 {formatCurrency(
                   dueNext30.data.reduce(
-                    (sum: number, d: { total: string }) =>
-                      sum + Number(d.total || 0),
+                    (sum: number, d: { total: string }) => sum + Number(d.total || 0),
                     0,
                   ),
                 )}
@@ -139,16 +129,13 @@ export async function OverviewTab({ companyId }: { companyId: string }) {
               </p>
             </div>
             <div className="rounded-lg bg-info/5 p-4">
-              <p className="text-xs font-medium text-info">
-                {t("netPosition")}
-              </p>
+              <p className="text-xs font-medium text-info">{t("netPosition")}</p>
               <p className="mt-1 text-lg font-bold text-info">
                 {formatCurrency(
                   totalBankBalance +
                     financialSummary.outstandingTotal -
                     dueNext30.data.reduce(
-                      (sum: number, d: { total: string }) =>
-                        sum + Number(d.total || 0),
+                      (sum: number, d: { total: string }) => sum + Number(d.total || 0),
                       0,
                     ),
                 )}
@@ -187,16 +174,11 @@ export async function OverviewTab({ companyId }: { companyId: string }) {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{account.name}</p>
                   {account.bankName && (
-                    <p className="text-xs text-muted-foreground">
-                      {account.bankName}
-                    </p>
+                    <p className="text-xs text-muted-foreground">{account.bankName}</p>
                   )}
                 </div>
                 <p className="text-sm font-semibold">
-                  {formatCurrency(
-                    account.balance || "0",
-                    account.currency || DEFAULT_CURRENCY,
-                  )}
+                  {formatCurrency(account.balance || "0", account.currency || DEFAULT_CURRENCY)}
                 </p>
               </Link>
             ))}

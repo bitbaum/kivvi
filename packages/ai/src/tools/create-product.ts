@@ -17,18 +17,13 @@ const createProductSchema = z.object({
   vatRate: z
     .number()
     .default(Number(DEFAULT_VAT_RATE))
-    .describe(
-      "VAT rate as percentage (8.1 for standard Swiss VAT, 2.6 for reduced, 0 for exempt)",
-    ),
+    .describe("VAT rate as percentage (8.1 for standard Swiss VAT, 2.6 for reduced, 0 for exempt)"),
   unit: z
     .enum(UNIT_TYPE_VALUES)
     .default(DEFAULT_UNIT)
     .describe("Unit of measure (piece, hour, kg, m, m2, m3, liter)"),
   description: z.string().optional().describe("Detailed product description"),
-  notes: z
-    .string()
-    .optional()
-    .describe("Internal notes (not shown on documents)"),
+  notes: z.string().optional().describe("Internal notes (not shown on documents)"),
 });
 
 export const createProductTool: Tool = {

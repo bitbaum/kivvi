@@ -6,15 +6,8 @@ import { ChevronDown, ChevronUp, Loader2, Pencil } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { updateProjectAction } from "@/app/actions/projects";
 import { cn } from "@/lib/utils";
-import {
-  PROJECT_STATUSES,
-  PROJECT_STATUS_LABEL_KEYS,
-} from "@/lib/config/project-status";
-import {
-  FormInput,
-  FormSelect,
-  FormTextarea,
-} from "@/components/ui/form-field";
+import { PROJECT_STATUSES, PROJECT_STATUS_LABEL_KEYS } from "@/lib/config/project-status";
+import { FormInput, FormSelect, FormTextarea } from "@/components/ui/form-field";
 
 interface ProjectEditFormProps {
   projectId: string;
@@ -29,10 +22,7 @@ interface ProjectEditFormProps {
   };
 }
 
-export function ProjectEditForm({
-  projectId,
-  initialData,
-}: ProjectEditFormProps) {
+export function ProjectEditForm({ projectId, initialData }: ProjectEditFormProps) {
   const router = useRouter();
   const t = useTranslations("projects");
   const tc = useTranslations("common");
@@ -58,9 +48,7 @@ export function ProjectEditForm({
         description: (formData.get("description") as string) || undefined,
         contactId: (formData.get("contactId") as string) || undefined,
         status: formData.get("status") as string,
-        budget: formData.get("budget")
-          ? (formData.get("budget") as string)
-          : undefined,
+        budget: formData.get("budget") ? (formData.get("budget") as string) : undefined,
         startDate: (formData.get("startDate") as string) || undefined,
         endDate: (formData.get("endDate") as string) || undefined,
       };
@@ -121,10 +109,7 @@ export function ProjectEditForm({
             <div className="grid gap-6 sm:grid-cols-2">
               {/* Name */}
               <div className="sm:col-span-2">
-                <label
-                  htmlFor="edit-name"
-                  className="mb-1.5 block text-sm font-medium"
-                >
+                <label htmlFor="edit-name" className="mb-1.5 block text-sm font-medium">
                   {t("projectName")} <span className="text-destructive">*</span>
                 </label>
                 <FormInput
@@ -139,10 +124,7 @@ export function ProjectEditForm({
 
               {/* Description */}
               <div className="sm:col-span-2">
-                <label
-                  htmlFor="edit-description"
-                  className="mb-1.5 block text-sm font-medium"
-                >
+                <label htmlFor="edit-description" className="mb-1.5 block text-sm font-medium">
                   {tc("description")}
                 </label>
                 <FormTextarea
@@ -157,17 +139,10 @@ export function ProjectEditForm({
 
               {/* Status */}
               <div>
-                <label
-                  htmlFor="edit-status"
-                  className="mb-1.5 block text-sm font-medium"
-                >
+                <label htmlFor="edit-status" className="mb-1.5 block text-sm font-medium">
                   {tc("status")}
                 </label>
-                <FormSelect
-                  id="edit-status"
-                  name="status"
-                  defaultValue={initialData.status}
-                >
+                <FormSelect id="edit-status" name="status" defaultValue={initialData.status}>
                   {statusOptions.map((s) => (
                     <option key={s.value} value={s.value}>
                       {s.label}
@@ -178,10 +153,7 @@ export function ProjectEditForm({
 
               {/* Budget */}
               <div>
-                <label
-                  htmlFor="edit-budget"
-                  className="mb-1.5 block text-sm font-medium"
-                >
+                <label htmlFor="edit-budget" className="mb-1.5 block text-sm font-medium">
                   {t("budget")} (CHF)
                 </label>
                 <FormInput
@@ -196,10 +168,7 @@ export function ProjectEditForm({
 
               {/* Contact ID */}
               <div className="sm:col-span-2">
-                <label
-                  htmlFor="edit-contactId"
-                  className="mb-1.5 block text-sm font-medium"
-                >
+                <label htmlFor="edit-contactId" className="mb-1.5 block text-sm font-medium">
                   Client (Contact ID)
                 </label>
                 <FormInput
@@ -212,10 +181,7 @@ export function ProjectEditForm({
 
               {/* Start Date */}
               <div>
-                <label
-                  htmlFor="edit-startDate"
-                  className="mb-1.5 block text-sm font-medium"
-                >
+                <label htmlFor="edit-startDate" className="mb-1.5 block text-sm font-medium">
                   {t("startDate")}
                 </label>
                 <FormInput
@@ -228,10 +194,7 @@ export function ProjectEditForm({
 
               {/* End Date */}
               <div>
-                <label
-                  htmlFor="edit-endDate"
-                  className="mb-1.5 block text-sm font-medium"
-                >
+                <label htmlFor="edit-endDate" className="mb-1.5 block text-sm font-medium">
                   {t("endDate")}
                 </label>
                 <FormInput

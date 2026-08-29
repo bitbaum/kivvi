@@ -21,10 +21,7 @@ interface StepCompanyInfoProps {
   onComplete: () => void;
 }
 
-export function StepCompanyInfo({
-  companyData,
-  onComplete,
-}: StepCompanyInfoProps) {
+export function StepCompanyInfo({ companyData, onComplete }: StepCompanyInfoProps) {
   const t = useTranslations("onboarding");
   const ts = useTranslations("settings");
   const tc = useTranslations("common");
@@ -40,9 +37,7 @@ export function StepCompanyInfo({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
@@ -95,10 +90,7 @@ export function StepCompanyInfo({
           </div>
 
           <div className="sm:col-span-2">
-            <label
-              htmlFor="legalName"
-              className="mb-1.5 block text-sm font-medium"
-            >
+            <label htmlFor="legalName" className="mb-1.5 block text-sm font-medium">
               {ts("company.legalName")}
             </label>
             <input
@@ -113,10 +105,7 @@ export function StepCompanyInfo({
           </div>
 
           <div className="sm:col-span-2">
-            <label
-              htmlFor="address"
-              className="mb-1.5 block text-sm font-medium"
-            >
+            <label htmlFor="address" className="mb-1.5 block text-sm font-medium">
               {t("companyAddress")}
             </label>
             <input
@@ -131,10 +120,7 @@ export function StepCompanyInfo({
           </div>
 
           <div>
-            <label
-              htmlFor="postalCode"
-              className="mb-1.5 block text-sm font-medium"
-            >
+            <label htmlFor="postalCode" className="mb-1.5 block text-sm font-medium">
               {t("postalCode")}
             </label>
             <input
@@ -164,10 +150,7 @@ export function StepCompanyInfo({
           </div>
 
           <div>
-            <label
-              htmlFor="country"
-              className="mb-1.5 block text-sm font-medium"
-            >
+            <label htmlFor="country" className="mb-1.5 block text-sm font-medium">
               {t("country")}
             </label>
             <select
@@ -185,10 +168,7 @@ export function StepCompanyInfo({
           </div>
 
           <div>
-            <label
-              htmlFor="vatNumber"
-              className="mb-1.5 block text-sm font-medium"
-            >
+            <label htmlFor="vatNumber" className="mb-1.5 block text-sm font-medium">
               {t("vatNumber")}
             </label>
             <input

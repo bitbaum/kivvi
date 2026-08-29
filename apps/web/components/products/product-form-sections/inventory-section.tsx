@@ -19,10 +19,7 @@ export function ProductFormInventorySection({ product, isEdit }: SectionProps) {
       </div>
       <div className="space-y-4 p-6">
         <div className="max-w-xs">
-          <label
-            htmlFor="minStock"
-            className="mb-1.5 block text-sm font-medium"
-          >
+          <label htmlFor="minStock" className="mb-1.5 block text-sm font-medium">
             {t("minStock")}
           </label>
           <FormInput

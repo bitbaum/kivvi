@@ -1,12 +1,6 @@
 import { z } from "zod";
 import { eq, and } from "drizzle-orm";
-import {
-  invitations,
-  memberships,
-  companies,
-  users,
-  INVITABLE_ROLES,
-} from "@kivvi/database";
+import { invitations, memberships, companies, users, INVITABLE_ROLES } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
 import type { MembershipRole, InvitationStatus } from "@kivvi/database";
 import { randomBytes } from "crypto";
@@ -94,10 +88,7 @@ export async function createInvitation(
 
   if (existingUser) {
     const existingMembership = await db.query.memberships.findFirst({
-      where: and(
-        eq(memberships.userId, existingUser.id),
-        eq(memberships.companyId, companyId),
-      ),
+      where: and(eq(memberships.userId, existingUser.id), eq(memberships.companyId, companyId)),
     });
 
     if (existingMembership) {
@@ -163,11 +154,7 @@ export async function acceptInvitation(
   });
 
   if (!invitation) {
-    throw new DomainError(
-      "invitationNotFound",
-      undefined,
-      "Invitation not found or already used",
-    );
+    throw new DomainError("invitationNotFound", undefined, "Invitation not found or already used");
   }
 
   if (invitation.expiresAt < new Date()) {
@@ -176,11 +163,7 @@ export async function acceptInvitation(
       .update(invitations)
       .set({ status: "expired" })
       .where(eq(invitations.id, invitation.id));
-    throw new DomainError(
-      "invitationExpired",
-      undefined,
-      "This invitation has expired",
-    );
+    throw new DomainError("invitationExpired", undefined, "This invitation has expired");
   }
 
   // Verify the accepting user's email matches the invitation
@@ -211,10 +194,7 @@ export async function acceptInvitation(
       .set({ status: "accepted", acceptedAt: new Date() })
       .where(eq(invitations.id, invitation.id));
 
-    await tx
-      .update(users)
-      .set({ companyId: invitation.companyId })
-      .where(eq(users.id, userId));
+    await tx.update(users).set({ companyId: invitation.companyId }).where(eq(users.id, userId));
 
     const company = await tx.query.companies.findFirst({
       where: eq(companies.id, invitation.companyId),
@@ -247,10 +227,7 @@ export async function revokeInvitation(
     throw new Error("Invitation not found or already processed");
   }
 
-  await db
-    .update(invitations)
-    .set({ status: "revoked" })
-    .where(eq(invitations.id, invitationId));
+  await db.update(invitations).set({ status: "revoked" }).where(eq(invitations.id, invitationId));
 }
 
 /**
@@ -274,12 +251,7 @@ export async function getCompanyInvitations(
     })
     .from(invitations)
     .innerJoin(users, eq(invitations.invitedBy, users.id))
-    .where(
-      and(
-        eq(invitations.companyId, companyId),
-        eq(invitations.status, "pending"),
-      ),
-    );
+    .where(and(eq(invitations.companyId, companyId), eq(invitations.status, "pending")));
 
   return rows.map((row) => ({
     ...row,

@@ -17,11 +17,7 @@ interface CsvExportButtonProps {
   entityLabel: string;
 }
 
-export function CsvExportButton({
-  onExport,
-  totalCount,
-  entityLabel,
-}: CsvExportButtonProps) {
+export function CsvExportButton({ onExport, totalCount, entityLabel }: CsvExportButtonProps) {
   const t = useTranslations("common");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);

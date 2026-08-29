@@ -28,15 +28,7 @@ interface Props {
 
 /** Source header → RawImportRow field. Lowercased, punctuation-insensitive. */
 const HEADER_ALIASES: Record<keyof RawImportRow, string[]> = {
-  description: [
-    "description",
-    "beschreibung",
-    "name",
-    "titel",
-    "title",
-    "bezeichnung",
-    "artikel",
-  ],
+  description: ["description", "beschreibung", "name", "titel", "title", "bezeichnung", "artikel"],
   category: ["category", "kategorie", "warengruppe", "group"],
   condition: ["condition", "zustand", "grade"],
   serialNumber: ["serial", "serialnumber", "seriennummer", "sn", "seriennr"],
@@ -44,14 +36,7 @@ const HEADER_ALIASES: Record<keyof RawImportRow, string[]> = {
   estimatedValue: ["value", "wert", "estimatedvalue", "einkaufspreis"],
   warehouse: ["warehouse", "lager", "standort", "storage"],
   location: ["location", "lagerplatz", "shelf", "bin", "regal", "platz"],
-  externalRef: [
-    "externalref",
-    "articlenumber",
-    "artikelnummer",
-    "sku",
-    "id",
-    "shopwareid",
-  ],
+  externalRef: ["externalref", "articlenumber", "artikelnummer", "sku", "id", "shopwareid"],
   notes: ["notes", "bemerkung", "notiz", "comment", "kommentar"],
 };
 
@@ -62,9 +47,7 @@ function normalizeHeader(h: string): string {
     .replace(/[^a-z0-9]/g, "");
 }
 
-function buildHeaderMap(
-  headers: string[],
-): Partial<Record<string, keyof RawImportRow>> {
+function buildHeaderMap(headers: string[]): Partial<Record<string, keyof RawImportRow>> {
   const map: Partial<Record<string, keyof RawImportRow>> = {};
   for (const header of headers) {
     const norm = normalizeHeader(header);
@@ -139,8 +122,7 @@ export function InventoryImportPanel({ warehouses }: Props) {
           setRowState({});
           setResult(null);
         },
-        error: (err) =>
-          toast.error(t("csvParseError", { message: err.message })),
+        error: (err) => toast.error(t("csvParseError", { message: err.message })),
       });
     },
     [t],
@@ -159,18 +141,9 @@ export function InventoryImportPanel({ warehouses }: Props) {
   /** A row can be imported when: has description, has a warehouse, is confirmed
    *  present, and isn't a known-existing duplicate. */
   function isImportable(row: AnalyzedImportRow): boolean {
-    const hasDescription = !row.issues.some(
-      (i) => i.code === "MISSING_DESCRIPTION",
-    );
-    const isExistingDup = row.issues.some(
-      (i) => i.code === "DUPLICATE_SERIAL_EXISTING",
-    );
-    return (
-      hasDescription &&
-      !isExistingDup &&
-      !!effectiveWarehouseId(row) &&
-      isPresent(row)
-    );
+    const hasDescription = !row.issues.some((i) => i.code === "MISSING_DESCRIPTION");
+    const isExistingDup = row.issues.some((i) => i.code === "DUPLICATE_SERIAL_EXISTING");
+    return hasDescription && !isExistingDup && !!effectiveWarehouseId(row) && isPresent(row);
   }
 
   const importableCount = useMemo(() => {
@@ -210,8 +183,7 @@ export function InventoryImportPanel({ warehouses }: Props) {
       const next = { ...prev };
       for (const row of analysis.rows) {
         next[row.index] = {
-          warehouseId:
-            next[row.index]?.warehouseId ?? row.resolvedWarehouseId ?? null,
+          warehouseId: next[row.index]?.warehouseId ?? row.resolvedWarehouseId ?? null,
           presenceConfirmed: true,
         };
       }
@@ -280,21 +252,9 @@ export function InventoryImportPanel({ warehouses }: Props) {
           <span className="font-medium">{t("resultTitle")}</span>
         </div>
         <div className="grid grid-cols-3 gap-3 text-sm">
-          <Stat
-            label={t("insertedCount")}
-            value={result.inserted}
-            tone="success"
-          />
-          <Stat
-            label={t("skippedDuplicates")}
-            value={result.skippedDuplicates}
-            tone="warning"
-          />
-          <Stat
-            label={t("skippedInvalid")}
-            value={result.skippedInvalid}
-            tone="muted"
-          />
+          <Stat label={t("insertedCount")} value={result.inserted} tone="success" />
+          <Stat label={t("skippedDuplicates")} value={result.skippedDuplicates} tone="warning" />
+          <Stat label={t("skippedInvalid")} value={result.skippedInvalid} tone="muted" />
         </div>
         <button
           onClick={reset}
@@ -308,13 +268,7 @@ export function InventoryImportPanel({ warehouses }: Props) {
 
   // ── Upload screen ──────────────────────────────────────────────────────────
   if (!analysis) {
-    return (
-      <CsvDropZone
-        onFile={handleFile}
-        label={t("uploadLabel")}
-        hint={t("uploadHint")}
-      />
-    );
+    return <CsvDropZone onFile={handleFile} label={t("uploadLabel")} hint={t("uploadHint")} />;
   }
 
   // ── Review screen ──────────────────────────────────────────────────────────
@@ -326,47 +280,23 @@ export function InventoryImportPanel({ warehouses }: Props) {
         <div className="flex items-center gap-2 text-sm">
           <Upload className="h-4 w-4 text-primary" />
           <span className="font-medium">{fileName}</span>
-          <span className="text-muted-foreground">
-            · {t("rowCount", { count: summary.total })}
-          </span>
+          <span className="text-muted-foreground">· {t("rowCount", { count: summary.total })}</span>
         </div>
 
         {/* Smart summary — answers "do we have them / info / where?" */}
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-5 text-sm">
-          <Stat
-            label={t("summaryReady")}
-            value={summary.ready}
-            tone="success"
-          />
-          <Stat
-            label={t("summaryReview")}
-            value={summary.review}
-            tone="warning"
-          />
-          <Stat
-            label={t("summaryBlocked")}
-            value={summary.blocked}
-            tone="destructive"
-          />
-          <Stat
-            label={t("summaryMissingLocation")}
-            value={summary.missingLocation}
-            tone="muted"
-          />
-          <Stat
-            label={t("summaryDuplicates")}
-            value={summary.duplicates}
-            tone="muted"
-          />
+          <Stat label={t("summaryReady")} value={summary.ready} tone="success" />
+          <Stat label={t("summaryReview")} value={summary.review} tone="warning" />
+          <Stat label={t("summaryBlocked")} value={summary.blocked} tone="destructive" />
+          <Stat label={t("summaryMissingLocation")} value={summary.missingLocation} tone="muted" />
+          <Stat label={t("summaryDuplicates")} value={summary.duplicates} tone="muted" />
         </div>
 
         {/* Bulk controls */}
         <div className="flex flex-wrap items-center gap-2 border-t pt-3">
           <div className="flex items-center gap-2">
             <MapPin className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">
-              {t("defaultWarehouse")}
-            </span>
+            <span className="text-sm text-muted-foreground">{t("defaultWarehouse")}</span>
             <select
               value={defaultWarehouseId}
               onChange={(e) => {
@@ -401,13 +331,9 @@ export function InventoryImportPanel({ warehouses }: Props) {
               <th className="px-3 py-2 font-medium">{t("colItem")}</th>
               <th className="px-3 py-2 font-medium">{t("colWarehouse")}</th>
               <th className="px-3 py-2 font-medium">{t("colCondition")}</th>
-              <th className="px-3 py-2 text-right font-medium">
-                {t("colPrice")}
-              </th>
+              <th className="px-3 py-2 text-right font-medium">{t("colPrice")}</th>
               <th className="px-3 py-2 font-medium">{t("colComplete")}</th>
-              <th className="px-3 py-2 text-center font-medium">
-                {t("colPresent")}
-              </th>
+              <th className="px-3 py-2 text-center font-medium">{t("colPresent")}</th>
             </tr>
           </thead>
           <tbody>
@@ -416,10 +342,7 @@ export function InventoryImportPanel({ warehouses }: Props) {
               const present = isPresent(row);
               const importable = isImportable(row);
               return (
-                <tr
-                  key={row.index}
-                  className="border-b last:border-0 align-top"
-                >
+                <tr key={row.index} className="border-b last:border-0 align-top">
                   <td className="px-3 py-2">
                     <DecisionBadge row={row} importable={importable} t={t} />
                   </td>
@@ -427,9 +350,7 @@ export function InventoryImportPanel({ warehouses }: Props) {
                     <div className="max-w-[260px]">
                       <p className="font-medium truncate">
                         {row.normalized.description || (
-                          <span className="text-destructive">
-                            {t("noDescription")}
-                          </span>
+                          <span className="text-destructive">{t("noDescription")}</span>
                         )}
                       </p>
                       {row.normalized.serialNumber && (
@@ -465,13 +386,9 @@ export function InventoryImportPanel({ warehouses }: Props) {
                       </p>
                     )}
                   </td>
-                  <td className="px-3 py-2 text-xs">
-                    {row.normalized.condition}
-                  </td>
+                  <td className="px-3 py-2 text-xs">{row.normalized.condition}</td>
                   <td className="px-3 py-2 text-right text-xs">
-                    {row.normalized.askingPrice
-                      ? `CHF ${row.normalized.askingPrice}`
-                      : "—"}
+                    {row.normalized.askingPrice ? `CHF ${row.normalized.askingPrice}` : "—"}
                   </td>
                   <td className="px-3 py-2">
                     <CompletenessBar score={row.completeness.score} />
@@ -504,9 +421,7 @@ export function InventoryImportPanel({ warehouses }: Props) {
           className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
         >
           {isImporting && <Loader2 className="h-4 w-4 animate-spin" />}
-          {isImporting
-            ? t("importing")
-            : t("importN", { count: importableCount })}
+          {isImporting ? t("importing") : t("importN", { count: importableCount })}
         </button>
         <button
           onClick={reset}
@@ -581,8 +496,7 @@ function IssueList({ row }: { row: AnalyzedImportRow }) {
 }
 
 function CompletenessBar({ score }: { score: number }) {
-  const tone =
-    score >= 80 ? "bg-success" : score >= 50 ? "bg-warning" : "bg-destructive";
+  const tone = score >= 80 ? "bg-success" : score >= 50 ? "bg-warning" : "bg-destructive";
   return (
     <div className="flex items-center gap-2">
       <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted">

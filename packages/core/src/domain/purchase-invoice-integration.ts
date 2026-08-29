@@ -46,9 +46,7 @@ export async function createInventoryItemsFromPurchaseInvoice(
   if (items.length === 0) return { created: 0 };
 
   // Get products that have serialNumberTracking enabled
-  const productIds = items
-    .map((i) => i.productId)
-    .filter((id): id is string => !!id);
+  const productIds = items.map((i) => i.productId).filter((id): id is string => !!id);
 
   if (productIds.length === 0) return { created: 0 };
 
@@ -61,9 +59,7 @@ export async function createInventoryItemsFromPurchaseInvoice(
     .where(inArray(products.id, productIds));
 
   const trackedSet = new Set(
-    trackedProducts
-      .filter((p) => p.serialNumberTracking === true)
-      .map((p) => p.id),
+    trackedProducts.filter((p) => p.serialNumberTracking === true).map((p) => p.id),
   );
 
   if (trackedSet.size === 0) return { created: 0 };
@@ -75,8 +71,7 @@ export async function createInventoryItemsFromPurchaseInvoice(
     if (!item.productId || !trackedSet.has(item.productId)) continue;
 
     const qty = Math.max(1, Math.floor(parseFloat(item.quantity || "1")));
-    const unitCost =
-      item.unitPrice && item.unitPrice !== "0" ? item.unitPrice : null;
+    const unitCost = item.unitPrice && item.unitPrice !== "0" ? item.unitPrice : null;
 
     if (qty <= MAX_INDIVIDUAL_ITEMS) {
       for (let i = 0; i < qty; i++) {

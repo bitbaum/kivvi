@@ -54,13 +54,7 @@ export interface BulkActionDef {
   /** Translation key within 'bulkActions' namespace */
   label: string;
   /** Action type — dispatched to the correct server action */
-  action:
-    | "convert"
-    | "status_change"
-    | "delete"
-    | "extend_validity"
-    | "dunning"
-    | "mark_paid";
+  action: "convert" | "status_change" | "delete" | "extend_validity" | "dunning" | "mark_paid";
   variant: "default" | "primary" | "destructive";
   /** Only show when all selected docs match one of these statuses */
   applicableStatuses?: DocumentStatus[];
@@ -166,12 +160,8 @@ const COMMON_SALES_ACTIONS: Partial<Record<DocumentStatus, StatusAction[]>> = {
     { label: "markDelivered", targetStatus: "delivered", variant: "primary" },
     { label: "cancel", targetStatus: "cancelled", variant: "destructive" },
   ],
-  delivered: [
-    { label: "cancel", targetStatus: "cancelled", variant: "destructive" },
-  ],
-  overdue: [
-    { label: "cancel", targetStatus: "cancelled", variant: "destructive" },
-  ],
+  delivered: [{ label: "cancel", targetStatus: "cancelled", variant: "destructive" }],
+  overdue: [{ label: "cancel", targetStatus: "cancelled", variant: "destructive" }],
 };
 
 export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
@@ -292,12 +282,8 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
     contactFilter: "customer",
     statuses: ["draft", "sent", "confirmed", "cancelled"],
     actions: {
-      draft: [
-        { label: "markAsSent", targetStatus: "sent", variant: "primary" },
-      ],
-      sent: [
-        { label: "confirm", targetStatus: "confirmed", variant: "primary" },
-      ],
+      draft: [{ label: "markAsSent", targetStatus: "sent", variant: "primary" }],
+      sent: [{ label: "confirm", targetStatus: "confirmed", variant: "primary" }],
     },
     conversionTargets: VALID_CONVERSIONS.order_confirmation ?? [],
     hasDueDate: false,
@@ -346,9 +332,7 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
     contactFilter: "customer",
     statuses: ["draft", "sent", "delivered", "cancelled"],
     actions: {
-      draft: [
-        { label: "markAsSent", targetStatus: "sent", variant: "primary" },
-      ],
+      draft: [{ label: "markAsSent", targetStatus: "sent", variant: "primary" }],
       sent: [
         {
           label: "markDelivered",
@@ -508,9 +492,7 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
     contactFilter: "customer",
     statuses: ["draft", "sent", "cancelled"],
     actions: {
-      draft: [
-        { label: "markAsSent", targetStatus: "sent", variant: "primary" },
-      ],
+      draft: [{ label: "markAsSent", targetStatus: "sent", variant: "primary" }],
     },
     conversionTargets: VALID_CONVERSIONS.dunning ?? [],
     hasDueDate: false,
@@ -575,25 +557,14 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
     labelPlural: "purchaseInvoicePlural",
     basePath: "/purchasing/purchase-invoices",
     contactFilter: "vendor",
-    statuses: [
-      "draft",
-      "confirmed",
-      "paid",
-      "partially_paid",
-      "overdue",
-      "cancelled",
-    ],
+    statuses: ["draft", "confirmed", "paid", "partially_paid", "overdue", "cancelled"],
     actions: {
       draft: [
         { label: "confirm", targetStatus: "confirmed", variant: "primary" },
         { label: "cancel", targetStatus: "cancelled", variant: "destructive" },
       ],
-      confirmed: [
-        { label: "cancel", targetStatus: "cancelled", variant: "destructive" },
-      ],
-      overdue: [
-        { label: "cancel", targetStatus: "cancelled", variant: "destructive" },
-      ],
+      confirmed: [{ label: "cancel", targetStatus: "cancelled", variant: "destructive" }],
+      overdue: [{ label: "cancel", targetStatus: "cancelled", variant: "destructive" }],
     },
     conversionTargets: VALID_CONVERSIONS.purchase_invoice ?? [],
     hasDueDate: true,
@@ -647,9 +618,7 @@ export const DOCUMENT_TYPES: Record<DocumentType, DocumentTypeConfig> = {
         },
         { label: "cancel", targetStatus: "cancelled", variant: "destructive" },
       ],
-      delivered: [
-        { label: "cancel", targetStatus: "cancelled", variant: "destructive" },
-      ],
+      delivered: [{ label: "cancel", targetStatus: "cancelled", variant: "destructive" }],
     },
     conversionTargets: VALID_CONVERSIONS.repair_order ?? [],
     hasDueDate: false,
@@ -765,9 +734,7 @@ export const INTAKE_CONTACT_ROLE_LABEL_KEYS: Record<string, string> = {
  * Get the filter status tabs shown on the list page for a document type.
  * Returns the most commonly used statuses for filtering.
  */
-export function getFilterStatuses(
-  type: DocumentType,
-): (DocumentStatus | "all")[] {
+export function getFilterStatuses(type: DocumentType): (DocumentStatus | "all")[] {
   const config = DOCUMENT_TYPES[type];
   const base: (DocumentStatus | "all")[] = ["all"];
 

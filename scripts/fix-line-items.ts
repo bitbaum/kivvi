@@ -18,28 +18,34 @@
  * Requires DATABASE_URL env var (reads from .env.local if present).
  */
 
-import { readFileSync, existsSync } from 'fs';
-import { join, resolve } from 'path';
-import Papa from 'papaparse';
-import Decimal from 'decimal.js';
-import { eq, and } from 'drizzle-orm';
-import { createPostgresClient, documents, documentItems, products, fiscalYears } from '@kivvi/database';
-import type { Database } from '@kivvi/database';
-import { parseKivitendoLineItems } from '@kivvi/core/src/domain/import-mappings';
-import { updateSequencesAfterImport } from '@kivvi/core/src/domain/import-bulk';
-import { DEFAULT_VAT_RATE } from '@kivvi/core/src/config/vat-rates';
+import { readFileSync, existsSync } from "fs";
+import { join, resolve } from "path";
+import Papa from "papaparse";
+import Decimal from "decimal.js";
+import { eq, and } from "drizzle-orm";
+import {
+  createPostgresClient,
+  documents,
+  documentItems,
+  products,
+  fiscalYears,
+} from "@kivvi/database";
+import type { Database } from "@kivvi/database";
+import { parseKivitendoLineItems } from "@kivvi/core/src/domain/import-mappings";
+import { updateSequencesAfterImport } from "@kivvi/core/src/domain/import-bulk";
+import { DEFAULT_VAT_RATE } from "@kivvi/core/src/config/vat-rates";
 
 // ============================================================================
 // CONFIG
 // ============================================================================
 
-const COMPANY_ID = process.env.COMPANY_ID || 'f713b82b-babb-46c1-aa67-95760fc00f7e';
-const EXPORT_DIR = '/home/g/dev/kivvi/kivitendo-export';
-const DRY_RUN = process.argv.includes('--dry-run');
+const COMPANY_ID = process.env.COMPANY_ID || "f713b82b-babb-46c1-aa67-95760fc00f7e";
+const EXPORT_DIR = "/home/g/dev/kivvi/kivitendo-export";
+const DRY_RUN = process.argv.includes("--dry-run");
 
 // CSV file configs
-const AR_FILE = 'rechnungen_ar_invoices.csv';
-const AP_FILE = 'einkaufsrechnungen_ap_invoices.csv';
+const AR_FILE = "rechnungen_ar_invoices.csv";
+const AP_FILE = "einkaufsrechnungen_ap_invoices.csv";
 
 // Column indices (0-based) for raw CSV rows
 const AR = {
@@ -66,23 +72,25 @@ const AP = {
 function loadEnv(): void {
   if (process.env.DATABASE_URL) return;
 
-  const envPath = resolve(__dirname, '..', '.env.local');
+  const envPath = resolve(__dirname, "..", ".env.local");
   if (!existsSync(envPath)) {
-    console.error('DATABASE_URL not set and no .env.local found');
+    console.error("DATABASE_URL not set and no .env.local found");
     process.exit(1);
   }
 
-  const content = readFileSync(envPath, 'utf-8');
-  for (const line of content.split('\n')) {
+  const content = readFileSync(envPath, "utf-8");
+  for (const line of content.split("\n")) {
     const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith('#')) continue;
-    const eqIdx = trimmed.indexOf('=');
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const eqIdx = trimmed.indexOf("=");
     if (eqIdx === -1) continue;
     const key = trimmed.slice(0, eqIdx).trim();
     let value = trimmed.slice(eqIdx + 1).trim();
     // Strip surrounding quotes
-    if ((value.startsWith('"') && value.endsWith('"')) ||
-        (value.startsWith("'") && value.endsWith("'"))) {
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
       value = value.slice(1, -1);
     }
     if (!process.env[key]) {
@@ -94,8 +102,8 @@ function loadEnv(): void {
 /** Map Steuersatz text label to VAT rate */
 function mapVatRate(steuersatz: string): string {
   const trimmed = steuersatz?.trim();
-  if (trimmed === 'Inland') return DEFAULT_VAT_RATE;
-  if (trimmed === 'Außerhalb EU') return '0';
+  if (trimmed === "Inland") return DEFAULT_VAT_RATE;
+  if (trimmed === "Außerhalb EU") return "0";
   // Try parsing as number (some exports might have numeric rates)
   const num = parseFloat(trimmed);
   if (!isNaN(num)) return num.toString();
@@ -104,8 +112,8 @@ function mapVatRate(steuersatz: string): string {
 
 /** Parse Swiss number format: strip apostrophe thousand separators */
 function parseSwissNumber(value: string): string {
-  if (!value?.trim()) return '0';
-  return value.trim().replace(/'/g, '');
+  if (!value?.trim()) return "0";
+  return value.trim().replace(/'/g, "");
 }
 
 interface CsvInvoice {
@@ -127,7 +135,7 @@ function parseInvoiceCsv(
   config: typeof AR | typeof AP,
   isAP: boolean,
 ): CsvInvoice[] {
-  const csvContent = readFileSync(filePath, 'utf-8');
+  const csvContent = readFileSync(filePath, "utf-8");
   const parsed = Papa.parse<string[]>(csvContent, {
     header: false,
     skipEmptyLines: true,
@@ -153,7 +161,7 @@ function parseInvoiceCsv(
     if (isAP) {
       for (const item of items) {
         try {
-          const qty = new Decimal(item.quantity || '0');
+          const qty = new Decimal(item.quantity || "0");
           if (qty.lt(0)) {
             item.quantity = qty.abs().toString();
           }
@@ -166,8 +174,8 @@ function parseInvoiceCsv(
     if (items.length > 0) {
       invoices.push({
         docNumber,
-        total: parseSwissNumber(row[config.summe] || '0'),
-        vatRate: mapVatRate(row[config.steuersatz] || ''),
+        total: parseSwissNumber(row[config.summe] || "0"),
+        vatRate: mapVatRate(row[config.steuersatz] || ""),
         items,
       });
     }
@@ -221,7 +229,7 @@ interface DocInfo {
 async function buildDocumentLookup(
   db: Database,
   companyId: string,
-  docType: 'invoice' | 'purchase_invoice',
+  docType: "invoice" | "purchase_invoice",
 ): Promise<Map<string, DocInfo>> {
   const rows = await db
     .select({
@@ -230,10 +238,7 @@ async function buildDocumentLookup(
       total: documents.total,
     })
     .from(documents)
-    .where(and(
-      eq(documents.companyId, companyId),
-      eq(documents.type, docType),
-    ));
+    .where(and(eq(documents.companyId, companyId), eq(documents.type, docType)));
 
   const map = new Map<string, DocInfo>();
   for (const row of rows) {
@@ -257,7 +262,7 @@ async function fixDocumentItems(
   csvInvoices: CsvInvoice[],
   docLookup: Map<string, DocInfo>,
   productLookup: Map<string, ProductInfo>,
-  docType: 'invoice' | 'purchase_invoice',
+  docType: "invoice" | "purchase_invoice",
 ): Promise<FixStats> {
   const stats: FixStats = { fixed: 0, skippedNoMatch: 0, errors: [] };
 
@@ -276,21 +281,17 @@ async function fixDocumentItems(
 
       await db.transaction(async (tx: Database) => {
         // Delete existing broken items
-        await tx
-          .delete(documentItems)
-          .where(eq(documentItems.documentId, docInfo.id));
+        await tx.delete(documentItems).where(eq(documentItems.documentId, docInfo.id));
 
         // Build new items
         const newItems = inv.items.map((item) => {
-          const product = item.articleNumber
-            ? productLookup.get(item.articleNumber)
-            : undefined;
+          const product = item.articleNumber ? productLookup.get(item.articleNumber) : undefined;
 
           // Determine unit price
-          let unitPrice = '0';
+          let unitPrice = "0";
           if (product) {
             // Use catalog price: sales price for AR, purchase price for AP
-            if (docType === 'purchase_invoice' && product.purchasePrice) {
+            if (docType === "purchase_invoice" && product.purchasePrice) {
               unitPrice = product.purchasePrice;
             } else {
               unitPrice = product.unitPrice;
@@ -298,8 +299,8 @@ async function fixDocumentItems(
           } else if (inv.items.length === 1) {
             // Single-item doc without product match: derive from total / quantity
             try {
-              const qty = new Decimal(item.quantity || '0');
-              const docTotal = new Decimal(inv.total || '0');
+              const qty = new Decimal(item.quantity || "0");
+              const docTotal = new Decimal(inv.total || "0");
               if (qty.gt(0) && docTotal.gt(0)) {
                 unitPrice = docTotal.div(qty).toDecimalPlaces(2).toString();
               }
@@ -308,7 +309,7 @@ async function fixDocumentItems(
             }
           }
 
-          const qty = new Decimal(item.quantity || '0');
+          const qty = new Decimal(item.quantity || "0");
           const price = new Decimal(unitPrice);
           const total = qty.times(price).toDecimalPlaces(2).toString();
 
@@ -316,8 +317,8 @@ async function fixDocumentItems(
             documentId: docInfo.id,
             productId: product?.id || null,
             position: item.position,
-            description: item.description || 'Imported item',
-            quantity: item.quantity || '1',
+            description: item.description || "Imported item",
+            quantity: item.quantity || "1",
             unitPrice,
             vatRate: inv.vatRate,
             total,
@@ -378,18 +379,18 @@ async function main(): Promise<void> {
   loadEnv();
 
   if (!process.env.DATABASE_URL) {
-    console.error('DATABASE_URL is required');
+    console.error("DATABASE_URL is required");
     process.exit(1);
   }
 
   const db = createPostgresClient(process.env.DATABASE_URL);
 
-  console.log(DRY_RUN ? '=== DRY RUN MODE ===' : '=== EXECUTING FIX ===');
+  console.log(DRY_RUN ? "=== DRY RUN MODE ===" : "=== EXECUTING FIX ===");
   console.log(`Company: ${COMPANY_ID}`);
   console.log(`Export dir: ${EXPORT_DIR}\n`);
 
   // Step 1: Parse CSVs
-  console.log('1. Parsing CSV files...');
+  console.log("1. Parsing CSV files...");
 
   const arPath = join(EXPORT_DIR, AR_FILE);
   const apPath = join(EXPORT_DIR, AP_FILE);
@@ -404,9 +405,13 @@ async function main(): Promise<void> {
   // Show sample
   if (arInvoices.length > 0) {
     const sample = arInvoices[0];
-    console.log(`   Sample: #${sample.docNumber} — ${sample.items.length} items, total=${sample.total}`);
+    console.log(
+      `   Sample: #${sample.docNumber} — ${sample.items.length} items, total=${sample.total}`,
+    );
     for (const item of sample.items.slice(0, 3)) {
-      console.log(`     pos ${item.position}: [${item.articleNumber}] ${item.description.slice(0, 50)} qty=${item.quantity} unit=${item.unit}`);
+      console.log(
+        `     pos ${item.position}: [${item.articleNumber}] ${item.description.slice(0, 50)} qty=${item.quantity} unit=${item.unit}`,
+      );
     }
   }
 
@@ -416,28 +421,34 @@ async function main(): Promise<void> {
     console.log(`   AP invoices with items: ${apInvoices.length}`);
     if (apInvoices.length > 0) {
       const sample = apInvoices[0];
-      console.log(`   Sample: #${sample.docNumber} — ${sample.items.length} items, total=${sample.total}`);
+      console.log(
+        `   Sample: #${sample.docNumber} — ${sample.items.length} items, total=${sample.total}`,
+      );
       for (const item of sample.items.slice(0, 3)) {
-        console.log(`     pos ${item.position}: [${item.articleNumber}] ${item.description.slice(0, 50)} qty=${item.quantity} unit=${item.unit}`);
+        console.log(
+          `     pos ${item.position}: [${item.articleNumber}] ${item.description.slice(0, 50)} qty=${item.quantity} unit=${item.unit}`,
+        );
       }
     }
   }
 
   // Step 2: Build lookups
-  console.log('\n2. Building DB lookups...');
+  console.log("\n2. Building DB lookups...");
   const productLookup = await buildProductPriceLookup(db, COMPANY_ID);
   console.log(`   Products: ${productLookup.size}`);
 
-  const arDocLookup = await buildDocumentLookup(db, COMPANY_ID, 'invoice');
+  const arDocLookup = await buildDocumentLookup(db, COMPANY_ID, "invoice");
   console.log(`   AR documents in DB: ${arDocLookup.size}`);
 
-  const apDocLookup = await buildDocumentLookup(db, COMPANY_ID, 'purchase_invoice');
+  const apDocLookup = await buildDocumentLookup(db, COMPANY_ID, "purchase_invoice");
   console.log(`   AP documents in DB: ${apDocLookup.size}`);
 
   // Step 3: Fix AR items
-  console.log('\n3. Fixing AR invoice items...');
-  const arStats = await fixDocumentItems(db, arInvoices, arDocLookup, productLookup, 'invoice');
-  console.log(`   Fixed: ${arStats.fixed}, No match: ${arStats.skippedNoMatch}, Errors: ${arStats.errors.length}`);
+  console.log("\n3. Fixing AR invoice items...");
+  const arStats = await fixDocumentItems(db, arInvoices, arDocLookup, productLookup, "invoice");
+  console.log(
+    `   Fixed: ${arStats.fixed}, No match: ${arStats.skippedNoMatch}, Errors: ${arStats.errors.length}`,
+  );
   if (arStats.errors.length > 0) {
     for (const err of arStats.errors.slice(0, 5)) {
       console.log(`   ERR: ${err}`);
@@ -448,9 +459,17 @@ async function main(): Promise<void> {
   }
 
   // Step 4: Fix AP items
-  console.log('\n4. Fixing AP purchase invoice items...');
-  const apStats = await fixDocumentItems(db, apInvoices, apDocLookup, productLookup, 'purchase_invoice');
-  console.log(`   Fixed: ${apStats.fixed}, No match: ${apStats.skippedNoMatch}, Errors: ${apStats.errors.length}`);
+  console.log("\n4. Fixing AP purchase invoice items...");
+  const apStats = await fixDocumentItems(
+    db,
+    apInvoices,
+    apDocLookup,
+    productLookup,
+    "purchase_invoice",
+  );
+  console.log(
+    `   Fixed: ${apStats.fixed}, No match: ${apStats.skippedNoMatch}, Errors: ${apStats.errors.length}`,
+  );
   if (apStats.errors.length > 0) {
     for (const err of apStats.errors.slice(0, 5)) {
       console.log(`   ERR: ${err}`);
@@ -461,34 +480,34 @@ async function main(): Promise<void> {
   }
 
   // Step 5: Update number sequences
-  console.log('\n5. Updating number sequences...');
+  console.log("\n5. Updating number sequences...");
   if (!DRY_RUN) {
     await updateSequencesAfterImport(db, COMPANY_ID);
-    console.log('   Done');
+    console.log("   Done");
   } else {
-    console.log('   (skipped in dry-run)');
+    console.log("   (skipped in dry-run)");
   }
 
   // Step 6: Fix duplicate fiscal year
-  console.log('\n6. Fixing duplicate fiscal years...');
+  console.log("\n6. Fixing duplicate fiscal years...");
   await fixDuplicateFiscalYear(db, COMPANY_ID);
 
   // Summary
-  console.log('\n=== SUMMARY ===');
+  console.log("\n=== SUMMARY ===");
   console.log(`AR invoices fixed: ${arStats.fixed}/${arInvoices.length}`);
   console.log(`AP invoices fixed: ${apStats.fixed}/${apInvoices.length}`);
   console.log(`Total errors: ${arStats.errors.length + apStats.errors.length}`);
 
   if (DRY_RUN) {
-    console.log('\nDry run complete. Run without --dry-run to apply changes.');
+    console.log("\nDry run complete. Run without --dry-run to apply changes.");
   } else {
-    console.log('\nDone!');
+    console.log("\nDone!");
   }
 
   process.exit(0);
 }
 
 main().catch((err) => {
-  console.error('Fatal error:', err);
+  console.error("Fatal error:", err);
   process.exit(1);
 });

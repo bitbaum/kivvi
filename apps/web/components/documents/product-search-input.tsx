@@ -3,10 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { Package, Tag } from "lucide-react";
 import { useTranslations } from "next-intl";
-import {
-  searchSellablesAction,
-  type SellableResult,
-} from "@/app/actions/sellables";
+import { searchSellablesAction, type SellableResult } from "@/app/actions/sellables";
 import { FormInput } from "@/components/ui/form-field";
 import { getConditionLabelKey } from "@/lib/config/inventory-items";
 import { formatCurrency } from "@/lib/utils";
@@ -66,10 +63,7 @@ export function ProductSearchInput({
   useEffect(() => {
     if (!showDropdown) return;
     function handleClick(e: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(e.target as Node)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setShowDropdown(false);
       }
     }
@@ -100,18 +94,14 @@ export function ProductSearchInput({
 
   const selectSellable = (sellable: SellableResult) => {
     onProductSelect({
-      id:
-        sellable.kind === "product"
-          ? sellable.id
-          : sellable.productId || sellable.id,
+      id: sellable.kind === "product" ? sellable.id : sellable.productId || sellable.id,
       name: sellable.name,
       articleNumber: sellable.number,
       unitPrice: sellable.price,
       vatRate: sellable.vatRate,
       unit: sellable.unit,
       stockQuantity: sellable.stockQuantity,
-      productId:
-        sellable.kind === "product" ? sellable.id : sellable.productId || null,
+      productId: sellable.kind === "product" ? sellable.id : sellable.productId || null,
       inventoryItemId: sellable.kind === "inventory_item" ? sellable.id : null,
       condition: sellable.condition,
       isPriceFlexible: sellable.isPriceFlexible,
@@ -171,36 +161,25 @@ export function ProductSearchInput({
                   <div className="flex items-start gap-2 min-w-0 flex-1">
                     <Icon
                       className={`h-3.5 w-3.5 mt-0.5 shrink-0 ${
-                        isInventoryItem
-                          ? "text-primary"
-                          : "text-muted-foreground"
+                        isInventoryItem ? "text-primary" : "text-muted-foreground"
                       }`}
                     />
                     <div className="min-w-0 flex-1">
-                      <div className="font-medium truncate">
-                        {sellable.name}
-                      </div>
+                      <div className="font-medium truncate">{sellable.name}</div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
                         {sellable.number && <span>{sellable.number}</span>}
                         {isInventoryItem && sellable.condition && (
                           <span className="rounded bg-muted px-1.5 py-0.5">
-                            {t(
-                              getConditionLabelKey(
-                                sellable.condition,
-                              ) as Parameters<typeof t>[0],
-                            )}
+                            {t(getConditionLabelKey(sellable.condition) as Parameters<typeof t>[0])}
                           </span>
                         )}
                       </div>
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-0.5 shrink-0 text-xs">
-                    {sellable.isPriceFlexible &&
-                    sellable.minPrice &&
-                    sellable.maxPrice ? (
+                    {sellable.isPriceFlexible && sellable.minPrice && sellable.maxPrice ? (
                       <span className="text-foreground font-medium">
-                        {formatCurrency(sellable.minPrice)} –{" "}
-                        {formatCurrency(sellable.maxPrice)}
+                        {formatCurrency(sellable.minPrice)} – {formatCurrency(sellable.maxPrice)}
                       </span>
                     ) : (
                       sellable.price && (
@@ -221,9 +200,7 @@ export function ProductSearchInput({
                               : "text-muted-foreground";
                         return (
                           <span className={color}>
-                            {stock <= 0
-                              ? t("outOfStock")
-                              : t("inStock", { count: stock })}
+                            {stock <= 0 ? t("outOfStock") : t("inStock", { count: stock })}
                           </span>
                         );
                       })()}

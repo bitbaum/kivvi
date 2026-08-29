@@ -85,8 +85,7 @@ export function useModelSelection() {
   }, []);
 
   // Derive a display name for the current selection (used as fallback before API loads)
-  const displayName =
-    MODEL_DISPLAY_NAMES[selection.modelId] || selection.modelId;
+  const displayName = MODEL_DISPLAY_NAMES[selection.modelId] || selection.modelId;
 
   return {
     selection,

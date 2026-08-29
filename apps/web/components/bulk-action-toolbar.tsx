@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { X } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { X } from "lucide-react";
+import type { ReactNode } from "react";
 
 interface BulkActionToolbarProps {
   count: number;

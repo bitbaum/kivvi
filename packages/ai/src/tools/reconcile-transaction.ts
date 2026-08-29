@@ -3,16 +3,11 @@ import type { Tool, ExecutionContext, ToolResult } from "../types";
 import { getDb } from "./utils";
 
 const reconcileTransactionSchema = z.object({
-  transactionId: z
-    .string()
-    .uuid()
-    .describe("The UUID of the bank transaction to reconcile"),
+  transactionId: z.string().uuid().describe("The UUID of the bank transaction to reconcile"),
   documentId: z
     .string()
     .uuid()
-    .describe(
-      "The UUID of the document (invoice, purchase invoice) to match this transaction to",
-    ),
+    .describe("The UUID of the document (invoice, purchase invoice) to match this transaction to"),
 });
 
 export const reconcileTransactionTool: Tool = {
@@ -44,9 +39,7 @@ export const reconcileTransactionTool: Tool = {
           transactionId: transaction.id,
           documentId: params.documentId,
           amount: `${currency} ${Math.abs(Number(transaction.amount)).toFixed(2)}`,
-          date: transaction.date
-            ? new Date(transaction.date).toISOString().split("T")[0]
-            : null,
+          date: transaction.date ? new Date(transaction.date).toISOString().split("T")[0] : null,
           description: transaction.description,
           reference: transaction.reference,
           isReconciled: transaction.isReconciled,

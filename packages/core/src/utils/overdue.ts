@@ -12,24 +12,16 @@ import { OVERDUE_CANDIDATE_STATUSES } from "../config/document-constants";
 
 const OVERDUE_STATUS_SET = new Set<string>(OVERDUE_CANDIDATE_STATUSES);
 
-export function getOverdueInfo(doc: {
-  status: string;
-  dueDate: Date | string | null;
-}): {
+export function getOverdueInfo(doc: { status: string; dueDate: Date | string | null }): {
   isOverdue: boolean;
   daysOverdue: number;
 } {
   const isOverdue =
-    OVERDUE_STATUS_SET.has(doc.status) &&
-    !!doc.dueDate &&
-    new Date(doc.dueDate) < new Date();
+    OVERDUE_STATUS_SET.has(doc.status) && !!doc.dueDate && new Date(doc.dueDate) < new Date();
 
   const daysOverdue =
     isOverdue && doc.dueDate
-      ? Math.floor(
-          (Date.now() - new Date(doc.dueDate).getTime()) /
-            (1000 * 60 * 60 * 24),
-        )
+      ? Math.floor((Date.now() - new Date(doc.dueDate).getTime()) / (1000 * 60 * 60 * 24))
       : 0;
 
   return { isOverdue, daysOverdue };

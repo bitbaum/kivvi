@@ -1,9 +1,6 @@
 import type { Database } from "@kivvi/database";
 import { fetchBusinessSnapshot } from "@kivvi/core";
-import {
-  DEFAULT_LOCALE,
-  DEFAULT_CURRENCY,
-} from "@kivvi/core/src/config/locale";
+import { DEFAULT_LOCALE, DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 
 /**
  * Build a business snapshot string for the AI system prompt.

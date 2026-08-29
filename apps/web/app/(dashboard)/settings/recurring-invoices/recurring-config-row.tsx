@@ -32,10 +32,7 @@ interface RecurringConfigRowProps {
   periodicityLabel: string;
 }
 
-export function RecurringConfigRow({
-  config,
-  periodicityLabel,
-}: RecurringConfigRowProps) {
+export function RecurringConfigRow({ config, periodicityLabel }: RecurringConfigRowProps) {
   const t = useTranslations("settings");
   const tc = useTranslations("common");
   const router = useRouter();
@@ -43,9 +40,7 @@ export function RecurringConfigRow({
   const [isToggling, setIsToggling] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const confirmRef = useRef<HTMLDivElement>(null);
-  useFocusTrap(confirmRef, showDeleteConfirm, () =>
-    setShowDeleteConfirm(false),
-  );
+  useFocusTrap(confirmRef, showDeleteConfirm, () => setShowDeleteConfirm(false));
 
   async function handleDelete() {
     setIsDeleting(true);
@@ -73,11 +68,7 @@ export function RecurringConfigRow({
         isActive: !config.isActive,
       });
       if (result.success) {
-        toast.success(
-          config.isActive
-            ? t("recurring.deactivated")
-            : t("recurring.activated"),
-        );
+        toast.success(config.isActive ? t("recurring.deactivated") : t("recurring.activated"));
         router.refresh();
       } else {
         toast.error(result.error || tc("error"));
@@ -89,8 +80,7 @@ export function RecurringConfigRow({
     }
   }
 
-  const isExpired =
-    config.endDate && config.endDate < new Date().toISOString().split("T")[0];
+  const isExpired = config.endDate && config.endDate < new Date().toISOString().split("T")[0];
 
   return (
     <div className="relative grid grid-cols-[1.5fr_1fr_1fr_1fr_1fr_auto] gap-4 px-6 py-4 text-sm items-center transition-colors hover:bg-muted/50">
@@ -135,10 +125,7 @@ export function RecurringConfigRow({
                 {tc("edit")}
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={handleToggle}
-              disabled={isToggling || !!isExpired}
-            >
+            <DropdownMenuItem onClick={handleToggle} disabled={isToggling || !!isExpired}>
               {config.isActive ? (
                 <>
                   <PowerOff className="mr-2 h-4 w-4" />
@@ -178,10 +165,7 @@ export function RecurringConfigRow({
             className="mx-4 w-full max-w-md rounded-xl border bg-card p-6 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3
-              id={`recurring-delete-title-${config.id}`}
-              className="text-lg font-semibold"
-            >
+            <h3 id={`recurring-delete-title-${config.id}`} className="text-lg font-semibold">
               {tc("delete")}
             </h3>
             <p

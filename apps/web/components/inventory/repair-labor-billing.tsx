@@ -36,8 +36,7 @@ export function RepairLaborBilling({
   } | null>(null);
 
   const hours = new Decimal(totalHours);
-  const amount =
-    hourlyRate && hours.gt(0) ? hours.times(hourlyRate).toFixed(2) : null;
+  const amount = hourlyRate && hours.gt(0) ? hours.times(hourlyRate).toFixed(2) : null;
 
   async function handleCreate() {
     if (!contactId) return;
@@ -64,9 +63,7 @@ export function RepairLaborBilling({
   if (createdInvoice) {
     return (
       <div className="rounded-lg border border-success/30 bg-success/5 p-4 text-sm">
-        <p className="font-medium text-success">
-          {ti("repairLaborInvoiceCreated")}
-        </p>
+        <p className="font-medium text-success">{ti("repairLaborInvoiceCreated")}</p>
         <p className="mt-1 text-muted-foreground">
           {ti("repairLaborInvoiceDraft", { number: createdInvoice.number })}
         </p>
@@ -102,10 +99,7 @@ export function RepairLaborBilling({
           contactType="customer"
         />
         <div>
-          <label
-            htmlFor="repair-hourly-rate"
-            className="mb-1 block text-sm font-medium"
-          >
+          <label htmlFor="repair-hourly-rate" className="mb-1 block text-sm font-medium">
             {ti("hourlyRate")}
           </label>
           <FormInput
@@ -133,11 +127,7 @@ export function RepairLaborBilling({
       )}
 
       <div className="flex justify-end">
-        <Button
-          type="button"
-          onClick={handleCreate}
-          disabled={isCreating || !contactId}
-        >
+        <Button type="button" onClick={handleCreate} disabled={isCreating || !contactId}>
           {isCreating && <Loader2 className="h-4 w-4 animate-spin" />}
           {ti("createRepairLaborInvoice")}
         </Button>

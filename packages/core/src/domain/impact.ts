@@ -24,10 +24,7 @@ import { eq, and, gte, lte, count, inArray, sql, isNotNull } from "drizzle-orm";
 import { inventoryItems, contacts, documents } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
 import { getCo2Factor, CO2_DEFAULT_KG } from "../config/co2-factors";
-import {
-  PIPELINE_ITEM_STATUSES,
-  DISPOSED_ITEM_STATUSES,
-} from "../config/item-status-sets";
+import { PIPELINE_ITEM_STATUSES, DISPOSED_ITEM_STATUSES } from "../config/item-status-sets";
 
 // Default CO2 savings per item when category is unknown (kg)
 // Re-exported from co2-factors SSOT so callers don't need to import from two places.
@@ -140,12 +137,7 @@ export async function getImpactMetrics(
     db
       .select({ category: inventoryItems.category, count: count() })
       .from(inventoryItems)
-      .where(
-        and(
-          ...conditions,
-          inArray(inventoryItems.status, [...DISPOSED_ITEM_STATUSES]),
-        ),
-      )
+      .where(and(...conditions, inArray(inventoryItems.status, [...DISPOSED_ITEM_STATUSES])))
       .groupBy(inventoryItems.category),
     // Items recycled (total only — no CO2 credit for recycling)
     db
@@ -185,10 +177,8 @@ export async function getMonthlyBreakdown(
   options: { startDate?: Date; endDate?: Date } = {},
 ): Promise<MonthlyBreakdown[]> {
   const conditions = [eq(inventoryItems.companyId, companyId)];
-  if (options.startDate)
-    conditions.push(gte(inventoryItems.createdAt, options.startDate));
-  if (options.endDate)
-    conditions.push(lte(inventoryItems.createdAt, options.endDate));
+  if (options.startDate) conditions.push(gte(inventoryItems.createdAt, options.startDate));
+  if (options.endDate) conditions.push(lte(inventoryItems.createdAt, options.endDate));
 
   const [processedRows, reusedRows] = await Promise.all([
     db
@@ -206,12 +196,7 @@ export async function getMonthlyBreakdown(
         count: count(),
       })
       .from(inventoryItems)
-      .where(
-        and(
-          ...conditions,
-          inArray(inventoryItems.status, [...DISPOSED_ITEM_STATUSES]),
-        ),
-      )
+      .where(and(...conditions, inArray(inventoryItems.status, [...DISPOSED_ITEM_STATUSES])))
       .groupBy(sql`to_char(${inventoryItems.createdAt}, 'YYYY-MM')`)
       .orderBy(sql`to_char(${inventoryItems.createdAt}, 'YYYY-MM')`),
   ]);
@@ -255,10 +240,8 @@ export async function getTopDonors(
     eq(inventoryItems.companyId, companyId),
     sql`${inventoryItems.donorContactId} IS NOT NULL`,
   ];
-  if (options.startDate)
-    conditions.push(gte(inventoryItems.createdAt, options.startDate));
-  if (options.endDate)
-    conditions.push(lte(inventoryItems.createdAt, options.endDate));
+  if (options.startDate) conditions.push(gte(inventoryItems.createdAt, options.startDate));
+  if (options.endDate) conditions.push(lte(inventoryItems.createdAt, options.endDate));
 
   const [donatedRows, reusedRows] = await Promise.all([
     db
@@ -279,24 +262,15 @@ export async function getTopDonors(
         count: count(),
       })
       .from(inventoryItems)
-      .where(
-        and(
-          ...conditions,
-          inArray(inventoryItems.status, [...DISPOSED_ITEM_STATUSES]),
-        ),
-      )
+      .where(and(...conditions, inArray(inventoryItems.status, [...DISPOSED_ITEM_STATUSES])))
       .groupBy(inventoryItems.donorContactId),
   ]);
 
-  const reusedByDonor = new Map(
-    reusedRows.map((r) => [r.donorContactId, r.count]),
-  );
+  const reusedByDonor = new Map(reusedRows.map((r) => [r.donorContactId, r.count]));
 
   return donatedRows.map((r, i) => ({
     donorId: r.donorContactId!,
-    donorName: options.anonymize
-      ? `Spender ${i + 1}`
-      : r.donorName || "Unbekannt",
+    donorName: options.anonymize ? `Spender ${i + 1}` : r.donorName || "Unbekannt",
     itemsDonated: r.count,
     itemsReused: reusedByDonor.get(r.donorContactId) || 0,
   }));
@@ -319,10 +293,8 @@ export async function getDestinationBreakdown(
   options: { startDate?: Date; endDate?: Date } = {},
 ): Promise<DestinationBreakdown> {
   const conditions = [eq(inventoryItems.companyId, companyId)];
-  if (options.startDate)
-    conditions.push(gte(inventoryItems.createdAt, options.startDate));
-  if (options.endDate)
-    conditions.push(lte(inventoryItems.createdAt, options.endDate));
+  if (options.startDate) conditions.push(gte(inventoryItems.createdAt, options.startDate));
+  if (options.endDate) conditions.push(lte(inventoryItems.createdAt, options.endDate));
 
   const rows = await db
     .select({ status: inventoryItems.status, count: count() })
@@ -384,25 +356,14 @@ export async function getCycleTimeMetrics(
       days: sql<number>`EXTRACT(EPOCH FROM (${inventoryItems.updatedAt} - ${inventoryItems.createdAt})) / 86400`,
     })
     .from(inventoryItems)
-    .where(
-      and(
-        eq(inventoryItems.companyId, companyId),
-        eq(inventoryItems.status, "donated"),
-      ),
-    );
+    .where(and(eq(inventoryItems.companyId, companyId), eq(inventoryItems.status, "donated")));
 
-  const soldDays = soldRows
-    .map((r) => Number(r.days))
-    .filter((d) => d >= 0 && d < 3650);
-  const donatedDays = donatedRows
-    .map((r) => Number(r.days))
-    .filter((d) => d >= 0 && d < 3650);
+  const soldDays = soldRows.map((r) => Number(r.days)).filter((d) => d >= 0 && d < 3650);
+  const donatedDays = donatedRows.map((r) => Number(r.days)).filter((d) => d >= 0 && d < 3650);
   const allDays = [...soldDays, ...donatedDays];
 
   const avg = (arr: number[]) =>
-    arr.length > 0
-      ? Math.round(arr.reduce((a, b) => a + b, 0) / arr.length)
-      : null;
+    arr.length > 0 ? Math.round(arr.reduce((a, b) => a + b, 0) / arr.length) : null;
 
   return {
     avgDaysToSell: avg(soldDays),
@@ -454,8 +415,5 @@ export async function getStatusDwellMetrics(
       avgDays: Number(r.avgDays),
       maxDays: Number(r.maxDays),
     }))
-    .sort(
-      (a, b) =>
-        order.indexOf(a.status as never) - order.indexOf(b.status as never),
-    );
+    .sort((a, b) => order.indexOf(a.status as never) - order.indexOf(b.status as never));
 }

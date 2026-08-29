@@ -7,9 +7,7 @@ import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 const recordRepairPartSchema = z.object({
   item_identifier: z
     .string()
-    .describe(
-      "Item number (e.g. IT-00042) or item UUID. Use search_inventory first if unsure.",
-    ),
+    .describe("Item number (e.g. IT-00042) or item UUID. Use search_inventory first if unsure."),
   description: z
     .string()
     .min(1)
@@ -18,12 +16,7 @@ const recordRepairPartSchema = z.object({
       "Name or description of the part used (e.g. 'Battery 5000mAh', 'Replacement screen', 'Power adapter')",
     ),
   unit_cost: z.number().min(0).describe("Cost per unit in CHF"),
-  quantity: z
-    .number()
-    .min(0.0001)
-    .optional()
-    .default(1)
-    .describe("Quantity used (defaults to 1)"),
+  quantity: z.number().min(0.0001).optional().default(1).describe("Quantity used (defaults to 1)"),
   notes: z
     .string()
     .max(500)
@@ -46,15 +39,10 @@ Examples:
     context: ExecutionContext,
   ): Promise<ToolResult> => {
     try {
-      const { addRepairPart } =
-        await import("@kivvi/core/src/domain/inventory-items");
+      const { addRepairPart } = await import("@kivvi/core/src/domain/inventory-items");
       const db = getDb(context);
 
-      const item = await resolveInventoryItem(
-        db,
-        context.companyId,
-        params.item_identifier,
-      );
+      const item = await resolveInventoryItem(db, context.companyId, params.item_identifier);
       if (!item) {
         return {
           success: false,
@@ -71,9 +59,7 @@ Examples:
       });
 
       const currency = context.defaultCurrency ?? DEFAULT_CURRENCY;
-      const lineTotal = new Decimal(quantity)
-        .times(new Decimal(params.unit_cost))
-        .toFixed(2);
+      const lineTotal = new Decimal(quantity).times(new Decimal(params.unit_cost)).toFixed(2);
       const qtyNote = quantity !== 1 ? `${quantity}× ` : "";
 
       return {

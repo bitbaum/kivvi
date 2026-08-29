@@ -16,8 +16,7 @@ export function DuplicateGroup({
 }) {
   const tDQ = useTranslations("dataQuality");
   const [primaryId, setPrimaryId] = useState(
-    group.contacts.reduce((a, b) => (b.documentCount > a.documentCount ? b : a))
-      .id,
+    group.contacts.reduce((a, b) => (b.documentCount > a.documentCount ? b : a)).id,
   );
   const [merging, setMerging] = useState(false);
 
@@ -25,9 +24,7 @@ export function DuplicateGroup({
     setMerging(true);
     const result = await mergeContactsAction(primaryId, duplicateId);
     if (result.success && result.data) {
-      toast.success(
-        tDQ("mergeSuccess", { count: result.data.documentsReassigned }),
-      );
+      toast.success(tDQ("mergeSuccess", { count: result.data.documentsReassigned }));
       onMerged();
     } else {
       toast.error(result.error);
@@ -61,8 +58,7 @@ export function DuplicateGroup({
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{c.name}</p>
                 <p className="text-xs text-muted-foreground">
-                  {c.contactNumber ?? "–"} · {c.type} ·{" "}
-                  {c.email ?? tDQ("noEmail")} ·{" "}
+                  {c.contactNumber ?? "–"} · {c.type} · {c.email ?? tDQ("noEmail")} ·{" "}
                   {tDQ("docCount", { count: c.documentCount })}
                 </p>
               </div>

@@ -34,29 +34,18 @@ const intakeInventoryItemSchema = z.object({
   category: z
     .string()
     .optional()
-    .describe(
-      'Item category (e.g. "laptop", "monitor", "desktop", "phone", "printer")',
-    ),
-  serial_number: z
-    .string()
-    .optional()
-    .describe("Serial number if known (only for single items)"),
+    .describe('Item category (e.g. "laptop", "monitor", "desktop", "phone", "printer")'),
+  serial_number: z.string().optional().describe("Serial number if known (only for single items)"),
   estimated_value: z
     .number()
     .nonnegative()
     .optional()
     .describe("Estimated acquisition/replacement value in CHF"),
-  asking_price: z
-    .number()
-    .nonnegative()
-    .optional()
-    .describe("Desired sale price in CHF"),
+  asking_price: z.number().nonnegative().optional().describe("Desired sale price in CHF"),
   location: z
     .string()
     .optional()
-    .describe(
-      'Physical shelf/bin location within the warehouse (e.g. "A3-B2", "Regal 5")',
-    ),
+    .describe('Physical shelf/bin location within the warehouse (e.g. "A3-B2", "Regal 5")'),
   notes: z.string().optional().describe("Any additional notes about the item"),
 });
 
@@ -76,8 +65,7 @@ Examples:
     context: ExecutionContext,
   ): Promise<ToolResult> => {
     try {
-      const { createInventoryItem } =
-        await import("@kivvi/core/src/domain/inventory-items");
+      const { createInventoryItem } = await import("@kivvi/core/src/domain/inventory-items");
       const { contacts } = await import("@kivvi/database");
       const db = getDb(context);
 
@@ -103,8 +91,7 @@ Examples:
       }
 
       const qty = params.quantity ?? 1;
-      const serialOnlyForSingle =
-        qty === 1 ? (params.serial_number ?? null) : null;
+      const serialOnlyForSingle = qty === 1 ? (params.serial_number ?? null) : null;
 
       const created = [];
       for (let i = 0; i < qty; i++) {
@@ -113,9 +100,7 @@ Examples:
           condition: params.condition ?? "untested",
           category: params.category ?? null,
           donorContactId,
-          estimatedValue: params.estimated_value
-            ? String(params.estimated_value)
-            : null,
+          estimatedValue: params.estimated_value ? String(params.estimated_value) : null,
           askingPrice: params.asking_price ? String(params.asking_price) : null,
           location: params.location ?? null,
           notes: params.notes ?? null,
@@ -127,17 +112,14 @@ Examples:
       const currency = context.defaultCurrency ?? "CHF";
       const donorNote = donorName ? ` from ${donorName}` : "";
       const conditionNote =
-        params.condition && params.condition !== "untested"
-          ? `, ${params.condition}`
-          : "";
+        params.condition && params.condition !== "untested" ? `, ${params.condition}` : "";
       const priceNote = params.asking_price
         ? `, ${currency} ${params.asking_price.toFixed(2)} asking`
         : "";
 
       const firstNumber = created[0].itemNumber;
       const lastNumber = created[qty - 1].itemNumber;
-      const rangeLabel =
-        qty === 1 ? firstNumber : `${firstNumber}–${lastNumber}`;
+      const rangeLabel = qty === 1 ? firstNumber : `${firstNumber}–${lastNumber}`;
 
       return {
         success: true,
@@ -163,10 +145,7 @@ Examples:
             label: qty === 1 ? `View ${firstNumber}` : "View Intake Queue",
             action: "navigate",
             params: {
-              url:
-                qty === 1
-                  ? `/intake/items/${created[0].id}`
-                  : "/intake/items?status=intake",
+              url: qty === 1 ? `/intake/items/${created[0].id}` : "/intake/items?status=intake",
             },
             variant: "primary",
           },

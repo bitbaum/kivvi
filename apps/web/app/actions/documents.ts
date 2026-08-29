@@ -35,12 +35,7 @@ import {
   type PaymentConfirmationEmailStrings,
 } from "@kivvi/core/src/domain/email";
 import { escapeHtml } from "@kivvi/core/src/utils/html";
-import {
-  type ActionResult,
-  requireRole,
-  safeErrorMessage,
-  formatZodError,
-} from "./utils";
+import { type ActionResult, requireRole, safeErrorMessage, formatZodError } from "./utils";
 import { createAction } from "./action-factory";
 import { revalidateDocumentPaths } from "./utils/revalidate-documents";
 import { getTransporter, getFromEmail } from "@/lib/email/transporter";
@@ -49,15 +44,8 @@ import { logger } from "@/lib/logger";
 import { getTranslations } from "next-intl/server";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
-import {
-  AMOUNT_REGEX,
-  DATE_REGEX,
-} from "@kivvi/core/src/utils/validation-patterns";
-import {
-  createTalerOrder,
-  getTalerOrderStatus,
-  talerTimestampToDate,
-} from "@/lib/taler-client";
+import { AMOUNT_REGEX, DATE_REGEX } from "@kivvi/core/src/utils/validation-patterns";
+import { createTalerOrder, getTalerOrderStatus, talerTimestampToDate } from "@/lib/taler-client";
 import { decryptIntegrationSecret } from "@/lib/integration-secrets";
 
 // ============================================================================
@@ -82,10 +70,7 @@ const convertSchema = z.object({
 function sanitizeTalerError(error: unknown): string {
   if (!(error instanceof Error)) return "GNU Taler request failed";
   if (error.name === "AbortError") return "GNU Taler request timed out";
-  return error.message.replace(
-    /secret-token:[^\s"]+/g,
-    "secret-token:[redacted]",
-  );
+  return error.message.replace(/secret-token:[^\s"]+/g, "secret-token:[redacted]");
 }
 
 function buildKivviOrderId(documentId: string) {
@@ -100,12 +85,7 @@ async function loadTalerConfig(companyId: string) {
   const settings = (company?.settings as CompanySettings) ?? {};
   const config = settings.taler;
 
-  if (
-    !config?.enabled ||
-    !config.merchantBackendUrl ||
-    !config.accessToken ||
-    !config.instance
-  ) {
+  if (!config?.enabled || !config.merchantBackendUrl || !config.accessToken || !config.instance) {
     throw new Error("GNU Taler is not configured.");
   }
 
@@ -209,8 +189,7 @@ export const deleteDocumentAction = createAction<string, void>({
     const doc = await deleteDocument(db, companyId, documentId);
     revalidateDocumentPaths(doc.type);
   },
-  errorMessage: () =>
-    getTranslations("documents").then((t) => t("errorFailedToDelete")),
+  errorMessage: () => getTranslations("documents").then((t) => t("errorFailedToDelete")),
   minRole: "member",
   translateDomainErrors: true,
 });
@@ -244,11 +223,8 @@ export async function updateDocumentStatusAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(
-        error,
-        t("errorFailedToUpdateStatus"),
-        (code, params) =>
-          tDomain(code as Parameters<typeof tDomain>[0], params),
+      error: safeErrorMessage(error, t("errorFailedToUpdateStatus"), (code, params) =>
+        tDomain(code as Parameters<typeof tDomain>[0], params),
       ),
     };
   }
@@ -284,10 +260,7 @@ export async function recordPaymentAction(
         const doc = await getDocument(db, companyId, documentId);
         const contactEmail = doc?.contact?.email;
         if (doc && contactEmail) {
-          const [company] = await db
-            .select()
-            .from(companies)
-            .where(eq(companies.id, companyId));
+          const [company] = await db.select().from(companies).where(eq(companies.id, companyId));
           const companyName = company?.name || "Kivvi";
           const settings = (company?.settings as CompanySettings) ?? {};
           const plan = settings.plan || "free";
@@ -304,10 +277,7 @@ export async function recordPaymentAction(
           };
 
           const tDoc = await getTranslations("documents");
-          const formattedAmount = formatCurrency(
-            emailData.amount,
-            emailData.currency,
-          );
+          const formattedAmount = formatCurrency(emailData.amount, emailData.currency);
           const formattedPaymentDate = formatDate(emailData.paymentDate);
 
           const confirmStrings: PaymentConfirmationEmailStrings = {
@@ -325,27 +295,20 @@ export async function recordPaymentAction(
             footerAuto: tDoc("emailFooterAuto", {
               companyName: escapeHtml(companyName),
             }),
-            footerBranding:
-              plan !== "premium" ? tDoc("emailFooterBranding") : undefined,
+            footerBranding: plan !== "premium" ? tDoc("emailFooterBranding") : undefined,
           };
 
           const transporter = getTransporter();
           await transporter.sendMail({
             from: `${companyName} <${getFromEmail()}>`,
             to: contactEmail,
-            subject: buildPaymentConfirmationEmailSubject(
-              emailData,
-              confirmStrings,
-            ),
+            subject: buildPaymentConfirmationEmailSubject(emailData, confirmStrings),
             html: buildPaymentConfirmationEmailHtml(emailData, confirmStrings),
           });
         }
       } catch (emailError) {
         // Email failure must not roll back a successful payment
-        logger.warn(
-          "[recordPaymentAction] Payment confirmation email failed",
-          emailError,
-        );
+        logger.warn("[recordPaymentAction] Payment confirmation email failed", emailError);
       }
     }
 
@@ -354,11 +317,8 @@ export async function recordPaymentAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(
-        error,
-        t("errorFailedToRecordPayment"),
-        (code, params) =>
-          tDomain(code as Parameters<typeof tDomain>[0], params),
+      error: safeErrorMessage(error, t("errorFailedToRecordPayment"), (code, params) =>
+        tDomain(code as Parameters<typeof tDomain>[0], params),
       ),
     };
   }
@@ -382,18 +342,11 @@ export async function createTalerPaymentOrderAction(
     const existing = await db
       .select()
       .from(talerOrders)
-      .where(
-        and(
-          eq(talerOrders.companyId, companyId),
-          eq(talerOrders.documentId, documentId),
-        ),
-      )
+      .where(and(eq(talerOrders.companyId, companyId), eq(talerOrders.documentId, documentId)))
       .orderBy(desc(talerOrders.createdAt))
       .limit(1);
 
-    const active = existing.find((order) =>
-      ["unpaid", "claimed"].includes(order.status),
-    );
+    const active = existing.find((order) => ["unpaid", "claimed"].includes(order.status));
     if (active) {
       return {
         success: true,
@@ -406,10 +359,7 @@ export async function createTalerPaymentOrderAction(
 
     const outstanding = doc.payments?.length
       ? new Decimal(doc.total || "0").minus(
-          doc.payments.reduce(
-            (sum, payment) => sum.plus(payment.amount || "0"),
-            new Decimal(0),
-          ),
+          doc.payments.reduce((sum, payment) => sum.plus(payment.amount || "0"), new Decimal(0)),
         )
       : new Decimal(doc.total || "0");
     if (outstanding.lte(0)) {
@@ -453,9 +403,7 @@ export async function createTalerPaymentOrderAction(
           result.status.pay_deadline || result.response.pay_deadline,
         ),
         paidAt:
-          status === "paid"
-            ? talerTimestampToDate(result.status.last_payment) || new Date()
-            : null,
+          status === "paid" ? talerTimestampToDate(result.status.last_payment) || new Date() : null,
         lastCheckedAt: new Date(),
         raw: { create: result.response, status: result.status },
       })
@@ -485,12 +433,7 @@ export async function refreshTalerPaymentOrderAction(
     const [order] = await db
       .select()
       .from(talerOrders)
-      .where(
-        and(
-          eq(talerOrders.id, talerOrderId),
-          eq(talerOrders.companyId, companyId),
-        ),
-      )
+      .where(and(eq(talerOrders.id, talerOrderId), eq(talerOrders.companyId, companyId)))
       .limit(1);
 
     if (!order) return { success: false, error: "GNU Taler order not found." };
@@ -499,9 +442,7 @@ export async function refreshTalerPaymentOrderAction(
     const statusResponse = await getTalerOrderStatus(config, order.orderId);
     const status = talerStatus(statusResponse);
     const paidAt =
-      status === "paid"
-        ? talerTimestampToDate(statusResponse.last_payment) || new Date()
-        : null;
+      status === "paid" ? talerTimestampToDate(statusResponse.last_payment) || new Date() : null;
 
     await db
       .update(talerOrders)
@@ -509,9 +450,7 @@ export async function refreshTalerPaymentOrderAction(
         status,
         talerPayUri: statusResponse.taler_pay_uri || order.talerPayUri,
         orderStatusUrl: statusResponse.order_status_url || order.orderStatusUrl,
-        payDeadline:
-          talerTimestampToDate(statusResponse.pay_deadline) ||
-          order.payDeadline,
+        payDeadline: talerTimestampToDate(statusResponse.pay_deadline) || order.payDeadline,
         paidAt,
         lastCheckedAt: new Date(),
         lastError: null,
@@ -532,10 +471,7 @@ export async function refreshTalerPaymentOrderAction(
             new Decimal(0),
           ),
         );
-        const amountToRecord = Decimal.min(
-          outstanding,
-          new Decimal(order.amount),
-        );
+        const amountToRecord = Decimal.min(outstanding, new Decimal(order.amount));
         if (amountToRecord.gt(0)) {
           await recordPayment(db, companyId, order.documentId, {
             amount: amountToRecord.toFixed(2),
@@ -560,12 +496,7 @@ export async function refreshTalerPaymentOrderAction(
           lastError: sanitizeTalerError(error),
           updatedAt: new Date(),
         })
-        .where(
-          and(
-            eq(talerOrders.id, talerOrderId),
-            eq(talerOrders.companyId, companyId),
-          ),
-        );
+        .where(and(eq(talerOrders.id, talerOrderId), eq(talerOrders.companyId, companyId)));
     } catch {
       // Keep original response.
     }
@@ -603,11 +534,8 @@ export async function convertDocumentAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(
-        error,
-        t("errorFailedToConvert"),
-        (code, params) =>
-          tDomain(code as Parameters<typeof tDomain>[0], params),
+      error: safeErrorMessage(error, t("errorFailedToConvert"), (code, params) =>
+        tDomain(code as Parameters<typeof tDomain>[0], params),
       ),
     };
   }
@@ -618,17 +546,11 @@ export const duplicateDocumentAction = createAction<
   { id: string; number: string; type: string }
 >({
   handler: async (sourceDocumentId, { companyId, userId, db }) => {
-    const doc = await duplicateDocument(
-      db,
-      companyId,
-      userId,
-      sourceDocumentId,
-    );
+    const doc = await duplicateDocument(db, companyId, userId, sourceDocumentId);
     revalidateDocumentPaths(doc.type, doc.id);
     return { id: doc.id, number: doc.number, type: doc.type };
   },
-  errorMessage: () =>
-    getTranslations("documents").then((t) => t("errorFailedToDuplicate")),
+  errorMessage: () => getTranslations("documents").then((t) => t("errorFailedToDuplicate")),
   minRole: "member",
 });
 
@@ -663,7 +585,6 @@ export const searchDocumentsAction = createAction<
       contact: doc.contact || null,
     }));
   },
-  errorMessage: () =>
-    getTranslations("documents").then((t) => t("errorFailedToSearch")),
+  errorMessage: () => getTranslations("documents").then((t) => t("errorFailedToSearch")),
   minRole: "member",
 });

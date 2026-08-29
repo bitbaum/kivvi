@@ -24,22 +24,14 @@ describe("reconcileOpenItems", () => {
 describe("accountSignedDelta", () => {
   it("assets/expenses are debit-normal (debit − credit)", () => {
     expect(isDebitNormalAccount("asset")).toBe(true);
-    expect(accountSignedDelta("asset", "100.00", "40.00").toFixed(2)).toBe(
-      "60.00",
-    );
-    expect(accountSignedDelta("expense", "0", "10.00").toFixed(2)).toBe(
-      "-10.00",
-    );
+    expect(accountSignedDelta("asset", "100.00", "40.00").toFixed(2)).toBe("60.00");
+    expect(accountSignedDelta("expense", "0", "10.00").toFixed(2)).toBe("-10.00");
   });
 
   it("liabilities/equity/revenue are credit-normal (credit − debit)", () => {
     expect(isDebitNormalAccount("liability")).toBe(false);
-    expect(accountSignedDelta("liability", "40.00", "100.00").toFixed(2)).toBe(
-      "60.00",
-    );
-    expect(accountSignedDelta("revenue", "0", "250.00").toFixed(2)).toBe(
-      "250.00",
-    );
+    expect(accountSignedDelta("liability", "40.00", "100.00").toFixed(2)).toBe("60.00");
+    expect(accountSignedDelta("revenue", "0", "250.00").toFixed(2)).toBe("250.00");
   });
 });
 

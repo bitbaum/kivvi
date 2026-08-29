@@ -1,15 +1,7 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
-import {
-  authenticateApi,
-  apiError,
-  apiSuccess,
-  apiZodError,
-} from "@/lib/api-handler";
-import {
-  applySubsidy,
-  applySubsidySchema,
-} from "@kivvi/core/src/domain/repairs";
+import { authenticateApi, apiError, apiSuccess, apiZodError } from "@/lib/api-handler";
+import { applySubsidy, applySubsidySchema } from "@kivvi/core/src/domain/repairs";
 
 const bodySchema = applySubsidySchema.omit({ documentId: true });
 
@@ -18,10 +10,7 @@ const bodySchema = applySubsidySchema.omit({ documentId: true });
  * Validate a subsidy code (program/category/cap) and record a subsidyClaims row.
  * An ineligible code is recorded `rejected` — the repair still bills full price.
  */
-export async function POST(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const ctx = await authenticateApi(request, "member");
   if (ctx instanceof Response) return ctx;
 
@@ -37,8 +26,7 @@ export async function POST(
     });
     return apiSuccess(result);
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to apply subsidy";
+    const message = error instanceof Error ? error.message : "Failed to apply subsidy";
     return apiError(message, 400);
   }
 }

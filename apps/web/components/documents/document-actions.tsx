@@ -4,14 +4,8 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ArrowRightLeft } from "lucide-react";
-import {
-  updateDocumentStatusAction,
-  convertDocumentAction,
-} from "@/app/actions/documents";
-import type {
-  DocumentTypeConfig,
-  StatusAction,
-} from "@/lib/config/document-types";
+import { updateDocumentStatusAction, convertDocumentAction } from "@/app/actions/documents";
+import type { DocumentTypeConfig, StatusAction } from "@/lib/config/document-types";
 import type { DocumentStatus, DocumentType } from "@kivvi/database";
 import { DOCUMENT_TYPES } from "@/lib/config/document-types";
 import { cn } from "@/lib/utils";

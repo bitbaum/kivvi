@@ -11,13 +11,7 @@ interface ChatInputProps {
   inputRef?: React.RefObject<HTMLInputElement>;
 }
 
-export function ChatInput({
-  input,
-  setInput,
-  onSubmit,
-  isLoading,
-  inputRef,
-}: ChatInputProps) {
+export function ChatInput({ input, setInput, onSubmit, isLoading, inputRef }: ChatInputProps) {
   const t = useTranslations("chat");
 
   return (
@@ -37,11 +31,7 @@ export function ChatInput({
         className="flex items-center justify-center rounded-lg bg-primary min-h-[44px] min-w-[44px] text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
         aria-label={t("sendMessage")}
       >
-        {isLoading ? (
-          <Loader2 className="h-5 w-5 animate-spin" />
-        ) : (
-          <Send className="h-5 w-5" />
-        )}
+        {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
       </button>
     </form>
   );

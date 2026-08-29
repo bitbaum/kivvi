@@ -16,11 +16,7 @@ interface DocumentContactDatesCardProps {
   onConsignmentRateChange: (v: string) => void;
   contactId: string | undefined | null;
   contactName: string | undefined;
-  onContactChange: (
-    id: string | null,
-    name: string,
-    paymentTermsDays?: number | null,
-  ) => void;
+  onContactChange: (id: string | null, name: string, paymentTermsDays?: number | null) => void;
   contactFilter?: string;
   issueDate: string;
   onIssueDateChange: (v: string) => void;
@@ -62,9 +58,7 @@ export function DocumentContactDatesCard({
       {/* Intake source selector */}
       {isIntake && (
         <div>
-          <label className="block text-sm font-medium">
-            {t("intakeSource")}
-          </label>
+          <label className="block text-sm font-medium">{t("intakeSource")}</label>
           <FormSelect
             className="mt-1"
             value={intakeSource}
@@ -91,10 +85,7 @@ export function DocumentContactDatesCard({
 
       {isIntake && intakeSource === "consignment" && (
         <div>
-          <label
-            htmlFor="consignmentRate"
-            className="block text-sm font-medium"
-          >
+          <label htmlFor="consignmentRate" className="block text-sm font-medium">
             {t("consignmentRate")}
           </label>
           <div className="relative mt-1">
@@ -113,9 +104,7 @@ export function DocumentContactDatesCard({
               %
             </span>
           </div>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {t("consignmentRateHint")}
-          </p>
+          <p className="mt-1 text-xs text-muted-foreground">{t("consignmentRateHint")}</p>
         </div>
       )}
 
@@ -158,9 +147,7 @@ export function DocumentContactDatesCard({
               className="mt-1"
             />
             {dueDate && issueDate && dueDate < issueDate && (
-              <p className="mt-1 text-xs text-warning">
-                {t("dueDateBeforeIssueDate")}
-              </p>
+              <p className="mt-1 text-xs text-warning">{t("dueDateBeforeIssueDate")}</p>
             )}
           </div>
         )}

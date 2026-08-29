@@ -13,12 +13,7 @@ interface PaginationProps {
   };
 }
 
-export function Pagination({
-  page,
-  totalPages,
-  buildHref,
-  labels,
-}: PaginationProps) {
+export function Pagination({ page, totalPages, buildHref, labels }: PaginationProps) {
   if (totalPages <= 1) return null;
 
   return (

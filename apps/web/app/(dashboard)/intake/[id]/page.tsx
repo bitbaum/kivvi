@@ -32,8 +32,7 @@ export default async function IntakeDetailPage({ params }: PageProps) {
   if (!doc || doc.type !== "intake") notFound();
 
   const ti = await getTranslations("inventory");
-  const isConfirmed =
-    doc.status !== STATUS.DRAFT && doc.status !== STATUS.CANCELLED;
+  const isConfirmed = doc.status !== STATUS.DRAFT && doc.status !== STATUS.CANCELLED;
 
   // Fetch all linked items (intake batches are bounded in size)
   const linkedItems = isConfirmed
@@ -48,8 +47,7 @@ export default async function IntakeDetailPage({ params }: PageProps) {
   const hasItems = (linkedItems?.total ?? 0) > 0;
 
   const draftItemCount = doc.items.reduce(
-    (sum, item) =>
-      sum + Math.max(1, Math.floor(parseFloat(item.quantity || "1"))),
+    (sum, item) => sum + Math.max(1, Math.floor(parseFloat(item.quantity || "1"))),
     0,
   );
 
@@ -79,9 +77,7 @@ export default async function IntakeDetailPage({ params }: PageProps) {
             <h3 className="text-sm font-medium text-muted-foreground">
               {ti("itemsTitle")}
               {hasItems && (
-                <span className="ml-2 text-foreground font-semibold">
-                  ({linkedItems?.total})
-                </span>
+                <span className="ml-2 text-foreground font-semibold">({linkedItems?.total})</span>
               )}
             </h3>
             <div className="flex gap-2">
@@ -114,9 +110,7 @@ export default async function IntakeDetailPage({ params }: PageProps) {
           {!hasItems ? (
             <div className="flex flex-col items-center gap-3 py-8 text-center">
               <Package className="h-8 w-8 text-muted-foreground/30" />
-              <p className="text-sm text-muted-foreground">
-                {ti("noItemsFound")}
-              </p>
+              <p className="text-sm text-muted-foreground">{ti("noItemsFound")}</p>
               <Link
                 href={`/intake/quick?intakeDocumentId=${id}`}
                 className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
@@ -129,17 +123,11 @@ export default async function IntakeDetailPage({ params }: PageProps) {
             <div className="divide-y rounded-lg border">
               {linkedItems?.data.map((item) => {
                 const cd = item.checklistData as ChecklistData | null;
-                let qcProgress:
-                  | { done: number; total: number; signedOff: boolean }
-                  | undefined;
+                let qcProgress: { done: number; total: number; signedOff: boolean } | undefined;
                 if (cd?.completions?.length && item.category) {
                   const template = getChecklistTemplate(item.category);
-                  const requiredTotal = template.checks.filter(
-                    (c) => c.required,
-                  ).length;
-                  const done = cd.completions.filter(
-                    (c) => c.result === "pass",
-                  ).length;
+                  const requiredTotal = template.checks.filter((c) => c.required).length;
+                  const done = cd.completions.filter((c) => c.result === "pass").length;
                   qcProgress = {
                     done,
                     total: requiredTotal,
@@ -171,13 +159,9 @@ export default async function IntakeDetailPage({ params }: PageProps) {
 
                     {/* Description + number */}
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium truncate">
-                        {item.description}
-                      </div>
+                      <div className="text-sm font-medium truncate">{item.description}</div>
                       <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className="text-xs text-muted-foreground">
-                          {item.itemNumber}
-                        </span>
+                        <span className="text-xs text-muted-foreground">{item.itemNumber}</span>
                         {qcProgress && (
                           <span
                             className={cn(
@@ -217,9 +201,7 @@ export default async function IntakeDetailPage({ params }: PageProps) {
 
                     {/* Price */}
                     <div className="shrink-0 w-20 text-right text-sm tabular-nums text-muted-foreground">
-                      {item.askingPrice
-                        ? formatCurrency(item.askingPrice)
-                        : "—"}
+                      {item.askingPrice ? formatCurrency(item.askingPrice) : "—"}
                     </div>
                   </Link>
                 );

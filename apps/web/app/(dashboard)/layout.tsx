@@ -10,11 +10,7 @@ import { ChatWidgetProvider } from "@/hooks/use-chat-widget";
 import { ChatWidget } from "@/components/chat-widget/chat-widget";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showShortcutsHelp, setShowShortcutsHelp] = useState(false);
   const [showCommandPalette, setShowCommandPalette] = useState(false);
@@ -99,11 +95,7 @@ export default function DashboardLayout({
             onMenuClick={() => setSidebarOpen(true)}
             onCommandPalette={() => setShowCommandPalette(true)}
           />
-          <main
-            id="main-content"
-            className="flex-1 overflow-y-auto"
-            role="main"
-          >
+          <main id="main-content" className="flex-1 overflow-y-auto" role="main">
             <a
               href="#main-content"
               className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground"
@@ -113,17 +105,12 @@ export default function DashboardLayout({
             {/* Cap content at --shell-max (1440px) and let it center on
                 wide displays. Without this, dashboard tables stretch to
                 the full window width on 4K monitors. */}
-            <div className="mx-auto w-full max-w-shell p-4 pb-24 sm:p-6 sm:pb-6">
-              {children}
-            </div>
+            <div className="mx-auto w-full max-w-shell p-4 pb-24 sm:p-6 sm:pb-6">{children}</div>
           </main>
         </div>
 
         {/* Command Palette */}
-        <CommandPalette
-          isOpen={showCommandPalette}
-          onClose={() => setShowCommandPalette(false)}
-        />
+        <CommandPalette isOpen={showCommandPalette} onClose={() => setShowCommandPalette(false)} />
 
         {/* Keyboard Shortcuts Help Modal */}
         <KeyboardShortcutsHelp

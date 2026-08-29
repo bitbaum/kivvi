@@ -50,10 +50,7 @@ export function SendReceiptButton({ intakeId }: Props) {
         {sending ? ti("donationReceiptSending") : ti("sendDonationReceipt")}
       </button>
       {error && (
-        <p
-          role="alert"
-          className="text-sm text-destructive max-w-48 text-right"
-        >
+        <p role="alert" className="text-sm text-destructive max-w-48 text-right">
           {error}
         </p>
       )}

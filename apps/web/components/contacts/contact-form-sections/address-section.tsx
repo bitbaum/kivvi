@@ -39,10 +39,7 @@ export function ContactFormAddressSection({ contact, isEdit, assist }: SectionPr
           />
         </div>
         <div>
-          <label
-            htmlFor="postalCode"
-            className="mb-1.5 block text-sm font-medium"
-          >
+          <label htmlFor="postalCode" className="mb-1.5 block text-sm font-medium">
             {t("postalCode")}
           </label>
           <FormInput
@@ -71,11 +68,7 @@ export function ContactFormAddressSection({ contact, isEdit, assist }: SectionPr
           <label htmlFor="country" className="mb-1.5 block text-sm font-medium">
             {t("country")}
           </label>
-          <FormSelect
-            id="country"
-            name="country"
-            {...bindField(assist, "country")}
-          >
+          <FormSelect id="country" name="country" {...bindField(assist, "country")}>
             {COUNTRY_OPTIONS.map((c) => (
               <option key={c} value={c}>
                 {tc(`countries.${c.toLowerCase()}`)}

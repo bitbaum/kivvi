@@ -50,11 +50,7 @@ export const updateDocumentStatusTool: Tool = {
       const db = getDb(context);
 
       // Get the document before update to capture previous status
-      const docBefore = await getDocument(
-        db,
-        context.companyId,
-        params.documentId,
-      );
+      const docBefore = await getDocument(db, context.companyId, params.documentId);
 
       if (!docBefore) {
         return {

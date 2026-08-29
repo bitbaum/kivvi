@@ -25,10 +25,8 @@ function selectBuilder(rows: unknown[]) {
     innerJoin: () => b,
     leftJoin: () => b,
     limit: () => b,
-    then: (
-      resolve: (v: unknown[]) => unknown,
-      reject?: (e: unknown) => unknown,
-    ) => Promise.resolve(rows).then(resolve, reject),
+    then: (resolve: (v: unknown[]) => unknown, reject?: (e: unknown) => unknown) =>
+      Promise.resolve(rows).then(resolve, reject),
   };
   return b;
 }
@@ -61,8 +59,7 @@ function makeDb(outerReads: unknown[][], txReads: unknown[][]) {
             stockLevelInserts.push({ values: v });
             return undefined;
           },
-          then: (resolve: (x: unknown) => unknown) =>
-            Promise.resolve(undefined).then(resolve),
+          then: (resolve: (x: unknown) => unknown) => Promise.resolve(undefined).then(resolve),
         }),
       }),
       update: () => ({
@@ -109,11 +106,7 @@ describe("transferStock", () => {
       ],
     );
 
-    const { outMovement, inMovement } = await transferStock(
-      db,
-      COMPANY_ID,
-      baseInput,
-    );
+    const { outMovement, inMovement } = await transferStock(db, COMPANY_ID, baseInput);
 
     expect(ranTransaction()).toBe(true);
     // Outbound is negative, inbound positive, both typed "transfer".
@@ -130,8 +123,7 @@ describe("transferStock", () => {
     // Exactly two movements; they sum to zero (stock conserved).
     expect(movementInserts).toHaveLength(2);
     const sum =
-      Number(movementInserts[0].values.quantity) +
-      Number(movementInserts[1].values.quantity);
+      Number(movementInserts[0].values.quantity) + Number(movementInserts[1].values.quantity);
     expect(sum).toBe(0);
     // Destination stock level upserted once.
     expect(stockLevelInserts).toHaveLength(1);
@@ -148,9 +140,7 @@ describe("transferStock", () => {
       [[{ quantity: "20" }], [{ total: "20" }]],
     );
     await transferStock(db, COMPANY_ID, baseInput);
-    expect(movementInserts[0].values.reference).toBe(
-      "Transfer: Hauptlager → Aussenlager",
-    );
+    expect(movementInserts[0].values.reference).toBe("Transfer: Hauptlager → Aussenlager");
   });
 
   it("refuses a transfer where source and destination are the same warehouse", async () => {
@@ -187,13 +177,8 @@ describe("transferStock", () => {
   });
 
   it("throws when the product does not exist", async () => {
-    const { db } = makeDb(
-      [[WH(FROM_WH, "Hauptlager")], [WH(TO_WH, "Aussenlager")], []],
-      [],
-    );
-    await expect(transferStock(db, COMPANY_ID, baseInput)).rejects.toThrow(
-      "Product not found",
-    );
+    const { db } = makeDb([[WH(FROM_WH, "Hauptlager")], [WH(TO_WH, "Aussenlager")], []], []);
+    await expect(transferStock(db, COMPANY_ID, baseInput)).rejects.toThrow("Product not found");
   });
 
   it("refuses to transfer more than the source holds, with available/requested", async () => {
@@ -207,9 +192,7 @@ describe("transferStock", () => {
         [{ quantity: "3" }], // only 3 on hand, transferring 5
       ],
     );
-    await expect(
-      transferStock(db, COMPANY_ID, baseInput),
-    ).rejects.toMatchObject({
+    await expect(transferStock(db, COMPANY_ID, baseInput)).rejects.toMatchObject({
       code: "insufficientStock",
       params: { available: "3", requested: "5" },
     });
@@ -228,9 +211,7 @@ describe("transferStock", () => {
         [], // no stock level row for the source
       ],
     );
-    await expect(
-      transferStock(db, COMPANY_ID, baseInput),
-    ).rejects.toMatchObject({
+    await expect(transferStock(db, COMPANY_ID, baseInput)).rejects.toMatchObject({
       code: "insufficientStock",
       params: { available: "0", requested: "5" },
     });

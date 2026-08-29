@@ -67,29 +67,26 @@ export function LanguageSwitcher() {
           role="menu"
           aria-label={tc("aria.languageOptions")}
         >
-          {(
-            Object.entries(LOCALE_CONFIG) as [
-              Locale,
-              { short: string; native: string },
-            ][]
-          ).map(([loc, cfg]) => (
-            <button
-              key={loc}
-              onClick={() => switchLocale(loc)}
-              className={cn(
-                "flex w-full items-center gap-2 rounded px-3 py-2 text-sm hover:bg-muted",
-                locale === loc && "font-medium text-primary",
-              )}
-              role="menuitem"
-            >
-              {cfg.native}
-              {locale === loc && (
-                <span className="ml-auto text-primary" aria-hidden="true">
-                  ✓
-                </span>
-              )}
-            </button>
-          ))}
+          {(Object.entries(LOCALE_CONFIG) as [Locale, { short: string; native: string }][]).map(
+            ([loc, cfg]) => (
+              <button
+                key={loc}
+                onClick={() => switchLocale(loc)}
+                className={cn(
+                  "flex w-full items-center gap-2 rounded px-3 py-2 text-sm hover:bg-muted",
+                  locale === loc && "font-medium text-primary",
+                )}
+                role="menuitem"
+              >
+                {cfg.native}
+                {locale === loc && (
+                  <span className="ml-auto text-primary" aria-hidden="true">
+                    ✓
+                  </span>
+                )}
+              </button>
+            ),
+          )}
         </div>
       )}
     </div>

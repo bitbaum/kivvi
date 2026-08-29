@@ -3,10 +3,7 @@ import type { Tool, ExecutionContext, ToolResult } from "../types";
 import { getDb } from "./utils";
 
 const createContactSchema = z.object({
-  name: z
-    .string()
-    .min(1)
-    .describe("Full name of the contact (company or person)"),
+  name: z.string().min(1).describe("Full name of the contact (company or person)"),
   type: z
     .enum(["customer", "vendor", "both"])
     .default("customer")
@@ -16,14 +13,8 @@ const createContactSchema = z.object({
   address: z.string().optional().describe("Street address"),
   city: z.string().optional().describe("City"),
   postalCode: z.string().optional().describe("Postal code / ZIP"),
-  country: z
-    .string()
-    .default("CH")
-    .describe("Country code (default: CH for Switzerland)"),
-  vatNumber: z
-    .string()
-    .optional()
-    .describe("VAT registration number (e.g. CHE-123.456.789 MWST)"),
+  country: z.string().default("CH").describe("Country code (default: CH for Switzerland)"),
+  vatNumber: z.string().optional().describe("VAT registration number (e.g. CHE-123.456.789 MWST)"),
   notes: z.string().optional().describe("Internal notes about this contact"),
 });
 

@@ -12,11 +12,7 @@ export async function ExecutiveSummary({ sinceDate }: { sinceDate?: Date }) {
 
   const hour = new Date().getHours();
   const greeting =
-    hour < 12
-      ? t("greeting.morning")
-      : hour < 18
-        ? t("greeting.afternoon")
-        : t("greeting.evening");
+    hour < 12 ? t("greeting.morning") : hour < 18 ? t("greeting.afternoon") : t("greeting.evening");
 
   let summary;
   try {
@@ -50,14 +46,9 @@ export async function ExecutiveSummary({ sinceDate }: { sinceDate?: Date }) {
   }
 
   // Build the narrative: greeting + what matters
-  const narrative =
-    narrativeParts.length > 0
-      ? narrativeParts.join(" ")
-      : t("narrative.allGood");
+  const narrative = narrativeParts.length > 0 ? narrativeParts.join(" ") : t("narrative.allGood");
 
-  const sinceDateLabel = sinceDate
-    ? new Date(sinceDate).toLocaleDateString(DEFAULT_LOCALE)
-    : null;
+  const sinceDateLabel = sinceDate ? new Date(sinceDate).toLocaleDateString(DEFAULT_LOCALE) : null;
 
   return (
     <div id="main-content" className="space-y-1">
@@ -69,9 +60,7 @@ export async function ExecutiveSummary({ sinceDate }: { sinceDate?: Date }) {
           </span>
         )}
       </div>
-      <p className="text-lg text-muted-foreground leading-relaxed">
-        {narrative}
-      </p>
+      <p className="text-lg text-muted-foreground leading-relaxed">{narrative}</p>
     </div>
   );
 }

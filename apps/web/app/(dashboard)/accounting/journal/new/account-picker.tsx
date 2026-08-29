@@ -34,8 +34,7 @@ export function AccountPicker({
     if (!search) return accounts;
     const q = search.toLowerCase();
     return accounts.filter(
-      (a) =>
-        a.code.toLowerCase().includes(q) || a.name.toLowerCase().includes(q),
+      (a) => a.code.toLowerCase().includes(q) || a.name.toLowerCase().includes(q),
     );
   }, [accounts, search]);
 
@@ -73,9 +72,7 @@ export function AccountPicker({
                 }}
                 className="w-full px-4 py-2 text-left text-sm hover:bg-muted first:rounded-t-lg last:rounded-b-lg"
               >
-                <span className="font-mono text-muted-foreground">
-                  {account.code}
-                </span>
+                <span className="font-mono text-muted-foreground">{account.code}</span>
                 {" - "}
                 <span className="font-medium">{account.name}</span>
               </button>

@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { formatCurrency, cn } from '@/lib/utils';
-import { useTranslations } from 'next-intl';
-import type { DashboardAlert, WorkflowSuggestion } from '@kivvi/core/src/domain/dashboard';
+import { useState } from "react";
+import Link from "next/link";
+import { formatCurrency, cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
+import type { DashboardAlert, WorkflowSuggestion } from "@kivvi/core/src/domain/dashboard";
 import {
   ArrowRight,
   AlertCircle,
@@ -15,7 +15,7 @@ import {
   Truck,
   ChevronDown,
   ChevronUp,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface PriorityAction {
   id: string;
@@ -26,12 +26,12 @@ interface PriorityAction {
   amount?: number;
   linkTo: string;
   actionLabel: string;
-  severity: 'urgent' | 'warning' | 'info';
+  severity: "urgent" | "warning" | "info";
 }
 
 function alertToPriorityAction(
   alert: DashboardAlert,
-  t: (key: string, params?: Record<string, string | number>) => string
+  t: (key: string, params?: Record<string, string | number>) => string,
 ): PriorityAction {
   const priorityMap = { urgent: 1, warning: 2, info: 3 };
   const iconMap = {
@@ -48,14 +48,14 @@ function alertToPriorityAction(
     description: t(alert.descriptionKey, alert.descriptionParams),
     amount: alert.amount,
     linkTo: alert.linkTo,
-    actionLabel: t('alerts.viewDetails'),
+    actionLabel: t("alerts.viewDetails"),
     severity: alert.severity,
   };
 }
 
 function workflowToPriorityAction(
   suggestion: WorkflowSuggestion,
-  t: (key: string, params?: Record<string, string | number>) => string
+  t: (key: string, params?: Record<string, string | number>) => string,
 ): PriorityAction {
   const iconMap: Record<string, React.ReactNode> = {
     convert_quote: <FileText className="h-5 w-5" />,
@@ -63,10 +63,10 @@ function workflowToPriorityAction(
     confirm_delivery: <Truck className="h-5 w-5" />,
     start_dunning: <AlertCircle className="h-5 w-5" />,
   };
-  const severityMap: Record<number, 'urgent' | 'warning' | 'info'> = {
-    1: 'urgent',
-    2: 'warning',
-    3: 'info',
+  const severityMap: Record<number, "urgent" | "warning" | "info"> = {
+    1: "urgent",
+    2: "warning",
+    3: "info",
   };
 
   return {
@@ -78,7 +78,7 @@ function workflowToPriorityAction(
     amount: suggestion.amount,
     linkTo: suggestion.actionUrl,
     actionLabel: t(suggestion.actionLabelKey),
-    severity: severityMap[suggestion.priority] || 'info',
+    severity: severityMap[suggestion.priority] || "info",
   };
 }
 
@@ -89,7 +89,7 @@ interface PriorityActionsClientProps {
 
 export function PriorityActionsClient({ alerts, suggestions }: PriorityActionsClientProps) {
   const [showAll, setShowAll] = useState(false);
-  const t = useTranslations('dashboard');
+  const t = useTranslations("dashboard");
 
   // Convert both to unified format and merge
   const actions: PriorityAction[] = [
@@ -111,16 +111,11 @@ export function PriorityActionsClient({ alerts, suggestions }: PriorityActionsCl
             viewBox="0 0 24 24"
             stroke="currentColor"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M5 13l4 4L19 7"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h3 className="font-semibold">{t('priorities.allClear')}</h3>
-        <p className="text-sm text-muted-foreground">{t('priorities.noActions')}</p>
+        <h3 className="font-semibold">{t("priorities.allClear")}</h3>
+        <p className="text-sm text-muted-foreground">{t("priorities.noActions")}</p>
       </div>
     );
   }
@@ -147,8 +142,8 @@ export function PriorityActionsClient({ alerts, suggestions }: PriorityActionsCl
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold">{t('priorities.title')}</h2>
-          <p className="text-sm text-muted-foreground">{t('priorities.subtitle')}</p>
+          <h2 className="text-lg font-semibold">{t("priorities.title")}</h2>
+          <p className="text-sm text-muted-foreground">{t("priorities.subtitle")}</p>
         </div>
         {hasMore && (
           <button
@@ -157,12 +152,12 @@ export function PriorityActionsClient({ alerts, suggestions }: PriorityActionsCl
           >
             {showAll ? (
               <>
-                {t('priorities.showLess')}
+                {t("priorities.showLess")}
                 <ChevronUp className="h-4 w-4" />
               </>
             ) : (
               <>
-                {t('priorities.showAll', { count: actions.length })}
+                {t("priorities.showAll", { count: actions.length })}
                 <ChevronDown className="h-4 w-4" />
               </>
             )}
@@ -176,15 +171,15 @@ export function PriorityActionsClient({ alerts, suggestions }: PriorityActionsCl
             <div
               key={action.id}
               className={cn(
-                'rounded-xl border bg-card p-4 transition-colors hover:bg-accent',
-                action.severity === 'urgent' && styles.border
+                "rounded-xl border bg-card p-4 transition-colors hover:bg-accent",
+                action.severity === "urgent" && styles.border,
               )}
             >
               <div className="flex items-start gap-3">
                 <div
                   className={cn(
-                    'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg',
-                    styles.iconBg
+                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
+                    styles.iconBg,
                   )}
                 >
                   <div className={styles.iconColor}>{action.icon}</div>

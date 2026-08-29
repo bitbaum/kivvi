@@ -73,8 +73,7 @@ export async function createStockMovementsForDocument(
   // Create movements
   for (const item of productItems) {
     const absQty = new Decimal(item.quantity);
-    const signedQty =
-      movementConfig.direction === "out" ? absQty.neg() : absQty;
+    const signedQty = movementConfig.direction === "out" ? absQty.neg() : absQty;
 
     await insertMovementAndUpdateStock(tx, companyId, {
       productId: item.productId,
@@ -191,9 +190,7 @@ async function getDefaultWarehouse(
   const [warehouse] = await tx
     .select({ id: warehouses.id })
     .from(warehouses)
-    .where(
-      and(eq(warehouses.companyId, companyId), eq(warehouses.isDefault, true)),
-    )
+    .where(and(eq(warehouses.companyId, companyId), eq(warehouses.isDefault, true)))
     .limit(1);
 
   return warehouse ?? null;
@@ -237,12 +234,7 @@ async function insertMovementAndUpdateStock(
   await tx.insert(stockMovements).values({
     productId: params.productId,
     warehouseId: params.warehouseId,
-    type: params.type as
-      | "sale"
-      | "purchase"
-      | "adjustment"
-      | "transfer"
-      | "return",
+    type: params.type as "sale" | "purchase" | "adjustment" | "transfer" | "return",
     quantity: params.quantity.toString(),
     reference: params.reference,
     documentId: params.documentId,
@@ -275,9 +267,7 @@ async function insertMovementAndUpdateStock(
   await tx
     .update(products)
     .set({ stockQuantity: totalStock.total })
-    .where(
-      and(eq(products.id, params.productId), eq(products.companyId, companyId)),
-    );
+    .where(and(eq(products.id, params.productId), eq(products.companyId, companyId)));
 }
 
 interface MovementConfig {
@@ -285,10 +275,7 @@ interface MovementConfig {
   direction: "out" | "in";
 }
 
-function getMovementConfig(
-  docType: string,
-  newStatus: string,
-): MovementConfig | null {
+function getMovementConfig(docType: string, newStatus: string): MovementConfig | null {
   if (docType === "delivery_note" && newStatus === "delivered") {
     return { movementType: "sale", direction: "out" };
   }
@@ -328,10 +315,7 @@ export async function updateStockReservationsForDocument(
 
   let reservationDelta: "increase" | "decrease" | null = null;
 
-  if (
-    newStatus === "confirmed" &&
-    (doc.status === "draft" || doc.status === "sent")
-  ) {
+  if (newStatus === "confirmed" && (doc.status === "draft" || doc.status === "sent")) {
     reservationDelta = "increase";
   } else if (
     (newStatus === "delivered" || newStatus === "cancelled") &&
@@ -358,8 +342,7 @@ export async function updateStockReservationsForDocument(
         productId: item.productId,
         warehouseId: defaultWarehouse.id,
         quantity: "0",
-        reservedQuantity:
-          reservationDelta === "increase" ? qty.toString() : "0",
+        reservedQuantity: reservationDelta === "increase" ? qty.toString() : "0",
       })
       .onConflictDoUpdate({
         target: [stockLevels.productId, stockLevels.warehouseId],

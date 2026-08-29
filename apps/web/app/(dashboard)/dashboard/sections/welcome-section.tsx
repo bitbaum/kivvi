@@ -13,11 +13,7 @@ interface WelcomeSectionProps {
   documentCount: number;
 }
 
-export function WelcomeSection({
-  companyName,
-  contactCount,
-  documentCount,
-}: WelcomeSectionProps) {
+export function WelcomeSection({ companyName, contactCount, documentCount }: WelcomeSectionProps) {
   const t = useTranslations("dashboard.welcome");
   const [dismissed, setDismissed] = useState(true); // Start hidden to avoid flash
 
@@ -66,9 +62,7 @@ export function WelcomeSection({
     <div className="rounded-xl border bg-card">
       <div className="border-b p-6 flex items-start justify-between">
         <div>
-          <h2 className="text-2xl font-bold">
-            {t("title", { company: companyName })}
-          </h2>
+          <h2 className="text-2xl font-bold">{t("title", { company: companyName })}</h2>
           <p className="mt-1 text-muted-foreground">{t("subtitle")}</p>
         </div>
         <button
@@ -93,9 +87,7 @@ export function WelcomeSection({
             </div>
             <div>
               <p className="font-semibold">{action.label}</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {action.description}
-              </p>
+              <p className="mt-1 text-sm text-muted-foreground">{action.description}</p>
             </div>
           </Link>
         ))}

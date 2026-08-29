@@ -32,9 +32,7 @@ export default async function ForRepairCafesPage() {
           <Wrench className="h-4 w-4" />
           {t("hero.badge")}
         </div>
-        <h1 className="mb-4 text-4xl font-bold sm:text-5xl">
-          {t("hero.title")}
-        </h1>
+        <h1 className="mb-4 text-4xl font-bold sm:text-5xl">{t("hero.title")}</h1>
         <p className="text-xl text-muted-foreground">{t("hero.description")}</p>
       </section>
 
@@ -42,12 +40,8 @@ export default async function ForRepairCafesPage() {
       <section className="mx-auto max-w-3xl py-8">
         <div className="rounded-2xl border bg-card p-8">
           <h2 className="mb-3 text-xl font-bold">{t("movement.title")}</h2>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            {t("movement.paragraph1")}
-          </p>
-          <p className="text-muted-foreground leading-relaxed">
-            {t("movement.paragraph2")}
-          </p>
+          <p className="text-muted-foreground leading-relaxed mb-4">{t("movement.paragraph1")}</p>
+          <p className="text-muted-foreground leading-relaxed">{t("movement.paragraph2")}</p>
         </div>
       </section>
 
@@ -67,33 +61,19 @@ export default async function ForRepairCafesPage() {
       <section className="mx-auto max-w-3xl py-16">
         <div className="rounded-2xl border bg-card p-8">
           <h2 className="mb-4 text-xl font-bold">{t("model.title")}</h2>
-          <p className="text-muted-foreground leading-relaxed mb-6">
-            {t("model.description")}
-          </p>
+          <p className="text-muted-foreground leading-relaxed mb-6">{t("model.description")}</p>
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="rounded-lg border p-4">
-              <div className="text-sm font-semibold mb-1">
-                {t("model.step1Title")}
-              </div>
-              <div className="text-xs text-muted-foreground">
-                {t("model.step1Desc")}
-              </div>
+              <div className="text-sm font-semibold mb-1">{t("model.step1Title")}</div>
+              <div className="text-xs text-muted-foreground">{t("model.step1Desc")}</div>
             </div>
             <div className="rounded-lg border p-4">
-              <div className="text-sm font-semibold mb-1">
-                {t("model.step2Title")}
-              </div>
-              <div className="text-xs text-muted-foreground">
-                {t("model.step2Desc")}
-              </div>
+              <div className="text-sm font-semibold mb-1">{t("model.step2Title")}</div>
+              <div className="text-xs text-muted-foreground">{t("model.step2Desc")}</div>
             </div>
             <div className="rounded-lg border p-4">
-              <div className="text-sm font-semibold mb-1">
-                {t("model.step3Title")}
-              </div>
-              <div className="text-xs text-muted-foreground">
-                {t("model.step3Desc")}
-              </div>
+              <div className="text-sm font-semibold mb-1">{t("model.step3Title")}</div>
+              <div className="text-xs text-muted-foreground">{t("model.step3Desc")}</div>
             </div>
           </div>
         </div>
@@ -101,10 +81,7 @@ export default async function ForRepairCafesPage() {
 
       <SeeAlsoSection current="repair-cafes" />
 
-      <LandingCtaSection
-        title={t("ctaTitle")}
-        description={t("ctaDescription")}
-      />
+      <LandingCtaSection title={t("ctaTitle")} description={t("ctaDescription")} />
     </>
   );
 }

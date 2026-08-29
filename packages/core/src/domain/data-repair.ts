@@ -59,9 +59,7 @@ export async function repairNumberSequences(
     const [countResult] = await db
       .select({ count: sql<number>`COUNT(*)` })
       .from(documents)
-      .where(
-        and(eq(documents.companyId, companyId), eq(documents.type, docType)),
-      );
+      .where(and(eq(documents.companyId, companyId), eq(documents.type, docType)));
 
     const count = Number(countResult?.count || 0);
     const currentSeq = seqs.find((s) => s.type === seqType);
@@ -70,9 +68,7 @@ export async function repairNumberSequences(
       const allDocs = await db
         .select({ number: documents.number })
         .from(documents)
-        .where(
-          and(eq(documents.companyId, companyId), eq(documents.type, docType)),
-        );
+        .where(and(eq(documents.companyId, companyId), eq(documents.type, docType)));
 
       let maxNum = 0;
       for (const doc of allDocs) {
@@ -97,10 +93,7 @@ export async function repairNumberSequences(
             .update(numberSequences)
             .set({ nextNumber: newNext })
             .where(
-              and(
-                eq(numberSequences.companyId, companyId),
-                eq(numberSequences.type, seqType),
-              ),
+              and(eq(numberSequences.companyId, companyId), eq(numberSequences.type, seqType)),
             );
           updated[`${currentSeq?.prefix} (${seqType})`] = newNext;
         }
@@ -128,12 +121,7 @@ export async function repairNumberSequences(
       await db
         .update(numberSequences)
         .set({ nextNumber: maxContactNum + 1 })
-        .where(
-          and(
-            eq(numberSequences.companyId, companyId),
-            eq(numberSequences.type, "contact"),
-          ),
-        );
+        .where(and(eq(numberSequences.companyId, companyId), eq(numberSequences.type, "contact")));
       updated["K (contact)"] = maxContactNum + 1;
     }
   }
@@ -158,12 +146,7 @@ export async function repairNumberSequences(
       await db
         .update(numberSequences)
         .set({ nextNumber: maxProductNum + 1 })
-        .where(
-          and(
-            eq(numberSequences.companyId, companyId),
-            eq(numberSequences.type, "product"),
-          ),
-        );
+        .where(and(eq(numberSequences.companyId, companyId), eq(numberSequences.type, "product")));
       updated["ART (product)"] = maxProductNum + 1;
     }
   }
@@ -229,9 +212,7 @@ export async function generateMissingJournalEntries(
     .from(journalEntries)
     .where(eq(journalEntries.companyId, companyId));
 
-  const existingSourceIds = new Set(
-    existingEntries.map((e) => e.sourceId).filter(Boolean),
-  );
+  const existingSourceIds = new Set(existingEntries.map((e) => e.sourceId).filter(Boolean));
 
   const invoices = await db
     .select({
@@ -324,10 +305,7 @@ export async function generateMissingJournalEntries(
   return { invoiceEntries, purchaseEntries, skipped, errors };
 }
 
-export async function repairPaidDates(
-  db: Database,
-  companyId: string,
-): Promise<number> {
+export async function repairPaidDates(db: Database, companyId: string): Promise<number> {
   const result = await db
     .update(documents)
     .set({

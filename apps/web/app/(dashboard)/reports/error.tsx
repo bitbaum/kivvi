@@ -9,7 +9,5 @@ export default function ReportsError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  return (
-    <SectionErrorBoundary error={error} reset={reset} backHref="/reports" />
-  );
+  return <SectionErrorBoundary error={error} reset={reset} backHref="/reports" />;
 }

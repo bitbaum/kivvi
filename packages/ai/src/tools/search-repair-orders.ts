@@ -9,25 +9,14 @@ const searchRepairOrdersSchema = z.object({
     .optional()
     .describe("Search query for repair order number, customer name, or notes"),
   status: z
-    .enum([
-      "draft",
-      "sent",
-      "confirmed",
-      "delivered",
-      "paid",
-      "partially_paid",
-      "cancelled",
-    ])
+    .enum(["draft", "sent", "confirmed", "delivered", "paid", "partially_paid", "cancelled"])
     .optional()
     .describe("Filter by repair order status"),
   dateFrom: z
     .string()
     .optional()
     .describe("Filter repair orders created from this date (ISO 8601)"),
-  dateTo: z
-    .string()
-    .optional()
-    .describe("Filter repair orders created until this date (ISO 8601)"),
+  dateTo: z.string().optional().describe("Filter repair orders created until this date (ISO 8601)"),
   limit: z.number().default(10).describe("Maximum number of results to return"),
 });
 
@@ -70,9 +59,7 @@ export const searchRepairOrdersTool: Tool = {
         customer: doc.contact?.name || "Unknown",
         status: doc.status,
         issueDate: doc.issueDate.toISOString().split("T")[0],
-        expectedCompletion: doc.deliveryDate
-          ? doc.deliveryDate.toISOString().split("T")[0]
-          : null,
+        expectedCompletion: doc.deliveryDate ? doc.deliveryDate.toISOString().split("T")[0] : null,
         total: `${doc.currency} ${Number(doc.total || "0").toFixed(2)}`,
         notes: doc.notes || null,
       }));

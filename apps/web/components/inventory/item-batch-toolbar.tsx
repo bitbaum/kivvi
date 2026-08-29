@@ -8,14 +8,8 @@ import {
   bulkUpdateItemConditionAction,
   bulkUpdateItemAskingPriceAction,
 } from "@/app/actions/inventory-items";
-import {
-  ITEM_STATUS_VALUES,
-  ITEM_CONDITION_VALUES,
-} from "@kivvi/database/src/enums";
-import {
-  getStatusLabelKey,
-  getConditionLabelKey,
-} from "@/lib/config/inventory-items";
+import { ITEM_STATUS_VALUES, ITEM_CONDITION_VALUES } from "@kivvi/database/src/enums";
+import { getStatusLabelKey, getConditionLabelKey } from "@/lib/config/inventory-items";
 import { toast } from "sonner";
 
 interface ItemBatchToolbarProps {
@@ -23,10 +17,7 @@ interface ItemBatchToolbarProps {
   onClear: () => void;
 }
 
-export function ItemBatchToolbar({
-  selectedIds,
-  onClear,
-}: ItemBatchToolbarProps) {
+export function ItemBatchToolbar({ selectedIds, onClear }: ItemBatchToolbarProps) {
   const t = useTranslations("inventory");
   const tc = useTranslations("common");
   const [isPending, startTransition] = useTransition();
@@ -93,9 +84,7 @@ export function ItemBatchToolbar({
     });
   }
 
-  const editableStatuses = ITEM_STATUS_VALUES.filter(
-    (s) => !["sold", "returned"].includes(s),
-  );
+  const editableStatuses = ITEM_STATUS_VALUES.filter((s) => !["sold", "returned"].includes(s));
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-40 border-t bg-card p-3 shadow-lg sm:left-64">
@@ -122,11 +111,7 @@ export function ItemBatchToolbar({
             disabled={!statusValue || isPending}
             className="rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
-            {isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              tc("apply")
-            )}
+            {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : tc("apply")}
           </button>
         </div>
 
@@ -148,11 +133,7 @@ export function ItemBatchToolbar({
             disabled={!conditionValue || isPending}
             className="rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
-            {isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              tc("apply")
-            )}
+            {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : tc("apply")}
           </button>
         </div>
 
@@ -168,16 +149,10 @@ export function ItemBatchToolbar({
           />
           <button
             onClick={applyPrice}
-            disabled={
-              !priceValue || !/^\d+(\.\d{1,2})?$/.test(priceValue) || isPending
-            }
+            disabled={!priceValue || !/^\d+(\.\d{1,2})?$/.test(priceValue) || isPending}
             className="rounded-lg bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
-            {isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              tc("apply")
-            )}
+            {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : tc("apply")}
           </button>
         </div>
 

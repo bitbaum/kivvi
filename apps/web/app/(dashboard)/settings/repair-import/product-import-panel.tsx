@@ -51,9 +51,7 @@ export function ProductImportPanel() {
             (col) => !headers.includes(col),
           );
           if (missing.length > 0) {
-            toast.error(
-              t("csvMissingColumns", { columns: missing.join(", ") }),
-            );
+            toast.error(t("csvMissingColumns", { columns: missing.join(", ") }));
             return;
           }
 
@@ -65,17 +63,13 @@ export function ProductImportPanel() {
             return record;
           });
 
-          const mapped = dataRows.map((row) =>
-            applyMapping(row, KIVITENDO_PRODUCT_PROFILE),
-          );
+          const mapped = dataRows.map((row) => applyMapping(row, KIVITENDO_PRODUCT_PROFILE));
 
           setPreview({
             fileName: file.name,
             totalRows: mapped.length,
             rowsWithName: mapped.filter((r) => r.name).length,
-            rowsWithPrice: mapped.filter(
-              (r) => r.unitPrice && r.unitPrice !== "0",
-            ).length,
+            rowsWithPrice: mapped.filter((r) => r.unitPrice && r.unitPrice !== "0").length,
             sample: mapped.slice(0, 5),
             rows: mapped,
           });
@@ -147,33 +141,19 @@ export function ProductImportPanel() {
             <table className="w-full">
               <thead>
                 <tr className="border-b bg-muted/50">
-                  <th className="px-3 py-2 text-left font-medium">
-                    {t("colArticleNr")}
-                  </th>
-                  <th className="px-3 py-2 text-left font-medium">
-                    {t("colName")}
-                  </th>
-                  <th className="px-3 py-2 text-left font-medium">
-                    {t("colType")}
-                  </th>
-                  <th className="px-3 py-2 text-right font-medium">
-                    {t("colPrice")}
-                  </th>
-                  <th className="px-3 py-2 text-left font-medium">
-                    {t("colGroup")}
-                  </th>
+                  <th className="px-3 py-2 text-left font-medium">{t("colArticleNr")}</th>
+                  <th className="px-3 py-2 text-left font-medium">{t("colName")}</th>
+                  <th className="px-3 py-2 text-left font-medium">{t("colType")}</th>
+                  <th className="px-3 py-2 text-right font-medium">{t("colPrice")}</th>
+                  <th className="px-3 py-2 text-left font-medium">{t("colGroup")}</th>
                 </tr>
               </thead>
               <tbody>
                 {preview.sample.map((row, i) => (
                   <tr key={i} className="border-b last:border-0">
-                    <td className="px-3 py-1.5 font-mono">
-                      {row.articleNumber || "—"}
-                    </td>
+                    <td className="px-3 py-1.5 font-mono">{row.articleNumber || "—"}</td>
                     <td className="px-3 py-1.5 max-w-[200px] truncate">
-                      {row.name || (
-                        <span className="text-destructive">{t("noName")}</span>
-                      )}
+                      {row.name || <span className="text-destructive">{t("noName")}</span>}
                     </td>
                     <td className="px-3 py-1.5">{row.type || "product"}</td>
                     <td className="px-3 py-1.5 text-right">
@@ -198,9 +178,7 @@ export function ProductImportPanel() {
               className="flex items-center gap-2 rounded-lg bg-primary px-5 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
               {isImporting && <Loader2 className="h-4 w-4 animate-spin" />}
-              {isImporting
-                ? t("importing")
-                : t("importN", { count: preview.rowsWithName })}
+              {isImporting ? t("importing") : t("importN", { count: preview.rowsWithName })}
             </button>
             <button
               onClick={() => setPreview(null)}
@@ -242,9 +220,7 @@ function Stat({ label, value }: { label: string; value: number }) {
   return (
     <div className="rounded-lg border bg-muted/30 p-3">
       <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="mt-1 text-lg font-semibold">
-        {value.toLocaleString(DEFAULT_LOCALE)}
-      </p>
+      <p className="mt-1 text-lg font-semibold">{value.toLocaleString(DEFAULT_LOCALE)}</p>
     </div>
   );
 }

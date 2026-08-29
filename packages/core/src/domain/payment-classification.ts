@@ -34,16 +34,7 @@ export type ClassificationConfidence = "high" | "medium" | "low";
  * SSOT for classification vocabulary — matched case-insensitively as substrings.
  */
 export const CLASSIFICATION_KEYWORDS = {
-  grant: [
-    "subvention",
-    "förder",
-    "beitrag",
-    "kanton",
-    "gemeinde",
-    "stiftung",
-    "grant",
-    "subside",
-  ],
+  grant: ["subvention", "förder", "beitrag", "kanton", "gemeinde", "stiftung", "grant", "subside"],
   donation: ["spende", "donation", "don ", "gönner", "collecte", "legat"],
   refund: [
     "rückerstattung",
@@ -88,9 +79,7 @@ function matchesAny(text: string, keywords: readonly string[]): boolean {
  * safest / most-specific interpretation wins, and every ambiguous or
  * policy-gated outcome is flagged for human review.
  */
-export function classifyMoneyIn(
-  signals: MoneyInSignals,
-): MoneyInClassification {
+export function classifyMoneyIn(signals: MoneyInSignals): MoneyInClassification {
   const text = haystack(signals);
   // Money is not a float (Ground Truth #2): compare via Decimal. A malformed
   // amount is not treated as an outflow — it falls through to keyword/invoice
@@ -141,8 +130,7 @@ export function classifyMoneyIn(
     return {
       category: "donation",
       confidence: "medium",
-      reason:
-        "Wording suggests a donation — confirm it is non-consideration before booking.",
+      reason: "Wording suggests a donation — confirm it is non-consideration before booking.",
       requiresReview: true,
     };
   }
@@ -161,8 +149,7 @@ export function classifyMoneyIn(
   return {
     category: "manual_review",
     confidence: "low",
-    reason:
-      "No matching invoice and no distinctive wording — classify manually.",
+    reason: "No matching invoice and no distinctive wording — classify manually.",
     requiresReview: true,
   };
 }

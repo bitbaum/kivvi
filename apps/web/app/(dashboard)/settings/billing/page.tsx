@@ -6,11 +6,7 @@ import type { CompanySettings } from "@kivvi/database";
 import { eq } from "drizzle-orm";
 import { getTranslations } from "next-intl/server";
 import { SettingsSubpageHeader } from "@/components/settings-subpage-header";
-import {
-  isPlanActive,
-  isTrialing,
-  getTrialDaysRemaining,
-} from "@kivvi/core/src/domain/billing";
+import { isPlanActive, isTrialing, getTrialDaysRemaining } from "@kivvi/core/src/domain/billing";
 import { StatusBadge } from "@/components/status-badge";
 import { BillingActions } from "./billing-actions";
 
@@ -52,9 +48,7 @@ export default async function BillingPage() {
               }}
             />
           )}
-          {status === "cancelled" && (
-            <StatusBadge variant="inactive" label={t("cancelled")} />
-          )}
+          {status === "cancelled" && <StatusBadge variant="inactive" label={t("cancelled")} />}
         </div>
 
         {trialing && (
@@ -63,16 +57,11 @@ export default async function BillingPage() {
           </p>
         )}
 
-        {status === "past_due" && (
-          <p className="text-sm text-destructive">{t("pastDueMessage")}</p>
-        )}
+        {status === "past_due" && <p className="text-sm text-destructive">{t("pastDueMessage")}</p>}
       </div>
 
       {/* Actions */}
-      <BillingActions
-        plan={plan}
-        hasSubscription={!!settings.stripeSubscriptionId}
-      />
+      <BillingActions plan={plan} hasSubscription={!!settings.stripeSubscriptionId} />
     </div>
   );
 }

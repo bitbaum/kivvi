@@ -46,15 +46,11 @@ export class ConversationEngine {
     this.provider = provider;
     this.tools = tools;
     this.systemPrompt =
-      getSystemPrompt(context, businessSnapshot, orgProfile) +
-      (promptAddendum || "");
+      getSystemPrompt(context, businessSnapshot, orgProfile) + (promptAddendum || "");
     this.model = model;
   }
 
-  async processMessage(
-    userMessage: string,
-    state: ConversationState,
-  ): Promise<EngineResponse> {
+  async processMessage(userMessage: string, state: ConversationState): Promise<EngineResponse> {
     // Add user message
     state.messages.push({
       role: "user",
@@ -115,9 +111,7 @@ export class ConversationEngine {
   async *streamMessage(
     userMessage: string,
     state: ConversationState,
-  ): AsyncIterable<
-    StreamChunk | { type: "tool_result"; toolName: string; result: ToolResult }
-  > {
+  ): AsyncIterable<StreamChunk | { type: "tool_result"; toolName: string; result: ToolResult }> {
     state.messages.push({
       role: "user",
       content: userMessage,
@@ -211,10 +205,7 @@ export class ConversationEngine {
     yield { type: "done" } as StreamChunk;
   }
 
-  private async executeTool(
-    toolCall: ToolCall,
-    context: ExecutionContext,
-  ): Promise<ToolResult> {
+  private async executeTool(toolCall: ToolCall, context: ExecutionContext): Promise<ToolResult> {
     const tool = this.tools.find((t) => t.name === toolCall.name);
 
     if (!tool) {
@@ -230,9 +221,7 @@ export class ConversationEngine {
       const result = await tool.execute(validatedArgs, context);
 
       // Log mutation tools to audit trail (non-blocking)
-      auditToolExecution(toolCall.name, validatedArgs, result, context).catch(
-        () => {},
-      );
+      auditToolExecution(toolCall.name, validatedArgs, result, context).catch(() => {});
 
       return result;
     } catch (error) {

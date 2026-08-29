@@ -72,9 +72,7 @@ export default async function Home() {
         <h1 className="mb-4 text-4xl font-bold tracking-display sm:text-5xl lg:text-6xl">
           {t("heroTitle")}
         </h1>
-        <p className="mb-6 text-xl font-medium text-brand sm:text-2xl">
-          {t("heroTagline")}
-        </p>
+        <p className="mb-6 text-xl font-medium text-brand sm:text-2xl">{t("heroTagline")}</p>
         <p className="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground">
           {t("heroDescription")}
         </p>
@@ -116,17 +114,9 @@ export default async function Home() {
       {/* PROBLEM — What standard ERPs can't do                        */}
       {/* ============================================================ */}
       <section className="mx-auto max-w-3xl py-16">
-        <h2 className="mb-8 text-center text-2xl font-bold">
-          {t("problemTitle")}
-        </h2>
+        <h2 className="mb-8 text-center text-2xl font-bold">{t("problemTitle")}</h2>
         <PainList
-          items={[
-            t("problem1"),
-            t("problem2"),
-            t("problem3"),
-            t("problem4"),
-            t("problem5"),
-          ]}
+          items={[t("problem1"), t("problem2"), t("problem3"), t("problem4"), t("problem5")]}
         />
         <div className="mt-6 text-center">
           <Button asChild variant="link" size="sm">
@@ -151,9 +141,7 @@ export default async function Home() {
             <Recycle className="h-6 w-6 text-primary" />
             <h2 className="text-2xl font-bold">{t("originTitle")}</h2>
           </div>
-          <p className="text-lg leading-relaxed text-muted-foreground">
-            {t("originStory")}
-          </p>
+          <p className="text-lg leading-relaxed text-muted-foreground">{t("originStory")}</p>
           <div className="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-3">
             <StatBlock value={t("originStat1")} label={t("originStat1Label")} />
             <StatBlock value={t("originStat3")} label={t("originStat3Label")} />
@@ -176,24 +164,13 @@ export default async function Home() {
       {/* CAPABILITIES — Compact, not cards                            */}
       {/* ============================================================ */}
       <section className="mx-auto max-w-4xl py-8">
-        <h2 className="mb-8 text-center text-2xl font-bold">
-          {t("capabilitiesTitle")}
-        </h2>
+        <h2 className="mb-8 text-center text-2xl font-bold">{t("capabilitiesTitle")}</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Capability icon={<Recycle className="h-4 w-4" />} text={t("cap1")} />
-          <Capability
-            icon={<ClipboardCheck className="h-4 w-4" />}
-            text={t("cap2")}
-          />
+          <Capability icon={<ClipboardCheck className="h-4 w-4" />} text={t("cap2")} />
           <Capability icon={<Tag className="h-4 w-4" />} text={t("cap3")} />
-          <Capability
-            icon={<BarChart3 className="h-4 w-4" />}
-            text={t("cap4")}
-          />
-          <Capability
-            icon={<Sparkles className="h-4 w-4" />}
-            text={t("cap5")}
-          />
+          <Capability icon={<BarChart3 className="h-4 w-4" />} text={t("cap4")} />
+          <Capability icon={<Sparkles className="h-4 w-4" />} text={t("cap5")} />
           <Capability icon={<Shield className="h-4 w-4" />} text={t("cap6")} />
         </div>
       </section>
@@ -209,12 +186,8 @@ export default async function Home() {
                 <BookOpen className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <h3 className="text-lg font-bold">
-                  {t("knowledgeTeaserTitle")}
-                </h3>
-                <p className="mt-1 max-w-xl text-muted-foreground">
-                  {t("knowledgeTeaserText")}
-                </p>
+                <h3 className="text-lg font-bold">{t("knowledgeTeaserTitle")}</h3>
+                <p className="mt-1 max-w-xl text-muted-foreground">{t("knowledgeTeaserText")}</p>
               </div>
             </div>
             <Button asChild variant="secondary" className="shrink-0">
@@ -230,11 +203,7 @@ export default async function Home() {
       {/* ============================================================ */}
       {/* CTA + CONTACT                                                */}
       {/* ============================================================ */}
-      <LandingCtaSection
-        id="contact"
-        title={t("ctaTitle")}
-        description={t("ctaDescription")}
-      />
+      <LandingCtaSection id="contact" title={t("ctaTitle")} description={t("ctaDescription")} />
     </>
   );
 }

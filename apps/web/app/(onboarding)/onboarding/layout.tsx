@@ -1,11 +1,7 @@
 import Link from "next/link";
 import { KivviLogo } from "@/components/kivvi-logo";
 
-export default function OnboardingLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function OnboardingLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col bg-muted/30">
       {/* Header */}

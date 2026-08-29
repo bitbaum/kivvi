@@ -3,10 +3,7 @@ import { getAllArticles } from "@/lib/content/knowledge";
 import { VERTICALS } from "@/lib/config/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = (process.env.NEXTAUTH_URL ?? "https://kivvi.ch").replace(
-    /\/$/,
-    "",
-  );
+  const base = (process.env.NEXTAUTH_URL ?? "https://kivvi.ch").replace(/\/$/, "");
 
   const url = (path: string) => `${base}${path}`;
   const now = new Date();

@@ -27,9 +27,7 @@ export const getRecurringInvoicesTool: Tool = {
       const configs = await listRecurringConfigs(db, context.companyId);
 
       // Filter by active status if requested
-      const filtered = params.activeOnly
-        ? configs.filter((c) => c.isActive)
-        : configs;
+      const filtered = params.activeOnly ? configs.filter((c) => c.isActive) : configs;
 
       if (filtered.length === 0) {
         return {

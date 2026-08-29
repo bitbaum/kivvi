@@ -4,10 +4,7 @@ import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Sparkles, Loader2, AlertCircle } from "lucide-react";
 import { ActionPreviewCard } from "./action-preview-card";
-import type {
-  CommandBarAction,
-  CommandBarToolResult,
-} from "@/hooks/use-command-bar-ai";
+import type { CommandBarAction, CommandBarToolResult } from "@/hooks/use-command-bar-ai";
 
 /** Map tool names to i18n keys in commandPalette namespace */
 const TOOL_LABEL_KEYS: Record<string, string> = {
@@ -55,9 +52,7 @@ export function AIResponsePanel({
     router.push(url);
   }
 
-  const toolLabel = toolProgress
-    ? t(TOOL_LABEL_KEYS[toolProgress] || toolProgress)
-    : null;
+  const toolLabel = toolProgress ? t(TOOL_LABEL_KEYS[toolProgress] || toolProgress) : null;
 
   return (
     <div className="border-t p-3 space-y-2">
@@ -80,10 +75,7 @@ export function AIResponsePanel({
       )}
 
       {error && (
-        <div
-          role="alert"
-          className="flex items-start gap-2 text-sm text-destructive"
-        >
+        <div role="alert" className="flex items-start gap-2 text-sm text-destructive">
           <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           <span>{error}</span>
         </div>
@@ -109,15 +101,12 @@ export function AIResponsePanel({
         </div>
       )}
 
-      {isProcessing &&
-        !toolProgress &&
-        !message &&
-        toolResults.length === 0 && (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Loader2 className="h-3 w-3 animate-spin" />
-            <span>{t("aiThinking")}</span>
-          </div>
-        )}
+      {isProcessing && !toolProgress && !message && toolResults.length === 0 && (
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Loader2 className="h-3 w-3 animate-spin" />
+          <span>{t("aiThinking")}</span>
+        </div>
+      )}
     </div>
   );
 }

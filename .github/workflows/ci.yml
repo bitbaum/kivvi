@@ -5,17 +5,17 @@ on:
   push:
     branches: [main]
     paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - 'LICENSE'
-      - '.vscode/**'
+      - "**.md"
+      - "docs/**"
+      - "LICENSE"
+      - ".vscode/**"
   pull_request:
     branches: [main]
     paths-ignore:
-      - '**.md'
-      - 'docs/**'
-      - 'LICENSE'
-      - '.vscode/**'
+      - "**.md"
+      - "docs/**"
+      - "LICENSE"
+      - ".vscode/**"
 
 # Cancel in-progress runs on new pushes to the same PR
 concurrency:
@@ -23,8 +23,8 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: '20'
-  PNPM_VERSION: '9'
+  NODE_VERSION: "20"
+  PNPM_VERSION: "9"
 
 jobs:
   ci:
@@ -40,7 +40,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile

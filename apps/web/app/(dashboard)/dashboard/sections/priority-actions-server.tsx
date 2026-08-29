@@ -1,7 +1,4 @@
-import {
-  getDashboardAlerts,
-  getWorkflowSuggestions,
-} from "@kivvi/core/src/domain/dashboard";
+import { getDashboardAlerts, getWorkflowSuggestions } from "@kivvi/core/src/domain/dashboard";
 import { db } from "@/lib/db";
 import { getSessionOrRedirect } from "@/lib/session";
 import { PriorityActionsClient } from "./priority-actions";

@@ -136,8 +136,8 @@ export function SequenceRow({ sequence, typeLabel }: SequenceRowProps) {
         </div>
         {showWarning && (
           <div className="rounded-lg border border-warning/50 bg-warning/50/10 px-3 py-2 text-xs text-warning">
-            ⚠️ Warning: Setting next number to a lower value may create
-            duplicate numbers if documents already exist.
+            ⚠️ Warning: Setting next number to a lower value may create duplicate numbers if
+            documents already exist.
           </div>
         )}
         {error && (
@@ -152,15 +152,9 @@ export function SequenceRow({ sequence, typeLabel }: SequenceRowProps) {
   return (
     <div className="grid grid-cols-[1.5fr_1fr_1fr_1.5fr_auto] gap-4 px-6 py-4 items-center">
       <div className="text-sm font-medium">{typeLabel}</div>
-      <div className="text-sm font-mono text-muted-foreground">
-        {sequence.prefix}
-      </div>
-      <div className="text-sm font-mono text-muted-foreground">
-        {sequence.nextNumber}
-      </div>
-      <div className="text-sm font-mono text-muted-foreground">
-        {sequence.format}
-      </div>
+      <div className="text-sm font-mono text-muted-foreground">{sequence.prefix}</div>
+      <div className="text-sm font-mono text-muted-foreground">{sequence.nextNumber}</div>
+      <div className="text-sm font-mono text-muted-foreground">{sequence.format}</div>
       <div>
         <button
           type="button"

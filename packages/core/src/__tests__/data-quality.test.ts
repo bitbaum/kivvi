@@ -39,10 +39,8 @@ function makeDb(reads: unknown[][]) {
       innerJoin: () => b,
       leftJoin: () => b,
       groupBy: () => b,
-      then: (
-        resolve: (v: unknown[]) => unknown,
-        reject?: (e: unknown) => unknown,
-      ) => Promise.resolve(rows).then(resolve, reject),
+      then: (resolve: (v: unknown[]) => unknown, reject?: (e: unknown) => unknown) =>
+        Promise.resolve(rows).then(resolve, reject),
     };
     return b;
   }
@@ -194,18 +192,12 @@ describe("findDocumentIssues", () => {
   });
 
   it("does NOT flag a delivery note with zero total", async () => {
-    const db = makeDb([
-      [doc({ type: "delivery_note", total: "0" })],
-      [{ documentId: "d1" }],
-    ]);
+    const db = makeDb([[doc({ type: "delivery_note", total: "0" })], [{ documentId: "d1" }]]);
     expect(await findDocumentIssues(db, COMPANY_ID)).toEqual([]);
   });
 
   it("flags a non-draft invoice with no contact as no_contact", async () => {
-    const db = makeDb([
-      [doc({ contactId: null, contactName: null })],
-      [{ documentId: "d1" }],
-    ]);
+    const db = makeDb([[doc({ contactId: null, contactName: null })], [{ documentId: "d1" }]]);
     const issues = await findDocumentIssues(db, COMPANY_ID);
     expect(issues).toHaveLength(1);
     expect(issues[0].issue).toBe("no_contact");
@@ -230,10 +222,7 @@ describe("findDocumentIssues", () => {
   });
 
   it("does NOT flag a recent draft", async () => {
-    const db = makeDb([
-      [doc({ status: "draft", issueDate: daysAgo(10) })],
-      [{ documentId: "d1" }],
-    ]);
+    const db = makeDb([[doc({ status: "draft", issueDate: daysAgo(10) })], [{ documentId: "d1" }]]);
     expect(await findDocumentIssues(db, COMPANY_ID)).toEqual([]);
   });
 
@@ -285,18 +274,13 @@ describe("findDuplicateContacts", () => {
     expect(groups[0].normalizedName).toBe("acme ag");
     expect(groups[0].contacts).toHaveLength(2);
     // Each member is annotated with its document count.
-    const byId = Object.fromEntries(
-      groups[0].contacts.map((c) => [c.id, c.documentCount]),
-    );
+    const byId = Object.fromEntries(groups[0].contacts.map((c) => [c.id, c.documentCount]));
     expect(byId).toEqual({ c1: 3, c2: 1 });
   });
 
   it("returns no groups when every contact name is unique", async () => {
     const db = makeDb([
-      [
-        contact({ id: "c1", name: "ACME AG" }),
-        contact({ id: "c2", name: "Globex GmbH" }),
-      ],
+      [contact({ id: "c1", name: "ACME AG" }), contact({ id: "c2", name: "Globex GmbH" })],
     ]);
     expect(await findDuplicateContacts(db, COMPANY_ID)).toEqual([]);
   });
@@ -385,10 +369,7 @@ describe("findContactIssues", () => {
   });
 
   it("does NOT flag no_address when the contact has an inline address", async () => {
-    const issues = await findContactIssues(
-      db({ allContacts: [addressed()] }),
-      COMPANY_ID,
-    );
+    const issues = await findContactIssues(db({ allContacts: [addressed()] }), COMPANY_ID);
     expect(issues).toEqual([]);
   });
 
@@ -453,10 +434,7 @@ describe("findContactIssues", () => {
       COMPANY_ID,
     );
     expect(issues).toHaveLength(2);
-    expect(issues.map((i) => i.issue).sort()).toEqual([
-      "no_address",
-      "no_email_with_invoices",
-    ]);
+    expect(issues.map((i) => i.issue).sort()).toEqual(["no_address", "no_email_with_invoices"]);
   });
 
   it("returns no issues when every contact is complete", async () => {

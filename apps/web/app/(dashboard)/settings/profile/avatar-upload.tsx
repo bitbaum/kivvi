@@ -12,16 +12,11 @@ interface AvatarUploadProps {
   userName: string;
 }
 
-export function AvatarUpload({
-  initialAvatarBase64,
-  userName,
-}: AvatarUploadProps) {
+export function AvatarUpload({ initialAvatarBase64, userName }: AvatarUploadProps) {
   const t = useTranslations("settings");
   const tc = useTranslations("common");
   const router = useRouter();
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(
-    initialAvatarBase64,
-  );
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(initialAvatarBase64);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -91,11 +86,7 @@ export function AvatarUpload({
           <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full border-2 border-dashed bg-muted/30 overflow-hidden">
             {avatarPreview ? (
               /* eslint-disable-next-line @next/next/no-img-element -- base64 data URI, next/image optimization not applicable */
-              <img
-                src={avatarPreview}
-                alt="Avatar"
-                className="h-full w-full object-cover"
-              />
+              <img src={avatarPreview} alt="Avatar" className="h-full w-full object-cover" />
             ) : (
               <div className="flex h-full w-full items-center justify-center brand-gradient text-lg font-medium text-white">
                 {initial}
@@ -142,9 +133,7 @@ export function AvatarUpload({
                 {t("profileSection.removeAvatar")}
               </button>
             )}
-            <p className="text-xs text-muted-foreground">
-              {t("profileSection.avatarHint")}
-            </p>
+            <p className="text-xs text-muted-foreground">{t("profileSection.avatarHint")}</p>
           </div>
         </div>
       </div>

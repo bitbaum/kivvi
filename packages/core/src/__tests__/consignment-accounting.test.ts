@@ -29,9 +29,7 @@ const ACCOUNT_IDS: Record<string, string> = {
   "2140": "id-2140",
   "1020": "id-1020",
 };
-const ID_TO_CODE = new Map(
-  Object.entries(ACCOUNT_IDS).map(([code, id]) => [id, code]),
-);
+const ID_TO_CODE = new Map(Object.entries(ACCOUNT_IDS).map(([code, id]) => [id, code]));
 
 interface CapturedLine {
   accountCode: string;
@@ -46,10 +44,8 @@ function thenable(rows: unknown[]) {
     innerJoin: () => b,
     limit: () => b,
     for: () => b,
-    then: (
-      resolve: (v: unknown[]) => unknown,
-      reject?: (e: unknown) => unknown,
-    ) => Promise.resolve(rows).then(resolve, reject),
+    then: (resolve: (v: unknown[]) => unknown, reject?: (e: unknown) => unknown) =>
+      Promise.resolve(rows).then(resolve, reject),
   };
   return b;
 }
@@ -81,10 +77,7 @@ function makeMockDb() {
         // ledger_heads upsert path
         onConflictDoNothing: async () => undefined,
         // journalLines insert path (awaited directly)
-        then: (
-          resolve: (v: unknown) => unknown,
-          reject?: (e: unknown) => unknown,
-        ) => {
+        then: (resolve: (v: unknown) => unknown, reject?: (e: unknown) => unknown) => {
           const rows = Array.isArray(v) ? v : [v];
           for (const row of rows) {
             // Only capture real journal lines (they carry accountId); skip the
@@ -119,23 +112,16 @@ describe("createConsignmentSettlementJournalEntry", () => {
     const { db, captured } = makeMockDb();
 
     // Sold price net 100.00, consignment rate 70.00% → consignor share 70.00.
-    const consignorShare = new Decimal("100.00")
-      .times("70.00")
-      .div(100)
-      .toFixed(2);
+    const consignorShare = new Decimal("100.00").times("70.00").div(100).toFixed(2);
     expect(consignorShare).toBe("70.00");
 
-    const entry = await createConsignmentSettlementJournalEntry(
-      db,
-      COMPANY_ID,
-      {
-        saleDocId: SALE_DOC_ID,
-        reference: "RE-2026-00001",
-        date: new Date("2026-04-13"),
-        consignorShare,
-        itemNumbers: ["IT-00001"],
-      },
-    );
+    const entry = await createConsignmentSettlementJournalEntry(db, COMPANY_ID, {
+      saleDocId: SALE_DOC_ID,
+      reference: "RE-2026-00001",
+      date: new Date("2026-04-13"),
+      consignorShare,
+      itemNumbers: ["IT-00001"],
+    });
 
     expect(entry).toBeDefined();
     expect(captured.entries).toHaveLength(1);
@@ -157,17 +143,13 @@ describe("createConsignmentSettlementJournalEntry", () => {
   it("creates NO entry when consignor share is 0 (non-consigned sale)", async () => {
     const { db, captured } = makeMockDb();
 
-    const entry = await createConsignmentSettlementJournalEntry(
-      db,
-      COMPANY_ID,
-      {
-        saleDocId: SALE_DOC_ID,
-        reference: "RE-2026-00002",
-        date: new Date("2026-04-13"),
-        consignorShare: "0.00",
-        itemNumbers: [],
-      },
-    );
+    const entry = await createConsignmentSettlementJournalEntry(db, COMPANY_ID, {
+      saleDocId: SALE_DOC_ID,
+      reference: "RE-2026-00002",
+      date: new Date("2026-04-13"),
+      consignorShare: "0.00",
+      itemNumbers: [],
+    });
 
     expect(entry).toBeUndefined();
     expect(captured.entries).toHaveLength(0);
@@ -176,17 +158,13 @@ describe("createConsignmentSettlementJournalEntry", () => {
 
   it("creates NO entry for a negative share (defensive)", async () => {
     const { db, captured } = makeMockDb();
-    const entry = await createConsignmentSettlementJournalEntry(
-      db,
-      COMPANY_ID,
-      {
-        saleDocId: SALE_DOC_ID,
-        reference: "RE-2026-00003",
-        date: new Date("2026-04-13"),
-        consignorShare: "-5.00",
-        itemNumbers: [],
-      },
-    );
+    const entry = await createConsignmentSettlementJournalEntry(db, COMPANY_ID, {
+      saleDocId: SALE_DOC_ID,
+      reference: "RE-2026-00003",
+      date: new Date("2026-04-13"),
+      consignorShare: "-5.00",
+      itemNumbers: [],
+    });
     expect(entry).toBeUndefined();
     expect(captured.entries).toHaveLength(0);
   });
@@ -195,11 +173,7 @@ describe("createConsignmentSettlementJournalEntry", () => {
     const { db, captured } = makeMockDb();
 
     // net 99.95 × 33.33% = 33.3133... → rounds to 33.31 (Swiss 2dp per line).
-    const share = new Decimal("99.95")
-      .times("33.33")
-      .div(100)
-      .toDecimalPlaces(2)
-      .toFixed(2);
+    const share = new Decimal("99.95").times("33.33").div(100).toDecimalPlaces(2).toFixed(2);
     expect(share).toBe("33.31");
 
     await createConsignmentSettlementJournalEntry(db, COMPANY_ID, {

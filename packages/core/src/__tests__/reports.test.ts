@@ -143,10 +143,7 @@ describe("computeDaysOverdue", () => {
 
 describe("computeProfitLossTotals", () => {
   it("computes totals from revenue and expense amounts", () => {
-    const result = computeProfitLossTotals(
-      ["1000.00", "2000.00", "500.00"],
-      ["800.00", "300.00"],
-    );
+    const result = computeProfitLossTotals(["1000.00", "2000.00", "500.00"], ["800.00", "300.00"]);
 
     expect(result.totalRevenue).toBe("3500.00");
     expect(result.totalExpenses).toBe("1100.00");
@@ -192,21 +189,15 @@ describe("computeProfitLossTotals", () => {
 
 describe("computeRetainedEarnings", () => {
   it("basic calculation: assets - liabilities - equity", () => {
-    expect(computeRetainedEarnings("100000.00", "40000.00", "50000.00")).toBe(
-      "10000.00",
-    );
+    expect(computeRetainedEarnings("100000.00", "40000.00", "50000.00")).toBe("10000.00");
   });
 
   it("returns zero when balanced", () => {
-    expect(computeRetainedEarnings("100000.00", "60000.00", "40000.00")).toBe(
-      "0.00",
-    );
+    expect(computeRetainedEarnings("100000.00", "60000.00", "40000.00")).toBe("0.00");
   });
 
   it("returns negative when equity exceeds net assets", () => {
-    expect(computeRetainedEarnings("100000.00", "60000.00", "50000.00")).toBe(
-      "-10000.00",
-    );
+    expect(computeRetainedEarnings("100000.00", "60000.00", "50000.00")).toBe("-10000.00");
   });
 
   it("handles zero values", () => {
@@ -215,9 +206,7 @@ describe("computeRetainedEarnings", () => {
 
   it("handles decimal amounts without floating-point errors", () => {
     // 100000.50 - 60000.25 - 39999.75 = 0.50
-    expect(computeRetainedEarnings("100000.50", "60000.25", "39999.75")).toBe(
-      "0.50",
-    );
+    expect(computeRetainedEarnings("100000.50", "60000.25", "39999.75")).toBe("0.50");
   });
 });
 
@@ -227,9 +216,7 @@ describe("computeRetainedEarnings", () => {
 
 describe("mergeSalesRows", () => {
   it("merges invoice and credit rows for same month", () => {
-    const invoiceRows = [
-      { month: "2026-01", count: 5, revenue: "10000.00", vatAmount: "810.00" },
-    ];
+    const invoiceRows = [{ month: "2026-01", count: 5, revenue: "10000.00", vatAmount: "810.00" }];
     const creditRows = [{ month: "2026-01", count: 1, amount: "500.00" }];
 
     const result = mergeSalesRows(invoiceRows, creditRows);
@@ -245,11 +232,8 @@ describe("mergeSalesRows", () => {
   });
 
   it("handles months with only invoices", () => {
-    const invoiceRows = [
-      { month: "2026-01", count: 3, revenue: "5000.00", vatAmount: "405.00" },
-    ];
-    const creditRows: Array<{ month: string; count: number; amount: string }> =
-      [];
+    const invoiceRows = [{ month: "2026-01", count: 3, revenue: "5000.00", vatAmount: "405.00" }];
+    const creditRows: Array<{ month: string; count: number; amount: string }> = [];
 
     const result = mergeSalesRows(invoiceRows, creditRows);
 
@@ -288,11 +272,7 @@ describe("mergeSalesRows", () => {
 
     const result = mergeSalesRows(invoiceRows, creditRows);
 
-    expect(result.map((r) => r.month)).toEqual([
-      "2026-01",
-      "2026-02",
-      "2026-03",
-    ]);
+    expect(result.map((r) => r.month)).toEqual(["2026-01", "2026-02", "2026-03"]);
   });
 
   it("handles multiple months correctly", () => {
@@ -496,9 +476,7 @@ describe("computeCategoryPercentages", () => {
   });
 
   it("handles single-category scenario (100%)", () => {
-    const raw = [
-      { groupName: UNCATEGORIZED_GROUP, revenue: "750.00", itemCount: 5 },
-    ];
+    const raw = [{ groupName: UNCATEGORIZED_GROUP, revenue: "750.00", itemCount: 5 }];
 
     const result = computeCategoryPercentages(raw, "750.00");
 

@@ -60,22 +60,13 @@ describe("CHECKLIST_TEMPLATES structure", () => {
     for (const [cat, tmpl] of Object.entries(CHECKLIST_TEMPLATES)) {
       for (const check of tmpl.checks) {
         expect(check.id, `${cat}: check missing id`).toBeTruthy();
-        expect(
-          check.labelKey,
-          `${cat}/${check.id}: missing labelKey`,
-        ).toBeTruthy();
+        expect(check.labelKey, `${cat}/${check.id}: missing labelKey`).toBeTruthy();
         expect(
           ["pass_fail", "measurement", "confirm"],
           `${cat}/${check.id}: invalid type "${check.type}"`,
         ).toContain(check.type);
-        expect(
-          typeof check.blocking,
-          `${cat}/${check.id}: blocking not boolean`,
-        ).toBe("boolean");
-        expect(
-          typeof check.required,
-          `${cat}/${check.id}: required not boolean`,
-        ).toBe("boolean");
+        expect(typeof check.blocking, `${cat}/${check.id}: blocking not boolean`).toBe("boolean");
+        expect(typeof check.required, `${cat}/${check.id}: required not boolean`).toBe("boolean");
       }
     }
   });
@@ -94,10 +85,9 @@ describe("CHECKLIST_TEMPLATES structure", () => {
         const hasErasureCheck = tmpl.checks.some(
           (c) => c.id === "data_erasure" && c.type === "confirm",
         );
-        expect(
-          hasErasureCheck,
-          `${cat}: hasDataToErase but no data_erasure confirm check`,
-        ).toBe(true);
+        expect(hasErasureCheck, `${cat}: hasDataToErase but no data_erasure confirm check`).toBe(
+          true,
+        );
       }
     }
   });
@@ -113,9 +103,7 @@ describe("getChecklistTemplate", () => {
   });
 
   it("returns 'other' template for unknown category", () => {
-    expect(getChecklistTemplate("unknown_thing")).toBe(
-      CHECKLIST_TEMPLATES.other,
-    );
+    expect(getChecklistTemplate("unknown_thing")).toBe(CHECKLIST_TEMPLATES.other);
   });
 
   it("returns 'other' template for null/undefined", () => {
@@ -186,9 +174,7 @@ describe("areBlockingChecksPassed", () => {
     const tmpl = getChecklistTemplate("laptop");
     const blockingId = tmpl.checks.find((c) => c.blocking)!.id;
 
-    const completions = [
-      makeCompletion(blockingId, "skip", "no PSU available"),
-    ];
+    const completions = [makeCompletion(blockingId, "skip", "no PSU available")];
     // Other blocking checks still missing — only tests skip behaviour for one check
     const result = areBlockingChecksPassed(tmpl, completions);
     // The skipped check should not appear in missing
@@ -197,9 +183,7 @@ describe("areBlockingChecksPassed", () => {
 
   it("returns passed:false when required blocking check is skipped WITHOUT reason", () => {
     const tmpl = getChecklistTemplate("laptop");
-    const requiredBlockingCheck = tmpl.checks.find(
-      (c) => c.blocking && c.required,
-    )!;
+    const requiredBlockingCheck = tmpl.checks.find((c) => c.blocking && c.required)!;
 
     const completions = [makeCompletion(requiredBlockingCheck.id, "skip")];
     expect(areBlockingChecksPassed(tmpl, completions).passed).toBe(false);

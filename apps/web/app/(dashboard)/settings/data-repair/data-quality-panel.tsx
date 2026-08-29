@@ -19,11 +19,7 @@ import { DocumentIssuesTable } from "./document-issues-table";
 import { ContactIssuesTable } from "./contact-issues-table";
 import { ProductIssuesTable } from "./product-issues-table";
 
-export function DataQualityPanel({
-  initialReport,
-}: {
-  initialReport: DataQualityReport | null;
-}) {
+export function DataQualityPanel({ initialReport }: { initialReport: DataQualityReport | null }) {
   const tDQ = useTranslations("dataQuality");
   const [report, setReport] = useState<DataQualityReport | null>(initialReport);
   const [refreshing, setRefreshing] = useState(false);
@@ -87,11 +83,7 @@ export function DataQualityPanel({
         ) : (
           <div className="space-y-4">
             {report.duplicateContactGroups.map((group) => (
-              <DuplicateGroup
-                key={group.normalizedName}
-                group={group}
-                onMerged={refresh}
-              />
+              <DuplicateGroup key={group.normalizedName} group={group} onMerged={refresh} />
             ))}
           </div>
         )}
@@ -104,9 +96,7 @@ export function DataQualityPanel({
         count={summary.contactIssues}
       >
         {report.contactIssues.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            {tDQ("allContactsOk")}
-          </p>
+          <p className="text-sm text-muted-foreground">{tDQ("allContactsOk")}</p>
         ) : (
           <ContactIssuesTable issues={report.contactIssues} onFixed={refresh} />
         )}
@@ -119,14 +109,9 @@ export function DataQualityPanel({
         count={summary.documentIssues}
       >
         {report.documentIssues.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            {tDQ("allDocumentsOk")}
-          </p>
+          <p className="text-sm text-muted-foreground">{tDQ("allDocumentsOk")}</p>
         ) : (
-          <DocumentIssuesTable
-            issues={report.documentIssues}
-            onFixed={refresh}
-          />
+          <DocumentIssuesTable issues={report.documentIssues} onFixed={refresh} />
         )}
       </DataQualitySection>
 
@@ -137,9 +122,7 @@ export function DataQualityPanel({
         count={summary.productIssues}
       >
         {report.productIssues.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            {tDQ("allProductsOk")}
-          </p>
+          <p className="text-sm text-muted-foreground">{tDQ("allProductsOk")}</p>
         ) : (
           <ProductIssuesTable issues={report.productIssues} />
         )}

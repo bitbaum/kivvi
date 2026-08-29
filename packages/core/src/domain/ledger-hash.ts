@@ -60,9 +60,7 @@ export function computeEntryHash(entry: HashableEntry): string {
         debit: amt(l.debit),
         credit: amt(l.credit),
       }))
-      .sort((a, b) =>
-        a.accountId < b.accountId ? -1 : a.accountId > b.accountId ? 1 : 0,
-      ),
+      .sort((a, b) => (a.accountId < b.accountId ? -1 : a.accountId > b.accountId ? 1 : 0)),
   });
   return createHash("sha256").update(canonical).digest("hex");
 }

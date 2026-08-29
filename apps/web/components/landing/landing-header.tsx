@@ -35,9 +35,7 @@ export async function LandingHeader() {
   const allArticles = getAllArticles();
   const wissenItems = WISSEN_FEATURED_SLUGS.flatMap((slug) => {
     const article = allArticles.find((a) => a.slug === slug);
-    return article
-      ? [{ slug: article.slug, title: article.title, tag: article.tag }]
-      : [];
+    return article ? [{ slug: article.slug, title: article.title, tag: article.tag }] : [];
   });
 
   return (

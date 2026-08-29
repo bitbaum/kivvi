@@ -8,11 +8,7 @@ interface OnboardingShellProps {
   children: React.ReactNode;
 }
 
-export function OnboardingShell({
-  currentStep,
-  totalSteps,
-  children,
-}: OnboardingShellProps) {
+export function OnboardingShell({ currentStep, totalSteps, children }: OnboardingShellProps) {
   const t = useTranslations("onboarding");
   const progress = Math.min((currentStep / totalSteps) * 100, 100);
 
@@ -53,9 +49,7 @@ export function OnboardingShell({
               />
               <span
                 className={`hidden text-xs sm:inline ${
-                  i + 1 <= currentStep
-                    ? "text-foreground"
-                    : "text-muted-foreground"
+                  i + 1 <= currentStep ? "text-foreground" : "text-muted-foreground"
                 }`}
               >
                 {label}

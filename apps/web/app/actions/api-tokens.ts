@@ -21,9 +21,7 @@ export const createApiTokenAction = createAction<
     });
     const parsed = createTokenSchema.safeParse(input);
     if (!parsed.success) {
-      throw new Error(
-        parsed.error.errors[0]?.message || t("errorCreateFailed"),
-      );
+      throw new Error(parsed.error.errors[0]?.message || t("errorCreateFailed"));
     }
 
     const { rawToken, tokenHash, tokenPrefix } = generateApiToken();
@@ -42,8 +40,7 @@ export const createApiTokenAction = createAction<
     return { id: token.id, rawToken, prefix: tokenPrefix };
   },
   revalidate: ["/settings"],
-  errorMessage: () =>
-    getTranslations("settings.apiTokens").then((t) => t("errorCreateFailed")),
+  errorMessage: () => getTranslations("settings.apiTokens").then((t) => t("errorCreateFailed")),
   minRole: "admin",
 });
 
@@ -61,8 +58,7 @@ type ApiTokenListItem = {
  * List all API tokens for the current company. Does NOT return the token itself.
  */
 export const listApiTokensAction = createAction<void, ApiTokenListItem[]>({
-  errorMessage: () =>
-    getTranslations("settings.apiTokens").then((t) => t("errorListFailed")),
+  errorMessage: () => getTranslations("settings.apiTokens").then((t) => t("errorListFailed")),
   handler: async (_input, { companyId, db }) =>
     db
       .select({
@@ -84,8 +80,7 @@ export const listApiTokensAction = createAction<void, ApiTokenListItem[]>({
 export const revokeApiTokenAction = createAction<string, void>({
   minRole: "admin",
   revalidate: ["/settings"],
-  errorMessage: () =>
-    getTranslations("settings.apiTokens").then((t) => t("errorRevokeFailed")),
+  errorMessage: () => getTranslations("settings.apiTokens").then((t) => t("errorRevokeFailed")),
   handler: async (tokenId, { companyId, db }) => {
     const [updated] = await db
       .update(apiTokens)
@@ -102,8 +97,7 @@ export const revokeApiTokenAction = createAction<string, void>({
 export const deleteApiTokenAction = createAction<string, void>({
   minRole: "admin",
   revalidate: ["/settings"],
-  errorMessage: () =>
-    getTranslations("settings.apiTokens").then((t) => t("errorDeleteFailed")),
+  errorMessage: () => getTranslations("settings.apiTokens").then((t) => t("errorDeleteFailed")),
   handler: async (tokenId, { companyId, db }) => {
     const [deleted] = await db
       .delete(apiTokens)

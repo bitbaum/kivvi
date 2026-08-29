@@ -20,8 +20,7 @@ export const getInventoryDashboardTool: Tool = {
     context: ExecutionContext,
   ): Promise<ToolResult> => {
     try {
-      const { getInventoryDashboard, getImpactMetrics } =
-        await import("@kivvi/core");
+      const { getInventoryDashboard, getImpactMetrics } = await import("@kivvi/core");
       const db = getDb(context);
 
       const [dashboard, impact] = await Promise.all([

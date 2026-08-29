@@ -11,14 +11,8 @@ import {
   users,
 } from "@kivvi/database";
 import type { Database, InventoryItem, RepairPart } from "@kivvi/database";
-import type {
-  ItemStatusValue,
-  ItemConditionValue,
-} from "@kivvi/database/src/enums";
-import {
-  ITEM_CONDITION_VALUES,
-  ITEM_STATUS_VALUES,
-} from "@kivvi/database/src/enums";
+import type { ItemStatusValue, ItemConditionValue } from "@kivvi/database/src/enums";
+import { ITEM_CONDITION_VALUES, ITEM_STATUS_VALUES } from "@kivvi/database/src/enums";
 import { ITEM_STATUS_TRANSITIONS } from "../config/item-transitions";
 import { SELLABLE_ITEM_STATUSES } from "../config/item-status-sets";
 import {
@@ -54,18 +48,10 @@ export function buildInventoryItemWebhookPayload(item: InventoryItem) {
 function emitInventoryItemWebhook(
   db: Database,
   companyId: string,
-  event:
-    | "inventory_item.created"
-    | "inventory_item.updated"
-    | "inventory_item.status_changed",
+  event: "inventory_item.created" | "inventory_item.updated" | "inventory_item.status_changed",
   item: InventoryItem,
 ) {
-  dispatchWebhookEvent(
-    db,
-    companyId,
-    event,
-    buildInventoryItemWebhookPayload(item),
-  );
+  dispatchWebhookEvent(db, companyId, event, buildInventoryItemWebhookPayload(item));
 }
 
 // ============================================================================
@@ -94,12 +80,8 @@ export const createInventoryItemSchema = z.object({
 
 export const updateInventoryItemSchema = createInventoryItemSchema.partial();
 
-export type CreateInventoryItemInput = z.infer<
-  typeof createInventoryItemSchema
->;
-export type UpdateInventoryItemInput = z.infer<
-  typeof updateInventoryItemSchema
->;
+export type CreateInventoryItemInput = z.infer<typeof createInventoryItemSchema>;
+export type UpdateInventoryItemInput = z.infer<typeof updateInventoryItemSchema>;
 
 /**
  * A single row accepted by the smart bulk importer. Stricter than a manual
@@ -122,9 +104,7 @@ export const importInventoryItemSchema = z.object({
   }),
 });
 
-export type ImportInventoryItemInput = z.infer<
-  typeof importInventoryItemSchema
->;
+export type ImportInventoryItemInput = z.infer<typeof importInventoryItemSchema>;
 
 export interface ImportInventoryResult {
   inserted: number;
@@ -187,18 +167,12 @@ export function calculatePartsTotal(
 }
 
 /** Sale margin when both sold price and effective cost are known. */
-export function calculateSaleMargin(
-  soldPrice: string,
-  effectiveCost: string,
-): Decimal {
+export function calculateSaleMargin(soldPrice: string, effectiveCost: string): Decimal {
   return new Decimal(soldPrice).minus(effectiveCost);
 }
 
 /** Consignor payout from sold price and consignment rate (percentage). */
-export function calculateConsignorPayout(
-  soldPrice: string,
-  consignmentRate: string,
-): string {
+export function calculateConsignorPayout(soldPrice: string, consignmentRate: string): string {
   return new Decimal(soldPrice)
     .times(new Decimal(consignmentRate).div(100))
     .toDecimalPlaces(2)
@@ -296,18 +270,14 @@ export async function bulkImportInventoryItems(
     .from(inventoryItems)
     .where(eq(inventoryItems.companyId, companyId));
   const seenSerials = new Set(
-    existing
-      .map((r) => r.serialNumber?.toLowerCase())
-      .filter((s): s is string => !!s),
+    existing.map((r) => r.serialNumber?.toLowerCase()).filter((s): s is string => !!s),
   );
 
   for (let i = 0; i < rows.length; i++) {
     const parsed = importInventoryItemSchema.safeParse(rows[i]);
     if (!parsed.success) {
       result.skippedInvalid++;
-      result.errors.push(
-        `Row ${i + 1}: ${parsed.error.errors.map((e) => e.message).join(", ")}`,
-      );
+      result.errors.push(`Row ${i + 1}: ${parsed.error.errors.map((e) => e.message).join(", ")}`);
       continue;
     }
 
@@ -334,9 +304,7 @@ export async function bulkImportInventoryItems(
       result.inserted++;
     } catch (err) {
       result.skippedInvalid++;
-      result.errors.push(
-        `Row ${i + 1}: ${err instanceof Error ? err.message : String(err)}`,
-      );
+      result.errors.push(`Row ${i + 1}: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 
@@ -356,12 +324,7 @@ export async function updateInventoryItem(
       ...input,
       updatedAt: new Date(),
     })
-    .where(
-      and(
-        eq(inventoryItems.id, itemId),
-        eq(inventoryItems.companyId, companyId),
-      ),
-    )
+    .where(and(eq(inventoryItems.id, itemId), eq(inventoryItems.companyId, companyId)))
     .returning();
 
   if (!updated) throw new Error("Inventory item not found");
@@ -385,12 +348,7 @@ export async function updateItemStatus(
   const [current] = await db
     .select()
     .from(inventoryItems)
-    .where(
-      and(
-        eq(inventoryItems.id, itemId),
-        eq(inventoryItems.companyId, companyId),
-      ),
-    )
+    .where(and(eq(inventoryItems.id, itemId), eq(inventoryItems.companyId, companyId)))
     .limit(1);
 
   if (!current) throw new Error("Inventory item not found");
@@ -430,10 +388,7 @@ export async function updateItemStatus(
     const checklistData = current.checklistData as ChecklistData | null;
     if (current.category && checklistData?.completions?.length) {
       const template = getChecklistTemplate(current.category);
-      const { passed, missing } = areBlockingChecksPassed(
-        template,
-        checklistData.completions,
-      );
+      const { passed, missing } = areBlockingChecksPassed(template, checklistData.completions);
       if (!passed) {
         throw new DomainError(
           "cannotApproveBlockingChecks",
@@ -456,27 +411,15 @@ export async function updateItemStatus(
     .update(inventoryItems)
     .set({
       status: newStatus,
-      ...(signedOffChecklistData
-        ? { checklistData: signedOffChecklistData }
-        : {}),
+      ...(signedOffChecklistData ? { checklistData: signedOffChecklistData } : {}),
       updatedAt: now,
       statusUpdatedAt: now,
     })
-    .where(
-      and(
-        eq(inventoryItems.id, itemId),
-        eq(inventoryItems.companyId, companyId),
-      ),
-    )
+    .where(and(eq(inventoryItems.id, itemId), eq(inventoryItems.companyId, companyId)))
     .returning();
 
   if (!options?.skipWebhook) {
-    emitInventoryItemWebhook(
-      db,
-      companyId,
-      "inventory_item.status_changed",
-      updated,
-    );
+    emitInventoryItemWebhook(db, companyId, "inventory_item.status_changed", updated);
   }
 
   return updated;
@@ -491,12 +434,7 @@ export async function updateItemCondition(
   const [updated] = await db
     .update(inventoryItems)
     .set({ condition, updatedAt: new Date() })
-    .where(
-      and(
-        eq(inventoryItems.id, itemId),
-        eq(inventoryItems.companyId, companyId),
-      ),
-    )
+    .where(and(eq(inventoryItems.id, itemId), eq(inventoryItems.companyId, companyId)))
     .returning();
 
   if (!updated) throw new Error("Inventory item not found");
@@ -549,12 +487,7 @@ export async function sellInventoryItem(
   const [current] = await db
     .select()
     .from(inventoryItems)
-    .where(
-      and(
-        eq(inventoryItems.id, itemId),
-        eq(inventoryItems.companyId, companyId),
-      ),
-    )
+    .where(and(eq(inventoryItems.id, itemId), eq(inventoryItems.companyId, companyId)))
     .for("update")
     .limit(1);
 
@@ -579,21 +512,11 @@ export async function sellInventoryItem(
       updatedAt: now,
       statusUpdatedAt: now,
     })
-    .where(
-      and(
-        eq(inventoryItems.id, itemId),
-        eq(inventoryItems.companyId, companyId),
-      ),
-    )
+    .where(and(eq(inventoryItems.id, itemId), eq(inventoryItems.companyId, companyId)))
     .returning();
 
   if (updated) {
-    emitInventoryItemWebhook(
-      db,
-      companyId,
-      "inventory_item.status_changed",
-      updated,
-    );
+    emitInventoryItemWebhook(db, companyId, "inventory_item.status_changed", updated);
   }
 
   return updated;
@@ -620,12 +543,7 @@ export async function recordRepair(
     const [current] = await tx
       .select()
       .from(inventoryItems)
-      .where(
-        and(
-          eq(inventoryItems.id, itemId),
-          eq(inventoryItems.companyId, companyId),
-        ),
-      )
+      .where(and(eq(inventoryItems.id, itemId), eq(inventoryItems.companyId, companyId)))
       .for("update")
       .limit(1);
 
@@ -657,12 +575,7 @@ export async function recordRepair(
         repairLog: newLog,
         updatedAt: new Date(),
       })
-      .where(
-        and(
-          eq(inventoryItems.id, itemId),
-          eq(inventoryItems.companyId, companyId),
-        ),
-      )
+      .where(and(eq(inventoryItems.id, itemId), eq(inventoryItems.companyId, companyId)))
       .returning();
 
     return updated;
@@ -702,12 +615,7 @@ export async function addRepairPart(
   const [item] = await db
     .select({ id: inventoryItems.id })
     .from(inventoryItems)
-    .where(
-      and(
-        eq(inventoryItems.id, itemId),
-        eq(inventoryItems.companyId, companyId),
-      ),
-    )
+    .where(and(eq(inventoryItems.id, itemId), eq(inventoryItems.companyId, companyId)))
     .limit(1);
   if (!item) throw new Error("Inventory item not found");
 
@@ -753,9 +661,7 @@ export async function removeRepairPart(
   const [part] = await db
     .select({ id: repairParts.id })
     .from(repairParts)
-    .where(
-      and(eq(repairParts.id, partId), eq(repairParts.companyId, companyId)),
-    )
+    .where(and(eq(repairParts.id, partId), eq(repairParts.companyId, companyId)))
     .limit(1);
   if (!part) throw new Error("Repair part not found");
 
@@ -781,12 +687,7 @@ export async function listRepairParts(
     })
     .from(repairParts)
     .leftJoin(products, eq(repairParts.productId, products.id))
-    .where(
-      and(
-        eq(repairParts.inventoryItemId, itemId),
-        eq(repairParts.companyId, companyId),
-      ),
-    )
+    .where(and(eq(repairParts.inventoryItemId, itemId), eq(repairParts.companyId, companyId)))
     .orderBy(desc(repairParts.createdAt));
 
   return rows.map((r) => ({ ...r.part, product: r.product ?? null }));
@@ -804,21 +705,14 @@ export async function returnInventoryItem(
   const [current] = await db
     .select()
     .from(inventoryItems)
-    .where(
-      and(
-        eq(inventoryItems.id, itemId),
-        eq(inventoryItems.companyId, companyId),
-      ),
-    )
+    .where(and(eq(inventoryItems.id, itemId), eq(inventoryItems.companyId, companyId)))
     .limit(1);
 
   if (!current) throw new Error("Inventory item not found");
 
   // Only sold items can be returned
   if (current.status !== "sold") {
-    throw new Error(
-      `Cannot return item in status "${current.status}". Must be sold.`,
-    );
+    throw new Error(`Cannot return item in status "${current.status}". Must be sold.`);
   }
 
   const [updated] = await db
@@ -827,12 +721,7 @@ export async function returnInventoryItem(
       status: "returned",
       updatedAt: new Date(),
     })
-    .where(
-      and(
-        eq(inventoryItems.id, itemId),
-        eq(inventoryItems.companyId, companyId),
-      ),
-    )
+    .where(and(eq(inventoryItems.id, itemId), eq(inventoryItems.companyId, companyId)))
     .returning();
 
   return updated;
@@ -856,19 +745,13 @@ export async function recordChecklist(
   const [current] = await db
     .select()
     .from(inventoryItems)
-    .where(
-      and(
-        eq(inventoryItems.id, itemId),
-        eq(inventoryItems.companyId, companyId),
-      ),
-    )
+    .where(and(eq(inventoryItems.id, itemId), eq(inventoryItems.companyId, companyId)))
     .limit(1);
 
   if (!current) throw new Error("Inventory item not found");
 
   // Merge: existing completions + new ones (new wins on same id)
-  const existing =
-    (current.checklistData as ChecklistData | null)?.completions ?? [];
+  const existing = (current.checklistData as ChecklistData | null)?.completions ?? [];
   const existingMap = new Map(existing.map((c) => [c.id, c]));
   for (const c of input.completions) {
     existingMap.set(c.id, c);
@@ -899,12 +782,7 @@ export async function recordChecklist(
       ...erasureUpdate,
       updatedAt: new Date(),
     })
-    .where(
-      and(
-        eq(inventoryItems.id, itemId),
-        eq(inventoryItems.companyId, companyId),
-      ),
-    )
+    .where(and(eq(inventoryItems.id, itemId), eq(inventoryItems.companyId, companyId)))
     .returning();
 
   return updated;
@@ -937,12 +815,7 @@ export async function recordDataErasure(
       notes: input.notes,
       updatedAt: new Date(),
     })
-    .where(
-      and(
-        eq(inventoryItems.id, itemId),
-        eq(inventoryItems.companyId, companyId),
-      ),
-    )
+    .where(and(eq(inventoryItems.id, itemId), eq(inventoryItems.companyId, companyId)))
     .returning();
 
   if (!updated) throw new Error("Inventory item not found");
@@ -956,12 +829,7 @@ export async function deleteInventoryItem(
 ): Promise<void> {
   const result = await db
     .delete(inventoryItems)
-    .where(
-      and(
-        eq(inventoryItems.id, itemId),
-        eq(inventoryItems.companyId, companyId),
-      ),
-    );
+    .where(and(eq(inventoryItems.id, itemId), eq(inventoryItems.companyId, companyId)));
 
   if (!result) throw new Error("Inventory item not found");
 }
@@ -988,16 +856,8 @@ export async function getInventoryItem(
     .leftJoin(products, eq(inventoryItems.productId, products.id))
     .leftJoin(warehouses, eq(inventoryItems.warehouseId, warehouses.id))
     .leftJoin(contacts, eq(inventoryItems.donorContactId, contacts.id))
-    .leftJoin(
-      assignedUsers,
-      eq(inventoryItems.assignedToUserId, assignedUsers.id),
-    )
-    .where(
-      and(
-        eq(inventoryItems.id, itemId),
-        eq(inventoryItems.companyId, companyId),
-      ),
-    )
+    .leftJoin(assignedUsers, eq(inventoryItems.assignedToUserId, assignedUsers.id))
+    .where(and(eq(inventoryItems.id, itemId), eq(inventoryItems.companyId, companyId)))
     .limit(1);
 
   if (!result[0]) return null;
@@ -1008,12 +868,7 @@ export async function getInventoryItem(
       total: sql<string>`coalesce(sum(${repairParts.quantity} * ${repairParts.unitCost}), '0')`,
     })
     .from(repairParts)
-    .where(
-      and(
-        eq(repairParts.inventoryItemId, itemId),
-        eq(repairParts.companyId, companyId),
-      ),
-    );
+    .where(and(eq(repairParts.inventoryItemId, itemId), eq(repairParts.companyId, companyId)));
 
   return {
     ...result[0].item,
@@ -1061,16 +916,12 @@ export async function listInventoryItems(
   const conditions = [eq(inventoryItems.companyId, companyId)];
 
   if (statuses && statuses.length > 0) {
-    conditions.push(
-      inArray(inventoryItems.status, statuses as ItemStatusValue[]),
-    );
+    conditions.push(inArray(inventoryItems.status, statuses as ItemStatusValue[]));
   } else if (status) {
     conditions.push(eq(inventoryItems.status, status as ItemStatusValue));
   }
   if (condition) {
-    conditions.push(
-      eq(inventoryItems.condition, condition as ItemConditionValue),
-    );
+    conditions.push(eq(inventoryItems.condition, condition as ItemConditionValue));
   }
   if (warehouseId) {
     conditions.push(eq(inventoryItems.warehouseId, warehouseId));
@@ -1093,10 +944,7 @@ export async function listInventoryItems(
   const where = and(...conditions);
 
   // Count total
-  const [{ total }] = await db
-    .select({ total: count() })
-    .from(inventoryItems)
-    .where(where);
+  const [{ total }] = await db.select({ total: count() }).from(inventoryItems).where(where);
 
   // Fetch page
   const sortColumn =
@@ -1130,10 +978,7 @@ export async function listInventoryItems(
     .leftJoin(products, eq(inventoryItems.productId, products.id))
     .leftJoin(warehouses, eq(inventoryItems.warehouseId, warehouses.id))
     .leftJoin(contacts, eq(inventoryItems.donorContactId, contacts.id))
-    .leftJoin(
-      assignedUsers,
-      eq(inventoryItems.assignedToUserId, assignedUsers.id),
-    )
+    .leftJoin(assignedUsers, eq(inventoryItems.assignedToUserId, assignedUsers.id))
     .where(where)
     .orderBy(orderFn(sortColumn))
     .limit(pageSize)

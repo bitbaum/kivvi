@@ -47,29 +47,21 @@ Note: for a single item use update_item_status instead.`,
     context: ExecutionContext,
   ): Promise<ToolResult> => {
     try {
-      const { bulkUpdateStatus } =
-        await import("@kivvi/core/src/domain/inventory-items");
+      const { bulkUpdateStatus } = await import("@kivvi/core/src/domain/inventory-items");
       const db = getDb(context);
 
       // Resolve all identifiers to UUIDs first
       const resolveResults = await Promise.all(
         params.item_identifiers.map(async (identifier) => {
-          const item = await resolveInventoryItem(
-            db,
-            context.companyId,
-            identifier,
-          );
+          const item = await resolveInventoryItem(db, context.companyId, identifier);
           return { identifier, item };
         }),
       );
 
-      const notFound = resolveResults
-        .filter((r) => !r.item)
-        .map((r) => r.identifier);
+      const notFound = resolveResults.filter((r) => !r.item).map((r) => r.identifier);
 
       const resolved = resolveResults.filter(
-        (r): r is { identifier: string; item: NonNullable<typeof r.item> } =>
-          r.item !== null,
+        (r): r is { identifier: string; item: NonNullable<typeof r.item> } => r.item !== null,
       );
 
       if (resolved.length === 0) {
@@ -92,9 +84,7 @@ Note: for a single item use update_item_status instead.`,
 
       const parts: string[] = [];
       if (succeeded > 0)
-        parts.push(
-          `${succeeded} item${succeeded !== 1 ? "s" : ""} → "${params.status}"`,
-        );
+        parts.push(`${succeeded} item${succeeded !== 1 ? "s" : ""} → "${params.status}"`);
       if (failed > 0) parts.push(`${failed} skipped (invalid transition)`);
       if (notFoundCount > 0) parts.push(`${notFoundCount} not found`);
 

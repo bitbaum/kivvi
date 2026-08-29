@@ -41,9 +41,7 @@ export default async function KnowledgePage() {
             <BookOpen className="h-8 w-8 text-primary" />
           </div>
         </div>
-        <h1 className="mb-4 text-4xl font-bold sm:text-5xl">
-          {t("hero.title")}
-        </h1>
+        <h1 className="mb-4 text-4xl font-bold sm:text-5xl">{t("hero.title")}</h1>
         <p className="text-xl text-muted-foreground">{t("hero.description")}</p>
       </section>
 
@@ -63,9 +61,7 @@ export default async function KnowledgePage() {
                   >
                     {article.tag}
                   </span>
-                  <span className="text-xs text-muted-foreground">
-                    {article.readTime}
-                  </span>
+                  <span className="text-xs text-muted-foreground">{article.readTime}</span>
                 </div>
                 <h2 className="mb-2 font-semibold leading-snug group-hover:text-primary transition-colors">
                   {article.title}
@@ -88,19 +84,13 @@ export default async function KnowledgePage() {
                   >
                     {article.tag}
                   </span>
-                  <span className="text-xs text-muted-foreground">
-                    {article.readTime}
-                  </span>
+                  <span className="text-xs text-muted-foreground">{article.readTime}</span>
                 </div>
-                <h2 className="mb-2 font-semibold leading-snug">
-                  {article.title}
-                </h2>
+                <h2 className="mb-2 font-semibold leading-snug">{article.title}</h2>
                 <p className="flex-1 text-sm text-muted-foreground leading-relaxed">
                   {article.excerpt}
                 </p>
-                <div className="mt-4 text-xs text-muted-foreground">
-                  {t("card.comingSoon")}
-                </div>
+                <div className="mt-4 text-xs text-muted-foreground">{t("card.comingSoon")}</div>
               </div>
             ),
           )}
@@ -128,9 +118,7 @@ export default async function KnowledgePage() {
             href="/why-kivvi"
             className="group rounded-xl border bg-card p-5 hover:shadow-md transition-shadow"
           >
-            <p className="text-xs text-muted-foreground mb-1">
-              {t("crossLinks.whyKivvi.label")}
-            </p>
+            <p className="text-xs text-muted-foreground mb-1">{t("crossLinks.whyKivvi.label")}</p>
             <h3 className="font-semibold group-hover:text-primary transition-colors">
               {t("crossLinks.whyKivvi.title")}
             </h3>
@@ -142,9 +130,7 @@ export default async function KnowledgePage() {
             href="/how-it-works"
             className="group rounded-xl border bg-card p-5 hover:shadow-md transition-shadow"
           >
-            <p className="text-xs text-muted-foreground mb-1">
-              {t("crossLinks.howItWorks.label")}
-            </p>
+            <p className="text-xs text-muted-foreground mb-1">{t("crossLinks.howItWorks.label")}</p>
             <h3 className="font-semibold group-hover:text-primary transition-colors">
               {t("crossLinks.howItWorks.title")}
             </h3>
@@ -158,9 +144,7 @@ export default async function KnowledgePage() {
       {/* Contact */}
       <section className="mx-auto max-w-2xl py-16 text-center">
         <h2 className="mb-4 text-2xl font-bold">{t("askQuestion.title")}</h2>
-        <p className="mb-8 text-muted-foreground">
-          {t("askQuestion.description")}
-        </p>
+        <p className="mb-8 text-muted-foreground">{t("askQuestion.description")}</p>
         <Button asChild size="lg">
           <Link href="/contact">
             {t("askQuestion.cta")}
