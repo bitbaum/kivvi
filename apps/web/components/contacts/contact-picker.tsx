@@ -59,10 +59,7 @@ export function ContactPicker({
   useEffect(() => {
     if (!showDropdown) return;
     function handleClick(e: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(e.target as Node)
-      ) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setShowDropdown(false);
       }
     }
@@ -120,10 +117,7 @@ export function ContactPicker({
   return (
     <>
       <div className="relative" ref={dropdownRef}>
-        <label
-          htmlFor="contact-picker-search"
-          className="block text-sm font-medium"
-        >
+        <label htmlFor="contact-picker-search" className="block text-sm font-medium">
           {label ?? (contactType === "vendor" ? t("vendor") : t("customer"))}
         </label>
         <div className="relative mt-1">
@@ -160,9 +154,7 @@ export function ContactPicker({
                   >
                     <span className="font-medium">{c.name}</span>
                     {c.contactNumber && (
-                      <span className="ml-2 text-muted-foreground">
-                        {c.contactNumber}
-                      </span>
+                      <span className="ml-2 text-muted-foreground">{c.contactNumber}</span>
                     )}
                   </button>
                 ))}
@@ -178,8 +170,7 @@ export function ContactPicker({
               >
                 <UserPlus className="h-4 w-4 text-primary" />
                 <span>
-                  {tc("create")}{" "}
-                  <span className="font-medium">&quot;{search}&quot;</span>
+                  {tc("create")} <span className="font-medium">&quot;{search}&quot;</span>
                 </span>
               </button>
             ) : null}

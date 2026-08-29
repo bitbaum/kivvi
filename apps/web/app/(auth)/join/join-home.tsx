@@ -4,15 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
-import {
-  ArrowRight,
-  Building2,
-  Clock,
-  Loader2,
-  Mail,
-  Search,
-  UserCircle,
-} from "lucide-react";
+import { ArrowRight, Building2, Clock, Loader2, Mail, Search, UserCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { KivviLogo } from "@/components/kivvi-logo";
 import { Button } from "@/components/ui/button";
@@ -41,12 +33,7 @@ interface JoinHomeProps {
   }>;
 }
 
-export function JoinHome({
-  title,
-  description,
-  user,
-  pendingInvites,
-}: JoinHomeProps) {
+export function JoinHome({ title, description, user, pendingInvites }: JoinHomeProps) {
   const router = useRouter();
   const { update: updateSession } = useSession();
   const t = useTranslations("join");
@@ -84,11 +71,7 @@ export function JoinHome({
             <KivviLogo size={36} />
             <span className="text-xl font-bold">Kivvi</span>
           </Link>
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => signOut({ callbackUrl: "/login" })}
-          >
+          <Button type="button" variant="ghost" onClick={() => signOut({ callbackUrl: "/login" })}>
             {t("signOut")}
           </Button>
         </div>
@@ -98,26 +81,16 @@ export function JoinHome({
             <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-muted">
               {user.avatarBase64 ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={user.avatarBase64}
-                  alt=""
-                  className="h-full w-full object-cover"
-                />
+                <img src={user.avatarBase64} alt="" className="h-full w-full object-cover" />
               ) : (
                 <UserCircle className="h-7 w-7 text-muted-foreground" />
               )}
             </div>
             <div className="min-w-0">
               <h1 className="text-2xl font-semibold">{title}</h1>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {description}
-              </p>
-              <p className="mt-2 truncate text-sm font-medium">
-                {user.name || user.email}
-              </p>
-              <p className="truncate text-sm text-muted-foreground">
-                {user.email}
-              </p>
+              <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+              <p className="mt-2 truncate text-sm font-medium">{user.name || user.email}</p>
+              <p className="truncate text-sm text-muted-foreground">{user.email}</p>
             </div>
           </div>
         </header>
@@ -127,9 +100,7 @@ export function JoinHome({
             <section className="space-y-4">
               <div>
                 <h2 className="font-semibold">{t("profileTitle")}</h2>
-                <p className="text-sm text-muted-foreground">
-                  {t("profileDesc")}
-                </p>
+                <p className="text-sm text-muted-foreground">{t("profileDesc")}</p>
               </div>
               <ProfileForm
                 initialData={{
@@ -188,9 +159,7 @@ export function JoinHome({
                 <h2 className="font-semibold">{t("pendingInvites")}</h2>
               </div>
               {pendingInvites.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  {t("waitingDesc")}
-                </p>
+                <p className="text-sm text-muted-foreground">{t("waitingDesc")}</p>
               ) : (
                 <div className="space-y-3">
                   {pendingInvites.map((invite) => (
@@ -204,14 +173,9 @@ export function JoinHome({
                       </p>
                       <div className="mt-3 flex items-center gap-2">
                         <Button asChild size="sm" className="flex-1">
-                          <Link href={invite.inviteUrl}>
-                            {t("acceptInvite")}
-                          </Link>
+                          <Link href={invite.inviteUrl}>{t("acceptInvite")}</Link>
                         </Button>
-                        <CopyButton
-                          value={invite.inviteUrl}
-                          label={t("copyInviteLink")}
-                        />
+                        <CopyButton value={invite.inviteUrl} label={t("copyInviteLink")} />
                       </div>
                     </div>
                   ))}
@@ -224,9 +188,7 @@ export function JoinHome({
                 <Search className="h-5 w-5 text-muted-foreground" />
                 <h2 className="font-semibold">{t("discoveryTitle")}</h2>
               </div>
-              <p className="text-sm text-muted-foreground">
-                {t("discoveryDesc")}
-              </p>
+              <p className="text-sm text-muted-foreground">{t("discoveryDesc")}</p>
             </section>
           </aside>
         </div>

@@ -24,12 +24,7 @@ export default async function ProfitLossPage({ searchParams }: PageProps) {
   const startDate = (params.start as string) || `${now.getFullYear()}-01-01`;
   const endDate = (params.end as string) || `${now.getFullYear()}-12-31`;
 
-  const report = await getProfitAndLoss(
-    db,
-    session.user.companyId,
-    startDate,
-    endDate,
-  );
+  const report = await getProfitAndLoss(db, session.user.companyId, startDate, endDate);
 
   const hasData = report.revenue.length > 0 || report.expenses.length > 0;
 
@@ -119,9 +114,7 @@ export default async function ProfitLossPage({ searchParams }: PageProps) {
                 </table>
               </div>
             ) : (
-              <p className="p-6 text-sm text-muted-foreground">
-                {t("noRevenueEntries")}
-              </p>
+              <p className="p-6 text-sm text-muted-foreground">{t("noRevenueEntries")}</p>
             )}
           </div>
 
@@ -167,9 +160,7 @@ export default async function ProfitLossPage({ searchParams }: PageProps) {
                 </table>
               </div>
             ) : (
-              <p className="p-6 text-sm text-muted-foreground">
-                {t("noExpenseEntries")}
-              </p>
+              <p className="p-6 text-sm text-muted-foreground">{t("noExpenseEntries")}</p>
             )}
           </div>
 
@@ -193,14 +184,10 @@ export default async function ProfitLossPage({ searchParams }: PageProps) {
                 </p>
               </div>
               <div className="rounded-lg border-2 border-primary/20 bg-primary/5 p-4">
-                <p className="text-sm font-medium text-muted-foreground">
-                  {t("netIncome")}
-                </p>
+                <p className="text-sm font-medium text-muted-foreground">{t("netIncome")}</p>
                 <p
                   className={`mt-1 text-2xl font-bold ${
-                    Number(report.netIncome) >= 0
-                      ? "text-success"
-                      : "text-destructive"
+                    Number(report.netIncome) >= 0 ? "text-success" : "text-destructive"
                   }`}
                 >
                   {formatCurrency(report.netIncome)}

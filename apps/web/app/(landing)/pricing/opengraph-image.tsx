@@ -90,11 +90,7 @@ export default function OgImage() {
             >
               {tier.price}
             </div>
-            {tier.sub && (
-              <div style={{ fontSize: "14px", color: "#6b7280" }}>
-                {tier.sub}
-              </div>
-            )}
+            {tier.sub && <div style={{ fontSize: "14px", color: "#6b7280" }}>{tier.sub}</div>}
           </div>
         ))}
       </div>

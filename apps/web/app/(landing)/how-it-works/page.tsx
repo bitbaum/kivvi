@@ -1,11 +1,7 @@
 import { PackageOpen, Wrench, ShoppingCart } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { LandingCtaSection } from "@/components/landing/landing-cta-section";
-import {
-  CONDITION_GRADES,
-  CONDITION_GRADE_LABEL_KEY,
-  buildPageMeta,
-} from "@/lib/config/site";
+import { CONDITION_GRADES, CONDITION_GRADE_LABEL_KEY, buildPageMeta } from "@/lib/config/site";
 import type { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -39,9 +35,7 @@ export default async function HowItWorksPage() {
         <p className="mb-3 text-sm font-medium uppercase tracking-wider text-primary">
           {t("hero.label")}
         </p>
-        <h1 className="mb-4 text-4xl font-bold sm:text-5xl">
-          {t("hero.title")}
-        </h1>
+        <h1 className="mb-4 text-4xl font-bold sm:text-5xl">{t("hero.title")}</h1>
         <p className="text-xl text-muted-foreground">{t("hero.description")}</p>
       </section>
 
@@ -49,9 +43,7 @@ export default async function HowItWorksPage() {
       <section className="mx-auto max-w-3xl py-8">
         <div className="rounded-2xl border bg-warning/5 p-8">
           <h2 className="mb-3 text-xl font-bold">{t("core.title")}</h2>
-          <p className="text-muted-foreground leading-relaxed">
-            {t("core.description")}
-          </p>
+          <p className="text-muted-foreground leading-relaxed">{t("core.description")}</p>
         </div>
       </section>
 
@@ -71,11 +63,7 @@ export default async function HowItWorksPage() {
 
         <div className="grid gap-6 sm:grid-cols-2">
           {phase1Features.map((f) => (
-            <FeatureCard
-              key={f.title}
-              title={f.title}
-              description={f.description}
-            />
+            <FeatureCard key={f.title} title={f.title} description={f.description} />
           ))}
         </div>
       </section>
@@ -98,16 +86,11 @@ export default async function HowItWorksPage() {
           <h3 className="mb-4 font-semibold">{t("phase2.gradesTitle")}</h3>
           <div className="grid gap-3 sm:grid-cols-5">
             {CONDITION_GRADES.map((grade) => (
-              <div
-                key={grade.id}
-                className={`rounded-lg p-3 text-center ${grade.colorClass}`}
-              >
+              <div key={grade.id} className={`rounded-lg p-3 text-center ${grade.colorClass}`}>
                 <div className="font-semibold text-sm">
                   {tInventory(CONDITION_GRADE_LABEL_KEY[grade.id])}
                 </div>
-                <div className="mt-1 text-xs opacity-75">
-                  {t(`phase2.conditions.${grade.id}`)}
-                </div>
+                <div className="mt-1 text-xs opacity-75">{t(`phase2.conditions.${grade.id}`)}</div>
               </div>
             ))}
           </div>
@@ -115,11 +98,7 @@ export default async function HowItWorksPage() {
 
         <div className="grid gap-6 sm:grid-cols-2">
           {phase2Features.map((f) => (
-            <FeatureCard
-              key={f.title}
-              title={f.title}
-              description={f.description}
-            />
+            <FeatureCard key={f.title} title={f.title} description={f.description} />
           ))}
         </div>
       </section>
@@ -140,36 +119,21 @@ export default async function HowItWorksPage() {
 
         <div className="grid gap-6 sm:grid-cols-2">
           {phase3Features.map((f) => (
-            <FeatureCard
-              key={f.title}
-              title={f.title}
-              description={f.description}
-            />
+            <FeatureCard key={f.title} title={f.title} description={f.description} />
           ))}
         </div>
       </section>
 
-      <LandingCtaSection
-        title={t("ctaTitle")}
-        description={t("ctaDescription")}
-      />
+      <LandingCtaSection title={t("ctaTitle")} description={t("ctaDescription")} />
     </>
   );
 }
 
-function FeatureCard({
-  title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) {
+function FeatureCard({ title, description }: { title: string; description: string }) {
   return (
     <div className="rounded-xl border bg-card p-6">
       <h3 className="mb-2 font-semibold">{title}</h3>
-      <p className="text-sm text-muted-foreground leading-relaxed">
-        {description}
-      </p>
+      <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
     </div>
   );
 }

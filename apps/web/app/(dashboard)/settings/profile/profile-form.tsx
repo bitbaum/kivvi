@@ -89,8 +89,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
         <div className="grid gap-6 p-6 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
-              {t("profileSection.fullName")}{" "}
-              <span className="text-destructive">*</span>
+              {t("profileSection.fullName")} <span className="text-destructive">*</span>
             </label>
             <FormInput
               type="text"
@@ -104,8 +103,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
 
           <div className="sm:col-span-2">
             <label htmlFor="email" className="mb-1.5 block text-sm font-medium">
-              {t("profileSection.emailAddress")}{" "}
-              <span className="text-destructive">*</span>
+              {t("profileSection.emailAddress")} <span className="text-destructive">*</span>
             </label>
             <FormInput
               type="email"
@@ -117,10 +115,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
           </div>
 
           <div className="sm:col-span-2">
-            <label
-              htmlFor="location"
-              className="mb-1.5 block text-sm font-medium"
-            >
+            <label htmlFor="location" className="mb-1.5 block text-sm font-medium">
               {t("profileSection.location")}
             </label>
             <FormInput
@@ -133,10 +128,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
           </div>
 
           <div>
-            <label
-              htmlFor="languages"
-              className="mb-1.5 block text-sm font-medium"
-            >
+            <label htmlFor="languages" className="mb-1.5 block text-sm font-medium">
               {t("profileSection.languages")}
             </label>
             <FormInput
@@ -148,10 +140,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
           </div>
 
           <div>
-            <label
-              htmlFor="availabilityType"
-              className="mb-1.5 block text-sm font-medium"
-            >
+            <label htmlFor="availabilityType" className="mb-1.5 block text-sm font-medium">
               {t("profileSection.availabilityType")}
             </label>
             <select
@@ -161,21 +150,16 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
               className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             >
               <option value="">{tc("pleaseSelect")}</option>
-              {["volunteer", "employee", "contractor", "founder", "other"].map(
-                (value) => (
-                  <option key={value} value={value}>
-                    {t(`profileSection.availability.${value}`)}
-                  </option>
-                ),
-              )}
+              {["volunteer", "employee", "contractor", "founder", "other"].map((value) => (
+                <option key={value} value={value}>
+                  {t(`profileSection.availability.${value}`)}
+                </option>
+              ))}
             </select>
           </div>
 
           <div className="sm:col-span-2">
-            <label
-              htmlFor="skills"
-              className="mb-1.5 block text-sm font-medium"
-            >
+            <label htmlFor="skills" className="mb-1.5 block text-sm font-medium">
               {t("profileSection.skills")}
             </label>
             <FormInput

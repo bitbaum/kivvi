@@ -9,7 +9,5 @@ export default function ContactsError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  return (
-    <SectionErrorBoundary error={error} reset={reset} backHref="/contacts" />
-  );
+  return <SectionErrorBoundary error={error} reset={reset} backHref="/contacts" />;
 }

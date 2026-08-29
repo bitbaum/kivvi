@@ -54,16 +54,12 @@ export function StepDescription({
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-semibold">{ti("quickDescribe")}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {ti("quickDescribeHint")}
-        </p>
+        <p className="mt-1 text-sm text-muted-foreground">{ti("quickDescribeHint")}</p>
       </div>
 
       <div className="space-y-4">
         <div>
-          <label className="mb-1.5 block text-sm font-medium">
-            {ti("description")}
-          </label>
+          <label className="mb-1.5 block text-sm font-medium">{ti("description")}</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -75,9 +71,7 @@ export function StepDescription({
         </div>
 
         <div>
-          <label className="mb-1.5 block text-sm font-medium">
-            {ti("category")}
-          </label>
+          <label className="mb-1.5 block text-sm font-medium">{ti("category")}</label>
           <div className="grid grid-cols-2 gap-2">
             {QUICK_CATEGORIES.map((cat) => (
               <button

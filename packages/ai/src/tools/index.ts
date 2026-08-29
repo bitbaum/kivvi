@@ -32,10 +32,7 @@ import { searchInventoryTool } from "./search-inventory";
 import { getInventoryDashboardTool } from "./get-inventory-dashboard";
 import { recordRepairTool } from "./record-repair";
 import { recordRepairPartTool } from "./record-repair-part";
-import {
-  updateItemStatusTool,
-  updateItemConditionTool,
-} from "./update-item-status";
+import { updateItemStatusTool, updateItemConditionTool } from "./update-item-status";
 import { recordDataErasureTool } from "./record-data-erasure";
 import { getItemDetailsTool } from "./get-item-details";
 import { recordChecklistTool } from "./record-checklist";

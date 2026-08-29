@@ -2,14 +2,7 @@
 
 import { useState, useTransition, useRef } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Upload,
-  X,
-  FileSpreadsheet,
-  AlertCircle,
-  AlertTriangle,
-  Info,
-} from "lucide-react";
+import { Upload, X, FileSpreadsheet, AlertCircle, AlertTriangle, Info } from "lucide-react";
 import {
   importTransactionsAction,
   parseCamtAction,
@@ -25,19 +18,13 @@ import { TransactionPreviewTable } from "./transaction-preview-table";
 type FileType = "csv" | "xml";
 type ImportResult = { imported: number; skippedDuplicates: number };
 
-export function ImportTransactions({
-  bankAccountId,
-}: {
-  bankAccountId: string;
-}) {
+export function ImportTransactions({ bankAccountId }: { bankAccountId: string }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fileType, setFileType] = useState<FileType | null>(null);
-  const [csvTransactions, setCsvTransactions] = useState<ParsedTransaction[]>(
-    [],
-  );
+  const [csvTransactions, setCsvTransactions] = useState<ParsedTransaction[]>([]);
   const [camtPreview, setCamtPreview] = useState<CamtPreview | null>(null);
   const [camtXml, setCamtXml] = useState<string | null>(null);
   const [result, setResult] = useState<ImportResult | null>(null);
@@ -115,10 +102,7 @@ export function ImportTransactions({
           setError(res.error || tc("error"));
         }
       } else {
-        const res = await importTransactionsAction(
-          bankAccountId,
-          csvTransactions,
-        );
+        const res = await importTransactionsAction(bankAccountId, csvTransactions);
         if (res.success && res.data) {
           setResult({
             imported: res.data.imported,
@@ -146,9 +130,7 @@ export function ImportTransactions({
 
   const hasPreviewData = csvTransactions.length > 0 || camtPreview !== null;
   const previewCount =
-    fileType === "xml"
-      ? (camtPreview?.totalEntries ?? 0)
-      : csvTransactions.length;
+    fileType === "xml" ? (camtPreview?.totalEntries ?? 0) : csvTransactions.length;
 
   if (!isOpen) {
     return (
@@ -160,10 +142,7 @@ export function ImportTransactions({
   }
 
   return (
-    <div
-      ref={modalRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-    >
+    <div ref={modalRef} className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div
         role="dialog"
         aria-modal="true"
@@ -174,12 +153,7 @@ export function ImportTransactions({
           <h2 id="import-transactions-title" className="text-lg font-semibold">
             {t("importStatement")}
           </h2>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleClose}
-            aria-label={tc("close")}
-          >
+          <Button variant="ghost" size="icon" onClick={handleClose} aria-label={tc("close")}>
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -203,9 +177,7 @@ export function ImportTransactions({
           ) : (
             <>
               <div>
-                <p className="mb-2 text-sm text-muted-foreground">
-                  {t("supportedFormats")}
-                </p>
+                <p className="mb-2 text-sm text-muted-foreground">{t("supportedFormats")}</p>
                 <input
                   ref={fileRef}
                   type="file"

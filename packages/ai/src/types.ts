@@ -47,12 +47,7 @@ export interface ChatResponse {
 }
 
 export interface StreamChunk {
-  type:
-    | "text"
-    | "tool_call_start"
-    | "tool_call_delta"
-    | "tool_call_end"
-    | "done";
+  type: "text" | "tool_call_start" | "tool_call_delta" | "tool_call_end" | "done";
   content?: string;
   toolCall?: Partial<ToolCall>;
 }

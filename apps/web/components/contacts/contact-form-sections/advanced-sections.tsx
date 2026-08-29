@@ -6,11 +6,7 @@ import type { Contact } from "@kivvi/database";
 import type { UseAiForm } from "@fleet/ai-forms/react";
 import { bindField, bindCheckbox } from "@/lib/ai-form-binding";
 import { LANGUAGE_OPTIONS } from "@/lib/config/locales";
-import {
-  FormInput,
-  FormSelect,
-  FormTextarea,
-} from "@/components/ui/form-field";
+import { FormInput, FormSelect, FormTextarea } from "@/components/ui/form-field";
 import { DEFAULT_PAYMENT_TERMS_DAYS } from "@/lib/config/document-types";
 import { Button } from "@/components/ui/button";
 
@@ -36,12 +32,7 @@ export function ContactFormAdvancedSections({
   return (
     <>
       {!isEdit && (
-        <Button
-          type="button"
-          variant="secondary"
-          className="w-full"
-          onClick={onToggleAdvanced}
-        >
+        <Button type="button" variant="secondary" className="w-full" onClick={onToggleAdvanced}>
           {showAdvanced ? (
             <>
               <ChevronUp className="h-4 w-4" />
@@ -64,10 +55,7 @@ export function ContactFormAdvancedSections({
             </div>
             <div className="grid gap-6 p-6 sm:grid-cols-2">
               <div>
-                <label
-                  htmlFor="vatNumber"
-                  className="mb-1.5 block text-sm font-medium"
-                >
+                <label htmlFor="vatNumber" className="mb-1.5 block text-sm font-medium">
                   {t("vatNumber")}
                 </label>
                 <FormInput
@@ -76,16 +64,11 @@ export function ContactFormAdvancedSections({
                   name="vatNumber"
                   maxLength={30}
                   {...bindField(assist, "vatNumber")}
-                  placeholder={
-                    !isEdit ? t("placeholders.vatNumber") : undefined
-                  }
+                  placeholder={!isEdit ? t("placeholders.vatNumber") : undefined}
                 />
               </div>
               <div>
-                <label
-                  htmlFor="iban"
-                  className="mb-1.5 block text-sm font-medium"
-                >
+                <label htmlFor="iban" className="mb-1.5 block text-sm font-medium">
                   {t("iban")}
                 </label>
                 <FormInput
@@ -94,16 +77,11 @@ export function ContactFormAdvancedSections({
                   name="iban"
                   maxLength={34}
                   {...bindField(assist, "iban")}
-                  placeholder={
-                    !isEdit ? "CH93 0076 2011 6238 5295 7" : undefined
-                  }
+                  placeholder={!isEdit ? "CH93 0076 2011 6238 5295 7" : undefined}
                 />
               </div>
               <div>
-                <label
-                  htmlFor="paymentTermsDays"
-                  className="mb-1.5 block text-sm font-medium"
-                >
+                <label htmlFor="paymentTermsDays" className="mb-1.5 block text-sm font-medium">
                   {t("paymentTerms")} ({t("days")})
                 </label>
                 <FormInput
@@ -116,10 +94,7 @@ export function ContactFormAdvancedSections({
                 />
               </div>
               <div>
-                <label
-                  htmlFor="creditLimit"
-                  className="mb-1.5 block text-sm font-medium"
-                >
+                <label htmlFor="creditLimit" className="mb-1.5 block text-sm font-medium">
                   {t("creditLimit")} (CHF)
                 </label>
                 <FormInput
@@ -139,17 +114,10 @@ export function ContactFormAdvancedSections({
             </div>
             <div className="grid gap-6 p-6 sm:grid-cols-2">
               <div>
-                <label
-                  htmlFor="language"
-                  className="mb-1.5 block text-sm font-medium"
-                >
+                <label htmlFor="language" className="mb-1.5 block text-sm font-medium">
                   {t("language")}
                 </label>
-                <FormSelect
-                  id="language"
-                  name="language"
-                  {...bindField(assist, "language")}
-                >
+                <FormSelect id="language" name="language" {...bindField(assist, "language")}>
                   {LANGUAGE_OPTIONS.map((l) => (
                     <option key={l.value} value={l.value}>
                       {l.label}
@@ -158,10 +126,7 @@ export function ContactFormAdvancedSections({
                 </FormSelect>
               </div>
               <div className="sm:col-span-2">
-                <label
-                  htmlFor="notes"
-                  className="mb-1.5 block text-sm font-medium"
-                >
+                <label htmlFor="notes" className="mb-1.5 block text-sm font-medium">
                   {tc("notes")}
                 </label>
                 <FormTextarea

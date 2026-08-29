@@ -4,12 +4,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { LandingCtaSection } from "@/components/landing/landing-cta-section";
 import { buildPageMeta } from "@/lib/config/site";
 import type { Metadata } from "next";
-import {
-  TIER_IDS,
-  TIER_META,
-  COMPARISON_ROWS,
-  type FeatureValue,
-} from "./pricing-data";
+import { TIER_IDS, TIER_META, COMPARISON_ROWS, type FeatureValue } from "./pricing-data";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("landing.pricing.metadata");
@@ -37,9 +32,7 @@ export default async function PricingPage() {
         <p className="mb-3 text-sm font-medium uppercase tracking-wider text-primary">
           {t("hero.label")}
         </p>
-        <h1 className="mb-4 text-4xl font-bold sm:text-5xl">
-          {t("hero.title")}
-        </h1>
+        <h1 className="mb-4 text-4xl font-bold sm:text-5xl">{t("hero.title")}</h1>
         <p className="text-xl text-muted-foreground">{t("hero.description")}</p>
       </section>
 
@@ -54,9 +47,7 @@ export default async function PricingPage() {
               <div
                 key={id}
                 className={`relative flex flex-col rounded-2xl border p-8 ${
-                  meta.highlight
-                    ? "border-primary bg-primary/5 shadow-md"
-                    : "bg-card"
+                  meta.highlight ? "border-primary bg-primary/5 shadow-md" : "bg-card"
                 }`}
               >
                 {meta.hasBadge && (
@@ -68,9 +59,7 @@ export default async function PricingPage() {
                 <div className="mb-5 flex items-center gap-3">
                   <div
                     className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-                      meta.highlight
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted"
+                      meta.highlight ? "bg-primary text-primary-foreground" : "bg-muted"
                     }`}
                   >
                     <Icon className="h-5 w-5" />
@@ -79,9 +68,7 @@ export default async function PricingPage() {
                 </div>
 
                 <div className="mb-2">
-                  <span className="text-3xl font-bold">
-                    {t(`tiers.${id}.price`)}
-                  </span>
+                  <span className="text-3xl font-bold">{t(`tiers.${id}.price`)}</span>
                   {meta.hasPriceSub && (
                     <span className="ml-1 text-sm text-muted-foreground">
                       {t(`tiers.${id}.priceSub`)}
@@ -89,9 +76,7 @@ export default async function PricingPage() {
                   )}
                 </div>
 
-                <p className="mb-6 text-sm text-muted-foreground">
-                  {t(`tiers.${id}.tagline`)}
-                </p>
+                <p className="mb-6 text-sm text-muted-foreground">{t(`tiers.${id}.tagline`)}</p>
 
                 <ul className="mb-8 flex-1 space-y-3">
                   {bullets.map((bullet) => (
@@ -105,14 +90,8 @@ export default async function PricingPage() {
                 {meta.cta.external ? (
                   <a
                     href={meta.cta.href}
-                    target={
-                      meta.cta.href.startsWith("http") ? "_blank" : undefined
-                    }
-                    rel={
-                      meta.cta.href.startsWith("http")
-                        ? "noopener noreferrer"
-                        : undefined
-                    }
+                    target={meta.cta.href.startsWith("http") ? "_blank" : undefined}
+                    rel={meta.cta.href.startsWith("http") ? "noopener noreferrer" : undefined}
                     className={`inline-flex items-center justify-center rounded-lg px-5 py-2.5 text-sm font-medium transition-colors ${
                       meta.cta.primary
                         ? "bg-primary text-primary-foreground hover:bg-primary/90"
@@ -141,9 +120,7 @@ export default async function PricingPage() {
 
       {/* Feature comparison table */}
       <section className="mx-auto max-w-5xl py-16">
-        <h2 className="mb-8 text-center text-2xl font-bold">
-          {t("comparison.title")}
-        </h2>
+        <h2 className="mb-8 text-center text-2xl font-bold">{t("comparison.title")}</h2>
         <div className="overflow-x-auto rounded-2xl border">
           <table className="w-full text-sm">
             <thead>
@@ -165,36 +142,26 @@ export default async function PricingPage() {
             <tbody>
               {COMPARISON_ROWS.map((row, i) => (
                 <tr key={row.id} className={i % 2 === 0 ? "" : "bg-muted/20"}>
-                  <td className="px-6 py-3.5 font-medium">
-                    {t(`comparison.features.${row.id}`)}
-                  </td>
+                  <td className="px-6 py-3.5 font-medium">{t(`comparison.features.${row.id}`)}</td>
                   <td className="px-6 py-3.5 text-center">
                     <FeatureCell
                       value={row.opensource}
                       label={
-                        isLiteral(row.opensource)
-                          ? null
-                          : t(`comparison.values.${row.opensource}`)
+                        isLiteral(row.opensource) ? null : t(`comparison.values.${row.opensource}`)
                       }
                     />
                   </td>
                   <td className="px-6 py-3.5 text-center">
                     <FeatureCell
                       value={row.cloud}
-                      label={
-                        isLiteral(row.cloud)
-                          ? null
-                          : t(`comparison.values.${row.cloud}`)
-                      }
+                      label={isLiteral(row.cloud) ? null : t(`comparison.values.${row.cloud}`)}
                     />
                   </td>
                   <td className="px-6 py-3.5 text-center">
                     <FeatureCell
                       value={row.enterprise}
                       label={
-                        isLiteral(row.enterprise)
-                          ? null
-                          : t(`comparison.values.${row.enterprise}`)
+                        isLiteral(row.enterprise) ? null : t(`comparison.values.${row.enterprise}`)
                       }
                     />
                   </td>
@@ -207,25 +174,18 @@ export default async function PricingPage() {
 
       {/* FAQ */}
       <section className="mx-auto max-w-3xl py-8">
-        <h2 className="mb-8 text-center text-2xl font-bold">
-          {t("faq.title")}
-        </h2>
+        <h2 className="mb-8 text-center text-2xl font-bold">{t("faq.title")}</h2>
         <div className="space-y-4">
           {faqItems.map((item) => (
             <div key={item.question} className="rounded-xl border bg-card p-6">
               <h3 className="mb-2 font-semibold">{item.question}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {item.answer}
-              </p>
+              <p className="text-sm text-muted-foreground leading-relaxed">{item.answer}</p>
             </div>
           ))}
         </div>
       </section>
 
-      <LandingCtaSection
-        title={t("ctaTitle")}
-        description={t("ctaDescription")}
-      />
+      <LandingCtaSection title={t("ctaTitle")} description={t("ctaDescription")} />
     </>
   );
 }
@@ -235,13 +195,7 @@ function isLiteral(value: FeatureValue): value is "yes" | "no" {
   return value === "yes" || value === "no";
 }
 
-function FeatureCell({
-  value,
-  label,
-}: {
-  value: FeatureValue;
-  label: string | null;
-}) {
+function FeatureCell({ value, label }: { value: FeatureValue; label: string | null }) {
   if (value === "yes") {
     return (
       <span className="inline-flex justify-center">

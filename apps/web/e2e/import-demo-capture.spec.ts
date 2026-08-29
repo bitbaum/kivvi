@@ -4,14 +4,8 @@ import fs from "fs";
 import { createNeonClient, warehouses } from "@kivvi/database";
 import { seed } from "./helpers";
 
-const OUT = path.resolve(
-  __dirname,
-  "../../../docs/fixtures/screenshots/import-demo",
-);
-const CSV = path.resolve(
-  __dirname,
-  "../../../docs/fixtures/inventory-import-sample-10.csv",
-);
+const OUT = path.resolve(__dirname, "../../../docs/fixtures/screenshots/import-demo");
+const CSV = path.resolve(__dirname, "../../../docs/fixtures/inventory-import-sample-10.csv");
 
 test.describe("Inventory import demo capture", () => {
   test("capture smart import UX for dry-run", async ({ page }) => {
@@ -52,9 +46,7 @@ test.describe("Inventory import demo capture", () => {
       fullPage: true,
     });
 
-    await page
-      .getByRole("button", { name: /Confirm all present|Alle als vorhanden/i })
-      .click();
+    await page.getByRole("button", { name: /Confirm all present|Alle als vorhanden/i }).click();
     await page.screenshot({
       path: path.join(OUT, "04-presence-confirmed.png"),
       fullPage: true,

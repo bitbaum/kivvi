@@ -4,10 +4,7 @@ import { useState } from "react";
 import { Trash2, Plus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { ExtractedItem } from "@/app/actions/ai-extract";
-import {
-  ITEM_CATEGORIES,
-  getChecklistTemplate,
-} from "@kivvi/core/src/config/checklist-templates";
+import { ITEM_CATEGORIES, getChecklistTemplate } from "@kivvi/core/src/config/checklist-templates";
 
 interface ReviewItem extends ExtractedItem {
   _id: string;
@@ -21,11 +18,7 @@ interface IntakeBulkReviewProps {
 
 type EditingCell = { id: string; field: keyof ExtractedItem } | null;
 
-export function IntakeBulkReview({
-  items: initial,
-  onConfirm,
-  onBack,
-}: IntakeBulkReviewProps) {
+export function IntakeBulkReview({ items: initial, onConfirm, onBack }: IntakeBulkReviewProps) {
   const tb = useTranslations("documents.bulkReview");
   const tck = useTranslations("checklist");
   const [rows, setRows] = useState<ReviewItem[]>(() =>
@@ -81,9 +74,7 @@ export function IntakeBulkReview({
   };
 
   const handleConfirm = () => {
-    const valid = rows.filter(
-      (r) => r.model.trim() || r.brand.trim() || r.description.trim(),
-    );
+    const valid = rows.filter((r) => r.model.trim() || r.brand.trim() || r.description.trim());
     onConfirm(valid);
   };
 
@@ -94,21 +85,11 @@ export function IntakeBulkReview({
           <thead>
             <tr className="border-b bg-muted/50 text-xs text-muted-foreground">
               <th className="px-3 py-2 text-left font-medium w-8">#</th>
-              <th className="px-3 py-2 text-left font-medium">
-                {tb("colManufacturer")}
-              </th>
-              <th className="px-3 py-2 text-left font-medium">
-                {tb("colModelDesc")}
-              </th>
-              <th className="px-3 py-2 text-left font-medium w-16">
-                {tb("colQty")}
-              </th>
-              <th className="px-3 py-2 text-left font-medium">
-                {tb("colCategory")}
-              </th>
-              <th className="px-3 py-2 text-left font-medium w-24">
-                {tb("colPrice")}
-              </th>
+              <th className="px-3 py-2 text-left font-medium">{tb("colManufacturer")}</th>
+              <th className="px-3 py-2 text-left font-medium">{tb("colModelDesc")}</th>
+              <th className="px-3 py-2 text-left font-medium w-16">{tb("colQty")}</th>
+              <th className="px-3 py-2 text-left font-medium">{tb("colCategory")}</th>
+              <th className="px-3 py-2 text-left font-medium w-24">{tb("colPrice")}</th>
               <th className="px-3 py-2 w-8" />
             </tr>
           </thead>
@@ -155,9 +136,7 @@ export function IntakeBulkReview({
                     onChange={(e) =>
                       setRows((prev) =>
                         prev.map((r) =>
-                          r._id === row._id
-                            ? { ...r, category: e.target.value }
-                            : r,
+                          r._id === row._id ? { ...r, category: e.target.value } : r,
                         ),
                       )
                     }
@@ -165,11 +144,7 @@ export function IntakeBulkReview({
                   >
                     {ITEM_CATEGORIES.map((v) => (
                       <option key={v} value={v}>
-                        {tck(
-                          getChecklistTemplate(v).labelKey as Parameters<
-                            typeof tck
-                          >[0],
-                        )}
+                        {tck(getChecklistTemplate(v).labelKey as Parameters<typeof tck>[0])}
                       </option>
                     ))}
                   </select>

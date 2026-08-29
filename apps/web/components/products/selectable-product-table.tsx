@@ -14,10 +14,7 @@ import {
 import type { BulkOperationResult } from "@/app/actions/bulk-operations";
 import { SortableHeader } from "@/components/sortable-header";
 import { ProductTableRow } from "./product-table-row";
-import type {
-  ProductItem,
-  ProductTableTranslations,
-} from "./product-table-types";
+import type { ProductItem, ProductTableTranslations } from "./product-table-types";
 
 // Re-export for consumers that imported from this file
 export type { ProductItem, ProductTableTranslations as Translations };
@@ -34,11 +31,7 @@ interface SelectableProductTableProps {
   sort?: SortProps;
 }
 
-export function SelectableProductTable({
-  data,
-  translations,
-  sort,
-}: SelectableProductTableProps) {
+export function SelectableProductTable({ data, translations, sort }: SelectableProductTableProps) {
   const tc = useTranslations("common");
   const allIds = useMemo(() => data.map((p) => p.id), [data]);
   const {
@@ -51,13 +44,9 @@ export function SelectableProductTable({
     isSomeSelected,
     count,
   } = useSelection(allIds);
-  const [bulkResult, setBulkResult] = useState<BulkOperationResult | null>(
-    null,
-  );
+  const [bulkResult, setBulkResult] = useState<BulkOperationResult | null>(null);
   const [isPending, startTransition] = useTransition();
-  const [confirmAction, setConfirmAction] = useState<
-    "delete" | "deactivate" | null
-  >(null);
+  const [confirmAction, setConfirmAction] = useState<"delete" | "deactivate" | null>(null);
   const handleComplete = useCallback(
     (result: BulkOperationResult) => {
       setBulkResult(result);
@@ -216,9 +205,7 @@ export function SelectableProductTable({
             : translations.bulkLabels.confirmDeactivate
           ).replace("{count}", String(selectedIds.length))}
           confirmLabel={
-            isPending
-              ? translations.bulkLabels.processing
-              : translations.bulkLabels.confirmAction
+            isPending ? translations.bulkLabels.processing : translations.bulkLabels.confirmAction
           }
           cancelLabel={translations.bulkLabels.cancel}
           isLoading={isPending}

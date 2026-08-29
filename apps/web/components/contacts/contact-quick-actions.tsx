@@ -12,10 +12,7 @@ import {
   Eye,
   Pencil,
 } from "lucide-react";
-import type {
-  ContactItem,
-  ContactTableTranslations,
-} from "./contact-table-types";
+import type { ContactItem, ContactTableTranslations } from "./contact-table-types";
 
 export function ContactQuickActions({
   contact,

@@ -39,21 +39,13 @@ export async function InventoryItemSidebar({
         <div className="rounded-xl border border-success/30 bg-success/5 p-4">
           <div className="mb-2 flex items-center gap-2">
             <Recycle className="h-4 w-4 text-success" />
-            <span className="text-sm font-semibold text-success">
-              {ti("itemImpactTitle")}
-            </span>
+            <span className="text-sm font-semibold text-success">{ti("itemImpactTitle")}</span>
           </div>
           <p className="mb-3 text-sm text-muted-foreground">
-            {item.status === "sold"
-              ? ti("itemImpactTaglineSold")
-              : ti("itemImpactTaglineDonated")}
+            {item.status === "sold" ? ti("itemImpactTaglineSold") : ti("itemImpactTaglineDonated")}
           </p>
-          <p className="text-sm font-semibold text-success">
-            {ti("itemImpactCo2", { kg: co2Kg })}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {ti("itemImpactCo2Hint")}
-          </p>
+          <p className="text-sm font-semibold text-success">{ti("itemImpactCo2", { kg: co2Kg })}</p>
+          <p className="text-xs text-muted-foreground">{ti("itemImpactCo2Hint")}</p>
         </div>
       )}
 
@@ -75,11 +67,7 @@ export async function InventoryItemSidebar({
           dataErasureMethod={item.dataErasureMethod}
           erasureMethodLabel={
             item.dataErasureMethod
-              ? ti(
-                  `erasureMethod_${item.dataErasureMethod}` as Parameters<
-                    typeof ti
-                  >[0],
-                )
+              ? ti(`erasureMethod_${item.dataErasureMethod}` as Parameters<typeof ti>[0])
               : null
           }
           labels={{
@@ -120,8 +108,7 @@ export async function InventoryItemSidebar({
             <div className="flex items-center gap-2 text-sm">
               <User className="h-4 w-4 text-muted-foreground" />
               <span>
-                {ti("assignedTo")}:{" "}
-                <span className="font-medium">{item.assignedToName}</span>
+                {ti("assignedTo")}: <span className="font-medium">{item.assignedToName}</span>
               </span>
             </div>
           )}

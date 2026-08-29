@@ -1,14 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  CheckCircle,
-  AlertTriangle,
-  XCircle,
-  ChevronDown,
-  ChevronUp,
-  X,
-} from "lucide-react";
+import { CheckCircle, AlertTriangle, XCircle, ChevronDown, ChevronUp, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
@@ -24,11 +17,7 @@ interface BulkResultBannerProps {
   onDismiss: () => void;
 }
 
-export function BulkResultBanner({
-  result,
-  labels,
-  onDismiss,
-}: BulkResultBannerProps) {
+export function BulkResultBanner({ result, labels, onDismiss }: BulkResultBannerProps) {
   const tc = useTranslations("common");
   const [showErrors, setShowErrors] = useState(false);
 
@@ -49,11 +38,7 @@ export function BulkResultBanner({
       ? "border-destructive/20 bg-destructive/5 text-destructive"
       : "border-warning/20 bg-warning/5 text-warning";
 
-  const Icon = isFullSuccess
-    ? CheckCircle
-    : isFullFailure
-      ? XCircle
-      : AlertTriangle;
+  const Icon = isFullSuccess ? CheckCircle : isFullFailure ? XCircle : AlertTriangle;
   const message = isFullSuccess
     ? labels.successAll.replace("{count}", String(result.successCount))
     : isFullFailure
@@ -76,11 +61,7 @@ export function BulkResultBanner({
               className="inline-flex items-center gap-1 text-xs underline"
             >
               {showErrors ? labels.hideErrors : labels.showErrors}
-              {showErrors ? (
-                <ChevronUp className="h-3 w-3" />
-              ) : (
-                <ChevronDown className="h-3 w-3" />
-              )}
+              {showErrors ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
             </button>
           )}
         </div>

@@ -118,16 +118,10 @@ export function useCommandBarAI(): UseCommandBarAIReturn {
                 } else if (data.type === "tool_result") {
                   setToolProgress(null);
                   const result = data.result as CommandBarToolResult["result"];
-                  setToolResults((prev) => [
-                    ...prev,
-                    { tool: data.tool, result },
-                  ]);
+                  setToolResults((prev) => [...prev, { tool: data.tool, result }]);
                   // Collect actions from tool results
                   if (result?.actions) {
-                    setActions((prev) => [
-                      ...prev,
-                      ...(result.actions as CommandBarAction[]),
-                    ]);
+                    setActions((prev) => [...prev, ...(result.actions as CommandBarAction[])]);
                   }
                 } else if (data.type === "done") {
                   setIsProcessing(false);

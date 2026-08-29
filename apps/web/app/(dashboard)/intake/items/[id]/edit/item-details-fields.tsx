@@ -2,18 +2,9 @@
 
 import { FormInput, FormSelect } from "@/components/ui/form-field";
 import { useTranslations } from "next-intl";
-import {
-  ITEM_STATUS_VALUES,
-  ITEM_CONDITION_VALUES,
-} from "@kivvi/database/src/enums";
-import {
-  getStatusLabelKey,
-  getConditionLabelKey,
-} from "@/lib/config/inventory-items";
-import {
-  ITEM_CATEGORIES,
-  getChecklistTemplate,
-} from "@kivvi/core/src/config/checklist-templates";
+import { ITEM_STATUS_VALUES, ITEM_CONDITION_VALUES } from "@kivvi/database/src/enums";
+import { getStatusLabelKey, getConditionLabelKey } from "@/lib/config/inventory-items";
+import { ITEM_CATEGORIES, getChecklistTemplate } from "@kivvi/core/src/config/checklist-templates";
 
 interface ItemDetailsFieldsProps {
   item: {
@@ -49,18 +40,10 @@ export function ItemDetailsFields({
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       <div className="sm:col-span-2">
-        <label
-          htmlFor="description"
-          className="mb-1.5 block text-sm font-medium"
-        >
+        <label htmlFor="description" className="mb-1.5 block text-sm font-medium">
           {tc("description")} <span className="text-destructive">*</span>
         </label>
-        <FormInput
-          id="description"
-          name="description"
-          required
-          defaultValue={item.description}
-        />
+        <FormInput id="description" name="description" required defaultValue={item.description} />
       </div>
       <div>
         <label htmlFor="condition" className="mb-1.5 block text-sm font-medium">
@@ -89,37 +72,24 @@ export function ItemDetailsFields({
           value={selectedStatus}
           onChange={(e) => onStatusChange(e.target.value)}
         >
-          {ITEM_STATUS_VALUES.filter((s) => validNextStatuses.includes(s)).map(
-            (s) => (
-              <option key={s} value={s}>
-                {ti(getStatusLabelKey(s))}
-              </option>
-            ),
-          )}
+          {ITEM_STATUS_VALUES.filter((s) => validNextStatuses.includes(s)).map((s) => (
+            <option key={s} value={s}>
+              {ti(getStatusLabelKey(s))}
+            </option>
+          ))}
         </FormSelect>
       </div>
       <div>
-        <label
-          htmlFor="serialNumber"
-          className="mb-1.5 block text-sm font-medium"
-        >
+        <label htmlFor="serialNumber" className="mb-1.5 block text-sm font-medium">
           {ti("serialNumber")}
         </label>
-        <FormInput
-          id="serialNumber"
-          name="serialNumber"
-          defaultValue={item.serialNumber || ""}
-        />
+        <FormInput id="serialNumber" name="serialNumber" defaultValue={item.serialNumber || ""} />
       </div>
       <div>
         <label htmlFor="category" className="mb-1.5 block text-sm font-medium">
           {ti("category")}
         </label>
-        <FormSelect
-          id="category"
-          name="category"
-          defaultValue={item.category || ""}
-        >
+        <FormSelect id="category" name="category" defaultValue={item.category || ""}>
           <option value="">{ti("selectCategory")}</option>
           {ITEM_CATEGORIES.map((cat) => (
             <option key={cat} value={cat}>
@@ -132,17 +102,10 @@ export function ItemDetailsFields({
         <label htmlFor="location" className="mb-1.5 block text-sm font-medium">
           {ti("locationShelf")}
         </label>
-        <FormInput
-          id="location"
-          name="location"
-          defaultValue={item.location || ""}
-        />
+        <FormInput id="location" name="location" defaultValue={item.location || ""} />
       </div>
       <div>
-        <label
-          htmlFor="assignedToUserId"
-          className="mb-1.5 block text-sm font-medium"
-        >
+        <label htmlFor="assignedToUserId" className="mb-1.5 block text-sm font-medium">
           {ti("assignedTo")}
         </label>
         <FormSelect

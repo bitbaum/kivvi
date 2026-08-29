@@ -34,20 +34,21 @@
     "lint": "turbo lint",
     "test": "turbo test",
     "type-check": "turbo type-check",
-    "verify": "pnpm lint && pnpm type-check && pnpm test",
+    "verify": "npm run format:check && pnpm lint && pnpm type-check && pnpm test",
     "smoke:production": "tsx scripts/production-smoke.ts",
     "clean": "turbo clean && rm -rf node_modules",
     "db:generate": "turbo db:generate",
     "db:migrate": "turbo db:migrate",
     "db:studio": "pnpm --filter @kivvi/database db:studio",
-    "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
-    "prepare": "husky"
+    "format": "prettier --write .",
+    "prepare": "husky",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.3.3",
-    "prettier": "^3.2.4",
+    "prettier": "3.8.0",
     "tsx": "^4.21.0",
     "turbo": "^2.0.0",
     "typescript": "^5.3.3"

@@ -1,17 +1,9 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
-import {
-  authenticateApi,
-  apiError,
-  apiInternalError,
-  apiSuccess,
-} from "@/lib/api-handler";
+import { authenticateApi, apiError, apiInternalError, apiSuccess } from "@/lib/api-handler";
 import { getContact, updateContact, deleteContact } from "@kivvi/core";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await authenticateApi(request);
     if (ctx instanceof Response) return ctx;
@@ -26,10 +18,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const ctx = await authenticateApi(request, "member");
     if (ctx instanceof Response) return ctx;
@@ -40,8 +29,7 @@ export async function PUT(
     const contact = await updateContact(db, ctx.companyId, id, body);
     return apiSuccess(contact);
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to update contact";
+    const message = error instanceof Error ? error.message : "Failed to update contact";
     return apiError(message, 400);
   }
 }
@@ -58,8 +46,7 @@ export async function DELETE(
     await deleteContact(db, ctx.companyId, id);
     return apiSuccess({ deleted: true });
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to delete contact";
+    const message = error instanceof Error ? error.message : "Failed to delete contact";
     return apiError(message, 400);
   }
 }

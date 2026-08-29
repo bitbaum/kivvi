@@ -145,12 +145,7 @@ export interface ImportAnalysisResult {
 /** Fields that make a row importable at all. */
 const REQUIRED_FIELDS = ["description", "warehouse"] as const;
 /** Fields that make a record trustworthy but aren't strictly required. */
-const RECOMMENDED_FIELDS = [
-  "condition",
-  "askingPrice",
-  "serialNumber",
-  "location",
-] as const;
+const RECOMMENDED_FIELDS = ["condition", "askingPrice", "serialNumber", "location"] as const;
 
 // Weighting: required fields dominate the completeness score.
 const REQUIRED_WEIGHT = 2;
@@ -181,11 +176,8 @@ function normalizeCondition(value: string | null): {
 } {
   if (!value) return { condition: "untested", recognized: false };
   const key = value.toLowerCase().replace(/[\s-]+/g, "_");
-  const match = (ITEM_CONDITION_VALUES as readonly string[]).find(
-    (c) => c === key,
-  );
-  if (match)
-    return { condition: match as ItemConditionValue, recognized: true };
+  const match = (ITEM_CONDITION_VALUES as readonly string[]).find((c) => c === key);
+  if (match) return { condition: match as ItemConditionValue, recognized: true };
   // Common human synonyms → grades.
   const synonyms: Record<string, ItemConditionValue> = {
     new: "like_new",
@@ -244,9 +236,7 @@ function resolveWarehouse(
   }
 
   const partial = warehouses.filter(
-    (w) =>
-      w.name.toLowerCase().includes(needle) ||
-      needle.includes(w.name.toLowerCase()),
+    (w) => w.name.toLowerCase().includes(needle) || needle.includes(w.name.toLowerCase()),
   );
   if (partial.length === 1) {
     return {
@@ -329,9 +319,7 @@ export function analyzeInventoryImportRows(
     const externalRef = clean(raw.externalRef);
     const askingPrice = normalizeAmount(clean(raw.askingPrice));
     const estimatedValue = normalizeAmount(clean(raw.estimatedValue));
-    const { condition, recognized: conditionRecognized } = normalizeCondition(
-      clean(raw.condition),
-    );
+    const { condition, recognized: conditionRecognized } = normalizeCondition(clean(raw.condition));
 
     const wh = resolveWarehouse(
       clean(raw.warehouse),
@@ -388,8 +376,7 @@ export function analyzeInventoryImportRows(
         code: "LOCATION_UNRESOLVED",
         severity: "error",
         field: "warehouse",
-        message:
-          "Where is this item? Assign a warehouse (shop / storage) to import.",
+        message: "Where is this item? Assign a warehouse (shop / storage) to import.",
       });
     }
     if (wh.id && !location) {
@@ -446,11 +433,7 @@ export function analyzeInventoryImportRows(
     const hasWarning = issues.some(
       (i) => i.severity === "warning" && i.code !== "PRESENCE_UNCONFIRMED",
     );
-    const decision: ImportDecision = hasError
-      ? "blocked"
-      : hasWarning
-        ? "review"
-        : "ready";
+    const decision: ImportDecision = hasError ? "blocked" : hasWarning ? "review" : "ready";
 
     return {
       index,
@@ -482,9 +465,7 @@ export function analyzeInventoryImportRows(
     blocked: rows.filter((r) => r.decision === "blocked").length,
     duplicates: rows.filter((r) =>
       r.issues.some(
-        (i) =>
-          i.code === "DUPLICATE_SERIAL_EXISTING" ||
-          i.code === "DUPLICATE_SERIAL_IN_FILE",
+        (i) => i.code === "DUPLICATE_SERIAL_EXISTING" || i.code === "DUPLICATE_SERIAL_IN_FILE",
       ),
     ).length,
     missingLocation: rows.filter((r) => !r.resolvedWarehouseId).length,

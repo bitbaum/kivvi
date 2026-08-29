@@ -1,8 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  analyzeInventoryImportRows,
-  type WarehouseOption,
-} from "../domain/inventory-import";
+import { analyzeInventoryImportRows, type WarehouseOption } from "../domain/inventory-import";
 
 const SHOP: WarehouseOption = { id: "wh-shop", name: "Shop", isDefault: true };
 const STORAGE_A: WarehouseOption = { id: "wh-a", name: "Lager A" };
@@ -33,14 +30,11 @@ describe("analyzeInventoryImportRows", () => {
   });
 
   it("blocks a row with no description", () => {
-    const { rows, summary } = analyzeInventoryImportRows(
-      [{ warehouse: "Shop" }],
-      { warehouses: [SHOP] },
-    );
+    const { rows, summary } = analyzeInventoryImportRows([{ warehouse: "Shop" }], {
+      warehouses: [SHOP],
+    });
     expect(rows[0].decision).toBe("blocked");
-    expect(rows[0].issues.some((i) => i.code === "MISSING_DESCRIPTION")).toBe(
-      true,
-    );
+    expect(rows[0].issues.some((i) => i.code === "MISSING_DESCRIPTION")).toBe(true);
     expect(summary.blocked).toBe(1);
   });
 
@@ -50,9 +44,7 @@ describe("analyzeInventoryImportRows", () => {
       { warehouses: [SHOP, STORAGE_A] },
     );
     expect(rows[0].resolvedWarehouseId).toBeNull();
-    expect(rows[0].issues.some((i) => i.code === "LOCATION_UNRESOLVED")).toBe(
-      true,
-    );
+    expect(rows[0].issues.some((i) => i.code === "LOCATION_UNRESOLVED")).toBe(true);
     expect(summary.missingLocation).toBe(1);
   });
 
@@ -65,14 +57,11 @@ describe("analyzeInventoryImportRows", () => {
   });
 
   it("flags an ambiguous warehouse hint instead of guessing", () => {
-    const { rows } = analyzeInventoryImportRows(
-      [{ description: "Cable", warehouse: "Lager" }],
-      { warehouses: [STORAGE_A, STORAGE_B] },
-    );
+    const { rows } = analyzeInventoryImportRows([{ description: "Cable", warehouse: "Lager" }], {
+      warehouses: [STORAGE_A, STORAGE_B],
+    });
     expect(rows[0].resolvedWarehouseId).toBeNull();
-    expect(rows[0].issues.some((i) => i.code === "LOCATION_AMBIGUOUS")).toBe(
-      true,
-    );
+    expect(rows[0].issues.some((i) => i.code === "LOCATION_AMBIGUOUS")).toBe(true);
   });
 
   it("detects duplicates within the file and against existing serials", () => {
@@ -88,12 +77,8 @@ describe("analyzeInventoryImportRows", () => {
       },
     );
 
-    expect(
-      rows[0].issues.some((i) => i.code === "DUPLICATE_SERIAL_IN_FILE"),
-    ).toBe(true);
-    expect(
-      rows[2].issues.some((i) => i.code === "DUPLICATE_SERIAL_EXISTING"),
-    ).toBe(true);
+    expect(rows[0].issues.some((i) => i.code === "DUPLICATE_SERIAL_IN_FILE")).toBe(true);
+    expect(rows[2].issues.some((i) => i.code === "DUPLICATE_SERIAL_EXISTING")).toBe(true);
     expect(summary.duplicates).toBe(3);
   });
 
@@ -114,12 +99,9 @@ describe("analyzeInventoryImportRows", () => {
   });
 
   it("always flags presence as unconfirmed so a human must verify", () => {
-    const { rows } = analyzeInventoryImportRows(
-      [{ description: "X", warehouse: "Shop" }],
-      { warehouses: [SHOP] },
-    );
-    expect(rows[0].issues.some((i) => i.code === "PRESENCE_UNCONFIRMED")).toBe(
-      true,
-    );
+    const { rows } = analyzeInventoryImportRows([{ description: "X", warehouse: "Shop" }], {
+      warehouses: [SHOP],
+    });
+    expect(rows[0].issues.some((i) => i.code === "PRESENCE_UNCONFIRMED")).toBe(true);
   });
 });

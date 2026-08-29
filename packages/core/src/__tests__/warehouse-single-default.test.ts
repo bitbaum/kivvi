@@ -20,10 +20,7 @@ type SetCall = { set: Record<string, unknown> };
  * step is observable) and whether db.transaction was opened. `updateReturning`
  * / `insertReturning` supply the rows echoed by .returning().
  */
-function makeDb(opts: {
-  updateReturning?: unknown[];
-  insertReturning?: unknown[];
-}) {
+function makeDb(opts: { updateReturning?: unknown[]; insertReturning?: unknown[] }) {
   const setCalls: SetCall[] = [];
   let transactionRan = false;
 
@@ -32,8 +29,7 @@ function makeDb(opts: {
       setCalls.push({ set: s });
       const whereResult = {
         returning: async () => opts.updateReturning ?? [],
-        then: (resolve: (x: unknown) => unknown) =>
-          Promise.resolve(undefined).then(resolve),
+        then: (resolve: (x: unknown) => unknown) => Promise.resolve(undefined).then(resolve),
       };
       return { where: () => whereResult };
     },
@@ -65,8 +61,7 @@ function makeDb(opts: {
     // The "unset others" step sets ONLY {isDefault: false}; the target
     // insert/update always also carries a `name`, so exclude those.
     unsetOthersCalls: () =>
-      setCalls.filter((c) => c.set.isDefault === false && !("name" in c.set))
-        .length,
+      setCalls.filter((c) => c.set.isDefault === false && !("name" in c.set)).length,
   };
 }
 
@@ -89,9 +84,7 @@ describe("createWarehouse — single default invariant", () => {
 
   it("does NOT open a transaction or touch other defaults for a non-default warehouse", async () => {
     const { db, ranTransaction, unsetOthersCalls } = makeDb({
-      insertReturning: [
-        { id: WAREHOUSE_ID, name: "Aussenlager", isDefault: false },
-      ],
+      insertReturning: [{ id: WAREHOUSE_ID, name: "Aussenlager", isDefault: false }],
     });
     const wh = await createWarehouse(db, COMPANY_ID, {
       name: "Aussenlager",
@@ -104,9 +97,7 @@ describe("createWarehouse — single default invariant", () => {
 
   it("rejects an empty name at the Zod boundary", async () => {
     const { db } = makeDb({});
-    await expect(
-      createWarehouse(db, COMPANY_ID, { name: "", isDefault: false }),
-    ).rejects.toThrow();
+    await expect(createWarehouse(db, COMPANY_ID, { name: "", isDefault: false })).rejects.toThrow();
   });
 });
 
@@ -128,9 +119,7 @@ describe("updateWarehouse — single default invariant", () => {
 
   it("updates directly without a transaction for a non-default warehouse", async () => {
     const { db, ranTransaction, unsetOthersCalls } = makeDb({
-      updateReturning: [
-        { id: WAREHOUSE_ID, name: "Aussenlager", isDefault: false },
-      ],
+      updateReturning: [{ id: WAREHOUSE_ID, name: "Aussenlager", isDefault: false }],
     });
     await updateWarehouse(db, COMPANY_ID, WAREHOUSE_ID, {
       name: "Aussenlager",

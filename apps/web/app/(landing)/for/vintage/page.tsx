@@ -4,11 +4,7 @@ import { SeeAlsoSection } from "@/components/landing/see-also-section";
 import { PainList } from "@/components/landing/pain-list";
 import { SolutionList } from "@/components/landing/solution-list";
 import { LandingCtaSection } from "@/components/landing/landing-cta-section";
-import {
-  CONDITION_GRADES,
-  CONDITION_GRADE_LABEL_KEY,
-  buildPageMeta,
-} from "@/lib/config/site";
+import { CONDITION_GRADES, CONDITION_GRADE_LABEL_KEY, buildPageMeta } from "@/lib/config/site";
 import type { Metadata } from "next";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -46,9 +42,7 @@ export default async function ForVintageShopsPage() {
           <Shirt className="h-4 w-4" />
           {t("hero.badge")}
         </div>
-        <h1 className="mb-4 text-4xl font-bold sm:text-5xl">
-          {t("hero.title")}
-        </h1>
+        <h1 className="mb-4 text-4xl font-bold sm:text-5xl">{t("hero.title")}</h1>
         <p className="text-xl text-muted-foreground">{t("hero.description")}</p>
       </section>
 
@@ -56,12 +50,8 @@ export default async function ForVintageShopsPage() {
       <section className="mx-auto max-w-3xl py-8">
         <div className="rounded-2xl border bg-card p-8">
           <h2 className="mb-3 text-xl font-bold">{t("framing.title")}</h2>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            {t("framing.paragraph1")}
-          </p>
-          <p className="text-muted-foreground leading-relaxed">
-            {t("framing.paragraph2")}
-          </p>
+          <p className="text-muted-foreground leading-relaxed mb-4">{t("framing.paragraph1")}</p>
+          <p className="text-muted-foreground leading-relaxed">{t("framing.paragraph2")}</p>
         </div>
       </section>
 
@@ -81,15 +71,11 @@ export default async function ForVintageShopsPage() {
       <section className="mx-auto max-w-3xl py-16">
         <div className="rounded-2xl border bg-card p-8">
           <h2 className="mb-4 text-xl font-bold">{t("clothingGuide.title")}</h2>
-          <p className="text-muted-foreground mb-6">
-            {t("clothingGuide.intro")}
-          </p>
+          <p className="text-muted-foreground mb-6">{t("clothingGuide.intro")}</p>
           <div className="space-y-3">
             {CONDITION_GRADES.map((grade, i) => (
               <div key={grade.id} className="flex items-start gap-3">
-                <span
-                  className={`shrink-0 w-20 text-sm font-semibold ${CLOTHING_TEXT_COLORS[i]}`}
-                >
+                <span className={`shrink-0 w-20 text-sm font-semibold ${CLOTHING_TEXT_COLORS[i]}`}>
                   {tInventory(CONDITION_GRADE_LABEL_KEY[grade.id])}
                 </span>
                 <span className="text-sm text-muted-foreground">
@@ -103,10 +89,7 @@ export default async function ForVintageShopsPage() {
 
       <SeeAlsoSection current="vintage" />
 
-      <LandingCtaSection
-        title={t("ctaTitle")}
-        description={t("ctaDescription")}
-      />
+      <LandingCtaSection title={t("ctaTitle")} description={t("ctaDescription")} />
     </>
   );
 }

@@ -13,11 +13,7 @@ import {
 } from "lucide-react";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
-import {
-  getWarehouse,
-  getStockLevelsByWarehouse,
-  listProducts,
-} from "@kivvi/core";
+import { getWarehouse, getStockLevelsByWarehouse, listProducts } from "@kivvi/core";
 import { cn, isValidUUID } from "@/lib/utils";
 import { getTranslations } from "next-intl/server";
 import { MovementForm } from "@/components/inventory/movement-form";
@@ -53,8 +49,7 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
     new Decimal(0),
   );
   const lowStockCount = stockLevels.filter(
-    (sl) =>
-      sl.minStock !== null && new Decimal(sl.quantity).lessThan(sl.minStock),
+    (sl) => sl.minStock !== null && new Decimal(sl.quantity).lessThan(sl.minStock),
   ).length;
 
   return (
@@ -92,10 +87,7 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
               )}
             </div>
           </div>
-          <MovementForm
-            warehouseId={warehouseId}
-            products={productsResult.data}
-          />
+          <MovementForm warehouseId={warehouseId} products={productsResult.data} />
         </div>
       </div>
 
@@ -103,27 +95,21 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="rounded-xl border bg-card p-6">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">
-              {t("products")}
-            </span>
+            <span className="text-sm text-muted-foreground">{t("products")}</span>
             <Package className="h-5 w-5 text-muted-foreground" />
           </div>
           <p className="mt-2 text-2xl font-bold">{totalProducts}</p>
         </div>
         <div className="rounded-xl border bg-card p-6">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">
-              {t("totalItems")}
-            </span>
+            <span className="text-sm text-muted-foreground">{t("totalItems")}</span>
             <Boxes className="h-5 w-5 text-muted-foreground" />
           </div>
           <p className="mt-2 text-2xl font-bold">{totalItems.toString()}</p>
         </div>
         <div className="rounded-xl border bg-card p-6">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">
-              {t("lowStockAlerts")}
-            </span>
+            <span className="text-sm text-muted-foreground">{t("lowStockAlerts")}</span>
             <AlertTriangle
               className={cn(
                 "h-5 w-5",
@@ -131,12 +117,7 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
               )}
             />
           </div>
-          <p
-            className={cn(
-              "mt-2 text-2xl font-bold",
-              lowStockCount > 0 && "text-warning",
-            )}
-          >
+          <p className={cn("mt-2 text-2xl font-bold", lowStockCount > 0 && "text-warning")}>
             {lowStockCount}
           </p>
         </div>
@@ -159,21 +140,15 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
           <div className="flex flex-col items-center justify-center py-16">
             <Package className="h-12 w-12 text-muted-foreground/50" />
             <h3 className="mt-4 text-lg font-medium">{t("noStockTitle")}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {t("noStockDescription")}
-            </p>
+            <p className="mt-1 text-sm text-muted-foreground">{t("noStockDescription")}</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b text-left text-sm text-muted-foreground">
-                  <th className="whitespace-nowrap px-4 py-3 font-medium">
-                    {t("product")}
-                  </th>
-                  <th className="whitespace-nowrap px-4 py-3 font-medium">
-                    {t("articleNumber")}
-                  </th>
+                  <th className="whitespace-nowrap px-4 py-3 font-medium">{t("product")}</th>
+                  <th className="whitespace-nowrap px-4 py-3 font-medium">{t("articleNumber")}</th>
                   <th className="whitespace-nowrap px-4 py-3 font-medium text-right">
                     {t("quantity")}
                   </th>
@@ -186,9 +161,7 @@ export default async function WarehouseDetailPage({ params }: PageProps) {
                   <th className="whitespace-nowrap px-4 py-3 font-medium text-right">
                     {t("minStock")}
                   </th>
-                  <th className="whitespace-nowrap px-4 py-3 font-medium">
-                    {tc("status")}
-                  </th>
+                  <th className="whitespace-nowrap px-4 py-3 font-medium">{tc("status")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y">

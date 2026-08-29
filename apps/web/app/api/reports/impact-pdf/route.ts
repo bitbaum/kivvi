@@ -43,20 +43,19 @@ export async function GET(request: NextRequest) {
     const opts = { startDate, endDate };
 
     // Fetch all data in parallel
-    const [metrics, monthlyBreakdown, topDonors, destinationBreakdown] =
-      await Promise.all([
-        getImpactMetrics(db, companyId, {
-          ...opts,
-          co2FactorsKg: settings.co2FactorsKg,
-        }),
-        getMonthlyBreakdown(db, companyId, opts),
-        getTopDonors(db, companyId, {
-          ...opts,
-          limit: 5,
-          anonymize: request.nextUrl.searchParams.get("anonymize") === "1",
-        }),
-        getDestinationBreakdown(db, companyId, opts),
-      ]);
+    const [metrics, monthlyBreakdown, topDonors, destinationBreakdown] = await Promise.all([
+      getImpactMetrics(db, companyId, {
+        ...opts,
+        co2FactorsKg: settings.co2FactorsKg,
+      }),
+      getMonthlyBreakdown(db, companyId, opts),
+      getTopDonors(db, companyId, {
+        ...opts,
+        limit: 5,
+        anonymize: request.nextUrl.searchParams.get("anonymize") === "1",
+      }),
+      getDestinationBreakdown(db, companyId, opts),
+    ]);
 
     // Fetch previous year metrics for comparison (only when a specific calendar year is selected)
     let previousYearMetrics = undefined;
@@ -73,11 +72,7 @@ export async function GET(request: NextRequest) {
     }
 
     const yearLabel =
-      startParam && endParam
-        ? `${startParam}–${endParam}`
-        : year
-          ? String(year)
-          : "Gesamt";
+      startParam && endParam ? `${startParam}–${endParam}` : year ? String(year) : "Gesamt";
     const pdf = await generateImpactPdf({
       companyName: company.name,
       year: yearLabel,
@@ -100,9 +95,6 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch {
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

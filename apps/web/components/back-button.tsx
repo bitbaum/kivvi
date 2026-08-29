@@ -13,11 +13,7 @@ interface BackButtonProps {
  * Accessible back navigation control (44×44 touch target).
  * SSOT for detail pages and settings subpages.
  */
-export async function BackButton({
-  href,
-  label,
-  className = "",
-}: BackButtonProps) {
+export async function BackButton({ href, label, className = "" }: BackButtonProps) {
   const t = await getTranslations("common");
 
   return (

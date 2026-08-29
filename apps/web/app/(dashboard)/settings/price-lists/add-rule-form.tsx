@@ -37,9 +37,7 @@ export function AddRuleForm({ priceListId }: Props) {
     <form ref={formRef} action={handleSubmit}>
       <div className="grid grid-cols-[2fr_1.5fr_1fr_1fr_auto] gap-3 items-end">
         <div className="space-y-1">
-          <label className="text-xs text-muted-foreground">
-            {t("ruleType")}
-          </label>
+          <label className="text-xs text-muted-foreground">{t("ruleType")}</label>
           <select
             name="type"
             required
@@ -52,9 +50,7 @@ export function AddRuleForm({ priceListId }: Props) {
         </div>
 
         <div className="space-y-1">
-          <label className="text-xs text-muted-foreground">
-            {t("ruleValue")}
-          </label>
+          <label className="text-xs text-muted-foreground">{t("ruleValue")}</label>
           <input
             name="value"
             type="text"
@@ -67,9 +63,7 @@ export function AddRuleForm({ priceListId }: Props) {
         </div>
 
         <div className="space-y-1">
-          <label className="text-xs text-muted-foreground">
-            {t("ruleMinQty")}
-          </label>
+          <label className="text-xs text-muted-foreground">{t("ruleMinQty")}</label>
           <input
             name="minQuantity"
             type="text"
@@ -80,9 +74,7 @@ export function AddRuleForm({ priceListId }: Props) {
         </div>
 
         <div className="space-y-1">
-          <label className="text-xs text-muted-foreground">
-            {t("ruleValidFrom")}
-          </label>
+          <label className="text-xs text-muted-foreground">{t("ruleValidFrom")}</label>
           <input
             name="validFrom"
             type="date"

@@ -25,34 +25,22 @@ export default async function DataRepairPage() {
       {/* Data quality — duplicates, missing fields, bad values */}
       <section className="space-y-4">
         <div>
-          <h2 className="text-lg font-semibold">
-            {t("dataRepair.qualityTitle")}
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            {t("dataRepair.qualityDesc")}
-          </p>
+          <h2 className="text-lg font-semibold">{t("dataRepair.qualityTitle")}</h2>
+          <p className="text-sm text-muted-foreground">{t("dataRepair.qualityDesc")}</p>
         </div>
         <DataQualityPanel
-          initialReport={
-            qualityResult.success ? (qualityResult.data ?? null) : null
-          }
+          initialReport={qualityResult.success ? (qualityResult.data ?? null) : null}
         />
       </section>
 
       {/* Migration repair — sequences, statuses, journal entries */}
       <section className="space-y-4">
         <div>
-          <h2 className="text-lg font-semibold">
-            {t("dataRepair.migrationTitle")}
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            {t("dataRepair.migrationDesc")}
-          </p>
+          <h2 className="text-lg font-semibold">{t("dataRepair.migrationTitle")}</h2>
+          <p className="text-sm text-muted-foreground">{t("dataRepair.migrationDesc")}</p>
         </div>
         <DataRepairPanel
-          initialStatus={
-            statusResult.success ? (statusResult.data ?? null) : null
-          }
+          initialStatus={statusResult.success ? (statusResult.data ?? null) : null}
         />
       </section>
     </div>

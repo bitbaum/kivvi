@@ -1,17 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Loader2,
-  CheckCircle2,
-  AlertTriangle,
-  Hash,
-  BookOpen,
-} from "lucide-react";
-import {
-  InvoiceStatusesRepairCard,
-  PaidDatesRepairCard,
-} from "./repair-card-sections";
+import { Loader2, CheckCircle2, AlertTriangle, Hash, BookOpen } from "lucide-react";
+import { InvoiceStatusesRepairCard, PaidDatesRepairCard } from "./repair-card-sections";
 import { toast } from "sonner";
 import { useTranslations } from "next-intl";
 import {
@@ -31,11 +22,7 @@ interface RepairStatus {
   paidInvoicesWithoutPaidDate: number;
 }
 
-export function DataRepairPanel({
-  initialStatus,
-}: {
-  initialStatus: RepairStatus | null;
-}) {
+export function DataRepairPanel({ initialStatus }: { initialStatus: RepairStatus | null }) {
   const t = useTranslations("settings.dataRepair");
   const [status, setStatus] = useState<RepairStatus | null>(initialStatus);
   const [repairingSequences, setRepairingSequences] = useState(false);
@@ -65,16 +52,14 @@ export function DataRepairPanel({
     if (result.success && result.data) {
       toast.success(t("sequencesRepaired"));
       // Refresh status
-      const updatedSeqs = Object.entries(result.data.updated).map(
-        ([key, nextNumber]) => {
-          const match = key.match(/^(.+?) \((.+)\)$/);
-          return {
-            prefix: match?.[1] || key,
-            type: match?.[2] || key,
-            nextNumber,
-          };
-        },
-      );
+      const updatedSeqs = Object.entries(result.data.updated).map(([key, nextNumber]) => {
+        const match = key.match(/^(.+?) \((.+)\)$/);
+        return {
+          prefix: match?.[1] || key,
+          type: match?.[2] || key,
+          nextNumber,
+        };
+      });
       setStatus((prev) =>
         prev
           ? {
@@ -104,11 +89,9 @@ export function DataRepairPanel({
         prev
           ? {
               ...prev,
-              sentInvoicesBefore2026:
-                prev.sentInvoicesBefore2026 - data.updatedInvoices,
+              sentInvoicesBefore2026: prev.sentInvoicesBefore2026 - data.updatedInvoices,
               sentPurchaseInvoicesBefore2026:
-                prev.sentPurchaseInvoicesBefore2026 -
-                data.updatedPurchaseInvoices,
+                prev.sentPurchaseInvoicesBefore2026 - data.updatedPurchaseInvoices,
             }
           : prev,
       );
@@ -140,14 +123,10 @@ export function DataRepairPanel({
           ? {
               ...prev,
               totalJournalEntries:
-                prev.totalJournalEntries +
-                data.invoiceEntries +
-                data.purchaseEntries,
+                prev.totalJournalEntries + data.invoiceEntries + data.purchaseEntries,
               documentsWithoutJournalEntries: Math.max(
                 0,
-                prev.documentsWithoutJournalEntries -
-                  data.invoiceEntries -
-                  data.purchaseEntries,
+                prev.documentsWithoutJournalEntries - data.invoiceEntries - data.purchaseEntries,
               ),
             }
           : prev,
@@ -163,9 +142,7 @@ export function DataRepairPanel({
     const result = await repairPaidDatesAction();
     if (result.success && result.data) {
       toast.success(t("paidDatesRepaired", { count: result.data.updated }));
-      setStatus((prev) =>
-        prev ? { ...prev, paidInvoicesWithoutPaidDate: 0 } : prev,
-      );
+      setStatus((prev) => (prev ? { ...prev, paidInvoicesWithoutPaidDate: 0 } : prev));
     } else {
       toast.error(result.error || t("repairFailed"));
     }
@@ -182,9 +159,7 @@ export function DataRepairPanel({
           </div>
           <div>
             <h3 className="font-semibold">{t("sequences")}</h3>
-            <p className="text-sm text-muted-foreground">
-              {t("sequencesDesc")}
-            </p>
+            <p className="text-sm text-muted-foreground">{t("sequencesDesc")}</p>
           </div>
         </div>
 
@@ -194,9 +169,7 @@ export function DataRepairPanel({
               <tr className="border-b text-left text-muted-foreground">
                 <th className="pb-2 pr-4 font-medium">{t("sequenceType")}</th>
                 <th className="pb-2 pr-4 font-medium">{t("sequencePrefix")}</th>
-                <th className="pb-2 font-medium text-right">
-                  {t("sequenceNext")}
-                </th>
+                <th className="pb-2 font-medium text-right">{t("sequenceNext")}</th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -204,9 +177,7 @@ export function DataRepairPanel({
                 <tr key={`${seq.type}-${seq.prefix}`}>
                   <td className="py-2 pr-4">{seq.type}</td>
                   <td className="py-2 pr-4 font-mono">{seq.prefix}</td>
-                  <td className="py-2 text-right font-mono font-medium">
-                    {seq.nextNumber}
-                  </td>
+                  <td className="py-2 text-right font-mono font-medium">{seq.nextNumber}</td>
                 </tr>
               ))}
             </tbody>
@@ -240,9 +211,7 @@ export function DataRepairPanel({
           </div>
           <div>
             <h3 className="font-semibold">{t("journalEntries")}</h3>
-            <p className="text-sm text-muted-foreground">
-              {t("journalEntriesDesc")}
-            </p>
+            <p className="text-sm text-muted-foreground">{t("journalEntriesDesc")}</p>
           </div>
         </div>
 
@@ -286,9 +255,7 @@ export function DataRepairPanel({
           <div className="flex items-center gap-3">
             <CheckCircle2 className="h-5 w-5 text-success" />
             <div>
-              <h3 className="font-semibold text-success">
-                {t("noIssuesFound")}
-              </h3>
+              <h3 className="font-semibold text-success">{t("noIssuesFound")}</h3>
               <p className="text-sm text-success/80">{t("allGood")}</p>
             </div>
           </div>

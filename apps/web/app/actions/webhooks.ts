@@ -19,9 +19,7 @@ async function getEndpointSchema() {
     name: z.string().min(1).max(100),
     url: z.string().url(t("errorInvalidUrl")),
     secret: z.string().min(16, t("errorSecretTooShort")),
-    events: z
-      .array(z.enum(WEBHOOK_EVENT_VALUES))
-      .min(1, t("errorNoEventsSelected")),
+    events: z.array(z.enum(WEBHOOK_EVENT_VALUES)).min(1, t("errorNoEventsSelected")),
   });
 }
 
@@ -29,24 +27,16 @@ export const listWebhookEndpointsAction = createAction<
   void,
   Awaited<ReturnType<typeof listWebhookEndpoints>>
 >({
-  handler: async (_input, { companyId, db }) =>
-    listWebhookEndpoints(db, companyId),
-  errorMessage: () =>
-    getTranslations("settings.webhooks").then((t) => t("listError")),
+  handler: async (_input, { companyId, db }) => listWebhookEndpoints(db, companyId),
+  errorMessage: () => getTranslations("settings.webhooks").then((t) => t("listError")),
   minRole: "admin",
 });
 
-export const createWebhookEndpointAction = createAction<
-  unknown,
-  { id: string }
->({
+export const createWebhookEndpointAction = createAction<unknown, { id: string }>({
   handler: async (input, { companyId, db }) => {
     const t = await getTranslations("settings.webhooks");
     const parsed = (await getEndpointSchema()).safeParse(input);
-    if (!parsed.success)
-      throw new Error(
-        parsed.error.errors[0]?.message || t("errorInvalidInput"),
-      );
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || t("errorInvalidInput"));
     const endpoint = await createWebhookEndpoint(db, companyId, {
       name: parsed.data.name,
       url: parsed.data.url,
@@ -56,8 +46,7 @@ export const createWebhookEndpointAction = createAction<
     return { id: endpoint.id };
   },
   revalidate: ["/settings/webhooks"],
-  errorMessage: () =>
-    getTranslations("settings.webhooks").then((t) => t("createError")),
+  errorMessage: () => getTranslations("settings.webhooks").then((t) => t("createError")),
   minRole: "admin",
 });
 
@@ -68,18 +57,14 @@ export const updateWebhookEndpointAction = createAction<
   handler: async ({ endpointId, input }, { companyId, db }) => {
     const t = await getTranslations("settings.webhooks");
     const parsed = (await getEndpointSchema()).partial().safeParse(input);
-    if (!parsed.success)
-      throw new Error(
-        parsed.error.errors[0]?.message || t("errorInvalidInput"),
-      );
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || t("errorInvalidInput"));
     await updateWebhookEndpoint(db, companyId, endpointId, {
       ...parsed.data,
       events: parsed.data.events as WebhookEvent[] | undefined,
     });
   },
   revalidate: ["/settings/webhooks"],
-  errorMessage: () =>
-    getTranslations("settings.webhooks").then((t) => t("updateError")),
+  errorMessage: () => getTranslations("settings.webhooks").then((t) => t("updateError")),
   minRole: "admin",
 });
 
@@ -91,8 +76,7 @@ export const toggleWebhookEndpointAction = createAction<
     await updateWebhookEndpoint(db, companyId, endpointId, { isActive });
   },
   revalidate: ["/settings/webhooks"],
-  errorMessage: () =>
-    getTranslations("settings.webhooks").then((t) => t("toggleError")),
+  errorMessage: () => getTranslations("settings.webhooks").then((t) => t("toggleError")),
   minRole: "admin",
 });
 
@@ -101,8 +85,7 @@ export const deleteWebhookEndpointAction = createAction<string, void>({
     await deleteWebhookEndpoint(db, companyId, endpointId);
   },
   revalidate: ["/settings/webhooks"],
-  errorMessage: () =>
-    getTranslations("settings.webhooks").then((t) => t("deleteError")),
+  errorMessage: () => getTranslations("settings.webhooks").then((t) => t("deleteError")),
   minRole: "admin",
 });
 
@@ -112,7 +95,6 @@ export const listWebhookDeliveriesAction = createAction<
 >({
   handler: async (endpointId, { companyId, db }) =>
     listWebhookDeliveries(db, companyId, endpointId),
-  errorMessage: () =>
-    getTranslations("settings.webhooks").then((t) => t("deliveriesError")),
+  errorMessage: () => getTranslations("settings.webhooks").then((t) => t("deliveriesError")),
   minRole: "admin",
 });

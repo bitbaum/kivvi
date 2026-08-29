@@ -23,10 +23,7 @@ const patchSchema = updateInventoryItemSchema.extend({
   status: z.enum(ITEM_STATUS_VALUES).optional(),
 });
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } },
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const ctx = await authenticateApi(request);
     if (ctx instanceof Response) return ctx;
@@ -40,10 +37,7 @@ export async function GET(
   }
 }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } },
-) {
+export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const ctx = await authenticateApi(request, "member");
     if (ctx instanceof Response) return ctx;
@@ -59,14 +53,9 @@ export async function PATCH(
       const hasOtherFields = Object.keys(fields).length > 0;
 
       if (status) {
-        await updateItemStatus(
-          db,
-          ctx.companyId,
-          params.id,
-          status,
-          undefined,
-          { skipWebhook: true },
-        );
+        await updateItemStatus(db, ctx.companyId, params.id, status, undefined, {
+          skipWebhook: true,
+        });
       }
 
       const updated = hasOtherFields
@@ -78,9 +67,7 @@ export async function PATCH(
       if (!updated) return apiError("Inventory item not found", 404);
 
       if (status || hasOtherFields) {
-        const event = status
-          ? "inventory_item.status_changed"
-          : "inventory_item.updated";
+        const event = status ? "inventory_item.status_changed" : "inventory_item.updated";
         await dispatchWebhookEvent(
           db,
           ctx.companyId,
@@ -92,10 +79,7 @@ export async function PATCH(
       return apiSuccess(updated);
     });
   } catch (error) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : "Failed to update inventory item";
+    const message = error instanceof Error ? error.message : "Failed to update inventory item";
     return apiError(message, 400);
   }
 }

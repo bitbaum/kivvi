@@ -105,7 +105,6 @@ tags:
 # ==============================================================================
 
 paths:
-
   # ----------------------------------------------------------------------------
   # Contacts
   # ----------------------------------------------------------------------------
@@ -116,8 +115,8 @@ paths:
       summary: List contacts
       operationId: listContacts
       parameters:
-        - $ref: '#/components/parameters/page'
-        - $ref: '#/components/parameters/pageSize'
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/pageSize"
         - name: search
           in: query
           description: Filter by name, email, or contact number (case-insensitive)
@@ -130,27 +129,27 @@ paths:
             type: string
             enum: [customer, vendor]
       responses:
-        '200':
+        "200":
           description: Paginated list of contacts
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - $ref: "#/components/schemas/SuccessEnvelope"
                   - type: object
                     properties:
                       data:
                         type: array
                         items:
-                          $ref: '#/components/schemas/Contact'
+                          $ref: "#/components/schemas/Contact"
                       meta:
-                        $ref: '#/components/schemas/PaginationMeta'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '500':
-          $ref: '#/components/responses/InternalError'
+                        $ref: "#/components/schemas/PaginationMeta"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
 
     post:
       tags: [Contacts]
@@ -161,50 +160,50 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateContactRequest'
+              $ref: "#/components/schemas/CreateContactRequest"
       responses:
-        '200':
+        "200":
           description: Created contact
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - $ref: "#/components/schemas/SuccessEnvelope"
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/Contact'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+                        $ref: "#/components/schemas/Contact"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
 
   /contacts/{id}:
     parameters:
-      - $ref: '#/components/parameters/id'
+      - $ref: "#/components/parameters/id"
 
     get:
       tags: [Contacts]
       summary: Get a contact
       operationId: getContact
       responses:
-        '200':
+        "200":
           description: Contact
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - $ref: "#/components/schemas/SuccessEnvelope"
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/Contact'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalError'
+                        $ref: "#/components/schemas/Contact"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
 
     put:
       tags: [Contacts]
@@ -215,38 +214,38 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateContactRequest'
+              $ref: "#/components/schemas/UpdateContactRequest"
       responses:
-        '200':
+        "200":
           description: Updated contact
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - $ref: "#/components/schemas/SuccessEnvelope"
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/Contact'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                        $ref: "#/components/schemas/Contact"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
 
     delete:
       tags: [Contacts]
       summary: Delete a contact
       operationId: deleteContact
       responses:
-        '200':
+        "200":
           description: Contact deleted
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - $ref: "#/components/schemas/SuccessEnvelope"
                   - type: object
                     properties:
                       data:
@@ -255,12 +254,12 @@ paths:
                           deleted:
                             type: boolean
                             example: true
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
 
   # ----------------------------------------------------------------------------
   # Products
@@ -272,8 +271,8 @@ paths:
       summary: List products
       operationId: listProducts
       parameters:
-        - $ref: '#/components/parameters/page'
-        - $ref: '#/components/parameters/pageSize'
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/pageSize"
         - name: search
           in: query
           description: Filter by name, description, or article number (case-insensitive)
@@ -286,27 +285,27 @@ paths:
             type: string
             enum: [product, service]
       responses:
-        '200':
+        "200":
           description: Paginated list of products
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - $ref: "#/components/schemas/SuccessEnvelope"
                   - type: object
                     properties:
                       data:
                         type: array
                         items:
-                          $ref: '#/components/schemas/Product'
+                          $ref: "#/components/schemas/Product"
                       meta:
-                        $ref: '#/components/schemas/PaginationMeta'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '500':
-          $ref: '#/components/responses/InternalError'
+                        $ref: "#/components/schemas/PaginationMeta"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
 
     post:
       tags: [Products]
@@ -317,50 +316,50 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateProductRequest'
+              $ref: "#/components/schemas/CreateProductRequest"
       responses:
-        '200':
+        "200":
           description: Created product
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - $ref: "#/components/schemas/SuccessEnvelope"
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/Product'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+                        $ref: "#/components/schemas/Product"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
 
   /products/{id}:
     parameters:
-      - $ref: '#/components/parameters/id'
+      - $ref: "#/components/parameters/id"
 
     get:
       tags: [Products]
       summary: Get a product
       operationId: getProduct
       responses:
-        '200':
+        "200":
           description: Product
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - $ref: "#/components/schemas/SuccessEnvelope"
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/Product'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalError'
+                        $ref: "#/components/schemas/Product"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
 
     put:
       tags: [Products]
@@ -371,38 +370,38 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateProductRequest'
+              $ref: "#/components/schemas/UpdateProductRequest"
       responses:
-        '200':
+        "200":
           description: Updated product
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - $ref: "#/components/schemas/SuccessEnvelope"
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/Product'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                        $ref: "#/components/schemas/Product"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
 
     delete:
       tags: [Products]
       summary: Delete a product
       operationId: deleteProduct
       responses:
-        '200':
+        "200":
           description: Product deleted
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - $ref: "#/components/schemas/SuccessEnvelope"
                   - type: object
                     properties:
                       data:
@@ -411,12 +410,12 @@ paths:
                           deleted:
                             type: boolean
                             example: true
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
 
   # ----------------------------------------------------------------------------
   # Documents
@@ -428,7 +427,7 @@ paths:
       summary: List documents
       operationId: listDocuments
       parameters:
-        - $ref: '#/components/parameters/page'
+        - $ref: "#/components/parameters/page"
         - name: pageSize
           in: query
           schema:
@@ -440,12 +439,12 @@ paths:
           in: query
           description: Filter by document type
           schema:
-            $ref: '#/components/schemas/DocumentType'
+            $ref: "#/components/schemas/DocumentType"
         - name: status
           in: query
           description: Filter by document status
           schema:
-            $ref: '#/components/schemas/DocumentStatus'
+            $ref: "#/components/schemas/DocumentStatus"
         - name: search
           in: query
           description: Filter by document number or contact name
@@ -468,27 +467,27 @@ paths:
             type: string
             enum: [asc, desc]
       responses:
-        '200':
+        "200":
           description: Paginated list of documents
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - $ref: "#/components/schemas/SuccessEnvelope"
                   - type: object
                     properties:
                       data:
                         type: array
                         items:
-                          $ref: '#/components/schemas/Document'
+                          $ref: "#/components/schemas/Document"
                       meta:
-                        $ref: '#/components/schemas/PaginationMeta'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '500':
-          $ref: '#/components/responses/InternalError'
+                        $ref: "#/components/schemas/PaginationMeta"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
 
     post:
       tags: [Documents]
@@ -508,50 +507,50 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateDocumentRequest'
+              $ref: "#/components/schemas/CreateDocumentRequest"
       responses:
-        '200':
+        "200":
           description: Created document
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - $ref: "#/components/schemas/SuccessEnvelope"
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/Document'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+                        $ref: "#/components/schemas/Document"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
 
   /documents/{id}:
     parameters:
-      - $ref: '#/components/parameters/id'
+      - $ref: "#/components/parameters/id"
 
     get:
       tags: [Documents]
       summary: Get a document
       operationId: getDocument
       responses:
-        '200':
+        "200":
           description: Document with line items and payment records
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - $ref: "#/components/schemas/SuccessEnvelope"
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/DocumentWithItems'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalError'
+                        $ref: "#/components/schemas/DocumentWithItems"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
 
     put:
       tags: [Documents]
@@ -581,26 +580,26 @@ paths:
           application/json:
             schema:
               oneOf:
-                - $ref: '#/components/schemas/UpdateDocumentStatusRequest'
-                - $ref: '#/components/schemas/UpdateDocumentRequest'
+                - $ref: "#/components/schemas/UpdateDocumentStatusRequest"
+                - $ref: "#/components/schemas/UpdateDocumentRequest"
       responses:
-        '200':
+        "200":
           description: Updated document
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - $ref: "#/components/schemas/SuccessEnvelope"
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/Document'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                        $ref: "#/components/schemas/Document"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
 
     delete:
       tags: [Documents]
@@ -608,13 +607,13 @@ paths:
       operationId: deleteDocument
       description: Only draft documents can be deleted.
       responses:
-        '200':
+        "200":
           description: Document deleted
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - $ref: "#/components/schemas/SuccessEnvelope"
                   - type: object
                     properties:
                       data:
@@ -623,16 +622,16 @@ paths:
                           deleted:
                             type: boolean
                             example: true
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
 
   /documents/{id}/payments:
     parameters:
-      - $ref: '#/components/parameters/id'
+      - $ref: "#/components/parameters/id"
 
     post:
       tags: [Documents]
@@ -650,25 +649,25 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RecordPaymentRequest'
+              $ref: "#/components/schemas/RecordPaymentRequest"
       responses:
-        '200':
+        "200":
           description: Payment record
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - $ref: "#/components/schemas/SuccessEnvelope"
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/DocumentPayment'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                        $ref: "#/components/schemas/DocumentPayment"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
 
   # ----------------------------------------------------------------------------
   # Inventory Items
@@ -680,7 +679,7 @@ paths:
       summary: List inventory items
       operationId: listInventoryItems
       parameters:
-        - $ref: '#/components/parameters/page'
+        - $ref: "#/components/parameters/page"
         - name: pageSize
           in: query
           schema:
@@ -692,12 +691,12 @@ paths:
           in: query
           description: Filter by lifecycle status
           schema:
-            $ref: '#/components/schemas/ItemStatus'
+            $ref: "#/components/schemas/ItemStatus"
         - name: condition
           in: query
           description: Filter by physical condition grade
           schema:
-            $ref: '#/components/schemas/ItemCondition'
+            $ref: "#/components/schemas/ItemCondition"
         - name: warehouseId
           in: query
           description: Filter by warehouse UUID
@@ -720,27 +719,27 @@ paths:
             type: string
             enum: [asc, desc]
       responses:
-        '200':
+        "200":
           description: Paginated list of inventory items
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - $ref: "#/components/schemas/SuccessEnvelope"
                   - type: object
                     properties:
                       data:
                         type: array
                         items:
-                          $ref: '#/components/schemas/InventoryItem'
+                          $ref: "#/components/schemas/InventoryItem"
                       meta:
-                        $ref: '#/components/schemas/PaginationMeta'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '500':
-          $ref: '#/components/responses/InternalError'
+                        $ref: "#/components/schemas/PaginationMeta"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
 
     post:
       tags: [Inventory Items]
@@ -754,50 +753,50 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateInventoryItemRequest'
+              $ref: "#/components/schemas/CreateInventoryItemRequest"
       responses:
-        '200':
+        "200":
           description: Created inventory item
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - $ref: "#/components/schemas/SuccessEnvelope"
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/InventoryItem'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
+                        $ref: "#/components/schemas/InventoryItem"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
 
   /inventory-items/{id}:
     parameters:
-      - $ref: '#/components/parameters/id'
+      - $ref: "#/components/parameters/id"
 
     get:
       tags: [Inventory Items]
       summary: Get an inventory item
       operationId: getInventoryItem
       responses:
-        '200':
+        "200":
           description: Inventory item with denormalized product, warehouse, and donor names
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - $ref: "#/components/schemas/SuccessEnvelope"
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/InventoryItemWithDetails'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '500':
-          $ref: '#/components/responses/InternalError'
+                        $ref: "#/components/schemas/InventoryItemWithDetails"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "500":
+          $ref: "#/components/responses/InternalError"
 
     patch:
       tags: [Inventory Items]
@@ -838,29 +837,29 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatchInventoryItemRequest'
+              $ref: "#/components/schemas/PatchInventoryItemRequest"
       responses:
-        '200':
+        "200":
           description: Updated inventory item
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - $ref: "#/components/schemas/SuccessEnvelope"
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/InventoryItemWithDetails'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+                        $ref: "#/components/schemas/InventoryItemWithDetails"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
 
   /inventory-items/{id}/repair-labor-invoice:
     parameters:
-      - $ref: '#/components/parameters/id'
+      - $ref: "#/components/parameters/id"
 
     post:
       tags: [Inventory Items]
@@ -899,13 +898,13 @@ paths:
                 description:
                   type: string
       responses:
-        '200':
+        "200":
           description: Draft repair labor invoice created
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - $ref: "#/components/schemas/SuccessEnvelope"
                   - type: object
                     properties:
                       data:
@@ -925,12 +924,12 @@ paths:
                             type: string
                           currency:
                             type: string
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '404':
-          $ref: '#/components/responses/NotFound'
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
 
   # ----------------------------------------------------------------------------
   # Marketplace (P2P agency accounting)
@@ -964,27 +963,27 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MarketplaceAgencySaleInput'
+              $ref: "#/components/schemas/MarketplaceAgencySaleInput"
       responses:
-        '200':
+        "200":
           description: Journal entry created (or replayed)
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - $ref: "#/components/schemas/SuccessEnvelope"
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/JournalEntryRef'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '409':
+                        $ref: "#/components/schemas/JournalEntryRef"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
           description: Idempotency key already in progress
-        '500':
-          $ref: '#/components/responses/InternalError'
+        "500":
+          $ref: "#/components/responses/InternalError"
 
   /marketplace/payouts:
     post:
@@ -1007,34 +1006,33 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MarketplacePayoutInput'
+              $ref: "#/components/schemas/MarketplacePayoutInput"
       responses:
-        '200':
+        "200":
           description: Journal entry created (or replayed)
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/SuccessEnvelope'
+                  - $ref: "#/components/schemas/SuccessEnvelope"
                   - type: object
                     properties:
                       data:
-                        $ref: '#/components/schemas/JournalEntryRef'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '409':
+                        $ref: "#/components/schemas/JournalEntryRef"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
           description: Idempotency key already in progress
-        '500':
-          $ref: '#/components/responses/InternalError'
+        "500":
+          $ref: "#/components/responses/InternalError"
 
 # ==============================================================================
 # COMPONENTS
 # ==============================================================================
 
 components:
-
   securitySchemes:
     bearerAuth:
       type: http
@@ -1080,7 +1078,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorEnvelope'
+            $ref: "#/components/schemas/ErrorEnvelope"
           example:
             success: false
             error: "Invalid body: items.0.unitPrice: Invalid unit price"
@@ -1090,7 +1088,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorEnvelope'
+            $ref: "#/components/schemas/ErrorEnvelope"
           example:
             success: false
             error: "Unauthorized"
@@ -1100,7 +1098,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorEnvelope'
+            $ref: "#/components/schemas/ErrorEnvelope"
           example:
             success: false
             error: "Document not found"
@@ -1110,7 +1108,7 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorEnvelope'
+            $ref: "#/components/schemas/ErrorEnvelope"
           example:
             success: false
             error: "Internal server error"
@@ -1120,7 +1118,6 @@ components:
   # ----------------------------------------------------------------------------
 
   schemas:
-
     SuccessEnvelope:
       type: object
       required: [success]
@@ -1161,9 +1158,9 @@ components:
           description: Total number of pages
           example: 3
 
-  # ----------------------------------------------------------------------------
-  # Schemas — enums
-  # ----------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------
+    # Schemas — enums
+    # ----------------------------------------------------------------------------
 
     DocumentType:
       type: string
@@ -1263,9 +1260,9 @@ components:
         - return
         - other
 
-  # ----------------------------------------------------------------------------
-  # Schemas — Contact
-  # ----------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------
+    # Schemas — Contact
+    # ----------------------------------------------------------------------------
 
     Contact:
       type: object
@@ -1436,16 +1433,29 @@ components:
 
     UpdateContactRequest:
       allOf:
-        - $ref: '#/components/schemas/CreateContactRequest'
+        - $ref: "#/components/schemas/CreateContactRequest"
       description: All fields are optional for partial updates
 
-  # ----------------------------------------------------------------------------
-  # Schemas — Product
-  # ----------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------
+    # Schemas — Product
+    # ----------------------------------------------------------------------------
 
     Product:
       type: object
-      required: [id, companyId, name, type, articleNumber, unitPrice, vatRate, unit, currency, createdAt, updatedAt]
+      required:
+        [
+          id,
+          companyId,
+          name,
+          type,
+          articleNumber,
+          unitPrice,
+          vatRate,
+          unit,
+          currency,
+          createdAt,
+          updatedAt,
+        ]
       properties:
         id:
           type: string
@@ -1639,16 +1649,29 @@ components:
 
     UpdateProductRequest:
       allOf:
-        - $ref: '#/components/schemas/CreateProductRequest'
+        - $ref: "#/components/schemas/CreateProductRequest"
       description: All fields are optional for partial updates
 
-  # ----------------------------------------------------------------------------
-  # Schemas — Document
-  # ----------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------
+    # Schemas — Document
+    # ----------------------------------------------------------------------------
 
     DocumentItem:
       type: object
-      required: [id, documentId, position, description, quantity, unitPrice, discount, vatRate, netAmount, vatAmount, grossAmount]
+      required:
+        [
+          id,
+          documentId,
+          position,
+          description,
+          quantity,
+          unitPrice,
+          discount,
+          vatRate,
+          netAmount,
+          vatAmount,
+          grossAmount,
+        ]
       properties:
         id:
           type: string
@@ -1733,7 +1756,21 @@ components:
 
     Document:
       type: object
-      required: [id, companyId, type, status, number, issueDate, currency, netTotal, vatTotal, grossTotal, createdAt, updatedAt]
+      required:
+        [
+          id,
+          companyId,
+          type,
+          status,
+          number,
+          issueDate,
+          currency,
+          netTotal,
+          vatTotal,
+          grossTotal,
+          createdAt,
+          updatedAt,
+        ]
       properties:
         id:
           type: string
@@ -1742,9 +1779,9 @@ components:
           type: string
           format: uuid
         type:
-          $ref: '#/components/schemas/DocumentType'
+          $ref: "#/components/schemas/DocumentType"
         status:
-          $ref: '#/components/schemas/DocumentStatus'
+          $ref: "#/components/schemas/DocumentStatus"
         number:
           type: string
           description: Auto-generated document number
@@ -1796,7 +1833,7 @@ components:
           type: string
           nullable: true
         intakeSource:
-          $ref: '#/components/schemas/IntakeSource'
+          $ref: "#/components/schemas/IntakeSource"
           nullable: true
         donorId:
           type: string
@@ -1811,24 +1848,24 @@ components:
 
     DocumentWithItems:
       allOf:
-        - $ref: '#/components/schemas/Document'
+        - $ref: "#/components/schemas/Document"
         - type: object
           properties:
             items:
               type: array
               items:
-                $ref: '#/components/schemas/DocumentItem'
+                $ref: "#/components/schemas/DocumentItem"
             payments:
               type: array
               items:
-                $ref: '#/components/schemas/DocumentPayment'
+                $ref: "#/components/schemas/DocumentPayment"
 
     CreateDocumentRequest:
       type: object
       required: [type, items]
       properties:
         type:
-          $ref: '#/components/schemas/DocumentType'
+          $ref: "#/components/schemas/DocumentType"
         contactId:
           type: string
           format: uuid
@@ -1871,7 +1908,7 @@ components:
           maxLength: 5000
           nullable: true
         intakeSource:
-          $ref: '#/components/schemas/IntakeSource'
+          $ref: "#/components/schemas/IntakeSource"
           nullable: true
         donorId:
           type: string
@@ -1881,7 +1918,7 @@ components:
           type: array
           minItems: 1
           items:
-            $ref: '#/components/schemas/DocumentItemInput'
+            $ref: "#/components/schemas/DocumentItemInput"
 
     UpdateDocumentRequest:
       type: object
@@ -1920,7 +1957,7 @@ components:
           type: array
           minItems: 1
           items:
-            $ref: '#/components/schemas/DocumentItemInput'
+            $ref: "#/components/schemas/DocumentItemInput"
           description: When provided, replaces all existing line items
 
     UpdateDocumentStatusRequest:
@@ -1929,7 +1966,7 @@ components:
       description: Send only this field to trigger a status transition
       properties:
         status:
-          $ref: '#/components/schemas/DocumentStatus'
+          $ref: "#/components/schemas/DocumentStatus"
 
     DocumentPayment:
       type: object
@@ -1950,7 +1987,7 @@ components:
           format: date
           example: "2026-04-13"
         method:
-          $ref: '#/components/schemas/PaymentMethod'
+          $ref: "#/components/schemas/PaymentMethod"
         reference:
           type: string
           nullable: true
@@ -1978,7 +2015,7 @@ components:
           description: Payment date (YYYY-MM-DD)
           example: "2026-04-13"
         method:
-          $ref: '#/components/schemas/PaymentMethod'
+          $ref: "#/components/schemas/PaymentMethod"
           description: Defaults to bank_transfer if omitted
         reference:
           type: string
@@ -1986,9 +2023,9 @@ components:
           nullable: true
           description: Bank reference or transaction identifier
 
-  # ----------------------------------------------------------------------------
-  # Schemas — Inventory Item
-  # ----------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------
+    # Schemas — Inventory Item
+    # ----------------------------------------------------------------------------
 
     InventoryItem:
       type: object
@@ -2016,9 +2053,9 @@ components:
           format: uuid
           nullable: true
         condition:
-          $ref: '#/components/schemas/ItemCondition'
+          $ref: "#/components/schemas/ItemCondition"
         status:
-          $ref: '#/components/schemas/ItemStatus'
+          $ref: "#/components/schemas/ItemStatus"
         intakeDocumentId:
           type: string
           format: uuid
@@ -2090,7 +2127,7 @@ components:
 
     InventoryItemWithDetails:
       allOf:
-        - $ref: '#/components/schemas/InventoryItem'
+        - $ref: "#/components/schemas/InventoryItem"
         - type: object
           properties:
             productName:
@@ -2129,7 +2166,7 @@ components:
           format: uuid
           nullable: true
         condition:
-          $ref: '#/components/schemas/ItemCondition'
+          $ref: "#/components/schemas/ItemCondition"
           description: Defaults to untested
         intakeDocumentId:
           type: string
@@ -2186,9 +2223,9 @@ components:
           format: uuid
           nullable: true
         condition:
-          $ref: '#/components/schemas/ItemCondition'
+          $ref: "#/components/schemas/ItemCondition"
         status:
-          $ref: '#/components/schemas/ItemStatus'
+          $ref: "#/components/schemas/ItemStatus"
           description: Triggers a validated status transition
         intakeDocumentId:
           type: string

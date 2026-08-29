@@ -48,16 +48,12 @@ export default async function FiscalYearDetailPage({ params }: PageProps) {
               />
             </div>
             <p className="mt-1 text-muted-foreground">
-              {formatDate(fiscalYear.startDate)} &ndash;{" "}
-              {formatDate(fiscalYear.endDate)}
+              {formatDate(fiscalYear.startDate)} &ndash; {formatDate(fiscalYear.endDate)}
             </p>
           </div>
 
           {!fiscalYear.isClosed && (
-            <CloseYearButton
-              yearId={fiscalYear.id}
-              yearName={fiscalYear.name}
-            />
+            <CloseYearButton yearId={fiscalYear.id} yearName={fiscalYear.name} />
           )}
         </div>
       </div>
@@ -74,27 +70,17 @@ export default async function FiscalYearDetailPage({ params }: PageProps) {
         {fiscalYear.periods.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12">
             <Calendar className="h-8 w-8 text-muted-foreground/50" />
-            <p className="mt-2 text-sm text-muted-foreground">
-              {t("noPeriods")}
-            </p>
+            <p className="mt-2 text-sm text-muted-foreground">{t("noPeriods")}</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b text-left text-muted-foreground">
-                  <th className="whitespace-nowrap px-6 py-3 font-medium">
-                    {tc("name")}
-                  </th>
-                  <th className="whitespace-nowrap px-6 py-3 font-medium">
-                    {t("startDate")}
-                  </th>
-                  <th className="whitespace-nowrap px-6 py-3 font-medium">
-                    {t("endDate")}
-                  </th>
-                  <th className="whitespace-nowrap px-6 py-3 font-medium">
-                    {tc("status")}
-                  </th>
+                  <th className="whitespace-nowrap px-6 py-3 font-medium">{tc("name")}</th>
+                  <th className="whitespace-nowrap px-6 py-3 font-medium">{t("startDate")}</th>
+                  <th className="whitespace-nowrap px-6 py-3 font-medium">{t("endDate")}</th>
+                  <th className="whitespace-nowrap px-6 py-3 font-medium">{tc("status")}</th>
                   <th className="whitespace-nowrap px-6 py-3 font-medium text-right">
                     {tc("edit")}
                   </th>
@@ -103,9 +89,7 @@ export default async function FiscalYearDetailPage({ params }: PageProps) {
               <tbody className="divide-y">
                 {fiscalYear.periods.map((period) => (
                   <tr key={period.id}>
-                    <td className="whitespace-nowrap px-6 py-4 font-medium">
-                      {period.name}
-                    </td>
+                    <td className="whitespace-nowrap px-6 py-4 font-medium">{period.name}</td>
                     <td className="whitespace-nowrap px-6 py-4 text-muted-foreground">
                       {formatDate(period.startDate)}
                     </td>
@@ -120,10 +104,7 @@ export default async function FiscalYearDetailPage({ params }: PageProps) {
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-right">
                       {!period.isClosed && !fiscalYear.isClosed && (
-                        <ClosePeriodButton
-                          periodId={period.id}
-                          periodName={period.name}
-                        />
+                        <ClosePeriodButton periodId={period.id} periodName={period.name} />
                       )}
                     </td>
                   </tr>

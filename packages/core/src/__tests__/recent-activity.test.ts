@@ -72,10 +72,7 @@ describe("getRecentActivity", () => {
   });
 
   it("uses the inventory amount fallback chain soldPrice → askingPrice → estimatedValue → 0", async () => {
-    const sold = makeDb(
-      [],
-      [item({ soldPrice: "300", askingPrice: "350", estimatedValue: "50" })],
-    );
+    const sold = makeDb([], [item({ soldPrice: "300", askingPrice: "350", estimatedValue: "50" })]);
     const asking = makeDb(
       [],
       [item({ soldPrice: null, askingPrice: "350", estimatedValue: "50" })],
@@ -84,10 +81,7 @@ describe("getRecentActivity", () => {
       [],
       [item({ soldPrice: null, askingPrice: null, estimatedValue: "50" })],
     );
-    const none = makeDb(
-      [],
-      [item({ soldPrice: null, askingPrice: null, estimatedValue: null })],
-    );
+    const none = makeDb([], [item({ soldPrice: null, askingPrice: null, estimatedValue: null })]);
 
     expect((await getRecentActivity(sold, COMPANY_ID))[0].amount).toBe(300);
     expect((await getRecentActivity(asking, COMPANY_ID))[0].amount).toBe(350);

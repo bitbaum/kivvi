@@ -26,13 +26,11 @@ export const createWarehouseAction = createAction<
 >({
   handler: async (input, { companyId, db }) => {
     const parsed = createWarehouseSchema.safeParse(input);
-    if (!parsed.success)
-      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
     return createWarehouse(db, companyId, parsed.data);
   },
   revalidate: ["/inventory"],
-  errorMessage: () =>
-    getTranslations("inventory").then((t) => t("errorCreateWarehouse")),
+  errorMessage: () => getTranslations("inventory").then((t) => t("errorCreateWarehouse")),
   minRole: "member",
 });
 
@@ -42,13 +40,11 @@ export const updateWarehouseAction = createAction<
 >({
   handler: async ({ warehouseId, input }, { companyId, db }) => {
     const parsed = createWarehouseSchema.safeParse(input);
-    if (!parsed.success)
-      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
     return updateWarehouse(db, companyId, warehouseId, parsed.data);
   },
   revalidate: ["/inventory"],
-  errorMessage: () =>
-    getTranslations("inventory").then((t) => t("errorUpdateWarehouse")),
+  errorMessage: () => getTranslations("inventory").then((t) => t("errorUpdateWarehouse")),
   minRole: "member",
 });
 
@@ -57,8 +53,7 @@ export const deleteWarehouseAction = createAction<string, void>({
     await deleteWarehouse(db, companyId, warehouseId);
   },
   revalidate: ["/inventory"],
-  errorMessage: () =>
-    getTranslations("inventory").then((t) => t("errorDeleteWarehouse")),
+  errorMessage: () => getTranslations("inventory").then((t) => t("errorDeleteWarehouse")),
   minRole: "admin",
   translateDomainErrors: true,
 });
@@ -73,32 +68,27 @@ export const createStockMovementAction = createAction<
 >({
   handler: async (input, { companyId, db }) => {
     const parsed = createStockMovementSchema.safeParse(input);
-    if (!parsed.success)
-      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
     return createStockMovement(db, companyId, parsed.data);
   },
   revalidate: ["/inventory"],
-  errorMessage: () =>
-    getTranslations("inventory").then((t) => t("errorCreateStockMovement")),
+  errorMessage: () => getTranslations("inventory").then((t) => t("errorCreateStockMovement")),
   minRole: "member",
 });
 
-export const transferStockAction = createAction<
-  unknown,
-  Awaited<ReturnType<typeof transferStock>>
->({
-  handler: async (input, { companyId, db }) => {
-    const parsed = transferStockSchema.safeParse(input);
-    if (!parsed.success)
-      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
-    return transferStock(db, companyId, parsed.data);
+export const transferStockAction = createAction<unknown, Awaited<ReturnType<typeof transferStock>>>(
+  {
+    handler: async (input, { companyId, db }) => {
+      const parsed = transferStockSchema.safeParse(input);
+      if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+      return transferStock(db, companyId, parsed.data);
+    },
+    revalidate: ["/inventory"],
+    errorMessage: () => getTranslations("inventory").then((t) => t("errorTransferStock")),
+    minRole: "member",
+    translateDomainErrors: true,
   },
-  revalidate: ["/inventory"],
-  errorMessage: () =>
-    getTranslations("inventory").then((t) => t("errorTransferStock")),
-  minRole: "member",
-  translateDomainErrors: true,
-});
+);
 
 // ============================================================================
 // SERIAL NUMBERS
@@ -110,13 +100,11 @@ export const createSerialNumberAction = createAction<
 >({
   handler: async (input, { companyId, db }) => {
     const parsed = createSerialNumberSchema.safeParse(input);
-    if (!parsed.success)
-      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
     return createSerialNumber(db, companyId, parsed.data);
   },
   revalidate: ["/inventory"],
-  errorMessage: () =>
-    getTranslations("inventory").then((t) => t("errorCreateSerialNumber")),
+  errorMessage: () => getTranslations("inventory").then((t) => t("errorCreateSerialNumber")),
   minRole: "member",
 });
 
@@ -128,20 +116,10 @@ export const updateSerialNumberStatusAction = createAction<
   },
   Awaited<ReturnType<typeof updateSerialNumberStatus>>
 >({
-  handler: async (
-    { serialNumberId, status, soldToContactId },
-    { companyId, db },
-  ) => {
-    return updateSerialNumberStatus(
-      db,
-      companyId,
-      serialNumberId,
-      status,
-      soldToContactId,
-    );
+  handler: async ({ serialNumberId, status, soldToContactId }, { companyId, db }) => {
+    return updateSerialNumberStatus(db, companyId, serialNumberId, status, soldToContactId);
   },
   revalidate: ["/inventory"],
-  errorMessage: () =>
-    getTranslations("inventory").then((t) => t("errorUpdateSerialNumber")),
+  errorMessage: () => getTranslations("inventory").then((t) => t("errorUpdateSerialNumber")),
   minRole: "member",
 });

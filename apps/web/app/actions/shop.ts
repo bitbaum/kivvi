@@ -22,9 +22,7 @@ const sendShopInquirySchema = z.object({
   message: z.string().max(2000).optional(),
 });
 
-export async function sendShopInquiryAction(
-  input: unknown,
-): Promise<ActionResult<void>> {
+export async function sendShopInquiryAction(input: unknown): Promise<ActionResult<void>> {
   const t = await getTranslations("shop.inquiry");
   try {
     const parsed = sendShopInquirySchema.safeParse(input);
@@ -32,15 +30,8 @@ export async function sendShopInquiryAction(
       return { success: false, error: t("errorInvalidInput") };
     }
 
-    const {
-      companyId,
-      itemId,
-      itemDescription,
-      slug,
-      senderName,
-      senderEmail,
-      message,
-    } = parsed.data;
+    const { companyId, itemId, itemDescription, slug, senderName, senderEmail, message } =
+      parsed.data;
 
     if (!isEmailConfigured()) {
       // Silently succeed — company hasn't configured email yet
@@ -70,9 +61,7 @@ export async function sendShopInquiryAction(
     const safeName = escapeHtml(senderName);
     const safeEmail = escapeHtml(senderEmail);
     const safeItem = escapeHtml(itemDescription);
-    const safeMessage = message
-      ? escapeHtml(message).replace(/\n/g, "<br>")
-      : null;
+    const safeMessage = message ? escapeHtml(message).replace(/\n/g, "<br>") : null;
 
     const transporter = getTransporter();
     await transporter.sendMail({

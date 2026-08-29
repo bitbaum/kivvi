@@ -2,14 +2,8 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { cn } from "@/lib/utils";
 import { SearchInput } from "@/components/search-input";
-import {
-  ITEM_STATUS_VALUES,
-  ITEM_CONDITION_VALUES,
-} from "@kivvi/database/src/enums";
-import {
-  getStatusLabelKey,
-  getConditionLabelKey,
-} from "@/lib/config/inventory-items";
+import { ITEM_STATUS_VALUES, ITEM_CONDITION_VALUES } from "@kivvi/database/src/enums";
+import { getStatusLabelKey, getConditionLabelKey } from "@/lib/config/inventory-items";
 
 interface InventoryFilterPillsProps {
   search: string | undefined;

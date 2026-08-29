@@ -49,36 +49,27 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
 
   const assignedToUserId = assignedTo === "me" ? session.user.id : undefined;
 
-  const [result, counts, conditionCounts, dashboard, allWarehouses] =
-    await Promise.all([
-      listInventoryItems(db, session.user.companyId, {
-        status,
-        condition,
-        search,
-        assignedToUserId,
-        warehouseId,
-        page,
-        pageSize: 25,
-        // Show oldest-first for pipeline statuses so stale items surface at top
-        sortBy: "createdAt",
-        sortOrder:
-          status &&
-          PIPELINE_STATUSES.includes(
-            status as (typeof PIPELINE_STATUSES)[number],
-          )
-            ? "asc"
-            : "desc",
-      }),
-      getInventoryItemCounts(db, session.user.companyId),
-      getInventoryItemConditionCounts(
-        db,
-        session.user.companyId,
-        status,
-        warehouseId,
-      ),
-      getInventoryDashboard(db, session.user.companyId, { periodDays: 30 }),
-      listWarehouses(db, session.user.companyId),
-    ]);
+  const [result, counts, conditionCounts, dashboard, allWarehouses] = await Promise.all([
+    listInventoryItems(db, session.user.companyId, {
+      status,
+      condition,
+      search,
+      assignedToUserId,
+      warehouseId,
+      page,
+      pageSize: 25,
+      // Show oldest-first for pipeline statuses so stale items surface at top
+      sortBy: "createdAt",
+      sortOrder:
+        status && PIPELINE_STATUSES.includes(status as (typeof PIPELINE_STATUSES)[number])
+          ? "asc"
+          : "desc",
+    }),
+    getInventoryItemCounts(db, session.user.companyId),
+    getInventoryItemConditionCounts(db, session.user.companyId, status, warehouseId),
+    getInventoryDashboard(db, session.user.companyId, { periodDays: 30 }),
+    listWarehouses(db, session.user.companyId),
+  ]);
 
   const totalItems = Object.values(counts).reduce((a, b) => a + b, 0);
 
@@ -177,17 +168,11 @@ export default async function InventoryItemsPage({ searchParams }: PageProps) {
           <SelectableItemList
             items={result.data.map((item) => {
               const cd = item.checklistData as ChecklistData | null;
-              let qcProgress:
-                | { done: number; total: number; signedOff: boolean }
-                | undefined;
+              let qcProgress: { done: number; total: number; signedOff: boolean } | undefined;
               if (cd?.completions?.length && item.category) {
                 const template = getChecklistTemplate(item.category);
-                const requiredTotal = template.checks.filter(
-                  (c) => c.required,
-                ).length;
-                const done = cd.completions.filter(
-                  (c) => c.result === "pass",
-                ).length;
+                const requiredTotal = template.checks.filter((c) => c.required).length;
+                const done = cd.completions.filter((c) => c.result === "pass").length;
                 qcProgress = {
                   done,
                   total: requiredTotal,

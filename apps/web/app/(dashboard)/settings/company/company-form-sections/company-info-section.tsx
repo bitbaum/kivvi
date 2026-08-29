@@ -19,8 +19,7 @@ export function CompanyInfoSection({ name, legalName, vatNumber }: Props) {
       <div className="grid gap-6 p-6 sm:grid-cols-2">
         <div className="sm:col-span-2">
           <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
-            {t("company.companyName")}{" "}
-            <span className="text-destructive">*</span>
+            {t("company.companyName")} <span className="text-destructive">*</span>
           </label>
           <FormInput
             type="text"
@@ -33,10 +32,7 @@ export function CompanyInfoSection({ name, legalName, vatNumber }: Props) {
         </div>
 
         <div className="sm:col-span-2">
-          <label
-            htmlFor="legalName"
-            className="mb-1.5 block text-sm font-medium"
-          >
+          <label htmlFor="legalName" className="mb-1.5 block text-sm font-medium">
             {t("company.legalName")}
           </label>
           <FormInput
@@ -49,10 +45,7 @@ export function CompanyInfoSection({ name, legalName, vatNumber }: Props) {
         </div>
 
         <div>
-          <label
-            htmlFor="vatNumber"
-            className="mb-1.5 block text-sm font-medium"
-          >
+          <label htmlFor="vatNumber" className="mb-1.5 block text-sm font-medium">
             {t("company.vatNumber")}
           </label>
           <FormInput

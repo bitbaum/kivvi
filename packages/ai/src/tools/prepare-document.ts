@@ -8,20 +8,12 @@ import Decimal from "decimal.js";
 const documentItemSchema = z.object({
   description: z.string().describe("Line item description"),
   quantity: z.number().positive().describe("Quantity"),
-  unitPrice: z
-    .number()
-    .nonnegative()
-    .describe("Unit price in the company default currency"),
+  unitPrice: z.number().nonnegative().describe("Unit price in the company default currency"),
   vatRate: z
     .number()
     .default(Number(DEFAULT_VAT_RATE))
     .describe("VAT rate as percentage (e.g. 8.1 for standard Swiss VAT)"),
-  discount: z
-    .number()
-    .min(0)
-    .max(100)
-    .default(0)
-    .describe("Discount percentage (0-100)"),
+  discount: z.number().min(0).max(100).default(0).describe("Discount percentage (0-100)"),
 });
 
 const prepareDocumentSchema = z.object({
@@ -49,19 +41,10 @@ const prepareDocumentSchema = z.object({
     .string()
     .optional()
     .describe("Contact name to search for (used if contactId is not provided)"),
-  items: z
-    .array(documentItemSchema)
-    .min(1)
-    .describe("Line items for the document"),
-  issueDate: z
-    .string()
-    .optional()
-    .describe("Issue date (ISO 8601). Defaults to today."),
+  items: z.array(documentItemSchema).min(1).describe("Line items for the document"),
+  issueDate: z.string().optional().describe("Issue date (ISO 8601). Defaults to today."),
   dueDate: z.string().optional().describe("Due date (ISO 8601)."),
-  notes: z
-    .string()
-    .optional()
-    .describe("Notes or remarks to include on the document"),
+  notes: z.string().optional().describe("Notes or remarks to include on the document"),
 });
 
 /** Route prefixes per document type for navigation URLs */
@@ -166,9 +149,7 @@ export const prepareDocumentTool: Tool = {
         })),
       };
 
-      const prefillEncoded = Buffer.from(JSON.stringify(prefill)).toString(
-        "base64url",
-      );
+      const prefillEncoded = Buffer.from(JSON.stringify(prefill)).toString("base64url");
       const basePath = ROUTE_PREFIX[params.type] || "/sales/invoices";
       const url = `${basePath}/new?prefill=${prefillEncoded}`;
       const typeLabel = TYPE_LABELS[params.type] || params.type;
@@ -187,10 +168,7 @@ export const prepareDocumentTool: Tool = {
             description: item.description,
             quantity: item.quantity,
             unitPrice: item.unitPrice,
-            total: new Decimal(item.unitPrice)
-              .times(item.quantity)
-              .toDecimalPlaces(2)
-              .toString(),
+            total: new Decimal(item.unitPrice).times(item.quantity).toDecimalPlaces(2).toString(),
           })),
         },
         actions: [

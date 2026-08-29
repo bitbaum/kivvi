@@ -1,12 +1,6 @@
 import Link from "next/link";
 import { EmptyState } from "@/components/empty-state";
-import {
-  Warehouse as WarehouseIcon,
-  AlertTriangle,
-  ArrowUpDown,
-  MapPin,
-  Star,
-} from "lucide-react";
+import { Warehouse as WarehouseIcon, AlertTriangle, ArrowUpDown, MapPin, Star } from "lucide-react";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
 import { listWarehouses, getLowStockProducts } from "@kivvi/core";
@@ -47,9 +41,7 @@ export default async function InventoryPage() {
         <div className="rounded-xl border border-warning/20 bg-warning/5">
           <div className="flex items-center gap-2 border-b border-warning/20 p-4">
             <AlertTriangle className="h-5 w-5 text-warning" />
-            <h2 className="font-semibold text-warning">
-              {t("lowStockAlerts")}
-            </h2>
+            <h2 className="font-semibold text-warning">{t("lowStockAlerts")}</h2>
             <span className="ml-auto inline-flex items-center rounded-full bg-warning/20 px-2 py-0.5 text-xs font-medium text-warning">
               {t("lowStockCount", { count: lowStockProducts.length })}
             </span>
@@ -58,9 +50,7 @@ export default async function InventoryPage() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-warning/20 text-left text-sm text-warning">
-                  <th className="whitespace-nowrap px-4 py-3 font-medium">
-                    {t("productColumn")}
-                  </th>
+                  <th className="whitespace-nowrap px-4 py-3 font-medium">{t("productColumn")}</th>
                   <th className="whitespace-nowrap px-4 py-3 font-medium">
                     {t("articleNumberColumn")}
                   </th>

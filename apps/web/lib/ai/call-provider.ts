@@ -27,19 +27,13 @@
  * happens to edit the other one. The registry is the single answer now.
  */
 
-import {
-  ANTHROPIC_MODELS,
-  GROQ_DEFAULT_MODEL,
-  OPENROUTER_FALLBACK_MODEL,
-} from "@kivvi/ai";
+import { ANTHROPIC_MODELS, GROQ_DEFAULT_MODEL, OPENROUTER_FALLBACK_MODEL } from "@kivvi/ai";
 
 type Provider = "groq" | "xai" | "anthropic" | "openrouter";
 
 function detectProvider(): { provider: Provider; apiKey: string } | null {
-  if (process.env.GROQ_API_KEY)
-    return { provider: "groq", apiKey: process.env.GROQ_API_KEY };
-  if (process.env.XAI_API_KEY)
-    return { provider: "xai", apiKey: process.env.XAI_API_KEY };
+  if (process.env.GROQ_API_KEY) return { provider: "groq", apiKey: process.env.GROQ_API_KEY };
+  if (process.env.XAI_API_KEY) return { provider: "xai", apiKey: process.env.XAI_API_KEY };
   if (process.env.OPENROUTER_API_KEY)
     return { provider: "openrouter", apiKey: process.env.OPENROUTER_API_KEY };
   // Paid, and therefore last and opt-in: reaching it means every free option is
@@ -156,10 +150,7 @@ export async function callAIProvider(
 /** Extract a JSON object from an AI response that may contain markdown fences. */
 export function extractJSON<T>(text: string, arrayFallback: true): T[];
 export function extractJSON<T>(text: string, arrayFallback?: false): T | null;
-export function extractJSON<T>(
-  text: string,
-  arrayFallback = false,
-): T | T[] | null {
+export function extractJSON<T>(text: string, arrayFallback = false): T | T[] | null {
   const pattern = arrayFallback ? /\[[\s\S]*\]/ : /\{[\s\S]*\}/;
   const match = text.match(pattern);
   if (!match) return arrayFallback ? [] : null;

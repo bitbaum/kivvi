@@ -12,14 +12,8 @@ import {
   updateItemStatusAction,
   updateItemConditionAction,
 } from "@/app/actions/inventory-items";
-import type {
-  ChecklistTemplate,
-  ChecklistData,
-} from "@kivvi/core/src/config/checklist-templates";
-import {
-  getConditionLabelKey,
-  TESTABLE_STATUSES,
-} from "@/lib/config/inventory-items";
+import type { ChecklistTemplate, ChecklistData } from "@kivvi/core/src/config/checklist-templates";
+import { getConditionLabelKey, TESTABLE_STATUSES } from "@/lib/config/inventory-items";
 import { ITEM_CONDITION_VALUES } from "@kivvi/database/src/enums";
 import { CheckRow } from "./checklist-check-row";
 import { useChecklistState } from "./use-checklist-state";
@@ -147,12 +141,8 @@ export function ChecklistForm({
     <div className="space-y-6">
       {/* Progress */}
       <div className="flex items-center justify-between text-sm text-muted-foreground">
-        <span>
-          {tc("checklistProgress", { done: completedCount, total: totalCount })}
-        </span>
-        <span className="text-xs">
-          {Math.round((completedCount / totalCount) * 100)}%
-        </span>
+        <span>{tc("checklistProgress", { done: completedCount, total: totalCount })}</span>
+        <span className="text-xs">{Math.round((completedCount / totalCount) * 100)}%</span>
       </div>
       <div className="h-2 rounded-full bg-muted overflow-hidden">
         <div
@@ -167,9 +157,7 @@ export function ChecklistForm({
           <CheckRow
             key={check.id}
             check={check}
-            state={
-              states[check.id] ?? { result: null, value: "", skipReason: "" }
-            }
+            state={states[check.id] ?? { result: null, value: "", skipReason: "" }}
             onChange={(s) => updateCheck(check.id, s)}
             tl={tl}
             tc={tc}
@@ -179,10 +167,7 @@ export function ChecklistForm({
 
       {/* Condition selector */}
       <div className="rounded-xl border bg-card p-4">
-        <span
-          id="checklist-condition-label"
-          className="mb-2 block text-sm font-medium"
-        >
+        <span id="checklist-condition-label" className="mb-2 block text-sm font-medium">
           {tc("condition")}
         </span>
         <div
@@ -212,9 +197,7 @@ export function ChecklistForm({
           })}
         </div>
         {!hasCondition && (
-          <p className="mt-1.5 text-xs text-muted-foreground">
-            {tc("conditionRequired")}
-          </p>
+          <p className="mt-1.5 text-xs text-muted-foreground">{tc("conditionRequired")}</p>
         )}
       </div>
 
@@ -249,17 +232,16 @@ export function ChecklistForm({
           {tc("saveChecklist")}
         </button>
 
-        {suggestRepair &&
-          (TESTABLE_STATUSES as readonly string[]).includes(currentStatus) && (
-            <button
-              type="button"
-              onClick={() => handleRoute("repair")}
-              disabled={isPending}
-              className="inline-flex items-center gap-2 rounded-lg border border-warning/30 bg-warning/5 px-4 py-2 text-sm font-medium text-warning hover:bg-warning/10 disabled:opacity-50"
-            >
-              <AlertTriangle className="h-4 w-4" />→ {tc("statusRepair")}
-            </button>
-          )}
+        {suggestRepair && (TESTABLE_STATUSES as readonly string[]).includes(currentStatus) && (
+          <button
+            type="button"
+            onClick={() => handleRoute("repair")}
+            disabled={isPending}
+            className="inline-flex items-center gap-2 rounded-lg border border-warning/30 bg-warning/5 px-4 py-2 text-sm font-medium text-warning hover:bg-warning/10 disabled:opacity-50"
+          >
+            <AlertTriangle className="h-4 w-4" />→ {tc("statusRepair")}
+          </button>
+        )}
         {suggestParts && (
           <button
             type="button"

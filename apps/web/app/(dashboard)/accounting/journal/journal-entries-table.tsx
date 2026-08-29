@@ -46,19 +46,13 @@ export async function JournalEntriesTable({
           icon={search || sourceType || dateFrom || dateTo ? Search : BookOpen}
           title={t("noJournalEntries")}
           description={
-            search || sourceType || dateFrom || dateTo
-              ? tc("noResults")
-              : t("viewJournalEntries")
+            search || sourceType || dateFrom || dateTo ? tc("noResults") : t("viewJournalEntries")
           }
           actionLabel={
-            !search && !sourceType && !dateFrom && !dateTo
-              ? t("newJournalEntry")
-              : undefined
+            !search && !sourceType && !dateFrom && !dateTo ? t("newJournalEntry") : undefined
           }
           actionHref={
-            !search && !sourceType && !dateFrom && !dateTo
-              ? "/accounting/journal/new"
-              : undefined
+            !search && !sourceType && !dateFrom && !dateTo ? "/accounting/journal/new" : undefined
           }
         />
       ) : (
@@ -80,25 +74,17 @@ export async function JournalEntriesTable({
                 href={`/accounting/journal/${entry.id}`}
                 className="flex flex-col gap-1 p-4 hover:bg-muted/50 transition-colors sm:grid sm:grid-cols-[auto_1fr_2fr_auto_auto] sm:items-center sm:gap-4"
               >
-                <div className="w-24 text-sm text-muted-foreground">
-                  {formatDate(entry.date)}
-                </div>
-                <div className="text-sm font-medium font-mono">
-                  {entry.reference || "-"}
-                </div>
-                <div className="text-sm text-muted-foreground truncate">
-                  {entry.description}
-                </div>
+                <div className="w-24 text-sm text-muted-foreground">{formatDate(entry.date)}</div>
+                <div className="text-sm font-medium font-mono">{entry.reference || "-"}</div>
+                <div className="text-sm text-muted-foreground truncate">{entry.description}</div>
                 <div className="px-4 text-center">
                   <span
                     className={cn(
                       "inline-block rounded-full px-2.5 py-0.5 text-xs font-medium",
-                      SOURCE_TYPE_STYLES[entry.sourceType ?? "manual"] ||
-                        SOURCE_TYPE_STYLES.manual,
+                      SOURCE_TYPE_STYLES[entry.sourceType ?? "manual"] || SOURCE_TYPE_STYLES.manual,
                     )}
                   >
-                    {SOURCE_TYPE_LABELS[entry.sourceType ?? "manual"] ||
-                      entry.sourceType}
+                    {SOURCE_TYPE_LABELS[entry.sourceType ?? "manual"] || entry.sourceType}
                   </span>
                 </div>
                 <div className="w-28 text-right text-sm font-medium">-</div>
@@ -111,10 +97,7 @@ export async function JournalEntriesTable({
             totalPages={result.totalPages}
             buildHref={buildPageUrl}
             labels={{
-              showing: tc(
-                "showing",
-                paginationRange(result.page, result.pageSize, result.total),
-              ),
+              showing: tc("showing", paginationRange(result.page, result.pageSize, result.total)),
               previous: tc("previous"),
               next: tc("next"),
               pageOf: tc("pageOf", {

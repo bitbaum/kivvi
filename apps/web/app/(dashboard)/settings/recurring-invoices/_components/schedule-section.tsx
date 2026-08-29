@@ -24,12 +24,8 @@ export function ScheduleSection({
       </div>
       <div className="grid gap-6 p-6 sm:grid-cols-2">
         <div>
-          <label
-            htmlFor="recurring-periodicity"
-            className="mb-2 block text-sm font-medium"
-          >
-            {t("recurring.periodicity.label")}{" "}
-            <span className="text-destructive">*</span>
+          <label htmlFor="recurring-periodicity" className="mb-2 block text-sm font-medium">
+            {t("recurring.periodicity.label")} <span className="text-destructive">*</span>
           </label>
           <FormSelect
             id="recurring-periodicity"
@@ -37,23 +33,15 @@ export function ScheduleSection({
             required
             defaultValue={defaultPeriodicity || "monthly"}
           >
-            <option value="monthly">
-              {t("recurring.periodicity.monthly")}
-            </option>
-            <option value="quarterly">
-              {t("recurring.periodicity.quarterly")}
-            </option>
+            <option value="monthly">{t("recurring.periodicity.monthly")}</option>
+            <option value="quarterly">{t("recurring.periodicity.quarterly")}</option>
             <option value="annual">{t("recurring.periodicity.annual")}</option>
           </FormSelect>
         </div>
 
         <div>
-          <label
-            htmlFor="recurring-startDate"
-            className="mb-2 block text-sm font-medium"
-          >
-            {t("recurring.startDate")}{" "}
-            <span className="text-destructive">*</span>
+          <label htmlFor="recurring-startDate" className="mb-2 block text-sm font-medium">
+            {t("recurring.startDate")} <span className="text-destructive">*</span>
           </label>
           <FormInput
             id="recurring-startDate"
@@ -65,10 +53,7 @@ export function ScheduleSection({
         </div>
 
         <div>
-          <label
-            htmlFor="recurring-endDate"
-            className="mb-2 block text-sm font-medium"
-          >
+          <label htmlFor="recurring-endDate" className="mb-2 block text-sm font-medium">
             {t("recurring.endDate")}
           </label>
           <FormInput
@@ -77,16 +62,11 @@ export function ScheduleSection({
             name="endDate"
             defaultValue={defaultEndDate || ""}
           />
-          <p className="mt-1 text-xs text-muted-foreground">
-            {t("recurring.endDateDesc")}
-          </p>
+          <p className="mt-1 text-xs text-muted-foreground">{t("recurring.endDateDesc")}</p>
         </div>
 
         <div>
-          <label
-            htmlFor="recurring-autoExtensionMonths"
-            className="mb-2 block text-sm font-medium"
-          >
+          <label htmlFor="recurring-autoExtensionMonths" className="mb-2 block text-sm font-medium">
             {t("recurring.autoExtension")}
           </label>
           <FormInput
@@ -98,9 +78,7 @@ export function ScheduleSection({
             defaultValue={defaultAutoExtensionMonths || ""}
             placeholder={t("recurring.autoExtensionPlaceholder")}
           />
-          <p className="mt-1 text-xs text-muted-foreground">
-            {t("recurring.autoExtensionDesc")}
-          </p>
+          <p className="mt-1 text-xs text-muted-foreground">{t("recurring.autoExtensionDesc")}</p>
         </div>
       </div>
     </section>

@@ -49,9 +49,7 @@ export function EmailRecipientsSection({
     <section className="rounded-xl border bg-card">
       <div className="border-b px-6 py-4">
         <h2 className="font-semibold">{t("recurring.emailSection")}</h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          {t("recurring.emailDesc")}
-        </p>
+        <p className="text-sm text-muted-foreground mt-1">{t("recurring.emailDesc")}</p>
       </div>
       <div className="p-6 space-y-4">
         {recipients.length > 0 && (

@@ -51,9 +51,7 @@ export default async function ImpactReportPage({ searchParams }: PageProps) {
   const startDate = params.start ? new Date(params.start) : undefined;
   const endDate = params.end ? new Date(`${params.end}T23:59:59`) : undefined;
   const dateSubtitle =
-    params.start && params.end
-      ? `${params.start} – ${params.end}`
-      : tr("impactAllTime");
+    params.start && params.end ? `${params.start} – ${params.end}` : tr("impactAllTime");
 
   const company = await getCompany(db, companyId);
   const settings = company?.settings ?? {};
@@ -61,21 +59,15 @@ export default async function ImpactReportPage({ searchParams }: PageProps) {
 
   const dateRange = { startDate, endDate };
 
-  const [
-    metrics,
-    topDonors,
-    monthlyBreakdown,
-    destinationBreakdown,
-    cycleTime,
-    statusDwell,
-  ] = await Promise.all([
-    getImpactMetrics(db, companyId, { co2FactorsKg, ...dateRange }),
-    getTopDonors(db, companyId, { limit: 5, ...dateRange }),
-    getMonthlyBreakdown(db, companyId, dateRange),
-    getDestinationBreakdown(db, companyId, dateRange),
-    getCycleTimeMetrics(db, companyId),
-    getStatusDwellMetrics(db, companyId),
-  ]);
+  const [metrics, topDonors, monthlyBreakdown, destinationBreakdown, cycleTime, statusDwell] =
+    await Promise.all([
+      getImpactMetrics(db, companyId, { co2FactorsKg, ...dateRange }),
+      getTopDonors(db, companyId, { limit: 5, ...dateRange }),
+      getMonthlyBreakdown(db, companyId, dateRange),
+      getDestinationBreakdown(db, companyId, dateRange),
+      getCycleTimeMetrics(db, companyId),
+      getStatusDwellMetrics(db, companyId),
+    ]);
 
   const co2Kg = Number(metrics.co2AvoidedKg);
   const co2Tonnes = (co2Kg / 1000).toFixed(2);
@@ -93,9 +85,7 @@ export default async function ImpactReportPage({ searchParams }: PageProps) {
         </Link>
         <PageHeader
           title={t("impact")}
-          subtitle={
-            company?.name ? `${company.name} — ${dateSubtitle}` : dateSubtitle
-          }
+          subtitle={company?.name ? `${company.name} — ${dateSubtitle}` : dateSubtitle}
         />
         <div className="ml-auto">
           <ImpactPdfDownload />
@@ -104,10 +94,7 @@ export default async function ImpactReportPage({ searchParams }: PageProps) {
 
       {/* Date Range Filter */}
       <div className="rounded-xl border bg-card p-4">
-        <DateRangeForm
-          defaultStart={params.start ?? ""}
-          defaultEnd={params.end ?? ""}
-        />
+        <DateRangeForm defaultStart={params.start ?? ""} defaultEnd={params.end ?? ""} />
       </div>
 
       {metrics.itemsProcessed === 0 ? (
@@ -172,9 +159,7 @@ export default async function ImpactReportPage({ searchParams }: PageProps) {
                 },
               ].map((eq) => (
                 <div key={eq.label} className="rounded-lg bg-success/5 p-4">
-                  <div className="mb-1 text-2xl font-bold text-success">
-                    {eq.value}
-                  </div>
+                  <div className="mb-1 text-2xl font-bold text-success">{eq.value}</div>
                   <p className="text-muted-foreground">{eq.label}</p>
                 </div>
               ))}
@@ -190,15 +175,10 @@ export default async function ImpactReportPage({ searchParams }: PageProps) {
           {/* Category CO2 breakdown */}
           {metrics.co2ByCategory.length > 0 && (
             <div className="rounded-xl border bg-card p-6">
-              <h2 className="mb-4 font-semibold">
-                {tr("impactCo2ByCategory")}
-              </h2>
+              <h2 className="mb-4 font-semibold">{tr("impactCo2ByCategory")}</h2>
               <div className="space-y-3">
                 {metrics.co2ByCategory.map((cat) => {
-                  const pct =
-                    co2Kg > 0
-                      ? Math.round((Number(cat.co2TotalKg) / co2Kg) * 100)
-                      : 0;
+                  const pct = co2Kg > 0 ? Math.round((Number(cat.co2TotalKg) / co2Kg) * 100) : 0;
                   const catCo2Kg = Number(cat.co2TotalKg);
                   return (
                     <div key={cat.category}>
@@ -206,13 +186,13 @@ export default async function ImpactReportPage({ searchParams }: PageProps) {
                         <div className="flex items-center gap-2">
                           <span className="font-medium">
                             {tck(
-                              getChecklistTemplate(cat.category)
-                                .labelKey as Parameters<typeof tck>[0],
+                              getChecklistTemplate(cat.category).labelKey as Parameters<
+                                typeof tck
+                              >[0],
                             )}
                           </span>
                           <span className="text-xs text-muted-foreground">
-                            {tr("impactItemCount", { count: cat.itemCount })} ×{" "}
-                            {cat.co2KgFactor} kg
+                            {tr("impactItemCount", { count: cat.itemCount })} × {cat.co2KgFactor} kg
                           </span>
                         </div>
                         <div className="flex items-center gap-3 text-xs">
@@ -239,11 +219,7 @@ export default async function ImpactReportPage({ searchParams }: PageProps) {
 
           <MonthlyTrendSection data={monthlyBreakdown} />
 
-          <TopDonorsSection
-            topDonors={topDonors}
-            metrics={metrics}
-            co2Kg={co2Kg}
-          />
+          <TopDonorsSection topDonors={topDonors} metrics={metrics} co2Kg={co2Kg} />
 
           {/* CO2 factors reference */}
           <div className="rounded-xl border bg-card p-6">
@@ -255,23 +231,17 @@ export default async function ImpactReportPage({ searchParams }: PageProps) {
                 : tr("impactCo2FactorsDefault")}
             </p>
             <div className="grid gap-2 sm:grid-cols-3 lg:grid-cols-4">
-              {Object.entries({ ...CO2_FACTORS_KG, ...co2FactorsKg }).map(
-                ([cat, kg]) => (
-                  <div
-                    key={cat}
-                    className="flex items-center justify-between rounded-lg border px-3 py-2"
-                  >
-                    <span className="text-muted-foreground">
-                      {tck(
-                        getChecklistTemplate(cat).labelKey as Parameters<
-                          typeof tck
-                        >[0],
-                      )}
-                    </span>
-                    <span className="font-medium tabular-nums">{kg} kg</span>
-                  </div>
-                ),
-              )}
+              {Object.entries({ ...CO2_FACTORS_KG, ...co2FactorsKg }).map(([cat, kg]) => (
+                <div
+                  key={cat}
+                  className="flex items-center justify-between rounded-lg border px-3 py-2"
+                >
+                  <span className="text-muted-foreground">
+                    {tck(getChecklistTemplate(cat).labelKey as Parameters<typeof tck>[0])}
+                  </span>
+                  <span className="font-medium tabular-nums">{kg} kg</span>
+                </div>
+              ))}
             </div>
           </div>
         </>
@@ -295,9 +265,7 @@ function SummaryCard({
 }) {
   return (
     <div className="rounded-xl border bg-card p-5">
-      <div
-        className={`mb-2 flex items-center gap-2 text-xs font-medium ${color}`}
-      >
+      <div className={`mb-2 flex items-center gap-2 text-xs font-medium ${color}`}>
         {icon}
         {label}
       </div>

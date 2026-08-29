@@ -22,11 +22,7 @@ export function formatCurrency(
     let result = "";
     for (let i = 0; i < parts.length; i++) {
       const part = parts[i];
-      if (
-        part.type === "minusSign" &&
-        i > 0 &&
-        parts[i - 1].type === "currency"
-      ) {
+      if (part.type === "minusSign" && i > 0 && parts[i - 1].type === "currency") {
         result += " ";
       }
       result += part.value;

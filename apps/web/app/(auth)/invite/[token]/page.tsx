@@ -6,10 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Loader2, Building2, CheckCircle2, XCircle, Clock } from "lucide-react";
 import { useTranslations } from "next-intl";
-import {
-  getInvitationDetailsAction,
-  acceptInvitationAction,
-} from "@/app/actions/invitations";
+import { getInvitationDetailsAction, acceptInvitationAction } from "@/app/actions/invitations";
 import { registerAndAcceptInviteAction } from "@/app/actions/auth";
 import type { InvitationWithCompany } from "@kivvi/core/src/domain/invitations";
 import { InviteRegisterForm } from "./invite-register-form";
@@ -20,18 +17,12 @@ interface InvitePageProps {
 
 export default function InvitePage({ params }: InvitePageProps) {
   const { token } = params;
-  const {
-    data: session,
-    status: sessionStatus,
-    update: updateSession,
-  } = useSession();
+  const { data: session, status: sessionStatus, update: updateSession } = useSession();
   const router = useRouter();
   const t = useTranslations("team");
   const tc = useTranslations("common");
 
-  const [invitation, setInvitation] = useState<InvitationWithCompany | null>(
-    null,
-  );
+  const [invitation, setInvitation] = useState<InvitationWithCompany | null>(null);
   const [loading, setLoading] = useState(true);
   const [accepting, setAccepting] = useState(false);
   const [error, setError] = useState("");
@@ -221,17 +212,13 @@ export default function InvitePage({ params }: InvitePageProps) {
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
               {t("roleAssignment", {
-                role: invitation
-                  ? tc(`permissionPresetLabel.${invitation.permissionPreset}`)
-                  : "",
+                role: invitation ? tc(`permissionPresetLabel.${invitation.permissionPreset}`) : "",
               })}
             </p>
           </div>
 
           {error && (
-            <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
-              {error}
-            </div>
+            <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</div>
           )}
 
           <button

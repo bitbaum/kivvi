@@ -45,10 +45,7 @@ describe("bulk_update_item_status schema", () => {
 
   it("accepts exactly 200 identifiers", () => {
     const result = parse(tool, {
-      item_identifiers: Array.from(
-        { length: 200 },
-        (_, i) => `IT-${String(i).padStart(5, "0")}`,
-      ),
+      item_identifiers: Array.from({ length: 200 }, (_, i) => `IT-${String(i).padStart(5, "0")}`),
       status: "ready_for_sale",
     });
     expect(result.success).toBe(true);
@@ -142,19 +139,9 @@ describe("update_item_condition schema", () => {
   });
 
   it("accepts all valid conditions", () => {
-    const validConditions = [
-      "untested",
-      "like_new",
-      "good",
-      "fair",
-      "poor",
-      "parts_only",
-      "scrap",
-    ];
+    const validConditions = ["untested", "like_new", "good", "fair", "poor", "parts_only", "scrap"];
     for (const condition of validConditions) {
-      expect(
-        parse(tool, { item_identifier: "IT-00001", condition }).success,
-      ).toBe(true);
+      expect(parse(tool, { item_identifier: "IT-00001", condition }).success).toBe(true);
     }
   });
 
@@ -249,41 +236,23 @@ describe("update_inventory_item schema", () => {
   const tool = "update_inventory_item";
 
   it("accepts any single field update", () => {
-    expect(
-      parse(tool, { item_identifier: "IT-00001", location: "A3-B2" }).success,
-    ).toBe(true);
-    expect(
-      parse(tool, { item_identifier: "IT-00001", asking_price: 299 }).success,
-    ).toBe(true);
-    expect(
-      parse(tool, { item_identifier: "IT-00001", serial_number: "ABC123" })
-        .success,
-    ).toBe(true);
-    expect(
-      parse(tool, { item_identifier: "IT-00001", notes: "Tested OK" }).success,
-    ).toBe(true);
+    expect(parse(tool, { item_identifier: "IT-00001", location: "A3-B2" }).success).toBe(true);
+    expect(parse(tool, { item_identifier: "IT-00001", asking_price: 299 }).success).toBe(true);
+    expect(parse(tool, { item_identifier: "IT-00001", serial_number: "ABC123" }).success).toBe(
+      true,
+    );
+    expect(parse(tool, { item_identifier: "IT-00001", notes: "Tested OK" }).success).toBe(true);
   });
 
   it("rejects negative prices", () => {
-    expect(
-      parse(tool, { item_identifier: "IT-00001", asking_price: -1 }).success,
-    ).toBe(false);
-    expect(
-      parse(tool, { item_identifier: "IT-00001", min_price: -0.01 }).success,
-    ).toBe(false);
-    expect(
-      parse(tool, { item_identifier: "IT-00001", estimated_value: -100 })
-        .success,
-    ).toBe(false);
+    expect(parse(tool, { item_identifier: "IT-00001", asking_price: -1 }).success).toBe(false);
+    expect(parse(tool, { item_identifier: "IT-00001", min_price: -0.01 }).success).toBe(false);
+    expect(parse(tool, { item_identifier: "IT-00001", estimated_value: -100 }).success).toBe(false);
   });
 
   it("accepts zero prices", () => {
-    expect(
-      parse(tool, { item_identifier: "IT-00001", asking_price: 0 }).success,
-    ).toBe(true);
-    expect(
-      parse(tool, { item_identifier: "IT-00001", min_price: 0 }).success,
-    ).toBe(true);
+    expect(parse(tool, { item_identifier: "IT-00001", asking_price: 0 }).success).toBe(true);
+    expect(parse(tool, { item_identifier: "IT-00001", min_price: 0 }).success).toBe(true);
   });
 
   it("rejects empty description", () => {
@@ -361,17 +330,9 @@ describe("record_data_erasure schema", () => {
   const tool = "record_data_erasure";
 
   it("accepts all valid erasure methods", () => {
-    const methods = [
-      "secure_erase",
-      "dban",
-      "manual",
-      "certified",
-      "factory_reset",
-    ];
+    const methods = ["secure_erase", "dban", "manual", "certified", "factory_reset"];
     for (const method of methods) {
-      expect(parse(tool, { item_identifier: "IT-00001", method }).success).toBe(
-        true,
-      );
+      expect(parse(tool, { item_identifier: "IT-00001", method }).success).toBe(true);
     }
   });
 
@@ -627,9 +588,7 @@ describe("record_payment schema", () => {
 
   it("accepts all valid payment methods", () => {
     for (const method of ["bank_transfer", "cash", "card", "other"]) {
-      expect(
-        parse(tool, { documentId: uuid, amount: "100", method }).success,
-      ).toBe(true);
+      expect(parse(tool, { documentId: uuid, amount: "100", method }).success).toBe(true);
     }
   });
 

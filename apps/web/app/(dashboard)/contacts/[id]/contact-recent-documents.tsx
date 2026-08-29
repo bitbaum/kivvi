@@ -42,28 +42,20 @@ export async function ContactRecentDocuments({
       {documents.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-12">
           <FileText className="h-8 w-8 text-muted-foreground/50" />
-          <p className="mt-2 text-sm text-muted-foreground">
-            {t("noDocuments")}
-          </p>
+          <p className="mt-2 text-sm text-muted-foreground">{t("noDocuments")}</p>
         </div>
       ) : (
         <div className="divide-y">
           {documents.map((doc) => (
-            <div
-              key={doc.id}
-              className="flex items-center justify-between px-6 py-4"
-            >
+            <div key={doc.id} className="flex items-center justify-between px-6 py-4">
               <div>
                 <p className="text-sm font-medium">{doc.number}</p>
                 <p className="text-xs text-muted-foreground">
-                  {td(toCamelCase(doc.type))} &middot;{" "}
-                  {formatDate(doc.issueDate)}
+                  {td(toCamelCase(doc.type))} &middot; {formatDate(doc.issueDate)}
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-sm font-medium">
-                  {formatCurrency(doc.total)}
-                </p>
+                <p className="text-sm font-medium">{formatCurrency(doc.total)}</p>
                 <StatusBadge
                   status={doc.status}
                   label={ts(toCamelCase(doc.status))}

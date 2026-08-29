@@ -37,9 +37,7 @@ export function useRecentItems() {
 
       const items = JSON.parse(stored) as RecentItem[];
       // Sort by timestamp descending (most recent first)
-      return items
-        .sort((a, b) => b.timestamp - a.timestamp)
-        .slice(0, MAX_RECENT_ITEMS);
+      return items.sort((a, b) => b.timestamp - a.timestamp).slice(0, MAX_RECENT_ITEMS);
     } catch {
       return [];
     }
@@ -53,15 +51,13 @@ export function useRecentItems() {
         const existing = getRecentItems();
 
         // Remove duplicates (same id and type)
-        const filtered = existing.filter(
-          (i) => !(i.id === item.id && i.type === item.type),
-        );
+        const filtered = existing.filter((i) => !(i.id === item.id && i.type === item.type));
 
         // Add new item at the front
-        const updated: RecentItem[] = [
-          { ...item, timestamp: Date.now() },
-          ...filtered,
-        ].slice(0, MAX_RECENT_ITEMS);
+        const updated: RecentItem[] = [{ ...item, timestamp: Date.now() }, ...filtered].slice(
+          0,
+          MAX_RECENT_ITEMS,
+        );
 
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
 

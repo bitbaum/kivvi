@@ -15,10 +15,7 @@ import { getTranslations } from "next-intl/server";
 // SERVER ACTIONS
 // ============================================================================
 
-export const createRecurringConfigAction = createAction<
-  unknown,
-  { id: string }
->({
+export const createRecurringConfigAction = createAction<unknown, { id: string }>({
   handler: async (input, { companyId, db }) => {
     const parsed = createRecurringConfigSchema.safeParse(input);
     if (!parsed.success) {
@@ -29,8 +26,7 @@ export const createRecurringConfigAction = createAction<
     return { id: config.id };
   },
   revalidate: ["/settings/recurring-invoices"],
-  errorMessage: () =>
-    getTranslations("settings.recurring").then((t) => t("errorCreateFailed")),
+  errorMessage: () => getTranslations("settings.recurring").then((t) => t("errorCreateFailed")),
   minRole: "member",
 });
 
@@ -44,20 +40,11 @@ export const updateRecurringConfigAction = createAction<
       const firstError = parsed.error.errors[0];
       throw new Error(`${firstError.path.join(".")}: ${firstError.message}`);
     }
-    const config = await updateRecurringConfig(
-      db,
-      companyId,
-      configId,
-      parsed.data,
-    );
+    const config = await updateRecurringConfig(db, companyId, configId, parsed.data);
     return { id: config.id };
   },
-  revalidate: [
-    "/settings/recurring-invoices",
-    "/settings/recurring-invoices/[id]",
-  ],
-  errorMessage: () =>
-    getTranslations("settings.recurring").then((t) => t("errorUpdateFailed")),
+  revalidate: ["/settings/recurring-invoices", "/settings/recurring-invoices/[id]"],
+  errorMessage: () => getTranslations("settings.recurring").then((t) => t("errorUpdateFailed")),
   minRole: "member",
 });
 
@@ -66,8 +53,7 @@ export const deleteRecurringConfigAction = createAction<string, void>({
     await deleteRecurringConfig(db, companyId, configId);
   },
   revalidate: ["/settings/recurring-invoices"],
-  errorMessage: () =>
-    getTranslations("settings.recurring").then((t) => t("errorDeleteFailed")),
+  errorMessage: () => getTranslations("settings.recurring").then((t) => t("errorDeleteFailed")),
   minRole: "member",
 });
 
@@ -79,7 +65,6 @@ export const toggleRecurringConfigAction = createAction<
     await updateRecurringConfig(db, companyId, configId, { isActive });
   },
   revalidate: ["/settings/recurring-invoices"],
-  errorMessage: () =>
-    getTranslations("settings.recurring").then((t) => t("errorToggleFailed")),
+  errorMessage: () => getTranslations("settings.recurring").then((t) => t("errorToggleFailed")),
   minRole: "member",
 });

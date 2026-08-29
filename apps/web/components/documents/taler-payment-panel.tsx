@@ -38,9 +38,7 @@ export function TalerPaymentPanel({
   const router = useRouter();
   const t = useTranslations("documents.taler");
   const tc = useTranslations("common");
-  const [message, setMessage] = useState<string | null>(
-    order?.lastError || null,
-  );
+  const [message, setMessage] = useState<string | null>(order?.lastError || null);
   const [isCreating, createTransition] = useTransition();
   const [isRefreshing, refreshTransition] = useTransition();
   const paymentUrl = order?.orderStatusUrl || order?.talerPayUri || "";
@@ -159,9 +157,7 @@ export function TalerPaymentPanel({
         </Button>
       )}
 
-      {message && (
-        <p className="mt-3 text-sm text-muted-foreground">{message}</p>
-      )}
+      {message && <p className="mt-3 text-sm text-muted-foreground">{message}</p>}
     </div>
   );
 }

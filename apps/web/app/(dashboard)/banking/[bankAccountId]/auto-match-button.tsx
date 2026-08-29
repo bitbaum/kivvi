@@ -50,9 +50,7 @@ export function AutoMatchButton({ bankAccountId }: { bankAccountId: string }) {
           })}
         </span>
       )}
-      {error && (
-        <span className="text-sm text-destructive">{error}</span>
-      )}
+      {error && <span className="text-sm text-destructive">{error}</span>}
     </div>
   );
 }

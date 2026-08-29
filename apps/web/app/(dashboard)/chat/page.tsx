@@ -79,9 +79,7 @@ export default function ChatPage() {
             <Sparkles className="h-8 w-8 text-white" />
           </div>
           <h1 className="mb-2 text-2xl font-semibold">{t("howCanIHelp")}</h1>
-          <p className="mb-8 text-center text-muted-foreground">
-            {t("askDescription")}
-          </p>
+          <p className="mb-8 text-center text-muted-foreground">{t("askDescription")}</p>
 
           <div className="grid w-full max-w-lg gap-2 sm:grid-cols-2">
             {suggestions.map((suggestion) => (
@@ -97,11 +95,7 @@ export default function ChatPage() {
           </div>
         </div>
       ) : (
-        <ChatMessages
-          messages={messages}
-          isLoading={isLoading}
-          scrollRef={scrollRef}
-        />
+        <ChatMessages messages={messages} isLoading={isLoading} scrollRef={scrollRef} />
       )}
 
       {/* Input area */}
@@ -128,9 +122,7 @@ export default function ChatPage() {
           onSubmit={handleSubmit}
           isLoading={isLoading}
         />
-        <p className="mt-2 text-center text-xs text-muted-foreground">
-          {t("canMakeMistakes")}
-        </p>
+        <p className="mt-2 text-center text-xs text-muted-foreground">{t("canMakeMistakes")}</p>
       </div>
     </div>
   );

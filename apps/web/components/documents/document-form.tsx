@@ -5,12 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import {
-  useSensor,
-  useSensors,
-  KeyboardSensor,
-  PointerSensor,
-} from "@dnd-kit/core";
+import { useSensor, useSensors, KeyboardSensor, PointerSensor } from "@dnd-kit/core";
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { toast } from "sonner";
 import { createDocumentAction } from "@/app/actions/documents";
@@ -80,19 +75,14 @@ export function DocumentForm({ type }: DocumentFormProps) {
         contactId: form.contactId || null,
         issueDate: form.issueDate,
         dueDate: config.hasDueDate && form.dueDate ? form.dueDate : null,
-        deliveryDate:
-          config.hasDeliveryDate && form.deliveryDate
-            ? form.deliveryDate
-            : null,
+        deliveryDate: config.hasDeliveryDate && form.deliveryDate ? form.deliveryDate : null,
         notes: form.notes || null,
         internalNotes: form.internalNotes || null,
         ...(isIntake && {
           intakeSource,
           donorId: form.contactId || null,
           consignmentRate:
-            intakeSource === "consignment" && consignmentRate
-              ? consignmentRate
-              : null,
+            intakeSource === "consignment" && consignmentRate ? consignmentRate : null,
         }),
         items: validItems.map((item, index) => ({
           position: index,
@@ -109,22 +99,10 @@ export function DocumentForm({ type }: DocumentFormProps) {
       if (result.success && result.data) {
         router.push(`${config.basePath}/${result.data.id}`);
       } else {
-        setError(
-          result.error || t("failedToCreate", { type: t(config.label) }),
-        );
+        setError(result.error || t("failedToCreate", { type: t(config.label) }));
       }
     });
-  }, [
-    form,
-    type,
-    config,
-    router,
-    t,
-    startTransition,
-    isIntake,
-    intakeSource,
-    consignmentRate,
-  ]);
+  }, [form, type, config, router, t, startTransition, isIntake, intakeSource, consignmentRate]);
 
   // Cmd+Enter (Mac) / Ctrl+Enter (Win/Linux) to submit
   useEffect(() => {
@@ -163,9 +141,7 @@ export function DocumentForm({ type }: DocumentFormProps) {
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <div>
-          <h1 className="text-3xl font-bold">
-            {t("newDocument", { type: t(config.label) })}
-          </h1>
+          <h1 className="text-3xl font-bold">{t("newDocument", { type: t(config.label) })}</h1>
         </div>
       </div>
 
@@ -214,9 +190,7 @@ export function DocumentForm({ type }: DocumentFormProps) {
             onDueDateChange={form.setDueDate}
             hasDeliveryDate={config.hasDeliveryDate}
             deliveryDateLabel={
-              config.hasDeliveryDate && !config.hasDueDate
-                ? t(config.dueDateLabel)
-                : undefined
+              config.hasDeliveryDate && !config.hasDueDate ? t(config.dueDateLabel) : undefined
             }
             deliveryDate={form.deliveryDate}
             onDeliveryDateChange={form.setDeliveryDate}
@@ -231,16 +205,10 @@ export function DocumentForm({ type }: DocumentFormProps) {
             sensors={sensors}
             onDragEnd={form.handleDragEnd}
             onAddItem={form.addItem}
-            onUpdateItem={(id, field, value) =>
-              form.updateItem(id, field, value)
-            }
+            onUpdateItem={(id, field, value) => form.updateItem(id, field, value)}
             onRemoveItem={form.removeItem}
             hideFinancials={hideLineItemPricing}
-            priceLabel={
-              isIntake && !hideLineItemPricing
-                ? t("acquisitionCost")
-                : undefined
-            }
+            priceLabel={isIntake && !hideLineItemPricing ? t("acquisitionCost") : undefined}
             priceListSlot={
               !hideLineItemPricing && priceLists.length > 0 ? (
                 <PriceListApplySlot
@@ -248,9 +216,7 @@ export function DocumentForm({ type }: DocumentFormProps) {
                   items={form.items}
                   onApply={(updates) => {
                     Object.entries(updates).forEach(([productId, price]) => {
-                      const item = form.items.find(
-                        (i) => i.productId === productId,
-                      );
+                      const item = form.items.find((i) => i.productId === productId);
                       if (item) form.updateItem(item.id, "unitPrice", price);
                     });
                   }}
@@ -275,9 +241,7 @@ export function DocumentForm({ type }: DocumentFormProps) {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium">
-                {t("internalNotes")}
-              </label>
+              <label className="block text-sm font-medium">{t("internalNotes")}</label>
               <CharCountTextarea
                 value={form.internalNotes}
                 onChange={(e) => form.setInternalNotes(e.target.value)}
@@ -299,10 +263,7 @@ export function DocumentForm({ type }: DocumentFormProps) {
             total={form.total}
             hideFinancials={hideLineItemPricing}
             itemCount={form.items.filter((i) => i.description.trim()).length}
-            totalQuantity={form.items.reduce(
-              (sum, i) => sum + (parseFloat(i.quantity) || 0),
-              0,
-            )}
+            totalQuantity={form.items.reduce((sum, i) => sum + (parseFloat(i.quantity) || 0), 0)}
             error={error}
             isPending={isPending}
             onSubmit={handleSubmit}

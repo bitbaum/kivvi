@@ -42,9 +42,7 @@ export default async function FaqPage() {
             <HelpCircle className="h-8 w-8 text-primary" />
           </div>
         </div>
-        <h1 className="mb-4 text-4xl font-bold sm:text-5xl">
-          {t("hero.title")}
-        </h1>
+        <h1 className="mb-4 text-4xl font-bold sm:text-5xl">{t("hero.title")}</h1>
         <p className="text-xl text-muted-foreground">{t("hero.subtitle")}</p>
       </section>
 
@@ -67,9 +65,7 @@ export default async function FaqPage() {
       <section className="mx-auto max-w-3xl py-8 space-y-16">
         {groups.map((group) => (
           <div key={group.id} id={group.id}>
-            <h2 className="mb-6 text-2xl font-bold border-b pb-3">
-              {group.title}
-            </h2>
+            <h2 className="mb-6 text-2xl font-bold border-b pb-3">{group.title}</h2>
             <div className="space-y-6">
               {group.questions.map((item) => (
                 <FaqItem key={item.q} q={item.q} a={item.a} />
@@ -82,9 +78,7 @@ export default async function FaqPage() {
       {/* Bottom CTA */}
       <section className="mx-auto max-w-2xl py-16 text-center">
         <h2 className="mb-4 text-2xl font-bold">{t("bottomCta.title")}</h2>
-        <p className="mb-8 text-muted-foreground">
-          {t("bottomCta.description")}
-        </p>
+        <p className="mb-8 text-muted-foreground">{t("bottomCta.description")}</p>
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <Button asChild size="lg">
             <Link href="/contact">

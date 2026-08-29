@@ -1,10 +1,7 @@
 import { useState } from "react";
 import type { DragEndEvent } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
-import {
-  DEFAULT_PAYMENT_TERMS_DAYS,
-  type DocumentTypeConfig,
-} from "@/lib/config/document-types";
+import { DEFAULT_PAYMENT_TERMS_DAYS, type DocumentTypeConfig } from "@/lib/config/document-types";
 import type { LineItem } from "@/components/documents/document-form-types";
 import { emptyItem } from "@/components/documents/document-form-types";
 import { calculateDocumentTotals } from "@/components/documents/calculate-item-total";
@@ -61,9 +58,7 @@ export function useDocumentForm(
   const [dueDate, setDueDate] = useState(
     prefill?.dueDate ||
       (config.hasDueDate
-        ? new Date(
-            Date.now() + DEFAULT_PAYMENT_TERMS_DAYS * 24 * 60 * 60 * 1000,
-          )
+        ? new Date(Date.now() + DEFAULT_PAYMENT_TERMS_DAYS * 24 * 60 * 60 * 1000)
             .toISOString()
             .split("T")[0]
         : ""),
@@ -100,11 +95,7 @@ export function useDocumentForm(
     if (items.length <= 1) return;
     setItems(items.filter((i) => i.id !== id));
   };
-  const updateItem = (
-    id: string,
-    field: keyof LineItem,
-    value: string | null,
-  ) => {
+  const updateItem = (id: string, field: keyof LineItem, value: string | null) => {
     if (field === "discount" && value !== null) {
       const num = parseFloat(value);
       if (!isNaN(num) && num > 100) value = "100";

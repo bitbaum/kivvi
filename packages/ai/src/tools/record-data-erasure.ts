@@ -17,9 +17,7 @@ const recordDataErasureSchema = z.object({
     .string()
     .max(500)
     .optional()
-    .describe(
-      "Optional notes, e.g. certificate number, tool version, or service provider name.",
-    ),
+    .describe("Optional notes, e.g. certificate number, tool version, or service provider name."),
 });
 
 export const recordDataErasureTool: Tool = {
@@ -44,15 +42,10 @@ Examples:
     context: ExecutionContext,
   ): Promise<ToolResult> => {
     try {
-      const { recordDataErasure } =
-        await import("@kivvi/core/src/domain/inventory-items");
+      const { recordDataErasure } = await import("@kivvi/core/src/domain/inventory-items");
       const db = getDb(context);
 
-      const row = await resolveInventoryItem(
-        db,
-        context.companyId,
-        params.item_identifier,
-      );
+      const row = await resolveInventoryItem(db, context.companyId, params.item_identifier);
       if (!row) {
         return {
           success: false,

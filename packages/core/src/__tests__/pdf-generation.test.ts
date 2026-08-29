@@ -114,9 +114,7 @@ function mod10Recursive(input: string): string {
 function isValidScor(ref: string): boolean {
   if (!/^RF\d{2}[A-Z0-9]{1,21}$/.test(ref)) return false;
   const rearranged = ref.slice(4) + ref.slice(0, 4);
-  const numeric = rearranged.replace(/[A-Z]/g, (c) =>
-    (c.charCodeAt(0) - 55).toString(),
-  );
+  const numeric = rearranged.replace(/[A-Z]/g, (c) => (c.charCodeAt(0) - 55).toString());
   let remainder = 0;
   for (const ch of numeric) remainder = (remainder * 10 + Number(ch)) % 97;
   return remainder === 1;
@@ -340,8 +338,7 @@ describe("generateInvoicePdf", () => {
     expect(isValidQrReference(VALID_QR_REFERENCE)).toBe(true);
     // Flip the check digit → invalid QRR.
     const badCheck =
-      VALID_QR_REFERENCE.slice(0, 26) +
-      ((Number(VALID_QR_REFERENCE[26]) + 1) % 10).toString();
+      VALID_QR_REFERENCE.slice(0, 26) + ((Number(VALID_QR_REFERENCE[26]) + 1) % 10).toString();
     expect(isValidQrReference(badCheck)).toBe(false);
     expect(isValidQrReference("12345")).toBe(false); // wrong length
     expect(isValidQrReference("RF18539007547034")).toBe(true); // valid SCOR
@@ -444,9 +441,7 @@ describe("generateDeliveryNotePdf", () => {
       contactName: "Empfänger",
       items: [{ position: 1, description: "Artikel A", quantity: "1" }],
     };
-    await expect(generateDeliveryNotePdf(minimal)).resolves.toBeInstanceOf(
-      Buffer,
-    );
+    await expect(generateDeliveryNotePdf(minimal)).resolves.toBeInstanceOf(Buffer);
   });
 
   it("different document numbers produce different PDFs", async () => {
@@ -462,9 +457,7 @@ describe("generateDeliveryNotePdf", () => {
   });
 
   it("renders the title and line items in the visible body", async () => {
-    const { text } = reconstructPdfText(
-      await generateDeliveryNotePdf(DELIVERY_NOTE_DATA),
-    );
+    const { text } = reconstructPdfText(await generateDeliveryNotePdf(DELIVERY_NOTE_DATA));
 
     // Document title and number render on the page (not just metadata).
     expect(text).toContain("Lieferschein");
@@ -571,10 +564,7 @@ describe("generateQuotePdf", () => {
 
   it("each unique quote produces a different PDF", async () => {
     const alt: QuotePdfData = { ...QUOTE_DATA, number: "AN-2026-00002" };
-    const [pdf1, pdf2] = await Promise.all([
-      generateQuotePdf(QUOTE_DATA),
-      generateQuotePdf(alt),
-    ]);
+    const [pdf1, pdf2] = await Promise.all([generateQuotePdf(QUOTE_DATA), generateQuotePdf(alt)]);
     expect(pdf1.equals(pdf2)).toBe(false);
   });
 
@@ -672,9 +662,7 @@ describe("generateDonationReceiptPdf", () => {
       items: [{ description: "Diverse Elektronik", quantity: "5" }],
       currency: "CHF",
     };
-    await expect(generateDonationReceiptPdf(minimal)).resolves.toBeInstanceOf(
-      Buffer,
-    );
+    await expect(generateDonationReceiptPdf(minimal)).resolves.toBeInstanceOf(Buffer);
   });
 
   it("different donors produce different PDFs", async () => {
@@ -726,46 +714,34 @@ describe("generateDonationReceiptPdf", () => {
 describe("buildCertificateNumber", () => {
   it("formats as CERT-{itemNumber}-{YYYYMMDD}", () => {
     const date = new Date("2026-04-24T10:00:00Z");
-    expect(buildCertificateNumber("IT-00042", date)).toBe(
-      "CERT-IT-00042-20260424",
-    );
+    expect(buildCertificateNumber("IT-00042", date)).toBe("CERT-IT-00042-20260424");
   });
 
   it("pads single-digit month", () => {
     const date = new Date("2026-03-05T00:00:00Z");
-    expect(buildCertificateNumber("IT-00001", date)).toBe(
-      "CERT-IT-00001-20260305",
-    );
+    expect(buildCertificateNumber("IT-00001", date)).toBe("CERT-IT-00001-20260305");
   });
 
   it("pads single-digit day", () => {
     const date = new Date("2026-07-09T00:00:00Z");
-    expect(buildCertificateNumber("IT-00099", date)).toBe(
-      "CERT-IT-00099-20260709",
-    );
+    expect(buildCertificateNumber("IT-00099", date)).toBe("CERT-IT-00099-20260709");
   });
 
   it("preserves item number as-is", () => {
     const date = new Date("2026-12-31T00:00:00Z");
-    expect(buildCertificateNumber("IT-99999", date)).toBe(
-      "CERT-IT-99999-20261231",
-    );
+    expect(buildCertificateNumber("IT-99999", date)).toBe("CERT-IT-99999-20261231");
   });
 
   it("works across year boundary", () => {
     const date = new Date("2027-01-01T00:00:00Z");
-    expect(buildCertificateNumber("IT-00001", date)).toBe(
-      "CERT-IT-00001-20270101",
-    );
+    expect(buildCertificateNumber("IT-00001", date)).toBe("CERT-IT-00001-20270101");
   });
 
   it("uses Europe/Zurich timezone — 23:30 UTC Dec 31 shows Jan 1 (CET UTC+1)", () => {
     // 2026-12-31T23:30:00Z = 2027-01-01T00:30:00 CET
     // A UTC-based implementation would produce 20261231; correct is 20270101
     const date = new Date("2026-12-31T23:30:00Z");
-    expect(buildCertificateNumber("IT-00001", date)).toBe(
-      "CERT-IT-00001-20270101",
-    );
+    expect(buildCertificateNumber("IT-00001", date)).toBe("CERT-IT-00001-20270101");
   });
 });
 
@@ -812,9 +788,7 @@ describe("generateErasureCertificate", () => {
       certificateNumber: "CERT-IT-00001-20260101",
       generatedAt: new Date("2026-01-01"),
     };
-    await expect(generateErasureCertificate(minimal)).resolves.toBeInstanceOf(
-      Buffer,
-    );
+    await expect(generateErasureCertificate(minimal)).resolves.toBeInstanceOf(Buffer);
   });
 
   it("different items produce different PDFs", async () => {

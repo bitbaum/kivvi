@@ -77,38 +77,28 @@ export function WebhookCreateForm({ eventLabels, onCreated, onCancel }: Props) {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label
-            htmlFor="webhook-name"
-            className="mb-1 block text-sm font-medium"
-          >
+          <label htmlFor="webhook-name" className="mb-1 block text-sm font-medium">
             Name
           </label>
           <input
             id="webhook-name"
             type="text"
             value={formState.name}
-            onChange={(e) =>
-              setFormState((p) => ({ ...p, name: e.target.value }))
-            }
+            onChange={(e) => setFormState((p) => ({ ...p, name: e.target.value }))}
             placeholder={t("namePlaceholder")}
             className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
 
         <div>
-          <label
-            htmlFor="webhook-url"
-            className="mb-1 block text-sm font-medium"
-          >
+          <label htmlFor="webhook-url" className="mb-1 block text-sm font-medium">
             URL
           </label>
           <input
             id="webhook-url"
             type="url"
             value={formState.url}
-            onChange={(e) =>
-              setFormState((p) => ({ ...p, url: e.target.value }))
-            }
+            onChange={(e) => setFormState((p) => ({ ...p, url: e.target.value }))}
             placeholder="https://example.com/webhooks/kivvi"
             className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           />
@@ -116,10 +106,7 @@ export function WebhookCreateForm({ eventLabels, onCreated, onCancel }: Props) {
       </div>
 
       <div>
-        <label
-          htmlFor="webhook-secret"
-          className="mb-1 block text-sm font-medium"
-        >
+        <label htmlFor="webhook-secret" className="mb-1 block text-sm font-medium">
           Secret
         </label>
         <div className="flex gap-2">
@@ -128,9 +115,7 @@ export function WebhookCreateForm({ eventLabels, onCreated, onCancel }: Props) {
               id="webhook-secret"
               type={showSecret ? "text" : "password"}
               value={formState.secret}
-              onChange={(e) =>
-                setFormState((p) => ({ ...p, secret: e.target.value }))
-              }
+              onChange={(e) => setFormState((p) => ({ ...p, secret: e.target.value }))}
               className="w-full rounded-lg border bg-background px-3 py-2 pr-10 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
             <button
@@ -138,19 +123,13 @@ export function WebhookCreateForm({ eventLabels, onCreated, onCancel }: Props) {
               onClick={() => setShowSecret((v) => !v)}
               className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
             >
-              {showSecret ? (
-                <EyeOff className="h-4 w-4" />
-              ) : (
-                <Eye className="h-4 w-4" />
-              )}
+              {showSecret ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
           <Button
             variant="outline"
             size="sm"
-            onClick={() =>
-              setFormState((p) => ({ ...p, secret: generateSecret() }))
-            }
+            onClick={() => setFormState((p) => ({ ...p, secret: generateSecret() }))}
           >
             {t("regenerate")}
           </Button>

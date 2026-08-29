@@ -12,10 +12,7 @@ import {
 } from "@kivvi/core/src/domain/erasure-certificate";
 import { isValidUUID } from "@/lib/utils";
 
-export async function GET(
-  _request: NextRequest,
-  { params }: { params: { id: string } },
-) {
+export async function GET(_request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const session = await auth();
     if (!session?.user?.companyId) {
@@ -29,10 +26,7 @@ export async function GET(
 
     const item = await getInventoryItem(db, companyId, params.id);
     if (!item) {
-      return NextResponse.json(
-        { error: "Inventory item not found" },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "Inventory item not found" }, { status: 404 });
     }
 
     if (!item.dataErasuredAt || !item.dataErasureMethod) {
@@ -57,10 +51,7 @@ export async function GET(
       return NextResponse.json({ error: "Company not found" }, { status: 404 });
     }
 
-    const certificateNumber = buildCertificateNumber(
-      item.itemNumber,
-      item.dataErasuredAt,
-    );
+    const certificateNumber = buildCertificateNumber(item.itemNumber, item.dataErasuredAt);
 
     const pdf = await generateErasureCertificate({
       companyName: company.name,
@@ -71,8 +62,7 @@ export async function GET(
       serialNumber: item.serialNumber,
       category: item.category,
       dataErasureMethod: item.dataErasureMethod,
-      erasureMethodLabel:
-        DATA_ERASURE_METHODS[item.dataErasureMethod] ?? item.dataErasureMethod,
+      erasureMethodLabel: DATA_ERASURE_METHODS[item.dataErasureMethod] ?? item.dataErasureMethod,
       dataErasuredAt: item.dataErasuredAt,
       erasedByName: erasedByUser?.name ?? null,
       certificateNumber,
@@ -89,9 +79,6 @@ export async function GET(
       },
     });
   } catch {
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

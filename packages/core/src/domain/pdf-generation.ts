@@ -62,10 +62,7 @@ export interface InvoicePdfData {
  * Format a number string with Swiss formatting: 1'234.50
  * Note: parseFloat used for display formatting only (not calculations).
  */
-function formatSwissAmount(
-  value: string,
-  currency: string = DEFAULT_CURRENCY,
-): string {
+function formatSwissAmount(value: string, currency: string = DEFAULT_CURRENCY): string {
   // Display-only: converting already-calculated amount for formatting
   const num = parseFloat(value);
   if (isNaN(num)) return currency ? `${currency} 0.00` : "0.00";
@@ -120,9 +117,7 @@ const COLOR_LIGHT_GRAY = "#E5E5E5";
  * - Notes
  * - Swiss QR-bill at bottom (if IBAN and reference provided)
  */
-export async function generateInvoicePdf(
-  data: InvoicePdfData,
-): Promise<Buffer> {
+export async function generateInvoicePdf(data: InvoicePdfData): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
 
@@ -151,10 +146,7 @@ export async function generateInvoicePdf(
     if (data.companyLogoBase64) {
       try {
         // Strip data URI prefix to get raw base64 for PDFKit
-        const base64Data = data.companyLogoBase64.replace(
-          /^data:image\/\w+;base64,/,
-          "",
-        );
+        const base64Data = data.companyLogoBase64.replace(/^data:image\/\w+;base64,/, "");
         const logoBuffer = Buffer.from(base64Data, "base64");
 
         // Max dimensions: 170pt wide (~60mm) x 71pt tall (~25mm)
@@ -222,15 +214,10 @@ export async function generateInvoicePdf(
     infoY += 14;
 
     if (data.dueDate) {
-      doc.text(
-        `Fällig: ${formatSwissDate(data.dueDate)}`,
-        rightColumnX,
-        infoY,
-        {
-          width: 180,
-          align: "right",
-        },
-      );
+      doc.text(`Fällig: ${formatSwissDate(data.dueDate)}`, rightColumnX, infoY, {
+        width: 180,
+        align: "right",
+      });
       infoY += 14;
     }
 
@@ -249,10 +236,7 @@ export async function generateInvoicePdf(
       doc.text(data.contactAddress, MARGIN_LEFT);
     }
     if (data.contactPostalCode || data.contactCity) {
-      doc.text(
-        `${data.contactPostalCode || ""} ${data.contactCity || ""}`.trim(),
-        MARGIN_LEFT,
-      );
+      doc.text(`${data.contactPostalCode || ""} ${data.contactCity || ""}`.trim(), MARGIN_LEFT);
     }
     if (data.contactCountry && data.contactCountry !== DEFAULT_COUNTRY) {
       doc.text(data.contactCountry, MARGIN_LEFT);
@@ -331,9 +315,7 @@ export async function generateInvoicePdf(
       }
 
       // Display-only: check if discount is positive
-      const discountStr = new Decimal(item.discount).greaterThan(0)
-        ? `${item.discount}%`
-        : "-";
+      const discountStr = new Decimal(item.discount).greaterThan(0) ? `${item.discount}%` : "-";
       const qtyStr = formatQuantity(item.quantity);
 
       doc.font(FONT_REGULAR).fontSize(9).fillColor(COLOR_GRAY);
@@ -361,12 +343,10 @@ export async function generateInvoicePdf(
         width: cols.disc.w,
         align: "right",
       });
-      doc
-        .font(FONT_BOLD)
-        .text(formatSwissAmount(item.total, ""), cols.total.x, rowY, {
-          width: cols.total.w,
-          align: "right",
-        });
+      doc.font(FONT_BOLD).text(formatSwissAmount(item.total, ""), cols.total.x, rowY, {
+        width: cols.total.w,
+        align: "right",
+      });
 
       rowY = currentRowBottom + 4;
     }
@@ -434,11 +414,7 @@ export async function generateInvoicePdf(
         rowY = MARGIN_TOP;
       }
 
-      doc
-        .font(FONT_BOLD)
-        .fontSize(9)
-        .fillColor(COLOR_GRAY)
-        .text("Bemerkungen", MARGIN_LEFT, rowY);
+      doc.font(FONT_BOLD).fontSize(9).fillColor(COLOR_GRAY).text("Bemerkungen", MARGIN_LEFT, rowY);
 
       rowY += 14;
 
@@ -486,8 +462,7 @@ export async function generateInvoicePdf(
       // (NON-reference) slip. (SCOR creditor-reference generation is a follow-up.)
       const normalizedIban = data.companyIban.replace(/\s/g, "").toUpperCase();
       const iid = normalizedIban.slice(4, 9);
-      const isQrIban =
-        /^\d{5}$/.test(iid) && Number(iid) >= 30000 && Number(iid) <= 31999;
+      const isQrIban = /^\d{5}$/.test(iid) && Number(iid) >= 30000 && Number(iid) <= 31999;
       if (data.qrReference && isQrIban) {
         qrBillData.reference = data.qrReference;
       }
@@ -551,9 +526,7 @@ export interface DeliveryNotePdfData {
  * - Items table (Pos, Beschreibung, Menge, Einheit) — no prices
  * - Notes
  */
-export async function generateDeliveryNotePdf(
-  data: DeliveryNotePdfData,
-): Promise<Buffer> {
+export async function generateDeliveryNotePdf(data: DeliveryNotePdfData): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
 
@@ -581,10 +554,7 @@ export async function generateDeliveryNotePdf(
 
     if (data.companyLogoBase64) {
       try {
-        const base64Data = data.companyLogoBase64.replace(
-          /^data:image\/\w+;base64,/,
-          "",
-        );
+        const base64Data = data.companyLogoBase64.replace(/^data:image\/\w+;base64,/, "");
         const logoBuffer = Buffer.from(base64Data, "base64");
         doc.image(logoBuffer, MARGIN_LEFT, MARGIN_TOP, {
           fit: [170, 71],
@@ -657,10 +627,7 @@ export async function generateDeliveryNotePdf(
       doc.text(data.contactAddress, MARGIN_LEFT);
     }
     if (data.contactPostalCode || data.contactCity) {
-      doc.text(
-        `${data.contactPostalCode || ""} ${data.contactCity || ""}`.trim(),
-        MARGIN_LEFT,
-      );
+      doc.text(`${data.contactPostalCode || ""} ${data.contactCity || ""}`.trim(), MARGIN_LEFT);
     }
     if (data.contactCountry && data.contactCountry !== DEFAULT_COUNTRY) {
       doc.text(data.contactCountry, MARGIN_LEFT);
@@ -753,11 +720,7 @@ export async function generateDeliveryNotePdf(
         rowY = MARGIN_TOP;
       }
 
-      doc
-        .font(FONT_BOLD)
-        .fontSize(9)
-        .fillColor(COLOR_GRAY)
-        .text("Bemerkungen", MARGIN_LEFT, rowY);
+      doc.font(FONT_BOLD).fontSize(9).fillColor(COLOR_GRAY).text("Bemerkungen", MARGIN_LEFT, rowY);
 
       rowY += 14;
 
@@ -818,10 +781,7 @@ export async function generateQuotePdf(data: QuotePdfData): Promise<Buffer> {
 
     if (data.companyLogoBase64) {
       try {
-        const base64Data = data.companyLogoBase64.replace(
-          /^data:image\/\w+;base64,/,
-          "",
-        );
+        const base64Data = data.companyLogoBase64.replace(/^data:image\/\w+;base64,/, "");
         const logoBuffer = Buffer.from(base64Data, "base64");
         doc.image(logoBuffer, MARGIN_LEFT, MARGIN_TOP, {
           fit: [170, 71],
@@ -881,15 +841,10 @@ export async function generateQuotePdf(data: QuotePdfData): Promise<Buffer> {
     infoY += 14;
 
     if (data.dueDate) {
-      doc.text(
-        `Gültig bis: ${formatSwissDate(data.dueDate)}`,
-        rightColumnX,
-        infoY,
-        {
-          width: 180,
-          align: "right",
-        },
-      );
+      doc.text(`Gültig bis: ${formatSwissDate(data.dueDate)}`, rightColumnX, infoY, {
+        width: 180,
+        align: "right",
+      });
       infoY += 14;
     }
 
@@ -908,10 +863,7 @@ export async function generateQuotePdf(data: QuotePdfData): Promise<Buffer> {
       doc.text(data.contactAddress, MARGIN_LEFT);
     }
     if (data.contactPostalCode || data.contactCity) {
-      doc.text(
-        `${data.contactPostalCode || ""} ${data.contactCity || ""}`.trim(),
-        MARGIN_LEFT,
-      );
+      doc.text(`${data.contactPostalCode || ""} ${data.contactCity || ""}`.trim(), MARGIN_LEFT);
     }
     if (data.contactCountry && data.contactCountry !== DEFAULT_COUNTRY) {
       doc.text(data.contactCountry, MARGIN_LEFT);
@@ -919,11 +871,7 @@ export async function generateQuotePdf(data: QuotePdfData): Promise<Buffer> {
 
     // ---- Document title ----
     const titleY = doc.y + 24;
-    doc
-      .font(FONT_BOLD)
-      .fontSize(16)
-      .fillColor(COLOR_BLACK)
-      .text("Angebot", MARGIN_LEFT, titleY);
+    doc.font(FONT_BOLD).fontSize(16).fillColor(COLOR_BLACK).text("Angebot", MARGIN_LEFT, titleY);
 
     // ---- Items table ----
     const tableTop = doc.y + 16;
@@ -994,9 +942,7 @@ export async function generateQuotePdf(data: QuotePdfData): Promise<Buffer> {
         rowY = MARGIN_TOP;
       }
 
-      const discountStr = new Decimal(item.discount).greaterThan(0)
-        ? `${item.discount}%`
-        : "-";
+      const discountStr = new Decimal(item.discount).greaterThan(0) ? `${item.discount}%` : "-";
       const qtyStr = formatQuantity(item.quantity);
 
       doc.font(FONT_REGULAR).fontSize(9).fillColor(COLOR_GRAY);
@@ -1023,12 +969,10 @@ export async function generateQuotePdf(data: QuotePdfData): Promise<Buffer> {
         width: cols.disc.w,
         align: "right",
       });
-      doc
-        .font(FONT_BOLD)
-        .text(formatSwissAmount(item.total, ""), cols.total.x, rowY, {
-          width: cols.total.w,
-          align: "right",
-        });
+      doc.font(FONT_BOLD).text(formatSwissAmount(item.total, ""), cols.total.x, rowY, {
+        width: cols.total.w,
+        align: "right",
+      });
 
       rowY = currentRowBottom + 4;
     }
@@ -1096,11 +1040,7 @@ export async function generateQuotePdf(data: QuotePdfData): Promise<Buffer> {
         rowY = MARGIN_TOP;
       }
 
-      doc
-        .font(FONT_BOLD)
-        .fontSize(9)
-        .fillColor(COLOR_GRAY)
-        .text("Bemerkungen", MARGIN_LEFT, rowY);
+      doc.font(FONT_BOLD).fontSize(9).fillColor(COLOR_GRAY).text("Bemerkungen", MARGIN_LEFT, rowY);
 
       rowY += 14;
 
@@ -1172,9 +1112,7 @@ export interface DonationReceiptPdfData {
   currency: string;
 }
 
-export async function generateDonationReceiptPdf(
-  data: DonationReceiptPdfData,
-): Promise<Buffer> {
+export async function generateDonationReceiptPdf(data: DonationReceiptPdfData): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
     const doc = new PDFDocument({
@@ -1202,27 +1140,17 @@ export async function generateDonationReceiptPdf(
     // Logo
     if (data.companyLogoBase64) {
       try {
-        const base64Data = data.companyLogoBase64.replace(
-          /^data:image\/\w+;base64,/,
-          "",
-        );
+        const base64Data = data.companyLogoBase64.replace(/^data:image\/\w+;base64,/, "");
         const logoBuffer = Buffer.from(base64Data, "base64");
         doc.image(logoBuffer, MARGIN_LEFT, y, { fit: [170, 71] });
         y += 79;
       } catch (err) {
-        logger.warn(
-          "Donation receipt logo rendering failed, falling back to text",
-          err,
-        );
+        logger.warn("Donation receipt logo rendering failed, falling back to text", err);
       }
     }
 
     // Company header
-    doc
-      .font(FONT_BOLD)
-      .fontSize(14)
-      .fillColor(COLOR_BLACK)
-      .text(data.companyName, MARGIN_LEFT, y);
+    doc.font(FONT_BOLD).fontSize(14).fillColor(COLOR_BLACK).text(data.companyName, MARGIN_LEFT, y);
     y += 18;
     doc.font(FONT_REGULAR).fontSize(9).fillColor(COLOR_GRAY);
     if (data.companyAddress) {
@@ -1230,22 +1158,14 @@ export async function generateDonationReceiptPdf(
       y += 12;
     }
     if (data.companyPostalCode || data.companyCity) {
-      doc.text(
-        `${data.companyPostalCode || ""} ${data.companyCity || ""}`.trim(),
-        MARGIN_LEFT,
-        y,
-      );
+      doc.text(`${data.companyPostalCode || ""} ${data.companyCity || ""}`.trim(), MARGIN_LEFT, y);
       y += 12;
     }
 
     y += 20;
 
     // Title
-    doc
-      .font(FONT_BOLD)
-      .fontSize(18)
-      .fillColor(COLOR_BLACK)
-      .text("Spendenquittung", MARGIN_LEFT, y);
+    doc.font(FONT_BOLD).fontSize(18).fillColor(COLOR_BLACK).text("Spendenquittung", MARGIN_LEFT, y);
     y += 28;
     doc
       .font(FONT_REGULAR)
@@ -1255,11 +1175,7 @@ export async function generateDonationReceiptPdf(
     y += 24;
 
     // Donor info
-    doc
-      .font(FONT_BOLD)
-      .fontSize(10)
-      .fillColor(COLOR_BLACK)
-      .text("Spender/in:", MARGIN_LEFT, y);
+    doc.font(FONT_BOLD).fontSize(10).fillColor(COLOR_BLACK).text("Spender/in:", MARGIN_LEFT, y);
     y += 14;
     doc.font(FONT_REGULAR).fontSize(10);
     doc.text(data.donorName, MARGIN_LEFT, y);
@@ -1269,11 +1185,7 @@ export async function generateDonationReceiptPdf(
       y += 14;
     }
     if (data.donorPostalCode || data.donorCity) {
-      doc.text(
-        `${data.donorPostalCode || ""} ${data.donorCity || ""}`.trim(),
-        MARGIN_LEFT,
-        y,
-      );
+      doc.text(`${data.donorPostalCode || ""} ${data.donorCity || ""}`.trim(), MARGIN_LEFT, y);
       y += 14;
     }
 
@@ -1281,12 +1193,9 @@ export async function generateDonationReceiptPdf(
 
     // Statement
     doc.font(FONT_REGULAR).fontSize(10).fillColor(COLOR_BLACK);
-    doc.text(
-      "Wir bestätigen hiermit den Erhalt folgender Sachspende:",
-      MARGIN_LEFT,
-      y,
-      { width: pageWidth },
-    );
+    doc.text("Wir bestätigen hiermit den Erhalt folgender Sachspende:", MARGIN_LEFT, y, {
+      width: pageWidth,
+    });
     y += 24;
 
     // Items table header
@@ -1352,12 +1261,9 @@ export async function generateDonationReceiptPdf(
       { width: pageWidth },
     );
     y += 20;
-    doc.text(
-      `Ausgestellt am ${data.date} durch ${data.companyName}.`,
-      MARGIN_LEFT,
-      y,
-      { width: pageWidth },
-    );
+    doc.text(`Ausgestellt am ${data.date} durch ${data.companyName}.`, MARGIN_LEFT, y, {
+      width: pageWidth,
+    });
 
     y += 50;
 

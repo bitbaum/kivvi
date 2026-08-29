@@ -1,9 +1,6 @@
 import Decimal from "decimal.js";
 import { eq, and, sql, gte, lte, desc, asc, inArray } from "drizzle-orm";
-import {
-  NON_TERMINAL_STATUSES,
-  ISSUED_STATUSES,
-} from "../config/document-constants";
+import { NON_TERMINAL_STATUSES, ISSUED_STATUSES } from "../config/document-constants";
 import {
   accounts,
   costCenters,
@@ -34,10 +31,7 @@ export const UNCATEGORIZED_GROUP = "Uncategorized";
  * All math uses Decimal.js — no float errors.
  * Returns string to preserve precision across function boundaries.
  */
-export function computeVatAmount(
-  taxableAmount: string,
-  vatRate: string,
-): string {
+export function computeVatAmount(taxableAmount: string, vatRate: string): string {
   const taxable = new Decimal(taxableAmount);
   const rate = new Decimal(vatRate);
   return taxable.times(rate.div(100)).toFixed(2);
@@ -61,10 +55,7 @@ export function classifyAgingBucket(
  * Compute days overdue given a due date and an as-of date.
  * Returns negative if not yet due, 0 if due today, positive if overdue.
  */
-export function computeDaysOverdue(
-  dueDate: Date | string,
-  asOfDate: Date | string,
-): number {
+export function computeDaysOverdue(dueDate: Date | string, asOfDate: Date | string): number {
   const due = new Date(dueDate);
   const asOf = new Date(asOfDate);
   return Math.floor((asOf.getTime() - due.getTime()) / (1000 * 60 * 60 * 24));
@@ -78,14 +69,8 @@ export function computeProfitLossTotals(
   revenueAmounts: string[],
   expenseAmounts: string[],
 ): { totalRevenue: string; totalExpenses: string; netIncome: string } {
-  const totalRevenue = revenueAmounts.reduce(
-    (sum, a) => sum.plus(a || "0"),
-    new Decimal(0),
-  );
-  const totalExpenses = expenseAmounts.reduce(
-    (sum, a) => sum.plus(a || "0"),
-    new Decimal(0),
-  );
+  const totalRevenue = revenueAmounts.reduce((sum, a) => sum.plus(a || "0"), new Decimal(0));
+  const totalExpenses = expenseAmounts.reduce((sum, a) => sum.plus(a || "0"), new Decimal(0));
   return {
     totalRevenue: totalRevenue.toFixed(2),
     totalExpenses: totalExpenses.toFixed(2),
@@ -102,10 +87,7 @@ export function computeRetainedEarnings(
   totalLiabilities: string,
   totalEquity: string,
 ): string {
-  return new Decimal(totalAssets)
-    .minus(totalLiabilities)
-    .minus(totalEquity)
-    .toFixed(2);
+  return new Decimal(totalAssets).minus(totalLiabilities).minus(totalEquity).toFixed(2);
 }
 
 /**
@@ -150,9 +132,7 @@ export function mergeSalesRows(
  * Compute sales report totals from rows. Pure reduction.
  * Accumulates with Decimal.js, converts to string only at boundary.
  */
-export function computeSalesTotals(
-  rows: SalesReportRow[],
-): Omit<SalesReportRow, "month"> {
+export function computeSalesTotals(rows: SalesReportRow[]): Omit<SalesReportRow, "month"> {
   const acc = rows.reduce(
     (a, r) => ({
       invoiceCount: a.invoiceCount + r.invoiceCount,
@@ -209,9 +189,7 @@ export async function getProfitAndLoss(
   /** Optional: restrict to one activity/fund (drill-down). */
   costCenterId?: string,
 ): Promise<ProfitLossReport> {
-  const ccFilter = costCenterId
-    ? eq(journalLines.costCenterId, costCenterId)
-    : undefined;
+  const ccFilter = costCenterId ? eq(journalLines.costCenterId, costCenterId) : undefined;
   // Revenue accounts (credit - debit)
   const revenueRows = await db
     .select({
@@ -221,10 +199,7 @@ export async function getProfitAndLoss(
     })
     .from(accounts)
     .leftJoin(journalLines, eq(journalLines.accountId, accounts.id))
-    .leftJoin(
-      journalEntries,
-      eq(journalLines.journalEntryId, journalEntries.id),
-    )
+    .leftJoin(journalEntries, eq(journalLines.journalEntryId, journalEntries.id))
     .where(
       and(
         eq(accounts.companyId, companyId),
@@ -248,10 +223,7 @@ export async function getProfitAndLoss(
     })
     .from(accounts)
     .leftJoin(journalLines, eq(journalLines.accountId, accounts.id))
-    .leftJoin(
-      journalEntries,
-      eq(journalLines.journalEntryId, journalEntries.id),
-    )
+    .leftJoin(journalEntries, eq(journalLines.journalEntryId, journalEntries.id))
     .where(
       and(
         eq(accounts.companyId, companyId),
@@ -337,10 +309,7 @@ export async function getActivityBreakdown(
     })
     .from(journalLines)
     .innerJoin(accounts, eq(journalLines.accountId, accounts.id))
-    .innerJoin(
-      journalEntries,
-      eq(journalLines.journalEntryId, journalEntries.id),
-    )
+    .innerJoin(journalEntries, eq(journalLines.journalEntryId, journalEntries.id))
     .leftJoin(costCenters, eq(journalLines.costCenterId, costCenters.id))
     .where(
       and(
@@ -350,12 +319,7 @@ export async function getActivityBreakdown(
         lte(journalEntries.date, new Date(endDate)),
       ),
     )
-    .groupBy(
-      costCenters.id,
-      costCenters.code,
-      costCenters.name,
-      costCenters.kind,
-    )
+    .groupBy(costCenters.id, costCenters.code, costCenters.name, costCenters.kind)
     .orderBy(asc(costCenters.kind), asc(costCenters.code));
 
   let totalRevenue = new Decimal(0);
@@ -378,9 +342,7 @@ export async function getActivityBreakdown(
       };
     })
     // Drop rows that netted to zero AND had no activity (keeps the report tight).
-    .filter(
-      (r) => !(new Decimal(r.revenue).eq(0) && new Decimal(r.expenses).eq(0)),
-    );
+    .filter((r) => !(new Decimal(r.revenue).eq(0) && new Decimal(r.expenses).eq(0)));
 
   return {
     rows: resultRows,
@@ -418,10 +380,7 @@ export async function getBalanceSheet(
   companyId: string,
   asOfDate: string,
 ): Promise<BalanceSheetReport> {
-  const getBalances = async (
-    type: "asset" | "liability" | "equity",
-    isDebitNormal: boolean,
-  ) => {
+  const getBalances = async (type: "asset" | "liability" | "equity", isDebitNormal: boolean) => {
     const rows = await db
       .select({
         code: accounts.code,
@@ -432,10 +391,7 @@ export async function getBalanceSheet(
       })
       .from(accounts)
       .leftJoin(journalLines, eq(journalLines.accountId, accounts.id))
-      .leftJoin(
-        journalEntries,
-        eq(journalLines.journalEntryId, journalEntries.id),
-      )
+      .leftJoin(journalEntries, eq(journalLines.journalEntryId, journalEntries.id))
       .where(
         and(
           eq(accounts.companyId, companyId),
@@ -462,21 +418,13 @@ export async function getBalanceSheet(
   const liabilities = await getBalances("liability", false);
   const equity = await getBalances("equity", false);
 
-  const totalAssets = assets
-    .reduce((sum, r) => sum.plus(r.balance), new Decimal(0))
-    .toFixed(2);
+  const totalAssets = assets.reduce((sum, r) => sum.plus(r.balance), new Decimal(0)).toFixed(2);
   const totalLiabilities = liabilities
     .reduce((sum, r) => sum.plus(r.balance), new Decimal(0))
     .toFixed(2);
-  const totalEquity = equity
-    .reduce((sum, r) => sum.plus(r.balance), new Decimal(0))
-    .toFixed(2);
+  const totalEquity = equity.reduce((sum, r) => sum.plus(r.balance), new Decimal(0)).toFixed(2);
 
-  const retainedEarnings = computeRetainedEarnings(
-    totalAssets,
-    totalLiabilities,
-    totalEquity,
-  );
+  const retainedEarnings = computeRetainedEarnings(totalAssets, totalLiabilities, totalEquity);
 
   return {
     assets,

@@ -41,9 +41,7 @@ export interface ErasureCertificateData {
  * Generate a data erasure certificate PDF buffer.
  * Returns a Buffer containing the complete A4 PDF.
  */
-export function generateErasureCertificate(
-  data: ErasureCertificateData,
-): Promise<Buffer> {
+export function generateErasureCertificate(data: ErasureCertificateData): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
 
@@ -96,9 +94,7 @@ export function generateErasureCertificate(
     doc.fontSize(11).fillColor(MUTED).font("Helvetica").text(data.companyName);
 
     if (data.companyAddress || data.companyCity) {
-      const addr = [data.companyAddress, data.companyCity]
-        .filter(Boolean)
-        .join(", ");
+      const addr = [data.companyAddress, data.companyCity].filter(Boolean).join(", ");
       doc.fontSize(10).fillColor(MUTED).text(addr);
     }
 
@@ -108,9 +104,7 @@ export function generateErasureCertificate(
     doc
       .fontSize(9)
       .fillColor(MUTED)
-      .text(
-        `Zertifikat-Nr.: ${data.certificateNumber}   ·   Ausgestellt am: ${generatedDate}`,
-      );
+      .text(`Zertifikat-Nr.: ${data.certificateNumber}   ·   Ausgestellt am: ${generatedDate}`);
 
     // Divider
     doc
@@ -152,11 +146,7 @@ export function generateErasureCertificate(
     const valueColor = DARK;
 
     // Col 1
-    doc
-      .fontSize(8)
-      .fillColor(labelColor)
-      .font("Helvetica")
-      .text("Artikelnummer", col1X, fieldY);
+    doc.fontSize(8).fillColor(labelColor).font("Helvetica").text("Artikelnummer", col1X, fieldY);
     doc
       .fontSize(10)
       .fillColor(valueColor)
@@ -176,11 +166,7 @@ export function generateErasureCertificate(
 
     // Col 2
     if (data.serialNumber) {
-      doc
-        .fontSize(8)
-        .fillColor(labelColor)
-        .font("Helvetica")
-        .text("Seriennummer", col2X, fieldY);
+      doc.fontSize(8).fillColor(labelColor).font("Helvetica").text("Seriennummer", col2X, fieldY);
       doc
         .fontSize(10)
         .fillColor(valueColor)
@@ -233,11 +219,7 @@ export function generateErasureCertificate(
 
     fields.forEach((f, i) => {
       const x = 70 + i * (colW + 10);
-      doc
-        .fontSize(8)
-        .fillColor(MUTED)
-        .font("Helvetica")
-        .text(f.label, x, eFieldY, { width: colW });
+      doc.fontSize(8).fillColor(MUTED).font("Helvetica").text(f.label, x, eFieldY, { width: colW });
       doc
         .fontSize(10)
         .fillColor(DARK)
@@ -248,11 +230,7 @@ export function generateErasureCertificate(
     doc.y = erasureBoxY + erasureBoxH + 16;
 
     // ── Standards compliance ────────────────────────────────────────────────
-    doc
-      .fontSize(10)
-      .fillColor(DARK)
-      .font("Helvetica-Bold")
-      .text("Compliance-Standards");
+    doc.fontSize(10).fillColor(DARK).font("Helvetica-Bold").text("Compliance-Standards");
 
     doc.moveDown(0.3);
 
@@ -317,10 +295,7 @@ export function generateErasureCertificate(
  * the calendar date visible in Switzerland, regardless of where the
  * server runs.
  */
-export function buildCertificateNumber(
-  itemNumber: string,
-  erasedAt: Date,
-): string {
+export function buildCertificateNumber(itemNumber: string, erasedAt: Date): string {
   const parts = new Intl.DateTimeFormat("sv-SE", {
     timeZone: "Europe/Zurich",
     year: "numeric",

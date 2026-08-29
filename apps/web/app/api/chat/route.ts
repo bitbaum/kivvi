@@ -16,10 +16,7 @@ import {
 import { eq, and, desc } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
-import {
-  DEFAULT_CURRENCY,
-  DEFAULT_LOCALE,
-} from "@kivvi/core/src/config/locale";
+import { DEFAULT_CURRENCY, DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
 import { getCompanySettings } from "@kivvi/core/src/domain/companies";
 import { fetchBusinessSnapshot, getInventoryDashboard } from "@kivvi/core";
 import { logger } from "@/lib/logger";
@@ -39,9 +36,7 @@ async function buildProviderFailureFallback({
   const isGerman = locale.startsWith("de");
   const lower = message.toLowerCase();
   const asksInventory =
-    /inventar|inventory|lager|reparatur|repair|status|lage|business|betrieb/.test(
-      lower,
-    );
+    /inventar|inventory|lager|reparatur|repair|status|lage|business|betrieb/.test(lower);
 
   if (!asksInventory) {
     return isGerman
@@ -86,36 +81,23 @@ async function buildProviderFailureFallback({
     overdue: { de: "Überfällig", en: "Overdue" },
     cancelled: { de: "Storniert", en: "Cancelled" },
   };
-  const labelFor = (
-    labels: Record<string, { de: string; en: string }>,
-    key: string,
-  ) => labels[key]?.[isGerman ? "de" : "en"] || key.replace(/_/g, " ");
+  const labelFor = (labels: Record<string, { de: string; en: string }>, key: string) =>
+    labels[key]?.[isGerman ? "de" : "en"] || key.replace(/_/g, " ");
   const statusLines = Object.entries(inventory.byStatus)
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(
-      ([status, count]) =>
-        `- ${labelFor(inventoryStatusLabels, status)}: ${count}`,
-    )
+    .map(([status, count]) => `- ${labelFor(inventoryStatusLabels, status)}: ${count}`)
     .join("\n");
   const bankLines = business.bankBalances
     .map((account) => {
       const iban = account.iban ? ` (...${account.iban.slice(-4)})` : "";
-      return `- ${account.name}${iban}: ${formatMoney(
-        account.balance,
-        account.currency,
-      )}`;
+      return `- ${account.name}${iban}: ${formatMoney(account.balance, account.currency)}`;
     })
     .join("\n");
   const recentLines = business.recentDocuments
     .map((doc) => {
       const due = formatDate(doc.dueDate);
-      const dueText = due
-        ? isGerman
-          ? `, fällig ${due}`
-          : `, due ${due}`
-        : "";
-      const contact =
-        doc.contactName || (isGerman ? "ohne Kontakt" : "no contact");
+      const dueText = due ? (isGerman ? `, fällig ${due}` : `, due ${due}`) : "";
+      const contact = doc.contactName || (isGerman ? "ohne Kontakt" : "no contact");
       return `- ${doc.number}: ${formatMoney(
         doc.total,
         doc.currency,
@@ -206,10 +188,7 @@ export async function POST(request: NextRequest) {
     const isCommandMode = mode === "command";
 
     if (!message || typeof message !== "string") {
-      return NextResponse.json(
-        { error: "Message is required" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Message is required" }, { status: 400 });
     }
 
     // Get or create conversation (skip persistence in command mode)
@@ -229,10 +208,7 @@ export async function POST(request: NextRequest) {
       });
 
       if (!existing) {
-        return NextResponse.json(
-          { error: "Conversation not found" },
-          { status: 404 },
-        );
+        return NextResponse.json({ error: "Conversation not found" }, { status: 404 });
       }
 
       conversation = existing;
@@ -276,9 +252,9 @@ export async function POST(request: NextRequest) {
     const settings = await getCompanySettings(db, session.user.companyId);
 
     // Determine provider and model — user selection > company settings > env fallback
-    const selectedProvider = (providerId ||
-      settings.aiProvider ||
-      process.env.AI_PROVIDER) as ProviderType | undefined;
+    const selectedProvider = (providerId || settings.aiProvider || process.env.AI_PROVIDER) as
+      | ProviderType
+      | undefined;
     const selectedModel = (modelId || settings.aiModel) as string | undefined;
 
     // Build execution context
@@ -297,11 +273,7 @@ export async function POST(request: NextRequest) {
     };
 
     // Build business snapshot for system prompt context
-    const snapshot = await getBusinessSnapshot(
-      db,
-      session.user.companyId,
-      context.defaultCurrency,
-    );
+    const snapshot = await getBusinessSnapshot(db, session.user.companyId, context.defaultCurrency);
 
     // Initialize AI provider with fallback chain
     const env = {
@@ -341,10 +313,7 @@ export async function POST(request: NextRequest) {
         ? {
             type: selectedProvider,
             apiKey: getApiKey(selectedProvider),
-            baseUrl:
-              selectedProvider === "ollama"
-                ? process.env.OLLAMA_BASE_URL
-                : undefined,
+            baseUrl: selectedProvider === "ollama" ? process.env.OLLAMA_BASE_URL : undefined,
             model: selectedModel,
           }
         : undefined,
@@ -352,9 +321,7 @@ export async function POST(request: NextRequest) {
 
     // Only use the user-selected model if the provider didn't change via fallback
     const activeModel =
-      selectedModel && activeProviderId === selectedProvider
-        ? selectedModel
-        : fallbackModelId;
+      selectedModel && activeProviderId === selectedProvider ? selectedModel : fallbackModelId;
 
     // Get tools based on user permissions
     const tools = getToolsForPermissions(context.permissions);
@@ -443,9 +410,7 @@ export async function POST(request: NextRequest) {
               });
             }
             controller.enqueue(
-              encoder.encode(
-                `data: ${JSON.stringify({ type: "text", content: fallback })}\n\n`,
-              ),
+              encoder.encode(`data: ${JSON.stringify({ type: "text", content: fallback })}\n\n`),
             );
             controller.enqueue(
               encoder.encode(
@@ -474,15 +439,10 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     logger.error("Chat API error", error);
-    const message =
-      error instanceof Error ? error.message : "Internal server error";
+    const message = error instanceof Error ? error.message : "Internal server error";
     const isProviderError =
-      message.includes("No AI provider available") ||
-      message.includes("API key invalid");
-    return NextResponse.json(
-      { error: message },
-      { status: isProviderError ? 503 : 500 },
-    );
+      message.includes("No AI provider available") || message.includes("API key invalid");
+    return NextResponse.json({ error: message }, { status: isProviderError ? 503 : 500 });
   }
 }
 
@@ -508,10 +468,7 @@ export async function GET(request: NextRequest) {
       });
 
       if (!conversation) {
-        return NextResponse.json(
-          { error: "Conversation not found" },
-          { status: 404 },
-        );
+        return NextResponse.json({ error: "Conversation not found" }, { status: 404 });
       }
 
       const messages = await db.query.aiMessages.findMany({
@@ -532,9 +489,6 @@ export async function GET(request: NextRequest) {
     }
   } catch (error) {
     logger.error("Chat GET error", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

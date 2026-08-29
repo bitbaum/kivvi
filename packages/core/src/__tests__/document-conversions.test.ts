@@ -1,8 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  VALID_CONVERSIONS,
-  DOCUMENT_TYPE_LABELS_DE,
-} from "../domain/document-conversions";
+import { VALID_CONVERSIONS, DOCUMENT_TYPE_LABELS_DE } from "../domain/document-conversions";
 
 // ============================================================================
 // VALID_CONVERSIONS
@@ -14,18 +11,11 @@ describe("VALID_CONVERSIONS", () => {
   });
 
   it("allows order to convert to order_confirmation, delivery_note, and invoice", () => {
-    expect(VALID_CONVERSIONS.order).toEqual([
-      "order_confirmation",
-      "delivery_note",
-      "invoice",
-    ]);
+    expect(VALID_CONVERSIONS.order).toEqual(["order_confirmation", "delivery_note", "invoice"]);
   });
 
   it("allows order_confirmation to convert to delivery_note and invoice", () => {
-    expect(VALID_CONVERSIONS.order_confirmation).toEqual([
-      "delivery_note",
-      "invoice",
-    ]);
+    expect(VALID_CONVERSIONS.order_confirmation).toEqual(["delivery_note", "invoice"]);
   });
 
   it("allows delivery_note to convert to invoice", () => {
@@ -107,9 +97,7 @@ describe("DOCUMENT_TYPE_LABELS_DE", () => {
       "intake",
       "repair_order",
     ];
-    expect(Object.keys(DOCUMENT_TYPE_LABELS_DE).sort()).toEqual(
-      expectedTypes.sort(),
-    );
+    expect(Object.keys(DOCUMENT_TYPE_LABELS_DE).sort()).toEqual(expectedTypes.sort());
   });
 
   it("has correct German label for invoice", () => {
@@ -125,9 +113,7 @@ describe("DOCUMENT_TYPE_LABELS_DE", () => {
   });
 
   it("has correct German label for order_confirmation", () => {
-    expect(DOCUMENT_TYPE_LABELS_DE.order_confirmation).toBe(
-      "Auftragsbestätigung",
-    );
+    expect(DOCUMENT_TYPE_LABELS_DE.order_confirmation).toBe("Auftragsbestätigung");
   });
 
   it("has correct German label for credit_note", () => {
@@ -152,10 +138,7 @@ describe("DOCUMENT_TYPE_LABELS_DE", () => {
 
   it("has no empty labels", () => {
     for (const [type, label] of Object.entries(DOCUMENT_TYPE_LABELS_DE)) {
-      expect(
-        label.length,
-        `Label for ${type} should not be empty`,
-      ).toBeGreaterThan(0);
+      expect(label.length, `Label for ${type} should not be empty`).toBeGreaterThan(0);
     }
   });
 });

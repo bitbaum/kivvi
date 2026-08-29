@@ -11,63 +11,37 @@ interface ContactDetailSidebarProps {
   contact: Contact;
 }
 
-export async function ContactDetailSidebar({
-  contact,
-}: ContactDetailSidebarProps) {
+export async function ContactDetailSidebar({ contact }: ContactDetailSidebarProps) {
   const t = await getTranslations("contacts");
   const tc = await getTranslations("common");
 
   return (
     <div className="space-y-6">
       {/* Financial Details */}
-      <CardSection
-        title={t("financialDetails")}
-        icon={<CreditCard className="h-4 w-4" />}
-      >
+      <CardSection title={t("financialDetails")} icon={<CreditCard className="h-4 w-4" />}>
         <div className="space-y-4">
           <InfoItem label={t("vatNumber")} value={contact.vatNumber} copyable />
           <InfoItem label={t("iban")} value={contact.iban} copyable />
           <InfoItem label={t("bic")} value={contact.bic} copyable />
           <InfoItem
             label={t("paymentTerms")}
-            value={
-              contact.paymentTermsDays
-                ? `${contact.paymentTermsDays} ${t("days")}`
-                : null
-            }
+            value={contact.paymentTermsDays ? `${contact.paymentTermsDays} ${t("days")}` : null}
           />
           <InfoItem
             label={t("creditLimit")}
-            value={
-              contact.creditLimit ? formatCurrency(contact.creditLimit) : null
-            }
+            value={contact.creditLimit ? formatCurrency(contact.creditLimit) : null}
           />
         </div>
       </CardSection>
 
       {/* Settings */}
-      <CardSection
-        title={tc("settings")}
-        icon={<Building2 className="h-4 w-4" />}
-      >
+      <CardSection title={tc("settings")} icon={<Building2 className="h-4 w-4" />}>
         <div className="space-y-4">
-          <InfoItem
-            label={t("language")}
-            value={contact.language?.toUpperCase()}
-          />
-          <InfoItem
-            label={t("createdAt")}
-            value={formatDate(contact.createdAt)}
-          />
-          <InfoItem
-            label={t("updatedAt")}
-            value={formatDate(contact.updatedAt)}
-          />
+          <InfoItem label={t("language")} value={contact.language?.toUpperCase()} />
+          <InfoItem label={t("createdAt")} value={formatDate(contact.createdAt)} />
+          <InfoItem label={t("updatedAt")} value={formatDate(contact.updatedAt)} />
           {contact.kivitendoId && (
-            <InfoItem
-              label={t("kivitendoId")}
-              value={contact.kivitendoId.toString()}
-            />
+            <InfoItem label={t("kivitendoId")} value={contact.kivitendoId.toString()} />
           )}
         </div>
       </CardSection>

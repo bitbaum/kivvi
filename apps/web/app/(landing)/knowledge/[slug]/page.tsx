@@ -52,8 +52,7 @@ export default async function KnowledgeArticlePage({
   const { meta, html, sections } = article;
   const allArticles = getAllArticles();
   const currentIndex = allArticles.findIndex((a) => a.slug === slug);
-  const nextMeta =
-    currentIndex >= 0 ? allArticles[currentIndex + 1] : undefined;
+  const nextMeta = currentIndex >= 0 ? allArticles[currentIndex + 1] : undefined;
 
   return (
     <>
@@ -78,9 +77,7 @@ export default async function KnowledgeArticlePage({
             </span>
           </div>
           <h1 className="mb-4 text-3xl font-bold sm:text-4xl">{meta.title}</h1>
-          <p className="text-lg text-muted-foreground leading-relaxed">
-            {meta.lead}
-          </p>
+          <p className="text-lg text-muted-foreground leading-relaxed">{meta.lead}</p>
         </div>
 
         {/* Table of contents (auto-generated from ## headings) */}
@@ -114,9 +111,7 @@ export default async function KnowledgeArticlePage({
                       href={`#${id}`}
                       className="flex items-baseline gap-2.5 text-sm hover:text-primary transition-colors"
                     >
-                      <span className="shrink-0 text-xs text-muted-foreground">
-                        {i + 1}.
-                      </span>
+                      <span className="shrink-0 text-xs text-muted-foreground">{i + 1}.</span>
                       <span>{section}</span>
                     </a>
                   </li>
@@ -149,9 +144,7 @@ export default async function KnowledgeArticlePage({
                 <h3 className="mt-2 font-semibold group-hover:text-primary transition-colors">
                   {nextMeta.title}
                 </h3>
-                <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
-                  {nextMeta.lead}
-                </p>
+                <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{nextMeta.lead}</p>
               </div>
               <ArrowRight className="ml-4 h-5 w-5 shrink-0 text-muted-foreground group-hover:text-primary transition-colors" />
             </Link>
@@ -164,9 +157,7 @@ export default async function KnowledgeArticlePage({
             <BookOpen className="h-5 w-5 text-primary" />
             <span className="font-semibold">{t("footerCtaTitle")}</span>
           </div>
-          <p className="text-sm text-muted-foreground mb-4">
-            {t("footerCtaDescription")}
-          </p>
+          <p className="text-sm text-muted-foreground mb-4">{t("footerCtaDescription")}</p>
           <Button asChild variant="link" className="px-0">
             <Link href="/knowledge">{t("footerCtaButton")}</Link>
           </Button>

@@ -37,11 +37,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
   const search = params.search || "";
   const typeFilter = params.type as "product" | "service" | undefined;
   const page = Math.max(1, parseInt(params.page || "1", 10));
-  const sort = (params.sort || "createdAt") as
-    | "name"
-    | "articleNumber"
-    | "unitPrice"
-    | "createdAt";
+  const sort = (params.sort || "createdAt") as "name" | "articleNumber" | "unitPrice" | "createdAt";
   const order = (params.order || "desc") as "asc" | "desc";
 
   const [result, [{ activeCount }], [{ lowStockCount }]] = await Promise.all([
@@ -56,12 +52,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
     db
       .select({ activeCount: count() })
       .from(products)
-      .where(
-        and(
-          eq(products.companyId, session.user.companyId),
-          eq(products.isActive, true),
-        ),
-      ),
+      .where(and(eq(products.companyId, session.user.companyId), eq(products.isActive, true))),
     db
       .select({ lowStockCount: count() })
       .from(products)
@@ -124,18 +115,13 @@ export default async function ProductsPage({ searchParams }: PageProps) {
 
   const typeLabels = getProductTypeLabels(t);
 
-  function buildFilterUrl(overrides: {
-    search?: string;
-    type?: string;
-    page?: number;
-  }) {
+  function buildFilterUrl(overrides: { search?: string; type?: string; page?: number }) {
     const searchParams = new URLSearchParams();
     if (overrides.search) searchParams.set("search", overrides.search);
     if (overrides.type) searchParams.set("type", overrides.type);
     if (sort !== "createdAt") searchParams.set("sort", sort);
     if (order !== "desc") searchParams.set("order", order);
-    if (overrides.page && overrides.page > 1)
-      searchParams.set("page", String(overrides.page));
+    if (overrides.page && overrides.page > 1) searchParams.set("page", String(overrides.page));
     const qs = searchParams.toString();
     return `/products${qs ? `?${qs}` : ""}`;
   }
@@ -233,10 +219,7 @@ export default async function ProductsPage({ searchParams }: PageProps) {
               totalPages={result.totalPages}
               buildHref={buildPageUrl}
               labels={{
-                showing: tc(
-                  "showing",
-                  paginationRange(result.page, result.pageSize, result.total),
-                ),
+                showing: tc("showing", paginationRange(result.page, result.pageSize, result.total)),
                 previous: tc("previous"),
                 next: tc("next"),
                 pageOf: tc("pageOf", {

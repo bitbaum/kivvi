@@ -3,10 +3,7 @@
 import { useState, useTransition } from "react";
 import { ExternalLink, Upload, X, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import {
-  publishToRicardoAction,
-  unpublishFromRicardoAction,
-} from "@/app/actions/integrations";
+import { publishToRicardoAction, unpublishFromRicardoAction } from "@/app/actions/integrations";
 
 interface Props {
   itemId: string;
@@ -14,11 +11,7 @@ interface Props {
   externalListingStatus: string | null;
 }
 
-export function RicardoButton({
-  itemId,
-  externalListingUrl,
-  externalListingStatus,
-}: Props) {
+export function RicardoButton({ itemId, externalListingUrl, externalListingStatus }: Props) {
   const t = useTranslations("ricardo");
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -73,11 +66,7 @@ export function RicardoButton({
             className="rounded-lg border px-3 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-destructive transition-colors"
             title={t("removeListing")}
           >
-            {isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <X className="h-4 w-4" />
-            )}
+            {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}
           </button>
         </div>
       ) : isSold ? (

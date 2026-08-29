@@ -104,12 +104,8 @@ describe("integration settings", () => {
     expect(summarizeIntegrationStatus(undefined)).toBe("not_configured");
     expect(summarizeIntegrationStatus({ enabled: false })).toBe("disabled");
     expect(summarizeIntegrationStatus({ enabled: true })).toBe("untested");
-    expect(
-      summarizeIntegrationStatus({ enabled: true, lastStatus: "ok" }),
-    ).toBe("ok");
-    expect(
-      summarizeIntegrationStatus({ enabled: true, lastStatus: "error" }),
-    ).toBe("error");
+    expect(summarizeIntegrationStatus({ enabled: true, lastStatus: "ok" })).toBe("ok");
+    expect(summarizeIntegrationStatus({ enabled: true, lastStatus: "error" })).toBe("error");
   });
 
   it("requires HTTPS and a token for GNU Taler", () => {

@@ -237,8 +237,7 @@ describe("generateFiscalPeriods", () => {
       const prevEnd = new Date(periods[i - 1].endDate);
       const currStart = new Date(periods[i].startDate);
       // Next period starts exactly 1 day after previous period ends
-      const diff =
-        (currStart.getTime() - prevEnd.getTime()) / (1000 * 60 * 60 * 24);
+      const diff = (currStart.getTime() - prevEnd.getTime()) / (1000 * 60 * 60 * 24);
       expect(diff).toBe(1);
     }
   });
@@ -260,13 +259,7 @@ describe("createAccountSchema", () => {
   });
 
   it("accepts all valid account types", () => {
-    const types = [
-      "asset",
-      "liability",
-      "equity",
-      "revenue",
-      "expense",
-    ] as const;
+    const types = ["asset", "liability", "equity", "revenue", "expense"] as const;
     for (const type of types) {
       const result = createAccountSchema.safeParse({
         code: "1000",
@@ -394,9 +387,7 @@ describe("createJournalEntrySchema", () => {
     const result = createJournalEntrySchema.safeParse({
       date: "2026-01-15",
       description: "Test entry",
-      lines: [
-        { accountId: "550e8400-e29b-41d4-a716-446655440000", debit: "100.00" },
-      ],
+      lines: [{ accountId: "550e8400-e29b-41d4-a716-446655440000", debit: "100.00" }],
     });
 
     expect(result.success).toBe(false);
@@ -492,11 +483,7 @@ describe("createFiscalYearSchema", () => {
 // calculateTrialBalanceTotals — pure aggregation driving balance sheet & P&L
 // ============================================================================
 
-function makeRow(
-  type: string,
-  totalDebit: number,
-  totalCredit: number,
-): AccountBalance {
+function makeRow(type: string, totalDebit: number, totalCredit: number): AccountBalance {
   return {
     accountId: crypto.randomUUID(),
     code: "1000",
@@ -650,8 +637,7 @@ describe("calculateTrialBalanceTotals", () => {
     ]);
 
     const lhs = result.assets;
-    const rhs =
-      result.liabilities + result.equity + (result.revenue - result.expenses);
+    const rhs = result.liabilities + result.equity + (result.revenue - result.expenses);
 
     expect(lhs).toBe(57000);
     expect(rhs).toBe(57000);

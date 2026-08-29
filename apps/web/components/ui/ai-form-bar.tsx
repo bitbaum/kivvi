@@ -28,11 +28,7 @@ interface AiFormBarProps {
  * Rendering is local to this app (the package ships no markup) and uses the
  * same tokens as the rest of the form.
  */
-export function AiFormBar({
-  form,
-  fillPlaceholder,
-  refinePlaceholder,
-}: AiFormBarProps) {
+export function AiFormBar({ form, fillPlaceholder, refinePlaceholder }: AiFormBarProps) {
   const [instruction, setInstruction] = useState("");
   const t = useTranslations("aiForm");
 

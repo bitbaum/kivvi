@@ -1,11 +1,6 @@
 import { z } from "zod";
 import { eq, and } from "drizzle-orm";
-import {
-  memberships,
-  users,
-  companies,
-  MEMBERSHIP_ROLES,
-} from "@kivvi/database";
+import { memberships, users, companies, MEMBERSHIP_ROLES } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
 import type { MembershipRole } from "@kivvi/database";
 import { DEFAULT_VAT_RATE } from "../config/vat-rates";
@@ -66,26 +61,16 @@ export interface CompanyMember {
  * Find a user's membership in a specific company. Returns null if not found.
  * Used across auth, role checks, and company switching.
  */
-export async function findMembership(
-  db: Database,
-  userId: string,
-  companyId: string,
-) {
+export async function findMembership(db: Database, userId: string, companyId: string) {
   return db.query.memberships.findFirst({
-    where: and(
-      eq(memberships.userId, userId),
-      eq(memberships.companyId, companyId),
-    ),
+    where: and(eq(memberships.userId, userId), eq(memberships.companyId, companyId)),
   });
 }
 
 /**
  * Get all memberships for a user (for company switcher).
  */
-export async function getUserMemberships(
-  db: Database,
-  userId: string,
-): Promise<MembershipInfo[]> {
+export async function getUserMemberships(db: Database, userId: string): Promise<MembershipInfo[]> {
   const rows = await db
     .select({
       companyId: memberships.companyId,
@@ -106,10 +91,7 @@ export async function getUserMemberships(
 /**
  * Get all members of a company (for team management).
  */
-export async function getCompanyMembers(
-  db: Database,
-  companyId: string,
-): Promise<CompanyMember[]> {
+export async function getCompanyMembers(db: Database, companyId: string): Promise<CompanyMember[]> {
   const rows = await db
     .select({
       userId: memberships.userId,
@@ -168,12 +150,7 @@ export async function removeMember(
       const owners = await tx
         .select({ id: memberships.id })
         .from(memberships)
-        .where(
-          and(
-            eq(memberships.companyId, companyId),
-            eq(memberships.role, "owner"),
-          ),
-        );
+        .where(and(eq(memberships.companyId, companyId), eq(memberships.role, "owner")));
 
       if (owners.length <= 1) {
         throw new DomainError("cannotRemoveLastOwner");
@@ -182,12 +159,7 @@ export async function removeMember(
 
     await tx
       .delete(memberships)
-      .where(
-        and(
-          eq(memberships.companyId, companyId),
-          eq(memberships.userId, userId),
-        ),
-      );
+      .where(and(eq(memberships.companyId, companyId), eq(memberships.userId, userId)));
 
     // If the removed user's active company is this one, clear it
     if (userId !== requestedBy) {
@@ -219,14 +191,7 @@ export async function updateMemberRole(
   newRole: MembershipRole,
   requestedBy: string,
 ): Promise<void> {
-  await updateMemberAccess(
-    db,
-    companyId,
-    userId,
-    newRole,
-    requestedBy,
-    presetForRole(newRole),
-  );
+  await updateMemberAccess(db, companyId, userId, newRole, requestedBy, presetForRole(newRole));
 }
 
 export async function updateMemberAccess(
@@ -239,15 +204,8 @@ export async function updateMemberAccess(
 ): Promise<void> {
   await db.transaction(async (tx) => {
     // Verify requester has permission
-    const requesterMembership = await findMembership(
-      tx,
-      requestedBy,
-      companyId,
-    );
-    if (
-      !requesterMembership ||
-      !["owner", "admin"].includes(requesterMembership.role)
-    ) {
+    const requesterMembership = await findMembership(tx, requestedBy, companyId);
+    if (!requesterMembership || !["owner", "admin"].includes(requesterMembership.role)) {
       throw new Error("Unauthorized: only owners and admins can change roles");
     }
 
@@ -255,16 +213,10 @@ export async function updateMemberAccess(
     const newRole = maybePreset
       ? (newRoleOrPreset as MembershipRole)
       : roleForPreset(newRoleOrPreset as PermissionPreset);
-    const permissionPreset =
-      maybePreset ?? (newRoleOrPreset as PermissionPreset);
+    const permissionPreset = maybePreset ?? (newRoleOrPreset as PermissionPreset);
 
-    if (
-      ["owner", "admin"].includes(newRole) &&
-      requesterMembership.role !== "owner"
-    ) {
-      throw new Error(
-        "Unauthorized: only owners can promote to owner or admin",
-      );
+    if (["owner", "admin"].includes(newRole) && requesterMembership.role !== "owner") {
+      throw new Error("Unauthorized: only owners can promote to owner or admin");
     }
 
     const targetMembership = await findMembership(tx, userId, companyId);
@@ -277,12 +229,7 @@ export async function updateMemberAccess(
       const owners = await tx
         .select({ id: memberships.id })
         .from(memberships)
-        .where(
-          and(
-            eq(memberships.companyId, companyId),
-            eq(memberships.role, "owner"),
-          ),
-        );
+        .where(and(eq(memberships.companyId, companyId), eq(memberships.role, "owner")));
 
       if (owners.length <= 1) {
         throw new DomainError("cannotDemoteLastOwner");
@@ -346,10 +293,7 @@ export async function createCompanyForUser(
     const result = await createOwnedCompany(tx, userId, companyName);
 
     // Switch user's active company to the new one
-    await tx
-      .update(users)
-      .set({ companyId: result.companyId })
-      .where(eq(users.id, userId));
+    await tx.update(users).set({ companyId: result.companyId }).where(eq(users.id, userId));
 
     return result;
   });
@@ -370,10 +314,7 @@ export async function switchCompany(
   }
 
   // Update active company pointer
-  await db
-    .update(users)
-    .set({ companyId: targetCompanyId })
-    .where(eq(users.id, userId));
+  await db.update(users).set({ companyId: targetCompanyId }).where(eq(users.id, userId));
 
   // Get company name
   const company = await db.query.companies.findFirst({

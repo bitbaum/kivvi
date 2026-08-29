@@ -16,9 +16,7 @@ export function ProductIssuesTable({ issues }: { issues: ProductIssue[] }) {
             <tr key={`${p.id}-${p.issue}`} className="hover:bg-muted/30">
               <td className="px-4 py-3">
                 <p className="font-medium">{p.name}</p>
-                <p className="text-xs text-muted-foreground font-mono">
-                  {p.articleNumber ?? "–"}
-                </p>
+                <p className="text-xs text-muted-foreground font-mono">{p.articleNumber ?? "–"}</p>
               </td>
               <td className="px-4 py-3 text-sm text-warning">
                 {tDQ(`productIssue_${p.issue}` as Parameters<typeof tDQ>[0])}

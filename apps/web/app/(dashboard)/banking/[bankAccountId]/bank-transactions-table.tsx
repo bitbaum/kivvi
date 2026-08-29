@@ -71,9 +71,7 @@ export async function BankTransactionsTable({
                     key={txn.id}
                     className="flex flex-col gap-2 p-4 sm:grid sm:grid-cols-[100px_1fr_150px_120px_120px_180px] sm:items-center sm:gap-4"
                   >
-                    <div className="text-sm text-muted-foreground">
-                      {formatDate(txn.date)}
-                    </div>
+                    <div className="text-sm text-muted-foreground">{formatDate(txn.date)}</div>
                     <div className="text-sm">{txn.description || "-"}</div>
                     <div className="truncate text-sm font-mono text-muted-foreground">
                       {txn.reference || "-"}
@@ -88,9 +86,7 @@ export async function BankTransactionsTable({
                       {formatCurrency(amount, currency)}
                     </div>
                     <div className="text-right text-sm text-muted-foreground">
-                      {txn.balance
-                        ? formatCurrency(txn.balance, currency)
-                        : "-"}
+                      {txn.balance ? formatCurrency(txn.balance, currency) : "-"}
                     </div>
                     <div className="flex items-center justify-center">
                       {txn.isReconciled && txn.matchedDocument ? (
@@ -117,10 +113,7 @@ export async function BankTransactionsTable({
                             <AlertCircle className="h-3 w-3" />
                             {t("unreconciled")}
                           </span>
-                          <ReconcileButton
-                            transactionId={txn.id}
-                            isReconciled={false}
-                          />
+                          <ReconcileButton transactionId={txn.id} isReconciled={false} />
                         </div>
                       )}
                     </div>
@@ -139,11 +132,7 @@ export async function BankTransactionsTable({
         labels={{
           showing: tc(
             "showing",
-            paginationRange(
-              transactions.page,
-              transactions.pageSize,
-              transactions.total,
-            ),
+            paginationRange(transactions.page, transactions.pageSize, transactions.total),
           ),
           previous: tc("previous"),
           next: tc("next"),

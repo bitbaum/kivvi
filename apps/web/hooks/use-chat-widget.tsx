@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
 import { useChat, type ChatMessage } from "@/hooks/use-chat";
 import { useModelSelection } from "@/hooks/use-model-selection";
 import type { ModelOption } from "@/components/model-selector";
@@ -49,14 +42,13 @@ export function ChatWidgetProvider({ children }: { children: ReactNode }) {
     displayName: modelDisplayName,
   } = useModelSelection();
 
-  const { messages, input, setInput, isLoading, sendMessage, clearMessages } =
-    useChat({
-      providerId: selection.providerId,
-      modelId: selection.modelId,
-      onError: (error) => {
-        logger.warn("Chat widget error", error);
-      },
-    });
+  const { messages, input, setInput, isLoading, sendMessage, clearMessages } = useChat({
+    providerId: selection.providerId,
+    modelId: selection.modelId,
+    onError: (error) => {
+      logger.warn("Chat widget error", error);
+    },
+  });
 
   // Fetch available models once
   useEffect(() => {

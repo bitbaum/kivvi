@@ -4,10 +4,7 @@ import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { StatusBadge } from "./status-badge";
-import {
-  DocumentStatusActions,
-  DocumentConvertActions,
-} from "./document-actions";
+import { DocumentStatusActions, DocumentConvertActions } from "./document-actions";
 import { DocumentDeleteButton } from "./document-delete";
 import { SendEmailButton } from "./send-email-dialog";
 import { DocumentDuplicateButton } from "./document-duplicate";
@@ -46,9 +43,7 @@ export async function DocumentDetail({ doc, config }: DocumentDetailProps) {
   const t = await getTranslations("documents");
   const tc = await getTranslations("common");
 
-  const outstandingDecimal = config.hasPayments
-    ? calculateOutstandingAmount(doc)
-    : new Decimal(0);
+  const outstandingDecimal = config.hasPayments ? calculateOutstandingAmount(doc) : new Decimal(0);
   const outstanding = outstandingDecimal.toFixed(2);
   const { isOverdue, daysOverdue } = config.hasPayments
     ? getOverdueInfo(doc)
@@ -79,11 +74,7 @@ export async function DocumentDetail({ doc, config }: DocumentDetailProps) {
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-3xl font-bold">{doc.number}</h1>
-              <StatusBadge
-                status={doc.status}
-                isOverdue={!!isOverdue}
-                size="md"
-              />
+              <StatusBadge status={doc.status} isOverdue={!!isOverdue} size="md" />
             </div>
             {doc.contact && (
               <Link
@@ -107,17 +98,10 @@ export async function DocumentDetail({ doc, config }: DocumentDetailProps) {
             PDF
           </a>
           <PrintButton documentId={doc.id} />
-          <DocumentDuplicateButton
-            documentId={doc.id}
-            documentType={doc.type}
-          />
-          {!TERMINAL_STATUSES.includes(doc.status) &&
-            doc.status !== STATUS.DRAFT && (
-              <SendEmailButton
-                documentId={doc.id}
-                defaultEmail={doc.contact?.email || undefined}
-              />
-            )}
+          <DocumentDuplicateButton documentId={doc.id} documentType={doc.type} />
+          {!TERMINAL_STATUSES.includes(doc.status) && doc.status !== STATUS.DRAFT && (
+            <SendEmailButton documentId={doc.id} defaultEmail={doc.contact?.email || undefined} />
+          )}
           {doc.status === STATUS.DRAFT && (
             <>
               <Link
@@ -133,20 +117,12 @@ export async function DocumentDetail({ doc, config }: DocumentDetailProps) {
               />
             </>
           )}
-          <DocumentStatusActions
-            documentId={doc.id}
-            currentStatus={doc.status}
-            config={config}
-          />
-          {!TERMINAL_STATUSES.includes(doc.status) &&
-            doc.status !== STATUS.DRAFT && (
-              <DocumentConvertActions documentId={doc.id} config={config} />
-            )}
+          <DocumentStatusActions documentId={doc.id} currentStatus={doc.status} config={config} />
+          {!TERMINAL_STATUSES.includes(doc.status) && doc.status !== STATUS.DRAFT && (
+            <DocumentConvertActions documentId={doc.id} config={config} />
+          )}
           {doc.status === STATUS.DRAFT && (
-            <DocumentDeleteButton
-              documentId={doc.id}
-              redirectTo={config.basePath}
-            />
+            <DocumentDeleteButton documentId={doc.id} redirectTo={config.basePath} />
           )}
         </div>
       </div>

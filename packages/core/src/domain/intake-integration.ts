@@ -29,10 +29,7 @@ export async function createInventoryItemsFromIntake(
   },
 ): Promise<{ created: number }> {
   // Fetch line items for this intake document
-  const items = await tx
-    .select()
-    .from(documentItems)
-    .where(eq(documentItems.documentId, doc.id));
+  const items = await tx.select().from(documentItems).where(eq(documentItems.documentId, doc.id));
 
   if (items.length === 0) return { created: 0 };
 
@@ -43,8 +40,7 @@ export async function createInventoryItemsFromIntake(
 
   for (const item of items) {
     const qty = Math.max(1, Math.floor(parseFloat(item.quantity || "1")));
-    const unitCost =
-      item.unitPrice && item.unitPrice !== "0" ? item.unitPrice : null;
+    const unitCost = item.unitPrice && item.unitPrice !== "0" ? item.unitPrice : null;
 
     if (qty <= MAX_INDIVIDUAL_ITEMS) {
       // Create one inventory item per unit (individually tracked)

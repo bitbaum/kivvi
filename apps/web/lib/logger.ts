@@ -1,4 +1,4 @@
-import * as Sentry from '@sentry/nextjs';
+import * as Sentry from "@sentry/nextjs";
 
 /**
  * Structured logger with Sentry integration.
@@ -13,13 +13,13 @@ export const logger = {
    * Use for: server errors, API failures, payment issues, cron failures.
    */
   error(message: string, error?: unknown, context?: Record<string, unknown>) {
-    console.error(`[error] ${message}`, error || '');
+    console.error(`[error] ${message}`, error || "");
     if (error instanceof Error) {
       Sentry.captureException(error, { extra: { message, ...context } });
     } else if (error !== undefined) {
-      Sentry.captureMessage(message, { level: 'error', extra: { error, ...context } });
+      Sentry.captureMessage(message, { level: "error", extra: { error, ...context } });
     } else {
-      Sentry.captureMessage(message, { level: 'error', extra: context });
+      Sentry.captureMessage(message, { level: "error", extra: context });
     }
   },
 
@@ -39,7 +39,7 @@ export const logger = {
    * Log info. Development only.
    */
   info(message: string, ...args: unknown[]) {
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== "production") {
       console.info(`[info] ${message}`, ...args);
     }
   },

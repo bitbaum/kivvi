@@ -7,13 +7,7 @@
 export interface MappingField {
   source: string;
   target: string;
-  transform?:
-    | "swissDate"
-    | "swissNumber"
-    | "trim"
-    | "contactType"
-    | "productType"
-    | "unit";
+  transform?: "swissDate" | "swissNumber" | "trim" | "contactType" | "productType" | "unit";
 }
 
 export interface MappingProfile {
@@ -226,12 +220,7 @@ export const KIVITENDO_AR_INVOICE_PROFILE: MappingProfile = {
 export const KIVITENDO_AP_INVOICE_PROFILE: MappingProfile = {
   name: "Kivitendo Purchase Invoices",
   entityType: "purchase_invoice",
-  signatureColumns: [
-    "Buchungsnummer",
-    "Rechnung",
-    "Lieferant",
-    "Lieferantennummer",
-  ],
+  signatureColumns: ["Buchungsnummer", "Rechnung", "Lieferant", "Lieferantennummer"],
   fields: [
     { source: "Buchungsnummer", target: "number", transform: "trim" },
     { source: "Rechnung", target: "legacyNumber", transform: "trim" },
@@ -253,13 +242,7 @@ export const KIVITENDO_AP_INVOICE_PROFILE: MappingProfile = {
 export const KIVITENDO_GL_PROFILE: MappingProfile = {
   name: "Kivitendo General Ledger",
   entityType: "journal_entry",
-  signatureColumns: [
-    "Buchungsdatum",
-    "Sollkonto",
-    "Habenkonto",
-    "Soll",
-    "Haben",
-  ],
+  signatureColumns: ["Buchungsdatum", "Sollkonto", "Habenkonto", "Soll", "Haben"],
   fields: [
     { source: "Buchungsdatum", target: "date", transform: "swissDate" },
     { source: "Buchungsnummer", target: "reference", transform: "trim" },
@@ -416,10 +399,7 @@ export function detectMappingProfile(
  * Check if a row is a subtotal/empty row that should be filtered out.
  * Kivitendo sometimes exports subtotal rows with empty key columns.
  */
-export function isSubtotalRow(
-  row: Record<string, string>,
-  keyColumn: string,
-): boolean {
+export function isSubtotalRow(row: Record<string, string>, keyColumn: string): boolean {
   const value = row[keyColumn];
   return !value || value.trim() === "";
 }

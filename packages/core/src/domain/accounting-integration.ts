@@ -19,20 +19,14 @@ export const recordConsignorPayoutSchema = z.object({
   description: z.string().optional(),
 });
 
-export type RecordConsignorPayoutInput = z.infer<
-  typeof recordConsignorPayoutSchema
->;
+export type RecordConsignorPayoutInput = z.infer<typeof recordConsignorPayoutSchema>;
 
 /**
  * Domain wrapper: validate input and post a consignor payout journal entry.
  * Thin boundary over createConsignorPayoutJournalEntry so the Server Action
  * stays free of business logic.
  */
-export async function recordConsignorPayout(
-  db: Database,
-  companyId: string,
-  input: unknown,
-) {
+export async function recordConsignorPayout(db: Database, companyId: string, input: unknown) {
   const validated = recordConsignorPayoutSchema.parse(input);
   return createConsignorPayoutJournalEntry(db, companyId, {
     reference: validated.reference,
@@ -55,10 +49,7 @@ export function buildInvoiceRevenueLines(
   const totalsByAccount = new Map<string, Decimal>();
 
   if (items.length === 0) {
-    totalsByAccount.set(
-      fallbackAccountCode,
-      new Decimal(fallbackSubtotal || "0"),
-    );
+    totalsByAccount.set(fallbackAccountCode, new Decimal(fallbackSubtotal || "0"));
   } else {
     for (const item of items) {
       const code = item.revenueAccountCode;
@@ -98,10 +89,7 @@ export async function createInvoiceSentJournalEntry(
 
   // Resolve each line's Erlöskonto via the posting-group chain (1.1).
   const resolvedItems = await resolveLineRevenueAccounts(db, companyId, doc.id);
-  const revenueLines = buildInvoiceRevenueLines(
-    resolvedItems,
-    doc.subtotal,
-  ).map((line) => ({
+  const revenueLines = buildInvoiceRevenueLines(resolvedItems, doc.subtotal).map((line) => ({
     ...line,
     description: `${line.description} ${doc.number}`,
   }));
@@ -161,10 +149,7 @@ export async function createCreditNoteSentJournalEntry(
   // Debit the SAME Erlöskonten the original sale credited (resolved per line),
   // not a flat 3000 — a Reparatur credit note must reduce 3400, not 3000.
   const resolvedItems = await resolveLineRevenueAccounts(db, companyId, doc.id);
-  const revenueDebits = buildInvoiceRevenueLines(
-    resolvedItems,
-    doc.subtotal,
-  ).map((l) => ({
+  const revenueDebits = buildInvoiceRevenueLines(resolvedItems, doc.subtotal).map((l) => ({
     accountCode: l.accountCode,
     debit: l.credit,
     description: `Credit note ${doc.number}`,
@@ -224,15 +209,8 @@ export async function createCancellationReversalJournalEntry(
   if (doc.type === "invoice") {
     // Reverse invoice sent: Debit Revenue (per resolved Erlöskonto) + VAT, Credit AR
     const { debitAccount, vatAccount } = ACCOUNT_MAPPINGS.invoiceSent;
-    const resolvedItems = await resolveLineRevenueAccounts(
-      db,
-      companyId,
-      doc.id,
-    );
-    const revenueDebits = buildInvoiceRevenueLines(
-      resolvedItems,
-      doc.subtotal,
-    ).map((l) => ({
+    const resolvedItems = await resolveLineRevenueAccounts(db, companyId, doc.id);
+    const revenueDebits = buildInvoiceRevenueLines(resolvedItems, doc.subtotal).map((l) => ({
       accountCode: l.accountCode,
       debit: l.credit,
       description: `Cancel ${doc.number}`,
@@ -270,8 +248,7 @@ export async function createCancellationReversalJournalEntry(
 
   if (doc.type === "purchase_invoice") {
     // Reverse purchase confirmed: Debit AP, Credit Expense + VAT
-    const { expenseAccount, creditAccount, vatAccount } =
-      ACCOUNT_MAPPINGS.purchaseInvoiceConfirmed;
+    const { expenseAccount, creditAccount, vatAccount } = ACCOUNT_MAPPINGS.purchaseInvoiceConfirmed;
     const lines: Array<{
       accountCode: string;
       debit?: string;
@@ -334,11 +311,9 @@ export async function createConsignmentSettlementJournalEntry(
     return undefined;
   }
 
-  const { expenseAccount, liabilityAccount } =
-    ACCOUNT_MAPPINGS.consignmentSettlement;
+  const { expenseAccount, liabilityAccount } = ACCOUNT_MAPPINGS.consignmentSettlement;
 
-  const itemLabel =
-    input.itemNumbers.length > 0 ? ` (${input.itemNumbers.join(", ")})` : "";
+  const itemLabel = input.itemNumbers.length > 0 ? ` (${input.itemNumbers.join(", ")})` : "";
 
   return createAutoJournalEntry(db, companyId, {
     date: input.date,
@@ -377,10 +352,7 @@ export const recordMarketplaceAgencySaleSchema = z
     grossAmount: z
       .string()
       .regex(POSITIVE_AMOUNT, "Gross amount must be a decimal like 100.00")
-      .refine(
-        (v) => new Decimal(v).gt(0),
-        "Gross amount must be greater than 0",
-      ),
+      .refine((v) => new Decimal(v).gt(0), "Gross amount must be greater than 0"),
     // The platform's fee, net of VAT. May be 0 (e.g. non-profit 0% commission).
     commissionAmount: z
       .string()
@@ -400,11 +372,7 @@ export const recordMarketplaceAgencySaleSchema = z
     description: z.string().optional(),
   })
   .refine(
-    (v) =>
-      new Decimal(v.grossAmount)
-        .minus(v.commissionAmount)
-        .minus(v.commissionVatAmount)
-        .gte(0),
+    (v) => new Decimal(v.grossAmount).minus(v.commissionAmount).minus(v.commissionVatAmount).gte(0),
     {
       message: "Commission + VAT cannot exceed the gross amount",
       path: ["commissionAmount"],
@@ -419,15 +387,12 @@ export const recordMarketplaceAgencySaleSchema = z
       return computedSeller.minus(v.sellerPayout).abs().lte(0.01);
     },
     {
-      message:
-        "sellerPayout must equal grossAmount − commissionAmount − commissionVatAmount",
+      message: "sellerPayout must equal grossAmount − commissionAmount − commissionVatAmount",
       path: ["sellerPayout"],
     },
   );
 
-export type RecordMarketplaceAgencySaleInput = z.infer<
-  typeof recordMarketplaceAgencySaleSchema
->;
+export type RecordMarketplaceAgencySaleInput = z.infer<typeof recordMarketplaceAgencySaleSchema>;
 
 /** Validation for paying out the seller's share of a facilitated sale. */
 export const recordMarketplacePayoutSchema = z.object({
@@ -440,19 +405,13 @@ export const recordMarketplacePayoutSchema = z.object({
   description: z.string().optional(),
 });
 
-export type RecordMarketplacePayoutInput = z.infer<
-  typeof recordMarketplacePayoutSchema
->;
+export type RecordMarketplacePayoutInput = z.infer<typeof recordMarketplacePayoutSchema>;
 
 /**
  * Domain wrapper: validate + book a facilitated (P2P) marketplace sale.
  * Thin boundary so Server Actions / API routes / AI stay logic-free.
  */
-export async function recordMarketplaceAgencySale(
-  db: Database,
-  companyId: string,
-  input: unknown,
-) {
+export async function recordMarketplaceAgencySale(db: Database, companyId: string, input: unknown) {
   const v = recordMarketplaceAgencySaleSchema.parse(input);
   return createMarketplaceAgencySaleJournalEntry(db, companyId, {
     orderReference: v.orderReference,
@@ -466,11 +425,7 @@ export async function recordMarketplaceAgencySale(
 }
 
 /** Domain wrapper: validate + book a marketplace seller payout. */
-export async function recordMarketplacePayout(
-  db: Database,
-  companyId: string,
-  input: unknown,
-) {
+export async function recordMarketplacePayout(db: Database, companyId: string, input: unknown) {
   const v = recordMarketplacePayoutSchema.parse(input);
   return createMarketplacePayoutJournalEntry(db, companyId, {
     reference: v.reference,
@@ -505,12 +460,8 @@ export async function createMarketplaceAgencySaleJournalEntry(
     description?: string;
   },
 ) {
-  const {
-    bankAccount,
-    liabilityAccount,
-    commissionRevenueAccount,
-    vatAccount,
-  } = ACCOUNT_MAPPINGS.marketplaceAgencySale;
+  const { bankAccount, liabilityAccount, commissionRevenueAccount, vatAccount } =
+    ACCOUNT_MAPPINGS.marketplaceAgencySale;
 
   const gross = new Decimal(input.grossAmount);
   const commission = new Decimal(input.commissionAmount || "0");
@@ -555,8 +506,7 @@ export async function createMarketplaceAgencySaleJournalEntry(
   return createAutoJournalEntry(db, companyId, {
     date: input.date,
     reference: input.orderReference,
-    description:
-      input.description || `Marketplace agency sale: ${input.orderReference}`,
+    description: input.description || `Marketplace agency sale: ${input.orderReference}`,
     sourceType: "marketplace_agency_sale",
     sourceId: input.sourceId,
     lines,
@@ -653,9 +603,7 @@ export async function createPaymentReceivedJournalEntry(
   payment: { amount: string; date: Date },
 ) {
   const isSales = doc.type === "invoice";
-  const mapping = isSales
-    ? ACCOUNT_MAPPINGS.paymentReceived
-    : ACCOUNT_MAPPINGS.paymentMade;
+  const mapping = isSales ? ACCOUNT_MAPPINGS.paymentReceived : ACCOUNT_MAPPINGS.paymentMade;
 
   return createAutoJournalEntry(db, companyId, {
     date: payment.date,
@@ -696,8 +644,7 @@ export async function createPurchaseInvoiceJournalEntry(
     costCenterId?: string | null;
   },
 ) {
-  const { expenseAccount, creditAccount, vatAccount } =
-    ACCOUNT_MAPPINGS.purchaseInvoiceConfirmed;
+  const { expenseAccount, creditAccount, vatAccount } = ACCOUNT_MAPPINGS.purchaseInvoiceConfirmed;
 
   const lines: Array<{
     accountCode: string;

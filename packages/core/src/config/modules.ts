@@ -46,9 +46,7 @@ export const TOGGLEABLE_MODULES = [
 export type ModuleKey = (typeof TOGGLEABLE_MODULES)[number]["key"];
 
 /** All toggleable module keys, in registry order. */
-export const TOGGLEABLE_MODULE_KEYS = TOGGLEABLE_MODULES.map(
-  (m) => m.key,
-) as ModuleKey[];
+export const TOGGLEABLE_MODULE_KEYS = TOGGLEABLE_MODULES.map((m) => m.key) as ModuleKey[];
 
 /** Type guard: is `key` a module that can actually be toggled off? */
 export function isToggleableModule(key: string): key is ModuleKey {
@@ -76,9 +74,7 @@ export function isModuleEnabled(
 export function getEnabledToggleableModules(
   enabledModules: readonly string[] | undefined,
 ): ModuleKey[] {
-  return TOGGLEABLE_MODULE_KEYS.filter((key) =>
-    isModuleEnabled(enabledModules, key),
-  );
+  return TOGGLEABLE_MODULE_KEYS.filter((key) => isModuleEnabled(enabledModules, key));
 }
 
 /**

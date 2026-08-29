@@ -28,16 +28,11 @@ interface DocumentDetailSidebarProps {
   config: DocumentTypeConfig;
 }
 
-export async function DocumentDetailSidebar({
-  doc,
-  config,
-}: DocumentDetailSidebarProps) {
+export async function DocumentDetailSidebar({ doc, config }: DocumentDetailSidebarProps) {
   const t = await getTranslations("documents");
   const tc = await getTranslations("common");
 
-  const outstandingDecimal = config.hasPayments
-    ? calculateOutstandingAmount(doc)
-    : new Decimal(0);
+  const outstandingDecimal = config.hasPayments ? calculateOutstandingAmount(doc) : new Decimal(0);
   const outstanding = outstandingDecimal.toFixed(2);
   const totalPaid = config.hasPayments
     ? new Decimal(doc.total || "0").minus(outstandingDecimal).toFixed(2)
@@ -58,9 +53,7 @@ export async function DocumentDetailSidebar({
   );
 
   // Impact callout: sum CO2 for all line items linked to inventory items
-  const inventoryLineItems = (doc.items ?? []).filter(
-    (item) => item.inventoryItemId,
-  );
+  const inventoryLineItems = (doc.items ?? []).filter((item) => item.inventoryItemId);
   const totalCo2Kg = inventoryLineItems.reduce(
     (sum, item) =>
       sum +
@@ -73,12 +66,10 @@ export async function DocumentDetailSidebar({
     (doc.type === "invoice" || doc.type === "order" || doc.type === "quote");
 
   // Intake labels resolve through config maps (SSOT) instead of inline branching.
-  const intakeContactRoleKey = (INTAKE_CONTACT_ROLE_LABEL_KEYS[
-    doc.intakeSource ?? ""
-  ] ?? INTAKE_CONTACT_ROLE_FALLBACK) as Parameters<typeof t>[0];
-  const intakeSourceLabelKey = (INTAKE_SOURCE_LABEL_KEYS[
-    doc.intakeSource ?? ""
-  ] ?? INTAKE_SOURCE_LABEL_FALLBACK) as Parameters<typeof t>[0];
+  const intakeContactRoleKey = (INTAKE_CONTACT_ROLE_LABEL_KEYS[doc.intakeSource ?? ""] ??
+    INTAKE_CONTACT_ROLE_FALLBACK) as Parameters<typeof t>[0];
+  const intakeSourceLabelKey = (INTAKE_SOURCE_LABEL_KEYS[doc.intakeSource ?? ""] ??
+    INTAKE_SOURCE_LABEL_FALLBACK) as Parameters<typeof t>[0];
 
   return (
     <div className="space-y-6">
@@ -87,9 +78,7 @@ export async function DocumentDetailSidebar({
         <div className="rounded-xl border border-success/30 bg-success/5 p-4">
           <div className="mb-2 flex items-center gap-2">
             <Recycle className="h-4 w-4 text-success" />
-            <span className="text-sm font-semibold text-success">
-              {t("saleImpactTitle")}
-            </span>
+            <span className="text-sm font-semibold text-success">{t("saleImpactTitle")}</span>
           </div>
           <p className="mb-2 text-sm text-muted-foreground">
             {t("saleImpactDesc", { count: inventoryLineItems.length })}
@@ -124,9 +113,7 @@ export async function DocumentDetailSidebar({
               </div>
               <div className="flex justify-between border-t pt-2 font-bold">
                 <span>{t("outstanding")}</span>
-                <span
-                  className={outstandingDecimal.gt(0) ? "text-destructive" : ""}
-                >
+                <span className={outstandingDecimal.gt(0) ? "text-destructive" : ""}>
                   {formatCurrency(outstanding)}
                 </span>
               </div>
@@ -140,24 +127,16 @@ export async function DocumentDetailSidebar({
         <div className="rounded-xl border bg-card p-6">
           <h2 className="mb-4 font-semibold">{t("payments")}</h2>
           {!doc.payments || doc.payments.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              {t("noPaymentsYet")}
-            </p>
+            <p className="text-sm text-muted-foreground">{t("noPaymentsYet")}</p>
           ) : (
             <div className="space-y-3">
               {doc.payments.map((payment) => (
-                <div
-                  key={payment.id}
-                  className="flex items-start justify-between text-sm"
-                >
+                <div key={payment.id} className="flex items-start justify-between text-sm">
                   <div>
-                    <p className="font-medium">
-                      {formatCurrency(payment.amount)}
-                    </p>
+                    <p className="font-medium">{formatCurrency(payment.amount)}</p>
                     <p className="text-xs text-muted-foreground">
                       {formatDate(payment.date)}
-                      {payment.method &&
-                        ` · ${payment.method.replace("_", " ")}`}
+                      {payment.method && ` · ${payment.method.replace("_", " ")}`}
                     </p>
                   </div>
                   <CheckCircle2 className="h-4 w-4 text-success" />
@@ -165,16 +144,11 @@ export async function DocumentDetailSidebar({
               ))}
             </div>
           )}
-          {!TERMINAL_STATUSES.includes(doc.status) &&
-            doc.status !== STATUS.DRAFT && (
-              <div className="mt-4 border-t pt-4">
-                <PaymentForm
-                  documentId={doc.id}
-                  outstanding={outstanding}
-                  currency={doc.currency}
-                />
-              </div>
-            )}
+          {!TERMINAL_STATUSES.includes(doc.status) && doc.status !== STATUS.DRAFT && (
+            <div className="mt-4 border-t pt-4">
+              <PaymentForm documentId={doc.id} outstanding={outstanding} currency={doc.currency} />
+            </div>
+          )}
         </div>
       )}
 
@@ -218,12 +192,8 @@ export async function DocumentDetailSidebar({
           </h2>
           <div className="space-y-1 text-sm">
             <p className="font-medium">{doc.contact.name}</p>
-            {doc.contact.email && (
-              <p className="text-muted-foreground">{doc.contact.email}</p>
-            )}
-            {doc.contact.address && (
-              <p className="text-muted-foreground">{doc.contact.address}</p>
-            )}
+            {doc.contact.email && <p className="text-muted-foreground">{doc.contact.email}</p>}
+            {doc.contact.address && <p className="text-muted-foreground">{doc.contact.address}</p>}
             {(doc.contact.postalCode || doc.contact.city) && (
               <p className="text-muted-foreground">
                 {doc.contact.postalCode} {doc.contact.city}
@@ -233,16 +203,12 @@ export async function DocumentDetailSidebar({
           {doc.type === "intake" && doc.intakeSource && (
             <div className="mt-3 space-y-1.5 border-t pt-3 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">
-                  {t("intakeSource")}
-                </span>
+                <span className="text-muted-foreground">{t("intakeSource")}</span>
                 <span>{t(intakeSourceLabelKey)}</span>
               </div>
               {doc.intakeSource === "consignment" && doc.consignmentRate && (
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">
-                    {t("consignmentRate")}
-                  </span>
+                  <span className="text-muted-foreground">{t("consignmentRate")}</span>
                   <span className="font-medium text-warning">
                     {parseFloat(doc.consignmentRate)}%
                   </span>

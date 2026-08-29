@@ -62,8 +62,7 @@ export function MovementForm(props: MovementFormProps) {
     }
 
     const formData = new FormData(e.currentTarget);
-    const warehouseId =
-      fixedWarehouseId ?? (formData.get("warehouseId") as string);
+    const warehouseId = fixedWarehouseId ?? (formData.get("warehouseId") as string);
 
     const input = {
       productId: selectedProduct.id,
@@ -106,10 +105,7 @@ export function MovementForm(props: MovementFormProps) {
   }
 
   return (
-    <div
-      ref={modalRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-    >
+    <div ref={modalRef} className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div
         role="dialog"
         aria-modal="true"
@@ -120,12 +116,7 @@ export function MovementForm(props: MovementFormProps) {
           <h2 id="movement-form-title" className="text-lg font-semibold">
             {t("recordMovement")}
           </h2>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleClose}
-            aria-label={tc("close")}
-          >
+          <Button variant="ghost" size="icon" onClick={handleClose} aria-label={tc("close")}>
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -139,10 +130,7 @@ export function MovementForm(props: MovementFormProps) {
 
           {warehouses && (
             <div>
-              <label
-                htmlFor="movement-warehouse"
-                className="mb-1 block text-sm font-medium"
-              >
+              <label htmlFor="movement-warehouse" className="mb-1 block text-sm font-medium">
                 {t("warehouses")} <span className="text-destructive">*</span>
               </label>
               <FormSelect id="movement-warehouse" name="warehouseId" required>
@@ -157,10 +145,7 @@ export function MovementForm(props: MovementFormProps) {
           )}
 
           <div>
-            <label
-              htmlFor="movement-type"
-              className="mb-1 block text-sm font-medium"
-            >
+            <label htmlFor="movement-type" className="mb-1 block text-sm font-medium">
               {t("movementType")} <span className="text-destructive">*</span>
             </label>
             <FormSelect id="movement-type" name="type" required>
@@ -174,10 +159,7 @@ export function MovementForm(props: MovementFormProps) {
           </div>
 
           <div>
-            <label
-              htmlFor="movement-quantity"
-              className="mb-1 block text-sm font-medium"
-            >
+            <label htmlFor="movement-quantity" className="mb-1 block text-sm font-medium">
               {t("quantity")} <span className="text-destructive">*</span>
             </label>
             <FormInput
@@ -189,16 +171,11 @@ export function MovementForm(props: MovementFormProps) {
               step="0.01"
               placeholder={t("placeholders.quantity")}
             />
-            <p className="mt-1 text-xs text-muted-foreground">
-              {t("quantityHelp")}
-            </p>
+            <p className="mt-1 text-xs text-muted-foreground">{t("quantityHelp")}</p>
           </div>
 
           <div>
-            <label
-              htmlFor="movement-reference"
-              className="mb-1 block text-sm font-medium"
-            >
+            <label htmlFor="movement-reference" className="mb-1 block text-sm font-medium">
               {t("reference")}
             </label>
             <FormInput

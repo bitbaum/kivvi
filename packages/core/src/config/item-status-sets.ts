@@ -12,11 +12,7 @@
  */
 
 /** Item statuses that allow an item to be added to an invoice or POS sale. */
-export const SELLABLE_ITEM_STATUSES = [
-  "ready_for_sale",
-  "listed",
-  "reserved",
-] as const;
+export const SELLABLE_ITEM_STATUSES = ["ready_for_sale", "listed", "reserved"] as const;
 
 /** Item statuses visible in the public shop / external marketplaces (excludes reserved). */
 export const PUBLIC_ITEM_STATUSES = ["ready_for_sale", "listed"] as const;
@@ -38,9 +34,4 @@ export const DISPOSED_ITEM_STATUSES = ["sold", "donated"] as const;
 export const TERMINAL_ITEM_STATUSES = ["sold", "donated", "recycled"] as const;
 
 /** Conditions shown in the public shop filter — excludes untested, parts_only, scrap. */
-export const SHOP_CONDITION_VALUES = [
-  "like_new",
-  "good",
-  "fair",
-  "poor",
-] as const;
+export const SHOP_CONDITION_VALUES = ["like_new", "good", "fair", "poor"] as const;

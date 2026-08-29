@@ -43,9 +43,7 @@ export default async function CircularEconomyPage() {
   const businessModels = t.raw("businessModels") as BusinessModel[];
   const dimensions = t.raw("dimensions") as Dimension[];
 
-  const hrefById = Object.fromEntries(
-    PARTICIPANT_HREFS.map((p) => [p.id, p.href]),
-  );
+  const hrefById = Object.fromEntries(PARTICIPANT_HREFS.map((p) => [p.id, p.href]));
 
   return (
     <>
@@ -56,9 +54,7 @@ export default async function CircularEconomyPage() {
             <Recycle className="h-8 w-8 text-primary" />
           </div>
         </div>
-        <h1 className="mb-4 text-4xl font-bold sm:text-5xl">
-          {t("hero.title")}
-        </h1>
+        <h1 className="mb-4 text-4xl font-bold sm:text-5xl">{t("hero.title")}</h1>
         <p className="text-xl text-muted-foreground">{t("hero.description")}</p>
       </section>
 
@@ -85,26 +81,16 @@ export default async function CircularEconomyPage() {
       <section className="mx-auto max-w-3xl py-8">
         <div className="rounded-2xl border bg-card p-8">
           <h2 className="mb-4 text-xl font-bold">{t("definition.title")}</h2>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            {t("definition.paragraph1")}
-          </p>
-          <p className="text-muted-foreground leading-relaxed mb-4">
-            {t("definition.paragraph2")}
-          </p>
-          <p className="font-medium text-foreground">
-            {t("definition.conclusion")}
-          </p>
+          <p className="text-muted-foreground leading-relaxed mb-4">{t("definition.paragraph1")}</p>
+          <p className="text-muted-foreground leading-relaxed mb-4">{t("definition.paragraph2")}</p>
+          <p className="font-medium text-foreground">{t("definition.conclusion")}</p>
         </div>
       </section>
 
       {/* Participants */}
       <section id="teilnehmer" className="mx-auto max-w-4xl py-16 scroll-mt-16">
-        <h2 className="mb-3 text-2xl font-bold">
-          {t("participantsSection.title")}
-        </h2>
-        <p className="mb-8 text-muted-foreground">
-          {t("participantsSection.intro")}
-        </p>
+        <h2 className="mb-3 text-2xl font-bold">{t("participantsSection.title")}</h2>
+        <p className="mb-8 text-muted-foreground">{t("participantsSection.intro")}</p>
         <div className="grid gap-4 sm:grid-cols-2">
           {participants.map((p) => {
             const href = hrefById[p.id] ?? null;
@@ -125,9 +111,7 @@ export default async function CircularEconomyPage() {
                   {p.description}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  <span className="font-medium">
-                    {t("participantsSection.typicalGoods")}
-                  </span>{" "}
+                  <span className="font-medium">{t("participantsSection.typicalGoods")}</span>{" "}
                   {p.examples}
                 </p>
               </div>
@@ -137,39 +121,25 @@ export default async function CircularEconomyPage() {
       </section>
 
       {/* Business models */}
-      <section
-        id="geschaeftsmodelle"
-        className="mx-auto max-w-4xl py-8 scroll-mt-16"
-      >
-        <h2 className="mb-3 text-2xl font-bold">
-          {t("businessModelsSection.title")}
-        </h2>
-        <p className="mb-8 text-muted-foreground">
-          {t("businessModelsSection.intro")}
-        </p>
+      <section id="geschaeftsmodelle" className="mx-auto max-w-4xl py-8 scroll-mt-16">
+        <h2 className="mb-3 text-2xl font-bold">{t("businessModelsSection.title")}</h2>
+        <p className="mb-8 text-muted-foreground">{t("businessModelsSection.intro")}</p>
         <div className="space-y-4">
           {businessModels.map((m) => (
-            <div
-              key={m.name}
-              className="rounded-xl border bg-card overflow-hidden"
-            >
+            <div key={m.name} className="rounded-xl border bg-card overflow-hidden">
               <div className="border-b px-6 py-4">
                 <h3 className="font-semibold">{m.name}</h3>
                 <p className="text-xs text-muted-foreground mt-0.5">{m.who}</p>
               </div>
               <div className="grid sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x">
                 <div className="px-6 py-4">
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {m.description}
-                  </p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{m.description}</p>
                 </div>
                 <div className="px-6 py-4 bg-muted/30">
                   <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">
                     {t("businessModelsSection.accountingHeader")}
                   </p>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {m.accounting}
-                  </p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{m.accounting}</p>
                 </div>
               </div>
             </div>
@@ -178,22 +148,12 @@ export default async function CircularEconomyPage() {
       </section>
 
       {/* What makes circular different */}
-      <section
-        id="dimensionen"
-        className="mx-auto max-w-4xl py-16 scroll-mt-16"
-      >
-        <h2 className="mb-3 text-2xl font-bold">
-          {t("dimensionsSection.title")}
-        </h2>
-        <p className="mb-8 text-muted-foreground">
-          {t("dimensionsSection.intro")}
-        </p>
+      <section id="dimensionen" className="mx-auto max-w-4xl py-16 scroll-mt-16">
+        <h2 className="mb-3 text-2xl font-bold">{t("dimensionsSection.title")}</h2>
+        <p className="mb-8 text-muted-foreground">{t("dimensionsSection.intro")}</p>
         <div className="space-y-4">
           {dimensions.map((d, i) => (
-            <div
-              key={d.title}
-              className="rounded-xl border bg-card overflow-hidden"
-            >
+            <div key={d.title} className="rounded-xl border bg-card overflow-hidden">
               <div className="border-b px-6 py-3 flex items-center gap-3">
                 <span className="text-xs font-bold text-muted-foreground">
                   {String(i + 1).padStart(2, "0")}
@@ -205,9 +165,7 @@ export default async function CircularEconomyPage() {
                   <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     {t("dimensionsSection.headerLinear")}
                   </p>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {d.linear}
-                  </p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{d.linear}</p>
                 </div>
                 <div className="px-6 py-4 bg-primary/5">
                   <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider text-primary/70">
@@ -234,9 +192,7 @@ export default async function CircularEconomyPage() {
             <h3 className="font-bold text-lg mb-2 group-hover:text-primary transition-colors">
               {t("bridges.whyKivvi.title")}
             </h3>
-            <p className="text-sm text-muted-foreground">
-              {t("bridges.whyKivvi.description")}
-            </p>
+            <p className="text-sm text-muted-foreground">{t("bridges.whyKivvi.description")}</p>
             <div className="mt-4 flex items-center gap-1 text-sm font-medium text-primary">
               {t("bridges.whyKivvi.cta")} <ArrowRight className="h-3 w-3" />
             </div>
@@ -251,9 +207,7 @@ export default async function CircularEconomyPage() {
             <h3 className="font-bold text-lg mb-2 group-hover:text-primary transition-colors">
               {t("bridges.howItWorks.title")}
             </h3>
-            <p className="text-sm text-muted-foreground">
-              {t("bridges.howItWorks.description")}
-            </p>
+            <p className="text-sm text-muted-foreground">{t("bridges.howItWorks.description")}</p>
             <div className="mt-4 flex items-center gap-1 text-sm font-medium text-primary">
               {t("bridges.howItWorks.cta")} <ArrowRight className="h-3 w-3" />
             </div>

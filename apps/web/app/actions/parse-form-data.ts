@@ -7,7 +7,7 @@ export function parseFormData(formData: FormData): Record<string, string | null>
   const obj: Record<string, string | null> = {};
   formData.forEach((value, key) => {
     const str = value.toString().trim();
-    obj[key] = str === '' ? null : str;
+    obj[key] = str === "" ? null : str;
   });
   return obj;
 }

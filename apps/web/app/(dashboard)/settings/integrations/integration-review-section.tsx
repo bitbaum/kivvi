@@ -22,11 +22,7 @@ interface IntegrationReviewItem {
   url: string | null;
 }
 
-export function IntegrationReviewSection({
-  items,
-}: {
-  items: IntegrationReviewItem[];
-}) {
+export function IntegrationReviewSection({ items }: { items: IntegrationReviewItem[] }) {
   const t = useTranslations("settings.integrations.review");
   const [isPending, startTransition] = useTransition();
 
@@ -47,13 +43,9 @@ export function IntegrationReviewSection({
       <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h3 className="font-semibold">{t("title")}</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {t("description")}
-          </p>
+          <p className="mt-1 text-sm text-muted-foreground">{t("description")}</p>
         </div>
-        <span className="text-sm text-muted-foreground">
-          {t("count", { count: items.length })}
-        </span>
+        <span className="text-sm text-muted-foreground">{t("count", { count: items.length })}</span>
       </div>
 
       {items.length === 0 ? (
@@ -76,17 +68,11 @@ export function IntegrationReviewSection({
                   )}
                 </div>
                 <div className="min-w-0">
-                  <div className="truncate text-sm font-medium">
-                    {item.title}
-                  </div>
+                  <div className="truncate text-sm font-medium">{item.title}</div>
                   <div className="mt-1 text-xs text-muted-foreground">
                     {item.source === "mail" ? t("mail") : t("nextcloud")}
-                    {item.fromEmail
-                      ? ` · ${item.fromName || item.fromEmail}`
-                      : ""}
-                    {item.occurredAt
-                      ? ` · ${new Date(item.occurredAt).toLocaleDateString()}`
-                      : ""}
+                    {item.fromEmail ? ` · ${item.fromName || item.fromEmail}` : ""}
+                    {item.occurredAt ? ` · ${new Date(item.occurredAt).toLocaleDateString()}` : ""}
                   </div>
                   {item.summary && (
                     <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">

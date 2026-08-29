@@ -2,23 +2,13 @@ import { z } from "zod";
 import type { Tool, ExecutionContext, ToolResult } from "../types";
 
 const classifyPaymentSchema = z.object({
-  amount: z
-    .string()
-    .describe("Amount as a decimal string; negative for an outflow/refund"),
-  description: z
-    .string()
-    .optional()
-    .describe("Bank memo / payment description, if any"),
-  counterparty: z
-    .string()
-    .optional()
-    .describe("Payer name / counterparty, if known"),
+  amount: z.string().describe("Amount as a decimal string; negative for an outflow/refund"),
+  description: z.string().optional().describe("Bank memo / payment description, if any"),
+  counterparty: z.string().optional().describe("Payer name / counterparty, if known"),
   matchedInvoiceId: z
     .string()
     .optional()
-    .describe(
-      "UUID of an open invoice this money matches (use search_invoices first if unsure)",
-    ),
+    .describe("UUID of an open invoice this money matches (use search_invoices first if unsure)"),
   isPassThrough: z
     .boolean()
     .optional()
@@ -41,9 +31,7 @@ export const classifyPaymentTool: Tool = {
       return {
         success: true,
         message: `Suggested category: ${result.category} (${result.confidence} confidence). ${result.reason}${
-          result.requiresReview
-            ? " This requires human confirmation before booking."
-            : ""
+          result.requiresReview ? " This requires human confirmation before booking." : ""
         }`,
         data: result,
       };

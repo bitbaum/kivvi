@@ -21,9 +21,7 @@ function ScenarioCard({
   color: "blue" | "amber" | "green";
 }) {
   return (
-    <div
-      className={`rounded-xl border-l-4 p-6 sm:p-8 ${SCENARIO_COLORS[color]}`}
-    >
+    <div className={`rounded-xl border-l-4 p-6 sm:p-8 ${SCENARIO_COLORS[color]}`}>
       <div className="mb-3 flex items-center gap-3">
         <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
           {icon}
@@ -40,9 +38,7 @@ export async function ScenariosSection() {
   const t = await getTranslations("landing");
   return (
     <section className="mx-auto max-w-4xl py-16">
-      <h2 className="mb-12 text-center text-3xl font-bold">
-        {t("scenarioTitle")}
-      </h2>
+      <h2 className="mb-12 text-center text-3xl font-bold">{t("scenarioTitle")}</h2>
       <div className="space-y-12">
         <ScenarioCard
           time={t("scenario1Time")}

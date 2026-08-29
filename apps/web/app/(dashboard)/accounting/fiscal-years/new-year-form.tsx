@@ -66,10 +66,7 @@ export function NewYearForm() {
 
           <div className="grid gap-4 sm:grid-cols-3">
             <div>
-              <label
-                htmlFor="fiscal-year-name"
-                className="mb-1.5 block text-sm font-medium"
-              >
+              <label htmlFor="fiscal-year-name" className="mb-1.5 block text-sm font-medium">
                 {tc("name")}
               </label>
               <FormInput
@@ -83,10 +80,7 @@ export function NewYearForm() {
             </div>
 
             <div>
-              <label
-                htmlFor="fiscal-year-start"
-                className="mb-1.5 block text-sm font-medium"
-              >
+              <label htmlFor="fiscal-year-start" className="mb-1.5 block text-sm font-medium">
                 {t("startDate")}
               </label>
               <FormInput
@@ -99,10 +93,7 @@ export function NewYearForm() {
             </div>
 
             <div>
-              <label
-                htmlFor="fiscal-year-end"
-                className="mb-1.5 block text-sm font-medium"
-              >
+              <label htmlFor="fiscal-year-end" className="mb-1.5 block text-sm font-medium">
                 {t("endDate")}
               </label>
               <FormInput
@@ -115,9 +106,7 @@ export function NewYearForm() {
             </div>
           </div>
 
-          <p className="text-xs text-muted-foreground">
-            {t("periodsAutoCreated")}
-          </p>
+          <p className="text-xs text-muted-foreground">{t("periodsAutoCreated")}</p>
 
           <div className="flex items-center gap-3">
             <button

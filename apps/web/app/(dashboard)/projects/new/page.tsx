@@ -7,15 +7,8 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { createProjectAction } from "@/app/actions/projects";
 import { cn } from "@/lib/utils";
-import {
-  PROJECT_STATUSES,
-  PROJECT_STATUS_LABEL_KEYS,
-} from "@/lib/config/project-status";
-import {
-  FormInput,
-  FormSelect,
-  FormTextarea,
-} from "@/components/ui/form-field";
+import { PROJECT_STATUSES, PROJECT_STATUS_LABEL_KEYS } from "@/lib/config/project-status";
+import { FormInput, FormSelect, FormTextarea } from "@/components/ui/form-field";
 
 export default function NewProjectPage() {
   const router = useRouter();
@@ -41,9 +34,7 @@ export default function NewProjectPage() {
         description: (formData.get("description") as string) || undefined,
         contactId: (formData.get("contactId") as string) || undefined,
         status: (formData.get("status") as string) || "active",
-        budget: formData.get("budget")
-          ? (formData.get("budget") as string)
-          : undefined,
+        budget: formData.get("budget") ? (formData.get("budget") as string) : undefined,
         startDate: (formData.get("startDate") as string) || undefined,
         endDate: (formData.get("endDate") as string) || undefined,
       };
@@ -96,10 +87,7 @@ export default function NewProjectPage() {
           <div className="grid gap-6 p-6 sm:grid-cols-2">
             {/* Name */}
             <div className="sm:col-span-2">
-              <label
-                htmlFor="name"
-                className="mb-1.5 block text-sm font-medium"
-              >
+              <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
                 {t("projectName")} <span className="text-destructive">*</span>
               </label>
               <FormInput
@@ -114,10 +102,7 @@ export default function NewProjectPage() {
 
             {/* Description */}
             <div className="sm:col-span-2">
-              <label
-                htmlFor="description"
-                className="mb-1.5 block text-sm font-medium"
-              >
+              <label htmlFor="description" className="mb-1.5 block text-sm font-medium">
                 {tc("description")}
               </label>
               <FormTextarea
@@ -132,10 +117,7 @@ export default function NewProjectPage() {
 
             {/* Status */}
             <div>
-              <label
-                htmlFor="status"
-                className="mb-1.5 block text-sm font-medium"
-              >
+              <label htmlFor="status" className="mb-1.5 block text-sm font-medium">
                 {tc("status")}
               </label>
               <FormSelect id="status" name="status" defaultValue="active">
@@ -149,10 +131,7 @@ export default function NewProjectPage() {
 
             {/* Budget */}
             <div>
-              <label
-                htmlFor="budget"
-                className="mb-1.5 block text-sm font-medium"
-              >
+              <label htmlFor="budget" className="mb-1.5 block text-sm font-medium">
                 {t("budget")}
               </label>
               <FormInput
@@ -175,10 +154,7 @@ export default function NewProjectPage() {
           <div className="grid gap-6 p-6 sm:grid-cols-2">
             {/* Contact ID */}
             <div className="sm:col-span-2">
-              <label
-                htmlFor="contactId"
-                className="mb-1.5 block text-sm font-medium"
-              >
+              <label htmlFor="contactId" className="mb-1.5 block text-sm font-medium">
                 {t("clientContactId")}
               </label>
               <FormInput
@@ -187,17 +163,12 @@ export default function NewProjectPage() {
                 name="contactId"
                 placeholder={t("contactPlaceholder")}
               />
-              <p className="mt-1 text-xs text-muted-foreground">
-                {t("contactIdHint")}
-              </p>
+              <p className="mt-1 text-xs text-muted-foreground">{t("contactIdHint")}</p>
             </div>
 
             {/* Start Date */}
             <div>
-              <label
-                htmlFor="startDate"
-                className="mb-1.5 block text-sm font-medium"
-              >
+              <label htmlFor="startDate" className="mb-1.5 block text-sm font-medium">
                 {t("startDate")}
               </label>
               <FormInput type="date" id="startDate" name="startDate" />
@@ -205,10 +176,7 @@ export default function NewProjectPage() {
 
             {/* End Date */}
             <div>
-              <label
-                htmlFor="endDate"
-                className="mb-1.5 block text-sm font-medium"
-              >
+              <label htmlFor="endDate" className="mb-1.5 block text-sm font-medium">
                 {t("endDate")}
               </label>
               <FormInput type="date" id="endDate" name="endDate" />

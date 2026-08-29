@@ -15,25 +15,16 @@ interface Props {
   isEditing: boolean;
 }
 
-export function BaseOrderSection({
-  orderOptions,
-  defaultOrderId,
-  isEditing,
-}: Props) {
+export function BaseOrderSection({ orderOptions, defaultOrderId, isEditing }: Props) {
   const t = useTranslations("settings");
   return (
     <section className="rounded-xl border bg-card">
       <div className="border-b px-6 py-4">
         <h2 className="font-semibold">{t("recurring.baseOrderSection")}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t("recurring.baseOrderDesc")}
-        </p>
+        <p className="mt-1 text-sm text-muted-foreground">{t("recurring.baseOrderDesc")}</p>
       </div>
       <div className="p-6">
-        <label
-          htmlFor="recurring-orderId"
-          className="mb-2 block text-sm font-medium"
-        >
+        <label htmlFor="recurring-orderId" className="mb-2 block text-sm font-medium">
           {t("recurring.baseOrder")} <span className="text-destructive">*</span>
         </label>
         <FormSelect
@@ -51,9 +42,7 @@ export function BaseOrderSection({
           ))}
         </FormSelect>
         {isEditing && (
-          <p className="mt-2 text-xs text-muted-foreground">
-            {t("recurring.cannotChangeOrder")}
-          </p>
+          <p className="mt-2 text-xs text-muted-foreground">{t("recurring.cannotChangeOrder")}</p>
         )}
       </div>
     </section>

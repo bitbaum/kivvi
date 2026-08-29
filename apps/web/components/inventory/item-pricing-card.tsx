@@ -31,17 +31,13 @@ interface ItemPricingCardProps {
   repairParts: RepairPart[];
 }
 
-export async function ItemPricingCard({
-  item,
-  repairParts,
-}: ItemPricingCardProps) {
+export async function ItemPricingCard({ item, repairParts }: ItemPricingCardProps) {
   const ti = await getTranslations("inventory");
 
   const partsTotal = calculatePartsTotal(repairParts);
   const hasPartsTotal = partsTotal.greaterThan(0);
   const hasRepairCost = !!item.repairCost && new Decimal(item.repairCost).gt(0);
-  const showEffectiveCost =
-    !!item.effectiveCost && (hasPartsTotal || hasRepairCost);
+  const showEffectiveCost = !!item.effectiveCost && (hasPartsTotal || hasRepairCost);
 
   const margin =
     item.soldPrice && item.effectiveCost
@@ -58,9 +54,7 @@ export async function ItemPricingCard({
       <div className="space-y-3">
         {item.estimatedValue && (
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">
-              {ti("acquisitionCost")}
-            </span>
+            <span className="text-muted-foreground">{ti("acquisitionCost")}</span>
             <span>{formatCurrency(item.estimatedValue)}</span>
           </div>
         )}
@@ -74,28 +68,20 @@ export async function ItemPricingCard({
         )}
         {hasPartsTotal && (
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">
-              {ti("repairPartsTotal")}
-            </span>
+            <span className="text-muted-foreground">{ti("repairPartsTotal")}</span>
             <span>+{formatCurrency(partsTotal.toFixed(2))}</span>
           </div>
         )}
         {showEffectiveCost && (
           <div className="flex justify-between text-sm border-t pt-2">
-            <span className="text-muted-foreground font-medium">
-              {ti("effectiveCost")}
-            </span>
-            <span className="font-medium">
-              {formatCurrency(item.effectiveCost ?? "0")}
-            </span>
+            <span className="text-muted-foreground font-medium">{ti("effectiveCost")}</span>
+            <span className="font-medium">{formatCurrency(item.effectiveCost ?? "0")}</span>
           </div>
         )}
         {item.askingPrice && (
           <div className="flex justify-between text-sm">
             <span className="text-muted-foreground">{ti("askingPrice")}</span>
-            <span className="font-medium">
-              {formatCurrency(item.askingPrice)}
-            </span>
+            <span className="font-medium">{formatCurrency(item.askingPrice)}</span>
           </div>
         )}
         {item.minPrice && (
@@ -108,15 +94,11 @@ export async function ItemPricingCard({
           <>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">{ti("soldFor")}</span>
-              <span className="font-medium text-success">
-                {formatCurrency(item.soldPrice)}
-              </span>
+              <span className="font-medium text-success">{formatCurrency(item.soldPrice)}</span>
             </div>
             {margin && (
               <div className="flex justify-between text-sm border-t pt-2">
-                <span className="text-muted-foreground font-medium">
-                  {ti("margin")}
-                </span>
+                <span className="text-muted-foreground font-medium">{ti("margin")}</span>
                 <span
                   className={`font-medium ${margin.gte(0) ? "text-success" : "text-destructive"}`}
                 >
@@ -130,9 +112,7 @@ export async function ItemPricingCard({
                 <span className="text-muted-foreground font-medium">
                   {ti("consignorPayout")} ({item.consignmentRate}%)
                 </span>
-                <span className="font-medium text-warning">
-                  {formatCurrency(consignorPayout)}
-                </span>
+                <span className="font-medium text-warning">{formatCurrency(consignorPayout)}</span>
               </div>
             )}
             {item.saleDocumentId && (

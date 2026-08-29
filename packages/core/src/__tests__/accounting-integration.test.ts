@@ -12,11 +12,7 @@ import { buildInvoiceRevenueLines } from "../domain/accounting-integration";
  */
 
 // Helper: build invoice-sent journal lines (mirrors createInvoiceSentJournalEntry)
-function buildInvoiceSentLines(doc: {
-  total: string;
-  subtotal: string;
-  vatAmount: string;
-}) {
+function buildInvoiceSentLines(doc: { total: string; subtotal: string; vatAmount: string }) {
   const lines: Array<{ debit?: string; credit?: string }> = [
     { debit: doc.total },
     { credit: doc.subtotal },
@@ -28,11 +24,7 @@ function buildInvoiceSentLines(doc: {
 }
 
 // Helper: build credit-note-sent journal lines (mirrors createCreditNoteSentJournalEntry)
-function buildCreditNoteSentLines(doc: {
-  total: string;
-  subtotal: string;
-  vatAmount: string;
-}) {
+function buildCreditNoteSentLines(doc: { total: string; subtotal: string; vatAmount: string }) {
   const lines: Array<{ debit?: string; credit?: string }> = [
     { debit: doc.subtotal },
     { credit: doc.total },
@@ -44,11 +36,7 @@ function buildCreditNoteSentLines(doc: {
 }
 
 // Helper: build purchase-invoice-confirmed lines (mirrors createPurchaseInvoiceJournalEntry)
-function buildPurchaseInvoiceLines(doc: {
-  total: string;
-  subtotal: string;
-  vatAmount: string;
-}) {
+function buildPurchaseInvoiceLines(doc: { total: string; subtotal: string; vatAmount: string }) {
   const lines: Array<{ debit?: string; credit?: string }> = [
     { debit: doc.subtotal },
     { credit: doc.total },
@@ -222,14 +210,8 @@ describe("Credit note sent journal entries", () => {
     // Credit:  debit Revenue 1000 + VAT 81, credit AR 1081
     // Combined should net to zero
     const combined = [...invoiceLines, ...creditLines];
-    const debits = combined.reduce(
-      (sum, l) => sum.plus(l.debit || 0),
-      new Decimal(0),
-    );
-    const credits = combined.reduce(
-      (sum, l) => sum.plus(l.credit || 0),
-      new Decimal(0),
-    );
+    const debits = combined.reduce((sum, l) => sum.plus(l.debit || 0), new Decimal(0));
+    const credits = combined.reduce((sum, l) => sum.plus(l.credit || 0), new Decimal(0));
     expect(debits.eq(credits)).toBe(true);
   });
 });
@@ -278,14 +260,8 @@ describe("Invoice cancellation reversal journal entries", () => {
     const reversal = buildInvoiceCancellationLines(doc);
 
     const combined = [...original, ...reversal];
-    const debits = combined.reduce(
-      (sum, l) => sum.plus(l.debit || 0),
-      new Decimal(0),
-    );
-    const credits = combined.reduce(
-      (sum, l) => sum.plus(l.credit || 0),
-      new Decimal(0),
-    );
+    const debits = combined.reduce((sum, l) => sum.plus(l.debit || 0), new Decimal(0));
+    const credits = combined.reduce((sum, l) => sum.plus(l.credit || 0), new Decimal(0));
     expect(debits.eq(credits)).toBe(true);
   });
 
@@ -304,14 +280,8 @@ describe("Invoice cancellation reversal journal entries", () => {
     const reversal = buildPurchaseInvoiceCancellationLines(doc);
 
     const combined = [...original, ...reversal];
-    const debits = combined.reduce(
-      (sum, l) => sum.plus(l.debit || 0),
-      new Decimal(0),
-    );
-    const credits = combined.reduce(
-      (sum, l) => sum.plus(l.credit || 0),
-      new Decimal(0),
-    );
+    const debits = combined.reduce((sum, l) => sum.plus(l.debit || 0), new Decimal(0));
+    const credits = combined.reduce((sum, l) => sum.plus(l.credit || 0), new Decimal(0));
     expect(debits.eq(credits)).toBe(true);
   });
 });
@@ -371,14 +341,10 @@ describe("Full invoice lifecycle accounting", () => {
     expect(validateJournalBalance(buildInvoiceSentLines(doc)).valid).toBe(true);
 
     // Step 2: Partial payment — balanced
-    expect(validateJournalBalance(buildPaymentLines("300.00")).valid).toBe(
-      true,
-    );
+    expect(validateJournalBalance(buildPaymentLines("300.00")).valid).toBe(true);
 
     // Step 3: Cancellation reversal — balanced
-    expect(
-      validateJournalBalance(buildInvoiceCancellationLines(doc)).valid,
-    ).toBe(true);
+    expect(validateJournalBalance(buildInvoiceCancellationLines(doc)).valid).toBe(true);
 
     // Note: After cancellation, AR has a credit balance of 300 (the payment).
     // In real accounting, this would require a refund entry or carry-forward.

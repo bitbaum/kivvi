@@ -8,10 +8,7 @@ import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 import { DEFAULT_UNIT } from "@/lib/config/products";
 import { StatusBadge } from "@/components/status-badge";
 import { UNIT_ABBREVIATIONS } from "@/lib/config/units";
-import type {
-  ProductItem,
-  ProductTableTranslations,
-} from "./product-table-types";
+import type { ProductItem, ProductTableTranslations } from "./product-table-types";
 
 interface ProductTableRowProps {
   product: ProductItem;
@@ -31,8 +28,7 @@ function StockBadge({
     return <span className="text-sm text-muted-foreground">-</span>;
   }
   const quantity = Number(product.stockQuantity || "0");
-  const isLow =
-    product.minStock !== null && quantity <= product.minStock && quantity > 0;
+  const isLow = product.minStock !== null && quantity <= product.minStock && quantity > 0;
   const isOut = quantity <= 0;
 
   if (isOut) {
@@ -84,9 +80,7 @@ export function ProductTableRow({
         </span>
       </td>
       <td className="hidden whitespace-nowrap px-4 py-3 lg:table-cell">
-        <span className="font-mono text-sm text-primary">
-          {product.articleNumber || "-"}
-        </span>
+        <span className="font-mono text-sm text-primary">{product.articleNumber || "-"}</span>
       </td>
       <td className="px-4 py-3">
         <span className="font-medium">{product.name}</span>
@@ -96,9 +90,7 @@ export function ProductTableRow({
           </p>
         )}
         {product.articleNumber && (
-          <p className="font-mono text-xs text-primary lg:hidden">
-            {product.articleNumber}
-          </p>
+          <p className="font-mono text-xs text-primary lg:hidden">{product.articleNumber}</p>
         )}
       </td>
       <td className="hidden whitespace-nowrap px-4 py-3 md:table-cell">
@@ -112,10 +104,7 @@ export function ProductTableRow({
         </span>
       </td>
       <td className="whitespace-nowrap px-4 py-3 text-right font-medium">
-        {formatCurrency(
-          product.unitPrice,
-          product.currency || DEFAULT_CURRENCY,
-        )}
+        {formatCurrency(product.unitPrice, product.currency || DEFAULT_CURRENCY)}
         <span className="ml-1 text-xs text-muted-foreground">
           /{UNIT_ABBREVIATIONS[product.unit || DEFAULT_UNIT] || product.unit}
         </span>
@@ -130,9 +119,7 @@ export function ProductTableRow({
         <StatusBadge
           variant={product.isActive ? "active" : "inactive"}
           label={
-            product.isActive
-              ? translations.columnLabels.active
-              : translations.columnLabels.inactive
+            product.isActive ? translations.columnLabels.active : translations.columnLabels.inactive
           }
         />
       </td>

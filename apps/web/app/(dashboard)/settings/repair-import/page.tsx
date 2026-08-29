@@ -21,12 +21,8 @@ export default async function RepairImportPage() {
       {/* Document line-item repair */}
       <section className="space-y-4">
         <div>
-          <h2 className="text-lg font-semibold">
-            {t("repairImport.lineItemTitle")}
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            {t("repairImport.lineItemDescription")}
-          </p>
+          <h2 className="text-lg font-semibold">{t("repairImport.lineItemTitle")}</h2>
+          <p className="text-sm text-muted-foreground">{t("repairImport.lineItemDescription")}</p>
         </div>
         <RepairImportForm />
       </section>

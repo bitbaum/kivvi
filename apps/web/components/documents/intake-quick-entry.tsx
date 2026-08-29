@@ -1,19 +1,9 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import {
-  Sparkles,
-  Loader2,
-  AlertCircle,
-  ChevronDown,
-  ChevronUp,
-  CheckCircle2,
-} from "lucide-react";
+import { Sparkles, Loader2, AlertCircle, ChevronDown, ChevronUp, CheckCircle2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import {
-  extractItemsFromTextAction,
-  type ExtractedItem,
-} from "@/app/actions/ai-extract";
+import { extractItemsFromTextAction, type ExtractedItem } from "@/app/actions/ai-extract";
 import { IntakeBulkReview } from "./intake-bulk-review";
 
 interface IntakeQuickEntryProps {
@@ -58,9 +48,7 @@ export function IntakeQuickEntry({ onItemsExtracted }: IntakeQuickEntryProps) {
     (items: ExtractedItem[]) => {
       onItemsExtracted(
         items.map((item) => ({
-          description:
-            item.description ||
-            [item.brand, item.model].filter(Boolean).join(" "),
+          description: item.description || [item.brand, item.model].filter(Boolean).join(" "),
           quantity: item.quantity,
           unitPrice: item.estimatedPrice || undefined,
         })),
@@ -122,9 +110,7 @@ export function IntakeQuickEntry({ onItemsExtracted }: IntakeQuickEntryProps) {
             </div>
           ) : (
             <>
-              <p className="text-xs text-muted-foreground">
-                {t("aiQuickEntryHint")}
-              </p>
+              <p className="text-xs text-muted-foreground">{t("aiQuickEntryHint")}</p>
 
               <textarea
                 value={text}
@@ -162,10 +148,7 @@ export function IntakeQuickEntry({ onItemsExtracted }: IntakeQuickEntryProps) {
                 </button>
 
                 {state === "error" && error && (
-                  <span
-                    role="alert"
-                    className="flex items-center gap-1 text-sm text-destructive"
-                  >
+                  <span role="alert" className="flex items-center gap-1 text-sm text-destructive">
                     <AlertCircle className="h-4 w-4" />
                     {error}
                   </span>

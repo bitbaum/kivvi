@@ -13,13 +13,7 @@ interface Props {
   slug: string;
 }
 
-export function ShopInquiryForm({
-  companyId,
-  companyName,
-  itemId,
-  itemDescription,
-  slug,
-}: Props) {
+export function ShopInquiryForm({ companyId, companyName, itemId, itemDescription, slug }: Props) {
   const t = useTranslations("shop.inquiry");
   const tCommon = useTranslations("common");
   const [isPending, startTransition] = useTransition();
@@ -59,9 +53,7 @@ export function ShopInquiryForm({
         </div>
         <div>
           <p className="font-semibold">{t("sentTitle")}</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {t("sentMessage", { companyName })}
-          </p>
+          <p className="mt-1 text-sm text-muted-foreground">{t("sentMessage", { companyName })}</p>
         </div>
       </div>
     );

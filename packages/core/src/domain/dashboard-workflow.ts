@@ -9,11 +9,7 @@ import type { Database, DocumentType } from "@kivvi/database";
 
 export interface WorkflowSuggestion {
   id: string;
-  type:
-    | "convert_quote"
-    | "invoice_order"
-    | "confirm_delivery"
-    | "start_dunning";
+  type: "convert_quote" | "invoice_order" | "confirm_delivery" | "start_dunning";
   priority: number; // 1-5, 1 = highest
   titleKey: string;
   descriptionKey: string;
@@ -68,8 +64,7 @@ export async function getWorkflowSuggestions(
 
   for (const quote of quotesToConvert) {
     const daysSinceSent = Math.floor(
-      (now.getTime() - new Date(quote.issueDate).getTime()) /
-        (1000 * 60 * 60 * 24),
+      (now.getTime() - new Date(quote.issueDate).getTime()) / (1000 * 60 * 60 * 24),
     );
     suggestions.push({
       id: `quote-convert-${quote.id}`,
@@ -120,10 +115,7 @@ export async function getWorkflowSuggestions(
 
     const order = row.order;
     const daysSinceDelivery = order.deliveryDate
-      ? Math.floor(
-          (now.getTime() - new Date(order.deliveryDate).getTime()) /
-            (1000 * 60 * 60 * 24),
-        )
+      ? Math.floor((now.getTime() - new Date(order.deliveryDate).getTime()) / (1000 * 60 * 60 * 24))
       : 0;
 
     suggestions.push({
@@ -164,8 +156,7 @@ export async function getWorkflowSuggestions(
 
   for (const note of deliveryNotesToConfirm) {
     const daysSinceSent = Math.floor(
-      (now.getTime() - new Date(note.issueDate).getTime()) /
-        (1000 * 60 * 60 * 24),
+      (now.getTime() - new Date(note.issueDate).getTime()) / (1000 * 60 * 60 * 24),
     );
     suggestions.push({
       id: `delivery-confirm-${note.id}`,
@@ -206,10 +197,7 @@ export async function getWorkflowSuggestions(
 
   for (const invoice of invoicesForDunning) {
     const daysOverdue = invoice.dueDate
-      ? Math.floor(
-          (now.getTime() - new Date(invoice.dueDate).getTime()) /
-            (1000 * 60 * 60 * 24),
-        )
+      ? Math.floor((now.getTime() - new Date(invoice.dueDate).getTime()) / (1000 * 60 * 60 * 24))
       : 0;
 
     suggestions.push({

@@ -9,10 +9,7 @@ interface InventoryMetricsGridProps {
   totalItems: number;
 }
 
-export async function InventoryMetricsGrid({
-  dashboard,
-  totalItems,
-}: InventoryMetricsGridProps) {
+export async function InventoryMetricsGrid({ dashboard, totalItems }: InventoryMetricsGridProps) {
   const ti = await getTranslations("inventory");
 
   if (totalItems === 0) return null;
@@ -20,23 +17,15 @@ export async function InventoryMetricsGrid({
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
       <div className="rounded-xl border bg-card px-4 py-3">
-        <p className="text-xs text-muted-foreground">
-          {ti("metricInventoryValue")}
-        </p>
-        <p className="mt-1 text-lg font-semibold">
-          {formatCurrency(dashboard.inventoryValue)}
-        </p>
+        <p className="text-xs text-muted-foreground">{ti("metricInventoryValue")}</p>
+        <p className="mt-1 text-lg font-semibold">{formatCurrency(dashboard.inventoryValue)}</p>
         <p className="text-xs text-muted-foreground">
           {ti("metricUnsoldItems", { count: dashboard.unsoldCount })}
         </p>
       </div>
       <div className="rounded-xl border bg-card px-4 py-3">
-        <p className="text-xs text-muted-foreground">
-          {ti("metricSellThrough")}
-        </p>
-        <p className="mt-1 text-lg font-semibold">
-          {dashboard.sellThroughRate}%
-        </p>
+        <p className="text-xs text-muted-foreground">{ti("metricSellThrough")}</p>
+        <p className="mt-1 text-lg font-semibold">{dashboard.sellThroughRate}%</p>
         <p className="text-xs text-muted-foreground">
           {ti("metricSoldItems", { count: dashboard.soldCount })}
         </p>
@@ -46,14 +35,10 @@ export async function InventoryMetricsGrid({
         <p
           className={cn(
             "mt-1 text-lg font-semibold",
-            dashboard.averageMarginPercent > 0
-              ? "text-success"
-              : "text-muted-foreground",
+            dashboard.averageMarginPercent > 0 ? "text-success" : "text-muted-foreground",
           )}
         >
-          {dashboard.averageMarginPercent > 0
-            ? `${dashboard.averageMarginPercent}%`
-            : "—"}
+          {dashboard.averageMarginPercent > 0 ? `${dashboard.averageMarginPercent}%` : "—"}
         </p>
         <p className="text-xs text-muted-foreground">
           {dashboard.totalProfit !== "0"
@@ -62,16 +47,12 @@ export async function InventoryMetricsGrid({
         </p>
       </div>
       <div className="rounded-xl border bg-card px-4 py-3">
-        <p className="text-xs text-muted-foreground">
-          {ti("metricAvgDaysToSale")}
-        </p>
+        <p className="text-xs text-muted-foreground">{ti("metricAvgDaysToSale")}</p>
         <p className="mt-1 text-lg font-semibold">
           {dashboard.avgDaysToSale > 0 ? dashboard.avgDaysToSale : "—"}
         </p>
         <p className="text-xs text-muted-foreground">
-          {dashboard.avgDaysToSale > 0
-            ? ti("metricDays")
-            : ti("metricNoSalesYet")}
+          {dashboard.avgDaysToSale > 0 ? ti("metricDays") : ti("metricNoSalesYet")}
         </p>
       </div>
     </div>

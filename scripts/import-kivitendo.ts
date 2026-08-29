@@ -15,21 +15,15 @@
  *   - CSV files in ./kivitendo-export/ (relative to project root)
  */
 
-import { readFileSync, existsSync } from 'fs';
-import { join, resolve } from 'path';
-import Papa from 'papaparse';
-import Decimal from 'decimal.js';
-import { eq, and } from 'drizzle-orm';
-import { neonConfig } from '@neondatabase/serverless';
-import nodeFetch from 'node-fetch';
-import {
-  createNeonClient,
-  documents,
-  documentItems,
-  users,
-  warehouses,
-} from '@kivvi/database';
-import type { Database } from '@kivvi/database';
+import { readFileSync, existsSync } from "fs";
+import { join, resolve } from "path";
+import Papa from "papaparse";
+import Decimal from "decimal.js";
+import { eq, and } from "drizzle-orm";
+import { neonConfig } from "@neondatabase/serverless";
+import nodeFetch from "node-fetch";
+import { createNeonClient, documents, documentItems, users, warehouses } from "@kivvi/database";
+import type { Database } from "@kivvi/database";
 
 // Set node-fetch before any neon() calls (must be at module level)
 neonConfig.fetchFunction = nodeFetch as any;
@@ -46,8 +40,8 @@ import {
   KIVITENDO_PROJECT_PROFILE,
   KIVITENDO_GL_PROFILE,
   KIVITENDO_STOCK_PROFILE,
-} from '@kivvi/core/src/domain/import-mappings';
-import type { ParsedLineItem } from '@kivvi/core/src/domain/import-mappings';
+} from "@kivvi/core/src/domain/import-mappings";
+import type { ParsedLineItem } from "@kivvi/core/src/domain/import-mappings";
 import {
   bulkInsertContacts,
   bulkInsertContactAddresses,
@@ -62,39 +56,39 @@ import {
   ensureProductGroups,
   ensureManufacturers,
   updateSequencesAfterImport,
-} from '@kivvi/core/src/domain/import-bulk';
-import type { BulkInsertResult } from '@kivvi/core/src/domain/import-bulk';
-import { DEFAULT_VAT_RATE } from '@kivvi/core/src/config/vat-rates';
+} from "@kivvi/core/src/domain/import-bulk";
+import type { BulkInsertResult } from "@kivvi/core/src/domain/import-bulk";
+import { DEFAULT_VAT_RATE } from "@kivvi/core/src/config/vat-rates";
 
 // ============================================================================
 // CONFIG
 // ============================================================================
 
-const DRY_RUN = process.argv.includes('--dry-run');
-const PROJECT_ROOT = resolve(__dirname, '..');
-const EXPORT_DIR = join(PROJECT_ROOT, 'kivitendo-export');
+const DRY_RUN = process.argv.includes("--dry-run");
+const PROJECT_ROOT = resolve(__dirname, "..");
+const EXPORT_DIR = join(PROJECT_ROOT, "kivitendo-export");
 
 // CSV file names
 const FILES = {
-  customers: 'kunden_customers.csv',
-  vendors: 'lieferanten_vendors.csv',
-  products: 'artikel_products.csv',
-  projects: 'projekte_projects.csv',
-  arInvoices: 'rechnungen_ar_invoices.csv',
-  apInvoices: 'einkaufsrechnungen_ap_invoices.csv',
-  salesOrders: 'auftraege_sales_orders.csv',
-  quotes: 'angebote_quotes.csv',
-  deliveryNotes: 'lieferscheine_delivery_notes.csv',
-  journal: 'buchungsjournal_gl.csv',
-  stock: 'lagerbestand_warehouse_stock.csv',
+  customers: "kunden_customers.csv",
+  vendors: "lieferanten_vendors.csv",
+  products: "artikel_products.csv",
+  projects: "projekte_projects.csv",
+  arInvoices: "rechnungen_ar_invoices.csv",
+  apInvoices: "einkaufsrechnungen_ap_invoices.csv",
+  salesOrders: "auftraege_sales_orders.csv",
+  quotes: "angebote_quotes.csv",
+  deliveryNotes: "lieferscheine_delivery_notes.csv",
+  journal: "buchungsjournal_gl.csv",
+  stock: "lagerbestand_warehouse_stock.csv",
 } as const;
 
 // Column index configs for array-mode document parsing (0-based)
 interface DocColumnConfig {
   buchungsnummer: number;
-  number: number;       // human-readable doc number
+  number: number; // human-readable doc number
   datum: number;
-  contact: number;      // Kundennummer or Lieferantennummer
+  contact: number; // Kundennummer or Lieferantennummer
   summe: number | null;
   bezahlt: number | null;
   zahlungsdatum: number | null;
@@ -108,9 +102,9 @@ interface DocColumnConfig {
 
 const AR_CONFIG: DocColumnConfig = {
   buchungsnummer: 2,
-  number: 4,          // Rechnung
+  number: 4, // Rechnung
   datum: 1,
-  contact: 26,        // Kundennummer
+  contact: 26, // Kundennummer
   summe: 12,
   bezahlt: 13,
   zahlungsdatum: 14,
@@ -124,9 +118,9 @@ const AR_CONFIG: DocColumnConfig = {
 
 const AP_CONFIG: DocColumnConfig = {
   buchungsnummer: 1,
-  number: 3,          // Rechnung
+  number: 3, // Rechnung
   datum: 0,
-  contact: 19,        // Lieferantennummer
+  contact: 19, // Lieferantennummer
   summe: 8,
   bezahlt: 9,
   zahlungsdatum: 10,
@@ -140,9 +134,9 @@ const AP_CONFIG: DocColumnConfig = {
 
 const SALES_ORDER_CONFIG: DocColumnConfig = {
   buchungsnummer: 3,
-  number: 4,          // Auftrag
+  number: 4, // Auftrag
   datum: 1,
-  contact: 22,        // Kundennummer
+  contact: 22, // Kundennummer
   summe: 9,
   bezahlt: null,
   zahlungsdatum: null,
@@ -156,9 +150,9 @@ const SALES_ORDER_CONFIG: DocColumnConfig = {
 
 const QUOTE_CONFIG: DocColumnConfig = {
   buchungsnummer: 2,
-  number: 3,          // Angebot
+  number: 3, // Angebot
   datum: 0,
-  contact: 19,        // Kundennummer
+  contact: 19, // Kundennummer
   summe: 7,
   bezahlt: null,
   zahlungsdatum: null,
@@ -172,9 +166,9 @@ const QUOTE_CONFIG: DocColumnConfig = {
 
 const DELIVERY_NOTE_CONFIG: DocColumnConfig = {
   buchungsnummer: 3,
-  number: 4,          // Lieferschein
+  number: 4, // Lieferschein
   datum: 1,
-  contact: 6,         // Kundennummer
+  contact: 6, // Kundennummer
   summe: null,
   bezahlt: null,
   zahlungsdatum: null,
@@ -194,22 +188,24 @@ const DELIVERY_NOTE_CONFIG: DocColumnConfig = {
 function loadEnv(): void {
   if (process.env.DATABASE_URL) return;
 
-  const envPath = resolve(PROJECT_ROOT, '.env.local');
+  const envPath = resolve(PROJECT_ROOT, ".env.local");
   if (!existsSync(envPath)) {
-    console.error('DATABASE_URL not set and no .env.local found');
+    console.error("DATABASE_URL not set and no .env.local found");
     process.exit(1);
   }
 
-  const content = readFileSync(envPath, 'utf-8');
-  for (const line of content.split('\n')) {
+  const content = readFileSync(envPath, "utf-8");
+  for (const line of content.split("\n")) {
     const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith('#')) continue;
-    const eqIdx = trimmed.indexOf('=');
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const eqIdx = trimmed.indexOf("=");
     if (eqIdx === -1) continue;
     const key = trimmed.slice(0, eqIdx).trim();
     let value = trimmed.slice(eqIdx + 1).trim();
-    if ((value.startsWith('"') && value.endsWith('"')) ||
-        (value.startsWith("'") && value.endsWith("'"))) {
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
       value = value.slice(1, -1);
     }
     if (!process.env[key]) {
@@ -225,7 +221,7 @@ function readCsv(filename: string): string | null {
     console.log(`   [skip] File not found: ${filename}`);
     return null;
   }
-  return readFileSync(filePath, 'utf-8');
+  return readFileSync(filePath, "utf-8");
 }
 
 /** Parse CSV in header mode, apply mapping profile */
@@ -247,7 +243,7 @@ function parseHeaderMode(
     .filter((row) => {
       // Filter subtotal/empty rows
       const firstVal = Object.values(row)[0];
-      return firstVal && firstVal.trim() !== '';
+      return firstVal && firstVal.trim() !== "";
     })
     .map((row) => applyMapping(row, profile));
 }
@@ -255,8 +251,8 @@ function parseHeaderMode(
 /** Map Steuersatz text label to VAT rate number */
 function mapVatRate(steuersatz: string): string {
   const trimmed = steuersatz?.trim();
-  if (trimmed === 'Inland') return DEFAULT_VAT_RATE;
-  if (trimmed === 'Außerhalb EU') return '0';
+  if (trimmed === "Inland") return DEFAULT_VAT_RATE;
+  if (trimmed === "Außerhalb EU") return "0";
   const num = parseFloat(trimmed);
   if (!isNaN(num)) return num.toString();
   return DEFAULT_VAT_RATE;
@@ -264,8 +260,8 @@ function mapVatRate(steuersatz: string): string {
 
 /** Parse Swiss number: strip apostrophe thousand separators */
 function parseSwissNum(value: string): string {
-  if (!value?.trim()) return '0';
-  return value.trim().replace(/'/g, '');
+  if (!value?.trim()) return "0";
+  return value.trim().replace(/'/g, "");
 }
 
 /** Parse Swiss date from raw CSV value */
@@ -289,7 +285,7 @@ function formatResult(result: BulkInsertResult): string {
 
 interface ParsedDocument {
   buchungsnummer: string;
-  number: string;          // human-readable
+  number: string; // human-readable
   datum: string | null;
   contactNumber: string;
   summe: string;
@@ -337,7 +333,7 @@ function parseDocumentCsv(
     if (isAP) {
       for (const item of items) {
         try {
-          const qty = new Decimal(item.quantity || '0');
+          const qty = new Decimal(item.quantity || "0");
           if (qty.lt(0)) {
             item.quantity = qty.abs().toString();
           }
@@ -350,15 +346,18 @@ function parseDocumentCsv(
     docs.push({
       buchungsnummer,
       number,
-      datum: parseDate(row[config.datum] || ''),
-      contactNumber: row[config.contact]?.trim() || '',
-      summe: config.summe !== null ? parseSwissNum(row[config.summe] || '0') : '0',
-      bezahlt: config.bezahlt !== null ? parseSwissNum(row[config.bezahlt] || '0') : '0',
-      zahlungsdatum: config.zahlungsdatum !== null ? parseDate(row[config.zahlungsdatum] || '') : null,
-      faelligkeitsdatum: config.faelligkeitsdatum !== null ? parseDate(row[config.faelligkeitsdatum] || '') : null,
-      offen: config.offen !== null ? row[config.offen]?.trim() || '' : '',
-      geliefert: config.geliefert !== null ? row[config.geliefert]?.trim() || '' : '',
-      vatRate: config.steuersatz !== null ? mapVatRate(row[config.steuersatz] || '') : DEFAULT_VAT_RATE,
+      datum: parseDate(row[config.datum] || ""),
+      contactNumber: row[config.contact]?.trim() || "",
+      summe: config.summe !== null ? parseSwissNum(row[config.summe] || "0") : "0",
+      bezahlt: config.bezahlt !== null ? parseSwissNum(row[config.bezahlt] || "0") : "0",
+      zahlungsdatum:
+        config.zahlungsdatum !== null ? parseDate(row[config.zahlungsdatum] || "") : null,
+      faelligkeitsdatum:
+        config.faelligkeitsdatum !== null ? parseDate(row[config.faelligkeitsdatum] || "") : null,
+      offen: config.offen !== null ? row[config.offen]?.trim() || "" : "",
+      geliefert: config.geliefert !== null ? row[config.geliefert]?.trim() || "" : "",
+      vatRate:
+        config.steuersatz !== null ? mapVatRate(row[config.steuersatz] || "") : DEFAULT_VAT_RATE,
       items,
     });
   }
@@ -377,7 +376,7 @@ async function insertDocuments(
   parsedDocs: ParsedDocument[],
   contactLookup: Map<string, string>,
   productLookup: Map<string, { id: string; unitPrice: string }>,
-  documentType: 'invoice' | 'purchase_invoice' | 'quote' | 'order' | 'delivery_note',
+  documentType: "invoice" | "purchase_invoice" | "quote" | "order" | "delivery_note",
   statusFn: (doc: ParsedDocument) => string,
 ): Promise<BulkInsertResult> {
   let inserted = 0;
@@ -407,9 +406,7 @@ async function insertDocuments(
         continue;
       }
 
-      const contactId = doc.contactNumber
-        ? contactLookup.get(doc.contactNumber) || null
-        : null;
+      const contactId = doc.contactNumber ? contactLookup.get(doc.contactNumber) || null : null;
 
       const status = statusFn(doc);
       const dueDate = doc.faelligkeitsdatum ? new Date(doc.faelligkeitsdatum) : null;
@@ -431,9 +428,9 @@ async function insertDocuments(
             number: doc.number,
             issueDate,
             dueDate,
-            paidDate: status === 'paid' ? zahlungsDatum : null,
+            paidDate: status === "paid" ? zahlungsDatum : null,
             subtotal: doc.summe,
-            vatAmount: '0',
+            vatAmount: "0",
             total: doc.summe,
             createdBy: userId,
           })
@@ -441,7 +438,7 @@ async function insertDocuments(
           .returning();
 
         if (!docRow) {
-          throw new Error('Document already exists');
+          throw new Error("Document already exists");
         }
 
         if (doc.items.length > 0) {
@@ -453,14 +450,14 @@ async function insertDocuments(
               const productId = product?.id || null;
 
               // Determine unit price from product catalog or derive from total
-              let unitPrice = '0';
-              if (product?.unitPrice && product.unitPrice !== '0') {
+              let unitPrice = "0";
+              if (product?.unitPrice && product.unitPrice !== "0") {
                 unitPrice = product.unitPrice;
               }
               if (doc.items.length === 1 && !productId) {
                 try {
-                  const qty = new Decimal(item.quantity || '0');
-                  const total = new Decimal(doc.summe || '0');
+                  const qty = new Decimal(item.quantity || "0");
+                  const total = new Decimal(doc.summe || "0");
                   if (qty.gt(0) && total.gt(0)) {
                     unitPrice = total.div(qty).toDecimalPlaces(2).toString();
                   }
@@ -469,7 +466,7 @@ async function insertDocuments(
                 }
               }
 
-              const qty = new Decimal(item.quantity || '0');
+              const qty = new Decimal(item.quantity || "0");
               const price = new Decimal(unitPrice);
               const lineTotal = qty.times(price).toDecimalPlaces(2).toString();
 
@@ -477,13 +474,13 @@ async function insertDocuments(
                 documentId: docRow.id,
                 productId,
                 position: item.position,
-                description: item.description || 'Imported item',
-                quantity: item.quantity || '1',
+                description: item.description || "Imported item",
+                quantity: item.quantity || "1",
                 unitPrice,
                 vatRate: doc.vatRate,
                 total: lineTotal,
               };
-            })
+            }),
           );
         }
       });
@@ -491,7 +488,7 @@ async function insertDocuments(
       inserted++;
     } catch (err) {
       const msg = (err as Error).message;
-      if (!msg.includes('already exists')) {
+      if (!msg.includes("already exists")) {
         errors.push(`Doc ${doc.number}: ${msg}`);
       }
       skipped++;
@@ -507,26 +504,28 @@ async function insertDocuments(
 
 function invoiceStatus(doc: ParsedDocument): string {
   try {
-    const paid = new Decimal(doc.bezahlt || '0');
-    const total = new Decimal(doc.summe || '0');
-    if (paid.gte(total) && total.gt(0)) return 'paid';
-  } catch { /* keep default */ }
-  return 'sent';
+    const paid = new Decimal(doc.bezahlt || "0");
+    const total = new Decimal(doc.summe || "0");
+    if (paid.gte(total) && total.gt(0)) return "paid";
+  } catch {
+    /* keep default */
+  }
+  return "sent";
 }
 
 function salesOrderStatus(doc: ParsedDocument): string {
-  if (doc.offen === 'Ja') return 'confirmed';
-  return 'delivered';
+  if (doc.offen === "Ja") return "confirmed";
+  return "delivered";
 }
 
 function quoteStatus(doc: ParsedDocument): string {
-  if (doc.offen === 'Ja') return 'sent';
-  return 'confirmed';
+  if (doc.offen === "Ja") return "sent";
+  return "confirmed";
 }
 
 function deliveryNoteStatus(doc: ParsedDocument): string {
-  if (doc.geliefert === 'Ja') return 'delivered';
-  return 'sent';
+  if (doc.geliefert === "Ja") return "delivered";
+  return "sent";
 }
 
 // ============================================================================
@@ -538,21 +537,21 @@ async function main(): Promise<void> {
 
   const COMPANY_ID = process.env.COMPANY_ID;
   if (!COMPANY_ID) {
-    console.error('COMPANY_ID environment variable is required');
+    console.error("COMPANY_ID environment variable is required");
     process.exit(1);
   }
-  console.log(DRY_RUN ? '=== DRY RUN ===' : '=== KIVITENDO IMPORT ===');
+  console.log(DRY_RUN ? "=== DRY RUN ===" : "=== KIVITENDO IMPORT ===");
   console.log(`Company: ${COMPANY_ID}`);
   console.log(`Export dir: ${EXPORT_DIR}`);
   console.log();
 
   // In dry-run mode, DB connection is optional (only parses CSVs)
   let db: Database | null = null;
-  let userId = 'dry-run';
+  let userId = "dry-run";
 
   if (!DRY_RUN) {
     if (!process.env.DATABASE_URL) {
-      console.error('DATABASE_URL is required');
+      console.error("DATABASE_URL is required");
       process.exit(1);
     }
     // Use Neon HTTP driver (TCP times out from this machine; node-fetch configured in package)
@@ -570,7 +569,7 @@ async function main(): Promise<void> {
       .limit(1);
 
     if (!user) {
-      console.error('No user found for this company. Create a user first.');
+      console.error("No user found for this company. Create a user first.");
       process.exit(1);
     }
     userId = user.id;
@@ -590,43 +589,43 @@ async function main(): Promise<void> {
   // ---------------------------------------------------------------
   // Step 1/13: Customers
   // ---------------------------------------------------------------
-  console.log('Step  1/14: Customers');
+  console.log("Step  1/14: Customers");
   const customersCsv = readCsv(FILES.customers);
   let customersResult: BulkInsertResult | null = null;
   if (customersCsv) {
     const rows = parseHeaderMode(customersCsv, KIVITENDO_CUSTOMER_PROFILE);
     console.log(`   Parsed: ${rows.length} rows`);
     if (!DRY_RUN && db) {
-      customersResult = await bulkInsertContacts(db, COMPANY_ID, rows, 'customer');
+      customersResult = await bulkInsertContacts(db, COMPANY_ID, rows, "customer");
     } else {
       customersResult = { inserted: rows.length, skipped: 0, errors: [] };
     }
     console.log(`   ${formatResult(customersResult)}`);
   }
-  summary.push({ step: 'Customers', result: customersResult });
+  summary.push({ step: "Customers", result: customersResult });
 
   // ---------------------------------------------------------------
   // Step 2/13: Vendors
   // ---------------------------------------------------------------
-  console.log('Step  2/14: Vendors');
+  console.log("Step  2/14: Vendors");
   const vendorsCsv = readCsv(FILES.vendors);
   let vendorsResult: BulkInsertResult | null = null;
   if (vendorsCsv) {
     const rows = parseHeaderMode(vendorsCsv, KIVITENDO_VENDOR_PROFILE);
     console.log(`   Parsed: ${rows.length} rows`);
     if (!DRY_RUN && db) {
-      vendorsResult = await bulkInsertContacts(db, COMPANY_ID, rows, 'vendor');
+      vendorsResult = await bulkInsertContacts(db, COMPANY_ID, rows, "vendor");
     } else {
       vendorsResult = { inserted: rows.length, skipped: 0, errors: [] };
     }
     console.log(`   ${formatResult(vendorsResult)}`);
   }
-  summary.push({ step: 'Vendors', result: vendorsResult });
+  summary.push({ step: "Vendors", result: vendorsResult });
 
   // ---------------------------------------------------------------
   // Step 3/14: Contact Addresses (from address fields on contacts)
   // ---------------------------------------------------------------
-  console.log('Step  3/14: Contact Addresses');
+  console.log("Step  3/14: Contact Addresses");
   let addressResult: BulkInsertResult | null = null;
   if (!DRY_RUN && db) {
     addressResult = await bulkInsertContactAddresses(db, COMPANY_ID);
@@ -634,12 +633,12 @@ async function main(): Promise<void> {
     addressResult = { inserted: 0, skipped: 0, errors: [] };
   }
   console.log(`   ${formatResult(addressResult)}`);
-  summary.push({ step: 'Addresses', result: addressResult });
+  summary.push({ step: "Addresses", result: addressResult });
 
   // ---------------------------------------------------------------
   // Step 4/14: Product Groups (extracted from products CSV)
   // ---------------------------------------------------------------
-  console.log('Step  4/14: Product Groups');
+  console.log("Step  4/14: Product Groups");
   const productsCsv = readCsv(FILES.products);
   let productGroupMap = new Map<string, string>();
   let manufacturerMap = new Map<string, string>();
@@ -650,9 +649,7 @@ async function main(): Promise<void> {
       transformHeader: (h: string, i: number) => (i === 0 ? stripBom(h) : h).trim(),
     });
 
-    const groupNames = parsed.data
-      .map((r) => r['Warengruppe']?.trim())
-      .filter(Boolean) as string[];
+    const groupNames = parsed.data.map((r) => r["Warengruppe"]?.trim()).filter(Boolean) as string[];
     console.log(`   Unique groups: ${new Set(groupNames).size}`);
 
     if (!DRY_RUN && db) {
@@ -663,10 +660,8 @@ async function main(): Promise<void> {
     // ---------------------------------------------------------------
     // Step 4/13: Manufacturers (extracted from products CSV)
     // ---------------------------------------------------------------
-    console.log('Step  5/14: Manufacturers');
-    const mfgNames = parsed.data
-      .map((r) => r['Hersteller']?.trim())
-      .filter(Boolean) as string[];
+    console.log("Step  5/14: Manufacturers");
+    const mfgNames = parsed.data.map((r) => r["Hersteller"]?.trim()).filter(Boolean) as string[];
     console.log(`   Unique manufacturers: ${new Set(mfgNames).size}`);
 
     if (!DRY_RUN && db) {
@@ -674,33 +669,39 @@ async function main(): Promise<void> {
     }
     console.log(`   Done`);
   } else {
-    console.log('Step  5/14: Manufacturers');
-    console.log('   [skip] No products CSV');
+    console.log("Step  5/14: Manufacturers");
+    console.log("   [skip] No products CSV");
   }
-  summary.push({ step: 'Product Groups', result: null });
-  summary.push({ step: 'Manufacturers', result: null });
+  summary.push({ step: "Product Groups", result: null });
+  summary.push({ step: "Manufacturers", result: null });
 
   // ---------------------------------------------------------------
   // Step 5/13: Products
   // ---------------------------------------------------------------
-  console.log('Step  6/14: Products');
+  console.log("Step  6/14: Products");
   let productsResult: BulkInsertResult | null = null;
   if (productsCsv) {
     const rows = parseHeaderMode(productsCsv, KIVITENDO_PRODUCT_PROFILE);
     console.log(`   Parsed: ${rows.length} rows`);
     if (!DRY_RUN && db) {
-      productsResult = await bulkInsertProducts(db, COMPANY_ID, rows, productGroupMap, manufacturerMap);
+      productsResult = await bulkInsertProducts(
+        db,
+        COMPANY_ID,
+        rows,
+        productGroupMap,
+        manufacturerMap,
+      );
     } else {
       productsResult = { inserted: rows.length, skipped: 0, errors: [] };
     }
     console.log(`   ${formatResult(productsResult)}`);
   }
-  summary.push({ step: 'Products', result: productsResult });
+  summary.push({ step: "Products", result: productsResult });
 
   // ---------------------------------------------------------------
   // Step 6/13: Projects
   // ---------------------------------------------------------------
-  console.log('Step  7/14: Projects');
+  console.log("Step  7/14: Projects");
   const projectsCsv = readCsv(FILES.projects);
   let projectsResult: BulkInsertResult | null = null;
   if (projectsCsv) {
@@ -713,21 +714,25 @@ async function main(): Promise<void> {
     }
     console.log(`   ${formatResult(projectsResult)}`);
   }
-  summary.push({ step: 'Projects', result: projectsResult });
+  summary.push({ step: "Projects", result: projectsResult });
 
   // ---------------------------------------------------------------
   // Build lookups for document imports
   // ---------------------------------------------------------------
-  console.log('\nBuilding lookups for document imports...');
-  const contactLookup = (!DRY_RUN && db) ? await buildContactLookup(db, COMPANY_ID) : new Map<string, string>();
-  const productLookup = (!DRY_RUN && db) ? await buildProductLookup(db, COMPANY_ID) : new Map<string, { id: string; unitPrice: string }>();
+  console.log("\nBuilding lookups for document imports...");
+  const contactLookup =
+    !DRY_RUN && db ? await buildContactLookup(db, COMPANY_ID) : new Map<string, string>();
+  const productLookup =
+    !DRY_RUN && db
+      ? await buildProductLookup(db, COMPANY_ID)
+      : new Map<string, { id: string; unitPrice: string }>();
   console.log(`   Contacts: ${contactLookup.size}, Products: ${productLookup.size}`);
   console.log();
 
   // ---------------------------------------------------------------
   // Step 7/13: AR Invoices
   // ---------------------------------------------------------------
-  console.log('Step  8/14: AR Invoices');
+  console.log("Step  8/14: AR Invoices");
   const arCsv = readCsv(FILES.arInvoices);
   let arResult: BulkInsertResult | null = null;
   if (arCsv) {
@@ -736,20 +741,26 @@ async function main(): Promise<void> {
     console.log(`   Parsed: ${docs.length} invoices, ${totalItems} line items`);
     if (db) {
       arResult = await insertDocuments(
-        db, COMPANY_ID, userId, docs,
-        contactLookup, productLookup, 'invoice', invoiceStatus,
+        db,
+        COMPANY_ID,
+        userId,
+        docs,
+        contactLookup,
+        productLookup,
+        "invoice",
+        invoiceStatus,
       );
     } else {
       arResult = { inserted: docs.length, skipped: 0, errors: [] };
     }
     console.log(`   ${formatResult(arResult)}`);
   }
-  summary.push({ step: 'AR Invoices', result: arResult });
+  summary.push({ step: "AR Invoices", result: arResult });
 
   // ---------------------------------------------------------------
   // Step 8/13: AP Invoices
   // ---------------------------------------------------------------
-  console.log('Step  9/14: AP Invoices');
+  console.log("Step  9/14: AP Invoices");
   const apCsv = readCsv(FILES.apInvoices);
   let apResult: BulkInsertResult | null = null;
   if (apCsv) {
@@ -758,20 +769,26 @@ async function main(): Promise<void> {
     console.log(`   Parsed: ${docs.length} purchase invoices, ${totalItems} line items`);
     if (db) {
       apResult = await insertDocuments(
-        db, COMPANY_ID, userId, docs,
-        contactLookup, productLookup, 'purchase_invoice', invoiceStatus,
+        db,
+        COMPANY_ID,
+        userId,
+        docs,
+        contactLookup,
+        productLookup,
+        "purchase_invoice",
+        invoiceStatus,
       );
     } else {
       apResult = { inserted: docs.length, skipped: 0, errors: [] };
     }
     console.log(`   ${formatResult(apResult)}`);
   }
-  summary.push({ step: 'AP Invoices', result: apResult });
+  summary.push({ step: "AP Invoices", result: apResult });
 
   // ---------------------------------------------------------------
   // Step 9/13: Sales Orders
   // ---------------------------------------------------------------
-  console.log('Step 10/14: Sales Orders');
+  console.log("Step 10/14: Sales Orders");
   const soCsv = readCsv(FILES.salesOrders);
   let soResult: BulkInsertResult | null = null;
   if (soCsv) {
@@ -780,20 +797,26 @@ async function main(): Promise<void> {
     console.log(`   Parsed: ${docs.length} sales orders, ${totalItems} line items`);
     if (db) {
       soResult = await insertDocuments(
-        db, COMPANY_ID, userId, docs,
-        contactLookup, productLookup, 'order', salesOrderStatus,
+        db,
+        COMPANY_ID,
+        userId,
+        docs,
+        contactLookup,
+        productLookup,
+        "order",
+        salesOrderStatus,
       );
     } else {
       soResult = { inserted: docs.length, skipped: 0, errors: [] };
     }
     console.log(`   ${formatResult(soResult)}`);
   }
-  summary.push({ step: 'Sales Orders', result: soResult });
+  summary.push({ step: "Sales Orders", result: soResult });
 
   // ---------------------------------------------------------------
   // Step 11/14: Quotes
   // ---------------------------------------------------------------
-  console.log('Step 11/14: Quotes');
+  console.log("Step 11/14: Quotes");
   const qtCsv = readCsv(FILES.quotes);
   let qtResult: BulkInsertResult | null = null;
   if (qtCsv) {
@@ -802,20 +825,26 @@ async function main(): Promise<void> {
     console.log(`   Parsed: ${docs.length} quotes, ${totalItems} line items`);
     if (db) {
       qtResult = await insertDocuments(
-        db, COMPANY_ID, userId, docs,
-        contactLookup, productLookup, 'quote', quoteStatus,
+        db,
+        COMPANY_ID,
+        userId,
+        docs,
+        contactLookup,
+        productLookup,
+        "quote",
+        quoteStatus,
       );
     } else {
       qtResult = { inserted: docs.length, skipped: 0, errors: [] };
     }
     console.log(`   ${formatResult(qtResult)}`);
   }
-  summary.push({ step: 'Quotes', result: qtResult });
+  summary.push({ step: "Quotes", result: qtResult });
 
   // ---------------------------------------------------------------
   // Step 12/14: Delivery Notes
   // ---------------------------------------------------------------
-  console.log('Step 12/14: Delivery Notes');
+  console.log("Step 12/14: Delivery Notes");
   const dnCsv = readCsv(FILES.deliveryNotes);
   let dnResult: BulkInsertResult | null = null;
   if (dnCsv) {
@@ -824,20 +853,26 @@ async function main(): Promise<void> {
     console.log(`   Parsed: ${docs.length} delivery notes, ${totalItems} line items`);
     if (db) {
       dnResult = await insertDocuments(
-        db, COMPANY_ID, userId, docs,
-        contactLookup, productLookup, 'delivery_note', deliveryNoteStatus,
+        db,
+        COMPANY_ID,
+        userId,
+        docs,
+        contactLookup,
+        productLookup,
+        "delivery_note",
+        deliveryNoteStatus,
       );
     } else {
       dnResult = { inserted: docs.length, skipped: 0, errors: [] };
     }
     console.log(`   ${formatResult(dnResult)}`);
   }
-  summary.push({ step: 'Delivery Notes', result: dnResult });
+  summary.push({ step: "Delivery Notes", result: dnResult });
 
   // ---------------------------------------------------------------
   // Step 13/14: Journal Entries
   // ---------------------------------------------------------------
-  console.log('Step 13/14: Journal Entries');
+  console.log("Step 13/14: Journal Entries");
   const glCsv = readCsv(FILES.journal);
   let glResult: BulkInsertResult | null = null;
   if (glCsv) {
@@ -852,12 +887,12 @@ async function main(): Promise<void> {
     }
     console.log(`   ${formatResult(glResult)}`);
   }
-  summary.push({ step: 'Journal Entries', result: glResult });
+  summary.push({ step: "Journal Entries", result: glResult });
 
   // ---------------------------------------------------------------
   // Step 14/14: Stock Levels
   // ---------------------------------------------------------------
-  console.log('Step 14/14: Stock Levels');
+  console.log("Step 14/14: Stock Levels");
   const stockCsv = readCsv(FILES.stock);
   let stockResult: BulkInsertResult | null = null;
   if (stockCsv) {
@@ -875,9 +910,15 @@ async function main(): Promise<void> {
         .limit(1);
 
       if (!warehouse) {
-        console.log('   [skip] No default warehouse found');
+        console.log("   [skip] No default warehouse found");
       } else {
-        stockResult = await bulkInsertStockLevels(db, COMPANY_ID, warehouse.id, rows, freshProductLookup);
+        stockResult = await bulkInsertStockLevels(
+          db,
+          COMPANY_ID,
+          warehouse.id,
+          rows,
+          freshProductLookup,
+        );
       }
     } else {
       stockResult = { inserted: rows.length, skipped: 0, errors: [] };
@@ -886,25 +927,25 @@ async function main(): Promise<void> {
       console.log(`   ${formatResult(stockResult)}`);
     }
   }
-  summary.push({ step: 'Stock Levels', result: stockResult });
+  summary.push({ step: "Stock Levels", result: stockResult });
 
   // ---------------------------------------------------------------
   // Final: Update number sequences
   // ---------------------------------------------------------------
-  console.log('\nUpdating number sequences...');
+  console.log("\nUpdating number sequences...");
   if (!DRY_RUN && db) {
     await updateSequencesAfterImport(db, COMPANY_ID);
-    console.log('   Done');
+    console.log("   Done");
   } else {
-    console.log('   (skipped in dry-run)');
+    console.log("   (skipped in dry-run)");
   }
 
   // ---------------------------------------------------------------
   // Summary
   // ---------------------------------------------------------------
-  console.log('\n=== SUMMARY ===');
-  console.log('Step              | Inserted | Skipped | Errors');
-  console.log('------------------|----------|---------|-------');
+  console.log("\n=== SUMMARY ===");
+  console.log("Step              | Inserted | Skipped | Errors");
+  console.log("------------------|----------|---------|-------");
   for (const { step, result } of summary) {
     if (result) {
       const ins = String(result.inserted).padStart(8);
@@ -930,15 +971,15 @@ async function main(): Promise<void> {
   }
 
   if (DRY_RUN) {
-    console.log('\nDry run complete. Run without --dry-run to apply changes.');
+    console.log("\nDry run complete. Run without --dry-run to apply changes.");
   } else {
-    console.log('\nImport complete.');
+    console.log("\nImport complete.");
   }
 
   process.exit(0);
 }
 
 main().catch((err) => {
-  console.error('Fatal error:', err);
+  console.error("Fatal error:", err);
   process.exit(1);
 });

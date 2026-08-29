@@ -9,10 +9,7 @@
  * Contact: api@ricardo.ch
  */
 
-import type {
-  RicardoListingPayload,
-  RicardoListingResult,
-} from "@kivvi/core/src/domain/ricardo";
+import type { RicardoListingPayload, RicardoListingResult } from "@kivvi/core/src/domain/ricardo";
 
 const RICARDO_API_BASE = "https://api.ricardo.ch/v2";
 const RICARDO_TOKEN_URL = "https://api.ricardo.ch/oauth/token";
@@ -35,9 +32,7 @@ async function getAccessToken(apiKey: string): Promise<string> {
   // API key is stored as "clientId:clientSecret" (colon-separated)
   const [clientId, clientSecret] = apiKey.split(":");
   if (!clientId || !clientSecret) {
-    throw new Error(
-      "Invalid Ricardo API key format. Expected 'clientId:clientSecret'.",
-    );
+    throw new Error("Invalid Ricardo API key format. Expected 'clientId:clientSecret'.");
   }
 
   const res = await fetch(RICARDO_TOKEN_URL, {
@@ -90,9 +85,7 @@ async function request<T>(
 
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(
-      `Ricardo API ${method} ${path} failed (${res.status}): ${text}`,
-    );
+    throw new Error(`Ricardo API ${method} ${path} failed (${res.status}): ${text}`);
   }
 
   return res.json() as Promise<T>;
@@ -104,12 +97,7 @@ export async function publishListing(
   apiKey: string,
   payload: RicardoListingPayload,
 ): Promise<RicardoListingResult> {
-  const data = await request<{ id: string; url: string }>(
-    apiKey,
-    "POST",
-    "/listings",
-    payload,
-  );
+  const data = await request<{ id: string; url: string }>(apiKey, "POST", "/listings", payload);
   return {
     listingId: data.id,
     listingUrl: data.url,
@@ -124,10 +112,7 @@ export async function updateListing(
   await request(apiKey, "PATCH", `/listings/${listingId}`, payload);
 }
 
-export async function deleteListing(
-  apiKey: string,
-  listingId: string,
-): Promise<void> {
+export async function deleteListing(apiKey: string, listingId: string): Promise<void> {
   await request(apiKey, "DELETE", `/listings/${listingId}`);
 }
 

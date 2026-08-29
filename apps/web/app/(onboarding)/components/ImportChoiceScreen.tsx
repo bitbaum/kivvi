@@ -27,9 +27,7 @@ export function ImportChoiceScreen({
           <Database className="h-5 w-5 text-primary" />
           <h2 className="text-xl font-semibold">{t("dataImport")}</h2>
         </div>
-        <p className="text-sm text-muted-foreground">
-          {t("importDataQuestion")}
-        </p>
+        <p className="text-sm text-muted-foreground">{t("importDataQuestion")}</p>
       </div>
 
       {error && (
@@ -46,9 +44,7 @@ export function ImportChoiceScreen({
           <Upload className="h-10 w-10 text-muted-foreground" />
           <div>
             <div className="font-semibold">{t("importData")}</div>
-            <div className="mt-1 text-sm text-muted-foreground">
-              {t("importDataDesc")}
-            </div>
+            <div className="mt-1 text-sm text-muted-foreground">{t("importDataDesc")}</div>
           </div>
         </button>
 
@@ -64,9 +60,7 @@ export function ImportChoiceScreen({
           )}
           <div>
             <div className="font-semibold">{t("startFresh")}</div>
-            <div className="mt-1 text-sm text-muted-foreground">
-              {t("startFreshDesc")}
-            </div>
+            <div className="mt-1 text-sm text-muted-foreground">{t("startFreshDesc")}</div>
           </div>
         </button>
 
@@ -82,9 +76,7 @@ export function ImportChoiceScreen({
           )}
           <div>
             <div className="font-semibold">{t("sampleData")}</div>
-            <div className="mt-1 text-sm text-muted-foreground">
-              {t("sampleDataDesc")}
-            </div>
+            <div className="mt-1 text-sm text-muted-foreground">{t("sampleDataDesc")}</div>
           </div>
         </button>
       </div>

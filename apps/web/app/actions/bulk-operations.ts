@@ -15,10 +15,7 @@ import {
 } from "@kivvi/core";
 import { deleteContact } from "@kivvi/core/src/domain/contacts";
 import { deleteProduct } from "@kivvi/core/src/domain/products";
-import {
-  reconcileTransaction,
-  matchTransactionToDocument,
-} from "@kivvi/core/src/domain/banking";
+import { reconcileTransaction, matchTransactionToDocument } from "@kivvi/core/src/domain/banking";
 import {
   documentTypeEnum,
   documentStatusEnum,
@@ -27,12 +24,7 @@ import {
   type DocumentStatus,
   type PaymentMethodValue,
 } from "@kivvi/database";
-import {
-  type ActionResult,
-  getSession,
-  requireRole,
-  safeErrorMessage,
-} from "./utils";
+import { type ActionResult, getSession, requireRole, safeErrorMessage } from "./utils";
 import { revalidateDocumentPaths } from "./utils/revalidate-documents";
 import { getTranslations } from "next-intl/server";
 import { DATE_EXACT_REGEX } from "@kivvi/core/src/utils/validation-patterns";
@@ -52,47 +44,33 @@ export interface BulkOperationResult<T = unknown> {
 // ============================================================================
 
 const bulkConvertSchema = z.object({
-  documentIds: z
-    .array(z.string().uuid())
-    .min(1, "At least one document ID is required"),
+  documentIds: z.array(z.string().uuid()).min(1, "At least one document ID is required"),
   targetType: z.enum(documentTypeEnum.enumValues),
 });
 
 const bulkSendDunningSchema = z.object({
-  invoiceIds: z
-    .array(z.string().uuid())
-    .min(1, "At least one invoice ID is required"),
+  invoiceIds: z.array(z.string().uuid()).min(1, "At least one invoice ID is required"),
 });
 
 const bulkExtendQuoteValiditySchema = z.object({
-  quoteIds: z
-    .array(z.string().uuid())
-    .min(1, "At least one quote ID is required"),
+  quoteIds: z.array(z.string().uuid()).min(1, "At least one quote ID is required"),
   extensionDays: z.number().int().min(1).max(365),
 });
 
 const bulkMatchTransactionsSchema = z.object({
-  transactionIds: z
-    .array(z.string().uuid())
-    .min(1, "At least one transaction ID is required"),
+  transactionIds: z.array(z.string().uuid()).min(1, "At least one transaction ID is required"),
 });
 
 const bulkDocumentIdsSchema = z.object({
-  documentIds: z
-    .array(z.string().uuid())
-    .min(1, "At least one document ID is required"),
+  documentIds: z.array(z.string().uuid()).min(1, "At least one document ID is required"),
 });
 
 const bulkContactIdsSchema = z.object({
-  contactIds: z
-    .array(z.string().uuid())
-    .min(1, "At least one contact ID is required"),
+  contactIds: z.array(z.string().uuid()).min(1, "At least one contact ID is required"),
 });
 
 const bulkProductIdsSchema = z.object({
-  productIds: z
-    .array(z.string().uuid())
-    .min(1, "At least one product ID is required"),
+  productIds: z.array(z.string().uuid()).min(1, "At least one product ID is required"),
 });
 
 /**
@@ -105,10 +83,7 @@ async function runBulkOperation<T = unknown>(
   operation: (id: string) => Promise<T | undefined>,
   revalidate: () => void,
   errorLabel: string,
-  translateDomainError?: (
-    code: string,
-    params?: Record<string, string>,
-  ) => string,
+  translateDomainError?: (code: string, params?: Record<string, string>) => string,
 ): Promise<ActionResult<BulkOperationResult<T>>> {
   const results: BulkOperationResult<T>["results"] = [];
 
@@ -135,10 +110,7 @@ async function runBulkOperation<T = unknown>(
   return { success: true, data: { successCount, failureCount, results } };
 }
 
-function parseInput<T>(
-  schema: z.ZodType<T>,
-  input: unknown,
-): ActionResult<T> | T {
+function parseInput<T>(schema: z.ZodType<T>, input: unknown): ActionResult<T> | T {
   const parsed = schema.safeParse(input);
   if (!parsed.success) {
     const firstError = parsed.error.errors[0];
@@ -162,10 +134,8 @@ export async function bulkConvertDocumentsAction(
     getTranslations("bulkActions"),
     getTranslations("domainErrors"),
   ]);
-  const translateDomainError = (
-    code: string,
-    params?: Record<string, string>,
-  ) => tDomain(code as Parameters<typeof tDomain>[0], params);
+  const translateDomainError = (code: string, params?: Record<string, string>) =>
+    tDomain(code as Parameters<typeof tDomain>[0], params);
   try {
     const { companyId, userId } = await requireRole("member");
     const data = parseInput(bulkConvertSchema, input);
@@ -190,11 +160,7 @@ export async function bulkConvertDocumentsAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(
-        error,
-        t("errorBulkConvert"),
-        translateDomainError,
-      ),
+      error: safeErrorMessage(error, t("errorBulkConvert"), translateDomainError),
     };
   }
 }
@@ -202,11 +168,7 @@ export async function bulkConvertDocumentsAction(
 /** Bulk send dunning notices for overdue invoices. */
 export async function bulkSendDunningAction(
   input: unknown,
-): Promise<
-  ActionResult<
-    BulkOperationResult<{ dunningDocId: string; dunningNumber: string }>
-  >
-> {
+): Promise<ActionResult<BulkOperationResult<{ dunningDocId: string; dunningNumber: string }>>> {
   const t = await getTranslations("bulkActions");
   try {
     const { companyId, userId } = await requireRole("member");
@@ -216,12 +178,7 @@ export async function bulkSendDunningAction(
     return runBulkOperation(
       data.invoiceIds,
       async (invoiceId) => {
-        const { dunningDoc } = await createDunning(
-          db,
-          companyId,
-          userId,
-          invoiceId,
-        );
+        const { dunningDoc } = await createDunning(db, companyId, userId, invoiceId);
         return {
           dunningDocId: dunningDoc.id,
           dunningNumber: dunningDoc.number,
@@ -253,8 +210,7 @@ export async function bulkExtendQuoteValidityAction(
 
     return runBulkOperation(
       data.quoteIds,
-      async (quoteId) =>
-        extendQuoteValidity(db, companyId, quoteId, data.extensionDays),
+      async (quoteId) => extendQuoteValidity(db, companyId, quoteId, data.extensionDays),
       () => revalidateDocumentPaths("quote"),
       t("errorExtendQuoteValidity"),
     );
@@ -269,11 +225,7 @@ export async function bulkExtendQuoteValidityAction(
 /** Bulk match bank transactions to invoices. */
 export async function bulkMatchTransactionsAction(
   input: unknown,
-): Promise<
-  ActionResult<
-    BulkOperationResult<{ documentId: string; documentNumber: string }>
-  >
-> {
+): Promise<ActionResult<BulkOperationResult<{ documentId: string; documentNumber: string }>>> {
   const t = await getTranslations("bulkActions");
   try {
     const { companyId } = await requireRole("member");
@@ -310,10 +262,8 @@ export async function bulkStatusChangeAction(
     getTranslations("bulkActions"),
     getTranslations("domainErrors"),
   ]);
-  const translateDomainError = (
-    code: string,
-    params?: Record<string, string>,
-  ) => tDomain(code as Parameters<typeof tDomain>[0], params);
+  const translateDomainError = (code: string, params?: Record<string, string>) =>
+    tDomain(code as Parameters<typeof tDomain>[0], params);
   try {
     const { companyId } = await requireRole("member");
     const schema = bulkDocumentIdsSchema.extend({
@@ -325,12 +275,7 @@ export async function bulkStatusChangeAction(
     return runBulkOperation(
       data.documentIds,
       async (docId) => {
-        await updateDocumentStatus(
-          db,
-          companyId,
-          docId,
-          data.targetStatus as DocumentStatus,
-        );
+        await updateDocumentStatus(db, companyId, docId, data.targetStatus as DocumentStatus);
         return undefined;
       },
       () => revalidatePath("/"),
@@ -340,11 +285,7 @@ export async function bulkStatusChangeAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(
-        error,
-        t("errorBulkUpdateStatus"),
-        translateDomainError,
-      ),
+      error: safeErrorMessage(error, t("errorBulkUpdateStatus"), translateDomainError),
     };
   }
 }
@@ -357,10 +298,8 @@ export async function bulkMarkPaidAction(
     getTranslations("bulkActions"),
     getTranslations("domainErrors"),
   ]);
-  const translateDomainError = (
-    code: string,
-    params?: Record<string, string>,
-  ) => tDomain(code as Parameters<typeof tDomain>[0], params);
+  const translateDomainError = (code: string, params?: Record<string, string>) =>
+    tDomain(code as Parameters<typeof tDomain>[0], params);
   try {
     const { companyId } = await requireRole("member");
     const schema = bulkDocumentIdsSchema.extend({
@@ -394,11 +333,7 @@ export async function bulkMarkPaidAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(
-        error,
-        t("errorBulkMarkPaid"),
-        translateDomainError,
-      ),
+      error: safeErrorMessage(error, t("errorBulkMarkPaid"), translateDomainError),
     };
   }
 }
@@ -411,10 +346,8 @@ export async function bulkDeleteDocumentsAction(
     getTranslations("bulkActions"),
     getTranslations("domainErrors"),
   ]);
-  const translateDomainError = (
-    code: string,
-    params?: Record<string, string>,
-  ) => tDomain(code as Parameters<typeof tDomain>[0], params);
+  const translateDomainError = (code: string, params?: Record<string, string>) =>
+    tDomain(code as Parameters<typeof tDomain>[0], params);
   try {
     const { companyId } = await requireRole("member");
     const data = parseInput(bulkDocumentIdsSchema, input);
@@ -433,11 +366,7 @@ export async function bulkDeleteDocumentsAction(
   } catch (error) {
     return {
       success: false,
-      error: safeErrorMessage(
-        error,
-        t("errorBulkDeleteDocuments"),
-        translateDomainError,
-      ),
+      error: safeErrorMessage(error, t("errorBulkDeleteDocuments"), translateDomainError),
     };
   }
 }

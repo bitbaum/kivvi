@@ -25,22 +25,17 @@ export async function TopDonorsSection({
       ) : (
         <div className="space-y-3">
           {topDonors.map((donor, i) => {
-            const co2PerItem =
-              metrics.itemsReused > 0 ? co2Kg / metrics.itemsReused : 0;
+            const co2PerItem = metrics.itemsReused > 0 ? co2Kg / metrics.itemsReused : 0;
             const donorCo2Kg = Math.round(donor.itemsReused * co2PerItem);
             const pct =
               metrics.itemsProcessed > 0
-                ? Math.round(
-                    (donor.itemsDonated / metrics.itemsProcessed) * 100,
-                  )
+                ? Math.round((donor.itemsDonated / metrics.itemsProcessed) * 100)
                 : 0;
             return (
               <div key={donor.donorId}>
                 <div className="mb-1 flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
-                    <span className="w-4 text-xs font-bold text-muted-foreground">
-                      {i + 1}.
-                    </span>
+                    <span className="w-4 text-xs font-bold text-muted-foreground">{i + 1}.</span>
                     <span className="font-medium">{donor.donorName}</span>
                   </div>
                   <div className="flex items-center gap-3 text-xs text-muted-foreground">
@@ -57,10 +52,7 @@ export async function TopDonorsSection({
                   </div>
                 </div>
                 <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-                  <div
-                    className="h-full rounded-full bg-primary/60"
-                    style={{ width: `${pct}%` }}
-                  />
+                  <div className="h-full rounded-full bg-primary/60" style={{ width: `${pct}%` }} />
                 </div>
               </div>
             );

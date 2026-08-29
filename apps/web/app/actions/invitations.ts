@@ -14,10 +14,7 @@ import {
   acceptInvitation,
   getInvitationByToken,
 } from "@kivvi/core/src/domain/invitations";
-import type {
-  PendingInvitation,
-  InvitationWithCompany,
-} from "@kivvi/core/src/domain/invitations";
+import type { PendingInvitation, InvitationWithCompany } from "@kivvi/core/src/domain/invitations";
 import type { MembershipRole } from "@kivvi/database";
 import {
   companies,
@@ -57,16 +54,12 @@ export const inviteMemberAction = createAction<
       .object({
         email: z.string().email(t("emailInvalid")),
         role: z.enum(INVITABLE_ROLES).default("member"),
-        permissionPreset: z
-          .enum(INVITABLE_PERMISSION_PRESET_VALUES)
-          .default("sales"),
+        permissionPreset: z.enum(INVITABLE_PERMISSION_PRESET_VALUES).default("sales"),
       })
       .safeParse(input);
 
     if (!parsed.success) {
-      throw new Error(
-        parsed.error.errors[0]?.message || t("errorSendInvitation"),
-      );
+      throw new Error(parsed.error.errors[0]?.message || t("errorSendInvitation"));
     }
 
     const invitation = await createInvitation(
@@ -138,8 +131,7 @@ export const inviteMemberAction = createAction<
     };
   },
   revalidate: ["/settings/team"],
-  errorMessage: () =>
-    getTranslations("team").then((t) => t("errorSendInvitation")),
+  errorMessage: () => getTranslations("team").then((t) => t("errorSendInvitation")),
   minRole: "admin",
 });
 
@@ -161,10 +153,8 @@ export const revokeInvitationAction = createAction<string, void>({
  * List pending invitations for the current company.
  */
 export const getInvitationsAction = createAction<void, PendingInvitation[]>({
-  errorMessage: () =>
-    getTranslations("team").then((t) => t("errorLoadInvitation")),
-  handler: async (_input, { companyId, db }) =>
-    getCompanyInvitations(db, companyId),
+  errorMessage: () => getTranslations("team").then((t) => t("errorLoadInvitation")),
+  handler: async (_input, { companyId, db }) => getCompanyInvitations(db, companyId),
 });
 
 /**
@@ -220,9 +210,7 @@ export async function getInvitationDetailsAction(
 }
 
 export async function getMyPendingInvitationsAction(): Promise<
-  ActionResult<
-    Array<PendingInvitation & { companyName: string; inviteUrl: string }>
-  >
+  ActionResult<Array<PendingInvitation & { companyName: string; inviteUrl: string }>>
 > {
   const t = await getTranslations("team");
   try {
@@ -247,19 +235,13 @@ export async function getMyPendingInvitationsAction(): Promise<
       .from(invitations)
       .innerJoin(companies, eq(invitations.companyId, companies.id))
       .innerJoin(users, eq(invitations.invitedBy, users.id))
-      .where(
-        and(
-          eq(invitations.email, normalizedEmail),
-          eq(invitations.status, "pending"),
-        ),
-      );
+      .where(and(eq(invitations.email, normalizedEmail), eq(invitations.status, "pending")));
 
     return {
       success: true,
       data: rows.map((row) => ({
         ...row,
-        permissionPreset:
-          row.permissionPreset as PendingInvitation["permissionPreset"],
+        permissionPreset: row.permissionPreset as PendingInvitation["permissionPreset"],
         inviteUrl: `${baseUrl}/invite/${row.token}`,
       })),
     };

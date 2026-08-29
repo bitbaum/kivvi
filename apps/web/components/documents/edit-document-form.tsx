@@ -48,9 +48,7 @@ export function EditDocumentForm({
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
-  const [contactId, setContactId] = useState<string | null>(
-    initialData.contactId,
-  );
+  const [contactId, setContactId] = useState<string | null>(initialData.contactId);
   const [contactName, setContactName] = useState(initialData.contactName);
   const [issueDate, setIssueDate] = useState(initialData.issueDate);
   const [dueDate, setDueDate] = useState(initialData.dueDate);
@@ -83,11 +81,7 @@ export function EditDocumentForm({
     setItems(items.filter((i) => i.id !== id));
   };
 
-  const updateItem = (
-    id: string,
-    field: keyof LineItem,
-    value: string | null,
-  ) => {
+  const updateItem = (id: string, field: keyof LineItem, value: string | null) => {
     setItems(items.map((i) => (i.id === id ? { ...i, [field]: value } : i)));
   };
 
@@ -106,8 +100,7 @@ export function EditDocumentForm({
         contactId: contactId || null,
         issueDate,
         dueDate: config.hasDueDate && dueDate ? dueDate : null,
-        deliveryDate:
-          config.hasDeliveryDate && deliveryDate ? deliveryDate : null,
+        deliveryDate: config.hasDeliveryDate && deliveryDate ? deliveryDate : null,
         notes: notes || null,
         internalNotes: internalNotes || null,
         items: validItems.map((item, index) => ({
@@ -166,9 +159,7 @@ export function EditDocumentForm({
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <div>
-          <h1 className="text-3xl font-bold">
-            {t("editDocument", { type: t(config.label) })}
-          </h1>
+          <h1 className="text-3xl font-bold">{t("editDocument", { type: t(config.label) })}</h1>
           <p className="text-muted-foreground">{t("modifyDraft")}</p>
         </div>
       </div>
@@ -184,17 +175,13 @@ export function EditDocumentForm({
                 setContactId(id);
                 setContactName(name);
               }}
-              contactType={
-                config.contactFilter === "vendor" ? "vendor" : "customer"
-              }
+              contactType={config.contactFilter === "vendor" ? "vendor" : "customer"}
               allowQuickCreate={false}
             />
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium">
-                  {t("issueDate")}
-                </label>
+                <label className="block text-sm font-medium">{t("issueDate")}</label>
                 <FormInput
                   type="date"
                   value={issueDate}
@@ -204,9 +191,7 @@ export function EditDocumentForm({
               </div>
               {config.hasDueDate && (
                 <div>
-                  <label className="block text-sm font-medium">
-                    {t(config.dueDateLabel)}
-                  </label>
+                  <label className="block text-sm font-medium">{t(config.dueDateLabel)}</label>
                   <FormInput
                     type="date"
                     value={dueDate}
@@ -218,9 +203,7 @@ export function EditDocumentForm({
               {config.hasDeliveryDate && (
                 <div>
                   <label className="block text-sm font-medium">
-                    {config.hasDueDate
-                      ? t("deliveryDate")
-                      : t(config.dueDateLabel)}
+                    {config.hasDueDate ? t("deliveryDate") : t(config.dueDateLabel)}
                   </label>
                   <FormInput
                     type="date"
@@ -271,9 +254,7 @@ export function EditDocumentForm({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium">
-                {t("internalNotes")}
-              </label>
+              <label className="block text-sm font-medium">{t("internalNotes")}</label>
               <CharCountTextarea
                 value={internalNotes}
                 onChange={(e) => setInternalNotes(e.target.value)}

@@ -22,97 +22,98 @@
 @layer base {
   :root {
     /* ── Core surface + text (achromatic) ────────────────── */
-    --background:             0 0% 99%;
-    --foreground:             0 0% 9%;
-    --card:                   0 0% 100%;
-    --card-foreground:        0 0% 9%;
-    --popover:                0 0% 100%;
-    --popover-foreground:     0 0% 9%;
+    --background: 0 0% 99%;
+    --foreground: 0 0% 9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 9%;
 
     /* ── Primary = near-black (was Kivvi green).
        Use --brand for places that should carry the Kivvi identity. ── */
-    --primary:                0 0% 9%;
-    --primary-foreground:     0 0% 99%;
-    --secondary:              0 0% 96%;
-    --secondary-foreground:   0 0% 9%;
-    --muted:                  0 0% 96%;
-    --muted-foreground:       0 0% 45%;
-    --accent:                 0 0% 96%;
-    --accent-foreground:      0 0% 9%;
-    --destructive:            0 70% 45%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 99%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 70% 45%;
     --destructive-foreground: 0 0% 100%;
-    --border:                 0 0% 89%;
-    --input:                  0 0% 89%;
-    --ring:                   0 0% 25%;
-    --radius:                 0.5rem;
+    --border: 0 0% 89%;
+    --input: 0 0% 89%;
+    --ring: 0 0% 25%;
+    --radius: 0.5rem;
 
     /* ── Brand (Kivvi green) — used deliberately, not by default ── */
-    --brand:                  152 76% 36%;
-    --brand-foreground:       0 0% 100%;
-    --brand-from:             #10b981;
-    --brand-to:               #059669;
+    --brand: 152 76% 36%;
+    --brand-foreground: 0 0% 100%;
+    --brand-from: #10b981;
+    --brand-to: #059669;
 
     /* ── Surface hierarchy (use bg-surface-*) ──────────────── */
-    --surface-page:           0 0% 99%;
-    --surface-base:           0 0% 100%;
-    --surface-raised:         0 0% 97%;
-    --surface-overlay:        0 0% 96%;
-    --surface-modal:          0 0% 100%;
-    --surface-public:         0 0% 4%;
+    --surface-page: 0 0% 99%;
+    --surface-base: 0 0% 100%;
+    --surface-raised: 0 0% 97%;
+    --surface-overlay: 0 0% 96%;
+    --surface-modal: 0 0% 100%;
+    --surface-public: 0 0% 4%;
 
     /* ── Border tiers (use border-{subtle,default,strong,interactive}) ── */
-    --border-subtle:          0 0% 93%;
-    --border-default:         0 0% 87%;
-    --border-strong:          0 0% 70%;
-    --border-interactive:     0 0% 25%;
+    --border-subtle: 0 0% 93%;
+    --border-default: 0 0% 87%;
+    --border-strong: 0 0% 70%;
+    --border-interactive: 0 0% 25%;
 
     /* ── Semantic text tokens ──────────────────────────────── */
-    --text-primary:           0 0% 9%;
-    --text-secondary:         0 0% 32%;
-    --text-tertiary:          0 0% 48%;
-    --text-muted:             0 0% 64%;
-    --text-inverted:          0 0% 99%;
+    --text-primary: 0 0% 9%;
+    --text-secondary: 0 0% 32%;
+    --text-tertiary: 0 0% 48%;
+    --text-muted: 0 0% 64%;
+    --text-inverted: 0 0% 99%;
 
     /* ── Accent surface (interactive bg, hover) ──────────────── */
-    --accent-muted:           0 0% 92%;
-    --accent-hover:           0 0% 88%;
+    --accent-muted: 0 0% 92%;
+    --accent-hover: 0 0% 88%;
 
     /* ── Status — muted, low-chroma ────────────────────────── */
-    --success:                152 60% 32%;
-    --success-foreground:     0 0% 100%;
-    --success-subtle:         152 60% 32%;
-    --warning:                32 75% 38%;
-    --warning-foreground:     0 0% 100%;
-    --warning-subtle:         32 75% 38%;
-    --info:                   217 60% 42%;
-    --info-foreground:        0 0% 100%;
-    --info-subtle:            217 60% 42%;
-    --neutral:                0 0% 42%;
-    --neutral-foreground:     0 0% 100%;
-    --tag-purple:             271 50% 45%;
-    --tag-purple-foreground:  0 0% 100%;
-    --tag-rose:               347 60% 45%;
-    --tag-rose-foreground:    0 0% 100%;
+    --success: 152 60% 32%;
+    --success-foreground: 0 0% 100%;
+    --success-subtle: 152 60% 32%;
+    --warning: 32 75% 38%;
+    --warning-foreground: 0 0% 100%;
+    --warning-subtle: 32 75% 38%;
+    --info: 217 60% 42%;
+    --info-foreground: 0 0% 100%;
+    --info-subtle: 217 60% 42%;
+    --neutral: 0 0% 42%;
+    --neutral-foreground: 0 0% 100%;
+    --tag-purple: 271 50% 45%;
+    --tag-purple-foreground: 0 0% 100%;
+    --tag-rose: 347 60% 45%;
+    --tag-rose-foreground: 0 0% 100%;
 
     /* ── Typography ───────────────────────────────────────── */
-    --font-sans:              var(--font-space-grotesk), 'Inter', system-ui, -apple-system, sans-serif;
-    --font-display:           var(--font-space-grotesk-display), var(--font-space-grotesk), 'Inter', system-ui, sans-serif;
-    --font-mono:              'JetBrains Mono', 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+    --font-sans: var(--font-space-grotesk), "Inter", system-ui, -apple-system, sans-serif;
+    --font-display:
+      var(--font-space-grotesk-display), var(--font-space-grotesk), "Inter", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
 
-    --text-nano:              0.5rem;     /* 8px  */
-    --text-micro:             0.625rem;   /* 10px */
+    --text-nano: 0.5rem; /* 8px  */
+    --text-micro: 0.625rem; /* 10px */
 
-    --tracking-display:       -0.03em;
-    --tracking-label:         0.10em;
-    --tracking-caps:          0.16em;
+    --tracking-display: -0.03em;
+    --tracking-label: 0.1em;
+    --tracking-caps: 0.16em;
 
     /* ── Shadows (layered, subtle) ─────────────────────────── */
-    --shadow-panel:           0 1px 3px rgb(0 0 0 / 4%), 0 4px 12px rgb(0 0 0 / 4%);
-    --shadow-panel-strong:    0 2px 6px rgb(0 0 0 / 6%), 0 8px 24px rgb(0 0 0 / 6%);
+    --shadow-panel: 0 1px 3px rgb(0 0 0 / 4%), 0 4px 12px rgb(0 0 0 / 4%);
+    --shadow-panel-strong: 0 2px 6px rgb(0 0 0 / 6%), 0 8px 24px rgb(0 0 0 / 6%);
 
     /* ── Layout ───────────────────────────────────────────── */
-    --shell-max:              90rem;      /* 1440px */
-    --page-min-height:        60vh;
+    --shell-max: 90rem; /* 1440px */
+    --page-min-height: 60vh;
   }
 }
 
@@ -120,68 +121,68 @@
    PostCSS pass was stripping the raw `.dark { ... }` rule when it lived
    inside the layer. Result: dark mode silently inherited light values. */
 .dark {
-    --background:             0 0% 5%;
-    --foreground:             0 0% 95%;
-    --card:                   0 0% 8%;
-    --card-foreground:        0 0% 95%;
-    --popover:                0 0% 10%;
-    --popover-foreground:     0 0% 95%;
+  --background: 0 0% 5%;
+  --foreground: 0 0% 95%;
+  --card: 0 0% 8%;
+  --card-foreground: 0 0% 95%;
+  --popover: 0 0% 10%;
+  --popover-foreground: 0 0% 95%;
 
-    --primary:                0 0% 95%;
-    --primary-foreground:     0 0% 5%;
-    --secondary:              0 0% 13%;
-    --secondary-foreground:   0 0% 95%;
-    --muted:                  0 0% 13%;
-    --muted-foreground:       0 0% 60%;
-    --accent:                 0 0% 13%;
-    --accent-foreground:      0 0% 95%;
-    --destructive:            0 60% 50%;
-    --destructive-foreground: 0 0% 95%;
-    --border:                 0 0% 16%;
-    --input:                  0 0% 16%;
-    --ring:                   0 0% 70%;
+  --primary: 0 0% 95%;
+  --primary-foreground: 0 0% 5%;
+  --secondary: 0 0% 13%;
+  --secondary-foreground: 0 0% 95%;
+  --muted: 0 0% 13%;
+  --muted-foreground: 0 0% 60%;
+  --accent: 0 0% 13%;
+  --accent-foreground: 0 0% 95%;
+  --destructive: 0 60% 50%;
+  --destructive-foreground: 0 0% 95%;
+  --border: 0 0% 16%;
+  --input: 0 0% 16%;
+  --ring: 0 0% 70%;
 
-    --brand:                  152 60% 48%;
-    --brand-foreground:       0 0% 5%;
-    --brand-from:             #34d399;
-    --brand-to:               #10b981;
+  --brand: 152 60% 48%;
+  --brand-foreground: 0 0% 5%;
+  --brand-from: #34d399;
+  --brand-to: #10b981;
 
-    --surface-page:           0 0% 5%;
-    --surface-base:           0 0% 8%;
-    --surface-raised:         0 0% 12%;
-    --surface-overlay:        0 0% 15%;
-    --surface-modal:          0 0% 10%;
-    --surface-public:         0 0% 4%;
+  --surface-page: 0 0% 5%;
+  --surface-base: 0 0% 8%;
+  --surface-raised: 0 0% 12%;
+  --surface-overlay: 0 0% 15%;
+  --surface-modal: 0 0% 10%;
+  --surface-public: 0 0% 4%;
 
-    --border-subtle:          0 0% 12%;
-    --border-default:         0 0% 18%;
-    --border-strong:          0 0% 32%;
-    --border-interactive:     0 0% 70%;
+  --border-subtle: 0 0% 12%;
+  --border-default: 0 0% 18%;
+  --border-strong: 0 0% 32%;
+  --border-interactive: 0 0% 70%;
 
-    --text-primary:           0 0% 95%;
-    --text-secondary:         0 0% 68%;
-    --text-tertiary:          0 0% 52%;
-    --text-muted:             0 0% 38%;
-    --text-inverted:          0 0% 5%;
+  --text-primary: 0 0% 95%;
+  --text-secondary: 0 0% 68%;
+  --text-tertiary: 0 0% 52%;
+  --text-muted: 0 0% 38%;
+  --text-inverted: 0 0% 5%;
 
-    --accent-muted:           0 0% 14%;
-    --accent-hover:           0 0% 18%;
+  --accent-muted: 0 0% 14%;
+  --accent-hover: 0 0% 18%;
 
-    --success:                152 50% 50%;
-    --success-foreground:     152 70% 8%;
-    --warning:                32 70% 58%;
-    --warning-foreground:     32 85% 8%;
-    --info:                   217 60% 60%;
-    --info-foreground:        217 75% 8%;
-    --neutral:                0 0% 60%;
-    --neutral-foreground:     0 0% 8%;
-    --tag-purple:             271 55% 65%;
-    --tag-purple-foreground:  271 70% 8%;
-    --tag-rose:               347 65% 62%;
-    --tag-rose-foreground:    347 75% 8%;
+  --success: 152 50% 50%;
+  --success-foreground: 152 70% 8%;
+  --warning: 32 70% 58%;
+  --warning-foreground: 32 85% 8%;
+  --info: 217 60% 60%;
+  --info-foreground: 217 75% 8%;
+  --neutral: 0 0% 60%;
+  --neutral-foreground: 0 0% 8%;
+  --tag-purple: 271 55% 65%;
+  --tag-purple-foreground: 271 70% 8%;
+  --tag-rose: 347 65% 62%;
+  --tag-rose-foreground: 347 75% 8%;
 
-    --shadow-panel:           0 1px 0 rgb(255 255 255 / 4%), 0 0 0 1px rgb(255 255 255 / 6%);
-    --shadow-panel-strong:    0 2px 0 rgb(255 255 255 / 4%), 0 0 0 1px rgb(255 255 255 / 8%);
+  --shadow-panel: 0 1px 0 rgb(255 255 255 / 4%), 0 0 0 1px rgb(255 255 255 / 6%);
+  --shadow-panel-strong: 0 2px 0 rgb(255 255 255 / 4%), 0 0 0 1px rgb(255 255 255 / 8%);
 }
 
 /* ============================================================
@@ -246,11 +247,21 @@
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-  .tracking-display { letter-spacing: var(--tracking-display); }
-  .tracking-label   { letter-spacing: var(--tracking-label); }
-  .tracking-caps    { letter-spacing: var(--tracking-caps); }
-  .shadow-panel        { box-shadow: var(--shadow-panel); }
-  .shadow-panel-strong { box-shadow: var(--shadow-panel-strong); }
+  .tracking-display {
+    letter-spacing: var(--tracking-display);
+  }
+  .tracking-label {
+    letter-spacing: var(--tracking-label);
+  }
+  .tracking-caps {
+    letter-spacing: var(--tracking-caps);
+  }
+  .shadow-panel {
+    box-shadow: var(--shadow-panel);
+  }
+  .shadow-panel-strong {
+    box-shadow: var(--shadow-panel-strong);
+  }
 }
 
 /* ============================================================
@@ -268,15 +279,27 @@
     @apply bg-background text-foreground text-sm;
     font-family: var(--font-sans);
   }
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     font-family: var(--font-display);
     letter-spacing: var(--tracking-display);
     line-height: 1.1;
   }
-  h1 { @apply text-2xl font-bold; }
-  h2 { @apply text-lg font-semibold; }
-  h3 { @apply text-base font-semibold; }
-  p, li { line-height: 1.6; }
+  h1 {
+    @apply text-2xl font-bold;
+  }
+  h2 {
+    @apply text-lg font-semibold;
+  }
+  h3 {
+    @apply text-base font-semibold;
+  }
+  p,
+  li {
+    line-height: 1.6;
+  }
 }
 
 /* ============================================================

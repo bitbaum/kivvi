@@ -15,12 +15,7 @@ export type ContactFormInput = {
   name: string;
   email: string;
   organisation?: string;
-  betriebstyp?:
-    | "it_refurbisher"
-    | "brockenshaus"
-    | "repair_cafe"
-    | "vintage_shop"
-    | "other";
+  betriebstyp?: "it_refurbisher" | "brockenshaus" | "repair_cafe" | "vintage_shop" | "other";
   message?: string;
   type?: "demo_request" | "waitlist" | "general";
 };
@@ -39,19 +34,10 @@ export async function submitContactFormAction(
       email: z.string().email(t("emailInvalid")),
       organisation: z.string().optional(),
       betriebstyp: z
-        .enum([
-          "it_refurbisher",
-          "brockenshaus",
-          "repair_cafe",
-          "vintage_shop",
-          "other",
-        ])
+        .enum(["it_refurbisher", "brockenshaus", "repair_cafe", "vintage_shop", "other"])
         .optional(),
       message: z.string().max(2000).optional(),
-      type: z
-        .enum(["demo_request", "waitlist", "general"])
-        .optional()
-        .default("demo_request"),
+      type: z.enum(["demo_request", "waitlist", "general"]).optional().default("demo_request"),
     });
     // Validate input
     const parsed = contactFormSchema.safeParse(input);
@@ -60,8 +46,7 @@ export async function submitContactFormAction(
       return { success: false, error: firstError.message };
     }
 
-    const { name, email, organisation, betriebstyp, message, type } =
-      parsed.data;
+    const { name, email, organisation, betriebstyp, message, type } = parsed.data;
 
     // Insert into DB
     const [submission] = await db
@@ -109,10 +94,7 @@ export async function submitContactFormAction(
           `,
         });
       } catch (emailError) {
-        logger.warn(
-          "[contactFormAction] Failed to send notification email",
-          emailError,
-        );
+        logger.warn("[contactFormAction] Failed to send notification email", emailError);
       }
     }
 

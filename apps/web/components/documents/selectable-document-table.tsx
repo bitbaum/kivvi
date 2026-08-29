@@ -63,16 +63,10 @@ export function SelectableDocumentTable({
     isSomeSelected,
     count,
   } = useSelection(allIds);
-  const [bulkResult, setBulkResult] = useState<BulkOperationResult | null>(
-    null,
-  );
+  const [bulkResult, setBulkResult] = useState<BulkOperationResult | null>(null);
 
   const selectedStatuses = useMemo(
-    () => [
-      ...new Set(
-        data.filter((d) => selectedIds.includes(d.id)).map((d) => d.status),
-      ),
-    ],
+    () => [...new Set(data.filter((d) => selectedIds.includes(d.id)).map((d) => d.status))],
     [data, selectedIds],
   );
 
@@ -88,8 +82,7 @@ export function SelectableDocumentTable({
 
   function isOverdue(doc: DocumentItem): boolean {
     if (!config.hasPayments) return false;
-    return getOverdueInfo({ status: doc.status, dueDate: doc.dueDate ?? null })
-      .isOverdue;
+    return getOverdueInfo({ status: doc.status, dueDate: doc.dueDate ?? null }).isOverdue;
   }
 
   return (
@@ -117,9 +110,7 @@ export function SelectableDocumentTable({
         <span>{translations.columnLabels.number}</span>
         <span>{translations.columnLabels.contact}</span>
         <span className="text-right">{translations.columnLabels.total}</span>
-        <span className="px-4 text-center">
-          {translations.columnLabels.status}
-        </span>
+        <span className="px-4 text-center">{translations.columnLabels.status}</span>
         <span className="text-right">{translations.columnLabels.date}</span>
       </div>
 
@@ -127,8 +118,7 @@ export function SelectableDocumentTable({
       <div className="divide-y">
         {data.map((doc) => {
           const overdue = isOverdue(doc);
-          const displayStatus =
-            overdue && doc.status !== "overdue" ? "overdue" : doc.status;
+          const displayStatus = overdue && doc.status !== "overdue" ? "overdue" : doc.status;
           return (
             <div
               key={doc.id}
@@ -162,18 +152,12 @@ export function SelectableDocumentTable({
                 </div>
                 {/* Mobile: show key info inline */}
                 <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground sm:hidden">
-                  <span>
-                    {doc.contact?.name || translations.columnLabels.noContact}
-                  </span>
+                  <span>{doc.contact?.name || translations.columnLabels.noContact}</span>
                   <span>·</span>
-                  <span className="font-medium text-foreground">
-                    {formatCurrency(doc.total)}
-                  </span>
+                  <span className="font-medium text-foreground">{formatCurrency(doc.total)}</span>
                   <span>·</span>
                   <span>
-                    {config.hasDeliveryDate &&
-                    !config.hasDueDate &&
-                    doc.deliveryDate
+                    {config.hasDeliveryDate && !config.hasDueDate && doc.deliveryDate
                       ? formatDate(doc.deliveryDate)
                       : formatDate(doc.issueDate)}
                   </span>
@@ -192,14 +176,11 @@ export function SelectableDocumentTable({
                     STATUS_STYLES[displayStatus] || STATUS_STYLES.draft,
                   )}
                 >
-                  {translations.statusLabels[toCamelCase(displayStatus)] ||
-                    displayStatus}
+                  {translations.statusLabels[toCamelCase(displayStatus)] || displayStatus}
                 </span>
               </div>
               <div className="hidden text-right text-sm text-muted-foreground sm:block">
-                {config.hasDeliveryDate &&
-                !config.hasDueDate &&
-                doc.deliveryDate
+                {config.hasDeliveryDate && !config.hasDueDate && doc.deliveryDate
                   ? formatDate(doc.deliveryDate)
                   : formatDate(doc.issueDate)}
               </div>

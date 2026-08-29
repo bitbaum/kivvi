@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useTranslations } from 'next-intl';
+import { useTranslations } from "next-intl";
 
 interface ImportPreviewProps {
   rows: Array<Record<string, string | null>>;
@@ -8,13 +8,13 @@ interface ImportPreviewProps {
 }
 
 export function ImportPreview({ rows, maxRows = 5 }: ImportPreviewProps) {
-  const t = useTranslations('onboarding');
+  const t = useTranslations("onboarding");
 
   if (rows.length === 0) return null;
 
   const previewRows = rows.slice(0, maxRows);
-  const allKeys = Object.keys(previewRows[0]).filter(
-    (k) => previewRows.some((r) => r[k] && r[k]!.trim() !== '')
+  const allKeys = Object.keys(previewRows[0]).filter((k) =>
+    previewRows.some((r) => r[k] && r[k]!.trim() !== ""),
   );
 
   // Show max 6 columns to avoid overflow
@@ -24,12 +24,10 @@ export function ImportPreview({ rows, maxRows = 5 }: ImportPreviewProps) {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium">
-          {t('preview', { rows: rows.length })}
-        </span>
+        <span className="text-sm font-medium">{t("preview", { rows: rows.length })}</span>
         {hasMore && (
           <span className="text-xs text-muted-foreground">
-            {t('showingColumns', { shown: displayKeys.length, total: allKeys.length })}
+            {t("showingColumns", { shown: displayKeys.length, total: allKeys.length })}
           </span>
         )}
       </div>

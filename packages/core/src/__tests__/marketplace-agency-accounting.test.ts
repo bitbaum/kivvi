@@ -30,9 +30,7 @@ const ACCOUNT_IDS: Record<string, string> = {
   "2200": "id-2200",
   "3200": "id-3200",
 };
-const ID_TO_CODE = new Map(
-  Object.entries(ACCOUNT_IDS).map(([code, id]) => [id, code]),
-);
+const ID_TO_CODE = new Map(Object.entries(ACCOUNT_IDS).map(([code, id]) => [id, code]));
 
 interface CapturedLine {
   accountCode: string;
@@ -47,10 +45,8 @@ function thenable(rows: unknown[]) {
     innerJoin: () => b,
     limit: () => b,
     for: () => b,
-    then: (
-      resolve: (v: unknown[]) => unknown,
-      reject?: (e: unknown) => unknown,
-    ) => Promise.resolve(rows).then(resolve, reject),
+    then: (resolve: (v: unknown[]) => unknown, reject?: (e: unknown) => unknown) =>
+      Promise.resolve(rows).then(resolve, reject),
   };
   return b;
 }
@@ -79,10 +75,7 @@ function makeMockDb() {
           return [entry];
         },
         onConflictDoNothing: async () => undefined,
-        then: (
-          resolve: (v: unknown) => unknown,
-          reject?: (e: unknown) => unknown,
-        ) => {
+        then: (resolve: (v: unknown) => unknown, reject?: (e: unknown) => unknown) => {
           const rows = Array.isArray(v) ? v : [v];
           for (const row of rows) {
             // Only capture real journal lines (they carry accountId); skip the

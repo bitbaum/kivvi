@@ -10,10 +10,7 @@ import { createAction } from "./action-factory";
 import { getTranslations } from "next-intl/server";
 import { db } from "@/lib/db";
 import { type ActionResult, getSession } from "./utils";
-import {
-  getNavBadges,
-  type NavBadges,
-} from "@kivvi/core/src/domain/nav-badges";
+import { getNavBadges, type NavBadges } from "@kivvi/core/src/domain/nav-badges";
 
 export type { NavBadges };
 
@@ -30,27 +27,19 @@ export async function getNavBadgesAction(): Promise<ActionResult<NavBadges>> {
   }
 }
 
-export const getDashboardPreferencesAction = createAction<
-  void,
-  DashboardPreferences
->({
+export const getDashboardPreferencesAction = createAction<void, DashboardPreferences>({
   handler: async (_input, { companyId, db }) => {
     return getDashboardPreferences(db, companyId);
   },
-  errorMessage: () =>
-    getTranslations("dashboard").then((t) => t("errorLoadPreferences")),
+  errorMessage: () => getTranslations("dashboard").then((t) => t("errorLoadPreferences")),
 });
 
-export const updateDashboardPreferencesAction = createAction<
-  Partial<DashboardPreferences>,
-  void
->({
+export const updateDashboardPreferencesAction = createAction<Partial<DashboardPreferences>, void>({
   handler: async (preferences, { companyId, db }) => {
     await updateDashboardPreferences(db, companyId, preferences);
   },
   revalidate: ["/dashboard"],
-  errorMessage: () =>
-    getTranslations("dashboard").then((t) => t("errorSavePreferences")),
+  errorMessage: () => getTranslations("dashboard").then((t) => t("errorSavePreferences")),
 });
 
 export const resetDashboardPreferencesAction = createAction<void, void>({
@@ -58,6 +47,5 @@ export const resetDashboardPreferencesAction = createAction<void, void>({
     await resetDashboardPreferences(db, companyId);
   },
   revalidate: ["/dashboard"],
-  errorMessage: () =>
-    getTranslations("dashboard").then((t) => t("errorResetPreferences")),
+  errorMessage: () => getTranslations("dashboard").then((t) => t("errorResetPreferences")),
 });

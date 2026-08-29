@@ -53,11 +53,7 @@ export default async function PriceListsPage() {
             </div>
             <div className="divide-y">
               {lists.map((list) => (
-                <PriceListRow
-                  key={list.id}
-                  list={list}
-                  defaultBadge={t("defaultBadge")}
-                />
+                <PriceListRow key={list.id} list={list} defaultBadge={t("defaultBadge")} />
               ))}
             </div>
           </>

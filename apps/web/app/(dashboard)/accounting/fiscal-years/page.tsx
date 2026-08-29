@@ -56,12 +56,8 @@ export default async function FiscalYearsPage() {
                   className="grid grid-cols-[2fr_1fr_1fr_auto] gap-4 px-6 py-4 transition-colors hover:bg-muted/50"
                 >
                   <div className="text-sm font-medium">{year.name}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {formatDate(year.startDate)}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {formatDate(year.endDate)}
-                  </div>
+                  <div className="text-sm text-muted-foreground">{formatDate(year.startDate)}</div>
+                  <div className="text-sm text-muted-foreground">{formatDate(year.endDate)}</div>
                   <div>
                     <StatusBadge
                       variant={year.isClosed ? "inactive" : "active"}

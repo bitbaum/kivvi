@@ -15,10 +15,8 @@ function selectBuilder(rows: unknown[]) {
     from: () => b,
     where: () => b,
     limit: () => b,
-    then: (
-      resolve: (v: unknown[]) => unknown,
-      reject?: (e: unknown) => unknown,
-    ) => Promise.resolve(rows).then(resolve, reject),
+    then: (resolve: (v: unknown[]) => unknown, reject?: (e: unknown) => unknown) =>
+      Promise.resolve(rows).then(resolve, reject),
   };
   return b;
 }
@@ -65,13 +63,7 @@ function makeMockDb(opts: { insertReturns: unknown[]; existingRow?: unknown }) {
 describe("claimIdempotencyKey", () => {
   it("returns 'claimed' when the insert wins the race", async () => {
     const { db } = makeMockDb({ insertReturns: [{ id: "row-1" }] });
-    const result = await claimIdempotencyKey(
-      db,
-      COMPANY_ID,
-      KEY,
-      "POST",
-      "/api/v1/documents",
-    );
+    const result = await claimIdempotencyKey(db, COMPANY_ID, KEY, "POST", "/api/v1/documents");
     expect(result).toEqual({ outcome: "claimed" });
   });
 
@@ -84,13 +76,7 @@ describe("claimIdempotencyKey", () => {
         responseBody: { success: true, data: { id: "doc-1" } },
       },
     });
-    const result = await claimIdempotencyKey(
-      db,
-      COMPANY_ID,
-      KEY,
-      "POST",
-      "/api/v1/documents",
-    );
+    const result = await claimIdempotencyKey(db, COMPANY_ID, KEY, "POST", "/api/v1/documents");
     expect(result).toEqual({
       outcome: "replay",
       responseStatus: 201,
@@ -107,13 +93,7 @@ describe("claimIdempotencyKey", () => {
         responseBody: null,
       },
     });
-    const result = await claimIdempotencyKey(
-      db,
-      COMPANY_ID,
-      KEY,
-      "POST",
-      "/api/v1/documents",
-    );
+    const result = await claimIdempotencyKey(db, COMPANY_ID, KEY, "POST", "/api/v1/documents");
     expect(result).toEqual({ outcome: "in_progress" });
   });
 
@@ -127,13 +107,7 @@ describe("claimIdempotencyKey", () => {
         responseBody: null,
       },
     });
-    const result = await claimIdempotencyKey(
-      db,
-      COMPANY_ID,
-      KEY,
-      "POST",
-      "/api/v1/documents",
-    );
+    const result = await claimIdempotencyKey(db, COMPANY_ID, KEY, "POST", "/api/v1/documents");
     expect(result).toEqual({ outcome: "in_progress" });
   });
 });

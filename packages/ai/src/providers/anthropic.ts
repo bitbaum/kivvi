@@ -94,9 +94,7 @@ export class AnthropicProvider implements AIProvider {
                 type: "tool_result" as const,
                 tool_use_id: msg.toolCallId!,
                 content:
-                  typeof msg.content === "string"
-                    ? msg.content
-                    : JSON.stringify(msg.content),
+                  typeof msg.content === "string" ? msg.content : JSON.stringify(msg.content),
               },
             ],
           };
@@ -106,9 +104,7 @@ export class AnthropicProvider implements AIProvider {
           return {
             role: "assistant" as const,
             content: [
-              ...(msg.content
-                ? [{ type: "text" as const, text: msg.content as string }]
-                : []),
+              ...(msg.content ? [{ type: "text" as const, text: msg.content as string }] : []),
               ...msg.toolCalls.map((tc) => ({
                 type: "tool_use" as const,
                 id: tc.id,
@@ -153,9 +149,7 @@ export class AnthropicProvider implements AIProvider {
       const properties: Record<string, unknown> = {};
       const required: string[] = [];
 
-      for (const [key, value] of Object.entries(
-        schema.shape as z.ZodRawShape,
-      )) {
+      for (const [key, value] of Object.entries(schema.shape as z.ZodRawShape)) {
         properties[key] = this.zodToJsonSchema(value);
         if (!value.isOptional()) {
           required.push(key);
@@ -224,9 +218,7 @@ export class AnthropicProvider implements AIProvider {
     };
   }
 
-  private parseStreamEvent(
-    event: Anthropic.RawMessageStreamEvent,
-  ): StreamChunk | null {
+  private parseStreamEvent(event: Anthropic.RawMessageStreamEvent): StreamChunk | null {
     if (event.type === "content_block_start") {
       if (event.content_block.type === "text") {
         return { type: "text", content: "" };

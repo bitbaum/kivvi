@@ -10,11 +10,7 @@ interface PosCompletionScreenProps {
   onNewSale: () => void;
 }
 
-export function PosCompletionScreen({
-  invoiceId,
-  number,
-  onNewSale,
-}: PosCompletionScreenProps) {
+export function PosCompletionScreen({ invoiceId, number, onNewSale }: PosCompletionScreenProps) {
   const t = useTranslations("inventory");
   const router = useRouter();
 
@@ -25,9 +21,7 @@ export function PosCompletionScreen({
       </div>
       <div>
         <h2 className="text-2xl font-bold">{t("posSaleComplete")}</h2>
-        <p className="mt-1 text-muted-foreground">
-          {t("posInvoiceNumber", { number })}
-        </p>
+        <p className="mt-1 text-muted-foreground">{t("posInvoiceNumber", { number })}</p>
       </div>
       <div className="flex gap-3">
         <button

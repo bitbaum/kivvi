@@ -96,9 +96,7 @@ export default async function ReportsPage() {
                 <h3 className="font-semibold group-hover:text-primary transition-colors">
                   {card.title}
                 </h3>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {card.description}
-                </p>
+                <p className="mt-2 text-sm text-muted-foreground">{card.description}</p>
               </div>
               <ArrowRight className="h-5 w-5 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
             </div>

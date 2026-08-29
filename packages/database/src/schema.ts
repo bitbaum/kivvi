@@ -50,68 +50,42 @@ export * from "./enums";
 
 export const contactTypeEnum = pgEnum("contact_type", [...CONTACT_TYPE_VALUES]);
 
-export const documentTypeEnum = pgEnum("document_type", [
-  ...DOCUMENT_TYPE_VALUES,
-]);
+export const documentTypeEnum = pgEnum("document_type", [...DOCUMENT_TYPE_VALUES]);
 
-export const documentStatusEnum = pgEnum("document_status", [
-  ...DOCUMENT_STATUS_VALUES,
-]);
+export const documentStatusEnum = pgEnum("document_status", [...DOCUMENT_STATUS_VALUES]);
 
 export const accountTypeEnum = pgEnum("account_type", [...ACCOUNT_TYPE_VALUES]);
-export const fundRestrictionEnum = pgEnum("fund_restriction", [
-  ...FUND_RESTRICTION_VALUES,
-]);
-export const costCenterKindEnum = pgEnum("cost_center_kind", [
-  ...COST_CENTER_KIND_VALUES,
-]);
+export const fundRestrictionEnum = pgEnum("fund_restriction", [...FUND_RESTRICTION_VALUES]);
+export const costCenterKindEnum = pgEnum("cost_center_kind", [...COST_CENTER_KIND_VALUES]);
 export const subsidyClaimStatusEnum = pgEnum("subsidy_claim_status", [
   ...SUBSIDY_CLAIM_STATUS_VALUES,
 ]);
 
-export const stockMovementTypeEnum = pgEnum("stock_movement_type", [
-  ...STOCK_MOVEMENT_TYPE_VALUES,
-]);
+export const stockMovementTypeEnum = pgEnum("stock_movement_type", [...STOCK_MOVEMENT_TYPE_VALUES]);
 
-export const priceRuleTypeEnum = pgEnum("price_rule_type", [
-  ...PRICE_RULE_TYPE_VALUES,
-]);
+export const priceRuleTypeEnum = pgEnum("price_rule_type", [...PRICE_RULE_TYPE_VALUES]);
 
 export const recurringPeriodicityEnum = pgEnum("recurring_periodicity", [
   ...RECURRING_PERIODICITY_VALUES,
 ]);
 
-export const intakeSourceEnum = pgEnum("intake_source", [
-  ...INTAKE_SOURCE_VALUES,
-]);
+export const intakeSourceEnum = pgEnum("intake_source", [...INTAKE_SOURCE_VALUES]);
 
-export const itemConditionEnum = pgEnum("item_condition", [
-  ...ITEM_CONDITION_VALUES,
-]);
+export const itemConditionEnum = pgEnum("item_condition", [...ITEM_CONDITION_VALUES]);
 
 export const itemStatusEnum = pgEnum("item_status", [...ITEM_STATUS_VALUES]);
 
-export const membershipRoleEnum = pgEnum("membership_role", [
-  ...MEMBERSHIP_ROLE_VALUES,
-]);
+export const membershipRoleEnum = pgEnum("membership_role", [...MEMBERSHIP_ROLE_VALUES]);
 
-export const availabilityTypeEnum = pgEnum("availability_type", [
-  ...AVAILABILITY_TYPE_VALUES,
-]);
+export const availabilityTypeEnum = pgEnum("availability_type", [...AVAILABILITY_TYPE_VALUES]);
 
 export const vacancyTypeEnum = pgEnum("vacancy_type", [...VACANCY_TYPE_VALUES]);
 
-export const locationModeEnum = pgEnum("location_mode", [
-  ...LOCATION_MODE_VALUES,
-]);
+export const locationModeEnum = pgEnum("location_mode", [...LOCATION_MODE_VALUES]);
 
-export const vacancyStatusEnum = pgEnum("vacancy_status", [
-  ...VACANCY_STATUS_VALUES,
-]);
+export const vacancyStatusEnum = pgEnum("vacancy_status", [...VACANCY_STATUS_VALUES]);
 
-export const joinRequestStatusEnum = pgEnum("join_request_status", [
-  ...JOIN_REQUEST_STATUS_VALUES,
-]);
+export const joinRequestStatusEnum = pgEnum("join_request_status", [...JOIN_REQUEST_STATUS_VALUES]);
 
 export const invitationStatusEnum = pgEnum("invitation_status", [
   "pending",
@@ -226,10 +200,7 @@ export const invitations = pgTable(
   },
   (table) => ({
     tokenIdx: index("invitations_token_idx").on(table.token),
-    emailCompanyIdx: index("invitations_email_company_idx").on(
-      table.email,
-      table.companyId,
-    ),
+    emailCompanyIdx: index("invitations_email_company_idx").on(table.email, table.companyId),
   }),
 );
 
@@ -253,19 +224,13 @@ export const organizationProfiles = pgTable(
     website: text("website"),
     logoBase64: text("logo_base64"),
     isPublic: boolean("is_public").default(false).notNull(),
-    acceptingApplications: boolean("accepting_applications")
-      .default(false)
-      .notNull(),
+    acceptingApplications: boolean("accepting_applications").default(false).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => ({
-    companyIdx: index("organization_profiles_company_id_idx").on(
-      table.companyId,
-    ),
-    publicSlugIdx: index("organization_profiles_public_slug_idx").on(
-      table.publicSlug,
-    ),
+    companyIdx: index("organization_profiles_company_id_idx").on(table.companyId),
+    publicSlugIdx: index("organization_profiles_public_slug_idx").on(table.publicSlug),
     publicIdx: index("organization_profiles_is_public_idx").on(table.isPublic),
   }),
 );
@@ -359,9 +324,7 @@ export const externalIntegrationItems = pgTable(
       table.companyId,
       table.status,
     ),
-    contactIdx: index("external_integration_items_contact_id_idx").on(
-      table.contactId,
-    ),
+    contactIdx: index("external_integration_items_contact_id_idx").on(table.contactId),
   }),
 );
 
@@ -439,9 +402,10 @@ export const contacts = pgTable(
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => ({
-    uniqueContactNumberPerCompany: uniqueIndex(
-      "unique_contact_number_per_company",
-    ).on(table.companyId, table.contactNumber),
+    uniqueContactNumberPerCompany: uniqueIndex("unique_contact_number_per_company").on(
+      table.companyId,
+      table.contactNumber,
+    ),
     companyIdIdx: index("contacts_company_id_idx").on(table.companyId),
     emailIdx: index("contacts_email_idx").on(table.email),
   }),
@@ -523,9 +487,7 @@ export const postingGroups = pgTable(
       .references(() => accounts.id)
       .notNull(), // Erlöskonto Inland (the sale credit)
     expenseAccountId: uuid("expense_account_id").references(() => accounts.id), // Aufwandskonto (purchase debit — follow-on)
-    inventoryAccountId: uuid("inventory_account_id").references(
-      () => accounts.id,
-    ),
+    inventoryAccountId: uuid("inventory_account_id").references(() => accounts.id),
     isDefault: boolean("is_default").default(false).notNull(),
     isActive: boolean("is_active").default(true).notNull(),
     sortOrder: integer("sort_order").default(0).notNull(),
@@ -558,9 +520,7 @@ export const products = pgTable(
     manufacturerId: uuid("manufacturer_id").references(() => manufacturers.id),
     productGroupId: uuid("product_group_id").references(() => productGroups.id),
     // Revenue routing (1.1): overrides productGroup default; else company default.
-    postingGroupId: uuid("posting_group_id").references(
-      (): AnyPgColumn => postingGroups.id,
-    ),
+    postingGroupId: uuid("posting_group_id").references((): AnyPgColumn => postingGroups.id),
     // Pricing
     unitPrice: decimal("unit_price", { precision: 12, scale: 2 }).notNull(),
     purchasePrice: decimal("purchase_price", { precision: 12, scale: 2 }),
@@ -593,19 +553,13 @@ export const products = pgTable(
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => ({
-    uniqueArticleNumberPerCompany: uniqueIndex(
-      "products_company_id_article_number_idx",
-    ).on(table.companyId, table.articleNumber),
-    companyActiveIdx: index("products_company_active_idx").on(
+    uniqueArticleNumberPerCompany: uniqueIndex("products_company_id_article_number_idx").on(
       table.companyId,
-      table.isActive,
+      table.articleNumber,
     ),
-    manufacturerIdIdx: index("products_manufacturer_id_idx").on(
-      table.manufacturerId,
-    ),
-    productGroupIdIdx: index("products_product_group_id_idx").on(
-      table.productGroupId,
-    ),
+    companyActiveIdx: index("products_company_active_idx").on(table.companyId, table.isActive),
+    manufacturerIdIdx: index("products_manufacturer_id_idx").on(table.manufacturerId),
+    productGroupIdIdx: index("products_product_group_id_idx").on(table.productGroupId),
   }),
 );
 
@@ -636,12 +590,8 @@ export const documents = pgTable(
     paidDate: timestamp("paid_date"),
     // Financial
     currency: text("currency").default("CHF").notNull(),
-    subtotal: decimal("subtotal", { precision: 12, scale: 2 })
-      .default("0")
-      .notNull(),
-    vatAmount: decimal("vat_amount", { precision: 12, scale: 2 })
-      .default("0")
-      .notNull(),
+    subtotal: decimal("subtotal", { precision: 12, scale: 2 }).default("0").notNull(),
+    vatAmount: decimal("vat_amount", { precision: 12, scale: 2 }).default("0").notNull(),
     total: decimal("total", { precision: 12, scale: 2 }).default("0").notNull(),
     // Content
     notes: text("notes"),
@@ -680,20 +630,12 @@ export const documents = pgTable(
       table.number,
     ),
     companyIdIdx: index("documents_company_id_idx").on(table.companyId),
-    companyStatusIdx: index("documents_company_id_status_idx").on(
-      table.companyId,
-      table.status,
-    ),
-    companyTypeIdx: index("documents_company_id_type_idx").on(
-      table.companyId,
-      table.type,
-    ),
+    companyStatusIdx: index("documents_company_id_status_idx").on(table.companyId, table.status),
+    companyTypeIdx: index("documents_company_id_type_idx").on(table.companyId, table.type),
     contactIdIdx: index("documents_contact_id_idx").on(table.contactId),
     issueDateIdx: index("documents_issue_date_idx").on(table.issueDate),
     projectIdIdx: index("documents_project_id_idx").on(table.projectId),
-    convertedFromIdIdx: index("documents_converted_from_id_idx").on(
-      table.convertedFromId,
-    ),
+    convertedFromIdIdx: index("documents_converted_from_id_idx").on(table.convertedFromId),
     createdByIdx: index("documents_created_by_idx").on(table.createdBy),
   }),
 );
@@ -706,14 +648,10 @@ export const documentItems = pgTable(
       .references(() => documents.id, { onDelete: "cascade" })
       .notNull(),
     productId: uuid("product_id").references(() => products.id),
-    inventoryItemId: uuid("inventory_item_id").references(
-      () => inventoryItems.id,
-    ),
+    inventoryItemId: uuid("inventory_item_id").references(() => inventoryItems.id),
     // Revenue-routing override for this line (e.g. a freeform line with no
     // product, or a per-line override); resolved before product/group defaults.
-    postingGroupId: uuid("posting_group_id").references(
-      (): AnyPgColumn => postingGroups.id,
-    ),
+    postingGroupId: uuid("posting_group_id").references((): AnyPgColumn => postingGroups.id),
     position: integer("position").default(0),
     description: text("description").notNull(),
     quantity: decimal("quantity", { precision: 12, scale: 4 }).notNull(),
@@ -735,18 +673,14 @@ export const documentPayments = pgTable(
     documentId: uuid("document_id")
       .references(() => documents.id, { onDelete: "cascade" })
       .notNull(),
-    bankTransactionId: uuid("bank_transaction_id").references(
-      () => bankTransactions.id,
-    ),
+    bankTransactionId: uuid("bank_transaction_id").references(() => bankTransactions.id),
     amount: decimal("amount", { precision: 12, scale: 2 }).notNull(),
     date: timestamp("date").notNull(),
     method: text("method").$type<"bank_transfer" | "cash" | "card" | "other">(),
     reference: text("reference"),
   },
   (table) => ({
-    documentIdIdx: index("document_payments_document_id_idx").on(
-      table.documentId,
-    ),
+    documentIdIdx: index("document_payments_document_id_idx").on(table.documentId),
   }),
 );
 
@@ -779,17 +713,12 @@ export const talerOrders = pgTable(
   },
   (table) => ({
     documentIdIdx: index("taler_orders_document_id_idx").on(table.documentId),
-    companyStatusIdx: index("taler_orders_company_status_idx").on(
-      table.companyId,
-      table.status,
-    ),
+    companyStatusIdx: index("taler_orders_company_status_idx").on(table.companyId, table.status),
     companyOrderUnique: uniqueIndex("taler_orders_company_order_id_idx").on(
       table.companyId,
       table.orderId,
     ),
-    oneActivePerDocument: uniqueIndex(
-      "taler_orders_document_unpaid_claimed_idx",
-    )
+    oneActivePerDocument: uniqueIndex("taler_orders_document_unpaid_claimed_idx")
       .on(table.documentId)
       .where(sql`${table.status} IN ('unpaid', 'claimed')`),
   }),
@@ -812,10 +741,7 @@ export const numberSequences = pgTable(
     format: text("format").default("{prefix}-{year}-{number:5}").notNull(), // Pattern
   },
   (table) => ({
-    uniqueTypePerCompany: uniqueIndex("unique_type_per_company").on(
-      table.companyId,
-      table.type,
-    ),
+    uniqueTypePerCompany: uniqueIndex("unique_type_per_company").on(table.companyId, table.type),
   }),
 );
 
@@ -891,18 +817,13 @@ export const funds = pgTable(
     purpose: text("purpose"), // donor's stipulated purpose (audit + Anhang)
     restrictedBy: text("restricted_by"), // third party (extern) / 'Vorstand' (intern)
     capitalAccountId: uuid("capital_account_id").references(() => accounts.id),
-    openingBalance: decimal("opening_balance", { precision: 12, scale: 2 })
-      .default("0")
-      .notNull(),
+    openingBalance: decimal("opening_balance", { precision: 12, scale: 2 }).default("0").notNull(),
     isActive: boolean("is_active").default(true).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => ({
-    uniqueCodePerCompany: uniqueIndex("funds_company_id_code_idx").on(
-      table.companyId,
-      table.code,
-    ),
+    uniqueCodePerCompany: uniqueIndex("funds_company_id_code_idx").on(table.companyId, table.code),
     companyIdIdx: index("funds_company_id_idx").on(table.companyId),
   }),
 );
@@ -937,9 +858,7 @@ export const subsidyClaims = pgTable(
     }).notNull(),
     status: subsidyClaimStatusEnum("status").default("applied").notNull(),
     settlementParty: text("settlement_party"), // 'ERZ Stadt Zürich'
-    receivableAccountId: uuid("receivable_account_id").references(
-      () => accounts.id,
-    ),
+    receivableAccountId: uuid("receivable_account_id").references(() => accounts.id),
     settledAt: timestamp("settled_at"),
     externalRef: text("external_ref"), // ERZ settlement batch ref
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -948,10 +867,7 @@ export const subsidyClaims = pgTable(
   (table) => ({
     companyIdIdx: index("subsidy_claims_company_id_idx").on(table.companyId),
     documentIdIdx: index("subsidy_claims_document_id_idx").on(table.documentId),
-    companyStatusIdx: index("subsidy_claims_company_status_idx").on(
-      table.companyId,
-      table.status,
-    ),
+    companyStatusIdx: index("subsidy_claims_company_status_idx").on(table.companyId, table.status),
   }),
 );
 
@@ -978,9 +894,7 @@ export const journalEntries = pgTable(
     entryHash: text("entry_hash"),
     prevHash: text("prev_hash"),
     // Reversal (Storno) links — a posted entry is undone only by a counter-entry.
-    reversesEntryId: uuid("reverses_entry_id").references(
-      (): AnyPgColumn => journalEntries.id,
-    ),
+    reversesEntryId: uuid("reverses_entry_id").references((): AnyPgColumn => journalEntries.id),
     reversedByEntryId: uuid("reversed_by_entry_id").references(
       (): AnyPgColumn => journalEntries.id,
     ),
@@ -1005,9 +919,7 @@ export const ledgerHeads = pgTable("ledger_heads", {
   companyId: uuid("company_id")
     .primaryKey()
     .references(() => companies.id, { onDelete: "cascade" }),
-  lastSequenceNo: bigint("last_sequence_no", { mode: "number" })
-    .default(0)
-    .notNull(),
+  lastSequenceNo: bigint("last_sequence_no", { mode: "number" }).default(0).notNull(),
   lastHash: text("last_hash"), // NULL = genesis (no posted entry yet)
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -1031,14 +943,8 @@ export const auditLog = pgTable(
     detail: jsonb("detail"),
   },
   (table) => ({
-    companyAtIdx: index("audit_log_company_at_idx").on(
-      table.companyId,
-      table.at,
-    ),
-    entityIdx: index("audit_log_entity_idx").on(
-      table.entityType,
-      table.entityId,
-    ),
+    companyAtIdx: index("audit_log_company_at_idx").on(table.companyId, table.at),
+    entityIdx: index("audit_log_entity_idx").on(table.entityType, table.entityId),
   }),
 );
 
@@ -1062,13 +968,9 @@ export const journalLines = pgTable(
     description: text("description"),
   },
   (table) => ({
-    journalEntryIdIdx: index("journal_lines_journal_entry_id_idx").on(
-      table.journalEntryId,
-    ),
+    journalEntryIdIdx: index("journal_lines_journal_entry_id_idx").on(table.journalEntryId),
     accountIdIdx: index("journal_lines_account_id_idx").on(table.accountId),
-    costCenterIdIdx: index("journal_lines_cost_center_id_idx").on(
-      table.costCenterId,
-    ),
+    costCenterIdIdx: index("journal_lines_cost_center_id_idx").on(table.costCenterId),
   }),
 );
 
@@ -1106,9 +1008,7 @@ export const fiscalPeriods = pgTable(
     isClosed: boolean("is_closed").default(false),
   },
   (table) => ({
-    fiscalYearIdIdx: index("fiscal_periods_fiscal_year_id_idx").on(
-      table.fiscalYearId,
-    ),
+    fiscalYearIdIdx: index("fiscal_periods_fiscal_year_id_idx").on(table.fiscalYearId),
   }),
 );
 
@@ -1151,9 +1051,7 @@ export const bankTransactions = pgTable(
     amount: decimal("amount", { precision: 12, scale: 2 }).notNull(),
     balance: decimal("balance", { precision: 12, scale: 2 }),
     isReconciled: boolean("is_reconciled").default(false),
-    reconciledDocumentId: uuid("reconciled_document_id").references(
-      () => documents.id,
-    ),
+    reconciledDocumentId: uuid("reconciled_document_id").references(() => documents.id),
     reconciledAt: timestamp("reconciled_at"),
     // CAMT.053/054 fields
     entryReference: text("entry_reference"),
@@ -1164,12 +1062,11 @@ export const bankTransactions = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => ({
-    bankAccountIdIdx: index("bank_transactions_bank_account_id_idx").on(
+    bankAccountIdIdx: index("bank_transactions_bank_account_id_idx").on(table.bankAccountId),
+    bankAccountReconciledIdx: index("bank_transactions_bank_account_id_is_reconciled_idx").on(
       table.bankAccountId,
+      table.isReconciled,
     ),
-    bankAccountReconciledIdx: index(
-      "bank_transactions_bank_account_id_is_reconciled_idx",
-    ).on(table.bankAccountId, table.isReconciled),
     dateIdx: index("bank_transactions_date_idx").on(table.date),
     entryRefUniqueIdx: uniqueIndex("bank_transactions_entry_ref_unique")
       .on(table.bankAccountId, table.entryReference)
@@ -1207,9 +1104,7 @@ export const stockLevels = pgTable(
     warehouseId: uuid("warehouse_id")
       .references(() => warehouses.id, { onDelete: "cascade" })
       .notNull(),
-    quantity: decimal("quantity", { precision: 12, scale: 4 })
-      .default("0")
-      .notNull(),
+    quantity: decimal("quantity", { precision: 12, scale: 4 }).default("0").notNull(),
     reservedQuantity: decimal("reserved_quantity", { precision: 12, scale: 4 })
       .default("0")
       .notNull(),
@@ -1263,16 +1158,13 @@ export const serialNumbers = pgTable(
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => ({
-    uniqueSerialPerProduct: uniqueIndex(
-      "serial_numbers_product_id_serial_number_idx",
-    ).on(table.productId, table.serialNumber),
+    uniqueSerialPerProduct: uniqueIndex("serial_numbers_product_id_serial_number_idx").on(
+      table.productId,
+      table.serialNumber,
+    ),
     productIdIdx: index("serial_numbers_product_id_idx").on(table.productId),
-    warehouseIdIdx: index("serial_numbers_warehouse_id_idx").on(
-      table.warehouseId,
-    ),
-    soldToContactIdIdx: index("serial_numbers_sold_to_contact_id_idx").on(
-      table.soldToContactId,
-    ),
+    warehouseIdIdx: index("serial_numbers_warehouse_id_idx").on(table.warehouseId),
+    soldToContactIdIdx: index("serial_numbers_sold_to_contact_id_idx").on(table.soldToContactId),
   }),
 );
 
@@ -1320,9 +1212,7 @@ export const inventoryItems = pgTable(
     // Data erasure record (separate fields for certificate generation)
     dataErasureMethod: text("data_erasure_method"), // "secure_erase" | "dban" | "manual" | "certified" | null
     dataErasuredAt: timestamp("data_erased_at"),
-    dataErasuredByUserId: uuid("data_erased_by_user_id").references(
-      () => users.id,
-    ),
+    dataErasuredByUserId: uuid("data_erased_by_user_id").references(() => users.id),
     // Photo (base64 data URI, follows company logo pattern)
     photoBase64: text("photo_base64"),
     photoMimeType: text("photo_mime_type"),
@@ -1342,21 +1232,13 @@ export const inventoryItems = pgTable(
   },
   (table) => ({
     companyIdIdx: index("inventory_items_company_id_idx").on(table.companyId),
-    companyStatusIdx: index("inventory_items_company_status_idx").on(
-      table.companyId,
-      table.status,
-    ),
+    companyStatusIdx: index("inventory_items_company_status_idx").on(table.companyId, table.status),
     companyConditionIdx: index("inventory_items_company_condition_idx").on(
       table.companyId,
       table.condition,
     ),
-    intakeDocIdx: index("inventory_items_intake_doc_idx").on(
-      table.intakeDocumentId,
-    ),
-    itemNumberIdx: index("inventory_items_item_number_idx").on(
-      table.companyId,
-      table.itemNumber,
-    ),
+    intakeDocIdx: index("inventory_items_intake_doc_idx").on(table.intakeDocumentId),
+    itemNumberIdx: index("inventory_items_item_number_idx").on(table.companyId, table.itemNumber),
   }),
 );
 
@@ -1381,9 +1263,7 @@ export const repairParts = pgTable(
     // Link to product catalog (optional — may be an external/ad-hoc part)
     productId: uuid("product_id").references(() => products.id),
     description: text("description").notNull(),
-    quantity: decimal("quantity", { precision: 10, scale: 4 })
-      .notNull()
-      .default("1"),
+    quantity: decimal("quantity", { precision: 10, scale: 4 }).notNull().default("1"),
     unitCost: decimal("unit_cost", { precision: 12, scale: 2 }).notNull(),
     notes: text("notes"),
     recordedByUserId: uuid("recorded_by_user_id").references(() => users.id),
@@ -1392,9 +1272,7 @@ export const repairParts = pgTable(
   },
   (table) => ({
     companyIdIdx: index("repair_parts_company_id_idx").on(table.companyId),
-    inventoryItemIdx: index("repair_parts_inventory_item_idx").on(
-      table.inventoryItemId,
-    ),
+    inventoryItemIdx: index("repair_parts_inventory_item_idx").on(table.inventoryItemId),
   }),
 );
 
@@ -1463,9 +1341,7 @@ export const priceRules = pgTable(
     validTo: date("valid_to"),
   },
   (table) => ({
-    priceListIdIdx: index("price_rules_price_list_id_idx").on(
-      table.priceListId,
-    ),
+    priceListIdIdx: index("price_rules_price_list_id_idx").on(table.priceListId),
   }),
 );
 
@@ -1496,12 +1372,11 @@ export const recurringInvoiceConfigs = pgTable(
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => ({
-    companyIdIdx: index("recurring_invoice_configs_company_id_idx").on(
-      table.companyId,
+    companyIdIdx: index("recurring_invoice_configs_company_id_idx").on(table.companyId),
+    nextGenerationIdx: index("recurring_invoice_configs_next_generation_idx").on(
+      table.nextGenerationDate,
+      table.isActive,
     ),
-    nextGenerationIdx: index(
-      "recurring_invoice_configs_next_generation_idx",
-    ).on(table.nextGenerationDate, table.isActive),
   }),
 );
 
@@ -1538,9 +1413,7 @@ export const aiMessages = pgTable(
     conversationId: uuid("conversation_id")
       .references(() => aiConversations.id, { onDelete: "cascade" })
       .notNull(),
-    role: text("role")
-      .notNull()
-      .$type<"user" | "assistant" | "system" | "tool">(),
+    role: text("role").notNull().$type<"user" | "assistant" | "system" | "tool">(),
     content: text("content"),
     toolCalls: jsonb("tool_calls"),
     toolCallId: text("tool_call_id"),
@@ -1549,9 +1422,7 @@ export const aiMessages = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => ({
-    conversationIdIdx: index("ai_messages_conversation_id_idx").on(
-      table.conversationId,
-    ),
+    conversationIdIdx: index("ai_messages_conversation_id_idx").on(table.conversationId),
   }),
 );
 
@@ -1572,13 +1443,8 @@ export const aiActionAudit = pgTable("ai_action_audit", {
 // CONTACT SUBMISSIONS (public — no companyId, from landing page forms)
 // ============================================================================
 
-export const CONTACT_SUBMISSION_TYPE_VALUES = [
-  "demo_request",
-  "waitlist",
-  "general",
-] as const;
-export type ContactSubmissionType =
-  (typeof CONTACT_SUBMISSION_TYPE_VALUES)[number];
+export const CONTACT_SUBMISSION_TYPE_VALUES = ["demo_request", "waitlist", "general"] as const;
+export type ContactSubmissionType = (typeof CONTACT_SUBMISSION_TYPE_VALUES)[number];
 
 export const BETRIEBSTYP_VALUES = [
   "it_refurbisher",
@@ -1593,10 +1459,7 @@ export const contactSubmissions = pgTable(
   "contact_submissions",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    type: text("type")
-      .notNull()
-      .$type<ContactSubmissionType>()
-      .default("general"),
+    type: text("type").notNull().$type<ContactSubmissionType>().default("general"),
     name: text("name").notNull(),
     email: text("email").notNull(),
     organisation: text("organisation"),
@@ -1606,9 +1469,7 @@ export const contactSubmissions = pgTable(
   },
   (table) => ({
     emailIdx: index("contact_submissions_email_idx").on(table.email),
-    createdAtIdx: index("contact_submissions_created_at_idx").on(
-      table.createdAt,
-    ),
+    createdAtIdx: index("contact_submissions_created_at_idx").on(table.createdAt),
   }),
 );
 
@@ -1661,12 +1522,8 @@ export const webhookDeliveries = pgTable(
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => ({
-    endpointIdIdx: index("webhook_deliveries_endpoint_id_idx").on(
-      table.endpointId,
-    ),
-    nextRetryIdx: index("webhook_deliveries_next_retry_at_idx").on(
-      table.nextRetryAt,
-    ),
+    endpointIdIdx: index("webhook_deliveries_endpoint_id_idx").on(table.endpointId),
+    nextRetryIdx: index("webhook_deliveries_next_retry_at_idx").on(table.nextRetryAt),
   }),
 );
 
@@ -1703,9 +1560,7 @@ export const apiIdempotencyKeys = pgTable(
       table.companyId,
       table.key,
     ),
-    expiresAtIdx: index("api_idempotency_keys_expires_at_idx").on(
-      table.expiresAt,
-    ),
+    expiresAtIdx: index("api_idempotency_keys_expires_at_idx").on(table.expiresAt),
   }),
 );
 
@@ -1738,26 +1593,20 @@ export const companiesRelations = relations(companies, ({ one, many }) => ({
   webhookEndpoints: many(webhookEndpoints),
 }));
 
-export const webhookEndpointsRelations = relations(
-  webhookEndpoints,
-  ({ one, many }) => ({
-    company: one(companies, {
-      fields: [webhookEndpoints.companyId],
-      references: [companies.id],
-    }),
-    deliveries: many(webhookDeliveries),
+export const webhookEndpointsRelations = relations(webhookEndpoints, ({ one, many }) => ({
+  company: one(companies, {
+    fields: [webhookEndpoints.companyId],
+    references: [companies.id],
   }),
-);
+  deliveries: many(webhookDeliveries),
+}));
 
-export const webhookDeliveriesRelations = relations(
-  webhookDeliveries,
-  ({ one }) => ({
-    endpoint: one(webhookEndpoints, {
-      fields: [webhookDeliveries.endpointId],
-      references: [webhookEndpoints.id],
-    }),
+export const webhookDeliveriesRelations = relations(webhookDeliveries, ({ one }) => ({
+  endpoint: one(webhookEndpoints, {
+    fields: [webhookDeliveries.endpointId],
+    references: [webhookEndpoints.id],
   }),
-);
+}));
 
 export const usersRelations = relations(users, ({ one, many }) => ({
   company: one(companies, {
@@ -1790,15 +1639,12 @@ export const invitationsRelations = relations(invitations, ({ one }) => ({
   }),
 }));
 
-export const organizationProfilesRelations = relations(
-  organizationProfiles,
-  ({ one }) => ({
-    company: one(companies, {
-      fields: [organizationProfiles.companyId],
-      references: [companies.id],
-    }),
+export const organizationProfilesRelations = relations(organizationProfiles, ({ one }) => ({
+  company: one(companies, {
+    fields: [organizationProfiles.companyId],
+    references: [companies.id],
   }),
-);
+}));
 
 export const vacanciesRelations = relations(vacancies, ({ one, many }) => ({
   company: one(companies, {
@@ -1823,19 +1669,16 @@ export const joinRequestsRelations = relations(joinRequests, ({ one }) => ({
   }),
 }));
 
-export const externalIntegrationItemsRelations = relations(
-  externalIntegrationItems,
-  ({ one }) => ({
-    company: one(companies, {
-      fields: [externalIntegrationItems.companyId],
-      references: [companies.id],
-    }),
-    contact: one(contacts, {
-      fields: [externalIntegrationItems.contactId],
-      references: [contacts.id],
-    }),
+export const externalIntegrationItemsRelations = relations(externalIntegrationItems, ({ one }) => ({
+  company: one(companies, {
+    fields: [externalIntegrationItems.companyId],
+    references: [companies.id],
   }),
-);
+  contact: one(contacts, {
+    fields: [externalIntegrationItems.contactId],
+    references: [contacts.id],
+  }),
+}));
 
 export const contactsRelations = relations(contacts, ({ one, many }) => ({
   company: one(companies, {
@@ -1847,15 +1690,12 @@ export const contactsRelations = relations(contacts, ({ one, many }) => ({
   projects: many(projects),
 }));
 
-export const contactAddressesRelations = relations(
-  contactAddresses,
-  ({ one }) => ({
-    contact: one(contacts, {
-      fields: [contactAddresses.contactId],
-      references: [contacts.id],
-    }),
+export const contactAddressesRelations = relations(contactAddresses, ({ one }) => ({
+  contact: one(contacts, {
+    fields: [contactAddresses.contactId],
+    references: [contacts.id],
   }),
-);
+}));
 
 export const documentsRelations = relations(documents, ({ one, many }) => ({
   company: one(companies, {
@@ -1900,19 +1740,16 @@ export const documentItemsRelations = relations(documentItems, ({ one }) => ({
   }),
 }));
 
-export const documentPaymentsRelations = relations(
-  documentPayments,
-  ({ one }) => ({
-    document: one(documents, {
-      fields: [documentPayments.documentId],
-      references: [documents.id],
-    }),
-    bankTransaction: one(bankTransactions, {
-      fields: [documentPayments.bankTransactionId],
-      references: [bankTransactions.id],
-    }),
+export const documentPaymentsRelations = relations(documentPayments, ({ one }) => ({
+  document: one(documents, {
+    fields: [documentPayments.documentId],
+    references: [documents.id],
   }),
-);
+  bankTransaction: one(bankTransactions, {
+    fields: [documentPayments.bankTransactionId],
+    references: [bankTransactions.id],
+  }),
+}));
 
 export const talerOrdersRelations = relations(talerOrders, ({ one }) => ({
   company: one(companies, {
@@ -1943,27 +1780,21 @@ export const productsRelations = relations(products, ({ one, many }) => ({
   serialNumbers: many(serialNumbers),
 }));
 
-export const manufacturersRelations = relations(
-  manufacturers,
-  ({ one, many }) => ({
-    company: one(companies, {
-      fields: [manufacturers.companyId],
-      references: [companies.id],
-    }),
-    products: many(products),
+export const manufacturersRelations = relations(manufacturers, ({ one, many }) => ({
+  company: one(companies, {
+    fields: [manufacturers.companyId],
+    references: [companies.id],
   }),
-);
+  products: many(products),
+}));
 
-export const productGroupsRelations = relations(
-  productGroups,
-  ({ one, many }) => ({
-    company: one(companies, {
-      fields: [productGroups.companyId],
-      references: [companies.id],
-    }),
-    products: many(products),
+export const productGroupsRelations = relations(productGroups, ({ one, many }) => ({
+  company: one(companies, {
+    fields: [productGroups.companyId],
+    references: [companies.id],
   }),
-);
+  products: many(products),
+}));
 
 export const projectsRelations = relations(projects, ({ one, many }) => ({
   company: one(companies, {
@@ -1984,20 +1815,17 @@ export const accountsRelations = relations(accounts, ({ one }) => ({
   }),
 }));
 
-export const journalEntriesRelations = relations(
-  journalEntries,
-  ({ one, many }) => ({
-    company: one(companies, {
-      fields: [journalEntries.companyId],
-      references: [companies.id],
-    }),
-    createdByUser: one(users, {
-      fields: [journalEntries.createdBy],
-      references: [users.id],
-    }),
-    lines: many(journalLines),
+export const journalEntriesRelations = relations(journalEntries, ({ one, many }) => ({
+  company: one(companies, {
+    fields: [journalEntries.companyId],
+    references: [companies.id],
   }),
-);
+  createdByUser: one(users, {
+    fields: [journalEntries.createdBy],
+    references: [users.id],
+  }),
+  lines: many(journalLines),
+}));
 
 export const journalLinesRelations = relations(journalLines, ({ one }) => ({
   journalEntry: one(journalEntries, {
@@ -2010,34 +1838,28 @@ export const journalLinesRelations = relations(journalLines, ({ one }) => ({
   }),
 }));
 
-export const bankAccountsRelations = relations(
-  bankAccounts,
-  ({ one, many }) => ({
-    company: one(companies, {
-      fields: [bankAccounts.companyId],
-      references: [companies.id],
-    }),
-    account: one(accounts, {
-      fields: [bankAccounts.accountId],
-      references: [accounts.id],
-    }),
-    transactions: many(bankTransactions),
+export const bankAccountsRelations = relations(bankAccounts, ({ one, many }) => ({
+  company: one(companies, {
+    fields: [bankAccounts.companyId],
+    references: [companies.id],
   }),
-);
+  account: one(accounts, {
+    fields: [bankAccounts.accountId],
+    references: [accounts.id],
+  }),
+  transactions: many(bankTransactions),
+}));
 
-export const bankTransactionsRelations = relations(
-  bankTransactions,
-  ({ one }) => ({
-    bankAccount: one(bankAccounts, {
-      fields: [bankTransactions.bankAccountId],
-      references: [bankAccounts.id],
-    }),
-    reconciledDocument: one(documents, {
-      fields: [bankTransactions.reconciledDocumentId],
-      references: [documents.id],
-    }),
+export const bankTransactionsRelations = relations(bankTransactions, ({ one }) => ({
+  bankAccount: one(bankAccounts, {
+    fields: [bankTransactions.bankAccountId],
+    references: [bankAccounts.id],
   }),
-);
+  reconciledDocument: one(documents, {
+    fields: [bankTransactions.reconciledDocumentId],
+    references: [documents.id],
+  }),
+}));
 
 export const warehousesRelations = relations(warehouses, ({ one, many }) => ({
   company: one(companies, {
@@ -2089,38 +1911,35 @@ export const serialNumbersRelations = relations(serialNumbers, ({ one }) => ({
   }),
 }));
 
-export const inventoryItemsRelations = relations(
-  inventoryItems,
-  ({ one, many }) => ({
-    company: one(companies, {
-      fields: [inventoryItems.companyId],
-      references: [companies.id],
-    }),
-    product: one(products, {
-      fields: [inventoryItems.productId],
-      references: [products.id],
-    }),
-    warehouse: one(warehouses, {
-      fields: [inventoryItems.warehouseId],
-      references: [warehouses.id],
-    }),
-    intakeDocument: one(documents, {
-      fields: [inventoryItems.intakeDocumentId],
-      references: [documents.id],
-      relationName: "intakeItems",
-    }),
-    saleDocument: one(documents, {
-      fields: [inventoryItems.saleDocumentId],
-      references: [documents.id],
-      relationName: "saleItems",
-    }),
-    donorContact: one(contacts, {
-      fields: [inventoryItems.donorContactId],
-      references: [contacts.id],
-    }),
-    repairParts: many(repairParts),
+export const inventoryItemsRelations = relations(inventoryItems, ({ one, many }) => ({
+  company: one(companies, {
+    fields: [inventoryItems.companyId],
+    references: [companies.id],
   }),
-);
+  product: one(products, {
+    fields: [inventoryItems.productId],
+    references: [products.id],
+  }),
+  warehouse: one(warehouses, {
+    fields: [inventoryItems.warehouseId],
+    references: [warehouses.id],
+  }),
+  intakeDocument: one(documents, {
+    fields: [inventoryItems.intakeDocumentId],
+    references: [documents.id],
+    relationName: "intakeItems",
+  }),
+  saleDocument: one(documents, {
+    fields: [inventoryItems.saleDocumentId],
+    references: [documents.id],
+    relationName: "saleItems",
+  }),
+  donorContact: one(contacts, {
+    fields: [inventoryItems.donorContactId],
+    references: [contacts.id],
+  }),
+  repairParts: many(repairParts),
+}));
 
 export const repairPartsRelations = relations(repairParts, ({ one }) => ({
   company: one(companies, {
@@ -2156,15 +1975,12 @@ export const fiscalPeriodsRelations = relations(fiscalPeriods, ({ one }) => ({
   }),
 }));
 
-export const numberSequencesRelations = relations(
-  numberSequences,
-  ({ one }) => ({
-    company: one(companies, {
-      fields: [numberSequences.companyId],
-      references: [companies.id],
-    }),
+export const numberSequencesRelations = relations(numberSequences, ({ one }) => ({
+  company: one(companies, {
+    fields: [numberSequences.companyId],
+    references: [companies.id],
   }),
-);
+}));
 
 export const priceListsRelations = relations(priceLists, ({ one, many }) => ({
   company: one(companies, {
@@ -2189,20 +2005,17 @@ export const priceRulesRelations = relations(priceRules, ({ one }) => ({
   }),
 }));
 
-export const aiConversationsRelations = relations(
-  aiConversations,
-  ({ one, many }) => ({
-    company: one(companies, {
-      fields: [aiConversations.companyId],
-      references: [companies.id],
-    }),
-    user: one(users, {
-      fields: [aiConversations.userId],
-      references: [users.id],
-    }),
-    messages: many(aiMessages),
+export const aiConversationsRelations = relations(aiConversations, ({ one, many }) => ({
+  company: one(companies, {
+    fields: [aiConversations.companyId],
+    references: [companies.id],
   }),
-);
+  user: one(users, {
+    fields: [aiConversations.userId],
+    references: [users.id],
+  }),
+  messages: many(aiMessages),
+}));
 
 export const aiMessagesRelations = relations(aiMessages, ({ one }) => ({
   conversation: one(aiConversations, {
@@ -2211,19 +2024,16 @@ export const aiMessagesRelations = relations(aiMessages, ({ one }) => ({
   }),
 }));
 
-export const recurringInvoiceConfigsRelations = relations(
-  recurringInvoiceConfigs,
-  ({ one }) => ({
-    company: one(companies, {
-      fields: [recurringInvoiceConfigs.companyId],
-      references: [companies.id],
-    }),
-    order: one(documents, {
-      fields: [recurringInvoiceConfigs.orderId],
-      references: [documents.id],
-    }),
+export const recurringInvoiceConfigsRelations = relations(recurringInvoiceConfigs, ({ one }) => ({
+  company: one(companies, {
+    fields: [recurringInvoiceConfigs.companyId],
+    references: [companies.id],
   }),
-);
+  order: one(documents, {
+    fields: [recurringInvoiceConfigs.orderId],
+    references: [documents.id],
+  }),
+}));
 
 // ============================================================================
 // TYPES (derived from schema)
@@ -2414,10 +2224,8 @@ export type InventoryItem = typeof inventoryItems.$inferSelect;
 export type NewInventoryItem = typeof inventoryItems.$inferInsert;
 export type RepairPart = typeof repairParts.$inferSelect;
 export type NewRepairPart = typeof repairParts.$inferInsert;
-export type RecurringInvoiceConfig =
-  typeof recurringInvoiceConfigs.$inferSelect;
-export type NewRecurringInvoiceConfig =
-  typeof recurringInvoiceConfigs.$inferInsert;
+export type RecurringInvoiceConfig = typeof recurringInvoiceConfigs.$inferSelect;
+export type NewRecurringInvoiceConfig = typeof recurringInvoiceConfigs.$inferInsert;
 
 export type WebhookEndpoint = typeof webhookEndpoints.$inferSelect;
 export type NewWebhookEndpoint = typeof webhookEndpoints.$inferInsert;
@@ -2437,10 +2245,8 @@ export type Vacancy = typeof vacancies.$inferSelect;
 export type NewVacancy = typeof vacancies.$inferInsert;
 export type JoinRequest = typeof joinRequests.$inferSelect;
 export type NewJoinRequest = typeof joinRequests.$inferInsert;
-export type ExternalIntegrationItem =
-  typeof externalIntegrationItems.$inferSelect;
-export type NewExternalIntegrationItem =
-  typeof externalIntegrationItems.$inferInsert;
+export type ExternalIntegrationItem = typeof externalIntegrationItems.$inferSelect;
+export type NewExternalIntegrationItem = typeof externalIntegrationItems.$inferInsert;
 
 // Document type literals for type narrowing
 export type DocumentType = (typeof documentTypeEnum.enumValues)[number];
@@ -2455,7 +2261,5 @@ export type AvailabilityType = (typeof availabilityTypeEnum.enumValues)[number];
 export type VacancyType = (typeof vacancyTypeEnum.enumValues)[number];
 export type LocationMode = (typeof locationModeEnum.enumValues)[number];
 export type VacancyStatus = (typeof vacancyStatusEnum.enumValues)[number];
-export type JoinRequestStatus =
-  (typeof joinRequestStatusEnum.enumValues)[number];
-export type RecurringPeriodicity =
-  (typeof recurringPeriodicityEnum.enumValues)[number];
+export type JoinRequestStatus = (typeof joinRequestStatusEnum.enumValues)[number];
+export type RecurringPeriodicity = (typeof recurringPeriodicityEnum.enumValues)[number];

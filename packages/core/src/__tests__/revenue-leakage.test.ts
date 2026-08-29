@@ -21,10 +21,8 @@ function makeDb(queue: unknown[][]): Database {
         from: () => b,
         where: () => b,
         limit: () => Promise.resolve(rows),
-        then: (
-          resolve: (v: unknown[]) => unknown,
-          reject?: (e: unknown) => unknown,
-        ) => Promise.resolve(rows).then(resolve, reject),
+        then: (resolve: (v: unknown[]) => unknown, reject?: (e: unknown) => unknown) =>
+          Promise.resolve(rows).then(resolve, reject),
       };
       return b;
     },

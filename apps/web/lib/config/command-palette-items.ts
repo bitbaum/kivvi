@@ -32,10 +32,7 @@ export interface PaletteItemConfig {
 
 // Document type to detail page route prefix — derived from DOCUMENT_TYPES config (SSOT)
 export const DOCUMENT_ROUTE_PREFIX: Record<string, string> = Object.fromEntries(
-  Object.entries(DOCUMENT_TYPES).map(([type, config]) => [
-    type,
-    config.basePath,
-  ]),
+  Object.entries(DOCUMENT_TYPES).map(([type, config]) => [type, config.basePath]),
 );
 
 // Section display order and i18n keys

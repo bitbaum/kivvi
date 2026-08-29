@@ -3,10 +3,7 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import {
-  createPriceListAction,
-  updatePriceListAction,
-} from "@/app/actions/pricing";
+import { createPriceListAction, updatePriceListAction } from "@/app/actions/pricing";
 import type { PriceList } from "@kivvi/database";
 import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 
@@ -80,9 +77,7 @@ export function PriceListForm({ list }: Props) {
           <label className="text-sm font-medium" htmlFor="pl-default">
             {t("fieldIsDefault")}
           </label>
-          <p className="text-xs text-muted-foreground">
-            {t("fieldIsDefaultDesc")}
-          </p>
+          <p className="text-xs text-muted-foreground">{t("fieldIsDefaultDesc")}</p>
         </div>
       </div>
 

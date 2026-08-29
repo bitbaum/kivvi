@@ -58,16 +58,9 @@ export async function dispatchWebhookEvent(
     const endpoints = await db
       .select()
       .from(webhookEndpoints)
-      .where(
-        and(
-          eq(webhookEndpoints.companyId, companyId),
-          eq(webhookEndpoints.isActive, true),
-        ),
-      );
+      .where(and(eq(webhookEndpoints.companyId, companyId), eq(webhookEndpoints.isActive, true)));
 
-    const subscribed = endpoints.filter((ep) =>
-      (ep.events as WebhookEvent[]).includes(event),
-    );
+    const subscribed = endpoints.filter((ep) => (ep.events as WebhookEvent[]).includes(event));
 
     if (subscribed.length === 0) return;
 
@@ -80,9 +73,7 @@ export async function dispatchWebhookEvent(
     const body = JSON.stringify(payload);
 
     await Promise.allSettled(
-      subscribed.map((ep) =>
-        deliverWebhook(db, ep.id, ep.url, ep.secret, event, payload, body),
-      ),
+      subscribed.map((ep) => deliverWebhook(db, ep.id, ep.url, ep.secret, event, payload, body)),
     );
   } catch (err) {
     logger.warn("Webhook dispatch failed", {
@@ -162,10 +153,7 @@ export async function retryFailedDeliveries(db: Database): Promise<void> {
   const due = await db
     .select({ delivery: webhookDeliveries, endpoint: webhookEndpoints })
     .from(webhookDeliveries)
-    .innerJoin(
-      webhookEndpoints,
-      eq(webhookDeliveries.endpointId, webhookEndpoints.id),
-    )
+    .innerJoin(webhookEndpoints, eq(webhookDeliveries.endpointId, webhookEndpoints.id))
     .where(
       and(
         isNotNull(webhookDeliveries.nextRetryAt),
@@ -233,10 +221,7 @@ export async function retryFailedDeliveries(db: Database): Promise<void> {
 // ============================================================================
 
 export async function listWebhookEndpoints(db: Database, companyId: string) {
-  return db
-    .select()
-    .from(webhookEndpoints)
-    .where(eq(webhookEndpoints.companyId, companyId));
+  return db.select().from(webhookEndpoints).where(eq(webhookEndpoints.companyId, companyId));
 }
 
 /**
@@ -254,12 +239,7 @@ export async function listWebhookDeliveries(
   const [ep] = await db
     .select({ id: webhookEndpoints.id })
     .from(webhookEndpoints)
-    .where(
-      and(
-        eq(webhookEndpoints.id, endpointId),
-        eq(webhookEndpoints.companyId, companyId),
-      ),
-    )
+    .where(and(eq(webhookEndpoints.id, endpointId), eq(webhookEndpoints.companyId, companyId)))
     .limit(1);
 
   if (!ep) throw new Error("Webhook endpoint not found");
@@ -299,28 +279,14 @@ export async function updateWebhookEndpoint(
   const [updated] = await db
     .update(webhookEndpoints)
     .set({ ...input, updatedAt: new Date() })
-    .where(
-      and(
-        eq(webhookEndpoints.id, endpointId),
-        eq(webhookEndpoints.companyId, companyId),
-      ),
-    )
+    .where(and(eq(webhookEndpoints.id, endpointId), eq(webhookEndpoints.companyId, companyId)))
     .returning();
   if (!updated) throw new Error("Webhook endpoint not found");
   return updated;
 }
 
-export async function deleteWebhookEndpoint(
-  db: Database,
-  companyId: string,
-  endpointId: string,
-) {
+export async function deleteWebhookEndpoint(db: Database, companyId: string, endpointId: string) {
   await db
     .delete(webhookEndpoints)
-    .where(
-      and(
-        eq(webhookEndpoints.id, endpointId),
-        eq(webhookEndpoints.companyId, companyId),
-      ),
-    );
+    .where(and(eq(webhookEndpoints.id, endpointId), eq(webhookEndpoints.companyId, companyId)));
 }

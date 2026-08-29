@@ -30,20 +30,14 @@ export function DocumentBulkActions({
   onComplete,
 }: DocumentBulkActionsProps) {
   const [isPending, startTransition] = useTransition();
-  const [confirmAction, setConfirmAction] = useState<BulkActionDef | null>(
-    null,
-  );
+  const [confirmAction, setConfirmAction] = useState<BulkActionDef | null>(null);
   const [extensionDays, setExtensionDays] = useState(30);
-  const [paymentDate, setPaymentDate] = useState(
-    new Date().toISOString().split("T")[0],
-  );
+  const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split("T")[0]);
 
   function isActionApplicable(action: BulkActionDef): boolean {
     const { applicableStatuses } = action;
     if (!applicableStatuses) return true;
-    return selectedStatuses.every((s) =>
-      applicableStatuses.includes(s as never),
-    );
+    return selectedStatuses.every((s) => applicableStatuses.includes(s as never));
   }
 
   function executeAction(action: BulkActionDef) {
@@ -104,14 +98,11 @@ export function DocumentBulkActions({
   const variantClasses: Record<string, string> = {
     default: "border bg-background text-foreground hover:bg-muted",
     primary: "bg-primary text-primary-foreground hover:bg-primary/90",
-    destructive:
-      "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+    destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
   };
 
   const markPaidAction = actions.find((a) => a.action === "mark_paid");
-  const extendValidityAction = actions.find(
-    (a) => a.action === "extend_validity",
-  );
+  const extendValidityAction = actions.find((a) => a.action === "extend_validity");
 
   return (
     <>
@@ -153,9 +144,7 @@ export function DocumentBulkActions({
             onChange={(e) => setExtensionDays(parseInt(e.target.value) || 30)}
             className="w-16 rounded-lg border bg-background px-2 py-1.5 text-sm"
           />
-          <span className="text-xs text-muted-foreground">
-            {labels.days || "days"}
-          </span>
+          <span className="text-xs text-muted-foreground">{labels.days || "days"}</span>
         </div>
       )}
 
@@ -163,19 +152,11 @@ export function DocumentBulkActions({
       {confirmAction && (
         <BulkConfirmDialog
           title={labels.confirmTitle || "Confirm"}
-          message={(
-            labels.confirmMessage ||
-            "Are you sure you want to {action} {count} items?"
-          )
-            .replace(
-              "{action}",
-              labels[confirmAction.label] || confirmAction.label,
-            )
+          message={(labels.confirmMessage || "Are you sure you want to {action} {count} items?")
+            .replace("{action}", labels[confirmAction.label] || confirmAction.label)
             .replace("{count}", String(selectedIds.length))}
           confirmLabel={
-            isPending
-              ? labels.processing || "Processing..."
-              : labels.confirmAction || "Confirm"
+            isPending ? labels.processing || "Processing..." : labels.confirmAction || "Confirm"
           }
           cancelLabel={labels.cancel || "Cancel"}
           isLoading={isPending}

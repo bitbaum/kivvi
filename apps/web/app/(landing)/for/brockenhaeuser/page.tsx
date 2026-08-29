@@ -32,9 +32,7 @@ export default async function ForBrockenhaeuserPage() {
           <ShoppingBag className="h-4 w-4" />
           {t("hero.badge")}
         </div>
-        <h1 className="mb-4 text-4xl font-bold sm:text-5xl">
-          {t("hero.title")}
-        </h1>
+        <h1 className="mb-4 text-4xl font-bold sm:text-5xl">{t("hero.title")}</h1>
         <p className="text-xl text-muted-foreground">{t("hero.description")}</p>
       </section>
 
@@ -54,33 +52,19 @@ export default async function ForBrockenhaeuserPage() {
       <section className="mx-auto max-w-3xl py-8">
         <div className="rounded-2xl border bg-card p-8">
           <h2 className="mb-3 text-xl font-bold">{t("context.title")}</h2>
-          <p className="mb-4 text-muted-foreground">
-            {t("context.description")}
-          </p>
+          <p className="mb-4 text-muted-foreground">{t("context.description")}</p>
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="rounded-lg border p-4 text-center">
-              <div className="text-xl font-bold text-primary">
-                {t("context.stat1Value")}
-              </div>
-              <div className="text-sm text-muted-foreground mt-1">
-                {t("context.stat1Label")}
-              </div>
+              <div className="text-xl font-bold text-primary">{t("context.stat1Value")}</div>
+              <div className="text-sm text-muted-foreground mt-1">{t("context.stat1Label")}</div>
             </div>
             <div className="rounded-lg border p-4 text-center">
-              <div className="text-xl font-bold text-primary">
-                {t("context.stat2Value")}
-              </div>
-              <div className="text-sm text-muted-foreground mt-1">
-                {t("context.stat2Label")}
-              </div>
+              <div className="text-xl font-bold text-primary">{t("context.stat2Value")}</div>
+              <div className="text-sm text-muted-foreground mt-1">{t("context.stat2Label")}</div>
             </div>
             <div className="rounded-lg border p-4 text-center">
-              <div className="text-xl font-bold text-primary">
-                {t("context.stat3Value")}
-              </div>
-              <div className="text-sm text-muted-foreground mt-1">
-                {t("context.stat3Label")}
-              </div>
+              <div className="text-xl font-bold text-primary">{t("context.stat3Value")}</div>
+              <div className="text-sm text-muted-foreground mt-1">{t("context.stat3Label")}</div>
             </div>
           </div>
         </div>
@@ -88,10 +72,7 @@ export default async function ForBrockenhaeuserPage() {
 
       <SeeAlsoSection current="brockenhaeuser" />
 
-      <LandingCtaSection
-        title={t("ctaTitle")}
-        description={t("ctaDescription")}
-      />
+      <LandingCtaSection title={t("ctaTitle")} description={t("ctaDescription")} />
     </>
   );
 }

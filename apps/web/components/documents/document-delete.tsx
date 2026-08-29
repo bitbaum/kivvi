@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
-import { useTranslations } from 'next-intl';
-import { Trash2 } from 'lucide-react';
-import { deleteDocumentAction } from '@/app/actions/documents';
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
+import { Trash2 } from "lucide-react";
+import { deleteDocumentAction } from "@/app/actions/documents";
 
 export function DocumentDeleteButton({
   documentId,
@@ -14,7 +14,7 @@ export function DocumentDeleteButton({
   redirectTo: string;
 }) {
   const router = useRouter();
-  const tc = useTranslations('common');
+  const tc = useTranslations("common");
   const [isPending, startTransition] = useTransition();
   const [confirming, setConfirming] = useState(false);
 
@@ -31,7 +31,7 @@ export function DocumentDeleteButton({
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-sm text-destructive">{tc('delete')}?</span>
+      <span className="text-sm text-destructive">{tc("delete")}?</span>
       <button
         onClick={() => {
           startTransition(async () => {
@@ -42,13 +42,13 @@ export function DocumentDeleteButton({
         disabled={isPending}
         className="rounded-lg bg-destructive px-3 py-1.5 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
       >
-        {isPending ? tc('deleting') : tc('yes')}
+        {isPending ? tc("deleting") : tc("yes")}
       </button>
       <button
         onClick={() => setConfirming(false)}
         className="rounded-lg border px-3 py-1.5 text-sm hover:bg-muted"
       >
-        {tc('no')}
+        {tc("no")}
       </button>
     </div>
   );

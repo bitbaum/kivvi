@@ -13,10 +13,7 @@ interface SendEmailButtonProps {
   defaultEmail?: string;
 }
 
-export function SendEmailButton({
-  documentId,
-  defaultEmail,
-}: SendEmailButtonProps) {
+export function SendEmailButton({ documentId, defaultEmail }: SendEmailButtonProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isOpen, setIsOpen] = useState(false);

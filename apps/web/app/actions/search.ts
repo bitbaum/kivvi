@@ -56,6 +56,5 @@ export const globalSearchAction = createAction<string, GlobalSearchResults>({
       })),
     };
   },
-  errorMessage: () =>
-    getTranslations("common").then((t) => t("errorSearchFailed")),
+  errorMessage: () => getTranslations("common").then((t) => t("errorSearchFailed")),
 });

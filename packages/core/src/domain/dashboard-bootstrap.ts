@@ -29,37 +29,22 @@ export async function getDashboardBootstrap(
   db: Database,
   companyId: string,
 ): Promise<DashboardBootstrap> {
-  const [
-    company,
-    [contactRow],
-    [documentRow],
-    [inventoryRow],
-    [memberRow],
-    [bankRow],
-  ] = await Promise.all([
-    db.query.companies.findFirst({ where: eq(companies.id, companyId) }),
-    db
-      .select({ value: count() })
-      .from(contacts)
-      .where(eq(contacts.companyId, companyId)),
-    db
-      .select({ value: count() })
-      .from(documents)
-      .where(eq(documents.companyId, companyId)),
-    db
-      .select({ value: count() })
-      .from(inventoryItems)
-      .where(eq(inventoryItems.companyId, companyId)),
-    db
-      .select({ value: count() })
-      .from(memberships)
-      .where(eq(memberships.companyId, companyId)),
-    db
-      .select({ iban: bankAccounts.iban })
-      .from(bankAccounts)
-      .where(eq(bankAccounts.companyId, companyId))
-      .limit(1),
-  ]);
+  const [company, [contactRow], [documentRow], [inventoryRow], [memberRow], [bankRow]] =
+    await Promise.all([
+      db.query.companies.findFirst({ where: eq(companies.id, companyId) }),
+      db.select({ value: count() }).from(contacts).where(eq(contacts.companyId, companyId)),
+      db.select({ value: count() }).from(documents).where(eq(documents.companyId, companyId)),
+      db
+        .select({ value: count() })
+        .from(inventoryItems)
+        .where(eq(inventoryItems.companyId, companyId)),
+      db.select({ value: count() }).from(memberships).where(eq(memberships.companyId, companyId)),
+      db
+        .select({ iban: bankAccounts.iban })
+        .from(bankAccounts)
+        .where(eq(bankAccounts.companyId, companyId))
+        .limit(1),
+    ]);
 
   const settings = company?.settings ?? {};
   const documentCount = documentRow?.value ?? 0;

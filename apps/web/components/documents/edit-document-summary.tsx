@@ -44,10 +44,7 @@ export function EditDocumentSummary({
       </div>
 
       {error && (
-        <p
-          role="alert"
-          className="mt-4 rounded-lg bg-destructive/5 p-3 text-sm text-destructive"
-        >
+        <p role="alert" className="mt-4 rounded-lg bg-destructive/5 p-3 text-sm text-destructive">
           {error}
         </p>
       )}

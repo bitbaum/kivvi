@@ -20,10 +20,7 @@ import {
 import { useTranslations } from "next-intl";
 import { useRecentItems, type RecentItem } from "@/hooks/use-recent-items";
 
-const ICONS: Record<
-  RecentItem["type"],
-  React.ComponentType<{ className?: string }>
-> = {
+const ICONS: Record<RecentItem["type"], React.ComponentType<{ className?: string }>> = {
   invoice: FileText,
   contact: User,
   product: Package,
@@ -78,10 +75,7 @@ export function RecentItemsDropdown() {
       {isOpen && (
         <>
           {/* Backdrop */}
-          <div
-            className="fixed inset-0 z-40"
-            onClick={() => setIsOpen(false)}
-          />
+          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
 
           {/* Dropdown */}
           <div className="absolute right-0 top-full z-50 mt-2 w-80 rounded-lg border bg-popover shadow-lg">
@@ -113,13 +107,9 @@ export function RecentItemsDropdown() {
                       <Icon className="h-4 w-4 text-muted-foreground" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">
-                        {item.label}
-                      </p>
+                      <p className="text-sm font-medium truncate">{item.label}</p>
                       <p className="text-xs text-muted-foreground">
-                        {tc(
-                          `itemTypes.${item.type}` as Parameters<typeof tc>[0],
-                        )}
+                        {tc(`itemTypes.${item.type}` as Parameters<typeof tc>[0])}
                       </p>
                     </div>
                   </Link>

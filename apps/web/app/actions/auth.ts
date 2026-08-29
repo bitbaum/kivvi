@@ -5,14 +5,8 @@ import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
 import { users } from "@kivvi/database";
 import { eq } from "drizzle-orm";
-import {
-  createOwnedCompany,
-  createCompanySchema,
-} from "@kivvi/core/src/domain/memberships";
-import {
-  getInvitationByToken,
-  acceptInvitation,
-} from "@kivvi/core/src/domain/invitations";
+import { createOwnedCompany, createCompanySchema } from "@kivvi/core/src/domain/memberships";
+import { getInvitationByToken, acceptInvitation } from "@kivvi/core/src/domain/invitations";
 import {
   buildWelcomeEmailSubject,
   buildWelcomeEmailHtml,
@@ -52,9 +46,7 @@ export interface RegisterResult {
  * Register a new user and company.
  * Creates both company and user atomically in a transaction.
  */
-export async function registerAction(
-  input: unknown,
-): Promise<ActionResult<RegisterResult>> {
+export async function registerAction(input: unknown): Promise<ActionResult<RegisterResult>> {
   const t = await getTranslations("auth");
   try {
     const registerSchema = z.object({
@@ -102,10 +94,7 @@ export async function registerAction(
       if (companyName) {
         // Owner path: create company + owner membership atomically
         const company = await createOwnedCompany(tx, user.id, companyName);
-        await tx
-          .update(users)
-          .set({ companyId: company.companyId })
-          .where(eq(users.id, user.id));
+        await tx.update(users).set({ companyId: company.companyId }).where(eq(users.id, user.id));
         return {
           userId: user.id,
           companyId: company.companyId,
@@ -230,11 +219,7 @@ export async function registerAndAcceptInviteAction(
       .returning();
 
     // Accept invite — sets companyId on the user atomically
-    const { companyId, companyName } = await acceptInvitation(
-      db,
-      inviteToken,
-      user.id,
-    );
+    const { companyId, companyName } = await acceptInvitation(db, inviteToken, user.id);
 
     return {
       success: true,

@@ -48,9 +48,7 @@ export async function createCostCenter(
   const [existing] = await db
     .select({ id: costCenters.id })
     .from(costCenters)
-    .where(
-      and(eq(costCenters.companyId, companyId), eq(costCenters.code, v.code)),
-    )
+    .where(and(eq(costCenters.companyId, companyId), eq(costCenters.code, v.code)))
     .limit(1);
   if (existing) {
     throw new DomainError(
@@ -89,10 +87,7 @@ export async function updateCostCenter(
  * duplicates (unique companyId+code), so it doubles as a backfill for
  * companies created before this feature existed.
  */
-export async function seedCostCenters(
-  db: Database,
-  companyId: string,
-): Promise<number> {
+export async function seedCostCenters(db: Database, companyId: string): Promise<number> {
   const rows = DEFAULT_COST_CENTERS.map((c) => ({ companyId, ...c }));
   const inserted = await db
     .insert(costCenters)

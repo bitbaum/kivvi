@@ -8,9 +8,7 @@ export const MOVEMENT_TYPES = STOCK_MOVEMENT_TYPE_VALUES;
 export type MovementType = (typeof MOVEMENT_TYPES)[number];
 
 /** Build translated movement type labels from MOVEMENT_TYPES (SSOT). */
-export function getMovementTypeLabels(
-  t: (key: string) => string,
-): Record<string, string> {
+export function getMovementTypeLabels(t: (key: string) => string): Record<string, string> {
   return Object.fromEntries(MOVEMENT_TYPES.map((type) => [type, t(type)]));
 }
 

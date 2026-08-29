@@ -20,15 +20,12 @@ export default async function BalanceSheetPage({ searchParams }: PageProps) {
   const ta = await getTranslations("accounting");
 
   const params = await searchParams;
-  const asOfDate =
-    (params.asOfDate as string) || new Date().toISOString().split("T")[0];
+  const asOfDate = (params.asOfDate as string) || new Date().toISOString().split("T")[0];
 
   const report = await getBalanceSheet(db, session.user.companyId, asOfDate);
 
   const hasData =
-    report.assets.length > 0 ||
-    report.liabilities.length > 0 ||
-    report.equity.length > 0;
+    report.assets.length > 0 || report.liabilities.length > 0 || report.equity.length > 0;
 
   return (
     <div className="space-y-6">
@@ -46,11 +43,7 @@ export default async function BalanceSheetPage({ searchParams }: PageProps) {
             <h1 className="text-3xl font-bold">{t("balanceSheet")}</h1>
             <p className="text-muted-foreground">{t("balanceSheetDesc")}</p>
           </div>
-          <ExportButton
-            reportType="balance-sheet"
-            asOfDate={asOfDate}
-            disabled={!hasData}
-          />
+          <ExportButton reportType="balance-sheet" asOfDate={asOfDate} disabled={!hasData} />
         </div>
       </div>
 
@@ -121,17 +114,13 @@ export default async function BalanceSheetPage({ searchParams }: PageProps) {
             <h2 className="mb-4 font-semibold">{ta("balanceCheck")}</h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div className="rounded-lg border bg-background p-4">
-                <p className="text-sm text-muted-foreground">
-                  {t("totalAssets")}
-                </p>
+                <p className="text-sm text-muted-foreground">{t("totalAssets")}</p>
                 <p className="mt-1 text-xl font-bold text-info">
                   {formatCurrency(report.totalAssets)}
                 </p>
               </div>
               <div className="rounded-lg border bg-background p-4">
-                <p className="text-sm text-muted-foreground">
-                  {t("totalLiabilitiesAndEquity")}
-                </p>
+                <p className="text-sm text-muted-foreground">{t("totalLiabilitiesAndEquity")}</p>
                 <p className="mt-1 text-xl font-bold text-destructive">
                   {formatCurrency(report.totalLiabilities)}
                 </p>
@@ -150,9 +139,7 @@ export default async function BalanceSheetPage({ searchParams }: PageProps) {
                 </p>
                 <p
                   className={`mt-1 text-xl font-bold ${
-                    Number(report.retainedEarnings) >= 0
-                      ? "text-success"
-                      : "text-destructive"
+                    Number(report.retainedEarnings) >= 0 ? "text-success" : "text-destructive"
                   }`}
                 >
                   {formatCurrency(report.retainedEarnings)}
@@ -212,9 +199,7 @@ function BalanceSection({
             <tbody className="divide-y">
               {rows.map((row) => (
                 <tr key={row.accountCode} className="hover:bg-muted/50">
-                  <td className="px-6 py-3 font-mono text-muted-foreground">
-                    {row.accountCode}
-                  </td>
+                  <td className="px-6 py-3 font-mono text-muted-foreground">{row.accountCode}</td>
                   <td className="px-6 py-3">{row.accountName}</td>
                   <td className="px-6 py-3 text-right font-medium">
                     {formatCurrency(row.balance)}
@@ -227,9 +212,7 @@ function BalanceSection({
                 <td className="px-6 py-3" colSpan={2}>
                   {labels.total} {title}
                 </td>
-                <td className={`px-6 py-3 text-right ${color}`}>
-                  {formatCurrency(total)}
-                </td>
+                <td className={`px-6 py-3 text-right ${color}`}>{formatCurrency(total)}</td>
               </tr>
             </tfoot>
           </table>

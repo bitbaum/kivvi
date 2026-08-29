@@ -9,15 +9,7 @@ import { AGING_BUCKET_COLORS } from "@/lib/config/chart-colors";
 import { RevenueChart, AgingChart } from "../../dashboard/charts";
 import { Skeleton } from "@/components/ui/skeleton";
 import { logger } from "@/lib/logger";
-import {
-  TrendingUp,
-  Target,
-  Wallet,
-  Clock,
-  DollarSign,
-  Users,
-  ArrowLeft,
-} from "lucide-react";
+import { TrendingUp, Target, Wallet, Clock, DollarSign, Users, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 export const revalidate = 60;
@@ -80,11 +72,7 @@ async function HealthMetricsSection() {
       color: "text-success",
       bgColor: "bg-success/10",
       trend:
-        metrics.profitMargin >= 20
-          ? "excellent"
-          : metrics.profitMargin >= 10
-            ? "good"
-            : "poor",
+        metrics.profitMargin >= 20 ? "excellent" : metrics.profitMargin >= 10 ? "good" : "poor",
     },
     {
       label: t("conversionRate"),
@@ -93,11 +81,7 @@ async function HealthMetricsSection() {
       color: "text-info",
       bgColor: "bg-info/10",
       trend:
-        metrics.conversionRate >= 30
-          ? "excellent"
-          : metrics.conversionRate >= 15
-            ? "good"
-            : "poor",
+        metrics.conversionRate >= 30 ? "excellent" : metrics.conversionRate >= 15 ? "good" : "poor",
     },
     {
       label: t("avgInvoice"),
@@ -127,11 +111,7 @@ async function HealthMetricsSection() {
       color: "text-info",
       bgColor: "bg-info/10",
       trend:
-        metrics.cashFlowRatio >= 120
-          ? "excellent"
-          : metrics.cashFlowRatio >= 100
-            ? "good"
-            : "poor",
+        metrics.cashFlowRatio >= 120 ? "excellent" : metrics.cashFlowRatio >= 100 ? "good" : "poor",
     },
     {
       label: t("customerRetention"),
@@ -153,9 +133,7 @@ async function HealthMetricsSection() {
       {metricCards.map((metric) => (
         <div key={metric.label} className="rounded-xl border bg-card p-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-muted-foreground">
-              {metric.label}
-            </span>
+            <span className="text-sm font-medium text-muted-foreground">{metric.label}</span>
             <div
               className={`flex h-8 w-8 items-center justify-center rounded-lg ${metric.bgColor}`}
             >
@@ -244,14 +222,9 @@ async function ChartsSection() {
       <div className="rounded-xl border bg-card p-6">
         <h3 className="mb-4 font-semibold">{t("charts.revenue")}</h3>
         {revenueData.length > 0 ? (
-          <RevenueChart
-            data={revenueData}
-            revenueLabel={t("charts.revenueLabel")}
-          />
+          <RevenueChart data={revenueData} revenueLabel={t("charts.revenueLabel")} />
         ) : (
-          <p className="py-12 text-center text-muted-foreground">
-            {t("charts.noRevenue")}
-          </p>
+          <p className="py-12 text-center text-muted-foreground">{t("charts.noRevenue")}</p>
         )}
       </div>
       <div className="rounded-xl border bg-card p-6">
@@ -259,9 +232,7 @@ async function ChartsSection() {
         {agingData.length > 0 ? (
           <AgingChart data={agingData} />
         ) : (
-          <p className="py-12 text-center text-muted-foreground">
-            {t("charts.noInvoices")}
-          </p>
+          <p className="py-12 text-center text-muted-foreground">{t("charts.noInvoices")}</p>
         )}
       </div>
     </div>

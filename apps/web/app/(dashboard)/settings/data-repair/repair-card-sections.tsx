@@ -34,17 +34,13 @@ export function InvoiceStatusesRepairCard({
         </div>
         <div>
           <h3 className="font-semibold">{t("invoiceStatuses")}</h3>
-          <p className="text-sm text-muted-foreground">
-            {t("invoiceStatusesDesc")}
-          </p>
+          <p className="text-sm text-muted-foreground">{t("invoiceStatusesDesc")}</p>
         </div>
       </div>
 
       <div className="mb-4 space-y-2 text-sm">
         <p>{t("sentInvoices", { count: sentInvoicesBefore2026 })}</p>
-        <p>
-          {t("sentPurchaseInvoices", { count: sentPurchaseInvoicesBefore2026 })}
-        </p>
+        <p>{t("sentPurchaseInvoices", { count: sentPurchaseInvoicesBefore2026 })}</p>
       </div>
 
       <div className="mb-4 flex items-center gap-3">
@@ -75,11 +71,7 @@ interface PaidDatesRepairCardProps {
   onRepair: () => void;
 }
 
-export function PaidDatesRepairCard({
-  count,
-  repairing,
-  onRepair,
-}: PaidDatesRepairCardProps) {
+export function PaidDatesRepairCard({ count, repairing, onRepair }: PaidDatesRepairCardProps) {
   const t = useTranslations("settings.dataRepair");
 
   if (count === 0) return null;

@@ -1,12 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import {
-  CheckCircle2,
-  XCircle,
-  SkipForward,
-  AlertTriangle,
-} from "lucide-react";
+import { CheckCircle2, XCircle, SkipForward, AlertTriangle } from "lucide-react";
 import type { ChecklistCheckDef } from "@kivvi/core/src/config/checklist-templates";
 
 type CheckResult = "pass" | "fail" | "skip" | null;
@@ -71,11 +66,7 @@ export function CheckRow({ check, state, onChange, tl, tc }: CheckRowProps) {
                 }
                 className="h-10 w-28 rounded-lg border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               />
-              {check.unit && (
-                <span className="text-sm text-muted-foreground">
-                  {check.unit}
-                </span>
-              )}
+              {check.unit && <span className="text-sm text-muted-foreground">{check.unit}</span>}
             </div>
           )}
 
@@ -88,9 +79,7 @@ export function CheckRow({ check, state, onChange, tl, tc }: CheckRowProps) {
                 onChange={(e) => setResult(e.target.checked ? "pass" : null)}
                 className="h-4 w-4 rounded border-input"
               />
-              <span className="text-sm text-muted-foreground">
-                {tc("confirmCheck")}
-              </span>
+              <span className="text-sm text-muted-foreground">{tc("confirmCheck")}</span>
             </label>
           )}
 
@@ -100,9 +89,7 @@ export function CheckRow({ check, state, onChange, tl, tc }: CheckRowProps) {
               type="text"
               placeholder={tc("skipReason")}
               value={state.skipReason}
-              onChange={(e) =>
-                onChange({ ...state, skipReason: e.target.value })
-              }
+              onChange={(e) => onChange({ ...state, skipReason: e.target.value })}
               className="mt-2 h-10 w-full rounded-lg border border-input bg-background px-3 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />
           )}
@@ -156,10 +143,7 @@ export function CheckRow({ check, state, onChange, tl, tc }: CheckRowProps) {
 
       {/* Fail suggestion */}
       {state.result === "fail" && check.failSuggestsStatus && (
-        <div
-          role="alert"
-          className="mt-2 flex items-center gap-1.5 text-sm text-destructive"
-        >
+        <div role="alert" className="mt-2 flex items-center gap-1.5 text-sm text-destructive">
           <AlertTriangle className="h-3.5 w-3.5" />
           {tl("failSuggestion").replace("{status}", check.failSuggestsStatus)}
         </div>

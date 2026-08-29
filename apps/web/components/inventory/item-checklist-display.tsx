@@ -9,36 +9,24 @@ interface ItemChecklistDisplayProps {
   checklistData: ChecklistData | null;
 }
 
-export async function ItemChecklistDisplay({
-  checklistData,
-}: ItemChecklistDisplayProps) {
+export async function ItemChecklistDisplay({ checklistData }: ItemChecklistDisplayProps) {
   if (!checklistData?.completions?.length) return null;
 
   const ti = await getTranslations("inventory");
   const tck = await getTranslations("checklist");
 
   const template = getChecklistTemplate(checklistData.category);
-  const completionMap = new Map(
-    checklistData.completions.map((c) => [c.id, c]),
-  );
-  const passed = checklistData.completions.filter(
-    (c) => c.result === "pass",
-  ).length;
-  const failed = checklistData.completions.filter(
-    (c) => c.result === "fail",
-  ).length;
-  const skipped = checklistData.completions.filter(
-    (c) => c.result === "skip",
-  ).length;
+  const completionMap = new Map(checklistData.completions.map((c) => [c.id, c]));
+  const passed = checklistData.completions.filter((c) => c.result === "pass").length;
+  const failed = checklistData.completions.filter((c) => c.result === "fail").length;
+  const skipped = checklistData.completions.filter((c) => c.result === "skip").length;
 
   return (
     <CardSection title={ti("checklistResults")}>
       {/* Summary badges */}
       <div className="mb-3 flex gap-2 text-xs">
         {passed > 0 && (
-          <span className="rounded-full bg-success/10 px-2 py-0.5 text-success">
-            {passed} ✓
-          </span>
+          <span className="rounded-full bg-success/10 px-2 py-0.5 text-success">{passed} ✓</span>
         )}
         {failed > 0 && (
           <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-destructive">

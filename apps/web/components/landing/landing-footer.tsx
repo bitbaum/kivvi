@@ -164,8 +164,7 @@ export async function LandingFooter() {
         {/* Bottom strip */}
         <div className="mt-10 border-t pt-6 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between text-xs text-muted-foreground">
           <span>
-            © {new Date().getFullYear()} Kivvi · {t("footerBuiltBy")} · MIT
-            License
+            © {new Date().getFullYear()} Kivvi · {t("footerBuiltBy")} · MIT License
           </span>
           <span>{t("footerOpenSource")}</span>
         </div>

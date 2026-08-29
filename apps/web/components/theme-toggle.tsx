@@ -28,10 +28,7 @@ export function ThemeToggle({ className }: { className?: string }) {
   if (!mounted) {
     return (
       <div
-        className={cn(
-          "inline-flex h-9 w-9 items-center justify-center",
-          className,
-        )}
+        className={cn("inline-flex h-9 w-9 items-center justify-center", className)}
         aria-hidden="true"
       />
     );
@@ -42,8 +39,7 @@ export function ThemeToggle({ className }: { className?: string }) {
   const next = order[(order.indexOf(current) + 1) % order.length];
 
   // Icon reflects the resolved theme — what the user actually sees.
-  const Icon =
-    current === "system" ? Monitor : resolvedTheme === "dark" ? Moon : Sun;
+  const Icon = current === "system" ? Monitor : resolvedTheme === "dark" ? Moon : Sun;
 
   return (
     <button

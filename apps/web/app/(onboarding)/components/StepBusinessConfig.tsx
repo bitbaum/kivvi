@@ -12,10 +12,7 @@ interface StepBusinessConfigProps {
   onBack: () => void;
 }
 
-export function StepBusinessConfig({
-  onComplete,
-  onBack,
-}: StepBusinessConfigProps) {
+export function StepBusinessConfig({ onComplete, onBack }: StepBusinessConfigProps) {
   const t = useTranslations("onboarding");
   const tc = useTranslations("common");
   const [vatRate, setVatRate] = useState(DEFAULT_VAT_RATE);
@@ -61,9 +58,7 @@ export function StepBusinessConfig({
           <h2 className="mb-2 text-xl font-semibold">{t("setupComplete")}</h2>
           <div className="space-y-1 text-sm text-muted-foreground">
             <p>{t("setupAccounts", { count: setupResult.accountsCreated })}</p>
-            <p>
-              {t("setupSequences", { count: setupResult.sequencesCreated })}
-            </p>
+            <p>{t("setupSequences", { count: setupResult.sequencesCreated })}</p>
             <p>{t("setupWarehouse")}</p>
             <p>{t("setupFiscalYear", { year: new Date().getFullYear() })}</p>
           </div>
@@ -91,9 +86,7 @@ export function StepBusinessConfig({
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* VAT Rate */}
         <div>
-          <label className="mb-3 block text-sm font-medium">
-            {t("defaultVatRate")}
-          </label>
+          <label className="mb-3 block text-sm font-medium">{t("defaultVatRate")}</label>
           <div className="grid gap-3 sm:grid-cols-3">
             {SWISS_VAT_RATES.map((rate) => ({
               value: rate.value,
@@ -118,20 +111,14 @@ export function StepBusinessConfig({
                 />
                 <div
                   className={`flex h-4 w-4 items-center justify-center rounded-full border-2 ${
-                    vatRate === option.value
-                      ? "border-brand"
-                      : "border-muted-foreground/40"
+                    vatRate === option.value ? "border-brand" : "border-muted-foreground/40"
                   }`}
                 >
-                  {vatRate === option.value && (
-                    <div className="h-2 w-2 rounded-full bg-brand" />
-                  )}
+                  {vatRate === option.value && <div className="h-2 w-2 rounded-full bg-brand" />}
                 </div>
                 <div>
                   <div className="font-medium">{option.label}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {option.desc}
-                  </div>
+                  <div className="text-xs text-muted-foreground">{option.desc}</div>
                 </div>
               </label>
             ))}
@@ -140,10 +127,7 @@ export function StepBusinessConfig({
 
         {/* Payment Terms */}
         <div>
-          <label
-            htmlFor="paymentTerms"
-            className="mb-1.5 block text-sm font-medium"
-          >
+          <label htmlFor="paymentTerms" className="mb-1.5 block text-sm font-medium">
             {t("paymentTermsDays")}
           </label>
           <input
@@ -153,15 +137,11 @@ export function StepBusinessConfig({
             max={365}
             value={paymentTerms}
             onChange={(e) =>
-              setPaymentTerms(
-                parseInt(e.target.value) || DEFAULT_PAYMENT_TERMS_DAYS,
-              )
+              setPaymentTerms(parseInt(e.target.value) || DEFAULT_PAYMENT_TERMS_DAYS)
             }
             className="w-full max-w-xs rounded-lg border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-ring"
           />
-          <p className="mt-1 text-xs text-muted-foreground">
-            {t("paymentTermsHint")}
-          </p>
+          <p className="mt-1 text-xs text-muted-foreground">{t("paymentTermsHint")}</p>
         </div>
 
         {/* Bank Details */}
@@ -169,10 +149,7 @@ export function StepBusinessConfig({
           <h3 className="mb-3 text-sm font-medium">{t("bankIban")}</h3>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label
-                htmlFor="bankIban"
-                className="mb-1.5 block text-sm text-muted-foreground"
-              >
+              <label htmlFor="bankIban" className="mb-1.5 block text-sm text-muted-foreground">
                 IBAN
               </label>
               <input
@@ -185,10 +162,7 @@ export function StepBusinessConfig({
               />
             </div>
             <div>
-              <label
-                htmlFor="bankName"
-                className="mb-1.5 block text-sm text-muted-foreground"
-              >
+              <label htmlFor="bankName" className="mb-1.5 block text-sm text-muted-foreground">
                 {t("bankNameLabel")}
               </label>
               <input
@@ -210,9 +184,7 @@ export function StepBusinessConfig({
             <li>{t("willCreate.accounts")}</li>
             <li>{t("willCreate.sequences")}</li>
             <li>{t("willCreate.warehouse")}</li>
-            <li>
-              {t("willCreate.fiscalYear", { year: new Date().getFullYear() })}
-            </li>
+            <li>{t("willCreate.fiscalYear", { year: new Date().getFullYear() })}</li>
           </ul>
         </div>
 

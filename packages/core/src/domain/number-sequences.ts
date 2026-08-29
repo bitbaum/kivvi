@@ -60,12 +60,7 @@ export async function getNextNumber(
   const updated = await db
     .update(numberSequences)
     .set({ nextNumber: sql`${numberSequences.nextNumber} + 1` })
-    .where(
-      and(
-        eq(numberSequences.companyId, companyId),
-        eq(numberSequences.type, type),
-      ),
-    )
+    .where(and(eq(numberSequences.companyId, companyId), eq(numberSequences.type, type)))
     .returning({
       usedNumber: sql<number>`${numberSequences.nextNumber} - 1`,
       prefix: numberSequences.prefix,
@@ -89,12 +84,7 @@ export async function getNextNumber(
     const retried = await db
       .update(numberSequences)
       .set({ nextNumber: sql`${numberSequences.nextNumber} + 1` })
-      .where(
-        and(
-          eq(numberSequences.companyId, companyId),
-          eq(numberSequences.type, type),
-        ),
-      )
+      .where(and(eq(numberSequences.companyId, companyId), eq(numberSequences.type, type)))
       .returning({
         usedNumber: sql<number>`${numberSequences.nextNumber} - 1`,
         prefix: numberSequences.prefix,
@@ -105,28 +95,17 @@ export async function getNextNumber(
       throw new Error(`Failed to allocate number for sequence type: ${type}`);
     }
 
-    return formatNumber(
-      retried[0].format,
-      retried[0].prefix,
-      retried[0].usedNumber,
-    );
+    return formatNumber(retried[0].format, retried[0].prefix, retried[0].usedNumber);
   }
 
-  return formatNumber(
-    updated[0].format,
-    updated[0].prefix,
-    updated[0].usedNumber,
-  );
+  return formatNumber(updated[0].format, updated[0].prefix, updated[0].usedNumber);
 }
 
 /**
  * Initialize all default sequences for a company.
  * Call this when creating a new company.
  */
-export async function initializeSequences(
-  db: Database,
-  companyId: string,
-): Promise<void> {
+export async function initializeSequences(db: Database, companyId: string): Promise<void> {
   const types = Object.keys(SEQUENCE_DEFAULTS);
 
   for (const type of types) {

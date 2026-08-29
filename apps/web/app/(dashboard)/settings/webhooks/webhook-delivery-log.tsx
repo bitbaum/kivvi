@@ -1,14 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import {
-  ChevronDown,
-  ChevronRight,
-  CheckCircle2,
-  XCircle,
-  Clock,
-  RefreshCw,
-} from "lucide-react";
+import { ChevronDown, ChevronRight, CheckCircle2, XCircle, Clock, RefreshCw } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
 import { Button } from "@/components/ui/button";
@@ -21,9 +14,7 @@ function DeliveryRow({ delivery }: { delivery: Delivery }) {
 
   const isSuccess =
     delivery.deliveredAt !== null ||
-    (delivery.statusCode !== null &&
-      delivery.statusCode >= 200 &&
-      delivery.statusCode < 300);
+    (delivery.statusCode !== null && delivery.statusCode >= 200 && delivery.statusCode < 300);
   const isPendingRetry = !isSuccess && delivery.nextRetryAt !== null;
 
   return (
@@ -42,9 +33,7 @@ function DeliveryRow({ delivery }: { delivery: Delivery }) {
           )}
         </span>
         <span className="flex-1 min-w-0">
-          <span className="font-mono text-xs text-muted-foreground">
-            {delivery.event}
-          </span>
+          <span className="font-mono text-xs text-muted-foreground">{delivery.event}</span>
         </span>
         <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
           {delivery.statusCode !== null ? (
@@ -64,11 +53,7 @@ function DeliveryRow({ delivery }: { delivery: Delivery }) {
           })}
         </span>
         <span className="shrink-0 text-muted-foreground">
-          {expanded ? (
-            <ChevronDown className="h-3 w-3" />
-          ) : (
-            <ChevronRight className="h-3 w-3" />
-          )}
+          {expanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
         </span>
       </button>
       {expanded && (
@@ -79,14 +64,12 @@ function DeliveryRow({ delivery }: { delivery: Delivery }) {
             </span>
             {delivery.deliveredAt && (
               <span>
-                {t("deliveredAt")}:{" "}
-                {new Date(delivery.deliveredAt).toLocaleString(DEFAULT_LOCALE)}
+                {t("deliveredAt")}: {new Date(delivery.deliveredAt).toLocaleString(DEFAULT_LOCALE)}
               </span>
             )}
             {isPendingRetry && delivery.nextRetryAt && (
               <span>
-                {t("nextRetry")}:{" "}
-                {new Date(delivery.nextRetryAt).toLocaleString(DEFAULT_LOCALE)}
+                {t("nextRetry")}: {new Date(delivery.nextRetryAt).toLocaleString(DEFAULT_LOCALE)}
               </span>
             )}
           </div>
@@ -135,16 +118,10 @@ export function WebhookDeliveryLog({ endpointId }: Props) {
           onClick={toggle}
           className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
-          {open ? (
-            <ChevronDown className="h-3 w-3" />
-          ) : (
-            <ChevronRight className="h-3 w-3" />
-          )}
+          {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
           {t("title")}
           {deliveries !== null && (
-            <span className="rounded-full bg-muted px-1.5 py-0.5 text-xs">
-              {deliveries.length}
-            </span>
+            <span className="rounded-full bg-muted px-1.5 py-0.5 text-xs">{deliveries.length}</span>
           )}
         </button>
         {open && (
@@ -164,15 +141,11 @@ export function WebhookDeliveryLog({ endpointId }: Props) {
       {open && (
         <div className="mt-2 rounded-lg border bg-card overflow-hidden">
           {loading && deliveries === null ? (
-            <p className="px-4 py-6 text-center text-xs text-muted-foreground">
-              {t("loading")}
-            </p>
+            <p className="px-4 py-6 text-center text-xs text-muted-foreground">{t("loading")}</p>
           ) : deliveries && deliveries.length > 0 ? (
             deliveries.map((d) => <DeliveryRow key={d.id} delivery={d} />)
           ) : (
-            <p className="px-4 py-6 text-center text-xs text-muted-foreground">
-              {t("empty")}
-            </p>
+            <p className="px-4 py-6 text-center text-xs text-muted-foreground">{t("empty")}</p>
           )}
         </div>
       )}

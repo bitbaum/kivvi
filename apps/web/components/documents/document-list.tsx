@@ -29,14 +29,10 @@ interface DocumentListProps {
 }
 
 /** Build a query string, dropping empty/undefined values */
-function qs(
-  params: Record<string, string | number | undefined | null>,
-): string {
+function qs(params: Record<string, string | number | undefined | null>): string {
   const parts = Object.entries(params)
     .filter(([, v]) => v !== undefined && v !== null && v !== "")
-    .map(
-      ([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`,
-    );
+    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`);
   return parts.length ? `?${parts.join("&")}` : "";
 }
 
@@ -90,12 +86,7 @@ export async function DocumentList({
   ];
   // Keys with ICU placeholders ({count}, {action}, etc.) must use
   // tb.raw() to avoid ICU parser errors — the client fills them via .replace()
-  const rawKeys = new Set([
-    "successAll",
-    "successPartial",
-    "failedAll",
-    "confirmMessage",
-  ]);
+  const rawKeys = new Set(["successAll", "successPartial", "failedAll", "confirmMessage"]);
   const bulkLabels: Record<string, string> = {};
   for (const key of bulkActionKeys) {
     bulkLabels[key] = rawKeys.has(key) ? tb.raw(key) : tb(key);
@@ -106,16 +97,11 @@ export async function DocumentList({
     contact: config.contactFilter === "vendor" ? t("vendor") : t("customer"),
     total: tc("total"),
     status: tc("status"),
-    date:
-      config.hasDeliveryDate && !config.hasDueDate
-        ? t(config.dueDateLabel)
-        : tc("date"),
-    noContact:
-      config.contactFilter === "vendor" ? t("noVendor") : t("noCustomer"),
+    date: config.hasDeliveryDate && !config.hasDueDate ? t(config.dueDateLabel) : tc("date"),
+    noContact: config.contactFilter === "vendor" ? t("noVendor") : t("noCustomer"),
   };
 
-  const hasActiveFilter =
-    !!(search || status) || Object.values(preserveParams ?? {}).some(Boolean);
+  const hasActiveFilter = !!(search || status) || Object.values(preserveParams ?? {}).some(Boolean);
 
   return (
     <div className="space-y-6">
@@ -189,20 +175,14 @@ export async function DocumentList({
             icon={hasActiveFilter ? Search : FileText}
             title={t("noDocumentsFound", { type: t(config.labelPlural) })}
             description={
-              hasActiveFilter
-                ? t("adjustFilters")
-                : t("createFirst", { type: t(config.label) })
+              hasActiveFilter ? t("adjustFilters") : t("createFirst", { type: t(config.label) })
             }
             actionLabel={
               !hasActiveFilter && config.canCreate
                 ? t("newDocument", { type: t(config.label) })
                 : undefined
             }
-            actionHref={
-              !hasActiveFilter && config.canCreate
-                ? `${config.basePath}/new`
-                : undefined
-            }
+            actionHref={!hasActiveFilter && config.canCreate ? `${config.basePath}/new` : undefined}
           />
         ) : (
           <SelectableDocumentTable
@@ -218,11 +198,7 @@ export async function DocumentList({
               contact: doc.contact,
               tag: doc.intakeSource
                 ? INTAKE_SOURCE_LABEL_KEYS[doc.intakeSource]
-                  ? t(
-                      INTAKE_SOURCE_LABEL_KEYS[doc.intakeSource] as Parameters<
-                        typeof t
-                      >[0],
-                    )
+                  ? t(INTAKE_SOURCE_LABEL_KEYS[doc.intakeSource] as Parameters<typeof t>[0])
                   : null
                 : null,
             }))}
@@ -235,10 +211,7 @@ export async function DocumentList({
       {result.data.length > 0 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">
-            {tc(
-              "showing",
-              paginationRange(result.page, result.pageSize, result.total),
-            )}
+            {tc("showing", paginationRange(result.page, result.pageSize, result.total))}
           </p>
           {result.totalPages > 1 && (
             <div className="flex gap-2">

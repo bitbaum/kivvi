@@ -9,10 +9,7 @@ interface ContactExportButtonProps {
   filters?: { search?: string; type?: string };
 }
 
-export function ContactExportButton({
-  totalCount,
-  filters,
-}: ContactExportButtonProps) {
+export function ContactExportButton({ totalCount, filters }: ContactExportButtonProps) {
   const t = useTranslations("common");
   return (
     <CsvExportButton

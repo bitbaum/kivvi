@@ -16,46 +16,32 @@ const updateInventoryItemSchema = z.object({
     .max(500)
     .optional()
     .describe("New description for the item (e.g. 'ThinkPad T490 i5 16GB')."),
-  serial_number: z
-    .string()
-    .max(200)
-    .optional()
-    .describe("Device serial number (e.g. 'R90K3XPQ')."),
+  serial_number: z.string().max(200).optional().describe("Device serial number (e.g. 'R90K3XPQ')."),
   location: z
     .string()
     .max(200)
     .optional()
-    .describe(
-      "Physical shelf or bin location within the warehouse (e.g. 'A3-B2', 'Shelf 5').",
-    ),
+    .describe("Physical shelf or bin location within the warehouse (e.g. 'A3-B2', 'Shelf 5')."),
   asking_price: z
     .number()
     .min(0)
     .optional()
-    .describe(
-      "Asking/list price for this item in CHF. Set before listing for sale.",
-    ),
+    .describe("Asking/list price for this item in CHF. Set before listing for sale."),
   min_price: z
     .number()
     .min(0)
     .optional()
-    .describe(
-      "Minimum acceptable sale price in CHF. Prevents selling below cost.",
-    ),
+    .describe("Minimum acceptable sale price in CHF. Prevents selling below cost."),
   estimated_value: z
     .number()
     .min(0)
     .optional()
-    .describe(
-      "Acquisition/estimated value in CHF. Used as cost basis for margin calculation.",
-    ),
+    .describe("Acquisition/estimated value in CHF. Used as cost basis for margin calculation."),
   notes: z
     .string()
     .max(5000)
     .optional()
-    .describe(
-      "Free-text notes about the item (replaces existing notes if provided).",
-    ),
+    .describe("Free-text notes about the item (replaces existing notes if provided)."),
 });
 
 export const updateInventoryItemTool: Tool = {
@@ -75,15 +61,10 @@ Examples:
     context: ExecutionContext,
   ): Promise<ToolResult> => {
     try {
-      const { updateInventoryItem } =
-        await import("@kivvi/core/src/domain/inventory-items");
+      const { updateInventoryItem } = await import("@kivvi/core/src/domain/inventory-items");
       const db = getDb(context);
 
-      const item = await resolveInventoryItem(
-        db,
-        context.companyId,
-        params.item_identifier,
-      );
+      const item = await resolveInventoryItem(db, context.companyId, params.item_identifier);
       if (!item) {
         return {
           success: false,
@@ -121,10 +102,8 @@ Examples:
       if (description !== undefined) input.description = description;
       if (serial_number !== undefined) input.serialNumber = serial_number;
       if (location !== undefined) input.location = location;
-      if (asking_price !== undefined)
-        input.askingPrice = new Decimal(asking_price).toFixed(2);
-      if (min_price !== undefined)
-        input.minPrice = new Decimal(min_price).toFixed(2);
+      if (asking_price !== undefined) input.askingPrice = new Decimal(asking_price).toFixed(2);
+      if (min_price !== undefined) input.minPrice = new Decimal(min_price).toFixed(2);
       if (estimated_value !== undefined)
         input.estimatedValue = new Decimal(estimated_value).toFixed(2);
       if (notes !== undefined) input.notes = notes;
@@ -134,21 +113,14 @@ Examples:
       const currency = context.defaultCurrency ?? DEFAULT_CURRENCY;
       const changes: string[] = [];
       if (description !== undefined) changes.push(`description updated`);
-      if (serial_number !== undefined)
-        changes.push(`serial number → "${serial_number}"`);
+      if (serial_number !== undefined) changes.push(`serial number → "${serial_number}"`);
       if (location !== undefined) changes.push(`location → "${location}"`);
       if (asking_price !== undefined)
-        changes.push(
-          `asking price → ${currency} ${new Decimal(asking_price).toFixed(2)}`,
-        );
+        changes.push(`asking price → ${currency} ${new Decimal(asking_price).toFixed(2)}`);
       if (min_price !== undefined)
-        changes.push(
-          `min price → ${currency} ${new Decimal(min_price).toFixed(2)}`,
-        );
+        changes.push(`min price → ${currency} ${new Decimal(min_price).toFixed(2)}`);
       if (estimated_value !== undefined)
-        changes.push(
-          `acquisition value → ${currency} ${new Decimal(estimated_value).toFixed(2)}`,
-        );
+        changes.push(`acquisition value → ${currency} ${new Decimal(estimated_value).toFixed(2)}`);
       if (notes !== undefined) changes.push(`notes updated`);
 
       return {

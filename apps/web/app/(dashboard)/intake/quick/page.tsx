@@ -72,9 +72,7 @@ export default function QuickIntakePage() {
     <div className="mx-auto max-w-md px-4 py-6">
       <div className="mb-6 flex items-center gap-3">
         <button
-          onClick={() =>
-            step > 1 ? setStep((step - 1) as Step) : router.back()
-          }
+          onClick={() => (step > 1 ? setStep((step - 1) as Step) : router.back())}
           className="rounded-lg p-2 hover:bg-muted min-h-[44px] min-w-[44px] flex items-center justify-center"
           aria-label={tc("back")}
         >

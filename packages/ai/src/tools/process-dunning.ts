@@ -64,8 +64,7 @@ export const processDunningTool: Tool = {
       }
 
       // List all overdue invoices with dunning status
-      const { detectOverdueInvoices, getDunningStats } =
-        await import("@kivvi/core");
+      const { detectOverdueInvoices, getDunningStats } = await import("@kivvi/core");
 
       const [overdue, stats] = await Promise.all([
         detectOverdueInvoices(db, context.companyId),

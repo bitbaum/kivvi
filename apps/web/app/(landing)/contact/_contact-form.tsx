@@ -51,17 +51,11 @@ export function ContactForm() {
             stroke="currentColor"
             strokeWidth={2}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M5 13l4 4L19 7"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
         </div>
         <p className="text-lg font-semibold">{t("successTitle")}</p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t("successMessage")}
-        </p>
+        <p className="mt-1 text-sm text-muted-foreground">{t("successMessage")}</p>
       </div>
     );
   }
@@ -104,9 +98,7 @@ export function ContactForm() {
       <div>
         <label htmlFor="organisation" className={labelClass}>
           {t("organisationLabel")}{" "}
-          <span className="text-muted-foreground text-xs font-normal">
-            {t("optionalSuffix")}
-          </span>
+          <span className="text-muted-foreground text-xs font-normal">{t("optionalSuffix")}</span>
         </label>
         <input
           id="organisation"
@@ -122,9 +114,7 @@ export function ContactForm() {
       <div>
         <label htmlFor="betriebstyp" className={labelClass}>
           {t("betriebstypLabel")}{" "}
-          <span className="text-muted-foreground text-xs font-normal">
-            {t("optionalSuffix")}
-          </span>
+          <span className="text-muted-foreground text-xs font-normal">{t("optionalSuffix")}</span>
         </label>
         <select
           id="betriebstyp"
@@ -148,9 +138,7 @@ export function ContactForm() {
       <div>
         <label htmlFor="message" className={labelClass}>
           {t("messageLabel")}{" "}
-          <span className="text-muted-foreground text-xs font-normal">
-            {t("optionalSuffix")}
-          </span>
+          <span className="text-muted-foreground text-xs font-normal">{t("optionalSuffix")}</span>
         </label>
         <textarea
           id="message"
@@ -217,9 +205,7 @@ export function WaitlistForm() {
   }
 
   if (success) {
-    return (
-      <p className="text-sm font-medium text-success">{t("successMessage")}</p>
-    );
+    return <p className="text-sm font-medium text-success">{t("successMessage")}</p>;
   }
 
   return (
@@ -241,10 +227,7 @@ export function WaitlistForm() {
         {t("submit")}
       </button>
       {error && (
-        <p
-          role="alert"
-          className="w-full text-sm text-destructive sm:col-span-2"
-        >
+        <p role="alert" className="w-full text-sm text-destructive sm:col-span-2">
           {error}
         </p>
       )}

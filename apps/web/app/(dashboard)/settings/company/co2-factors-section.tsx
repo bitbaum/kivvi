@@ -82,11 +82,7 @@ export function Co2FactorsSection({ initialFactors }: Co2FactorsSectionProps) {
           return (
             <div key={cat} className="space-y-1">
               <label className="block text-xs font-medium">
-                {tck(
-                  getChecklistTemplate(cat).labelKey as Parameters<
-                    typeof tck
-                  >[0],
-                )}
+                {tck(getChecklistTemplate(cat).labelKey as Parameters<typeof tck>[0])}
                 {isCustom && (
                   <span className="ml-1.5 text-xs text-muted-foreground font-normal">
                     ({t("co2FactorsDefault", { kg: defaultKg })})

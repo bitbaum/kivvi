@@ -71,9 +71,7 @@ describe("free-first fallback chain", () => {
     // The suffix can be typed; a zero has to be meant. A `:free` id whose cost
     // fields are non-zero is either a mislabelled entry or a paid twin renamed,
     // and both bill the same way.
-    const model = new OpenRouterProvider("").models.find(
-      (m) => m.id === OPENROUTER_FALLBACK_MODEL,
-    );
+    const model = new OpenRouterProvider("").models.find((m) => m.id === OPENROUTER_FALLBACK_MODEL);
     expect(model).toBeDefined();
     expect(model!.costPer1kInput).toBe(0);
     expect(model!.costPer1kOutput).toBe(0);
@@ -83,9 +81,7 @@ describe("free-first fallback chain", () => {
     // The retired free id here, `meta-llama/llama-3.2-3b-instruct:free`, was
     // ALSO `supportsTools: false`. Kivvi's assistant is a tool loop, so the
     // free tier was doubly unusable: gone, and useless if it came back.
-    const model = new OpenRouterProvider("").models.find(
-      (m) => m.id === OPENROUTER_FALLBACK_MODEL,
-    );
+    const model = new OpenRouterProvider("").models.find((m) => m.id === OPENROUTER_FALLBACK_MODEL);
     expect(model!.supportsTools).toBe(true);
   });
 });
@@ -126,9 +122,7 @@ describe("the model registry is the only source of ids", () => {
     // A vendor listed with nothing free is not a free-tier fallback, it is a
     // bill waiting for the tier above it to run out.
     for (const provider of [new GroqProvider(""), new OpenRouterProvider("")]) {
-      const free = provider.models.filter(
-        (m) => m.costPer1kInput === 0 && m.costPer1kOutput === 0,
-      );
+      const free = provider.models.filter((m) => m.costPer1kInput === 0 && m.costPer1kOutput === 0);
       expect(free.length).toBeGreaterThan(0);
     }
   });

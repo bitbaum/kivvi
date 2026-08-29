@@ -9,7 +9,5 @@ export default function InventoryError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  return (
-    <SectionErrorBoundary error={error} reset={reset} backHref="/inventory" />
-  );
+  return <SectionErrorBoundary error={error} reset={reset} backHref="/inventory" />;
 }

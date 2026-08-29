@@ -123,22 +123,14 @@ export async function getInventoryDashboard(
         updatedAt: inventoryItems.updatedAt,
       })
       .from(inventoryItems)
-      .where(
-        and(
-          eq(inventoryItems.companyId, companyId),
-          eq(inventoryItems.status, "sold"),
-        ),
-      ),
+      .where(and(eq(inventoryItems.companyId, companyId), eq(inventoryItems.status, "sold"))),
 
     // Items received this period
     db
       .select({ count: count() })
       .from(inventoryItems)
       .where(
-        and(
-          eq(inventoryItems.companyId, companyId),
-          gte(inventoryItems.createdAt, periodStart),
-        ),
+        and(eq(inventoryItems.companyId, companyId), gte(inventoryItems.createdAt, periodStart)),
       ),
 
     // Items sold this period
@@ -196,8 +188,7 @@ export async function getInventoryDashboard(
     // Days to sale
     if (item.createdAt && item.updatedAt) {
       const days = Math.floor(
-        (item.updatedAt.getTime() - item.createdAt.getTime()) /
-          (1000 * 60 * 60 * 24),
+        (item.updatedAt.getTime() - item.createdAt.getTime()) / (1000 * 60 * 60 * 24),
       );
       if (days >= 0) {
         totalDaysToSale += days;
@@ -210,21 +201,14 @@ export async function getInventoryDashboard(
   const averageMarginPercent = totalRevenue.gt(0)
     ? totalProfit.div(totalRevenue).times(100).toDecimalPlaces(1).toNumber()
     : 0;
-  const avgDaysToSale =
-    itemsWithDays > 0 ? Math.round(totalDaysToSale / itemsWithDays) : 0;
+  const avgDaysToSale = itemsWithDays > 0 ? Math.round(totalDaysToSale / itemsWithDays) : 0;
 
   // Sell-through rate: sold / (sold + recycled + donated)
-  const byStatusMap = Object.fromEntries(
-    statusCounts.map((r) => [r.status, r.count]),
-  );
+  const byStatusMap = Object.fromEntries(statusCounts.map((r) => [r.status, r.count]));
   const terminalItems =
-    (byStatusMap["sold"] || 0) +
-    (byStatusMap["recycled"] || 0) +
-    (byStatusMap["donated"] || 0);
+    (byStatusMap["sold"] || 0) + (byStatusMap["recycled"] || 0) + (byStatusMap["donated"] || 0);
   const sellThroughRate =
-    terminalItems > 0
-      ? Math.round(((byStatusMap["sold"] || 0) / terminalItems) * 100)
-      : 0;
+    terminalItems > 0 ? Math.round(((byStatusMap["sold"] || 0) / terminalItems) * 100) : 0;
 
   // Top margin items — uses true cost (acquisition + repairs)
   const topItems = recentSalesWithMargin
@@ -253,9 +237,7 @@ export async function getInventoryDashboard(
     inventoryValue: unsoldValue[0]?.total || "0",
     unsoldCount: unsoldValue[0]?.count || 0,
     byStatus: byStatusMap,
-    byCondition: Object.fromEntries(
-      conditionCounts.map((r) => [r.condition, r.count]),
-    ),
+    byCondition: Object.fromEntries(conditionCounts.map((r) => [r.condition, r.count])),
     averageMarginPercent,
     totalProfit: totalProfit.toFixed(2),
     soldCount: periodSold[0]?.count || 0,

@@ -22,18 +22,13 @@ export async function ProductsFilterBar({
   const t = await getTranslations("products");
   const tc = await getTranslations("common");
 
-  function buildFilterUrl(overrides: {
-    search?: string;
-    type?: string;
-    page?: number;
-  }) {
+  function buildFilterUrl(overrides: { search?: string; type?: string; page?: number }) {
     const params = new URLSearchParams();
     if (overrides.search) params.set("search", overrides.search);
     if (overrides.type) params.set("type", overrides.type);
     if (sort !== "createdAt") params.set("sort", sort);
     if (order !== "desc") params.set("order", order);
-    if (overrides.page && overrides.page > 1)
-      params.set("page", String(overrides.page));
+    if (overrides.page && overrides.page > 1) params.set("page", String(overrides.page));
     const qs = params.toString();
     return `/products${qs ? `?${qs}` : ""}`;
   }
@@ -82,15 +77,7 @@ export async function ProductsFilterBar({
   );
 }
 
-function TypeFilterLink({
-  href,
-  active,
-  label,
-}: {
-  href: string;
-  active: boolean;
-  label: string;
-}) {
+function TypeFilterLink({ href, active, label }: { href: string; active: boolean; label: string }) {
   return (
     <Link
       href={href}

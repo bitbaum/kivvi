@@ -14,13 +14,7 @@ interface Props {
   onDelete: (id: string) => void;
 }
 
-export function WebhookEndpointCard({
-  ep,
-  eventLabels,
-  deletingId,
-  onToggle,
-  onDelete,
-}: Props) {
+export function WebhookEndpointCard({ ep, eventLabels, deletingId, onToggle, onDelete }: Props) {
   const t = useTranslations("settings.webhooks");
 
   return (
@@ -42,9 +36,7 @@ export function WebhookEndpointCard({
               </span>
             )}
           </div>
-          <p className="mt-1 truncate text-sm text-muted-foreground">
-            {ep.url}
-          </p>
+          <p className="mt-1 truncate text-sm text-muted-foreground">{ep.url}</p>
           <div className="mt-2 flex flex-wrap gap-1">
             {(ep.events as WebhookEvent[]).map((ev) => (
               <span
@@ -57,11 +49,7 @@ export function WebhookEndpointCard({
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onToggle(ep.id, ep.isActive)}
-          >
+          <Button variant="outline" size="sm" onClick={() => onToggle(ep.id, ep.isActive)}>
             {ep.isActive ? t("deactivate") : t("activate")}
           </Button>
           <Button

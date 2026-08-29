@@ -15,8 +15,6 @@ export const CONTACT_TYPE_STYLES: Record<ContactType, string> = {
 };
 
 /** Build translated contact type labels from CONTACT_TYPES (SSOT). */
-export function getContactTypeLabels(
-  t: (key: string) => string,
-): Record<string, string> {
+export function getContactTypeLabels(t: (key: string) => string): Record<string, string> {
   return Object.fromEntries(CONTACT_TYPES.map((type) => [type, t(type)]));
 }

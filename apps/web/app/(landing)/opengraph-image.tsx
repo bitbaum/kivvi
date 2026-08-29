@@ -42,9 +42,7 @@ export default function OgImage() {
         >
           ♻
         </div>
-        <span style={{ fontSize: "36px", fontWeight: 700, color: "#166534" }}>
-          Kivvi
-        </span>
+        <span style={{ fontSize: "36px", fontWeight: 700, color: "#166534" }}>Kivvi</span>
       </div>
       <h1
         style={{

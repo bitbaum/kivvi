@@ -185,14 +185,7 @@ export default async function DocumentsPage({ searchParams }: PageProps) {
         <SearchInput
           basePath="/documents"
           placeholder={`${tc("search")}...`}
-          preserveParams={[
-            "type",
-            "status",
-            "sort",
-            "order",
-            "dateFrom",
-            "dateTo",
-          ]}
+          preserveParams={["type", "status", "sort", "order", "dateFrom", "dateTo"]}
         />
         <DateRangeFilter
           basePath="/documents"
@@ -265,10 +258,7 @@ export default async function DocumentsPage({ searchParams }: PageProps) {
         totalPages={result.totalPages}
         buildHref={(p) => buildHref({ page: p > 1 ? String(p) : undefined })}
         labels={{
-          showing: tc(
-            "showing",
-            paginationRange(result.page, result.pageSize, result.total),
-          ),
+          showing: tc("showing", paginationRange(result.page, result.pageSize, result.total)),
           previous: tc("previous"),
           next: tc("next"),
           pageOf: tc("pageOf", {

@@ -44,30 +44,21 @@ export async function exportReportAction(
           };
         }
 
-        const report = await getProfitAndLoss(
-          db,
-          companyId,
-          params.startDate,
-          params.endDate,
-        );
+        const report = await getProfitAndLoss(db, companyId, params.startDate, params.endDate);
 
         // Generate CSV
         const rows: string[] = ["Account Code,Account Name,Type,Amount"];
 
         // Revenue section
         report.revenue.forEach((row) => {
-          rows.push(
-            `${row.accountCode},"${row.accountName}",Revenue,${row.amount}`,
-          );
+          rows.push(`${row.accountCode},"${row.accountName}",Revenue,${row.amount}`);
         });
         rows.push(`,,Total Revenue,${report.totalRevenue}`);
         rows.push(""); // Empty row
 
         // Expenses section
         report.expenses.forEach((row) => {
-          rows.push(
-            `${row.accountCode},"${row.accountName}",Expense,${row.amount}`,
-          );
+          rows.push(`${row.accountCode},"${row.accountName}",Expense,${row.amount}`);
         });
         rows.push(`,,Total Expenses,${report.totalExpenses}`);
         rows.push(""); // Empty row
@@ -89,27 +80,21 @@ export async function exportReportAction(
 
         // Assets
         report.assets.forEach((row) => {
-          rows.push(
-            `${row.accountCode},"${row.accountName}",Asset,${row.balance}`,
-          );
+          rows.push(`${row.accountCode},"${row.accountName}",Asset,${row.balance}`);
         });
         rows.push(`,,Total Assets,${report.totalAssets}`);
         rows.push(""); // Empty row
 
         // Liabilities
         report.liabilities.forEach((row) => {
-          rows.push(
-            `${row.accountCode},"${row.accountName}",Liability,${row.balance}`,
-          );
+          rows.push(`${row.accountCode},"${row.accountName}",Liability,${row.balance}`);
         });
         rows.push(`,,Total Liabilities,${report.totalLiabilities}`);
         rows.push(""); // Empty row
 
         // Equity
         report.equity.forEach((row) => {
-          rows.push(
-            `${row.accountCode},"${row.accountName}",Equity,${row.balance}`,
-          );
+          rows.push(`${row.accountCode},"${row.accountName}",Equity,${row.balance}`);
         });
         rows.push(`,,Total Equity,${report.totalEquity}`);
 
@@ -126,16 +111,9 @@ export async function exportReportAction(
           };
         }
 
-        const report = await getVatReport(
-          db,
-          companyId,
-          params.startDate,
-          params.endDate,
-        );
+        const report = await getVatReport(db, companyId, params.startDate, params.endDate);
 
-        const rows: string[] = [
-          "Type,Rate,Taxable Amount,VAT Amount,Document Count",
-        ];
+        const rows: string[] = ["Type,Rate,Taxable Amount,VAT Amount,Document Count"];
 
         // Sales VAT
         rows.push("Sales VAT");
@@ -162,9 +140,7 @@ export async function exportReportAction(
         const totalPurchaseTaxable = report.purchaseVat
           .reduce((sum, row) => sum.plus(row.taxableAmount), new Decimal(0))
           .toNumber();
-        rows.push(
-          `Purchase Total,,${totalPurchaseTaxable},${report.totalPurchaseVat},`,
-        );
+        rows.push(`Purchase Total,,${totalPurchaseTaxable},${report.totalPurchaseVat},`);
         rows.push(""); // Empty row
 
         rows.push(`VAT Payable,,,${report.vatPayable},`);
@@ -208,12 +184,7 @@ export async function exportReportAction(
           };
         }
 
-        const report = await getSalesReport(
-          db,
-          companyId,
-          params.startDate,
-          params.endDate,
-        );
+        const report = await getSalesReport(db, companyId, params.startDate, params.endDate);
 
         const rows: string[] = ["Month,Revenue"];
 

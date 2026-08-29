@@ -126,16 +126,10 @@ export function OnboardingChecklist({
               <Circle className="h-5 w-5 shrink-0 text-muted-foreground" />
             )}
             <div className="min-w-0">
-              <p
-                className={`text-sm font-medium ${item.done ? "line-through" : ""}`}
-              >
+              <p className={`text-sm font-medium ${item.done ? "line-through" : ""}`}>
                 {item.label}
               </p>
-              {!item.done && (
-                <p className="text-xs text-muted-foreground">
-                  {item.description}
-                </p>
-              )}
+              {!item.done && <p className="text-xs text-muted-foreground">{item.description}</p>}
             </div>
           </Link>
         ))}

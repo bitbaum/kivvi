@@ -6,18 +6,13 @@ import { documents, contacts, contactAddresses } from "@kivvi/database";
 import { eq, and } from "drizzle-orm";
 import { type ActionResult, requireRole, safeErrorMessage } from "./utils";
 import { getTranslations } from "next-intl/server";
-import {
-  getDataQualityReport,
-  type DataQualityReport,
-} from "@kivvi/core/src/domain/data-quality";
+import { getDataQualityReport, type DataQualityReport } from "@kivvi/core/src/domain/data-quality";
 
 // ============================================================================
 // READ
 // ============================================================================
 
-export async function getDataQualityReportAction(): Promise<
-  ActionResult<DataQualityReport>
-> {
+export async function getDataQualityReportAction(): Promise<ActionResult<DataQualityReport>> {
   const t = await getTranslations("dataQuality");
   try {
     const { companyId } = await requireRole("member");
@@ -53,32 +48,22 @@ export async function mergeContactsAction(
     const [primary] = await db
       .select({ id: contacts.id })
       .from(contacts)
-      .where(
-        and(eq(contacts.id, primaryId), eq(contacts.companyId, companyId)),
-      );
+      .where(and(eq(contacts.id, primaryId), eq(contacts.companyId, companyId)));
 
     const [duplicate] = await db
       .select({ id: contacts.id })
       .from(contacts)
-      .where(
-        and(eq(contacts.id, duplicateId), eq(contacts.companyId, companyId)),
-      );
+      .where(and(eq(contacts.id, duplicateId), eq(contacts.companyId, companyId)));
 
     if (!primary) return { success: false, error: t("errorPrimaryNotFound") };
-    if (!duplicate)
-      return { success: false, error: t("errorDuplicateNotFound") };
+    if (!duplicate) return { success: false, error: t("errorDuplicateNotFound") };
 
     const result = await db.transaction(async (tx) => {
       // Reassign all documents
       const reassigned = await tx
         .update(documents)
         .set({ contactId: primaryId, updatedAt: new Date() })
-        .where(
-          and(
-            eq(documents.contactId, duplicateId),
-            eq(documents.companyId, companyId),
-          ),
-        )
+        .where(and(eq(documents.contactId, duplicateId), eq(documents.companyId, companyId)))
         .returning({ id: documents.id });
 
       // Transfer any addresses that don't clash
@@ -191,9 +176,7 @@ export async function cancelStaleDraftsAction(
 // REACTIVATE INACTIVE CONTACT
 // ============================================================================
 
-export async function reactivateContactAction(
-  contactId: string,
-): Promise<ActionResult<void>> {
+export async function reactivateContactAction(contactId: string): Promise<ActionResult<void>> {
   const t = await getTranslations("dataQuality");
   try {
     const { companyId } = await requireRole("admin");
@@ -201,9 +184,7 @@ export async function reactivateContactAction(
     await db
       .update(contacts)
       .set({ isActive: true, updatedAt: new Date() })
-      .where(
-        and(eq(contacts.id, contactId), eq(contacts.companyId, companyId)),
-      );
+      .where(and(eq(contacts.id, contactId), eq(contacts.companyId, companyId)));
 
     revalidatePath("/contacts");
     revalidatePath("/settings/data-repair");

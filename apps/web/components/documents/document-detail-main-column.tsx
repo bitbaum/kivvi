@@ -10,10 +10,7 @@ interface DocumentDetailMainColumnProps {
   config: DocumentTypeConfig;
 }
 
-export async function DocumentDetailMainColumn({
-  doc,
-  config,
-}: DocumentDetailMainColumnProps) {
+export async function DocumentDetailMainColumn({ doc, config }: DocumentDetailMainColumnProps) {
   const t = await getTranslations("documents");
   const tc = await getTranslations("common");
 
@@ -28,12 +25,8 @@ export async function DocumentDetailMainColumn({
           </div>
           {config.hasDueDate && (
             <div>
-              <p className="text-sm text-muted-foreground">
-                {t(config.dueDateLabel)}
-              </p>
-              <p className="font-medium">
-                {doc.dueDate ? formatDate(doc.dueDate) : tc("notSet")}
-              </p>
+              <p className="text-sm text-muted-foreground">{t(config.dueDateLabel)}</p>
+              <p className="font-medium">{doc.dueDate ? formatDate(doc.dueDate) : tc("notSet")}</p>
             </div>
           )}
           {config.hasDeliveryDate && (
@@ -72,52 +65,32 @@ export async function DocumentDetailMainColumn({
             <thead>
               <tr className="border-b text-muted-foreground">
                 <th className="px-4 py-3 text-left font-medium">#</th>
-                <th className="px-4 py-3 text-left font-medium">
-                  {tc("description")}
-                </th>
-                <th className="px-4 py-3 text-right font-medium">
-                  {t("quantity")}
-                </th>
-                <th className="px-4 py-3 text-right font-medium">
-                  {t("unitPrice")}
-                </th>
-                <th className="px-4 py-3 text-right font-medium">
-                  {t("discount")}
-                </th>
+                <th className="px-4 py-3 text-left font-medium">{tc("description")}</th>
+                <th className="px-4 py-3 text-right font-medium">{t("quantity")}</th>
+                <th className="px-4 py-3 text-right font-medium">{t("unitPrice")}</th>
+                <th className="px-4 py-3 text-right font-medium">{t("discount")}</th>
                 <th className="px-4 py-3 text-right font-medium">{t("vat")}</th>
-                <th className="px-4 py-3 text-right font-medium">
-                  {tc("total")}
-                </th>
+                <th className="px-4 py-3 text-right font-medium">{tc("total")}</th>
               </tr>
             </thead>
             <tbody className="divide-y">
               {doc.items?.map((item, index) => (
                 <tr key={item.id}>
-                  <td className="px-4 py-3 text-muted-foreground">
-                    {index + 1}
-                  </td>
+                  <td className="px-4 py-3 text-muted-foreground">{index + 1}</td>
                   <td className="px-4 py-3">
                     <p className="font-medium">{item.description}</p>
                     {item.product && (
-                      <p className="text-xs text-muted-foreground">
-                        {item.product.name}
-                      </p>
+                      <p className="text-xs text-muted-foreground">{item.product.name}</p>
                     )}
                   </td>
-                  <td className="px-4 py-3 text-right">
-                    {parseFloat(item.quantity)}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    {formatCurrency(item.unitPrice)}
-                  </td>
+                  <td className="px-4 py-3 text-right">{parseFloat(item.quantity)}</td>
+                  <td className="px-4 py-3 text-right">{formatCurrency(item.unitPrice)}</td>
                   <td className="px-4 py-3 text-right">
                     {parseFloat(item.discount || "0") > 0
                       ? `${parseFloat(item.discount || "0")}%`
                       : "-"}
                   </td>
-                  <td className="px-4 py-3 text-right">
-                    {parseFloat(item.vatRate || "0")}%
-                  </td>
+                  <td className="px-4 py-3 text-right">{parseFloat(item.vatRate || "0")}%</td>
                   <td className="px-4 py-3 text-right font-medium">
                     {formatCurrency(item.total || "0")}
                   </td>
@@ -133,20 +106,14 @@ export async function DocumentDetailMainColumn({
         <div className="space-y-4 rounded-xl border bg-card p-6">
           {doc.notes && (
             <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                {tc("notes")}
-              </p>
+              <p className="text-sm font-medium text-muted-foreground">{tc("notes")}</p>
               <p className="mt-1 whitespace-pre-wrap">{doc.notes}</p>
             </div>
           )}
           {doc.internalNotes && (
             <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                {t("internalNotes")}
-              </p>
-              <p className="mt-1 whitespace-pre-wrap text-muted-foreground">
-                {doc.internalNotes}
-              </p>
+              <p className="text-sm font-medium text-muted-foreground">{t("internalNotes")}</p>
+              <p className="mt-1 whitespace-pre-wrap text-muted-foreground">{doc.internalNotes}</p>
             </div>
           )}
         </div>

@@ -3,10 +3,7 @@ import type { Tool, ExecutionContext, ToolResult } from "../types";
 import { getDb } from "./utils";
 
 const searchInventorySchema = z.object({
-  query: z
-    .string()
-    .optional()
-    .describe("Search by item description, number, or serial number"),
+  query: z.string().optional().describe("Search by item description, number, or serial number"),
   status: z
     .enum([
       "intake",
@@ -22,15 +19,7 @@ const searchInventorySchema = z.object({
     .optional()
     .describe("Filter by item status"),
   condition: z
-    .enum([
-      "untested",
-      "like_new",
-      "good",
-      "fair",
-      "poor",
-      "parts_only",
-      "scrap",
-    ])
+    .enum(["untested", "like_new", "good", "fair", "poor", "parts_only", "scrap"])
     .optional()
     .describe("Filter by condition"),
   limit: z.number().default(10).describe("Max results"),
@@ -77,9 +66,7 @@ export const searchInventoryTool: Tool = {
         description: item.description,
         condition: item.condition,
         status: item.status,
-        askingPrice: item.askingPrice
-          ? `${context.defaultCurrency} ${item.askingPrice}`
-          : null,
+        askingPrice: item.askingPrice ? `${context.defaultCurrency} ${item.askingPrice}` : null,
         estimatedValue: item.estimatedValue
           ? `${context.defaultCurrency} ${item.estimatedValue}`
           : null,

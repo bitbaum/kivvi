@@ -3,10 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Lock, Loader2 } from "lucide-react";
-import {
-  closeFiscalYearAction,
-  closeFiscalPeriodAction,
-} from "@/app/actions/accounting";
+import { closeFiscalYearAction, closeFiscalPeriodAction } from "@/app/actions/accounting";
 import { useTranslations } from "next-intl";
 import { toast } from "sonner";
 
@@ -42,9 +39,7 @@ export function CloseYearButton({ yearId, yearName }: CloseYearButtonProps) {
   if (showConfirm) {
     return (
       <div className="flex items-center gap-2">
-        <span className="text-sm text-muted-foreground">
-          {t("closeYearConfirm")}
-        </span>
+        <span className="text-sm text-muted-foreground">{t("closeYearConfirm")}</span>
         <button
           onClick={handleClose}
           disabled={isPending}
@@ -84,10 +79,7 @@ interface ClosePeriodButtonProps {
   periodName: string;
 }
 
-export function ClosePeriodButton({
-  periodId,
-  periodName,
-}: ClosePeriodButtonProps) {
+export function ClosePeriodButton({ periodId, periodName }: ClosePeriodButtonProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [showConfirm, setShowConfirm] = useState(false);
@@ -110,9 +102,7 @@ export function ClosePeriodButton({
   if (showConfirm) {
     return (
       <span className="inline-flex items-center gap-2">
-        <span className="text-xs text-muted-foreground">
-          {t("closePeriodConfirm")}
-        </span>
+        <span className="text-xs text-muted-foreground">{t("closePeriodConfirm")}</span>
         <button
           onClick={handleClose}
           disabled={isPending}

@@ -71,9 +71,7 @@ export function ImportCategoryList({
       {IMPORT_CATEGORY_DEFS.map((category) => (
         <div key={category.id} className="rounded-lg border p-4">
           <h3 className="mb-1 font-medium">{t(category.labelKey)}</h3>
-          <p className="mb-3 text-xs text-muted-foreground">
-            {t(category.descKey)}
-          </p>
+          <p className="mb-3 text-xs text-muted-foreground">{t(category.descKey)}</p>
 
           <div className="space-y-4">
             {category.entityTypes.map((et) => {
@@ -88,13 +86,7 @@ export function ImportCategoryList({
                     <CsvUploader
                       label={`${tc("upload")} ${etLabel} CSV`}
                       onParsed={(headers, rows, rawArrayRows) =>
-                        onCsvParsed(
-                          et.type,
-                          etLabel,
-                          headers,
-                          rows,
-                          rawArrayRows,
-                        )
+                        onCsvParsed(et.type, etLabel, headers, rows, rawArrayRows)
                       }
                     />
                   )}
@@ -103,9 +95,7 @@ export function ImportCategoryList({
                     <ColumnMapper
                       headers={pending.headers}
                       profile={pending.profile}
-                      onMappingConfirmed={(mapping) =>
-                        onMappingConfirmed(et.type, mapping)
-                      }
+                      onMappingConfirmed={(mapping) => onMappingConfirmed(et.type, mapping)}
                     />
                   )}
 

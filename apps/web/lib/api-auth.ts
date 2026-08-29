@@ -49,9 +49,7 @@ export async function validateApiToken(
       expiresAt: apiTokens.expiresAt,
     })
     .from(apiTokens)
-    .where(
-      and(eq(apiTokens.tokenHash, tokenHash), eq(apiTokens.isActive, true)),
-    );
+    .where(and(eq(apiTokens.tokenHash, tokenHash), eq(apiTokens.isActive, true)));
 
   if (!record) return null;
 

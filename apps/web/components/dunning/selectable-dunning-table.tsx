@@ -44,10 +44,7 @@ interface SelectableDunningTableProps {
   translations: Translations;
 }
 
-export function SelectableDunningTable({
-  data,
-  translations,
-}: SelectableDunningTableProps) {
+export function SelectableDunningTable({ data, translations }: SelectableDunningTableProps) {
   const tc = useTranslations("common");
   // Only invoices with dunningLevel < 3 are selectable
   const selectableIds = useMemo(
@@ -64,9 +61,7 @@ export function SelectableDunningTable({
     isSomeSelected,
     count,
   } = useSelection(selectableIds);
-  const [bulkResult, setBulkResult] = useState<BulkOperationResult | null>(
-    null,
-  );
+  const [bulkResult, setBulkResult] = useState<BulkOperationResult | null>(null);
   const [isPending, startTransition] = useTransition();
 
   // Per-row action state
@@ -142,12 +137,8 @@ export function SelectableDunningTable({
         <span>{translations.columnLabels.invoice}</span>
         <span>{translations.columnLabels.customer}</span>
         <span className="text-right">{translations.columnLabels.amount}</span>
-        <span className="px-4 text-center">
-          {translations.columnLabels.daysOverdue}
-        </span>
-        <span className="px-4 text-center">
-          {translations.columnLabels.level}
-        </span>
+        <span className="px-4 text-center">{translations.columnLabels.daysOverdue}</span>
+        <span className="px-4 text-center">{translations.columnLabels.level}</span>
         <span className="text-right">{translations.columnLabels.action}</span>
       </div>
 
@@ -188,13 +179,9 @@ export function SelectableDunningTable({
                 <div className="font-medium">{inv.number}</div>
                 {/* Mobile: show key info inline */}
                 <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground sm:hidden">
-                  <span>
-                    {inv.contactName || translations.columnLabels.noCustomer}
-                  </span>
+                  <span>{inv.contactName || translations.columnLabels.noCustomer}</span>
                   <span>·</span>
-                  <span className="font-medium text-foreground">
-                    {formatCurrency(inv.total)}
-                  </span>
+                  <span className="font-medium text-foreground">{formatCurrency(inv.total)}</span>
                   <span>·</span>
                   <span
                     className={cn(
@@ -237,8 +224,7 @@ export function SelectableDunningTable({
                     STATUS_STYLES[inv.status] || STATUS_STYLES.draft,
                   )}
                 >
-                  {translations.statusLabels[toCamelCase(inv.status)] ||
-                    inv.status}
+                  {translations.statusLabels[toCamelCase(inv.status)] || inv.status}
                 </span>
               </div>
               <div className="relative z-10 text-right">
@@ -252,8 +238,7 @@ export function SelectableDunningTable({
                       <Send className="h-3 w-3" />
                       {rowPending[inv.id]
                         ? translations.bulkLabels.processing
-                        : translations.dunningButtonLabels[inv.dunningLevel] ||
-                          "Escalate"}
+                        : translations.dunningButtonLabels[inv.dunningLevel] || "Escalate"}
                     </button>
                     {rowErrors[inv.id] && (
                       <p role="alert" className="mt-1 text-xs text-destructive">

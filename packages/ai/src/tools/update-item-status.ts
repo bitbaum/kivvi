@@ -26,19 +26,9 @@ const updateItemStatusSchema = z.object({
 });
 
 const updateItemConditionSchema = z.object({
-  item_identifier: z
-    .string()
-    .describe("Item number (e.g. IT-00042) or item UUID."),
+  item_identifier: z.string().describe("Item number (e.g. IT-00042) or item UUID."),
   condition: z
-    .enum([
-      "untested",
-      "like_new",
-      "good",
-      "fair",
-      "poor",
-      "parts_only",
-      "scrap",
-    ])
+    .enum(["untested", "like_new", "good", "fair", "poor", "parts_only", "scrap"])
     .describe(
       "Condition grade. Must be set before approving for sale (cannot be 'untested' for ready_for_sale).",
     ),
@@ -62,15 +52,10 @@ Use after record_repair to move an item back to testing. Use when a technician c
     context: ExecutionContext,
   ): Promise<ToolResult> => {
     try {
-      const { updateItemStatus } =
-        await import("@kivvi/core/src/domain/inventory-items");
+      const { updateItemStatus } = await import("@kivvi/core/src/domain/inventory-items");
       const db = getDb(context);
 
-      const item = await resolveInventoryItem(
-        db,
-        context.companyId,
-        params.item_identifier,
-      );
+      const item = await resolveInventoryItem(db, context.companyId, params.item_identifier);
       if (!item) {
         return {
           success: false,
@@ -118,9 +103,7 @@ Use after record_repair to move an item back to testing. Use when a technician c
       // Surface quality-gate failures clearly so the user knows what to fix
       return {
         success: false,
-        error: msg.startsWith("Cannot")
-          ? msg
-          : `Failed to update item status: ${msg}`,
+        error: msg.startsWith("Cannot") ? msg : `Failed to update item status: ${msg}`,
       };
     }
   },
@@ -144,15 +127,10 @@ Condition grades:
     context: ExecutionContext,
   ): Promise<ToolResult> => {
     try {
-      const { updateItemCondition } =
-        await import("@kivvi/core/src/domain/inventory-items");
+      const { updateItemCondition } = await import("@kivvi/core/src/domain/inventory-items");
       const db = getDb(context);
 
-      const item = await resolveInventoryItem(
-        db,
-        context.companyId,
-        params.item_identifier,
-      );
+      const item = await resolveInventoryItem(db, context.companyId, params.item_identifier);
       if (!item) {
         return {
           success: false,
@@ -160,12 +138,7 @@ Condition grades:
         };
       }
 
-      const updated = await updateItemCondition(
-        db,
-        context.companyId,
-        item.id,
-        params.condition,
-      );
+      const updated = await updateItemCondition(db, context.companyId, item.id, params.condition);
 
       return {
         success: true,

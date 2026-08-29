@@ -6,10 +6,7 @@ import { cn, formatDate } from "@/lib/utils";
 import { StatusBadge } from "@/components/status-badge";
 import { CONTACT_TYPE_STYLES } from "@/lib/config/contact-types";
 import { ContactQuickActions } from "./contact-quick-actions";
-import type {
-  ContactItem,
-  ContactTableTranslations,
-} from "./contact-table-types";
+import type { ContactItem, ContactTableTranslations } from "./contact-table-types";
 
 interface ContactTableRowProps {
   contact: ContactItem;
@@ -49,9 +46,7 @@ export function ContactTableRow({
           className="h-4 w-4 rounded border-input"
         />
       </div>
-      <div className="text-sm font-mono text-muted-foreground">
-        {contact.contactNumber || "-"}
-      </div>
+      <div className="text-sm font-mono text-muted-foreground">{contact.contactNumber || "-"}</div>
       <div>
         <p className="text-sm font-medium">{contact.name}</p>
         {(contact.firstName || contact.lastName) && (
@@ -72,9 +67,7 @@ export function ContactTableRow({
         <span
           className={cn(
             "inline-block rounded-full px-2 py-0.5 text-xs font-medium",
-            CONTACT_TYPE_STYLES[
-              contact.type as keyof typeof CONTACT_TYPE_STYLES
-            ] || "",
+            CONTACT_TYPE_STYLES[contact.type as keyof typeof CONTACT_TYPE_STYLES] || "",
           )}
         >
           {translations.typeLabels[contact.type] || contact.type}
@@ -86,9 +79,7 @@ export function ContactTableRow({
       <div className="hidden text-sm text-muted-foreground lg:block">
         {contact.phone || contact.mobile || "-"}
       </div>
-      <div className="hidden text-sm text-muted-foreground lg:block">
-        {contact.city || "-"}
-      </div>
+      <div className="hidden text-sm text-muted-foreground lg:block">{contact.city || "-"}</div>
       <div className="hidden text-sm text-muted-foreground lg:block">
         {contact.lastDocumentAt ? formatDate(contact.lastDocumentAt) : "-"}
       </div>
@@ -96,17 +87,12 @@ export function ContactTableRow({
         <StatusBadge
           variant={contact.isActive ? "active" : "inactive"}
           label={
-            contact.isActive
-              ? translations.columnLabels.active
-              : translations.columnLabels.inactive
+            contact.isActive ? translations.columnLabels.active : translations.columnLabels.inactive
           }
         />
       </div>
       <div className="relative z-10 hidden lg:flex items-center justify-end">
-        <ContactQuickActions
-          contact={contact}
-          labels={translations.quickActionLabels}
-        />
+        <ContactQuickActions contact={contact} labels={translations.quickActionLabels} />
       </div>
     </div>
   );

@@ -9,16 +9,10 @@ export const createDunningAction = createAction<
   { id: string; number: string; newLevel: string }
 >({
   handler: async (invoiceId, { companyId, userId, db }) => {
-    const { dunningDoc, newLevel } = await createDunning(
-      db,
-      companyId,
-      userId,
-      invoiceId,
-    );
+    const { dunningDoc, newLevel } = await createDunning(db, companyId, userId, invoiceId);
     return { id: dunningDoc.id, number: dunningDoc.number, newLevel };
   },
   revalidate: ["/sales/dunning", "/sales/invoices", "/dashboard"],
-  errorMessage: () =>
-    getTranslations("dunning").then((t) => t("errorCreateDunning")),
+  errorMessage: () => getTranslations("dunning").then((t) => t("errorCreateDunning")),
   minRole: "member",
 });

@@ -9,7 +9,5 @@ interface PageProps {
 export default async function EditPurchaseInvoicePage({ params }: PageProps) {
   const { id } = await params;
   if (!isValidUUID(id)) notFound();
-  return (
-    <EditDocumentPage documentId={id} allowedTypes={["purchase_invoice"]} />
-  );
+  return <EditDocumentPage documentId={id} allowedTypes={["purchase_invoice"]} />;
 }

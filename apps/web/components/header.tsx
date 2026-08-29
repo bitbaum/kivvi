@@ -4,15 +4,7 @@ import { useSession, signOut } from "next-auth/react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import {
-  Bell,
-  Search,
-  Menu,
-  LogOut,
-  Settings,
-  User,
-  Globe,
-} from "lucide-react";
+import { Bell, Search, Menu, LogOut, Settings, User, Globe } from "lucide-react";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { getUserAvatarAction } from "@/app/actions/settings";
 import { RecentItemsDropdown } from "./recent-items-dropdown";
@@ -52,9 +44,7 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
   }, [fetchAvatar]);
 
   const isMac = useMemo(
-    () =>
-      typeof navigator !== "undefined" &&
-      /Mac|iPhone|iPad/.test(navigator.userAgent),
+    () => typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.userAgent),
     [],
   );
 
@@ -65,10 +55,7 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
   }
 
   return (
-    <header
-      className="flex h-16 items-center justify-between border-b bg-card px-6"
-      role="banner"
-    >
+    <header className="flex h-16 items-center justify-between border-b bg-card px-6" role="banner">
       {/* Mobile menu button */}
       <button
         onClick={onMenuClick}
@@ -136,29 +123,26 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
               role="menu"
               aria-label={t("aria.languageOptions")}
             >
-              {(
-                Object.entries(LOCALE_CONFIG) as [
-                  Locale,
-                  { short: string; native: string },
-                ][]
-              ).map(([loc, cfg]) => (
-                <button
-                  key={loc}
-                  onClick={() => switchLocale(loc)}
-                  className={cn(
-                    "flex w-full items-center gap-2 rounded px-3 py-2 text-sm hover:bg-muted",
-                    locale === loc && "font-medium text-primary",
-                  )}
-                  role="menuitem"
-                >
-                  {cfg.native}
-                  {locale === loc && (
-                    <span className="ml-auto text-primary" aria-hidden="true">
-                      ✓
-                    </span>
-                  )}
-                </button>
-              ))}
+              {(Object.entries(LOCALE_CONFIG) as [Locale, { short: string; native: string }][]).map(
+                ([loc, cfg]) => (
+                  <button
+                    key={loc}
+                    onClick={() => switchLocale(loc)}
+                    className={cn(
+                      "flex w-full items-center gap-2 rounded px-3 py-2 text-sm hover:bg-muted",
+                      locale === loc && "font-medium text-primary",
+                    )}
+                    role="menuitem"
+                  >
+                    {cfg.native}
+                    {locale === loc && (
+                      <span className="ml-auto text-primary" aria-hidden="true">
+                        ✓
+                      </span>
+                    )}
+                  </button>
+                ),
+              )}
             </div>
           )}
         </div>
@@ -200,11 +184,7 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
               <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
             ) : avatarBase64 ? (
               /* eslint-disable-next-line @next/next/no-img-element -- base64 data URI, next/image optimization not applicable */
-              <img
-                src={avatarBase64}
-                alt=""
-                className="h-8 w-8 rounded-full object-cover"
-              />
+              <img src={avatarBase64} alt="" className="h-8 w-8 rounded-full object-cover" />
             ) : (
               <div className="flex h-8 w-8 items-center justify-center rounded-full brand-gradient text-sm font-medium text-white">
                 {session?.user?.name?.charAt(0) || "U"}
@@ -220,13 +200,9 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
             >
               <div className="border-b px-3 py-2">
                 <p className="font-medium">{session?.user?.name}</p>
-                <p className="text-sm text-muted-foreground">
-                  {session?.user?.email}
-                </p>
+                <p className="text-sm text-muted-foreground">{session?.user?.email}</p>
                 {session?.user?.companyName && (
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {session.user.companyName}
-                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">{session.user.companyName}</p>
                 )}
               </div>
 

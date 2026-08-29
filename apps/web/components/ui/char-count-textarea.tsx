@@ -1,5 +1,5 @@
-import { forwardRef, TextareaHTMLAttributes } from 'react';
-import { cn } from '@/lib/utils';
+import { forwardRef, TextareaHTMLAttributes } from "react";
+import { cn } from "@/lib/utils";
 
 export interface CharCountTextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   maxLength: number;
@@ -21,9 +21,9 @@ export const CharCountTextarea = forwardRef<HTMLTextAreaElement, CharCountTextar
         <textarea
           ref={ref}
           className={cn(
-            'flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-            showCounter && 'pb-6', // Add padding for counter
-            className
+            "flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+            showCounter && "pb-6", // Add padding for counter
+            className,
           )}
           maxLength={maxLength}
           value={value}
@@ -32,8 +32,8 @@ export const CharCountTextarea = forwardRef<HTMLTextAreaElement, CharCountTextar
         {showCounter && value.length > 0 && (
           <span
             className={cn(
-              'absolute bottom-2 right-3 text-xs tabular-nums',
-              isNearLimit ? 'text-warning font-medium' : 'text-muted-foreground'
+              "absolute bottom-2 right-3 text-xs tabular-nums",
+              isNearLimit ? "text-warning font-medium" : "text-muted-foreground",
             )}
           >
             {value.length} / {maxLength}
@@ -41,7 +41,7 @@ export const CharCountTextarea = forwardRef<HTMLTextAreaElement, CharCountTextar
         )}
       </div>
     );
-  }
+  },
 );
 
-CharCountTextarea.displayName = 'CharCountTextarea';
+CharCountTextarea.displayName = "CharCountTextarea";

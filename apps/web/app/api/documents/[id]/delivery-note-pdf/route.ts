@@ -8,10 +8,7 @@ import { generateDeliveryNotePdf } from "@kivvi/core/src/domain/pdf-generation";
 import { buildInvoicePdfData } from "@/lib/pdf/build-pdf-data";
 import { eq } from "drizzle-orm";
 
-export async function GET(
-  _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await auth();
     if (!session?.user?.companyId) {
@@ -23,23 +20,14 @@ export async function GET(
 
     const doc = await getDocument(db, companyId, id);
     if (!doc) {
-      return NextResponse.json(
-        { error: "Document not found" },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "Document not found" }, { status: 404 });
     }
 
     if (doc.type !== "delivery_note") {
-      return NextResponse.json(
-        { error: "Document is not a delivery note" },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Document is not a delivery note" }, { status: 400 });
     }
 
-    const [company] = await db
-      .select()
-      .from(companies)
-      .where(eq(companies.id, companyId));
+    const [company] = await db.select().from(companies).where(eq(companies.id, companyId));
 
     if (!company) {
       return NextResponse.json({ error: "Company not found" }, { status: 404 });
@@ -80,9 +68,6 @@ export async function GET(
       },
     });
   } catch {
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

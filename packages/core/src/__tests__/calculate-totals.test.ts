@@ -2,9 +2,7 @@ import { describe, it, expect } from "vitest";
 import { calculateTotals } from "../domain/documents";
 import type { DocumentItemInput } from "../domain/documents";
 
-function makeItem(
-  overrides: Partial<DocumentItemInput> = {},
-): DocumentItemInput {
+function makeItem(overrides: Partial<DocumentItemInput> = {}): DocumentItemInput {
   return {
     position: 0,
     description: "Test item",
@@ -28,9 +26,7 @@ describe("calculateTotals", () => {
   });
 
   it("calculates a single item at 2.6% VAT", () => {
-    const result = calculateTotals([
-      makeItem({ unitPrice: "50.00", vatRate: "2.6" }),
-    ]);
+    const result = calculateTotals([makeItem({ unitPrice: "50.00", vatRate: "2.6" })]);
 
     expect(result.subtotal).toBe("50.00");
     expect(result.vatAmount).toBe("1.30");
@@ -38,9 +34,7 @@ describe("calculateTotals", () => {
   });
 
   it("calculates a single item at 0% VAT", () => {
-    const result = calculateTotals([
-      makeItem({ unitPrice: "200.00", vatRate: "0.0" }),
-    ]);
+    const result = calculateTotals([makeItem({ unitPrice: "200.00", vatRate: "0.0" })]);
 
     expect(result.subtotal).toBe("200.00");
     expect(result.vatAmount).toBe("0.00");
@@ -146,9 +140,7 @@ describe("calculateTotals", () => {
   });
 
   it("handles zero quantity", () => {
-    const result = calculateTotals([
-      makeItem({ quantity: "0", unitPrice: "100.00" }),
-    ]);
+    const result = calculateTotals([makeItem({ quantity: "0", unitPrice: "100.00" })]);
 
     expect(result.subtotal).toBe("0.00");
     expect(result.vatAmount).toBe("0.00");
@@ -156,9 +148,7 @@ describe("calculateTotals", () => {
   });
 
   it("handles zero price", () => {
-    const result = calculateTotals([
-      makeItem({ quantity: "5", unitPrice: "0.00" }),
-    ]);
+    const result = calculateTotals([makeItem({ quantity: "5", unitPrice: "0.00" })]);
 
     expect(result.subtotal).toBe("0.00");
     expect(result.vatAmount).toBe("0.00");
@@ -270,9 +260,7 @@ describe("calculateTotals — Swiss VAT (per-line) + Rappen rounding (exact)", (
   it("uses exact decimal arithmetic, not IEEE-754 floats", () => {
     // 0.10 × 3 is 0.30000000000000004 in IEEE-754; decimal.js yields exactly
     // 0.30. (vatRate 0 isolates the net path.)
-    const result = calculateTotals([
-      makeItem({ quantity: "3", unitPrice: "0.10", vatRate: "0" }),
-    ]);
+    const result = calculateTotals([makeItem({ quantity: "3", unitPrice: "0.10", vatRate: "0" })]);
     expect(result.itemTotals).toEqual(["0.30"]);
     expect(result.subtotal).toBe("0.30");
     expect(result.total).toBe("0.30");

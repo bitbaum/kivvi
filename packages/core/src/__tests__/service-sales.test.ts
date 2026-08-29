@@ -72,8 +72,7 @@ function makeDb(...markerLookups: unknown[][]): Database {
       const rows = queue[Math.min(call++, queue.length - 1)];
       return selectBuilder(rows);
     },
-    transaction: (cb: (tx: Database) => unknown) =>
-      cb(db as unknown as Database),
+    transaction: (cb: (tx: Database) => unknown) => cb(db as unknown as Database),
   };
   return db as unknown as Database;
 }
@@ -97,9 +96,7 @@ beforeEach(() => {
 
 describe("serviceSaleKey", () => {
   it("builds a stable natural key", () => {
-    expect(serviceSaleKey("workshop", "reg-42")).toBe(
-      "service-sale:workshop:reg-42",
-    );
+    expect(serviceSaleKey("workshop", "reg-42")).toBe("service-sale:workshop:reg-42");
   });
 });
 
@@ -136,12 +133,7 @@ describe("recordServiceSale", () => {
     });
 
     // Sent (posts revenue journal), then paid in full for the gross total
-    expect(updateStatusMock).toHaveBeenCalledWith(
-      db,
-      COMPANY_ID,
-      "invoice-1",
-      "sent",
-    );
+    expect(updateStatusMock).toHaveBeenCalledWith(db, COMPANY_ID, "invoice-1", "sent");
     expect(recordPaymentMock).toHaveBeenCalledTimes(1);
     expect(recordPaymentMock.mock.calls[0][3]).toMatchObject({
       amount: "86.48",
@@ -185,9 +177,7 @@ describe("recordServiceSale", () => {
     await recordServiceSale(db, COMPANY_ID, USER_ID, base);
 
     expect(claimMock).toHaveBeenCalledTimes(1);
-    expect(claimMock.mock.calls[0][2]).toBe(
-      "service-sale-lock:workshop:reg-42",
-    );
+    expect(claimMock.mock.calls[0][2]).toBe("service-sale-lock:workshop:reg-42");
     expect(completeMock).toHaveBeenCalledTimes(1);
     expect(releaseMock).not.toHaveBeenCalled();
   });
@@ -219,9 +209,7 @@ describe("recordServiceSale", () => {
   it("releases the lock if booking throws, so a retry can proceed", async () => {
     createDocumentMock.mockRejectedValue(new Error("db down"));
     const db = makeDb([]);
-    await expect(
-      recordServiceSale(db, COMPANY_ID, USER_ID, base),
-    ).rejects.toThrow(/db down/);
+    await expect(recordServiceSale(db, COMPANY_ID, USER_ID, base)).rejects.toThrow(/db down/);
     expect(releaseMock).toHaveBeenCalledTimes(1);
     expect(completeMock).not.toHaveBeenCalled();
   });

@@ -34,12 +34,7 @@ export const getAccountBalancesTool: Tool = {
       const { getTrialBalance } = await import("@kivvi/core");
       const db = getDb(context);
 
-      const balances = await getTrialBalance(
-        db,
-        context.companyId,
-        params.dateFrom,
-        params.dateTo,
-      );
+      const balances = await getTrialBalance(db, context.companyId, params.dateFrom, params.dateTo);
 
       // Filter by account type if specified
       const filtered = params.accountType

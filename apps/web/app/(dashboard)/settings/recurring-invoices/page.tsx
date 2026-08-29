@@ -41,9 +41,7 @@ export default async function RecurringInvoicesPage() {
           <div className="flex flex-col items-center justify-center py-16">
             <RepeatIcon className="h-12 w-12 text-muted-foreground/50" />
             <h3 className="mt-4 text-lg font-medium">{tc("noResults")}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {t("recurring.noConfigs")}
-            </p>
+            <p className="mt-1 text-sm text-muted-foreground">{t("recurring.noConfigs")}</p>
             <Button asChild className="mt-4">
               <Link href="/settings/recurring-invoices/new">
                 <Plus className="h-4 w-4" />
@@ -66,9 +64,7 @@ export default async function RecurringInvoicesPage() {
                 <RecurringConfigRow
                   key={config.id}
                   config={config}
-                  periodicityLabel={
-                    PERIODICITY_LABELS[config.periodicity] || config.periodicity
-                  }
+                  periodicityLabel={PERIODICITY_LABELS[config.periodicity] || config.periodicity}
                 />
               ))}
             </div>

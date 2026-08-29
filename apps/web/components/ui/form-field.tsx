@@ -28,18 +28,14 @@ export function FormField({
   const errorId = `${name}-error`;
   const descriptionId = `${name}-description`;
   const describedBy =
-    [description ? descriptionId : null, hasError ? errorId : null]
-      .filter(Boolean)
-      .join(" ") || undefined;
+    [description ? descriptionId : null, hasError ? errorId : null].filter(Boolean).join(" ") ||
+    undefined;
 
   // Inject aria-describedby into the first child element
   const enhancedChildren = describedBy
     ? Children.map(children, (child, index) =>
         index === 0 && isValidElement<Record<string, unknown>>(child)
-          ? cloneElement(child, { "aria-describedby": describedBy } as Record<
-              string,
-              unknown
-            >)
+          ? cloneElement(child, { "aria-describedby": describedBy } as Record<string, unknown>)
           : child,
       )
     : children;
@@ -82,10 +78,10 @@ interface FormFieldInputProps extends React.InputHTMLAttributes<HTMLInputElement
 /**
  * Input component with error styling.
  */
-export const FormInput = React.forwardRef<
-  HTMLInputElement,
-  FormFieldInputProps
->(function FormInput({ error, className, ...props }, ref) {
+export const FormInput = React.forwardRef<HTMLInputElement, FormFieldInputProps>(function FormInput(
+  { error, className, ...props },
+  ref,
+) {
   return (
     <input
       ref={ref}
@@ -106,11 +102,7 @@ interface FormFieldTextareaProps extends React.TextareaHTMLAttributes<HTMLTextAr
 /**
  * Textarea component with error styling.
  */
-export function FormTextarea({
-  error,
-  className,
-  ...props
-}: FormFieldTextareaProps) {
+export function FormTextarea({ error, className, ...props }: FormFieldTextareaProps) {
   return (
     <textarea
       className={cn(
@@ -130,12 +122,7 @@ interface FormFieldSelectProps extends React.SelectHTMLAttributes<HTMLSelectElem
 /**
  * Select component with error styling.
  */
-export function FormSelect({
-  error,
-  className,
-  children,
-  ...props
-}: FormFieldSelectProps) {
+export function FormSelect({ error, className, children, ...props }: FormFieldSelectProps) {
   return (
     <select
       className={cn(

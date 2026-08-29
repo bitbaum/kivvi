@@ -28,8 +28,7 @@ import { createAction } from "./action-factory";
 
 export const listPriceListsAction = createAction<void, PriceList[]>({
   handler: async (_input, { companyId, db }) => listPriceLists(db, companyId),
-  errorMessage: () =>
-    getTranslations("priceLists").then((t) => t("errorFailedToLoad")),
+  errorMessage: () => getTranslations("priceLists").then((t) => t("errorFailedToLoad")),
   minRole: "member",
 });
 
@@ -39,40 +38,32 @@ export const getPriceListAction = createAction<string, PriceListWithRules>({
     if (!list) throw new Error("Price list not found");
     return list;
   },
-  errorMessage: () =>
-    getTranslations("priceLists").then((t) => t("errorFailedToLoad")),
+  errorMessage: () => getTranslations("priceLists").then((t) => t("errorFailedToLoad")),
   minRole: "member",
 });
 
 export const createPriceListAction = createAction<unknown, { id: string }>({
   handler: async (input, { companyId, db }) => {
     const parsed = createPriceListSchema.safeParse(input);
-    if (!parsed.success)
-      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
     const list = await createPriceList(db, companyId, parsed.data);
     return { id: list.id };
   },
   revalidate: ["/settings/price-lists"],
-  errorMessage: () =>
-    getTranslations("priceLists").then((t) => t("errorFailedToCreate")),
+  errorMessage: () => getTranslations("priceLists").then((t) => t("errorFailedToCreate")),
   minRole: "member",
 });
 
-export const updatePriceListAction = createAction<
-  { id: string; input: unknown },
-  { id: string }
->({
+export const updatePriceListAction = createAction<{ id: string; input: unknown }, { id: string }>({
   handler: async ({ id, input }, { companyId, db }) => {
     const parsed = updatePriceListSchema.safeParse(input);
-    if (!parsed.success)
-      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
     const list = await updatePriceList(db, companyId, id, parsed.data);
     revalidatePath(`/settings/price-lists/${id}`);
     return { id: list.id };
   },
   revalidate: ["/settings/price-lists"],
-  errorMessage: () =>
-    getTranslations("priceLists").then((t) => t("errorFailedToUpdate")),
+  errorMessage: () => getTranslations("priceLists").then((t) => t("errorFailedToUpdate")),
   minRole: "member",
 });
 
@@ -81,8 +72,7 @@ export const deletePriceListAction = createAction<string, void>({
     await deletePriceList(db, companyId, id);
   },
   revalidate: ["/settings/price-lists"],
-  errorMessage: () =>
-    getTranslations("priceLists").then((t) => t("errorFailedToDelete")),
+  errorMessage: () => getTranslations("priceLists").then((t) => t("errorFailedToDelete")),
   minRole: "member",
 });
 
@@ -96,14 +86,12 @@ export const createPriceRuleAction = createAction<
 >({
   handler: async ({ priceListId, input }, { companyId, db }) => {
     const parsed = createPriceRuleSchema.safeParse(input);
-    if (!parsed.success)
-      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
     const rule = await createPriceRule(db, companyId, priceListId, parsed.data);
     revalidatePath(`/settings/price-lists/${priceListId}`);
     return { id: rule.id };
   },
-  errorMessage: () =>
-    getTranslations("priceLists").then((t) => t("errorFailedToCreateRule")),
+  errorMessage: () => getTranslations("priceLists").then((t) => t("errorFailedToCreateRule")),
   minRole: "member",
 });
 
@@ -113,27 +101,21 @@ export const updatePriceRuleAction = createAction<
 >({
   handler: async ({ ruleId, priceListId, input }, { companyId, db }) => {
     const parsed = updatePriceRuleSchema.safeParse(input);
-    if (!parsed.success)
-      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
     const rule = await updatePriceRule(db, companyId, ruleId, parsed.data);
     revalidatePath(`/settings/price-lists/${priceListId}`);
     return { id: rule.id };
   },
-  errorMessage: () =>
-    getTranslations("priceLists").then((t) => t("errorFailedToUpdateRule")),
+  errorMessage: () => getTranslations("priceLists").then((t) => t("errorFailedToUpdateRule")),
   minRole: "member",
 });
 
-export const deletePriceRuleAction = createAction<
-  { ruleId: string; priceListId: string },
-  void
->({
+export const deletePriceRuleAction = createAction<{ ruleId: string; priceListId: string }, void>({
   handler: async ({ ruleId, priceListId }, { companyId, db }) => {
     await deletePriceRule(db, companyId, ruleId);
     revalidatePath(`/settings/price-lists/${priceListId}`);
   },
-  errorMessage: () =>
-    getTranslations("priceLists").then((t) => t("errorFailedToDeleteRule")),
+  errorMessage: () => getTranslations("priceLists").then((t) => t("errorFailedToDeleteRule")),
   minRole: "member",
 });
 
@@ -171,7 +153,6 @@ export const resolvePricesAction = createAction<
     );
     return results;
   },
-  errorMessage: () =>
-    getTranslations("priceLists").then((t) => t("errorFailedToLoad")),
+  errorMessage: () => getTranslations("priceLists").then((t) => t("errorFailedToLoad")),
   minRole: "member",
 });

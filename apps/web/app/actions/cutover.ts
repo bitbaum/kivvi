@@ -63,8 +63,7 @@ export const importOpeningBalancesAction = createAction<
     return { lineCount: lines.length };
   },
   revalidate: ["/accounting/journal", "/accounting"],
-  errorMessage: () =>
-    getTranslations("settings").then((t) => t("cutover.openingError")),
+  errorMessage: () => getTranslations("settings").then((t) => t("cutover.openingError")),
   minRole: "admin",
   translateDomainErrors: true,
 });
@@ -92,8 +91,7 @@ export const importOpenItemsAction = createAction<
   handler: async ({ type, text }, { companyId, db }) => {
     const items = nonEmptyLines(text)
       .map((line) => {
-        const [number, contactName, issueDate, dueDate, openAmount] =
-          cells(line);
+        const [number, contactName, issueDate, dueDate, openAmount] = cells(line);
         return {
           number,
           contactName,
@@ -129,8 +127,7 @@ export const importOpenItemsAction = createAction<
     };
   },
   revalidate: ["/contacts", "/invoices"],
-  errorMessage: () =>
-    getTranslations("settings").then((t) => t("cutover.openItemsError")),
+  errorMessage: () => getTranslations("settings").then((t) => t("cutover.openItemsError")),
   minRole: "admin",
   translateDomainErrors: true,
 });

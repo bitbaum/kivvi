@@ -85,15 +85,11 @@ export async function getDashboardStats(
     db
       .select({ count: sql<number>`COUNT(*)::int` })
       .from(contacts)
-      .where(
-        and(eq(contacts.companyId, companyId), eq(contacts.isActive, true)),
-      ),
+      .where(and(eq(contacts.companyId, companyId), eq(contacts.isActive, true))),
     db
       .select({ count: sql<number>`COUNT(*)::int` })
       .from(products)
-      .where(
-        and(eq(products.companyId, companyId), eq(products.isActive, true)),
-      ),
+      .where(and(eq(products.companyId, companyId), eq(products.isActive, true))),
     // Last month's revenue for comparison
     db
       .select({
@@ -141,11 +137,7 @@ export async function getDashboardStats(
   const lastOutstanding = new Decimal(lastMonthOutstanding?.total || "0");
   const outstandingChange =
     lastOutstanding.gt(0) && currentOutstanding.gt(0)
-      ? currentOutstanding
-          .minus(lastOutstanding)
-          .div(lastOutstanding)
-          .times(100)
-          .toNumber()
+      ? currentOutstanding.minus(lastOutstanding).div(lastOutstanding).times(100).toNumber()
       : undefined;
 
   return {
@@ -154,10 +146,7 @@ export async function getDashboardStats(
       value: financials.revenueThisMonth,
       count: financials.revenueThisMonthCount,
       linkTo: "/sales/invoices?status=paid",
-      changePercent:
-        revenueChange !== undefined
-          ? Math.round(revenueChange * 10) / 10
-          : undefined,
+      changePercent: revenueChange !== undefined ? Math.round(revenueChange * 10) / 10 : undefined,
       type: "currency",
     },
     revenueThisYear: {
@@ -173,9 +162,7 @@ export async function getDashboardStats(
       count: financials.outstandingCount,
       linkTo: "/sales/invoices?status=sent,confirmed,delivered,partially_paid",
       changePercent:
-        outstandingChange !== undefined
-          ? Math.round(outstandingChange * 10) / 10
-          : undefined,
+        outstandingChange !== undefined ? Math.round(outstandingChange * 10) / 10 : undefined,
       type: "currency",
     },
     overdueInvoices: {
@@ -273,12 +260,7 @@ export async function getBusinessHealthMetrics(
         orders: sql<number>`COUNT(*) FILTER (WHERE ${documents.type} = 'order')::int`,
       })
       .from(documents)
-      .where(
-        and(
-          eq(documents.companyId, companyId),
-          gte(documents.issueDate, startOfYear),
-        ),
-      ),
+      .where(and(eq(documents.companyId, companyId), gte(documents.issueDate, startOfYear))),
     db
       .select({
         avgDays: sql<number>`AVG(EXTRACT(DAY FROM (${documents.paidDate}::timestamp - ${documents.issueDate}::timestamp)))::int`,
@@ -322,34 +304,24 @@ export async function getBusinessHealthMetrics(
 
   const revenue = new Decimal(revenueData?.revenue || "0");
   const costs = new Decimal(costsData?.costs || "0");
-  const profitMargin = revenue.gt(0)
-    ? revenue.minus(costs).div(revenue).times(100).toNumber()
-    : 0;
+  const profitMargin = revenue.gt(0) ? revenue.minus(costs).div(revenue).times(100).toNumber() : 0;
 
   const quotes = conversionData?.quotes || 0;
   const orders = conversionData?.orders || 0;
-  const conversionRate =
-    quotes > 0 ? new Decimal(orders).div(quotes).times(100).toNumber() : 0;
+  const conversionRate = quotes > 0 ? new Decimal(orders).div(quotes).times(100).toNumber() : 0;
 
   const avgInvoiceValue =
-    revenueData && revenueData.count > 0
-      ? revenue.div(revenueData.count).toNumber()
-      : 0;
+    revenueData && revenueData.count > 0 ? revenue.div(revenueData.count).toNumber() : 0;
 
   const avgDaysToPayment = paymentData?.avgDays || 0;
 
-  const cashFlowRatio = costs.gt(0)
-    ? revenue.div(costs).times(100).toNumber()
-    : 100;
+  const cashFlowRatio = costs.gt(0) ? revenue.div(costs).times(100).toNumber() : 100;
 
   const lastYearCustomers = lastYearData?.count || 0;
   const thisYearCustomers = thisYearData?.count || 0;
   const customerRetentionRate =
     lastYearCustomers > 0
-      ? new Decimal(thisYearCustomers)
-          .div(lastYearCustomers)
-          .times(100)
-          .toNumber()
+      ? new Decimal(thisYearCustomers).div(lastYearCustomers).times(100).toNumber()
       : 0;
 
   return {

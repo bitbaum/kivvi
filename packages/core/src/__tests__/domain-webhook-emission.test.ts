@@ -19,8 +19,7 @@ vi.mock("../domain/webhooks", async (importActual) => {
 // recordPayment auto-creates a journal entry inside its transaction; stub it out
 // so the payment path resolves without a real accounting DB.
 vi.mock("../domain/accounting-integration", async (importActual) => {
-  const actual =
-    await importActual<typeof import("../domain/accounting-integration")>();
+  const actual = await importActual<typeof import("../domain/accounting-integration")>();
   return {
     ...actual,
     createPaymentReceivedJournalEntry: vi.fn(() => Promise.resolve()),
@@ -28,11 +27,7 @@ vi.mock("../domain/accounting-integration", async (importActual) => {
 });
 
 import { dispatchWebhookEvent } from "../domain/webhooks";
-import {
-  createDocument,
-  updateDocumentStatus,
-  recordPayment,
-} from "../domain/documents";
+import { createDocument, updateDocumentStatus, recordPayment } from "../domain/documents";
 import {
   createInventoryItem,
   updateInventoryItem,
@@ -55,10 +50,8 @@ function selectBuilder(rows: unknown[]) {
     where: () => b,
     limit: () => b,
     innerJoin: () => b,
-    then: (
-      resolve: (v: unknown[]) => unknown,
-      reject?: (e: unknown) => unknown,
-    ) => Promise.resolve(rows).then(resolve, reject),
+    then: (resolve: (v: unknown[]) => unknown, reject?: (e: unknown) => unknown) =>
+      Promise.resolve(rows).then(resolve, reject),
   };
   return b;
 }
@@ -68,9 +61,7 @@ function sequenceUpdate() {
   return {
     set: () => ({
       where: () => ({
-        returning: async () => [
-          { usedNumber: 1, prefix: "XX", format: "{prefix}-{number:5}" },
-        ],
+        returning: async () => [{ usedNumber: 1, prefix: "XX", format: "{prefix}-{number:5}" }],
       }),
     }),
   };
@@ -102,8 +93,7 @@ describe("createDocument emits document.created", () => {
         values: () => ({
           // documents insert reads .returning(); documentItems insert is awaited
           returning: async () => [DOC],
-          then: (r: (v: unknown) => unknown) =>
-            Promise.resolve(undefined).then(r),
+          then: (r: (v: unknown) => unknown) => Promise.resolve(undefined).then(r),
         }),
       }),
       select: () => selectBuilder([]),
@@ -179,8 +169,7 @@ describe("updateDocumentStatus emits document.status_changed", () => {
       select: () => selectBuilder([]),
       insert: () => ({
         values: () => ({
-          then: (r: (v: unknown) => unknown) =>
-            Promise.resolve(undefined).then(r),
+          then: (r: (v: unknown) => unknown) => Promise.resolve(undefined).then(r),
           returning: async () => [],
         }),
       }),
@@ -357,13 +346,7 @@ describe("updateItemStatus emits inventory_item.status_changed", () => {
 
   it("dispatches inventory_item.status_changed once after the write", async () => {
     const db = makeDb();
-    const item = await updateItemStatus(
-      db,
-      COMPANY_ID,
-      "item-1",
-      "testing",
-      USER_ID,
-    );
+    const item = await updateItemStatus(db, COMPANY_ID, "item-1", "testing", USER_ID);
 
     expect(item).toMatchObject({ id: "item-1", status: "testing" });
     expect(dispatchMock).toHaveBeenCalledTimes(1);

@@ -56,10 +56,7 @@ export default function NewJournalEntryPage() {
           <div className="rounded-xl border bg-card p-6 space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label
-                  htmlFor="journal-entry-date"
-                  className="block text-sm font-medium"
-                >
+                <label htmlFor="journal-entry-date" className="block text-sm font-medium">
                   {tc("date")}
                 </label>
                 <FormInput
@@ -71,10 +68,7 @@ export default function NewJournalEntryPage() {
                 />
               </div>
               <div>
-                <label
-                  htmlFor="journal-entry-reference"
-                  className="block text-sm font-medium"
-                >
+                <label htmlFor="journal-entry-reference" className="block text-sm font-medium">
                   {t("reference")}
                 </label>
                 <FormInput
@@ -88,10 +82,7 @@ export default function NewJournalEntryPage() {
               </div>
             </div>
             <div>
-              <label
-                htmlFor="journal-entry-description"
-                className="block text-sm font-medium"
-              >
+              <label htmlFor="journal-entry-description" className="block text-sm font-medium">
                 {tc("description")}
               </label>
               <FormInput
@@ -119,9 +110,7 @@ export default function NewJournalEntryPage() {
               {lines.map((line, index) => (
                 <div key={line.id} className="p-4 space-y-3">
                   <div className="flex items-start gap-3">
-                    <span className="mt-2.5 text-sm text-muted-foreground w-6">
-                      {index + 1}
-                    </span>
+                    <span className="mt-2.5 text-sm text-muted-foreground w-6">{index + 1}</span>
                     <div className="flex-1 space-y-3">
                       {/* Account picker */}
                       <div className="relative">
@@ -133,9 +122,7 @@ export default function NewJournalEntryPage() {
                             accounts={accounts}
                             loading={accountsLoading}
                             selectedAccountId={line.accountId}
-                            onSelect={(account) =>
-                              updateLine(line.id, "accountId", account.id)
-                            }
+                            onSelect={(account) => updateLine(line.id, "accountId", account.id)}
                           />
                         </div>
                       </div>
@@ -198,9 +185,7 @@ export default function NewJournalEntryPage() {
                             id={`description-${line.id}`}
                             type="text"
                             value={line.description}
-                            onChange={(e) =>
-                              updateLine(line.id, "description", e.target.value)
-                            }
+                            onChange={(e) => updateLine(line.id, "description", e.target.value)}
                             placeholder={t("placeholders.optional")}
                             className="mt-1"
                           />
@@ -232,15 +217,11 @@ export default function NewJournalEntryPage() {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{t("debit")}</span>
-                <span className="font-medium">
-                  {formatCurrency(totalDebits.toFixed(2))}
-                </span>
+                <span className="font-medium">{formatCurrency(totalDebits.toFixed(2))}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{t("credit")}</span>
-                <span className="font-medium">
-                  {formatCurrency(totalCredits.toFixed(2))}
-                </span>
+                <span className="font-medium">{formatCurrency(totalCredits.toFixed(2))}</span>
               </div>
               <div className="flex justify-between border-t pt-2">
                 <span className="text-muted-foreground">{t("difference")}</span>
@@ -253,22 +234,15 @@ export default function NewJournalEntryPage() {
                         : ""
                   }`}
                 >
-                  {formatCurrency(
-                    totalDebits.minus(totalCredits).abs().toFixed(2),
-                  )}
+                  {formatCurrency(totalDebits.minus(totalCredits).abs().toFixed(2))}
                 </span>
               </div>
             </div>
 
             {hasAmounts && !isBalanced && (
-              <div
-                role="alert"
-                className="mt-4 flex items-start gap-2 rounded-lg bg-destructive/5"
-              >
+              <div role="alert" className="mt-4 flex items-start gap-2 rounded-lg bg-destructive/5">
                 <AlertCircle className="h-4 w-4 mt-0.5 text-destructive" />
-                <p className="text-sm text-destructive">
-                  {t("entryMustBalance")}
-                </p>
+                <p className="text-sm text-destructive">{t("entryMustBalance")}</p>
               </div>
             )}
 
@@ -292,9 +266,7 @@ export default function NewJournalEntryPage() {
               {isPending ? tc("creating") : t("createEntry")}
             </Button>
 
-            <p className="mt-2 text-center text-xs text-muted-foreground">
-              {t("manualEntryNote")}
-            </p>
+            <p className="mt-2 text-center text-xs text-muted-foreground">{t("manualEntryNote")}</p>
           </div>
         </div>
       </div>

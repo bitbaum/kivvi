@@ -10,12 +10,7 @@ import {
   createProductSchema,
   updateProductSchema,
 } from "@kivvi/core";
-import {
-  type ActionResult,
-  requireRole,
-  safeErrorMessage,
-  formatZodError,
-} from "./utils";
+import { type ActionResult, requireRole, safeErrorMessage, formatZodError } from "./utils";
 import { createAction } from "./action-factory";
 import { parseFormData } from "./parse-form-data";
 import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
@@ -118,8 +113,7 @@ export const deleteProductAction = createAction<string, { id: string }>({
     return { id: product.id };
   },
   revalidate: ["/products", "/products/[id]"],
-  errorMessage: () =>
-    getTranslations("products").then((t) => t("errorFailedToDelete")),
+  errorMessage: () => getTranslations("products").then((t) => t("errorFailedToDelete")),
   minRole: "member",
 });
 
@@ -127,8 +121,6 @@ export const searchProductsAction = createAction<
   string,
   Awaited<ReturnType<typeof searchProducts>>
 >({
-  handler: async (query, { companyId, db }) =>
-    searchProducts(db, companyId, query),
-  errorMessage: () =>
-    getTranslations("products").then((t) => t("errorSearchFailed")),
+  handler: async (query, { companyId, db }) => searchProducts(db, companyId, query),
+  errorMessage: () => getTranslations("products").then((t) => t("errorSearchFailed")),
 });

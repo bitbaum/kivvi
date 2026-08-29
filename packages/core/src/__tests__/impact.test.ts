@@ -1,8 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  calculateImpactMetrics,
-  DEFAULT_CO2_PER_ITEM_KG,
-} from "../domain/impact";
+import { calculateImpactMetrics, DEFAULT_CO2_PER_ITEM_KG } from "../domain/impact";
 import { CO2_FACTORS_KG } from "../config/co2-factors";
 
 // ============================================================================
@@ -34,22 +31,14 @@ describe("calculateImpactMetrics — empty state", () => {
 
 describe("calculateImpactMetrics — CO2 calculation", () => {
   it("uses CO2_FACTORS_KG defaults for known categories", () => {
-    const result = calculateImpactMetrics(
-      [{ category: "laptop", count: 1 }],
-      0,
-      1,
-    );
+    const result = calculateImpactMetrics([{ category: "laptop", count: 1 }], 0, 1);
     expect(result.co2AvoidedKg).toBe(String(CO2_FACTORS_KG.laptop)); // 300
     expect(result.co2ByCategory[0].co2KgFactor).toBe(CO2_FACTORS_KG.laptop);
   });
 
   it("multiplies CO2 factor by item count", () => {
     // 5 laptops × 300 kg = 1500 kg
-    const result = calculateImpactMetrics(
-      [{ category: "laptop", count: 5 }],
-      0,
-      5,
-    );
+    const result = calculateImpactMetrics([{ category: "laptop", count: 5 }], 0, 5);
     expect(result.co2AvoidedKg).toBe("1500");
   });
 
@@ -67,11 +56,7 @@ describe("calculateImpactMetrics — CO2 calculation", () => {
   });
 
   it("uses DEFAULT_CO2_PER_ITEM_KG for unknown categories", () => {
-    const result = calculateImpactMetrics(
-      [{ category: "unicycle", count: 1 }],
-      0,
-      1,
-    );
+    const result = calculateImpactMetrics([{ category: "unicycle", count: 1 }], 0, 1);
     expect(result.co2AvoidedKg).toBe(String(DEFAULT_CO2_PER_ITEM_KG));
   });
 
@@ -83,23 +68,15 @@ describe("calculateImpactMetrics — CO2 calculation", () => {
 
   it("company override replaces default factor", () => {
     // Company override: laptop = 250 (instead of default 300)
-    const result = calculateImpactMetrics(
-      [{ category: "laptop", count: 2 }],
-      0,
-      2,
-      { laptop: 250 },
-    );
+    const result = calculateImpactMetrics([{ category: "laptop", count: 2 }], 0, 2, {
+      laptop: 250,
+    });
     expect(result.co2AvoidedKg).toBe("500");
     expect(result.co2ByCategory[0].co2KgFactor).toBe(250);
   });
 
   it("company override of 0 is respected (not silently ignored)", () => {
-    const result = calculateImpactMetrics(
-      [{ category: "laptop", count: 3 }],
-      0,
-      3,
-      { laptop: 0 },
-    );
+    const result = calculateImpactMetrics([{ category: "laptop", count: 3 }], 0, 3, { laptop: 0 });
     expect(result.co2AvoidedKg).toBe("0");
   });
 });
@@ -155,30 +132,18 @@ describe("calculateImpactMetrics — counts", () => {
 
 describe("calculateImpactMetrics — reuseRatePercent", () => {
   it("100% when all items were reused", () => {
-    const result = calculateImpactMetrics(
-      [{ category: "laptop", count: 10 }],
-      0,
-      10,
-    );
+    const result = calculateImpactMetrics([{ category: "laptop", count: 10 }], 0, 10);
     expect(result.reuseRatePercent).toBe(100);
   });
 
   it("50% when half of items were reused", () => {
-    const result = calculateImpactMetrics(
-      [{ category: "laptop", count: 5 }],
-      0,
-      10,
-    );
+    const result = calculateImpactMetrics([{ category: "laptop", count: 5 }], 0, 10);
     expect(result.reuseRatePercent).toBe(50);
   });
 
   it("rounds to nearest integer", () => {
     // 1 reused out of 3 = 33.33% → rounds to 33
-    const result = calculateImpactMetrics(
-      [{ category: "laptop", count: 1 }],
-      0,
-      3,
-    );
+    const result = calculateImpactMetrics([{ category: "laptop", count: 1 }], 0, 3);
     expect(result.reuseRatePercent).toBe(33);
   });
 
@@ -189,11 +154,7 @@ describe("calculateImpactMetrics — reuseRatePercent", () => {
 
   it("reuse rate is based on processed, not (reused + recycled)", () => {
     // 5 reused, 3 recycled, 15 total processed → 33%
-    const result = calculateImpactMetrics(
-      [{ category: "laptop", count: 5 }],
-      3,
-      15,
-    );
+    const result = calculateImpactMetrics([{ category: "laptop", count: 5 }], 3, 15);
     expect(result.reuseRatePercent).toBe(33);
   });
 });
@@ -220,11 +181,7 @@ describe("calculateImpactMetrics — co2ByCategory", () => {
   });
 
   it("each entry has correct itemCount, factor, and total", () => {
-    const result = calculateImpactMetrics(
-      [{ category: "bike", count: 3 }],
-      0,
-      3,
-    );
+    const result = calculateImpactMetrics([{ category: "bike", count: 3 }], 0, 3);
     const entry = result.co2ByCategory[0];
     expect(entry.category).toBe("bike");
     expect(entry.itemCount).toBe(3);
@@ -234,11 +191,7 @@ describe("calculateImpactMetrics — co2ByCategory", () => {
 
   it("co2TotalKg is rounded to integer string (no decimals)", () => {
     // appliance (100 kg) × 1 = 100 — now that appliance is in CO2_FACTORS_KG
-    const result = calculateImpactMetrics(
-      [{ category: "appliance", count: 1 }],
-      0,
-      1,
-    );
+    const result = calculateImpactMetrics([{ category: "appliance", count: 1 }], 0, 1);
     expect(result.co2ByCategory[0].co2TotalKg).toBe("100");
     expect(result.co2ByCategory[0].co2TotalKg).not.toContain(".");
   });
@@ -255,11 +208,7 @@ describe("calculateImpactMetrics — co2ByCategory", () => {
 
 describe("appliance CO2 regression", () => {
   it("appliance items contribute CO2 to the total (was silently 0 before fix)", () => {
-    const result = calculateImpactMetrics(
-      [{ category: "appliance", count: 5 }],
-      0,
-      5,
-    );
+    const result = calculateImpactMetrics([{ category: "appliance", count: 5 }], 0, 5);
     // 5 × 100 kg = 500 kg — would have been DEFAULT (50 kg) × 5 = 250 before
     expect(result.co2AvoidedKg).toBe("500");
     expect(result.co2ByCategory[0].co2KgFactor).toBe(100);

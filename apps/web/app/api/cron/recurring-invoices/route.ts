@@ -4,14 +4,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { companies } from "@kivvi/database";
-import {
-  processRecurringInvoices,
-  type GeneratedInvoiceInfo,
-} from "@kivvi/core";
-import {
-  buildInvoiceEmailHtml,
-  buildInvoiceEmailSubject,
-} from "@kivvi/core/src/domain/email";
+import { processRecurringInvoices, type GeneratedInvoiceInfo } from "@kivvi/core";
+import { buildInvoiceEmailHtml, buildInvoiceEmailSubject } from "@kivvi/core/src/domain/email";
 import { getTransporter, getFromEmail } from "@/lib/email/transporter";
 import { isEmailConfigured } from "@/lib/config/email";
 import { logger } from "@/lib/logger";
@@ -30,10 +24,7 @@ export async function GET(request: NextRequest) {
 
     if (!cronSecret) {
       logger.error("CRON_SECRET not configured");
-      return NextResponse.json(
-        { error: "Cron secret not configured" },
-        { status: 500 },
-      );
+      return NextResponse.json({ error: "Cron secret not configured" }, { status: 500 });
     }
 
     if (authHeader !== `Bearer ${cronSecret}`) {
@@ -77,10 +68,7 @@ export async function GET(request: NextRequest) {
                   html: buildInvoiceEmailHtml(emailData),
                 });
               } catch (emailError) {
-                logger.error(
-                  `Failed to send recurring invoice email to ${recipient}`,
-                  emailError,
-                );
+                logger.error(`Failed to send recurring invoice email to ${recipient}`, emailError);
               }
             }
           }

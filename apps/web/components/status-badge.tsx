@@ -35,13 +35,7 @@ export function StatusBadge(props: Props) {
 
   if (isVariantProps(props)) {
     return (
-      <span
-        className={cn(
-          baseClasses,
-          ACTIVE_INACTIVE_STYLES[props.variant],
-          props.className,
-        )}
-      >
+      <span className={cn(baseClasses, ACTIVE_INACTIVE_STYLES[props.variant], props.className)}>
         {props.label}
       </span>
     );
@@ -49,9 +43,7 @@ export function StatusBadge(props: Props) {
 
   const styles = props.styleMap ?? STATUS_STYLES;
   return (
-    <span
-      className={cn(baseClasses, styles[props.status] || "", props.className)}
-    >
+    <span className={cn(baseClasses, styles[props.status] || "", props.className)}>
       {props.label}
     </span>
   );

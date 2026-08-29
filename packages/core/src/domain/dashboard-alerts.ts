@@ -75,16 +75,11 @@ export async function getDashboardAlerts(
   // 1. Overdue invoices (filtered by sinceDate to exclude old imported data)
   let overdueInvoices = await detectOverdueInvoices(db, companyId);
   if (sinceDate) {
-    overdueInvoices = overdueInvoices.filter(
-      (inv) => new Date(inv.issueDate) >= sinceDate,
-    );
+    overdueInvoices = overdueInvoices.filter((inv) => new Date(inv.issueDate) >= sinceDate);
   }
   if (overdueInvoices.length > 0) {
     const total = overdueInvoices
-      .reduce(
-        (sum, inv) => sum.plus(new Decimal(inv.total || "0")),
-        new Decimal(0),
-      )
+      .reduce((sum, inv) => sum.plus(new Decimal(inv.total || "0")), new Decimal(0))
       .toNumber();
     alerts.push({
       id: "overdue-invoices",
@@ -147,18 +142,13 @@ export async function getDashboardAlerts(
       total: sql<string>`COALESCE(SUM(${documents.total}::numeric), 0)`,
     })
     .from(documents)
-    .where(
-      and(eq(documents.companyId, companyId), eq(documents.status, "draft")),
-    )
+    .where(and(eq(documents.companyId, companyId), eq(documents.status, "draft")))
     .groupBy(documents.type);
 
   const totalDrafts = draftCounts.reduce((sum, dc) => sum + dc.count, 0);
   if (totalDrafts > 0) {
     const total = draftCounts
-      .reduce(
-        (sum, dc) => sum.plus(new Decimal(dc.total || "0")),
-        new Decimal(0),
-      )
+      .reduce((sum, dc) => sum.plus(new Decimal(dc.total || "0")), new Decimal(0))
       .toNumber();
     alerts.push({
       id: "draft-documents",
@@ -195,11 +185,7 @@ export async function getDashboardAlerts(
         sql`EXISTS (SELECT 1 FROM ${stockMovements} sm WHERE sm.product_id = ${products.id})`,
       ),
     )
-    .orderBy(
-      desc(
-        sql`${products.minStock} - CAST(${products.stockQuantity} AS DECIMAL)`,
-      ),
-    )
+    .orderBy(desc(sql`${products.minStock} - CAST(${products.stockQuantity} AS DECIMAL)`))
     .limit(20);
 
   if (lowStockProducts.length > 0) {
@@ -223,16 +209,8 @@ export async function getDashboardAlerts(
       total: sql<string>`COALESCE(SUM(${bankTransactions.amount}::numeric), 0)`,
     })
     .from(bankTransactions)
-    .innerJoin(
-      bankAccounts,
-      eq(bankTransactions.bankAccountId, bankAccounts.id),
-    )
-    .where(
-      and(
-        eq(bankAccounts.companyId, companyId),
-        eq(bankTransactions.isReconciled, false),
-      ),
-    );
+    .innerJoin(bankAccounts, eq(bankTransactions.bankAccountId, bankAccounts.id))
+    .where(and(eq(bankAccounts.companyId, companyId), eq(bankTransactions.isReconciled, false)));
 
   const unreconciledCount = unreconciledTxns[0]?.count || 0;
   if (unreconciledCount > 0) {
@@ -334,8 +312,7 @@ export async function getDashboardAlerts(
 
   // 10. Items in ready_for_sale not sold after PIPELINE_THRESHOLDS.ready_for_sale.alert days
   const sixtyDaysAgo = new Date(
-    now.getTime() -
-      PIPELINE_THRESHOLDS.ready_for_sale.alert * 24 * 60 * 60 * 1000,
+    now.getTime() - PIPELINE_THRESHOLDS.ready_for_sale.alert * 24 * 60 * 60 * 1000,
   );
   const [staleReadyResult] = await db
     .select({ count: sql<number>`COUNT(*)::int` })

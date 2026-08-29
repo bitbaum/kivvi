@@ -24,9 +24,7 @@ const resetPasswordSchema = z.object({
  * Request a password reset email.
  * Generates a secure token and sends email with reset link.
  */
-export async function requestPasswordResetAction(
-  input: unknown,
-): Promise<ActionResult> {
+export async function requestPasswordResetAction(input: unknown): Promise<ActionResult> {
   try {
     const parsed = requestResetSchema.safeParse(input);
     if (!parsed.success) {
@@ -39,10 +37,7 @@ export async function requestPasswordResetAction(
     const { email } = parsed.data;
 
     // Find user by email
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.email, email.toLowerCase()));
+    const [user] = await db.select().from(users).where(eq(users.email, email.toLowerCase()));
 
     // Always return success to prevent email enumeration attacks
     if (!user) {
@@ -53,9 +48,7 @@ export async function requestPasswordResetAction(
     }
 
     // Delete any existing reset tokens for this user
-    await db
-      .delete(passwordResetTokens)
-      .where(eq(passwordResetTokens.userId, user.id));
+    await db.delete(passwordResetTokens).where(eq(passwordResetTokens.userId, user.id));
 
     // Generate secure random token
     const token = randomBytes(32).toString("hex");
@@ -83,12 +76,7 @@ export async function requestPasswordResetAction(
         fallbackText: tAuth("passwordResetFallback"),
         footerAuto: tAuth("passwordResetFooterAuto"),
       };
-      await sendPasswordResetEmail(
-        user.email,
-        user.name || "User",
-        resetUrl,
-        resetStrings,
-      );
+      await sendPasswordResetEmail(user.email, user.name || "User", resetUrl, resetStrings);
     } catch {
       // Email not configured — token was created but email not sent.
       // In production, EMAIL_USER and EMAIL_PASS must be set.
@@ -110,9 +98,7 @@ export async function requestPasswordResetAction(
  * Reset password using a valid token.
  * Validates token, updates password, and deletes token.
  */
-export async function resetPasswordAction(
-  input: unknown,
-): Promise<ActionResult> {
+export async function resetPasswordAction(input: unknown): Promise<ActionResult> {
   try {
     const parsed = resetPasswordSchema.safeParse(input);
     if (!parsed.success) {
@@ -129,10 +115,7 @@ export async function resetPasswordAction(
       .select()
       .from(passwordResetTokens)
       .where(
-        and(
-          eq(passwordResetTokens.token, token),
-          gt(passwordResetTokens.expiresAt, new Date()),
-        ),
+        and(eq(passwordResetTokens.token, token), gt(passwordResetTokens.expiresAt, new Date())),
       );
 
     if (!resetToken) {
@@ -155,9 +138,7 @@ export async function resetPasswordAction(
         })
         .where(eq(users.id, resetToken.userId));
 
-      await tx
-        .delete(passwordResetTokens)
-        .where(eq(passwordResetTokens.id, resetToken.id));
+      await tx.delete(passwordResetTokens).where(eq(passwordResetTokens.id, resetToken.id));
     });
 
     return {

@@ -5,10 +5,7 @@ import { getContact, getImpactMetrics } from "@kivvi/core";
 import { getDb } from "./utils";
 
 const getCustomerDetailsSchema = z.object({
-  customerId: z
-    .string()
-    .uuid()
-    .describe("The UUID of the customer/contact to retrieve"),
+  customerId: z.string().uuid().describe("The UUID of the customer/contact to retrieve"),
 });
 
 export const getCustomerDetailsTool: Tool = {
@@ -85,9 +82,7 @@ export const getCustomerDetailsTool: Tool = {
             vatNumber: contact.vatNumber,
             iban: contact.iban,
             paymentTermsDays: contact.paymentTermsDays,
-            creditLimit: contact.creditLimit
-              ? new Decimal(contact.creditLimit).toNumber()
-              : null,
+            creditLimit: contact.creditLimit ? new Decimal(contact.creditLimit).toNumber() : null,
           },
           stats: {
             totalInvoices: invoices.length,

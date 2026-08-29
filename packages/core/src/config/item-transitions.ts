@@ -20,10 +20,7 @@
 
 import type { ItemStatusValue } from "../../../database/src/enums";
 
-export const ITEM_STATUS_TRANSITIONS: Record<
-  ItemStatusValue,
-  ItemStatusValue[]
-> = {
+export const ITEM_STATUS_TRANSITIONS: Record<ItemStatusValue, ItemStatusValue[]> = {
   // Fast path allowed: intake → ready_for_sale (e.g. Brockenhaus bulk intake)
   intake: ["testing", "ready_for_sale", "recycled"],
   testing: ["repair", "ready_for_sale", "parts_only", "recycled"],

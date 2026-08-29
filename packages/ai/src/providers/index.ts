@@ -44,9 +44,7 @@ export const OPENROUTER_FALLBACK_MODEL: string = (() => {
     // Not a soft failure. A fallback chain landing on a paid model bills
     // precisely when the free tier is spent and nobody is watching, so this
     // must break the build rather than quietly cost money.
-    throw new Error(
-      "No free OpenRouter model is configured for the fallback chain",
-    );
+    throw new Error("No free OpenRouter model is configured for the fallback chain");
   }
   return free.id;
 })();
@@ -170,9 +168,7 @@ export function getAllModels(): ModelConfig[] {
   return models;
 }
 
-export async function createProvider(
-  config: ProviderConfig,
-): Promise<AIProvider> {
+export async function createProvider(config: ProviderConfig): Promise<AIProvider> {
   switch (config.type) {
     case "groq":
       if (!config.apiKey) throw new Error("Groq API key required");
@@ -311,9 +307,7 @@ export async function createProviderWithFallback(
         modelId: preferred.model || provider.models[0]?.id || "",
       };
     } catch (e) {
-      errors.push(
-        `${preferred.type}: ${e instanceof Error ? e.message : "failed"}`,
-      );
+      errors.push(`${preferred.type}: ${e instanceof Error ? e.message : "failed"}`);
     }
   }
 
@@ -359,9 +353,7 @@ export async function createProviderWithFallback(
     // A paid link is invisible in normal operation and only reached when the
     // free ones are gone — so it must be opted into, never fallen into.
     if (candidate.paid && !allowPaid) {
-      errors.push(
-        `${candidate.type}: skipped (paid; set ALLOW_PAID_AI to enable)`,
-      );
+      errors.push(`${candidate.type}: skipped (paid; set ALLOW_PAID_AI to enable)`);
       continue;
     }
 
@@ -393,9 +385,7 @@ export async function createProviderWithFallback(
         modelId: candidate.defaultModel,
       };
     } catch (e) {
-      errors.push(
-        `${candidate.type}: ${e instanceof Error ? e.message : "failed"}`,
-      );
+      errors.push(`${candidate.type}: ${e instanceof Error ? e.message : "failed"}`);
       continue;
     }
   }

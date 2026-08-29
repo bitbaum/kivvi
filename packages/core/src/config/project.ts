@@ -8,11 +8,6 @@
  * - apps/web/lib/config/project-status.ts (UI labels and styles)
  */
 
-export const PROJECT_STATUS_VALUES = [
-  "active",
-  "completed",
-  "on_hold",
-  "cancelled",
-] as const;
+export const PROJECT_STATUS_VALUES = ["active", "completed", "on_hold", "cancelled"] as const;
 
 export type ProjectStatusValue = (typeof PROJECT_STATUS_VALUES)[number];

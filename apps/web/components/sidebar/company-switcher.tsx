@@ -129,10 +129,7 @@ export function CompanySwitcher({ tc }: CompanySwitcherProps) {
           aria-expanded={companySwitcherOpen}
           aria-haspopup="listbox"
         >
-          <Building2
-            className="h-5 w-5 text-muted-foreground"
-            aria-hidden="true"
-          />
+          <Building2 className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-medium">
               {session?.user?.companyName || tc("myCompany")}
@@ -141,17 +138,11 @@ export function CompanySwitcher({ tc }: CompanySwitcherProps) {
               {tc(`roleLabel.${session?.user?.role || "member"}`)}
             </p>
           </div>
-          <ChevronsUpDown
-            className="h-4 w-4 text-muted-foreground"
-            aria-hidden="true"
-          />
+          <ChevronsUpDown className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
         </button>
         {companySwitcherOpen && (
           <>
-            <div
-              className="fixed inset-0 z-10"
-              onClick={() => setCompanySwitcherOpen(false)}
-            />
+            <div className="fixed inset-0 z-10" onClick={() => setCompanySwitcherOpen(false)} />
             <div className="absolute left-0 right-0 top-full z-20 mt-1 rounded-lg border bg-popover p-1 shadow-md">
               {memberships.map((m) => (
                 <button
@@ -159,14 +150,9 @@ export function CompanySwitcher({ tc }: CompanySwitcherProps) {
                   onClick={() => handleSwitchCompany(m.companyId)}
                   className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm hover:bg-muted transition-colors"
                 >
-                  <Building2
-                    className="h-4 w-4 text-muted-foreground"
-                    aria-hidden="true"
-                  />
+                  <Building2 className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                   <span className="flex-1 truncate">{m.companyName}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {tc(`roleLabel.${m.role}`)}
-                  </span>
+                  <span className="text-xs text-muted-foreground">{tc(`roleLabel.${m.role}`)}</span>
                   {m.companyId === session?.user?.companyId && (
                     <Check className="h-4 w-4 text-primary" />
                   )}
@@ -207,10 +193,7 @@ export function CompanySwitcher({ tc }: CompanySwitcherProps) {
         className="flex w-full items-center gap-3 rounded-lg bg-muted p-3 text-left hover:bg-muted/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         aria-label={tc("aria.companySettings")}
       >
-        <Building2
-          className="h-5 w-5 text-muted-foreground"
-          aria-hidden="true"
-        />
+        <Building2 className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium">
             {session?.user?.companyName || tc("myCompany")}

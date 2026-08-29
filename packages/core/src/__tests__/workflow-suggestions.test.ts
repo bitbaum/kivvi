@@ -23,8 +23,7 @@ function selectBuilder(rows: unknown[]) {
     leftJoin: () => b,
     orderBy: () => b,
     limit: () => b,
-    then: (resolve: (v: unknown[]) => unknown) =>
-      Promise.resolve(rows).then(resolve),
+    then: (resolve: (v: unknown[]) => unknown) => Promise.resolve(rows).then(resolve),
   };
   return b;
 }
@@ -93,11 +92,7 @@ describe("getWorkflowSuggestions", () => {
 
   it("escalates dunning priority with how overdue the invoice is", async () => {
     const db = makeDb({
-      invoices: [
-        overdue("veryLate", 40),
-        overdue("late", 20),
-        overdue("recent", 10),
-      ],
+      invoices: [overdue("veryLate", 40), overdue("late", 20), overdue("recent", 10)],
     });
     const p = byId(await getWorkflowSuggestions(db, COMPANY_ID));
     expect(p.veryLate).toBe(1); // > 30 days

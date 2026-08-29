@@ -5,8 +5,8 @@
  * Singleton pattern ensures we reuse the same transporter instance.
  */
 
-import nodemailer, { type Transporter } from 'nodemailer';
-import { EMAIL_CONFIG } from '@/lib/config/email';
+import nodemailer, { type Transporter } from "nodemailer";
+import { EMAIL_CONFIG } from "@/lib/config/email";
 
 // Email configuration
 const emailConfig = {
@@ -43,7 +43,7 @@ export async function testEmailConfig(): Promise<{ success: boolean; error?: str
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 }

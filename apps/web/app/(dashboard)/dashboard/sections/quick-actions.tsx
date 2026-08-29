@@ -117,10 +117,7 @@ export function QuickActions() {
           </button>
         )}
       </div>
-      <div
-        id="quick-actions-grid"
-        className="grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4"
-      >
+      <div id="quick-actions-grid" className="grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-4">
         {displayedActions.map((action) => (
           <Link
             key={action.href}
@@ -136,9 +133,7 @@ export function QuickActions() {
                 <p className="font-medium leading-tight">{action.label}</p>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">
-              {action.description}
-            </p>
+            <p className="text-xs text-muted-foreground">{action.description}</p>
           </Link>
         ))}
       </div>

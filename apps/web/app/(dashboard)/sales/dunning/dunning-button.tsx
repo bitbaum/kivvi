@@ -40,12 +40,7 @@ export function DunningButton({
 
   return (
     <div>
-      <Button
-        variant="destructive"
-        size="sm"
-        onClick={handleClick}
-        disabled={isPending}
-      >
+      <Button variant="destructive" size="sm" onClick={handleClick} disabled={isPending}>
         <Send className="h-3 w-3" />
         {isPending ? t("sending") : LEVEL_LABELS[currentLevel] || t("maxLevel")}
       </Button>

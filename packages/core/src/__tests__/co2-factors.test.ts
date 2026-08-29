@@ -1,10 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { ITEM_CATEGORIES } from "../config/checklist-templates";
-import {
-  CO2_FACTORS_KG,
-  CO2_DEFAULT_KG,
-  getCo2Factor,
-} from "../config/co2-factors";
+import { CO2_FACTORS_KG, CO2_DEFAULT_KG, getCo2Factor } from "../config/co2-factors";
 
 // ============================================================================
 // SSOT invariant: CO2_FACTORS_KG must cover every ITEM_CATEGORY
@@ -21,9 +17,7 @@ describe("CO2_FACTORS_KG SSOT invariant", () => {
   });
 
   it("CO2_FACTORS_KG contains no categories absent from ITEM_CATEGORIES", () => {
-    const extraKeys = Object.keys(CO2_FACTORS_KG).filter(
-      (k) => !ITEM_CATEGORIES.includes(k),
-    );
+    const extraKeys = Object.keys(CO2_FACTORS_KG).filter((k) => !ITEM_CATEGORIES.includes(k));
     expect(
       extraKeys,
       `CO2_FACTORS_KG has keys not in ITEM_CATEGORIES: ${extraKeys.join(", ")}. Either add the category to checklist-templates.ts or remove it from co2-factors.ts.`,

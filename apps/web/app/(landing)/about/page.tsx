@@ -28,9 +28,7 @@ export default async function AboutPage() {
             <Recycle className="h-8 w-8 text-primary" />
           </div>
         </div>
-        <h1 className="mb-4 text-4xl font-bold sm:text-5xl">
-          {t("hero.title")}
-        </h1>
+        <h1 className="mb-4 text-4xl font-bold sm:text-5xl">{t("hero.title")}</h1>
         <p className="text-xl text-muted-foreground">{t("hero.description")}</p>
       </section>
 
@@ -41,18 +39,14 @@ export default async function AboutPage() {
           <div className="space-y-4 text-muted-foreground leading-relaxed">
             <p>{t("mission.paragraph1")}</p>
             <p>{t("mission.paragraph2")}</p>
-            <p className="font-medium text-foreground">
-              {t("mission.conclusion")}
-            </p>
+            <p className="font-medium text-foreground">{t("mission.conclusion")}</p>
           </div>
         </div>
       </section>
 
       {/* Values */}
       <section className="mx-auto max-w-4xl py-16">
-        <h2 className="mb-10 text-center text-2xl font-bold">
-          {t("values.title")}
-        </h2>
+        <h2 className="mb-10 text-center text-2xl font-bold">{t("values.title")}</h2>
         <div className="grid gap-6 sm:grid-cols-3">
           <ValueCard
             icon={<Leaf className="h-6 w-6" />}
@@ -83,11 +77,7 @@ export default async function AboutPage() {
           </div>
           <div className="mt-6 flex items-center gap-4">
             <Button asChild variant="secondary">
-              <a
-                href="https://github.com/g-but/kivvi"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a href="https://github.com/g-but/kivvi" target="_blank" rel="noopener noreferrer">
                 <Github className="h-4 w-4" />
                 {t("openSource.githubButton")}
               </a>
@@ -99,15 +89,9 @@ export default async function AboutPage() {
       {/* Who builds it */}
       <section className="mx-auto max-w-3xl py-16">
         <h2 className="mb-4 text-2xl font-bold">{t("team.title")}</h2>
-        <p className="text-muted-foreground leading-relaxed mb-4">
-          {t("team.paragraph1")}
-        </p>
-        <p className="text-muted-foreground leading-relaxed mb-4">
-          {t("team.paragraph2")}
-        </p>
-        <p className="text-muted-foreground leading-relaxed">
-          {t("team.paragraph3")}
-        </p>
+        <p className="text-muted-foreground leading-relaxed mb-4">{t("team.paragraph1")}</p>
+        <p className="text-muted-foreground leading-relaxed mb-4">{t("team.paragraph2")}</p>
+        <p className="text-muted-foreground leading-relaxed">{t("team.paragraph3")}</p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <Button asChild size="lg">
             <Link href="/contact">
@@ -126,15 +110,7 @@ export default async function AboutPage() {
   );
 }
 
-function ValueCard({
-  icon,
-  title,
-  text,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  text: string;
-}) {
+function ValueCard({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) {
   return (
     <div className="rounded-xl border bg-card p-6">
       <div className="mb-3 text-primary">{icon}</div>

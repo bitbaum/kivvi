@@ -1,19 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  ArrowLeft,
-  FileText,
-  DollarSign,
-  Receipt,
-  ShoppingCart,
-} from "lucide-react";
+import { ArrowLeft, FileText, DollarSign, Receipt, ShoppingCart } from "lucide-react";
 import { getSessionOrRedirect } from "@/lib/session";
 import { db } from "@/lib/db";
-import {
-  getProject,
-  getProjectDocuments,
-  getProjectSummary,
-} from "@kivvi/core";
+import { getProject, getProjectDocuments, getProjectSummary } from "@kivvi/core";
 import { cn, formatCurrency, isValidUUID } from "@/lib/utils";
 import { getTranslations } from "next-intl/server";
 import {
@@ -21,10 +11,7 @@ import {
   PROJECT_STATUS_LABEL_KEYS,
 } from "@/lib/config/project-status";
 import { ProjectEditForm } from "./edit-form";
-import {
-  QuickActionsBar,
-  type QuickAction,
-} from "@/components/quick-actions-bar";
+import { QuickActionsBar, type QuickAction } from "@/components/quick-actions-bar";
 import { ProjectLinkedDocuments } from "./project-linked-documents";
 import { ProjectDetailSidebar } from "./project-detail-sidebar";
 import { RecentItemTracker } from "@/components/recent-item-tracker";
@@ -54,10 +41,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
 
   const budgetUsedPercent =
     project.budget && Number(project.budget) > 0
-      ? Math.min(
-          100,
-          Math.round((summary.totalInvoiced / Number(project.budget)) * 100),
-        )
+      ? Math.min(100, Math.round((summary.totalInvoiced / Number(project.budget)) * 100))
       : null;
 
   return (
@@ -88,8 +72,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
               >
                 {t(
                   PROJECT_STATUS_LABEL_KEYS[
-                    (project.status ??
-                      "active") as keyof typeof PROJECT_STATUS_LABEL_KEYS
+                    (project.status ?? "active") as keyof typeof PROJECT_STATUS_LABEL_KEYS
                   ] || "statusActive",
                 )}
               </span>
@@ -123,18 +106,14 @@ export default async function ProjectDetailPage({ params }: PageProps) {
             <Receipt className="h-4 w-4" />
             {t("totalInvoiced")}
           </div>
-          <p className="mt-2 text-3xl font-bold">
-            {formatCurrency(summary.totalInvoiced)}
-          </p>
+          <p className="mt-2 text-3xl font-bold">{formatCurrency(summary.totalInvoiced)}</p>
         </div>
         <div className="rounded-xl border bg-card p-6">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <DollarSign className="h-4 w-4" />
             {t("revenuePaid")}
           </div>
-          <p className="mt-2 text-3xl font-bold">
-            {formatCurrency(summary.totalRevenue)}
-          </p>
+          <p className="mt-2 text-3xl font-bold">{formatCurrency(summary.totalRevenue)}</p>
         </div>
       </div>
 
@@ -175,9 +154,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
           {project.description && (
             <div className="rounded-xl border bg-card p-6">
               <h2 className="mb-4 font-semibold">{tc("description")}</h2>
-              <p className="text-sm whitespace-pre-wrap">
-                {project.description}
-              </p>
+              <p className="text-sm whitespace-pre-wrap">{project.description}</p>
             </div>
           )}
 
@@ -195,9 +172,7 @@ export default async function ProjectDetailPage({ params }: PageProps) {
               startDate: project.startDate
                 ? new Date(project.startDate).toISOString().split("T")[0]
                 : "",
-              endDate: project.endDate
-                ? new Date(project.endDate).toISOString().split("T")[0]
-                : "",
+              endDate: project.endDate ? new Date(project.endDate).toISOString().split("T")[0] : "",
             }}
           />
         </div>

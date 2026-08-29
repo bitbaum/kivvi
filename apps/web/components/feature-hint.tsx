@@ -19,12 +19,7 @@ interface FeatureHintProps {
  * A dismissable hint banner that appears once per user.
  * Dismissed state is stored in localStorage.
  */
-export function FeatureHint({
-  id,
-  message,
-  actionLabel,
-  onAction,
-}: FeatureHintProps) {
+export function FeatureHint({ id, message, actionLabel, onAction }: FeatureHintProps) {
   const tAria = useTranslations("common.aria");
   const [dismissed, setDismissed] = useState(true); // Start hidden to avoid flash
 

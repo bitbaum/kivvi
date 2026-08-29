@@ -29,9 +29,7 @@ export async function CycleTimeSection({ data }: { data: CycleTimeMetrics }) {
           <div key={s.label} className="rounded-lg border bg-card p-4">
             <div className="text-2xl font-bold tabular-nums">
               {s.value}
-              <span className="ml-1 text-base font-normal text-muted-foreground">
-                {tr("days")}
-              </span>
+              <span className="ml-1 text-base font-normal text-muted-foreground">{tr("days")}</span>
             </div>
             <p className="mt-1 text-sm text-muted-foreground">{s.label}</p>
           </div>

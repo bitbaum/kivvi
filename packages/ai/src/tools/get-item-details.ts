@@ -26,11 +26,7 @@ export const getItemDetailsTool: Tool = {
         await import("@kivvi/core/src/domain/inventory-items");
       const db = getDb(context);
 
-      const resolved = await resolveInventoryItem(
-        db,
-        context.companyId,
-        params.item_identifier,
-      );
+      const resolved = await resolveInventoryItem(db, context.companyId, params.item_identifier);
       if (!resolved) {
         return {
           success: false,
@@ -53,9 +49,7 @@ export const getItemDetailsTool: Tool = {
       const currency = context.defaultCurrency ?? DEFAULT_CURRENCY;
 
       // Build repair summary from log
-      const repairLines = item.repairLog
-        ? item.repairLog.split("\n").filter(Boolean)
-        : [];
+      const repairLines = item.repairLog ? item.repairLog.split("\n").filter(Boolean) : [];
 
       // Checklist summary
       type ChecklistData = {
@@ -67,13 +61,9 @@ export const getItemDetailsTool: Tool = {
         ? {
             category: checklistData.category,
             total: checklistData.completions.length,
-            passed: checklistData.completions.filter((c) => c.result === "pass")
-              .length,
-            failed: checklistData.completions.filter((c) => c.result === "fail")
-              .length,
-            skipped: checklistData.completions.filter(
-              (c) => c.result === "skip",
-            ).length,
+            passed: checklistData.completions.filter((c) => c.result === "pass").length,
+            failed: checklistData.completions.filter((c) => c.result === "fail").length,
+            skipped: checklistData.completions.filter((c) => c.result === "skip").length,
           }
         : null;
 
@@ -120,9 +110,7 @@ export const getItemDetailsTool: Tool = {
               item.repairCost && new Decimal(item.repairCost).gt(0)
                 ? `${currency} ${new Decimal(item.repairCost).toDecimalPlaces(2)}`
                 : null,
-            totalHours: item.repairHours
-              ? new Decimal(item.repairHours).toNumber()
-              : null,
+            totalHours: item.repairHours ? new Decimal(item.repairHours).toNumber() : null,
             logEntries: repairLines,
             parts: repairParts.map((p) => ({
               id: p.id,

@@ -133,9 +133,7 @@ export function ChatWidget() {
           // Desktop: fixed size bottom-right
           "lg:inset-auto lg:bottom-6 lg:right-6 lg:h-[600px] lg:w-[420px] lg:rounded-2xl",
           // Animation
-          isOpen
-            ? "scale-100 opacity-100"
-            : "pointer-events-none scale-95 opacity-0",
+          isOpen ? "scale-100 opacity-100" : "pointer-events-none scale-95 opacity-0",
         )}
       >
         {/* Header */}
@@ -194,9 +192,7 @@ export function ChatWidget() {
               <Sparkles className="h-6 w-6 text-white" />
             </div>
             <h3 className="mb-1 text-lg font-semibold">{t("howCanIHelp")}</h3>
-            <p className="mb-6 text-center text-sm text-muted-foreground">
-              {t("askDescription")}
-            </p>
+            <p className="mb-6 text-center text-sm text-muted-foreground">{t("askDescription")}</p>
             <div className="grid w-full gap-2">
               {suggestions.map((suggestion) => (
                 <button
@@ -211,12 +207,7 @@ export function ChatWidget() {
             </div>
           </div>
         ) : (
-          <ChatMessages
-            messages={messages}
-            isLoading={isLoading}
-            scrollRef={scrollRef}
-            compact
-          />
+          <ChatMessages messages={messages} isLoading={isLoading} scrollRef={scrollRef} compact />
         )}
 
         {/* Input */}

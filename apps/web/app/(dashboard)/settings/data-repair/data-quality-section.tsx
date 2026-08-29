@@ -30,23 +30,17 @@ export function DataQualitySection({
         <div
           className={`rounded-lg border p-2 ${hasIssues ? "border-warning/30 bg-warning/10" : "bg-background"}`}
         >
-          <Icon
-            className={`h-4 w-4 ${hasIssues ? "text-warning" : "text-muted-foreground"}`}
-          />
+          <Icon className={`h-4 w-4 ${hasIssues ? "text-warning" : "text-muted-foreground"}`} />
         </div>
         <div className="flex-1">
           <span className="font-semibold">{title}</span>
         </div>
         <span
           className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-            hasIssues
-              ? "bg-warning/15 text-warning"
-              : "bg-success/15 text-success"
+            hasIssues ? "bg-warning/15 text-warning" : "bg-success/15 text-success"
           }`}
         >
-          {hasIssues
-            ? tDQ("sectionBadgeIssues", { count })
-            : tDQ("sectionBadgeOk")}
+          {hasIssues ? tDQ("sectionBadgeIssues", { count }) : tDQ("sectionBadgeOk")}
         </span>
         {open ? (
           <ChevronDown className="h-4 w-4 text-muted-foreground" />

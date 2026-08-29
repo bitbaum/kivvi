@@ -8,11 +8,7 @@ import {
   users,
 } from "@kivvi/database";
 import { DEFAULT_LOCALE } from "../config/locale";
-import type {
-  Database,
-  RecurringInvoiceConfig,
-  RecurringPeriodicity,
-} from "@kivvi/database";
+import type { Database, RecurringInvoiceConfig, RecurringPeriodicity } from "@kivvi/database";
 import { RECURRING_PERIODICITY_VALUES } from "@kivvi/database/src/enums";
 import { convertDocument } from "./documents";
 import { buildInvoiceEmailSubject } from "./email";
@@ -43,12 +39,8 @@ export const updateRecurringConfigSchema = z.object({
   notes: z.string().max(5000).optional().nullable(),
 });
 
-export type CreateRecurringConfigInput = z.infer<
-  typeof createRecurringConfigSchema
->;
-export type UpdateRecurringConfigInput = z.infer<
-  typeof updateRecurringConfigSchema
->;
+export type CreateRecurringConfigInput = z.infer<typeof createRecurringConfigSchema>;
+export type UpdateRecurringConfigInput = z.infer<typeof updateRecurringConfigSchema>;
 
 // ============================================================================
 // DATE UTILITIES
@@ -57,10 +49,7 @@ export type UpdateRecurringConfigInput = z.infer<
 /**
  * Calculate next generation date based on periodicity.
  */
-function calculateNextDate(
-  date: Date,
-  periodicity: RecurringPeriodicity,
-): Date {
+function calculateNextDate(date: Date, periodicity: RecurringPeriodicity): Date {
   const next = new Date(date);
 
   switch (periodicity) {
@@ -167,10 +156,7 @@ export async function createRecurringConfig(
 ): Promise<RecurringInvoiceConfig> {
   // Verify order exists and belongs to company
   const order = await db.query.documents.findFirst({
-    where: and(
-      eq(documents.id, input.orderId),
-      eq(documents.companyId, companyId),
-    ),
+    where: and(eq(documents.id, input.orderId), eq(documents.companyId, companyId)),
   });
 
   if (!order) {
@@ -282,9 +268,7 @@ export async function deleteRecurringConfig(
 export async function listRecurringConfigs(
   db: Database,
   companyId: string,
-): Promise<
-  Array<RecurringInvoiceConfig & { orderNumber: string; contactName: string }>
-> {
+): Promise<Array<RecurringInvoiceConfig & { orderNumber: string; contactName: string }>> {
   const configs = await db
     .select({
       config: recurringInvoiceConfigs,
@@ -297,9 +281,7 @@ export async function listRecurringConfigs(
     .orderBy(desc(recurringInvoiceConfigs.createdAt));
 
   // Fetch contact names
-  const contactIds = configs
-    .map((c) => c.contactName)
-    .filter((id): id is string => id !== null);
+  const contactIds = configs.map((c) => c.contactName).filter((id): id is string => id !== null);
 
   const contacts =
     contactIds.length > 0
@@ -314,9 +296,7 @@ export async function listRecurringConfigs(
   return configs.map((c) => ({
     ...c.config,
     orderNumber: c.orderNumber || "Unknown",
-    contactName: c.contactName
-      ? contactMap.get(c.contactName) || "Unknown"
-      : "No Contact",
+    contactName: c.contactName ? contactMap.get(c.contactName) || "Unknown" : "No Contact",
   }));
 }
 
@@ -364,10 +344,7 @@ export interface GeneratedInvoiceInfo {
 }
 
 export interface ProcessOptions {
-  onInvoiceGenerated?: (
-    invoice: GeneratedInvoiceInfo,
-    emailRecipients: string[],
-  ) => Promise<void>;
+  onInvoiceGenerated?: (invoice: GeneratedInvoiceInfo, emailRecipients: string[]) => Promise<void>;
 }
 
 /**
@@ -477,12 +454,7 @@ export async function processRecurringInvoices(
           const [updated] = await tx
             .update(documents)
             .set({ notes })
-            .where(
-              and(
-                eq(documents.id, inv.id),
-                eq(documents.companyId, config.companyId),
-              ),
-            )
+            .where(and(eq(documents.id, inv.id), eq(documents.companyId, config.companyId)))
             .returning();
           finalInv = updated;
         }
@@ -517,9 +489,7 @@ export async function processRecurringInvoices(
               type: invoice.type,
               total: invoice.total,
               currency: invoice.currency,
-              dueDate: invoice.dueDate
-                ? invoice.dueDate.toISOString().split("T")[0]
-                : null,
+              dueDate: invoice.dueDate ? invoice.dueDate.toISOString().split("T")[0] : null,
               contact: config.order.contact
                 ? {
                     name: config.order.contact.name,
@@ -531,10 +501,7 @@ export async function processRecurringInvoices(
             config.emailRecipients,
           );
         } catch (emailError) {
-          logger.error(
-            `Failed to send email for invoice ${invoice.number}`,
-            emailError,
-          );
+          logger.error(`Failed to send email for invoice ${invoice.number}`, emailError);
         }
       }
 
@@ -570,9 +537,7 @@ export async function getOrderOptionsForRecurring(
     .where(and(eq(documents.companyId, companyId), eq(documents.type, "order")))
     .orderBy(documents.number);
 
-  const contactIds = orders
-    .map((o) => o.contactId)
-    .filter((id): id is string => id !== null);
+  const contactIds = orders.map((o) => o.contactId).filter((id): id is string => id !== null);
 
   const contactRows =
     contactIds.length > 0

@@ -2,12 +2,10 @@ import { chromium, type Page } from "@playwright/test";
 import fs from "node:fs/promises";
 import path from "node:path";
 
-const baseUrl =
-  process.env.KIVVI_SMOKE_BASE_URL ?? "https://kivvi.orangecat.ch";
+const baseUrl = process.env.KIVVI_SMOKE_BASE_URL ?? "https://kivvi.orangecat.ch";
 const email = process.env.KIVVI_SMOKE_EMAIL;
 const password = process.env.KIVVI_SMOKE_PASSWORD;
-const outputDir =
-  process.env.KIVVI_SMOKE_OUTPUT_DIR ?? "/tmp/kivvi-production-smoke";
+const outputDir = process.env.KIVVI_SMOKE_OUTPUT_DIR ?? "/tmp/kivvi-production-smoke";
 
 const pages = [
   { path: "/dashboard", name: "dashboard", text: /Kivvi|Dashboard|Übersicht/ },
@@ -69,11 +67,7 @@ async function assertNoObviousLayoutBreak(page: Page, label: string) {
   }
 }
 
-async function assertVisiblePageText(
-  page: Page,
-  pattern: RegExp,
-  label: string,
-) {
+async function assertVisiblePageText(page: Page, pattern: RegExp, label: string) {
   const deadline = Date.now() + 30_000;
 
   while (Date.now() < deadline) {
@@ -126,9 +120,7 @@ async function smoke() {
           waitUntil: "domcontentloaded",
           timeout: 60_000,
         });
-        await page
-          .waitForLoadState("networkidle", { timeout: 30_000 })
-          .catch(() => {});
+        await page.waitForLoadState("networkidle", { timeout: 30_000 }).catch(() => {});
         await assertVisiblePageText(page, check.text, label);
         await assertNoObviousLayoutBreak(page, label);
         await page.screenshot({

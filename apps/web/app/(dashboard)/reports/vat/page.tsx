@@ -39,12 +39,7 @@ export default async function VatReportPage({ searchParams }: PageProps) {
   const startDate = (params.start as string) || defaults.start;
   const endDate = (params.end as string) || defaults.end;
 
-  const report = await getVatReport(
-    db,
-    session.user.companyId,
-    startDate,
-    endDate,
-  );
+  const report = await getVatReport(db, session.user.companyId, startDate, endDate);
 
   const hasData = report.salesVat.length > 0 || report.purchaseVat.length > 0;
 
@@ -101,9 +96,7 @@ export default async function VatReportPage({ searchParams }: PageProps) {
                   <thead>
                     <tr className="border-b text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                       <th className="px-6 py-3">{t("rate")}</th>
-                      <th className="px-6 py-3 text-right">
-                        {t("taxableAmount")}
-                      </th>
+                      <th className="px-6 py-3 text-right">{t("taxableAmount")}</th>
                       <th className="px-6 py-3 text-right">{t("vatAmount")}</th>
                       <th className="px-6 py-3 text-right">{tc("number")}</th>
                     </tr>
@@ -138,9 +131,7 @@ export default async function VatReportPage({ searchParams }: PageProps) {
                 </table>
               </div>
             ) : (
-              <p className="p-6 text-sm text-muted-foreground">
-                {t("noSalesVatEntries")}
-              </p>
+              <p className="p-6 text-sm text-muted-foreground">{t("noSalesVatEntries")}</p>
             )}
           </div>
 
@@ -156,9 +147,7 @@ export default async function VatReportPage({ searchParams }: PageProps) {
                   <thead>
                     <tr className="border-b text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                       <th className="px-6 py-3">{t("rate")}</th>
-                      <th className="px-6 py-3 text-right">
-                        {t("taxableAmount")}
-                      </th>
+                      <th className="px-6 py-3 text-right">{t("taxableAmount")}</th>
                       <th className="px-6 py-3 text-right">{t("vatAmount")}</th>
                       <th className="px-6 py-3 text-right">{tc("number")}</th>
                     </tr>
@@ -193,9 +182,7 @@ export default async function VatReportPage({ searchParams }: PageProps) {
                 </table>
               </div>
             ) : (
-              <p className="p-6 text-sm text-muted-foreground">
-                {t("noPurchaseVatEntries")}
-              </p>
+              <p className="p-6 text-sm text-muted-foreground">{t("noPurchaseVatEntries")}</p>
             )}
           </div>
 
@@ -226,15 +213,11 @@ export default async function VatReportPage({ searchParams }: PageProps) {
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  {Number(report.vatPayable) >= 0
-                    ? t("vatPayable")
-                    : t("vatRefundable")}
+                  {Number(report.vatPayable) >= 0 ? t("vatPayable") : t("vatRefundable")}
                 </p>
                 <p
                   className={`mt-1 text-2xl font-bold ${
-                    Number(report.vatPayable) >= 0
-                      ? "text-info"
-                      : "text-success"
+                    Number(report.vatPayable) >= 0 ? "text-info" : "text-success"
                   }`}
                 >
                   {formatCurrency(Math.abs(Number(report.vatPayable)))}

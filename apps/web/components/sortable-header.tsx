@@ -1,11 +1,11 @@
-import Link from 'next/link';
-import { ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
+import Link from "next/link";
+import { ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
 
 interface SortableHeaderProps {
   label: string;
   field: string;
   currentSort?: string;
-  currentOrder?: 'asc' | 'desc';
+  currentOrder?: "asc" | "desc";
   href: string;
 }
 
@@ -29,7 +29,7 @@ export function SortableHeader({
     >
       {label}
       {isActive ? (
-        currentOrder === 'asc' ? (
+        currentOrder === "asc" ? (
           <ChevronUp className="h-3.5 w-3.5" />
         ) : (
           <ChevronDown className="h-3.5 w-3.5" />

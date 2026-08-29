@@ -29,10 +29,7 @@ export type KnowledgeArticleMeta = {
 function slugifyHeading(text: string): string {
   return text
     .toLowerCase()
-    .replace(
-      /[äöüÄÖÜ]/g,
-      (c) => ({ ä: "ae", ö: "oe", ü: "ue", Ä: "ae", Ö: "oe", Ü: "ue" })[c] ?? c,
-    )
+    .replace(/[äöüÄÖÜ]/g, (c) => ({ ä: "ae", ö: "oe", ü: "ue", Ä: "ae", Ö: "oe", Ü: "ue" })[c] ?? c)
     .replace(/ß/g, "ss")
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
@@ -62,9 +59,7 @@ export function getAllArticles(): KnowledgeArticleMeta[] {
  * Headings get id attributes for the table-of-contents anchor links.
  * H2 headings are collected and returned as `sections` for the TOC.
  */
-export async function getArticle(
-  slug: string,
-): Promise<{
+export async function getArticle(slug: string): Promise<{
   meta: KnowledgeArticleMeta;
   html: string;
   sections: string[];

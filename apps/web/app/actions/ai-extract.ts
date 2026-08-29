@@ -2,11 +2,7 @@
 
 import { type ActionResult, requireRole, safeErrorMessage } from "./utils";
 import { getTranslations } from "next-intl/server";
-import {
-  callAIProvider,
-  isAIConfigured,
-  extractJSON,
-} from "@/lib/ai/call-provider";
+import { callAIProvider, isAIConfigured, extractJSON } from "@/lib/ai/call-provider";
 import { ITEM_CATEGORIES } from "@kivvi/core/src/config/checklist-templates";
 import { getAllModels, type ModelConfig } from "@kivvi/ai";
 
@@ -134,7 +130,6 @@ export async function extractItemsFromTextAction(
   }
 }
 
-
 // ============================================================================
 // REGEX FALLBACK (no AI key required)
 // ============================================================================
@@ -162,12 +157,8 @@ function parseItemsSimple(text: string): ExtractedItem[] {
   for (const line of lines) {
     const qtyPrefixMatch = line.match(/^(\d+)\s*[xX×]?\s+(.+)/);
     const qtySuffixMatch = line.match(/(.+?)\s*[xX×]\s*(\d+)\s*$/);
-    const qtyParenMatch = line.match(
-      /(.+?)\s*\((\d+)\s*(?:Stk?\.?|Stück|pcs?)?\)\s*$/i,
-    );
-    const qtyStkMatch = line.match(
-      /(.+?)\s*(\d+)\s*(?:Stk?\.?|Stück|pcs?)\s*$/i,
-    );
+    const qtyParenMatch = line.match(/(.+?)\s*\((\d+)\s*(?:Stk?\.?|Stück|pcs?)?\)\s*$/i);
+    const qtyStkMatch = line.match(/(.+?)\s*(\d+)\s*(?:Stk?\.?|Stück|pcs?)\s*$/i);
 
     if (qtyPrefixMatch) {
       items.push(makeItem(qtyPrefixMatch[2].trim(), qtyPrefixMatch[1]));
@@ -195,9 +186,7 @@ function getConfiguredProviders(): Set<string> {
   return providers;
 }
 
-export async function getAvailableModelsAction(): Promise<
-  ActionResult<ModelConfig[]>
-> {
+export async function getAvailableModelsAction(): Promise<ActionResult<ModelConfig[]>> {
   const t = await getTranslations("ai");
   try {
     await requireRole("member");

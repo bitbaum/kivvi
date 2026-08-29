@@ -27,10 +27,7 @@ import {
   ensureManufacturers,
   updateSequencesAfterImport,
 } from "@kivvi/core";
-import {
-  seedSampleData,
-  clearSampleData,
-} from "@kivvi/core/src/domain/sample-data";
+import { seedSampleData, clearSampleData } from "@kivvi/core/src/domain/sample-data";
 import { DEFAULT_VAT_RATE } from "@kivvi/core/src/config/vat-rates";
 import { DEFAULT_COUNTRY } from "@kivvi/core/src/config/locale";
 
@@ -49,9 +46,7 @@ const businessConfigSchema = z.object({
 // STEP 1: COMPANY INFO
 // ============================================================================
 
-export async function updateCompanyInfoAction(
-  input: unknown,
-): Promise<ActionResult> {
+export async function updateCompanyInfoAction(input: unknown): Promise<ActionResult> {
   const t = await getTranslations("onboarding");
   try {
     const { companyId } = await getSession();
@@ -103,9 +98,7 @@ export async function updateCompanyInfoAction(
 
 export async function initializeCompanyAction(
   input: unknown,
-): Promise<
-  ActionResult<{ accountsCreated: number; sequencesCreated: number }>
-> {
+): Promise<ActionResult<{ accountsCreated: number; sequencesCreated: number }>> {
   const t = await getTranslations("onboarding");
   try {
     const { companyId } = await getSession();
@@ -158,9 +151,7 @@ export async function executeImportAction(
       unit: string;
     }>
   >,
-): Promise<
-  ActionResult<{ inserted: number; skipped: number; errors: string[] }>
-> {
+): Promise<ActionResult<{ inserted: number; skipped: number; errors: string[] }>> {
   const t = await getTranslations("onboarding");
   try {
     const { companyId, userId } = await getSession();
@@ -178,31 +169,13 @@ export async function executeImportAction(
       }
       case "product": {
         // Extract unique product groups and manufacturers from rows
-        const groupNames = rows
-          .map((r) => r.productGroup)
-          .filter(Boolean) as string[];
-        const manufacturerNames = rows
-          .map((r) => r.manufacturer)
-          .filter(Boolean) as string[];
+        const groupNames = rows.map((r) => r.productGroup).filter(Boolean) as string[];
+        const manufacturerNames = rows.map((r) => r.manufacturer).filter(Boolean) as string[];
 
-        const productGroupMap = await ensureProductGroups(
-          db,
-          companyId,
-          groupNames,
-        );
-        const manufacturerMap = await ensureManufacturers(
-          db,
-          companyId,
-          manufacturerNames,
-        );
+        const productGroupMap = await ensureProductGroups(db, companyId, groupNames);
+        const manufacturerMap = await ensureManufacturers(db, companyId, manufacturerNames);
 
-        result = await bulkInsertProducts(
-          db,
-          companyId,
-          rows,
-          productGroupMap,
-          manufacturerMap,
-        );
+        result = await bulkInsertProducts(db, companyId, rows, productGroupMap, manufacturerMap);
         break;
       }
       case "invoice": {
@@ -269,12 +242,7 @@ export async function executeImportAction(
       }
       case "journal_entry": {
         const accountCodeMap = await buildAccountCodeMap(db, companyId);
-        result = await bulkInsertJournalEntries(
-          db,
-          companyId,
-          rows,
-          accountCodeMap,
-        );
+        result = await bulkInsertJournalEntries(db, companyId, rows, accountCodeMap);
         break;
       }
       case "stock": {
@@ -290,13 +258,7 @@ export async function executeImportAction(
         }
 
         const productLookup = await buildProductLookup(db, companyId);
-        result = await bulkInsertStockLevels(
-          db,
-          companyId,
-          warehouse.id,
-          rows,
-          productLookup,
-        );
+        result = await bulkInsertStockLevels(db, companyId, warehouse.id, rows, productLookup);
         break;
       }
       default:
@@ -322,8 +284,7 @@ export const completeOnboardingAction = createAction<void, void>({
     await updateSequencesAfterImport(db, companyId);
   },
   revalidate: ["/"],
-  errorMessage: () =>
-    getTranslations("onboarding").then((t) => t("errorCompleteOnboarding")),
+  errorMessage: () => getTranslations("onboarding").then((t) => t("errorCompleteOnboarding")),
 });
 
 // ============================================================================
@@ -336,8 +297,7 @@ export const seedSampleDataAction = createAction<void, void>({
     await completeOnboarding(db, companyId);
   },
   revalidate: ["/"],
-  errorMessage: () =>
-    getTranslations("onboarding").then((t) => t("errorSeedSampleData")),
+  errorMessage: () => getTranslations("onboarding").then((t) => t("errorSeedSampleData")),
 });
 
 export const clearSampleDataAction = createAction<void, void>({
@@ -345,8 +305,7 @@ export const clearSampleDataAction = createAction<void, void>({
     await clearSampleData(db, companyId);
   },
   revalidate: ["/"],
-  errorMessage: () =>
-    getTranslations("onboarding").then((t) => t("errorClearSampleData")),
+  errorMessage: () => getTranslations("onboarding").then((t) => t("errorClearSampleData")),
 });
 
 // ============================================================================
@@ -365,8 +324,7 @@ export const getOnboardingStateAction = createAction<
       .where(eq(companies.id, companyId));
     return { ...state, companyName: company?.name ?? null };
   },
-  errorMessage: () =>
-    getTranslations("onboarding").then((t) => t("errorGetState")),
+  errorMessage: () => getTranslations("onboarding").then((t) => t("errorGetState")),
 });
 
 /**
@@ -386,10 +344,7 @@ export const getCompanyDetailsAction = createAction<
   }
 >({
   handler: async (_input, { companyId, db }) => {
-    const [company] = await db
-      .select()
-      .from(companies)
-      .where(eq(companies.id, companyId));
+    const [company] = await db.select().from(companies).where(eq(companies.id, companyId));
     if (!company) throw new Error("company_not_found");
     return {
       name: company.name,
@@ -402,8 +357,7 @@ export const getCompanyDetailsAction = createAction<
       settings: (company.settings as CompanySettings) || {},
     };
   },
-  errorMessage: () =>
-    getTranslations("onboarding").then((t) => t("errorGetCompanyDetails")),
+  errorMessage: () => getTranslations("onboarding").then((t) => t("errorGetCompanyDetails")),
 });
 
 // ============================================================================
@@ -412,38 +366,18 @@ export const getCompanyDetailsAction = createAction<
 
 export async function importProductsFromCsvAction(
   rows: Array<Record<string, string | null>>,
-): Promise<
-  ActionResult<{ inserted: number; skipped: number; errors: string[] }>
-> {
+): Promise<ActionResult<{ inserted: number; skipped: number; errors: string[] }>> {
   const t = await getTranslations("onboarding");
   try {
     const { companyId } = await getSession();
 
-    const groupNames = rows
-      .map((r) => r.productGroup)
-      .filter(Boolean) as string[];
-    const manufacturerNames = rows
-      .map((r) => r.manufacturer)
-      .filter(Boolean) as string[];
+    const groupNames = rows.map((r) => r.productGroup).filter(Boolean) as string[];
+    const manufacturerNames = rows.map((r) => r.manufacturer).filter(Boolean) as string[];
 
-    const productGroupMap = await ensureProductGroups(
-      db,
-      companyId,
-      groupNames,
-    );
-    const manufacturerMap = await ensureManufacturers(
-      db,
-      companyId,
-      manufacturerNames,
-    );
+    const productGroupMap = await ensureProductGroups(db, companyId, groupNames);
+    const manufacturerMap = await ensureManufacturers(db, companyId, manufacturerNames);
 
-    const result = await bulkInsertProducts(
-      db,
-      companyId,
-      rows,
-      productGroupMap,
-      manufacturerMap,
-    );
+    const result = await bulkInsertProducts(db, companyId, rows, productGroupMap, manufacturerMap);
 
     // Keep sequences ahead of imported article numbers
     await updateSequencesAfterImport(db, companyId);
@@ -508,9 +442,7 @@ export async function repairDocumentLineItemsAction(
 
       await db.transaction(async (tx) => {
         // Delete existing line items
-        await tx
-          .delete(documentItems)
-          .where(eq(documentItems.documentId, doc.id));
+        await tx.delete(documentItems).where(eq(documentItems.documentId, doc.id));
 
         const docTotal = doc.total ? new Decimal(doc.total) : new Decimal(0);
 

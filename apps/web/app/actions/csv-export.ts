@@ -2,12 +2,7 @@
 
 import Decimal from "decimal.js";
 import { db } from "@/lib/db";
-import {
-  listContacts,
-  listProducts,
-  listDocuments,
-  listInventoryItems,
-} from "@kivvi/core";
+import { listContacts, listProducts, listDocuments, listInventoryItems } from "@kivvi/core";
 import type { DocumentType, DocumentStatus } from "@kivvi/database";
 import { type ActionResult, requireRole, safeErrorMessage } from "./utils";
 import { getTranslations } from "next-intl/server";
@@ -266,9 +261,7 @@ export async function exportInventoryItemsCsvAction(filters?: {
       item.minPrice,
       item.soldPrice,
       item.repairCost,
-      item.partsTotal && new Decimal(item.partsTotal).gt(0)
-        ? item.partsTotal
-        : null,
+      item.partsTotal && new Decimal(item.partsTotal).gt(0) ? item.partsTotal : null,
       item.effectiveCost,
       item.repairHours,
       item.serialNumber,

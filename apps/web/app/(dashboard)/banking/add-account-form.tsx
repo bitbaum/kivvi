@@ -53,10 +53,7 @@ export function AddAccountForm() {
   }
 
   return (
-    <div
-      ref={modalRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-    >
+    <div ref={modalRef} className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div
         role="dialog"
         aria-modal="true"
@@ -101,20 +98,12 @@ export function AddAccountForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">
-              {t("bankName")}
-            </label>
-            <FormInput
-              name="bankName"
-              type="text"
-              placeholder={t("placeholders.bankName")}
-            />
+            <label className="block text-sm font-medium mb-1">{t("bankName")}</label>
+            <FormInput name="bankName" type="text" placeholder={t("placeholders.bankName")} />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">
-              {tc("currency")}
-            </label>
+            <label className="block text-sm font-medium mb-1">{tc("currency")}</label>
             <FormSelect name="currency" defaultValue={DEFAULT_CURRENCY}>
               <option value="CHF">CHF</option>
               <option value="EUR">EUR</option>
@@ -134,11 +123,7 @@ export function AddAccountForm() {
               {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
               {isPending ? tc("creating") : tc("create")}
             </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => setIsOpen(false)}
-            >
+            <Button type="button" variant="secondary" onClick={() => setIsOpen(false)}>
               {tc("cancel")}
             </Button>
           </div>

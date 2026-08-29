@@ -13,10 +13,7 @@ import {
 } from "@/lib/config/inventory-items";
 import { ItemBatchToolbar } from "./item-batch-toolbar";
 import { AdvanceStatusButton } from "./advance-status-button";
-import {
-  PIPELINE_THRESHOLDS,
-  PIPELINE_STATUSES,
-} from "@kivvi/core/src/config/pipeline-thresholds";
+import { PIPELINE_THRESHOLDS, PIPELINE_STATUSES } from "@kivvi/core/src/config/pipeline-thresholds";
 
 interface ItemData {
   id: string;
@@ -54,15 +51,8 @@ interface SelectableItemListProps {
 export function SelectableItemList({ items }: SelectableItemListProps) {
   const t = useTranslations("inventory");
   const allIds = useMemo(() => items.map((i) => i.id), [items]);
-  const {
-    selectedIds,
-    toggle,
-    toggleAll,
-    clear,
-    isSelected,
-    isAllSelected,
-    isSomeSelected,
-  } = useSelection(allIds);
+  const { selectedIds, toggle, toggleAll, clear, isSelected, isAllSelected, isSomeSelected } =
+    useSelection(allIds);
 
   return (
     <>

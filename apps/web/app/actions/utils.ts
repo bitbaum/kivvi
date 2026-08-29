@@ -93,10 +93,7 @@ const SAFE_ERROR_PATTERNS = [
 export function safeErrorMessage(
   error: unknown,
   fallback: string,
-  translateDomainError?: (
-    code: string,
-    params?: Record<string, string>,
-  ) => string,
+  translateDomainError?: (code: string, params?: Record<string, string>) => string,
 ): string {
   if (!(error instanceof Error)) return fallback;
 
@@ -109,11 +106,7 @@ export function safeErrorMessage(
   }
 
   const msg = error.message;
-  if (
-    SAFE_ERROR_PATTERNS.some((pattern) =>
-      msg.toLowerCase().includes(pattern.toLowerCase()),
-    )
-  ) {
+  if (SAFE_ERROR_PATTERNS.some((pattern) => msg.toLowerCase().includes(pattern.toLowerCase()))) {
     return msg;
   }
   Sentry.captureException(error);

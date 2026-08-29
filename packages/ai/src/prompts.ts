@@ -296,10 +296,7 @@ export function getSystemPrompt(
   orgProfile?: OrgProfile,
 ): string {
   const locale = context.locale || DEFAULT_LOCALE;
-  const basePrompt = BASE_PROMPT.replaceAll(
-    "{{companyName}}",
-    context.companyName,
-  )
+  const basePrompt = BASE_PROMPT.replaceAll("{{companyName}}", context.companyName)
     .replaceAll("{{userName}}", context.userName)
     .replaceAll("{{currency}}", context.defaultCurrency)
     .replaceAll("{{vatRate}}", context.defaultVatRate.toString())

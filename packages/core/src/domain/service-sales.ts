@@ -36,30 +36,18 @@ import {
   recordPayment,
   getOrCreateServiceProduct,
 } from "./documents";
-import {
-  claimIdempotencyKey,
-  completeIdempotencyKey,
-  releaseIdempotencyKey,
-} from "./idempotency";
+import { claimIdempotencyKey, completeIdempotencyKey, releaseIdempotencyKey } from "./idempotency";
 import { resolveOrCreateContact } from "./contacts";
 import { DEFAULT_CURRENCY } from "../config/locale";
 import { DEFAULT_VAT_RATE } from "../config/vat-rates";
 import { AMOUNT_REGEX } from "../utils/validation-patterns";
 
 /** Paid revamp-it service flows that bridge into Kivvi as service revenue. */
-export const SERVICE_SALE_SOURCES = [
-  "workshop",
-  "appointment",
-  "it_hilfe",
-  "other",
-] as const;
+export const SERVICE_SALE_SOURCES = ["workshop", "appointment", "it_hilfe", "other"] as const;
 export type ServiceSaleSource = (typeof SERVICE_SALE_SOURCES)[number];
 
 /** Per-source service product (SKU is the SSOT that maps a flow to its product). */
-const SERVICE_SALE_PRODUCTS: Record<
-  ServiceSaleSource,
-  { sku: string; name: string }
-> = {
+const SERVICE_SALE_PRODUCTS: Record<ServiceSaleSource, { sku: string; name: string }> = {
   workshop: { sku: "service-workshop", name: "Workshop" },
   appointment: { sku: "service-appointment", name: "Appointment" },
   it_hilfe: { sku: "service-it-hilfe", name: "IT-Hilfe" },
@@ -88,10 +76,7 @@ export const recordServiceSaleSchema = z
       .regex(AMOUNT_REGEX, "Invalid quantity")
       .refine((v) => new Decimal(v).gt(0), "Quantity must be greater than 0")
       .default("1"),
-    vatRate: z
-      .string()
-      .regex(AMOUNT_REGEX, "Invalid VAT rate")
-      .default(DEFAULT_VAT_RATE),
+    vatRate: z.string().regex(AMOUNT_REGEX, "Invalid VAT rate").default(DEFAULT_VAT_RATE),
     issueDate: z.string().optional(),
     paidAt: z.string().optional(),
     paymentMethod: z.enum(PAYMENT_METHOD_VALUES).default("card"),
@@ -175,31 +160,17 @@ export async function recordServiceSale(
   //    table lets exactly one caller win. Distinct namespace so it never
   //    collides with the route-level HTTP Idempotency-Key.
   const lockKey = `service-sale-lock:${v.source}:${v.sourceId}`;
-  const claim = await claimIdempotencyKey(
-    db,
-    companyId,
-    lockKey,
-    "POST",
-    "service-sales",
-  );
+  const claim = await claimIdempotencyKey(db, companyId, lockKey, "POST", "service-sales");
   if (claim.outcome !== "claimed") {
     // A concurrent booking won the race. Its invoice may already be committed.
     const now = await findBridgedInvoice(db, companyId, key);
     if (now) return now;
-    throw new Error(
-      "A service sale for this source is already being processed; retry shortly",
-    );
+    throw new Error("A service sale for this source is already being processed; retry shortly");
   }
 
   try {
     const contactId =
-      v.contactId ??
-      (await resolveOrCreateContact(
-        db,
-        companyId,
-        v.contactName!,
-        v.contactEmail,
-      ));
+      v.contactId ?? (await resolveOrCreateContact(db, companyId, v.contactName!, v.contactEmail));
 
     const product = SERVICE_SALE_PRODUCTS[v.source];
     const issueDate = v.issueDate ?? new Date().toISOString().split("T")[0];

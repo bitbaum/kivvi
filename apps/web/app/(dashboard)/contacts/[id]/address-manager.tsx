@@ -77,9 +77,7 @@ export function AddressManager({ contactId, addresses }: AddressManagerProps) {
     setShowForm(true);
   }
 
-  const editingAddr = editingId
-    ? addresses.find((a) => a.id === editingId)
-    : null;
+  const editingAddr = editingId ? addresses.find((a) => a.id === editingId) : null;
 
   return (
     <div className="rounded-xl border bg-card">
@@ -103,10 +101,7 @@ export function AddressManager({ contactId, addresses }: AddressManagerProps) {
       {addresses.length > 0 && !showForm && (
         <div className="divide-y">
           {addresses.map((addr) => (
-            <div
-              key={addr.id}
-              className="p-4 flex items-start justify-between gap-4"
-            >
+            <div key={addr.id} className="p-4 flex items-start justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <span className="inline-block rounded-full bg-muted px-2 py-0.5 text-xs font-medium capitalize">
@@ -117,9 +112,7 @@ export function AddressManager({ contactId, addresses }: AddressManagerProps) {
                       {t("defaultAddress")}
                     </span>
                   )}
-                  {addr.name && (
-                    <span className="text-sm font-medium">{addr.name}</span>
-                  )}
+                  {addr.name && <span className="text-sm font-medium">{addr.name}</span>}
                 </div>
                 <div className="text-sm text-muted-foreground">
                   {addr.address && <p>{addr.address}</p>}
@@ -132,11 +125,7 @@ export function AddressManager({ contactId, addresses }: AddressManagerProps) {
                 </div>
               </div>
               <div className="flex items-center gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => startEdit(addr)}
-                >
+                <Button variant="ghost" size="icon" onClick={() => startEdit(addr)}>
                   <Pencil className="h-3.5 w-3.5" />
                 </Button>
                 <Button
@@ -160,9 +149,7 @@ export function AddressManager({ contactId, addresses }: AddressManagerProps) {
 
       {/* Empty state */}
       {addresses.length === 0 && !showForm && (
-        <div className="p-6 text-center text-sm text-muted-foreground">
-          {t("noAddresses")}
-        </div>
+        <div className="p-6 text-center text-sm text-muted-foreground">{t("noAddresses")}</div>
       )}
 
       {/* Add/Edit form */}
@@ -170,17 +157,10 @@ export function AddressManager({ contactId, addresses }: AddressManagerProps) {
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label
-                htmlFor="addr-type"
-                className="mb-1.5 block text-sm font-medium"
-              >
+              <label htmlFor="addr-type" className="mb-1.5 block text-sm font-medium">
                 {tc("type")}
               </label>
-              <FormSelect
-                id="addr-type"
-                name="type"
-                defaultValue={editingAddr?.type || "billing"}
-              >
+              <FormSelect id="addr-type" name="type" defaultValue={editingAddr?.type || "billing"}>
                 {ADDRESS_TYPE_VALUES.map((at) => (
                   <option key={at} value={at}>
                     {t(`addressType_${at}`)}
@@ -189,10 +169,7 @@ export function AddressManager({ contactId, addresses }: AddressManagerProps) {
               </FormSelect>
             </div>
             <div>
-              <label
-                htmlFor="addr-name"
-                className="mb-1.5 block text-sm font-medium"
-              >
+              <label htmlFor="addr-name" className="mb-1.5 block text-sm font-medium">
                 {tc("name")}
               </label>
               <FormInput
@@ -204,10 +181,7 @@ export function AddressManager({ contactId, addresses }: AddressManagerProps) {
             </div>
           </div>
           <div>
-            <label
-              htmlFor="addr-address"
-              className="mb-1.5 block text-sm font-medium"
-            >
+            <label htmlFor="addr-address" className="mb-1.5 block text-sm font-medium">
               {t("addressLine")}
             </label>
             <FormInput
@@ -219,10 +193,7 @@ export function AddressManager({ contactId, addresses }: AddressManagerProps) {
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
             <div>
-              <label
-                htmlFor="addr-postalCode"
-                className="mb-1.5 block text-sm font-medium"
-              >
+              <label htmlFor="addr-postalCode" className="mb-1.5 block text-sm font-medium">
                 {t("postalCode")}
               </label>
               <FormInput
@@ -233,10 +204,7 @@ export function AddressManager({ contactId, addresses }: AddressManagerProps) {
               />
             </div>
             <div>
-              <label
-                htmlFor="addr-city"
-                className="mb-1.5 block text-sm font-medium"
-              >
+              <label htmlFor="addr-city" className="mb-1.5 block text-sm font-medium">
                 {t("city")}
               </label>
               <FormInput
@@ -247,10 +215,7 @@ export function AddressManager({ contactId, addresses }: AddressManagerProps) {
               />
             </div>
             <div>
-              <label
-                htmlFor="addr-country"
-                className="mb-1.5 block text-sm font-medium"
-              >
+              <label htmlFor="addr-country" className="mb-1.5 block text-sm font-medium">
                 {t("country")}
               </label>
               <FormInput

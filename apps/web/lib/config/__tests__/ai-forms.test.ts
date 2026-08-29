@@ -28,8 +28,7 @@ interface ZodInternals {
   };
 }
 
-const internals = (schema: unknown): ZodInternals["_def"] =>
-  (schema as ZodInternals)?._def;
+const internals = (schema: unknown): ZodInternals["_def"] => (schema as ZodInternals)?._def;
 
 /** Peel optional/nullable/effects wrappers until the underlying type shows. */
 function unwrap(schema: ZodTypeAny): ZodTypeAny {
@@ -96,9 +95,7 @@ describe("CONTACT_FORM mirrors the contact domain schema", () => {
 
   it("offers exactly the contact types the enum defines", () => {
     const typeField = CONTACT_FORM.fields.find((f) => f.name === "type");
-    expect(typeField?.options?.map((o) => o.value)).toEqual([
-      ...CONTACT_TYPE_VALUES,
-    ]);
+    expect(typeField?.options?.map((o) => o.value)).toEqual([...CONTACT_TYPE_VALUES]);
   });
 
   it("never lets the model write an identifier or ownership column", () => {

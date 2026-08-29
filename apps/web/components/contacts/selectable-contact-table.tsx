@@ -15,10 +15,7 @@ import type { BulkOperationResult } from "@/app/actions/bulk-operations";
 import { useSelection } from "@/hooks/use-selection";
 import { SortableHeader } from "@/components/sortable-header";
 import { ContactTableRow } from "./contact-table-row";
-import type {
-  ContactItem,
-  ContactTableTranslations,
-} from "./contact-table-types";
+import type { ContactItem, ContactTableTranslations } from "./contact-table-types";
 
 // Re-export for consumers that imported from this file
 export type { ContactItem, ContactTableTranslations as Translations };
@@ -35,11 +32,7 @@ interface SelectableContactTableProps {
   sort?: SortProps;
 }
 
-export function SelectableContactTable({
-  data,
-  translations,
-  sort,
-}: SelectableContactTableProps) {
+export function SelectableContactTable({ data, translations, sort }: SelectableContactTableProps) {
   const tc = useTranslations("common");
   const allIds = useMemo(() => data.map((c) => c.id), [data]);
   const {
@@ -52,13 +45,9 @@ export function SelectableContactTable({
     isSomeSelected,
     count,
   } = useSelection(allIds);
-  const [bulkResult, setBulkResult] = useState<BulkOperationResult | null>(
-    null,
-  );
+  const [bulkResult, setBulkResult] = useState<BulkOperationResult | null>(null);
   const [isPending, startTransition] = useTransition();
-  const [confirmAction, setConfirmAction] = useState<
-    "delete" | "deactivate" | null
-  >(null);
+  const [confirmAction, setConfirmAction] = useState<"delete" | "deactivate" | null>(null);
 
   const handleComplete = useCallback(
     (result: BulkOperationResult) => {
@@ -157,9 +146,7 @@ export function SelectableContactTable({
             translations.columnLabels.city
           )}
         </div>
-        <div className="hidden lg:block">
-          {translations.columnLabels.lastDocument}
-        </div>
+        <div className="hidden lg:block">{translations.columnLabels.lastDocument}</div>
         <div>{translations.columnLabels.status}</div>
         <div className="hidden lg:block" />
       </div>
@@ -213,9 +200,7 @@ export function SelectableContactTable({
             : translations.bulkLabels.confirmDeactivate
           ).replace("{count}", String(selectedIds.length))}
           confirmLabel={
-            isPending
-              ? translations.bulkLabels.processing
-              : translations.bulkLabels.confirmAction
+            isPending ? translations.bulkLabels.processing : translations.bulkLabels.confirmAction
           }
           cancelLabel={translations.bulkLabels.cancel}
           isLoading={isPending}

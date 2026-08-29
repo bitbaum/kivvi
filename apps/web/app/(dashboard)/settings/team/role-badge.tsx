@@ -9,13 +9,7 @@ export const ROLE_COLORS: Record<MembershipRole, string> = {
   viewer: "bg-neutral/10 text-neutral",
 };
 
-export function RoleBadge({
-  role,
-  label,
-}: {
-  role: MembershipRole;
-  label: string;
-}) {
+export function RoleBadge({ role, label }: { role: MembershipRole; label: string }) {
   return (
     <span
       className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${ROLE_COLORS[role]}`}

@@ -9,10 +9,7 @@ import {
   listJournalEntries,
   getJournalEntry,
 } from "../domain/accounting";
-import {
-  listInventoryItems,
-  getInventoryItem,
-} from "../domain/inventory-items";
+import { listInventoryItems, getInventoryItem } from "../domain/inventory-items";
 
 // ============================================================================
 // TENANT ISOLATION — the most fatal invariant in the system.
@@ -54,10 +51,8 @@ function makeDb(reads: unknown[][] = []) {
         wheres.push(clause);
         return b;
       },
-      then: (
-        resolve: (v: unknown[]) => unknown,
-        reject?: (e: unknown) => unknown,
-      ) => Promise.resolve(rows).then(resolve, reject),
+      then: (resolve: (v: unknown[]) => unknown, reject?: (e: unknown) => unknown) =>
+        Promise.resolve(rows).then(resolve, reject),
     };
     return b;
   }
@@ -89,16 +84,10 @@ const dialect = new PgDialect();
  * Both halves matter: dropping the filter fails the first check; binding the
  * wrong value (e.g. a hardcoded or foreign id) fails the second.
  */
-function expectCompanyScoped(
-  where: SQL | undefined,
-  table: string,
-  companyId: string,
-) {
+function expectCompanyScoped(where: SQL | undefined, table: string, companyId: string) {
   expect(where, "query was built with no WHERE clause at all").toBeDefined();
   const { sql: sqlText, params } = dialect.sqlToQuery(where!);
-  const match = sqlText.match(
-    new RegExp(`"${table}"\\."company_id" = \\$(\\d+)`),
-  );
+  const match = sqlText.match(new RegExp(`"${table}"\\."company_id" = \\$(\\d+)`));
   expect(
     match,
     `WHERE clause does not filter "${table}"."company_id" — tenant isolation broken.\nRendered: ${sqlText}`,

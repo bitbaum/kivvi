@@ -26,13 +26,7 @@ export async function withIdempotency(
   if (!key) return handler();
 
   const path = new URL(request.url).pathname;
-  const claim = await claimIdempotencyKey(
-    db,
-    companyId,
-    key,
-    request.method,
-    path,
-  );
+  const claim = await claimIdempotencyKey(db, companyId, key, request.method, path);
 
   if (claim.outcome === "replay") {
     return NextResponse.json(claim.responseBody, {
@@ -45,8 +39,7 @@ export async function withIdempotency(
     return NextResponse.json(
       {
         success: false,
-        error:
-          "A request with this Idempotency-Key is already being processed.",
+        error: "A request with this Idempotency-Key is already being processed.",
       },
       { status: 409 },
     );

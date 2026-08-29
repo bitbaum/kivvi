@@ -17,12 +17,7 @@ import {
   getBankAccount,
 } from "@kivvi/core";
 import { z } from "zod";
-import {
-  type ActionResult,
-  getSession,
-  requireRole,
-  safeErrorMessage,
-} from "./utils";
+import { type ActionResult, getSession, requireRole, safeErrorMessage } from "./utils";
 import { createAction } from "./action-factory";
 import { getTranslations } from "next-intl/server";
 
@@ -36,13 +31,11 @@ export const createBankAccountAction = createAction<
 >({
   handler: async (input, { companyId, db }) => {
     const parsed = createBankAccountSchema.safeParse(input);
-    if (!parsed.success)
-      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
     return createBankAccount(db, companyId, parsed.data);
   },
   revalidate: ["/banking"],
-  errorMessage: () =>
-    getTranslations("banking").then((t) => t("errorCreateAccount")),
+  errorMessage: () => getTranslations("banking").then((t) => t("errorCreateAccount")),
   minRole: "member",
 });
 
@@ -52,13 +45,11 @@ export const updateBankAccountAction = createAction<
 >({
   handler: async ({ bankAccountId, input }, { companyId, db }) => {
     const parsed = createBankAccountSchema.safeParse(input);
-    if (!parsed.success)
-      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
     return updateBankAccount(db, companyId, bankAccountId, parsed.data);
   },
   revalidate: ["/banking"],
-  errorMessage: () =>
-    getTranslations("banking").then((t) => t("errorUpdateAccount")),
+  errorMessage: () => getTranslations("banking").then((t) => t("errorUpdateAccount")),
   minRole: "member",
 });
 
@@ -122,14 +113,11 @@ export async function parseCamtAction(
     const statement = parseCamtXml(xmlContent);
 
     const bankAccount = await getBankAccount(db, companyId, bankAccountId);
-    if (!bankAccount)
-      return { success: false, error: t("errorAccountNotFound") };
+    if (!bankAccount) return { success: false, error: t("errorAccountNotFound") };
 
     let ibanMatch = true;
     if (statement.accountIban && bankAccount.iban) {
-      ibanMatch =
-        normalizeIban(statement.accountIban) ===
-        normalizeIban(bankAccount.iban);
+      ibanMatch = normalizeIban(statement.accountIban) === normalizeIban(bankAccount.iban);
     }
 
     return {
@@ -209,8 +197,7 @@ export const reconcileTransactionAction = createAction<
     return reconcileTransaction(db, companyId, transactionId, documentId);
   },
   revalidate: ["/banking"],
-  errorMessage: () =>
-    getTranslations("banking").then((t) => t("errorReconcile")),
+  errorMessage: () => getTranslations("banking").then((t) => t("errorReconcile")),
   minRole: "member",
   translateDomainErrors: true,
 });
@@ -223,20 +210,17 @@ export const unreconcileTransactionAction = createAction<
     return unreconcileTransaction(db, companyId, transactionId);
   },
   revalidate: ["/banking"],
-  errorMessage: () =>
-    getTranslations("banking").then((t) => t("errorUnreconcile")),
+  errorMessage: () => getTranslations("banking").then((t) => t("errorUnreconcile")),
   minRole: "member",
 });
 
-export const autoMatchTransactionsAction = createAction<
-  string,
-  { matched: number; total: number }
->({
-  handler: async (bankAccountId, { companyId, db }) => {
-    return autoMatchTransactions(db, companyId, bankAccountId);
+export const autoMatchTransactionsAction = createAction<string, { matched: number; total: number }>(
+  {
+    handler: async (bankAccountId, { companyId, db }) => {
+      return autoMatchTransactions(db, companyId, bankAccountId);
+    },
+    revalidate: ["/banking"],
+    errorMessage: () => getTranslations("banking").then((t) => t("errorAutoMatch")),
+    minRole: "member",
   },
-  revalidate: ["/banking"],
-  errorMessage: () =>
-    getTranslations("banking").then((t) => t("errorAutoMatch")),
-  minRole: "member",
-});
+);

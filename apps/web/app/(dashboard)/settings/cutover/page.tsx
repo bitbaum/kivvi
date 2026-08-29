@@ -9,10 +9,7 @@ export default async function CutoverPage() {
 
   return (
     <div className="space-y-8">
-      <SettingsSubpageHeader
-        title={t("cutover.title")}
-        description={t("cutover.description")}
-      />
+      <SettingsSubpageHeader title={t("cutover.title")} description={t("cutover.description")} />
       <CutoverPanels />
     </div>
   );

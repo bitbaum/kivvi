@@ -75,9 +75,6 @@ export function normalizePermissionPreset(
   return value && isPermissionPreset(value) ? value : presetForRole(role);
 }
 
-export function hasCapability(
-  preset: PermissionPreset,
-  capability: Capability,
-): boolean {
+export function hasCapability(preset: PermissionPreset, capability: Capability): boolean {
   return PRESET_CAPABILITIES[preset].includes(capability);
 }

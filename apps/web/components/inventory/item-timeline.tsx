@@ -1,10 +1,4 @@
-import {
-  PackageOpen,
-  Wrench,
-  CheckCircle2,
-  ShoppingCart,
-  ShieldCheck,
-} from "lucide-react";
+import { PackageOpen, Wrench, CheckCircle2, ShoppingCart, ShieldCheck } from "lucide-react";
 import Decimal from "decimal.js";
 import { formatDate, formatCurrency } from "@/lib/utils";
 
@@ -40,9 +34,7 @@ function parseRepairLog(log: string): RepairEntry[] {
       remaining = remaining.slice(hoursMatch ? hoursMatch[0].length : 0).trim();
 
       // Extract note: ": note text"
-      const note = remaining.startsWith(":")
-        ? remaining.slice(1).trim()
-        : remaining;
+      const note = remaining.startsWith(":") ? remaining.slice(1).trim() : remaining;
 
       return { date, cost, hours, note };
     });
@@ -104,9 +96,7 @@ export function ItemTimeline({
           {
             type: "erasure" as const,
             date:
-              typeof dataErasuredAt === "string"
-                ? dataErasuredAt
-                : dataErasuredAt.toISOString(),
+              typeof dataErasuredAt === "string" ? dataErasuredAt : dataErasuredAt.toISOString(),
             method: dataErasureMethod ?? null,
           },
         ]
@@ -127,21 +117,11 @@ export function ItemTimeline({
         <div key={idx} className="relative flex gap-4 pb-6 last:pb-0">
           {/* Icon */}
           <div className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border bg-background">
-            {event.type === "intake" && (
-              <PackageOpen className="h-3.5 w-3.5 text-info" />
-            )}
-            {event.type === "repair" && (
-              <Wrench className="h-3.5 w-3.5 text-warning" />
-            )}
-            {event.type === "ready" && (
-              <CheckCircle2 className="h-3.5 w-3.5 text-success" />
-            )}
-            {event.type === "erasure" && (
-              <ShieldCheck className="h-3.5 w-3.5 text-info" />
-            )}
-            {event.type === "sold" && (
-              <ShoppingCart className="h-3.5 w-3.5 text-success" />
-            )}
+            {event.type === "intake" && <PackageOpen className="h-3.5 w-3.5 text-info" />}
+            {event.type === "repair" && <Wrench className="h-3.5 w-3.5 text-warning" />}
+            {event.type === "ready" && <CheckCircle2 className="h-3.5 w-3.5 text-success" />}
+            {event.type === "erasure" && <ShieldCheck className="h-3.5 w-3.5 text-info" />}
+            {event.type === "sold" && <ShoppingCart className="h-3.5 w-3.5 text-success" />}
           </div>
 
           {/* Content */}
@@ -166,19 +146,13 @@ export function ItemTimeline({
                     </span>
                   )}
                 </p>
-                {event.note && (
-                  <p className="text-xs text-muted-foreground">{event.note}</p>
-                )}
-                {event.date && (
-                  <p className="text-xs text-muted-foreground">{event.date}</p>
-                )}
+                {event.note && <p className="text-xs text-muted-foreground">{event.note}</p>}
+                {event.date && <p className="text-xs text-muted-foreground">{event.date}</p>}
               </>
             )}
             {event.type === "ready" && (
               <>
-                <p className="text-sm font-medium text-success">
-                  {labels.ready}
-                </p>
+                <p className="text-sm font-medium text-success">{labels.ready}</p>
                 <p className="text-xs text-muted-foreground">
                   {labels.condition}: {event.conditionLabel}
                   {totalCost.gt(0) &&
@@ -197,13 +171,9 @@ export function ItemTimeline({
             )}
             {event.type === "sold" && (
               <>
-                <p className="text-sm font-medium text-success">
-                  {labels.sold}
-                </p>
+                <p className="text-sm font-medium text-success">{labels.sold}</p>
                 {event.price && (
-                  <p className="text-xs text-muted-foreground">
-                    {formatCurrency(event.price)}
-                  </p>
+                  <p className="text-xs text-muted-foreground">{formatCurrency(event.price)}</p>
                 )}
               </>
             )}

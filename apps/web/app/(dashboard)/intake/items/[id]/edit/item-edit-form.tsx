@@ -12,10 +12,7 @@ import {
   updateItemStatusAction,
   updateItemConditionAction,
 } from "@/app/actions/inventory-items";
-import {
-  getValidTransitions,
-  REPAIR_STATUSES,
-} from "@/lib/config/inventory-items";
+import { getValidTransitions, REPAIR_STATUSES } from "@/lib/config/inventory-items";
 import { useTranslations } from "next-intl";
 import { ItemDetailsFields } from "./item-details-fields";
 import { ItemPhotoUpload } from "@/components/inventory/item-photo-upload";
@@ -64,12 +61,8 @@ export function ItemEditForm({
 
   // Controlled state for gate-relevant fields — drives pre-flight warnings only.
   const [selectedStatus, setSelectedStatus] = useState(initialItem.status);
-  const [selectedCondition, setSelectedCondition] = useState(
-    initialItem.condition,
-  );
-  const [enteredAskingPrice, setEnteredAskingPrice] = useState(
-    initialItem.askingPrice || "",
-  );
+  const [selectedCondition, setSelectedCondition] = useState(initialItem.condition);
+  const [enteredAskingPrice, setEnteredAskingPrice] = useState(initialItem.askingPrice || "");
 
   // Only show statuses that are valid transitions from current + current status
   const validNextStatuses = [item.status, ...getValidTransitions(item.status)];
@@ -77,8 +70,7 @@ export function ItemEditForm({
   // Pre-flight gate warnings — only relevant when transitioning to ready_for_sale
   const gateWarnings: string[] = [];
   if (selectedStatus === "ready_for_sale") {
-    if (selectedCondition === "untested")
-      gateWarnings.push("conditionRequired");
+    if (selectedCondition === "untested") gateWarnings.push("conditionRequired");
     if (!enteredAskingPrice || new Decimal(enteredAskingPrice || "0").lte(0))
       gateWarnings.push("askingPriceRequired");
   }
@@ -161,10 +153,7 @@ export function ItemEditForm({
 
       {/* Photo */}
       <CardSection title={ti("photo")}>
-        <ItemPhotoUpload
-          itemId={item.id}
-          initialPhotoBase64={item.photoBase64}
-        />
+        <ItemPhotoUpload itemId={item.id} initialPhotoBase64={item.photoBase64} />
       </CardSection>
 
       {/* Repair log */}
@@ -211,10 +200,7 @@ export function ItemEditForm({
         <CardSection title={ti("pricing")}>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div>
-              <label
-                htmlFor="estimatedValue"
-                className="mb-1.5 block text-sm font-medium"
-              >
+              <label htmlFor="estimatedValue" className="mb-1.5 block text-sm font-medium">
                 {ti("estimatedValue")}
               </label>
               <FormInput
@@ -225,10 +211,7 @@ export function ItemEditForm({
               />
             </div>
             <div>
-              <label
-                htmlFor="askingPrice"
-                className="mb-1.5 block text-sm font-medium"
-              >
+              <label htmlFor="askingPrice" className="mb-1.5 block text-sm font-medium">
                 {ti("askingPrice")}
               </label>
               <FormInput
@@ -240,10 +223,7 @@ export function ItemEditForm({
               />
             </div>
             <div>
-              <label
-                htmlFor="minPrice"
-                className="mb-1.5 block text-sm font-medium"
-              >
+              <label htmlFor="minPrice" className="mb-1.5 block text-sm font-medium">
                 {ti("minPrice")}
               </label>
               <FormInput
@@ -254,10 +234,7 @@ export function ItemEditForm({
               />
             </div>
             <div>
-              <label
-                htmlFor="consignmentRate"
-                className="mb-1.5 block text-sm font-medium"
-              >
+              <label htmlFor="consignmentRate" className="mb-1.5 block text-sm font-medium">
                 {ti("consignmentRate")}
               </label>
               <div className="relative">

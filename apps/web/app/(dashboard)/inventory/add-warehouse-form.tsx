@@ -51,10 +51,7 @@ export function AddWarehouseForm() {
   }
 
   return (
-    <div
-      ref={modalRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-    >
+    <div ref={modalRef} className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div
         role="dialog"
         aria-modal="true"
@@ -77,10 +74,7 @@ export function AddWarehouseForm() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label
-              htmlFor="warehouse-name"
-              className="block text-sm font-medium mb-1"
-            >
+            <label htmlFor="warehouse-name" className="block text-sm font-medium mb-1">
               {t("warehouseName")} <span className="text-destructive">*</span>
             </label>
             <FormInput
@@ -93,10 +87,7 @@ export function AddWarehouseForm() {
           </div>
 
           <div>
-            <label
-              htmlFor="warehouse-address"
-              className="block text-sm font-medium mb-1"
-            >
+            <label htmlFor="warehouse-address" className="block text-sm font-medium mb-1">
               {t("location")}
             </label>
             <FormInput
@@ -130,11 +121,7 @@ export function AddWarehouseForm() {
               {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
               {isPending ? tc("creating") : tc("create")}
             </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => setIsOpen(false)}
-            >
+            <Button type="button" variant="secondary" onClick={() => setIsOpen(false)}>
               {tc("cancel")}
             </Button>
           </div>

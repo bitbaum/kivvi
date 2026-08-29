@@ -3,15 +3,9 @@ import Link from "next/link";
 import { ArrowLeft, Package, Tag } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { db } from "@/lib/db";
-import {
-  getPublicCompanyBySlug,
-  getPublicItem,
-} from "@kivvi/core/src/domain/shop";
+import { getPublicCompanyBySlug, getPublicItem } from "@kivvi/core/src/domain/shop";
 import { formatCurrency } from "@/lib/utils";
-import {
-  ITEM_CONDITION_CONFIG,
-  getConditionLabelKey,
-} from "@/lib/config/inventory-items";
+import { ITEM_CONDITION_CONFIG, getConditionLabelKey } from "@/lib/config/inventory-items";
 import { ShopInquiryForm } from "./inquiry-form";
 
 export const dynamic = "force-dynamic";
@@ -68,9 +62,7 @@ export default async function ShopItemPage({ params }: PageProps) {
           <div className="flex flex-col gap-4">
             <div>
               <p className="text-xs text-muted-foreground">{item.itemNumber}</p>
-              <h1 className="mt-1 text-2xl font-bold leading-tight">
-                {item.description}
-              </h1>
+              <h1 className="mt-1 text-2xl font-bold leading-tight">{item.description}</h1>
             </div>
 
             <div className="flex items-center gap-3">
@@ -83,9 +75,7 @@ export default async function ShopItemPage({ params }: PageProps) {
 
             <div className="flex items-center gap-2">
               <Tag className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">
-                {t("conditionLabel")}
-              </span>
+              <span className="text-sm text-muted-foreground">{t("conditionLabel")}</span>
               <span
                 className={`inline-flex items-center gap-1 rounded px-2 py-0.5 text-xs font-bold ${conditionCfg?.style ?? "bg-muted text-muted-foreground"}`}
               >

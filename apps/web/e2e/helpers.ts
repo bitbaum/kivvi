@@ -75,10 +75,7 @@ function getDb() {
 // Cleanup helper — deletes all data for a company in FK-safe order
 // ---------------------------------------------------------------------------
 
-async function deleteCompanyData(
-  db: ReturnType<typeof getDb>,
-  companyId: string,
-) {
+async function deleteCompanyData(db: ReturnType<typeof getDb>, companyId: string) {
   const endpoints = await db
     .select({ id: webhookEndpoints.id })
     .from(webhookEndpoints)
@@ -91,9 +88,7 @@ async function deleteCompanyData(
       ),
     );
   }
-  await db
-    .delete(webhookEndpoints)
-    .where(eq(webhookEndpoints.companyId, companyId));
+  await db.delete(webhookEndpoints).where(eq(webhookEndpoints.companyId, companyId));
   await db.delete(apiTokens).where(eq(apiTokens.companyId, companyId));
   await db.delete(invitations).where(eq(invitations.companyId, companyId));
   await db.delete(memberships).where(eq(memberships.companyId, companyId));
@@ -124,9 +119,7 @@ async function deleteCompanyData(
       ),
     );
   }
-  await db
-    .delete(journalEntries)
-    .where(eq(journalEntries.companyId, companyId));
+  await db.delete(journalEntries).where(eq(journalEntries.companyId, companyId));
 
   // Get all document IDs to delete their items first
   const docs = await db
@@ -163,9 +156,7 @@ async function deleteCompanyData(
   }
   await db.delete(bankAccounts).where(eq(bankAccounts.companyId, companyId));
 
-  await db
-    .delete(recurringInvoiceConfigs)
-    .where(eq(recurringInvoiceConfigs.companyId, companyId));
+  await db.delete(recurringInvoiceConfigs).where(eq(recurringInvoiceConfigs.companyId, companyId));
 
   const productsForCompany = await db
     .select({ id: products.id })
@@ -181,9 +172,7 @@ async function deleteCompanyData(
   }
 
   await db.delete(repairParts).where(eq(repairParts.companyId, companyId));
-  await db
-    .delete(inventoryItems)
-    .where(eq(inventoryItems.companyId, companyId));
+  await db.delete(inventoryItems).where(eq(inventoryItems.companyId, companyId));
   await db.delete(documents).where(eq(documents.companyId, companyId));
 
   const priceListsForCompany = await db
@@ -223,9 +212,7 @@ async function deleteCompanyData(
   await db.delete(accounts).where(eq(accounts.companyId, companyId));
 
   await db.delete(contacts).where(eq(contacts.companyId, companyId));
-  await db
-    .delete(numberSequences)
-    .where(eq(numberSequences.companyId, companyId));
+  await db.delete(numberSequences).where(eq(numberSequences.companyId, companyId));
   await db.delete(users).where(eq(users.companyId, companyId));
   await db.delete(companies).where(eq(companies.id, companyId));
 }
@@ -234,11 +221,7 @@ async function deleteCompanyData(
 // Retry helper — Neon free tier has limited connection slots
 // ---------------------------------------------------------------------------
 
-async function withRetry<T>(
-  fn: () => Promise<T>,
-  retries = 5,
-  delay = 10_000,
-): Promise<T> {
+async function withRetry<T>(fn: () => Promise<T>, retries = 5, delay = 10_000): Promise<T> {
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
       return await fn();
@@ -246,9 +229,7 @@ async function withRetry<T>(
       const isConnectionError =
         error instanceof Error && error.message?.includes("connection slots");
       if (!isConnectionError || attempt === retries) throw error;
-      console.log(
-        `DB connection error, retrying in ${delay}ms (attempt ${attempt}/${retries})...`,
-      );
+      console.log(`DB connection error, retrying in ${delay}ms (attempt ${attempt}/${retries})...`);
       await new Promise((r) => setTimeout(r, delay));
     }
   }

@@ -30,10 +30,7 @@ export default async function SequencesSettingsPage() {
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      <SettingsSubpageHeader
-        title={t("sequences.title")}
-        description={t("sequences.subtitle")}
-      />
+      <SettingsSubpageHeader title={t("sequences.title")} description={t("sequences.subtitle")} />
 
       {/* Sequences table */}
       <div className="overflow-x-auto rounded-xl border bg-card">
@@ -41,9 +38,7 @@ export default async function SequencesSettingsPage() {
           <div className="flex flex-col items-center justify-center py-16">
             <Hash className="h-12 w-12 text-muted-foreground/50" />
             <h3 className="mt-4 text-lg font-medium">{tc("noResults")}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {t("numberSequencesDesc")}
-            </p>
+            <p className="mt-1 text-sm text-muted-foreground">{t("numberSequencesDesc")}</p>
           </div>
         ) : (
           <>

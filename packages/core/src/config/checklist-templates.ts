@@ -852,12 +852,7 @@ export const CHECKLIST_TEMPLATES: Record<string, ChecklistTemplate> = {
 export const ITEM_CATEGORIES = Object.keys(CHECKLIST_TEMPLATES) as string[];
 
 /** Categories whose items can store personal data and require documented erasure. */
-export const DATA_BEARING_CATEGORIES = [
-  "laptop",
-  "desktop",
-  "phone",
-  "tablet",
-] as const;
+export const DATA_BEARING_CATEGORIES = ["laptop", "desktop", "phone", "tablet"] as const;
 
 export type DataBearingCategory = (typeof DATA_BEARING_CATEGORIES)[number];
 
@@ -865,9 +860,7 @@ export type DataBearingCategory = (typeof DATA_BEARING_CATEGORIES)[number];
  * Get checklist template for a category.
  * Falls back to "other" for unknown categories — never throws.
  */
-export function getChecklistTemplate(
-  category: string | null | undefined,
-): ChecklistTemplate {
+export function getChecklistTemplate(category: string | null | undefined): ChecklistTemplate {
   return CHECKLIST_TEMPLATES[category ?? "other"] ?? CHECKLIST_TEMPLATES.other;
 }
 
@@ -897,11 +890,7 @@ export function areBlockingChecksPassed(
       missing.push(check.id);
     }
     // "skip" without a reason on a required blocking check = blocked
-    if (
-      completion.result === "skip" &&
-      check.required &&
-      !completion.skipReason
-    ) {
+    if (completion.result === "skip" && check.required && !completion.skipReason) {
       missing.push(check.id);
     }
   }

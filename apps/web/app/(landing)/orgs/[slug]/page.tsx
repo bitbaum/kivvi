@@ -27,19 +27,13 @@ export default async function OrganizationProfilePage({ params }: PageProps) {
   if (!profile) notFound();
 
   const publishedVacancies = await db.query.vacancies.findMany({
-    where: and(
-      eq(vacancies.companyId, profile.companyId),
-      eq(vacancies.status, "published"),
-    ),
+    where: and(eq(vacancies.companyId, profile.companyId), eq(vacancies.status, "published")),
     orderBy: (vacancies, { desc }) => [desc(vacancies.createdAt)],
   });
 
   return (
     <div className="py-10 md:py-14">
-      <Link
-        href="/orgs"
-        className="text-sm text-muted-foreground hover:text-foreground"
-      >
+      <Link href="/orgs" className="text-sm text-muted-foreground hover:text-foreground">
         {t("backToDirectory")}
       </Link>
 
@@ -48,19 +42,13 @@ export default async function OrganizationProfilePage({ params }: PageProps) {
           <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-muted">
             {profile.logoBase64 ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={profile.logoBase64}
-                alt=""
-                className="h-full w-full object-cover"
-              />
+              <img src={profile.logoBase64} alt="" className="h-full w-full object-cover" />
             ) : (
               <Building2 className="h-8 w-8 text-muted-foreground" />
             )}
           </div>
           <div className="min-w-0 flex-1">
-            <h1 className="text-3xl font-semibold tracking-tight">
-              {profile.publicName}
-            </h1>
+            <h1 className="text-3xl font-semibold tracking-tight">{profile.publicName}</h1>
             <div className="mt-3 flex flex-wrap gap-3 text-sm text-muted-foreground">
               {profile.category && <span>{profile.category}</span>}
               {profile.location && (
@@ -82,9 +70,7 @@ export default async function OrganizationProfilePage({ params }: PageProps) {
               )}
             </div>
             {profile.shortDescription && (
-              <p className="mt-5 max-w-3xl text-muted-foreground">
-                {profile.shortDescription}
-              </p>
+              <p className="mt-5 max-w-3xl text-muted-foreground">{profile.shortDescription}</p>
             )}
           </div>
         </div>
@@ -103,25 +89,18 @@ export default async function OrganizationProfilePage({ params }: PageProps) {
         ) : (
           <div className="grid gap-4">
             {publishedVacancies.map((vacancy) => (
-              <article
-                key={vacancy.id}
-                className="rounded-xl border bg-card p-5"
-              >
+              <article key={vacancy.id} className="rounded-xl border bg-card p-5">
                 <div className="flex flex-col gap-4 md:flex-row md:items-start">
                   <div className="min-w-0 flex-1">
                     <h3 className="font-semibold">{vacancy.title}</h3>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      {tv(`type.${vacancy.type}`)} ·{" "}
-                      {tv(`locationMode.${vacancy.locationMode}`)}
+                      {tv(`type.${vacancy.type}`)} · {tv(`locationMode.${vacancy.locationMode}`)}
                       {vacancy.workload ? ` · ${vacancy.workload}` : ""}
                     </p>
                     {vacancy.skills.length > 0 && (
                       <div className="mt-3 flex flex-wrap gap-2">
                         {vacancy.skills.map((skill) => (
-                          <span
-                            key={skill}
-                            className="rounded-md bg-muted px-2 py-1 text-xs"
-                          >
+                          <span key={skill} className="rounded-md bg-muted px-2 py-1 text-xs">
                             {skill}
                           </span>
                         ))}
@@ -144,14 +123,9 @@ export default async function OrganizationProfilePage({ params }: PageProps) {
         {profile.acceptingApplications && (
           <div className="rounded-xl border bg-card p-5">
             <h3 className="font-semibold">{t("generalApplication")}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {t("generalApplicationDesc")}
-            </p>
+            <p className="mt-1 text-sm text-muted-foreground">{t("generalApplicationDesc")}</p>
             <div className="mt-4 max-w-xl">
-              <ApplyForm
-                companyId={profile.companyId}
-                isAuthenticated={!!session?.user?.id}
-              />
+              <ApplyForm companyId={profile.companyId} isAuthenticated={!!session?.user?.id} />
             </div>
           </div>
         )}

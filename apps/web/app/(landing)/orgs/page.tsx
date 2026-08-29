@@ -17,18 +17,12 @@ export default async function OrganizationDirectoryPage() {
   return (
     <div className="py-12 md:py-16">
       <div className="mb-8 max-w-2xl">
-        <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
-          {t("directoryTitle")}
-        </h1>
+        <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">{t("directoryTitle")}</h1>
         <p className="mt-3 text-muted-foreground">{t("directoryDesc")}</p>
       </div>
 
       {profiles.length === 0 ? (
-        <EmptyState
-          icon={Building2}
-          title={t("emptyTitle")}
-          description={t("emptyDesc")}
-        />
+        <EmptyState icon={Building2} title={t("emptyTitle")} description={t("emptyDesc")} />
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
           {profiles.map((profile) => (
@@ -41,23 +35,15 @@ export default async function OrganizationDirectoryPage() {
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted">
                   {profile.logoBase64 ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={profile.logoBase64}
-                      alt=""
-                      className="h-full w-full object-cover"
-                    />
+                    <img src={profile.logoBase64} alt="" className="h-full w-full object-cover" />
                   ) : (
                     <Building2 className="h-6 w-6 text-muted-foreground" />
                   )}
                 </div>
                 <div className="min-w-0">
-                  <h2 className="truncate font-semibold">
-                    {profile.publicName}
-                  </h2>
+                  <h2 className="truncate font-semibold">{profile.publicName}</h2>
                   {profile.category && (
-                    <p className="text-sm text-muted-foreground">
-                      {profile.category}
-                    </p>
+                    <p className="text-sm text-muted-foreground">{profile.category}</p>
                   )}
                   {profile.location && (
                     <p className="mt-2 flex items-center gap-1 text-sm text-muted-foreground">

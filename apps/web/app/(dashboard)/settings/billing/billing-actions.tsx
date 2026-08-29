@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { createCheckoutSessionAction, createPortalSessionAction } from '@/app/actions/billing';
-import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
+import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { createCheckoutSessionAction, createPortalSessionAction } from "@/app/actions/billing";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 interface BillingActionsProps {
   plan: string;
@@ -12,7 +12,7 @@ interface BillingActionsProps {
 }
 
 export function BillingActions({ plan, hasSubscription }: BillingActionsProps) {
-  const t = useTranslations('settings.billing');
+  const t = useTranslations("settings.billing");
   const [loading, setLoading] = useState(false);
 
   async function handleUpgrade() {
@@ -22,10 +22,10 @@ export function BillingActions({ plan, hasSubscription }: BillingActionsProps) {
       if (result.success && result.data?.url) {
         window.location.href = result.data.url;
       } else {
-        toast.error(result.error || t('upgradeError'));
+        toast.error(result.error || t("upgradeError"));
       }
     } catch {
-      toast.error(t('upgradeError'));
+      toast.error(t("upgradeError"));
     } finally {
       setLoading(false);
     }
@@ -38,10 +38,10 @@ export function BillingActions({ plan, hasSubscription }: BillingActionsProps) {
       if (result.success && result.data?.url) {
         window.location.href = result.data.url;
       } else {
-        toast.error(result.error || t('manageError'));
+        toast.error(result.error || t("manageError"));
       }
     } catch {
-      toast.error(t('manageError'));
+      toast.error(t("manageError"));
     } finally {
       setLoading(false);
     }
@@ -49,14 +49,14 @@ export function BillingActions({ plan, hasSubscription }: BillingActionsProps) {
 
   return (
     <div className="flex gap-3">
-      {plan !== 'premium' && (
+      {plan !== "premium" && (
         <button
           onClick={handleUpgrade}
           disabled={loading}
           className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
         >
           {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-          {t('upgrade')}
+          {t("upgrade")}
         </button>
       )}
       {hasSubscription && (
@@ -66,7 +66,7 @@ export function BillingActions({ plan, hasSubscription }: BillingActionsProps) {
           className="inline-flex items-center gap-2 rounded-lg border px-6 py-3 text-sm font-medium hover:bg-muted/50 disabled:opacity-50"
         >
           {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-          {t('manageSubscription')}
+          {t("manageSubscription")}
         </button>
       )}
     </div>

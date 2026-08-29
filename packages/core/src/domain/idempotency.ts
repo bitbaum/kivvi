@@ -65,19 +65,10 @@ export async function claimIdempotencyKey(
   const [existing] = await db
     .select()
     .from(apiIdempotencyKeys)
-    .where(
-      and(
-        eq(apiIdempotencyKeys.companyId, companyId),
-        eq(apiIdempotencyKeys.key, key),
-      ),
-    )
+    .where(and(eq(apiIdempotencyKeys.companyId, companyId), eq(apiIdempotencyKeys.key, key)))
     .limit(1);
 
-  if (
-    existing &&
-    existing.status === "completed" &&
-    existing.responseStatus != null
-  ) {
+  if (existing && existing.status === "completed" && existing.responseStatus != null) {
     return {
       outcome: "replay",
       responseStatus: existing.responseStatus,
@@ -100,12 +91,7 @@ export async function completeIdempotencyKey(
   await db
     .update(apiIdempotencyKeys)
     .set({ status: "completed", responseStatus, responseBody })
-    .where(
-      and(
-        eq(apiIdempotencyKeys.companyId, companyId),
-        eq(apiIdempotencyKeys.key, key),
-      ),
-    );
+    .where(and(eq(apiIdempotencyKeys.companyId, companyId), eq(apiIdempotencyKeys.key, key)));
 }
 
 /**
@@ -119,10 +105,5 @@ export async function releaseIdempotencyKey(
 ): Promise<void> {
   await db
     .delete(apiIdempotencyKeys)
-    .where(
-      and(
-        eq(apiIdempotencyKeys.companyId, companyId),
-        eq(apiIdempotencyKeys.key, key),
-      ),
-    );
+    .where(and(eq(apiIdempotencyKeys.companyId, companyId), eq(apiIdempotencyKeys.key, key)));
 }

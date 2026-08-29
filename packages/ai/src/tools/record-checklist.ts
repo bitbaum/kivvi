@@ -20,9 +20,7 @@ const checkResultSchema = z.object({
 });
 
 const recordChecklistSchema = z.object({
-  item_identifier: z
-    .string()
-    .describe("Item number (e.g. IT-00042) or item UUID."),
+  item_identifier: z.string().describe("Item number (e.g. IT-00042) or item UUID."),
   results: z
     .union([z.literal("all_pass"), z.array(checkResultSchema).min(1)])
     .describe(
@@ -57,17 +55,12 @@ Examples:
     context: ExecutionContext,
   ): Promise<ToolResult> => {
     try {
-      const { recordChecklist } =
-        await import("@kivvi/core/src/domain/inventory-items");
+      const { recordChecklist } = await import("@kivvi/core/src/domain/inventory-items");
       const { CHECKLIST_TEMPLATES, getChecklistTemplate } =
         await import("@kivvi/core/src/config/checklist-templates");
       const db = getDb(context);
 
-      const row = await resolveInventoryItem(
-        db,
-        context.companyId,
-        params.item_identifier,
-      );
+      const row = await resolveInventoryItem(db, context.companyId, params.item_identifier);
       if (!row) {
         return {
           success: false,

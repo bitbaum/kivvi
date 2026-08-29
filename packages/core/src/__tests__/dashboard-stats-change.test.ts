@@ -34,10 +34,8 @@ function selectBuilder(rows: unknown[]) {
   const b: Record<string, unknown> = {
     from: () => b,
     where: () => b,
-    then: (
-      resolve: (v: unknown[]) => unknown,
-      reject?: (e: unknown) => unknown,
-    ) => Promise.resolve(rows).then(resolve, reject),
+    then: (resolve: (v: unknown[]) => unknown, reject?: (e: unknown) => unknown) =>
+      Promise.resolve(rows).then(resolve, reject),
   };
   return b;
 }

@@ -48,10 +48,8 @@ export default function TeamPage() {
       getTeamMembersAction(),
       getInvitationsAction(),
     ]);
-    if (membersResult.success && membersResult.data)
-      setMembers(membersResult.data);
-    if (invitesResult.success && invitesResult.data)
-      setInvites(invitesResult.data);
+    if (membersResult.success && membersResult.data) setMembers(membersResult.data);
+    if (invitesResult.success && invitesResult.data) setInvites(invitesResult.data);
     setLoading(false);
   }, []);
 
@@ -91,10 +89,7 @@ export default function TeamPage() {
     }
   };
 
-  const handlePresetChange = async (
-    userId: string,
-    permissionPreset: PermissionPreset,
-  ) => {
+  const handlePresetChange = async (userId: string, permissionPreset: PermissionPreset) => {
     const result = await updateMemberPresetAction({ userId, permissionPreset });
     if (result.success) {
       await loadData();
@@ -155,10 +150,7 @@ export default function TeamPage() {
             {latestInviteUrl && (
               <div className="mt-2 flex items-center gap-2 rounded-md border border-success/20 bg-background px-2 py-1 text-foreground">
                 <span className="truncate text-xs">{latestInviteUrl}</span>
-                <CopyButton
-                  value={latestInviteUrl}
-                  label={t("copyInviteLink")}
-                />
+                <CopyButton value={latestInviteUrl} label={t("copyInviteLink")} />
               </div>
             )}
           </div>
@@ -180,15 +172,9 @@ export default function TeamPage() {
       {showInviteForm && (
         <div className="rounded-xl border bg-card p-6">
           <h2 className="mb-4 font-semibold">{t("inviteMember")}</h2>
-          <form
-            onSubmit={handleInvite}
-            className="flex flex-col gap-4 sm:flex-row sm:items-end"
-          >
+          <form onSubmit={handleInvite} className="flex flex-col gap-4 sm:flex-row sm:items-end">
             <div className="flex-1">
-              <label
-                htmlFor="invite-email"
-                className="mb-1 block text-sm font-medium"
-              >
+              <label htmlFor="invite-email" className="mb-1 block text-sm font-medium">
                 {t("email")}
               </label>
               <input
@@ -202,18 +188,13 @@ export default function TeamPage() {
               />
             </div>
             <div className="w-full sm:w-48">
-              <label
-                htmlFor="invite-preset"
-                className="mb-1 block text-sm font-medium"
-              >
+              <label htmlFor="invite-preset" className="mb-1 block text-sm font-medium">
                 {t("permissionPreset")}
               </label>
               <select
                 id="invite-preset"
                 value={invitePreset}
-                onChange={(e) =>
-                  setInvitePreset(e.target.value as PermissionPreset)
-                }
+                onChange={(e) => setInvitePreset(e.target.value as PermissionPreset)}
                 className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               >
                 {INVITABLE_PERMISSION_PRESET_VALUES.map((preset) => (
@@ -262,12 +243,8 @@ export default function TeamPage() {
                 {(member.name || member.email).charAt(0).toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-medium truncate">
-                  {member.name || member.email}
-                </p>
-                <p className="text-sm text-muted-foreground truncate">
-                  {member.email}
-                </p>
+                <p className="font-medium truncate">{member.name || member.email}</p>
+                <p className="text-sm text-muted-foreground truncate">{member.email}</p>
               </div>
               <RoleBadge
                 role={member.role}
@@ -279,10 +256,7 @@ export default function TeamPage() {
                   <select
                     value={member.permissionPreset}
                     onChange={(e) =>
-                      handlePresetChange(
-                        member.userId,
-                        e.target.value as PermissionPreset,
-                      )
+                      handlePresetChange(member.userId, e.target.value as PermissionPreset)
                     }
                     className="rounded-lg border bg-background px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                   >
@@ -294,9 +268,7 @@ export default function TeamPage() {
                   </select>
                   <button
                     type="button"
-                    onClick={() =>
-                      handleRemoveMember(member.userId, member.name)
-                    }
+                    onClick={() => handleRemoveMember(member.userId, member.name)}
                     aria-label={t("removeAccess")}
                     className="rounded-lg p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                     title={t("removeAccess")}

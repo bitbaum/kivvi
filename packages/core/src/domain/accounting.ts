@@ -1,18 +1,6 @@
 import { z } from "zod";
 import Decimal from "decimal.js";
-import {
-  eq,
-  and,
-  asc,
-  desc,
-  sql,
-  ilike,
-  between,
-  inArray,
-  lte,
-  gte,
-  isNotNull,
-} from "drizzle-orm";
+import { eq, and, asc, desc, sql, ilike, between, inArray, lte, gte, isNotNull } from "drizzle-orm";
 import {
   accounts,
   journalEntries,
@@ -127,9 +115,7 @@ export async function createAccount(
   const [existing] = await db
     .select()
     .from(accounts)
-    .where(
-      and(eq(accounts.companyId, companyId), eq(accounts.code, validated.code)),
-    );
+    .where(and(eq(accounts.companyId, companyId), eq(accounts.code, validated.code)));
   if (existing) {
     throw new DomainError(
       "accountCodeExists",
@@ -211,13 +197,9 @@ export async function toggleAccount(
 /**
  * Seed default Swiss KMU chart of accounts for a company.
  */
-export async function seedChartOfAccounts(
-  db: Database,
-  companyId: string,
-): Promise<number> {
+export async function seedChartOfAccounts(db: Database, companyId: string): Promise<number> {
   // Dynamic import to avoid bundling seed data unless needed
-  const { SWISS_KMU_ACCOUNTS } =
-    await import("@kivvi/database/src/seeds/swiss-kmu-kontenrahmen");
+  const { SWISS_KMU_ACCOUNTS } = await import("@kivvi/database/src/seeds/swiss-kmu-kontenrahmen");
 
   const values = SWISS_KMU_ACCOUNTS.map((a) => ({
     companyId,
@@ -281,8 +263,7 @@ export function generateFiscalPeriods(
     "Dezember",
   ];
 
-  const periods: Array<{ name: string; startDate: string; endDate: string }> =
-    [];
+  const periods: Array<{ name: string; startDate: string; endDate: string }> = [];
 
   // Format as YYYY-MM-DD using local date parts (not UTC — toISOString shifts dates in CET)
   const fmtDate = (d: Date) => {
@@ -294,11 +275,7 @@ export function generateFiscalPeriods(
 
   for (let i = 0; i < 12; i++) {
     const periodStart = new Date(start.getFullYear(), start.getMonth() + i, 1);
-    const periodEnd = new Date(
-      start.getFullYear(),
-      start.getMonth() + i + 1,
-      0,
-    );
+    const periodEnd = new Date(start.getFullYear(), start.getMonth() + i + 1, 0);
 
     periods.push({
       name: `${monthNames[periodStart.getMonth()]} ${periodStart.getFullYear()}`,
@@ -345,16 +322,10 @@ export async function listJournalEntries(
 
   if (filters?.dateFrom && filters?.dateTo) {
     conditions.push(
-      between(
-        journalEntries.date,
-        new Date(filters.dateFrom),
-        new Date(filters.dateTo),
-      ),
+      between(journalEntries.date, new Date(filters.dateFrom), new Date(filters.dateTo)),
     );
   } else if (filters?.dateFrom) {
-    conditions.push(
-      sql`${journalEntries.date} >= ${new Date(filters.dateFrom)}`,
-    );
+    conditions.push(sql`${journalEntries.date} >= ${new Date(filters.dateFrom)}`);
   } else if (filters?.dateTo) {
     conditions.push(sql`${journalEntries.date} <= ${new Date(filters.dateTo)}`);
   }
@@ -401,12 +372,7 @@ export async function getJournalEntry(
   const [entry] = await db
     .select()
     .from(journalEntries)
-    .where(
-      and(
-        eq(journalEntries.id, entryId),
-        eq(journalEntries.companyId, companyId),
-      ),
-    );
+    .where(and(eq(journalEntries.id, entryId), eq(journalEntries.companyId, companyId)));
 
   if (!entry) return null;
 
@@ -477,11 +443,7 @@ interface PostInput {
 }
 
 /** Reject a posting whose date falls in a closed fiscal year or period. */
-async function assertPeriodOpenTx(
-  tx: LedgerTx,
-  companyId: string,
-  date: Date,
-): Promise<void> {
+async function assertPeriodOpenTx(tx: LedgerTx, companyId: string, date: Date): Promise<void> {
   const dateStr = date.toISOString().slice(0, 10);
   const [closedYear] = await tx
     .select({ id: fiscalYears.id })
@@ -530,17 +492,11 @@ async function assertPeriodOpenTx(
  * the head, and append one audit row. Runs inside the given transaction so the
  * chain stays consistent even under concurrency and when nested in a larger tx.
  */
-async function postEntryTx(
-  tx: LedgerTx,
-  input: PostInput,
-): Promise<JournalEntry> {
+async function postEntryTx(tx: LedgerTx, input: PostInput): Promise<JournalEntry> {
   await assertPeriodOpenTx(tx, input.companyId, input.date);
 
   // Lock (and lazily create) the company's ledger head — the serialization point.
-  await tx
-    .insert(ledgerHeads)
-    .values({ companyId: input.companyId })
-    .onConflictDoNothing();
+  await tx.insert(ledgerHeads).values({ companyId: input.companyId }).onConflictDoNothing();
   const [head] = await tx
     .select()
     .from(ledgerHeads)
@@ -621,10 +577,7 @@ async function postEntryTx(
 }
 
 /** Post a journal entry in its own (possibly nested) transaction. */
-async function postJournalEntry(
-  db: Database,
-  input: PostInput,
-): Promise<JournalEntry> {
+async function postJournalEntry(db: Database, input: PostInput): Promise<JournalEntry> {
   return db.transaction((tx) => postEntryTx(tx, input));
 }
 
@@ -743,12 +696,7 @@ export async function deleteJournalEntry(
   const [entry] = await db
     .select()
     .from(journalEntries)
-    .where(
-      and(
-        eq(journalEntries.id, entryId),
-        eq(journalEntries.companyId, companyId),
-      ),
-    );
+    .where(and(eq(journalEntries.id, entryId), eq(journalEntries.companyId, companyId)));
 
   if (!entry) throw new Error("Journal entry not found");
   // GeBüV: a POSTED entry is immutable — never deleted, only reversed (Storno).
@@ -764,12 +712,7 @@ export async function deleteJournalEntry(
   // Lines cascade via FK
   await db
     .delete(journalEntries)
-    .where(
-      and(
-        eq(journalEntries.id, entryId),
-        eq(journalEntries.companyId, companyId),
-      ),
-    );
+    .where(and(eq(journalEntries.id, entryId), eq(journalEntries.companyId, companyId)));
 }
 
 /**
@@ -788,19 +731,10 @@ export async function reverseJournalEntry(
     const [orig] = await tx
       .select()
       .from(journalEntries)
-      .where(
-        and(
-          eq(journalEntries.id, entryId),
-          eq(journalEntries.companyId, companyId),
-        ),
-      );
+      .where(and(eq(journalEntries.id, entryId), eq(journalEntries.companyId, companyId)));
     if (!orig) throw new Error("Journal entry not found");
     if (orig.reversedByEntryId) {
-      throw new DomainError(
-        "alreadyReversed",
-        undefined,
-        "Journal entry already reversed",
-      );
+      throw new DomainError("alreadyReversed", undefined, "Journal entry already reversed");
     }
     const lines = await tx
       .select()
@@ -848,20 +782,12 @@ export async function verifyLedgerIntegrity(
   const entries = await db
     .select()
     .from(journalEntries)
-    .where(
-      and(
-        eq(journalEntries.companyId, companyId),
-        isNotNull(journalEntries.sequenceNo),
-      ),
-    )
+    .where(and(eq(journalEntries.companyId, companyId), isNotNull(journalEntries.sequenceNo)))
     .orderBy(asc(journalEntries.sequenceNo));
 
   const chain: ChainEntry[] = [];
   for (const e of entries) {
-    const lines = await db
-      .select()
-      .from(journalLines)
-      .where(eq(journalLines.journalEntryId, e.id));
+    const lines = await db.select().from(journalLines).where(eq(journalLines.journalEntryId, e.id));
     chain.push({
       companyId: e.companyId,
       sequenceNo: e.sequenceNo as number,
@@ -1006,12 +932,7 @@ export async function getAccountStatement(
   const [account] = await db
     .select()
     .from(accounts)
-    .where(
-      and(
-        eq(accounts.companyId, companyId),
-        eq(accounts.code, params.accountCode),
-      ),
-    )
+    .where(and(eq(accounts.companyId, companyId), eq(accounts.code, params.accountCode)))
     .limit(1);
   if (!account) {
     throw new DomainError("accountNotFound", undefined, "Account not found");
@@ -1023,10 +944,7 @@ export async function getAccountStatement(
   const openingRows = await db
     .select({ debit: journalLines.debit, credit: journalLines.credit })
     .from(journalLines)
-    .innerJoin(
-      journalEntries,
-      eq(journalLines.journalEntryId, journalEntries.id),
-    )
+    .innerJoin(journalEntries, eq(journalLines.journalEntryId, journalEntries.id))
     .where(
       and(
         eq(journalEntries.companyId, companyId),
@@ -1051,10 +969,7 @@ export async function getAccountStatement(
       credit: journalLines.credit,
     })
     .from(journalLines)
-    .innerJoin(
-      journalEntries,
-      eq(journalLines.journalEntryId, journalEntries.id),
-    )
+    .innerJoin(journalEntries, eq(journalLines.journalEntryId, journalEntries.id))
     .where(
       and(
         eq(journalEntries.companyId, companyId),
@@ -1115,8 +1030,7 @@ export async function getTrialBalance(
     dateConditions.push(sql`${journalEntries.date} <= ${new Date(dateTo)}`);
   }
 
-  const dateFilter =
-    dateConditions.length > 0 ? and(...dateConditions) : undefined;
+  const dateFilter = dateConditions.length > 0 ? and(...dateConditions) : undefined;
 
   const result = await db
     .select({
@@ -1146,9 +1060,7 @@ export async function getTrialBalance(
       ...r,
       totalDebit: new Decimal(r.totalDebit || "0").toNumber(),
       totalCredit: new Decimal(r.totalCredit || "0").toNumber(),
-      balance: new Decimal(r.totalDebit || "0")
-        .minus(r.totalCredit || "0")
-        .toNumber(),
+      balance: new Decimal(r.totalDebit || "0").minus(r.totalCredit || "0").toNumber(),
     }))
     .filter((r) => r.totalDebit !== 0 || r.totalCredit !== 0);
 }
@@ -1157,10 +1069,7 @@ export async function getTrialBalance(
 // FISCAL YEARS & PERIODS
 // ============================================================================
 
-export async function listFiscalYears(
-  db: Database,
-  companyId: string,
-): Promise<FiscalYear[]> {
+export async function listFiscalYears(db: Database, companyId: string): Promise<FiscalYear[]> {
   return db
     .select()
     .from(fiscalYears)
@@ -1176,9 +1085,7 @@ export async function getFiscalYear(
   const [year] = await db
     .select()
     .from(fiscalYears)
-    .where(
-      and(eq(fiscalYears.id, yearId), eq(fiscalYears.companyId, companyId)),
-    );
+    .where(and(eq(fiscalYears.id, yearId), eq(fiscalYears.companyId, companyId)));
 
   if (!year) return null;
 
@@ -1236,17 +1143,11 @@ export async function closeFiscalPeriod(
     })
     .from(fiscalPeriods)
     .innerJoin(fiscalYears, eq(fiscalPeriods.fiscalYearId, fiscalYears.id))
-    .where(
-      and(eq(fiscalPeriods.id, periodId), eq(fiscalYears.companyId, companyId)),
-    );
+    .where(and(eq(fiscalPeriods.id, periodId), eq(fiscalYears.companyId, companyId)));
 
   if (!period) throw new Error("Period not found");
   if (period.period.isClosed) {
-    throw new DomainError(
-      "periodAlreadyClosed",
-      undefined,
-      "Period is already closed",
-    );
+    throw new DomainError("periodAlreadyClosed", undefined, "Period is already closed");
   }
 
   const [updated] = await db
@@ -1270,11 +1171,7 @@ export async function closeFiscalYear(
   const year = await getFiscalYear(db, companyId, yearId);
   if (!year) throw new Error("Fiscal year not found");
   if (year.isClosed) {
-    throw new DomainError(
-      "fiscalYearAlreadyClosed",
-      undefined,
-      "Fiscal year is already closed",
-    );
+    throw new DomainError("fiscalYearAlreadyClosed", undefined, "Fiscal year is already closed");
   }
 
   return db.transaction(async (tx) => {
@@ -1299,10 +1196,7 @@ export async function closeFiscalYear(
         ),
       )
       .where(
-        and(
-          eq(accounts.companyId, companyId),
-          sql`${accounts.type} IN ('revenue', 'expense')`,
-        ),
+        and(eq(accounts.companyId, companyId), sql`${accounts.type} IN ('revenue', 'expense')`),
       )
       .groupBy(accounts.id, accounts.code, accounts.type);
 
@@ -1357,10 +1251,7 @@ export async function closeFiscalYear(
         .select({ id: accounts.id })
         .from(accounts)
         .where(
-          and(
-            eq(accounts.companyId, companyId),
-            eq(accounts.code, ANNUAL_PROFIT_LOSS_ACCOUNT),
-          ),
+          and(eq(accounts.companyId, companyId), eq(accounts.code, ANNUAL_PROFIT_LOSS_ACCOUNT)),
         );
 
       if (!profitLossAccount) {
@@ -1420,20 +1311,13 @@ export async function closeFiscalYear(
     await tx
       .update(fiscalPeriods)
       .set({ isClosed: true })
-      .where(
-        and(
-          eq(fiscalPeriods.fiscalYearId, yearId),
-          eq(fiscalPeriods.isClosed, false),
-        ),
-      );
+      .where(and(eq(fiscalPeriods.fiscalYearId, yearId), eq(fiscalPeriods.isClosed, false)));
 
     // 5. Mark year as closed
     const [updated] = await tx
       .update(fiscalYears)
       .set({ isClosed: true })
-      .where(
-        and(eq(fiscalYears.id, yearId), eq(fiscalYears.companyId, companyId)),
-      )
+      .where(and(eq(fiscalYears.id, yearId), eq(fiscalYears.companyId, companyId)))
       .returning();
 
     return updated;
@@ -1456,9 +1340,7 @@ export interface TrialBalanceTotals {
  * Aggregate a trial balance result set into summary totals by account type.
  * Pure function — no DB access.
  */
-export function calculateTrialBalanceTotals(
-  trialBalance: AccountBalance[],
-): TrialBalanceTotals {
+export function calculateTrialBalanceTotals(trialBalance: AccountBalance[]): TrialBalanceTotals {
   return trialBalance.reduce(
     (acc, row) => {
       switch (row.type) {

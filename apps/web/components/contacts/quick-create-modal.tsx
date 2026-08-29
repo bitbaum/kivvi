@@ -110,18 +110,14 @@ export function QuickCreateContactModal({
               {t("quickCreate")}
             </h2>
           </div>
-          <p className="text-sm text-muted-foreground">
-            {t("quickCreateDesc")}
-          </p>
+          <p className="text-sm text-muted-foreground">{t("quickCreateDesc")}</p>
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Type selector */}
           <div>
-            <span className="mb-2 block text-sm font-medium">
-              {t("type")} *
-            </span>
+            <span className="mb-2 block text-sm font-medium">{t("type")} *</span>
             <div className="grid grid-cols-3 gap-2">
               {CONTACT_TYPES.map((option) => (
                 <button
@@ -166,10 +162,7 @@ export function QuickCreateContactModal({
 
           {/* Email (optional) */}
           <div>
-            <label
-              htmlFor="qc-email"
-              className="mb-2 block text-sm font-medium"
-            >
+            <label htmlFor="qc-email" className="mb-2 block text-sm font-medium">
               {t("email")}
             </label>
             <FormInput
@@ -190,10 +183,7 @@ export function QuickCreateContactModal({
 
           {/* Phone (optional) */}
           <div>
-            <label
-              htmlFor="qc-phone"
-              className="mb-2 block text-sm font-medium"
-            >
+            <label htmlFor="qc-phone" className="mb-2 block text-sm font-medium">
               {t("phone")}
             </label>
             <FormInput
@@ -251,9 +241,7 @@ export function QuickCreateContactModal({
             </button>
           </div>
 
-          <p className="text-xs text-muted-foreground text-center">
-            {t("quickCreateNote")}
-          </p>
+          <p className="text-xs text-muted-foreground text-center">{t("quickCreateNote")}</p>
         </form>
       </div>
     </div>

@@ -12,15 +12,8 @@ import { MessageSquare, X } from "lucide-react";
 import { KivviLogo } from "@/components/kivvi-logo";
 import { CompanySwitcher } from "@/components/sidebar/company-switcher";
 import { Button } from "@/components/ui/button";
-import {
-  NavLink,
-  hasMinRole,
-  filterNavByModules,
-} from "@/components/sidebar/nav-link";
-import {
-  PRIMARY_NAVIGATION,
-  SECONDARY_NAVIGATION,
-} from "@/lib/config/navigation";
+import { NavLink, hasMinRole, filterNavByModules } from "@/components/sidebar/nav-link";
+import { PRIMARY_NAVIGATION, SECONDARY_NAVIGATION } from "@/lib/config/navigation";
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -37,10 +30,9 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
   const userRole = session?.user?.role;
   const enabledModules = session?.user?.enabledModules;
 
-  const visiblePrimary = filterNavByModules(
-    PRIMARY_NAVIGATION,
-    enabledModules,
-  ).filter((item) => hasMinRole(userRole, item.minRole ?? "member"));
+  const visiblePrimary = filterNavByModules(PRIMARY_NAVIGATION, enabledModules).filter((item) =>
+    hasMinRole(userRole, item.minRole ?? "member"),
+  );
   const visibleSecondary = SECONDARY_NAVIGATION.filter((item) =>
     hasMinRole(userRole, item.minRole ?? "member"),
   );
@@ -101,10 +93,7 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
             chatWidget.open();
             onClose?.();
           }}
-          className={cn(
-            "ui-nav-item",
-            chatWidget.isOpen && "ui-nav-item-active",
-          )}
+          className={cn("ui-nav-item", chatWidget.isOpen && "ui-nav-item-active")}
         >
           <MessageSquare className="h-4 w-4" aria-hidden="true" />
           {t("aiAssistant")}
@@ -127,13 +116,7 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
       {/* Secondary navigation */}
       <nav className="border-t p-4" aria-label={tc("aria.secondaryNavigation")}>
         {visibleSecondary.map((item) => (
-          <NavLink
-            key={item.href}
-            item={item}
-            pathname={pathname}
-            onClick={onClose}
-            t={t}
-          />
+          <NavLink key={item.href} item={item} pathname={pathname} onClick={onClose} t={t} />
         ))}
       </nav>
     </aside>

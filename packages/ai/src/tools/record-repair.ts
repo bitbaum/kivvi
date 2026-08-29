@@ -7,20 +7,12 @@ import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 const recordRepairSchema = z.object({
   item_identifier: z
     .string()
-    .describe(
-      "Item number (e.g. IT-00042) or item UUID. Use search_inventory first if unsure.",
-    ),
+    .describe("Item number (e.g. IT-00042) or item UUID. Use search_inventory first if unsure."),
   cost: z
     .number()
     .min(0)
-    .describe(
-      "Repair cost in CHF (accumulated — adds to existing repair cost on the item)",
-    ),
-  hours: z
-    .number()
-    .min(0)
-    .optional()
-    .describe("Labour hours spent on this repair (optional)"),
+    .describe("Repair cost in CHF (accumulated — adds to existing repair cost on the item)"),
+  hours: z.number().min(0).optional().describe("Labour hours spent on this repair (optional)"),
   note: z
     .string()
     .max(500)
@@ -45,15 +37,10 @@ Examples:
     context: ExecutionContext,
   ): Promise<ToolResult> => {
     try {
-      const { recordRepair } =
-        await import("@kivvi/core/src/domain/inventory-items");
+      const { recordRepair } = await import("@kivvi/core/src/domain/inventory-items");
       const db = getDb(context);
 
-      const item = await resolveInventoryItem(
-        db,
-        context.companyId,
-        params.item_identifier,
-      );
+      const item = await resolveInventoryItem(db, context.companyId, params.item_identifier);
       if (!item) {
         return {
           success: false,
@@ -72,9 +59,7 @@ Examples:
       const currency = context.defaultCurrency ?? DEFAULT_CURRENCY;
 
       const hoursNote =
-        params.hours !== undefined && params.hours > 0
-          ? ` (${params.hours}h labour)`
-          : "";
+        params.hours !== undefined && params.hours > 0 ? ` (${params.hours}h labour)` : "";
       const workNote = params.note ? `: ${params.note}` : "";
 
       return {

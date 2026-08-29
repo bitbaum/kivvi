@@ -33,10 +33,7 @@ interface RecurringConfigFormProps {
   };
 }
 
-export function RecurringConfigForm({
-  orderOptions,
-  initialData,
-}: RecurringConfigFormProps) {
+export function RecurringConfigForm({ orderOptions, initialData }: RecurringConfigFormProps) {
   const t = useTranslations("settings");
   const tc = useTranslations("common");
   const router = useRouter();

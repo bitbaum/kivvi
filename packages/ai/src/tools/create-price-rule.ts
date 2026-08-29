@@ -6,9 +6,7 @@ import { PRICE_RULE_TYPE_VALUES } from "@kivvi/database/src/enums";
 const createPriceRuleSchema = z.object({
   price_list_name: z
     .string()
-    .describe(
-      "Name of the price list to add the rule to (partial match, e.g. 'wholesale').",
-    ),
+    .describe("Name of the price list to add the rule to (partial match, e.g. 'wholesale')."),
   type: z.enum(PRICE_RULE_TYPE_VALUES).describe(
     `Rule type:
 - "fixed": sets a specific price (e.g. CHF 49.90 regardless of base price)
@@ -37,9 +35,7 @@ const createPriceRuleSchema = z.object({
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, "Must be YYYY-MM-DD")
     .optional()
-    .describe(
-      "Date the rule becomes active (YYYY-MM-DD). Omit = always active.",
-    ),
+    .describe("Date the rule becomes active (YYYY-MM-DD). Omit = always active."),
   valid_to: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, "Must be YYYY-MM-DD")
@@ -63,15 +59,10 @@ Examples:
     context: ExecutionContext,
   ): Promise<ToolResult> => {
     try {
-      const { createPriceRule } =
-        await import("@kivvi/core/src/domain/pricing");
+      const { createPriceRule } = await import("@kivvi/core/src/domain/pricing");
       const db = getDb(context);
 
-      const listRow = await resolvePriceList(
-        db,
-        context.companyId,
-        params.price_list_name,
-      );
+      const listRow = await resolvePriceList(db, context.companyId, params.price_list_name);
 
       if (!listRow) {
         return {
@@ -85,11 +76,7 @@ Examples:
       let productLabel: string | null = null;
 
       if (params.product_identifier) {
-        const productRow = await resolveProduct(
-          db,
-          context.companyId,
-          params.product_identifier,
-        );
+        const productRow = await resolveProduct(db, context.companyId, params.product_identifier);
 
         if (!productRow) {
           return {

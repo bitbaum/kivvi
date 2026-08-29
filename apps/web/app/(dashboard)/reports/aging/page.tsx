@@ -19,8 +19,7 @@ export default async function AgingReportPage({ searchParams }: PageProps) {
   const tc = await getTranslations("common");
 
   const params = await searchParams;
-  const asOfDate =
-    (params.asOfDate as string) || new Date().toISOString().split("T")[0];
+  const asOfDate = (params.asOfDate as string) || new Date().toISOString().split("T")[0];
 
   const report = await getAgingReport(db, session.user.companyId, asOfDate);
 
@@ -42,11 +41,7 @@ export default async function AgingReportPage({ searchParams }: PageProps) {
             <h1 className="text-3xl font-bold">{t("agingReport")}</h1>
             <p className="text-muted-foreground">{t("agingReportDesc")}</p>
           </div>
-          <ExportButton
-            reportType="aging"
-            asOfDate={asOfDate}
-            disabled={!hasData}
-          />
+          <ExportButton reportType="aging" asOfDate={asOfDate} disabled={!hasData} />
         </div>
       </div>
 
@@ -69,45 +64,29 @@ export default async function AgingReportPage({ searchParams }: PageProps) {
         <div className="rounded-xl border bg-card">
           <div className="flex items-center gap-2 border-b p-4">
             <Clock className="h-5 w-5 text-warning" />
-            <h2 className="font-semibold">
-              {t("receivablesAsOf", { date: asOfDate })}
-            </h2>
+            <h2 className="font-semibold">{t("receivablesAsOf", { date: asOfDate })}</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
-                  <th className="sticky left-0 bg-card px-4 py-3 md:px-6">
-                    {t("contact")}
-                  </th>
+                  <th className="sticky left-0 bg-card px-4 py-3 md:px-6">{t("contact")}</th>
                   <th className="hidden px-4 py-3 text-right sm:table-cell md:px-6">
-                    <span className="text-success">
-                      {t("current")}
-                    </span>
+                    <span className="text-success">{t("current")}</span>
                   </th>
                   <th className="hidden px-4 py-3 text-right md:table-cell md:px-6">
-                    <span className="text-warning">
-                      {t("days1to30")}
-                    </span>
+                    <span className="text-warning">{t("days1to30")}</span>
                   </th>
                   <th className="hidden px-4 py-3 text-right md:table-cell md:px-6">
-                    <span className="text-warning">
-                      {t("days31to60")}
-                    </span>
+                    <span className="text-warning">{t("days31to60")}</span>
                   </th>
                   <th className="hidden px-4 py-3 text-right md:table-cell md:px-6">
-                    <span className="text-destructive">
-                      {t("days61to90")}
-                    </span>
+                    <span className="text-destructive">{t("days61to90")}</span>
                   </th>
                   <th className="hidden px-4 py-3 text-right md:table-cell md:px-6">
-                    <span className="text-destructive">
-                      {t("days90plus")}
-                    </span>
+                    <span className="text-destructive">{t("days90plus")}</span>
                   </th>
-                  <th className="px-4 py-3 text-right md:px-6">
-                    {t("totalOutstanding")}
-                  </th>
+                  <th className="px-4 py-3 text-right md:px-6">{t("totalOutstanding")}</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
@@ -122,29 +101,19 @@ export default async function AgingReportPage({ searchParams }: PageProps) {
                       </Link>
                     </td>
                     <td className="hidden px-4 py-3 text-right text-success sm:table-cell md:px-6">
-                      {Number(row.current) > 0
-                        ? formatCurrency(row.current)
-                        : "-"}
+                      {Number(row.current) > 0 ? formatCurrency(row.current) : "-"}
                     </td>
                     <td className="hidden px-4 py-3 text-right text-warning md:table-cell md:px-6">
-                      {Number(row.days30) > 0
-                        ? formatCurrency(row.days30)
-                        : "-"}
+                      {Number(row.days30) > 0 ? formatCurrency(row.days30) : "-"}
                     </td>
                     <td className="hidden px-4 py-3 text-right text-warning md:table-cell md:px-6">
-                      {Number(row.days60) > 0
-                        ? formatCurrency(row.days60)
-                        : "-"}
+                      {Number(row.days60) > 0 ? formatCurrency(row.days60) : "-"}
                     </td>
                     <td className="hidden px-4 py-3 text-right text-destructive md:table-cell md:px-6">
-                      {Number(row.days90) > 0
-                        ? formatCurrency(row.days90)
-                        : "-"}
+                      {Number(row.days90) > 0 ? formatCurrency(row.days90) : "-"}
                     </td>
                     <td className="hidden px-4 py-3 text-right text-destructive md:table-cell md:px-6">
-                      {Number(row.over90) > 0
-                        ? formatCurrency(row.over90)
-                        : "-"}
+                      {Number(row.over90) > 0 ? formatCurrency(row.over90) : "-"}
                     </td>
                     <td className="px-4 py-3 text-right font-semibold md:px-6">
                       {formatCurrency(row.total)}
@@ -154,33 +123,23 @@ export default async function AgingReportPage({ searchParams }: PageProps) {
               </tbody>
               <tfoot>
                 <tr className="border-t-2 font-semibold">
-                  <td className="sticky left-0 bg-card px-4 py-3 md:px-6">
-                    {tc("totals")}
-                  </td>
+                  <td className="sticky left-0 bg-card px-4 py-3 md:px-6">{tc("totals")}</td>
                   <td className="hidden px-4 py-3 text-right text-success sm:table-cell md:px-6">
                     {Number(report.totals.current) > 0
                       ? formatCurrency(report.totals.current)
                       : "-"}
                   </td>
                   <td className="hidden px-4 py-3 text-right text-warning md:table-cell md:px-6">
-                    {Number(report.totals.days30) > 0
-                      ? formatCurrency(report.totals.days30)
-                      : "-"}
+                    {Number(report.totals.days30) > 0 ? formatCurrency(report.totals.days30) : "-"}
                   </td>
                   <td className="hidden px-4 py-3 text-right text-warning md:table-cell md:px-6">
-                    {Number(report.totals.days60) > 0
-                      ? formatCurrency(report.totals.days60)
-                      : "-"}
+                    {Number(report.totals.days60) > 0 ? formatCurrency(report.totals.days60) : "-"}
                   </td>
                   <td className="hidden px-4 py-3 text-right text-destructive md:table-cell md:px-6">
-                    {Number(report.totals.days90) > 0
-                      ? formatCurrency(report.totals.days90)
-                      : "-"}
+                    {Number(report.totals.days90) > 0 ? formatCurrency(report.totals.days90) : "-"}
                   </td>
                   <td className="hidden px-4 py-3 text-right text-destructive md:table-cell md:px-6">
-                    {Number(report.totals.over90) > 0
-                      ? formatCurrency(report.totals.over90)
-                      : "-"}
+                    {Number(report.totals.over90) > 0 ? formatCurrency(report.totals.over90) : "-"}
                   </td>
                   <td className="px-4 py-3 text-right text-lg md:px-6">
                     {formatCurrency(report.totals.total)}

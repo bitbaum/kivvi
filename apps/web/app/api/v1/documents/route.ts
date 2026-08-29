@@ -16,10 +16,7 @@ import {
   createDocumentSchema,
   resolveOrCreateContact,
 } from "@kivvi/core";
-import {
-  documentTypeEnum,
-  documentStatusEnum,
-} from "@kivvi/database/src/schema";
+import { documentTypeEnum, documentStatusEnum } from "@kivvi/database/src/schema";
 
 const querySchema = z.object({
   ...paginationQueryFields,
@@ -27,9 +24,7 @@ const querySchema = z.object({
   status: z.enum(documentStatusEnum.enumValues).optional(),
   search: z.string().optional(),
   contactId: z.string().uuid().optional(),
-  sortBy: z
-    .enum(["number", "issueDate", "dueDate", "total", "createdAt"])
-    .optional(),
+  sortBy: z.enum(["number", "issueDate", "dueDate", "total", "createdAt"]).optional(),
   sortOrder: z.enum(["asc", "desc"]).optional(),
 });
 
@@ -92,11 +87,8 @@ export async function POST(request: NextRequest) {
       if (Array.isArray(resolvedBody.items)) {
         resolvedBody = {
           ...resolvedBody,
-          items: resolvedBody.items.map(
-            (item: Record<string, unknown>, idx: number) =>
-              item.position !== undefined
-                ? item
-                : { ...item, position: idx + 1 },
+          items: resolvedBody.items.map((item: Record<string, unknown>, idx: number) =>
+            item.position !== undefined ? item : { ...item, position: idx + 1 },
           ),
         };
       }
@@ -105,16 +97,10 @@ export async function POST(request: NextRequest) {
       if (!parsed.success) {
         return apiZodError(parsed.error, "body");
       }
-      const doc = await createDocument(
-        db,
-        ctx.companyId,
-        ctx.userId,
-        parsed.data,
-      );
+      const doc = await createDocument(db, ctx.companyId, ctx.userId, parsed.data);
       return apiSuccess(doc);
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to create document";
+      const message = error instanceof Error ? error.message : "Failed to create document";
       return apiError(message, 400);
     }
   });

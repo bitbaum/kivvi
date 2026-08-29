@@ -52,9 +52,7 @@ export default async function ContactPage() {
       {/* Cloud CTA */}
       <div className="mt-20 rounded-2xl border bg-muted/30 px-8 py-10 text-center">
         <h2 className="mb-2 text-xl font-semibold">{t("ctaCloud.title")}</h2>
-        <p className="mb-6 text-sm text-muted-foreground">
-          {t("ctaCloud.description")}
-        </p>
+        <p className="mb-6 text-sm text-muted-foreground">{t("ctaCloud.description")}</p>
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
           <a
             href="/register"

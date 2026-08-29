@@ -1,30 +1,43 @@
-import { z } from 'zod';
-import Decimal from 'decimal.js';
-import type { Tool, ExecutionContext, ToolResult } from '../types';
-import { listDocuments } from '@kivvi/core';
-import { getDb } from './utils';
+import { z } from "zod";
+import Decimal from "decimal.js";
+import type { Tool, ExecutionContext, ToolResult } from "../types";
+import { listDocuments } from "@kivvi/core";
+import { getDb } from "./utils";
 
 const searchInvoicesSchema = z.object({
-  query: z.string().optional().describe('Search query for invoice number, customer name, or notes'),
-  status: z.enum(['draft', 'sent', 'confirmed', 'delivered', 'paid', 'partially_paid', 'overdue', 'cancelled'])
+  query: z.string().optional().describe("Search query for invoice number, customer name, or notes"),
+  status: z
+    .enum([
+      "draft",
+      "sent",
+      "confirmed",
+      "delivered",
+      "paid",
+      "partially_paid",
+      "overdue",
+      "cancelled",
+    ])
     .optional()
-    .describe('Filter by invoice status'),
-  dateFrom: z.string().optional().describe('Filter invoices from this date (ISO 8601)'),
-  dateTo: z.string().optional().describe('Filter invoices until this date (ISO 8601)'),
-  limit: z.number().default(10).describe('Maximum number of results to return'),
+    .describe("Filter by invoice status"),
+  dateFrom: z.string().optional().describe("Filter invoices from this date (ISO 8601)"),
+  dateTo: z.string().optional().describe("Filter invoices until this date (ISO 8601)"),
+  limit: z.number().default(10).describe("Maximum number of results to return"),
 });
 
 export const searchInvoicesTool: Tool = {
-  name: 'search_invoices',
+  name: "search_invoices",
   description: `Search for invoices in the system. Can filter by status (draft, sent, paid, overdue, cancelled), date range, or search by customer name/invoice number. Returns a list of matching invoices with basic details.`,
   parameters: searchInvoicesSchema,
-  requiredPermissions: ['invoice:read'],
-  execute: async (params: z.infer<typeof searchInvoicesSchema>, context: ExecutionContext): Promise<ToolResult> => {
+  requiredPermissions: ["invoice:read"],
+  execute: async (
+    params: z.infer<typeof searchInvoicesSchema>,
+    context: ExecutionContext,
+  ): Promise<ToolResult> => {
     try {
       const db = getDb(context);
 
       const result = await listDocuments(db, context.companyId, {
-        type: 'invoice',
+        type: "invoice",
         status: params.status,
         search: params.query,
         dateFrom: params.dateFrom,
@@ -47,24 +60,27 @@ export const searchInvoicesTool: Tool = {
       const invoiceList = filteredData.map((doc) => ({
         id: doc.id,
         number: doc.number,
-        customer: doc.contact?.name || 'Unknown',
+        customer: doc.contact?.name || "Unknown",
         status: doc.status,
-        issueDate: doc.issueDate.toISOString().split('T')[0],
-        dueDate: doc.dueDate?.toISOString().split('T')[0] || null,
-        total: `${doc.currency} ${new Decimal(doc.total || '0').toFixed(2)}`,
-        isOverdue: doc.status !== 'paid' && doc.dueDate && new Date(doc.dueDate) < new Date(),
+        issueDate: doc.issueDate.toISOString().split("T")[0],
+        dueDate: doc.dueDate?.toISOString().split("T")[0] || null,
+        total: `${doc.currency} ${new Decimal(doc.total || "0").toFixed(2)}`,
+        isOverdue: doc.status !== "paid" && doc.dueDate && new Date(doc.dueDate) < new Date(),
       }));
 
       if (invoiceList.length === 0) {
         return {
           success: true,
-          message: 'No invoices found matching your criteria.',
+          message: "No invoices found matching your criteria.",
           data: { invoices: [], count: 0 },
         };
       }
 
-      const totalAmount = filteredData.reduce((sum, doc) => sum.plus(doc.total || '0'), new Decimal(0));
-      const unpaidCount = filteredData.filter((doc) => doc.status !== 'paid').length;
+      const totalAmount = filteredData.reduce(
+        (sum, doc) => sum.plus(doc.total || "0"),
+        new Decimal(0),
+      );
+      const unpaidCount = filteredData.filter((doc) => doc.status !== "paid").length;
 
       return {
         success: true,
@@ -79,7 +95,7 @@ export const searchInvoicesTool: Tool = {
     } catch (error) {
       return {
         success: false,
-        error: `Failed to search invoices: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        error: `Failed to search invoices: ${error instanceof Error ? error.message : "Unknown error"}`,
       };
     }
   },

@@ -31,10 +31,7 @@ export function BankDetailsSection({ iban, bankName }: Props) {
         </div>
 
         <div className="sm:col-span-2">
-          <label
-            htmlFor="bankName"
-            className="mb-1.5 block text-sm font-medium"
-          >
+          <label htmlFor="bankName" className="mb-1.5 block text-sm font-medium">
             {t("company.bankName")}
           </label>
           <FormInput

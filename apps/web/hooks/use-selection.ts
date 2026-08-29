@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from "react";
 
 export function useSelection(allIds: string[]) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -34,12 +34,12 @@ export function useSelection(allIds: string[]) {
 
   const isAllSelected = useMemo(
     () => allIds.length > 0 && selected.size === allIds.length,
-    [allIds.length, selected.size]
+    [allIds.length, selected.size],
   );
 
   const isSomeSelected = useMemo(
     () => selected.size > 0 && selected.size < allIds.length,
-    [allIds.length, selected.size]
+    [allIds.length, selected.size],
   );
 
   const count = selected.size;

@@ -15,20 +15,11 @@
 import Decimal from "decimal.js";
 import { and, eq, ilike, notInArray, sql } from "drizzle-orm";
 import { companies, documents, inventoryItems } from "@kivvi/database";
-import type {
-  Database,
-  ItemStatusValue,
-  CompanySettings,
-} from "@kivvi/database";
+import type { Database, ItemStatusValue, CompanySettings } from "@kivvi/database";
 import { calculateRepairLaborAmount } from "./documents";
 
 /** Statuses where labor is no longer separately billable (sold/closed out). */
-const CLOSED_STATUSES: ItemStatusValue[] = [
-  "sold",
-  "returned",
-  "donated",
-  "recycled",
-];
+const CLOSED_STATUSES: ItemStatusValue[] = ["sold", "returned", "donated", "recycled"];
 
 export interface RepairLaborLeakageItem {
   itemId: string;

@@ -36,12 +36,8 @@ export function SectionErrorBoundary({
         <AlertTriangle className="h-8 w-8 text-destructive" />
       </div>
       <h2 className="mt-4 text-xl font-semibold">{t("errorBoundaryTitle")}</h2>
-      <p className="mt-2 max-w-md text-sm text-muted-foreground">
-        {t("errorBoundaryMessage")}
-      </p>
-      {error.digest && (
-        <p className="mt-2 text-xs text-muted-foreground">ID: {error.digest}</p>
-      )}
+      <p className="mt-2 max-w-md text-sm text-muted-foreground">{t("errorBoundaryMessage")}</p>
+      {error.digest && <p className="mt-2 text-xs text-muted-foreground">ID: {error.digest}</p>}
       <div className="mt-6 flex gap-3">
         <button
           onClick={reset}

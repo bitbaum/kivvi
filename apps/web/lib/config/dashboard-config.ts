@@ -11,11 +11,6 @@ export interface DashboardConfig {
 }
 
 export const DEFAULT_DASHBOARD_CONFIG: DashboardConfig = {
-  defaultVisibleStats: [
-    "revenue-month",
-    "outstanding",
-    "overdue",
-    "bank-balance",
-  ],
+  defaultVisibleStats: ["revenue-month", "outstanding", "overdue", "bank-balance"],
   maxQuickActions: 4,
 };

@@ -24,15 +24,10 @@ Examples:
     context: ExecutionContext,
   ): Promise<ToolResult> => {
     try {
-      const { returnInventoryItem } =
-        await import("@kivvi/core/src/domain/inventory-items");
+      const { returnInventoryItem } = await import("@kivvi/core/src/domain/inventory-items");
       const db = getDb(context);
 
-      const row = await resolveInventoryItem(
-        db,
-        context.companyId,
-        params.item_identifier,
-      );
+      const row = await resolveInventoryItem(db, context.companyId, params.item_identifier);
 
       if (!row) {
         return {

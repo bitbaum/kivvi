@@ -25,9 +25,7 @@ export default function AuthError({
         <AlertTriangle className="h-8 w-8 text-destructive" />
       </div>
       <h2 className="mt-4 text-xl font-semibold">{t("errorTitle")}</h2>
-      <p className="mt-2 max-w-md text-sm text-muted-foreground">
-        {t("errorDescription")}
-      </p>
+      <p className="mt-2 max-w-md text-sm text-muted-foreground">{t("errorDescription")}</p>
       <div className="mt-6 flex gap-3">
         <button
           onClick={reset}

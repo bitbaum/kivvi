@@ -6,13 +6,7 @@
 import { z } from "zod";
 import { eq, and, inArray } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
-import {
-  accounts,
-  products,
-  productGroups,
-  documentItems,
-  postingGroups,
-} from "@kivvi/database";
+import { accounts, products, productGroups, documentItems, postingGroups } from "@kivvi/database";
 import type { Database, PostingGroup } from "@kivvi/database";
 
 /** Legacy fallback revenue accounts when no posting group is configured. */
@@ -36,9 +30,7 @@ export function pickRevenueAccountCode(input: {
     input.productAccountCode ||
     input.groupAccountCode ||
     input.defaultAccountCode ||
-    (input.productType === "service"
-      ? LEGACY_SERVICE_REVENUE
-      : LEGACY_PRODUCT_REVENUE)
+    (input.productType === "service" ? LEGACY_SERVICE_REVENUE : LEGACY_PRODUCT_REVENUE)
   );
 }
 
@@ -93,8 +85,7 @@ export async function resolveLineRevenueAccounts(
     .from(accounts)
     .where(eq(accounts.companyId, companyId));
   const codeById = new Map(accts.map((a) => [a.id, a.code]));
-  const codeOf = (id: string | null | undefined) =>
-    id ? (codeById.get(id) ?? null) : null;
+  const codeOf = (id: string | null | undefined) => (id ? (codeById.get(id) ?? null) : null);
 
   return rows.map((r) => ({
     total: r.total,
@@ -113,20 +104,14 @@ export async function resolveLineRevenueAccounts(
  * behavior: Warenertrag → 3000 (default) and Dienstleistungen → 3200.
  * No-op if the chart of accounts isn't seeded yet.
  */
-export async function seedDefaultPostingGroups(
-  db: Database,
-  companyId: string,
-): Promise<void> {
+export async function seedDefaultPostingGroups(db: Database, companyId: string): Promise<void> {
   const accts = await db
     .select({ id: accounts.id, code: accounts.code })
     .from(accounts)
     .where(
       and(
         eq(accounts.companyId, companyId),
-        inArray(accounts.code, [
-          LEGACY_PRODUCT_REVENUE,
-          LEGACY_SERVICE_REVENUE,
-        ]),
+        inArray(accounts.code, [LEGACY_PRODUCT_REVENUE, LEGACY_SERVICE_REVENUE]),
       ),
     );
   const idByCode = new Map(accts.map((a) => [a.code, a.id]));
@@ -166,14 +151,8 @@ export const createPostingGroupSchema = z.object({
   sortOrder: z.number().int().optional(),
 });
 
-export async function listPostingGroups(
-  db: Database,
-  companyId: string,
-): Promise<PostingGroup[]> {
-  return db
-    .select()
-    .from(postingGroups)
-    .where(eq(postingGroups.companyId, companyId));
+export async function listPostingGroups(db: Database, companyId: string): Promise<PostingGroup[]> {
+  return db.select().from(postingGroups).where(eq(postingGroups.companyId, companyId));
 }
 
 export async function createPostingGroup(
@@ -214,9 +193,7 @@ export async function updatePostingGroup(
     const [row] = await tx
       .update(postingGroups)
       .set({ ...input, updatedAt: new Date() })
-      .where(
-        and(eq(postingGroups.id, id), eq(postingGroups.companyId, companyId)),
-      )
+      .where(and(eq(postingGroups.id, id), eq(postingGroups.companyId, companyId)))
       .returning();
     if (!row) throw new Error("Posting group not found");
     return row;

@@ -17,11 +17,8 @@ import type { UseAiForm } from "@fleet/ai-forms/react";
 export function bindField(form: UseAiForm, name: string) {
   return {
     value: form.text(name),
-    onChange: (
-      e: React.ChangeEvent<
-        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-      >,
-    ) => form.setValue(name, e.target.value),
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+      form.setValue(name, e.target.value),
   };
 }
 
@@ -29,8 +26,7 @@ export function bindField(form: UseAiForm, name: string) {
 export function bindCheckbox(form: UseAiForm, name: string) {
   return {
     checked: form.values[name] === true || form.values[name] === "true",
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
-      form.setValue(name, e.target.checked),
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => form.setValue(name, e.target.checked),
   };
 }
 

@@ -1,16 +1,8 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
-import {
-  authenticateApi,
-  apiError,
-  apiSuccess,
-  apiZodError,
-} from "@/lib/api-handler";
+import { authenticateApi, apiError, apiSuccess, apiZodError } from "@/lib/api-handler";
 import { withIdempotency } from "@/lib/api-idempotency";
-import {
-  createRepairOrder,
-  createRepairOrderSchema,
-} from "@kivvi/core/src/domain/repairs";
+import { createRepairOrder, createRepairOrderSchema } from "@kivvi/core/src/domain/repairs";
 
 /**
  * POST /api/v1/repair-orders
@@ -32,18 +24,10 @@ export async function POST(request: NextRequest) {
       const parsed = createRepairOrderSchema.safeParse(body);
       if (!parsed.success) return apiZodError(parsed.error, "body");
 
-      const result = await createRepairOrder(
-        db,
-        ctx.companyId,
-        ctx.userId,
-        parsed.data,
-      );
+      const result = await createRepairOrder(db, ctx.companyId, ctx.userId, parsed.data);
       return apiSuccess(result);
     } catch (error) {
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Failed to create repair order";
+      const message = error instanceof Error ? error.message : "Failed to create repair order";
       return apiError(message, 400);
     }
   });

@@ -11,10 +11,7 @@ interface ContactDonorImpactProps {
   companyId: string;
 }
 
-export async function ContactDonorImpact({
-  contactId,
-  companyId,
-}: ContactDonorImpactProps) {
+export async function ContactDonorImpact({ contactId, companyId }: ContactDonorImpactProps) {
   const t = await getTranslations("contacts");
   const ti = await getTranslations("inventory");
 
@@ -30,26 +27,17 @@ export async function ContactDonorImpact({
 
   const co2Kg = Number(metrics.co2AvoidedKg);
   const co2Display =
-    co2Kg >= 1000
-      ? `${(co2Kg / 1000).toFixed(1)} t`
-      : `${co2Kg.toLocaleString(DEFAULT_LOCALE)} kg`;
+    co2Kg >= 1000 ? `${(co2Kg / 1000).toFixed(1)} t` : `${co2Kg.toLocaleString(DEFAULT_LOCALE)} kg`;
 
   return (
-    <CardSection
-      title={t("donorImpact")}
-      icon={<Leaf className="h-4 w-4 text-success" />}
-    >
+    <CardSection title={t("donorImpact")} icon={<Leaf className="h-4 w-4 text-success" />}>
       <div className="grid grid-cols-3 gap-3">
         <div className="text-center">
           <div className="flex items-center justify-center mb-1">
             <PackageCheck className="h-4 w-4 text-muted-foreground" />
           </div>
-          <div className="text-xl font-bold tabular-nums">
-            {metrics.itemsProcessed}
-          </div>
-          <p className="text-xs text-muted-foreground leading-tight">
-            {t("donorItemsDonated")}
-          </p>
+          <div className="text-xl font-bold tabular-nums">{metrics.itemsProcessed}</div>
+          <p className="text-xs text-muted-foreground leading-tight">{t("donorItemsDonated")}</p>
         </div>
 
         <div className="text-center">
@@ -59,21 +47,15 @@ export async function ContactDonorImpact({
           <div className="text-xl font-bold tabular-nums text-success">
             {metrics.reuseRatePercent}%
           </div>
-          <p className="text-xs text-muted-foreground leading-tight">
-            {ti("reuseRate")}
-          </p>
+          <p className="text-xs text-muted-foreground leading-tight">{ti("reuseRate")}</p>
         </div>
 
         <div className="text-center">
           <div className="flex items-center justify-center mb-1">
             <Leaf className="h-4 w-4 text-success" />
           </div>
-          <div className="text-xl font-bold tabular-nums text-success">
-            {co2Display}
-          </div>
-          <p className="text-xs text-muted-foreground leading-tight">
-            {ti("co2Avoided")}
-          </p>
+          <div className="text-xl font-bold tabular-nums text-success">{co2Display}</div>
+          <p className="text-xs text-muted-foreground leading-tight">{ti("co2Avoided")}</p>
         </div>
       </div>
 

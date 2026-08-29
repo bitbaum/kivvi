@@ -13,10 +13,7 @@ interface TeamInvitationsListProps {
   onRevoke: (invitationId: string) => void;
 }
 
-export function TeamInvitationsList({
-  invites,
-  onRevoke,
-}: TeamInvitationsListProps) {
+export function TeamInvitationsList({ invites, onRevoke }: TeamInvitationsListProps) {
   const t = useTranslations("team");
   const tc = useTranslations("common");
   const [origin, setOrigin] = useState("");
@@ -56,10 +53,7 @@ export function TeamInvitationsList({
               role={invite.role}
               label={tc(`permissionPresetLabel.${invite.permissionPreset}`)}
             />
-            <CopyButton
-              value={`${origin}/invite/${invite.token}`}
-              label={t("copyInviteLink")}
-            />
+            <CopyButton value={`${origin}/invite/${invite.token}`} label={t("copyInviteLink")} />
             <button
               type="button"
               onClick={() => onRevoke(invite.id)}

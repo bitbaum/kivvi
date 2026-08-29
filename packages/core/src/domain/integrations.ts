@@ -42,33 +42,25 @@ export const talerIntegrationSchema = z.object({
   enabled: z.boolean().default(true),
 });
 
-export type NextcloudIntegrationInput = z.infer<
-  typeof nextcloudIntegrationSchema
->;
+export type NextcloudIntegrationInput = z.infer<typeof nextcloudIntegrationSchema>;
 export type MailIntegrationInput = z.infer<typeof mailIntegrationSchema>;
 export type TalerIntegrationInput = z.infer<typeof talerIntegrationSchema>;
 
-export type StoredNextcloudIntegration = Partial<
-  Omit<NextcloudIntegrationInput, "appPassword">
-> & {
+export type StoredNextcloudIntegration = Partial<Omit<NextcloudIntegrationInput, "appPassword">> & {
   appPassword?: string;
   lastTestedAt?: string;
   lastStatus?: "ok" | "error";
   lastError?: string;
 };
 
-export type StoredMailIntegration = Partial<
-  Omit<MailIntegrationInput, "password">
-> & {
+export type StoredMailIntegration = Partial<Omit<MailIntegrationInput, "password">> & {
   password?: string;
   lastTestedAt?: string;
   lastStatus?: "ok" | "error";
   lastError?: string;
 };
 
-export type StoredTalerIntegration = Partial<
-  Omit<TalerIntegrationInput, "accessToken">
-> & {
+export type StoredTalerIntegration = Partial<Omit<TalerIntegrationInput, "accessToken">> & {
   accessToken?: string;
   lastTestedAt?: string;
   lastStatus?: "ok" | "error";
@@ -110,9 +102,7 @@ export function mergeMailIntegration(
     ...existing,
     ...input,
     password:
-      input.password === maskSecret(existing?.password)
-        ? existing?.password
-        : input.password,
+      input.password === maskSecret(existing?.password) ? existing?.password : input.password,
     lastError: undefined,
   };
 }
@@ -135,9 +125,7 @@ export function mergeTalerIntegration(
 }
 
 export function summarizeIntegrationStatus(
-  integration:
-    | { enabled?: boolean; lastStatus?: "ok" | "error"; lastError?: string }
-    | undefined,
+  integration: { enabled?: boolean; lastStatus?: "ok" | "error"; lastError?: string } | undefined,
 ): "not_configured" | "disabled" | "ok" | "error" | "untested" {
   if (!integration) return "not_configured";
   if (!integration.enabled) return "disabled";

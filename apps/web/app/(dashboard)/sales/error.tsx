@@ -9,7 +9,5 @@ export default function SalesError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  return (
-    <SectionErrorBoundary error={error} reset={reset} backHref="/documents" />
-  );
+  return <SectionErrorBoundary error={error} reset={reset} backHref="/documents" />;
 }

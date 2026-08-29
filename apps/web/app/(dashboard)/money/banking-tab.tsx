@@ -16,10 +16,7 @@ export async function BankingTab({ companyId }: { companyId: string }) {
     getBankTransactionsSummary(db, companyId),
   ]);
 
-  const totalBalance = accounts.reduce(
-    (sum, a) => sum + Number(a.balance || 0),
-    0,
-  );
+  const totalBalance = accounts.reduce((sum, a) => sum + Number(a.balance || 0), 0);
 
   return (
     <div className="space-y-6">
@@ -66,27 +63,18 @@ export async function BankingTab({ companyId }: { companyId: string }) {
                     {account.name}
                   </h3>
                   {account.bankName && (
-                    <p className="text-xs text-muted-foreground">
-                      {account.bankName}
-                    </p>
+                    <p className="text-xs text-muted-foreground">{account.bankName}</p>
                   )}
                 </div>
               </div>
               {account.iban && (
-                <p className="mt-3 font-mono text-xs text-muted-foreground">
-                  {account.iban}
-                </p>
+                <p className="mt-3 font-mono text-xs text-muted-foreground">{account.iban}</p>
               )}
               <div className="mt-4 flex items-end justify-between">
                 <div>
-                  <p className="text-xs text-muted-foreground">
-                    {t("balance")}
-                  </p>
+                  <p className="text-xs text-muted-foreground">{t("balance")}</p>
                   <p className="text-lg font-semibold">
-                    {formatCurrency(
-                      account.balance || "0",
-                      account.currency || DEFAULT_CURRENCY,
-                    )}
+                    {formatCurrency(account.balance || "0", account.currency || DEFAULT_CURRENCY)}
                   </p>
                 </div>
                 {account.lastSyncAt && (

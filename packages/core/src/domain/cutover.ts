@@ -43,8 +43,7 @@ export async function importOpeningBalances(
 
   let totalDebit = new Decimal(0);
   let totalCredit = new Decimal(0);
-  const lines: Array<{ accountCode: string; debit?: string; credit?: string }> =
-    [];
+  const lines: Array<{ accountCode: string; debit?: string; credit?: string }> = [];
 
   for (const l of data.lines) {
     const d = new Decimal(l.debit || "0");

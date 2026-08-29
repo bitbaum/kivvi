@@ -64,9 +64,7 @@ export function RepairQueueAssignButton({
         )}
       >
         <User className="h-3.5 w-3.5" />
-        <span className="max-w-[100px] truncate">
-          {assignedToName ?? ti("assignItem")}
-        </span>
+        <span className="max-w-[100px] truncate">{assignedToName ?? ti("assignItem")}</span>
         <ChevronDown className="h-3 w-3 opacity-60" />
       </button>
 

@@ -1,19 +1,6 @@
 import { z } from "zod";
 import Decimal from "decimal.js";
-import {
-  eq,
-  and,
-  or,
-  ilike,
-  gte,
-  lte,
-  desc,
-  asc,
-  sql,
-  count,
-  sum,
-  inArray,
-} from "drizzle-orm";
+import { eq, and, or, ilike, gte, lte, desc, asc, sql, count, sum, inArray } from "drizzle-orm";
 import {
   documents,
   documentItems,
@@ -34,10 +21,7 @@ import type {
   IntakeSourceValue,
   CompanySettings,
 } from "@kivvi/database";
-import {
-  DOCUMENT_TYPE_VALUES,
-  INTAKE_SOURCE_VALUES,
-} from "@kivvi/database/src/enums";
+import { DOCUMENT_TYPE_VALUES, INTAKE_SOURCE_VALUES } from "@kivvi/database/src/enums";
 import type { PaginatedResult } from "./contacts";
 import { DomainError } from "../domain-error";
 import { calcItemNet, calcDocumentTotals } from "../utils/document-totals";
@@ -88,10 +72,7 @@ const documentItemSchema = z.object({
     .regex(AMOUNT_REGEX, "Invalid discount")
     .default("0")
     .refine((v) => parseFloat(v) <= 100, "Discount cannot exceed 100%"),
-  vatRate: z
-    .string()
-    .regex(AMOUNT_REGEX, "Invalid VAT rate")
-    .default(DEFAULT_VAT_RATE),
+  vatRate: z.string().regex(AMOUNT_REGEX, "Invalid VAT rate").default(DEFAULT_VAT_RATE),
 });
 
 export const createDocumentSchema = z.object({
@@ -108,14 +89,8 @@ export const createDocumentSchema = z.object({
   // Intake-specific fields
   intakeSource: z.enum(INTAKE_SOURCE_VALUES).optional().nullable(),
   donorId: z.string().uuid().optional().nullable(),
-  consignmentRate: z
-    .string()
-    .regex(AMOUNT_REGEX, "Invalid consignment rate")
-    .optional()
-    .nullable(),
-  items: z
-    .array(documentItemSchema)
-    .min(1, "At least one line item is required"),
+  consignmentRate: z.string().regex(AMOUNT_REGEX, "Invalid consignment rate").optional().nullable(),
+  items: z.array(documentItemSchema).min(1, "At least one line item is required"),
 });
 
 export const updateDocumentSchema = z.object({
@@ -128,15 +103,8 @@ export const updateDocumentSchema = z.object({
   currency: z.string().optional(),
   notes: z.string().max(5000).optional().nullable(),
   internalNotes: z.string().max(5000).optional().nullable(),
-  consignmentRate: z
-    .string()
-    .regex(AMOUNT_REGEX, "Invalid consignment rate")
-    .optional()
-    .nullable(),
-  items: z
-    .array(documentItemSchema)
-    .min(1, "At least one line item is required")
-    .optional(),
+  consignmentRate: z.string().regex(AMOUNT_REGEX, "Invalid consignment rate").optional().nullable(),
+  items: z.array(documentItemSchema).min(1, "At least one line item is required").optional(),
 });
 
 export type CreateDocumentInput = z.infer<typeof createDocumentSchema>;
@@ -150,21 +118,13 @@ export const createRepairLaborInvoiceSchema = z.object({
   // Optional: falls back to the company's defaultRepairHourlyRate when omitted.
   hourlyRate: z.string().regex(AMOUNT_REGEX, "Invalid hourly rate").optional(),
   issueDate: z.string().optional(),
-  vatRate: z
-    .string()
-    .regex(AMOUNT_REGEX, "Invalid VAT rate")
-    .default(DEFAULT_VAT_RATE),
+  vatRate: z.string().regex(AMOUNT_REGEX, "Invalid VAT rate").default(DEFAULT_VAT_RATE),
   description: z.string().min(1).max(500).optional(),
 });
 
-export type CreateRepairLaborInvoiceInput = z.input<
-  typeof createRepairLaborInvoiceSchema
->;
+export type CreateRepairLaborInvoiceInput = z.input<typeof createRepairLaborInvoiceSchema>;
 
-export function calculateRepairLaborAmount(
-  hours: string,
-  hourlyRate: string,
-): string {
+export function calculateRepairLaborAmount(hours: string, hourlyRate: string): string {
   return new Decimal(hours).times(hourlyRate).toFixed(2);
 }
 
@@ -255,10 +215,7 @@ function calculateMod10CheckDigit(input: string): string {
  * Swiss QR-bill has been legally required since June 30, 2020, with the grace period
  * ending October 1, 2022. All invoices must include a valid QR reference.
  */
-export function generateQRReference(
-  companyId: string,
-  documentNumber: string,
-): string {
+export function generateQRReference(companyId: string, documentNumber: string): string {
   // Generate 10-digit company identifier from company ID hash
   const companyHash = hashToDigits(companyId, 10);
 
@@ -282,9 +239,7 @@ export function generateQRReference(
 // ============================================================================
 
 /** Return type of getDocument — document with all relations loaded */
-export type DocumentWithRelations = NonNullable<
-  Awaited<ReturnType<typeof getDocument>>
->;
+export type DocumentWithRelations = NonNullable<Awaited<ReturnType<typeof getDocument>>>;
 
 /** Single document row as returned in list queries */
 export type DocumentListItem = typeof documents.$inferSelect & {
@@ -304,8 +259,7 @@ export function calculateOutstandingAmount(doc: {
 }): Decimal {
   const total = new Decimal(doc.total || "0");
   const paid = (doc.payments || []).reduce(
-    (sum: Decimal, p: { amount: string }) =>
-      sum.plus(new Decimal(p.amount || "0")),
+    (sum: Decimal, p: { amount: string }) => sum.plus(new Decimal(p.amount || "0")),
     new Decimal(0),
   );
   return total.minus(paid);
@@ -384,9 +338,7 @@ export async function listDocuments(
 
   if (search && search.trim()) {
     const term = `%${search.trim()}%`;
-    conditions.push(
-      or(ilike(documents.number, term), ilike(documents.notes, term))!,
-    );
+    conditions.push(or(ilike(documents.number, term), ilike(documents.notes, term))!);
   }
 
   const whereClause = and(...conditions);
@@ -434,16 +386,9 @@ export async function listDocuments(
 /**
  * Get a single document with items, payments, and contact.
  */
-export async function getDocument(
-  db: Database,
-  companyId: string,
-  documentId: string,
-) {
+export async function getDocument(db: Database, companyId: string, documentId: string) {
   const doc = await db.query.documents.findFirst({
-    where: and(
-      eq(documents.id, documentId),
-      eq(documents.companyId, companyId),
-    ),
+    where: and(eq(documents.id, documentId), eq(documents.companyId, companyId)),
     with: {
       contact: true,
       project: true,
@@ -489,28 +434,17 @@ export async function createDocument(
 
     // Generate QR reference for invoices (Swiss legal requirement)
     const qrReference =
-      validated.type === "invoice"
-        ? generateQRReference(companyId, number)
-        : null;
+      validated.type === "invoice" ? generateQRReference(companyId, number) : null;
 
     // Auto-calculate dueDate from contact's paymentTermsDays if not provided
-    let dueDate: Date | null = validated.dueDate
-      ? new Date(validated.dueDate)
-      : null;
+    let dueDate: Date | null = validated.dueDate ? new Date(validated.dueDate) : null;
     if (!dueDate && validated.contactId) {
       const [contact] = await tx
         .select({ paymentTermsDays: contacts.paymentTermsDays })
         .from(contacts)
-        .where(
-          and(
-            eq(contacts.id, validated.contactId),
-            eq(contacts.companyId, companyId),
-          ),
-        );
+        .where(and(eq(contacts.id, validated.contactId), eq(contacts.companyId, companyId)));
       if (contact?.paymentTermsDays) {
-        const issueDate = validated.issueDate
-          ? new Date(validated.issueDate)
-          : new Date();
+        const issueDate = validated.issueDate ? new Date(validated.issueDate) : new Date();
         dueDate = new Date(issueDate);
         dueDate.setDate(dueDate.getDate() + contact.paymentTermsDays);
       }
@@ -527,13 +461,9 @@ export async function createDocument(
         contactId: validated.contactId ?? null,
         projectId: validated.projectId ?? null,
         costCenterId: validated.costCenterId ?? null,
-        issueDate: validated.issueDate
-          ? new Date(validated.issueDate)
-          : new Date(),
+        issueDate: validated.issueDate ? new Date(validated.issueDate) : new Date(),
         dueDate,
-        deliveryDate: validated.deliveryDate
-          ? new Date(validated.deliveryDate)
-          : null,
+        deliveryDate: validated.deliveryDate ? new Date(validated.deliveryDate) : null,
         currency: validated.currency,
         subtotal: totals.subtotal,
         vatAmount: totals.vatAmount,
@@ -567,9 +497,7 @@ export async function createDocument(
       );
 
       // Auto-mark linked inventory items as sold (for invoices/sales)
-      if (
-        (SALES_DOCUMENT_TYPES as readonly string[]).includes(validated.type)
-      ) {
+      if ((SALES_DOCUMENT_TYPES as readonly string[]).includes(validated.type)) {
         for (const item of validated.items) {
           if (item.inventoryItemId) {
             try {
@@ -697,12 +625,7 @@ export async function createRepairLaborInvoice(
       repairHours: inventoryItems.repairHours,
     })
     .from(inventoryItems)
-    .where(
-      and(
-        eq(inventoryItems.id, validated.itemId),
-        eq(inventoryItems.companyId, companyId),
-      ),
-    )
+    .where(and(eq(inventoryItems.id, validated.itemId), eq(inventoryItems.companyId, companyId)))
     .limit(1);
 
   if (!item) throw new Error("Inventory item not found");
@@ -724,9 +647,7 @@ export async function createRepairLaborInvoice(
     hourlyRate = settings.defaultRepairHourlyRate ?? undefined;
   }
   if (!hourlyRate) {
-    throw new Error(
-      "No hourly rate provided and no default repair rate configured",
-    );
+    throw new Error("No hourly rate provided and no default repair rate configured");
   }
 
   const productId = await getOrCreateRepairLaborProduct(
@@ -737,8 +658,7 @@ export async function createRepairLaborInvoice(
   );
   const amount = calculateRepairLaborAmount(hours, hourlyRate);
   const description =
-    validated.description ??
-    `Repair labor ${item.itemNumber}: ${item.description}`;
+    validated.description ?? `Repair labor ${item.itemNumber}: ${item.description}`;
 
   return createDocument(db, companyId, userId, {
     type: "invoice",
@@ -805,9 +725,7 @@ export async function updateDocument(
   const existing = await db
     .select()
     .from(documents)
-    .where(
-      and(eq(documents.id, documentId), eq(documents.companyId, companyId)),
-    )
+    .where(and(eq(documents.id, documentId), eq(documents.companyId, companyId)))
     .limit(1);
 
   if (existing.length === 0) {
@@ -824,14 +742,10 @@ export async function updateDocument(
       .set({
         notes: validated.notes !== undefined ? validated.notes : doc.notes,
         internalNotes:
-          validated.internalNotes !== undefined
-            ? validated.internalNotes
-            : doc.internalNotes,
+          validated.internalNotes !== undefined ? validated.internalNotes : doc.internalNotes,
         updatedAt: new Date(),
       })
-      .where(
-        and(eq(documents.id, documentId), eq(documents.companyId, companyId)),
-      )
+      .where(and(eq(documents.id, documentId), eq(documents.companyId, companyId)))
       .returning();
 
     return updated;
@@ -843,16 +757,11 @@ export async function updateDocument(
     return db.transaction(async (tx) => {
       const updateValues: Record<string, unknown> = { updatedAt: new Date() };
 
-      if (validated.contactId !== undefined)
-        updateValues.contactId = validated.contactId;
-      if (validated.projectId !== undefined)
-        updateValues.projectId = validated.projectId;
-      if (validated.issueDate)
-        updateValues.issueDate = new Date(validated.issueDate);
+      if (validated.contactId !== undefined) updateValues.contactId = validated.contactId;
+      if (validated.projectId !== undefined) updateValues.projectId = validated.projectId;
+      if (validated.issueDate) updateValues.issueDate = new Date(validated.issueDate);
       if (validated.dueDate !== undefined)
-        updateValues.dueDate = validated.dueDate
-          ? new Date(validated.dueDate)
-          : null;
+        updateValues.dueDate = validated.dueDate ? new Date(validated.dueDate) : null;
       if (validated.deliveryDate !== undefined)
         updateValues.deliveryDate = validated.deliveryDate
           ? new Date(validated.deliveryDate)
@@ -871,9 +780,7 @@ export async function updateDocument(
       updateValues.total = totals.total;
 
       // Delete existing items and re-insert (in same transaction)
-      await tx
-        .delete(documentItems)
-        .where(eq(documentItems.documentId, documentId));
+      await tx.delete(documentItems).where(eq(documentItems.documentId, documentId));
       await tx.insert(documentItems).values(
         items.map((item, index) => ({
           documentId,
@@ -892,9 +799,7 @@ export async function updateDocument(
       const [updated] = await tx
         .update(documents)
         .set(updateValues)
-        .where(
-          and(eq(documents.id, documentId), eq(documents.companyId, companyId)),
-        )
+        .where(and(eq(documents.id, documentId), eq(documents.companyId, companyId)))
         .returning();
 
       return updated;
@@ -904,33 +809,23 @@ export async function updateDocument(
   // No items update: simple field updates (no transaction needed)
   const updateValues: Record<string, unknown> = { updatedAt: new Date() };
 
-  if (validated.contactId !== undefined)
-    updateValues.contactId = validated.contactId;
-  if (validated.projectId !== undefined)
-    updateValues.projectId = validated.projectId;
-  if (validated.issueDate)
-    updateValues.issueDate = new Date(validated.issueDate);
+  if (validated.contactId !== undefined) updateValues.contactId = validated.contactId;
+  if (validated.projectId !== undefined) updateValues.projectId = validated.projectId;
+  if (validated.issueDate) updateValues.issueDate = new Date(validated.issueDate);
   if (validated.dueDate !== undefined)
-    updateValues.dueDate = validated.dueDate
-      ? new Date(validated.dueDate)
-      : null;
+    updateValues.dueDate = validated.dueDate ? new Date(validated.dueDate) : null;
   if (validated.deliveryDate !== undefined)
-    updateValues.deliveryDate = validated.deliveryDate
-      ? new Date(validated.deliveryDate)
-      : null;
+    updateValues.deliveryDate = validated.deliveryDate ? new Date(validated.deliveryDate) : null;
   if (validated.currency) updateValues.currency = validated.currency;
   if (validated.notes !== undefined) updateValues.notes = validated.notes;
-  if (validated.internalNotes !== undefined)
-    updateValues.internalNotes = validated.internalNotes;
+  if (validated.internalNotes !== undefined) updateValues.internalNotes = validated.internalNotes;
   if (validated.consignmentRate !== undefined)
     updateValues.consignmentRate = validated.consignmentRate;
 
   const [updated] = await db
     .update(documents)
     .set(updateValues)
-    .where(
-      and(eq(documents.id, documentId), eq(documents.companyId, companyId)),
-    )
+    .where(and(eq(documents.id, documentId), eq(documents.companyId, companyId)))
     .returning();
 
   return updated;
@@ -1002,16 +897,8 @@ async function handleConsignmentSettlement(
       itemNumber: inventoryItems.itemNumber,
     })
     .from(documentItems)
-    .innerJoin(
-      inventoryItems,
-      eq(documentItems.inventoryItemId, inventoryItems.id),
-    )
-    .where(
-      and(
-        eq(documentItems.documentId, doc.id),
-        eq(inventoryItems.companyId, companyId),
-      ),
-    );
+    .innerJoin(inventoryItems, eq(documentItems.inventoryItemId, inventoryItems.id))
+    .where(and(eq(documentItems.documentId, doc.id), eq(inventoryItems.companyId, companyId)));
 
   let consignorShare = new Decimal(0);
   const itemNumbers: string[] = [];
@@ -1020,10 +907,7 @@ async function handleConsignmentSettlement(
     const rate = new Decimal(row.consignmentRate || "0");
     if (rate.lte(0)) continue;
 
-    const share = new Decimal(row.lineNet || "0")
-      .times(rate)
-      .div(100)
-      .toDecimalPlaces(2);
+    const share = new Decimal(row.lineNet || "0").times(rate).div(100).toDecimalPlaces(2);
     if (share.lte(0)) continue;
 
     consignorShare = consignorShare.plus(share);
@@ -1111,9 +995,7 @@ export async function updateDocumentStatus(
   const existing = await db
     .select()
     .from(documents)
-    .where(
-      and(eq(documents.id, documentId), eq(documents.companyId, companyId)),
-    )
+    .where(and(eq(documents.id, documentId), eq(documents.companyId, companyId)))
     .limit(1);
 
   if (existing.length === 0) {
@@ -1146,9 +1028,7 @@ export async function updateDocumentStatus(
     const [row] = await tx
       .update(documents)
       .set(updateValues)
-      .where(
-        and(eq(documents.id, documentId), eq(documents.companyId, companyId)),
-      )
+      .where(and(eq(documents.id, documentId), eq(documents.companyId, companyId)))
       .returning();
 
     // Side effects: journal entries, stock movements, inventory items — all atomic
@@ -1176,17 +1056,11 @@ export async function updateDocumentStatus(
 /**
  * Delete a document (only drafts can be deleted).
  */
-export async function deleteDocument(
-  db: Database,
-  companyId: string,
-  documentId: string,
-) {
+export async function deleteDocument(db: Database, companyId: string, documentId: string) {
   const existing = await db
     .select()
     .from(documents)
-    .where(
-      and(eq(documents.id, documentId), eq(documents.companyId, companyId)),
-    )
+    .where(and(eq(documents.id, documentId), eq(documents.companyId, companyId)))
     .limit(1);
 
   if (existing.length === 0) {
@@ -1204,9 +1078,7 @@ export async function deleteDocument(
   // Items and payments cascade-delete via FK
   await db
     .delete(documents)
-    .where(
-      and(eq(documents.id, documentId), eq(documents.companyId, companyId)),
-    );
+    .where(and(eq(documents.id, documentId), eq(documents.companyId, companyId)));
 
   return existing[0];
 }
@@ -1232,9 +1104,7 @@ export async function recordPayment(
   const [doc] = await db
     .select()
     .from(documents)
-    .where(
-      and(eq(documents.id, documentId), eq(documents.companyId, companyId)),
-    )
+    .where(and(eq(documents.id, documentId), eq(documents.companyId, companyId)))
     .limit(1);
 
   if (!doc) {
@@ -1269,10 +1139,7 @@ export async function recordPayment(
     const [txn] = await db
       .select({ companyId: bankAccounts.companyId })
       .from(bankTransactions)
-      .innerJoin(
-        bankAccounts,
-        eq(bankTransactions.bankAccountId, bankAccounts.id),
-      )
+      .innerJoin(bankAccounts, eq(bankTransactions.bankAccountId, bankAccounts.id))
       .where(eq(bankTransactions.id, input.bankTransactionId))
       .limit(1);
     if (!txn || txn.companyId !== companyId) {
@@ -1347,9 +1214,7 @@ export async function recordPayment(
         paidDate: newStatus === "paid" ? new Date() : null,
         updatedAt: new Date(),
       })
-      .where(
-        and(eq(documents.id, documentId), eq(documents.companyId, companyId)),
-      );
+      .where(and(eq(documents.id, documentId), eq(documents.companyId, companyId)));
 
     // Auto-create journal entry for the payment.
     // If this fails, the entire transaction rolls back (accounting must stay consistent).
@@ -1388,10 +1253,7 @@ export async function convertDocument(
 ) {
   // Get the source document with items (outside transaction - read-only)
   const source = await db.query.documents.findFirst({
-    where: and(
-      eq(documents.id, sourceDocumentId),
-      eq(documents.companyId, companyId),
-    ),
+    where: and(eq(documents.id, sourceDocumentId), eq(documents.companyId, companyId)),
     with: {
       items: true,
     },
@@ -1417,9 +1279,7 @@ export async function convertDocument(
     const number = await getNextNumber(tx, companyId, targetType);
 
     // Generate QR reference if converting to invoice
-    const qrReference = (QR_REFERENCE_TYPES as readonly string[]).includes(
-      targetType,
-    )
+    const qrReference = (QR_REFERENCE_TYPES as readonly string[]).includes(targetType)
       ? generateQRReference(companyId, number)
       : null;
 
@@ -1482,10 +1342,7 @@ export async function duplicateDocument(
   sourceDocumentId: string,
 ) {
   const source = await db.query.documents.findFirst({
-    where: and(
-      eq(documents.id, sourceDocumentId),
-      eq(documents.companyId, companyId),
-    ),
+    where: and(eq(documents.id, sourceDocumentId), eq(documents.companyId, companyId)),
     with: { items: true },
   });
 
@@ -1496,9 +1353,7 @@ export async function duplicateDocument(
   return db.transaction(async (tx) => {
     const number = await getNextNumber(tx, companyId, source.type);
 
-    const qrReference = (QR_REFERENCE_TYPES as readonly string[]).includes(
-      source.type,
-    )
+    const qrReference = (QR_REFERENCE_TYPES as readonly string[]).includes(source.type)
       ? generateQRReference(companyId, number)
       : null;
 
@@ -1548,11 +1403,7 @@ export async function duplicateDocument(
 /**
  * Get financial summary for a company — used by dashboard and AI.
  */
-export async function getFinancialSummary(
-  db: Database,
-  companyId: string,
-  sinceDate?: Date,
-) {
+export async function getFinancialSummary(db: Database, companyId: string, sinceDate?: Date) {
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const startOfYear = new Date(now.getFullYear(), 0, 1);

@@ -23,10 +23,7 @@ import { isValidUUID } from "@/lib/utils";
  * acceptedTypes check enforces the route ↔ type binding at the
  * server boundary.
  */
-export async function renderDocumentDetailPage(
-  id: string,
-  acceptedTypes: readonly DocumentType[],
-) {
+export async function renderDocumentDetailPage(id: string, acceptedTypes: readonly DocumentType[]) {
   if (!isValidUUID(id)) notFound();
   const session = await getSessionOrRedirect();
   const doc = await getDocument(db, session.user.companyId, id);

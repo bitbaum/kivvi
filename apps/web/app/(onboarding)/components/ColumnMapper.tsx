@@ -2,10 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import type {
-  MappingProfile,
-  MappingField,
-} from "@kivvi/core/src/domain/import-mappings";
+import type { MappingProfile, MappingField } from "@kivvi/core/src/domain/import-mappings";
 
 interface ColumnMapperProps {
   headers: string[];
@@ -13,11 +10,7 @@ interface ColumnMapperProps {
   onMappingConfirmed: (mapping: MappingField[]) => void;
 }
 
-export function ColumnMapper({
-  headers,
-  profile,
-  onMappingConfirmed,
-}: ColumnMapperProps) {
+export function ColumnMapper({ headers, profile, onMappingConfirmed }: ColumnMapperProps) {
   const t = useTranslations("onboarding");
   const [mapping, setMapping] = useState<MappingField[]>(profile.fields);
 
@@ -28,17 +21,13 @@ export function ColumnMapper({
 
   const handleSourceChange = (targetField: string, newSource: string) => {
     setMapping((prev) =>
-      prev.map((f) =>
-        f.target === targetField ? { ...f, source: newSource } : f,
-      ),
+      prev.map((f) => (f.target === targetField ? { ...f, source: newSource } : f)),
     );
   };
 
   const handleConfirm = () => {
     // Only include fields that have a source column
-    const validMapping = mapping.filter(
-      (f) => f.source && headers.includes(f.source),
-    );
+    const validMapping = mapping.filter((f) => f.source && headers.includes(f.source));
     onMappingConfirmed(validMapping);
   };
 
@@ -52,12 +41,8 @@ export function ColumnMapper({
         <table className="w-full text-sm">
           <thead className="sticky top-0 bg-muted">
             <tr>
-              <th className="px-3 py-2 text-left font-medium">
-                {t("targetField")}
-              </th>
-              <th className="px-3 py-2 text-left font-medium">
-                {t("sourceColumn")}
-              </th>
+              <th className="px-3 py-2 text-left font-medium">{t("targetField")}</th>
+              <th className="px-3 py-2 text-left font-medium">{t("sourceColumn")}</th>
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -66,17 +51,13 @@ export function ColumnMapper({
                 <td className="px-3 py-2">
                   <span className="font-mono text-xs">{field.target}</span>
                   {field.transform && (
-                    <span className="ml-1 text-xs text-muted-foreground">
-                      ({field.transform})
-                    </span>
+                    <span className="ml-1 text-xs text-muted-foreground">({field.transform})</span>
                   )}
                 </td>
                 <td className="px-3 py-2">
                   <select
                     value={field.source}
-                    onChange={(e) =>
-                      handleSourceChange(field.target, e.target.value)
-                    }
+                    onChange={(e) => handleSourceChange(field.target, e.target.value)}
                     className="w-full rounded border bg-background px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
                   >
                     <option value="">-- {t("skip")} --</option>

@@ -59,10 +59,7 @@ export function checkRateLimit(
 
   // Refill tokens based on elapsed time
   const elapsed = (now - entry.lastRefill) / 1000;
-  entry.tokens = Math.min(
-    config.maxTokens,
-    entry.tokens + elapsed * config.refillRate,
-  );
+  entry.tokens = Math.min(config.maxTokens, entry.tokens + elapsed * config.refillRate);
   entry.lastRefill = now;
 
   if (entry.tokens >= 1) {

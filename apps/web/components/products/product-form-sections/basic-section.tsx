@@ -3,11 +3,7 @@
 import { useTranslations } from "next-intl";
 import type { Product } from "@kivvi/database";
 import { PRODUCT_TYPES } from "@/lib/config/products";
-import {
-  FormInput,
-  FormSelect,
-  FormTextarea,
-} from "@/components/ui/form-field";
+import { FormInput, FormSelect, FormTextarea } from "@/components/ui/form-field";
 
 interface BasicSectionProps {
   product?: Product;
@@ -42,9 +38,7 @@ export function ProductFormBasicSection({
             name="type"
             required
             value={productType}
-            onChange={(e) =>
-              onTypeChange(e.target.value as "product" | "service")
-            }
+            onChange={(e) => onTypeChange(e.target.value as "product" | "service")}
           >
             {typeOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>
@@ -68,10 +62,7 @@ export function ProductFormBasicSection({
           />
         </div>
         <div>
-          <label
-            htmlFor="description"
-            className="mb-1.5 block text-sm font-medium"
-          >
+          <label htmlFor="description" className="mb-1.5 block text-sm font-medium">
             {tc("description")}
           </label>
           <FormTextarea
@@ -93,9 +84,7 @@ export function ProductFormBasicSection({
               name="sku"
               maxLength={100}
               defaultValue={product?.sku || ""}
-              placeholder={
-                !isEdit ? t("placeholders.articleNumber") : undefined
-              }
+              placeholder={!isEdit ? t("placeholders.articleNumber") : undefined}
             />
           </div>
           <div>

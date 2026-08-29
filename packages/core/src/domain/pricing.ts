@@ -25,11 +25,7 @@ export const createPriceRuleSchema = z.object({
   productGroupId: z.string().uuid().optional().nullable(),
   type: z.enum(PRICE_RULE_TYPE_VALUES),
   value: z.string().regex(AMOUNT_REGEX, "Invalid value format"),
-  minQuantity: z
-    .string()
-    .regex(QUANTITY_REGEX, "Invalid quantity")
-    .optional()
-    .nullable(),
+  minQuantity: z.string().regex(QUANTITY_REGEX, "Invalid quantity").optional().nullable(),
   validFrom: z.string().date().optional().nullable(),
   validTo: z.string().date().optional().nullable(),
 });
@@ -58,10 +54,7 @@ export interface PriceRuleWithProduct extends PriceRule {
 // CRUD — PRICE LISTS
 // ============================================================================
 
-export async function listPriceLists(
-  db: Database,
-  companyId: string,
-): Promise<PriceList[]> {
+export async function listPriceLists(db: Database, companyId: string): Promise<PriceList[]> {
   return db
     .select()
     .from(priceLists)
@@ -145,11 +138,7 @@ export async function updatePriceList(
   return updated;
 }
 
-export async function deletePriceList(
-  db: Database,
-  companyId: string,
-  id: string,
-): Promise<void> {
+export async function deletePriceList(db: Database, companyId: string, id: string): Promise<void> {
   const [deleted] = await db
     .delete(priceLists)
     .where(and(eq(priceLists.id, id), eq(priceLists.companyId, companyId)))
@@ -171,9 +160,7 @@ export async function createPriceRule(
   const [list] = await db
     .select({ id: priceLists.id })
     .from(priceLists)
-    .where(
-      and(eq(priceLists.id, priceListId), eq(priceLists.companyId, companyId)),
-    );
+    .where(and(eq(priceLists.id, priceListId), eq(priceLists.companyId, companyId)));
 
   if (!list) throw new Error("Price list not found");
 

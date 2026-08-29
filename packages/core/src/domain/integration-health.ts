@@ -54,64 +54,57 @@ export async function getIntegrationHealth(
   const nowIso = now.toISOString();
   const dayAgoIso = dayAgo.toISOString();
 
-  const [[tokenRow], [endpointRow], [deliveryRow], [idempotencyRow]] =
-    await Promise.all([
-      db
-        .select({ value: count() })
-        .from(apiTokens)
-        .where(
-          and(
-            eq(apiTokens.companyId, companyId),
-            eq(apiTokens.isActive, true),
-            or(
-              isNull(apiTokens.expiresAt),
-              sql`${apiTokens.expiresAt} > ${nowIso}`,
-            ),
-          ),
+  const [[tokenRow], [endpointRow], [deliveryRow], [idempotencyRow]] = await Promise.all([
+    db
+      .select({ value: count() })
+      .from(apiTokens)
+      .where(
+        and(
+          eq(apiTokens.companyId, companyId),
+          eq(apiTokens.isActive, true),
+          or(isNull(apiTokens.expiresAt), sql`${apiTokens.expiresAt} > ${nowIso}`),
         ),
-      db
-        .select({
-          total: sql<number>`COUNT(*)::int`,
-          active: sql<number>`COUNT(*) FILTER (WHERE ${webhookEndpoints.isActive})::int`,
-        })
-        .from(webhookEndpoints)
-        .where(eq(webhookEndpoints.companyId, companyId)),
-      db
-        .select({
-          pendingRetries: sql<number>`COUNT(*) FILTER (
+      ),
+    db
+      .select({
+        total: sql<number>`COUNT(*)::int`,
+        active: sql<number>`COUNT(*) FILTER (WHERE ${webhookEndpoints.isActive})::int`,
+      })
+      .from(webhookEndpoints)
+      .where(eq(webhookEndpoints.companyId, companyId)),
+    db
+      .select({
+        pendingRetries: sql<number>`COUNT(*) FILTER (
           WHERE ${webhookDeliveries.deliveredAt} IS NULL
           AND ${webhookDeliveries.nextRetryAt} IS NOT NULL
         )::int`,
-          failed: sql<number>`COUNT(*) FILTER (
+        failed: sql<number>`COUNT(*) FILTER (
           WHERE ${webhookDeliveries.deliveredAt} IS NULL
           AND ${webhookDeliveries.nextRetryAt} IS NULL
           AND ${webhookDeliveries.attemptCount} >= 5
         )::int`,
-          delivered24h: sql<number>`COUNT(*) FILTER (
+        delivered24h: sql<number>`COUNT(*) FILTER (
           WHERE ${webhookDeliveries.deliveredAt} >= ${dayAgoIso}
         )::int`,
-          lastWebhookAt: sql<Date | null>`MAX(${webhookDeliveries.createdAt})`,
-        })
-        .from(webhookDeliveries)
-        .innerJoin(
-          webhookEndpoints,
-          eq(webhookDeliveries.endpointId, webhookEndpoints.id),
-        )
-        .where(eq(webhookEndpoints.companyId, companyId)),
-      db
-        .select({
-          pending: sql<number>`COUNT(*) FILTER (
+        lastWebhookAt: sql<Date | null>`MAX(${webhookDeliveries.createdAt})`,
+      })
+      .from(webhookDeliveries)
+      .innerJoin(webhookEndpoints, eq(webhookDeliveries.endpointId, webhookEndpoints.id))
+      .where(eq(webhookEndpoints.companyId, companyId)),
+    db
+      .select({
+        pending: sql<number>`COUNT(*) FILTER (
           WHERE ${apiIdempotencyKeys.status} = 'pending'
         )::int`,
-          completed24h: sql<number>`COUNT(*) FILTER (
+        completed24h: sql<number>`COUNT(*) FILTER (
           WHERE ${apiIdempotencyKeys.status} = 'completed'
           AND ${apiIdempotencyKeys.createdAt} >= ${dayAgoIso}
         )::int`,
-          lastApiWriteAt: sql<Date | null>`MAX(${apiIdempotencyKeys.createdAt})`,
-        })
-        .from(apiIdempotencyKeys)
-        .where(eq(apiIdempotencyKeys.companyId, companyId)),
-    ]);
+        lastApiWriteAt: sql<Date | null>`MAX(${apiIdempotencyKeys.createdAt})`,
+      })
+      .from(apiIdempotencyKeys)
+      .where(eq(apiIdempotencyKeys.companyId, companyId)),
+  ]);
 
   const activeApiTokens = tokenRow?.value ?? 0;
   const activeWebhookEndpoints = endpointRow?.active ?? 0;

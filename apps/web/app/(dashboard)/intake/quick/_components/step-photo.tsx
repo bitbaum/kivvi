@@ -4,11 +4,7 @@ import { useRef } from "react";
 import { Camera, ChevronRight, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-function compressImage(
-  file: File,
-  maxPx = 600,
-  quality = 0.75,
-): Promise<string> {
+function compressImage(file: File, maxPx = 600, quality = 0.75): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
@@ -65,19 +61,13 @@ export function StepPhoto({
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-semibold">{ti("quickTakePhoto")}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {ti("quickPhotoHint")}
-        </p>
+        <p className="mt-1 text-sm text-muted-foreground">{ti("quickPhotoHint")}</p>
       </div>
 
       {photoBase64 ? (
         <div className="relative rounded-xl overflow-hidden border">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={photoBase64}
-            alt="Preview"
-            className="w-full max-h-64 object-cover"
-          />
+          <img src={photoBase64} alt="Preview" className="w-full max-h-64 object-cover" />
           <button
             onClick={onPhotoClear}
             aria-label={tc("aria.removePhoto")}
@@ -92,9 +82,7 @@ export function StepPhoto({
           className="flex w-full flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-muted-foreground/30 p-12 hover:border-primary/50 hover:bg-muted/50 transition-colors"
         >
           <Camera className="h-12 w-12 text-muted-foreground/50" />
-          <span className="text-sm font-medium text-muted-foreground">
-            {ti("quickAddPhoto")}
-          </span>
+          <span className="text-sm font-medium text-muted-foreground">{ti("quickAddPhoto")}</span>
         </button>
       )}
 

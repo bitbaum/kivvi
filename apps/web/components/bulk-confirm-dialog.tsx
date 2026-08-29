@@ -53,16 +53,8 @@ export function BulkConfirmDialog({
           <Button variant="outline" onClick={onCancel}>
             {cancelLabel}
           </Button>
-          <Button
-            variant="destructive"
-            onClick={onConfirm}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              confirmLabel
-            )}
+          <Button variant="destructive" onClick={onConfirm} disabled={isLoading}>
+            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : confirmLabel}
           </Button>
         </div>
       </div>

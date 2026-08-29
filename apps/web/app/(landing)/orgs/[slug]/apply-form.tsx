@@ -14,11 +14,7 @@ interface ApplyFormProps {
   isAuthenticated: boolean;
 }
 
-export function ApplyForm({
-  companyId,
-  vacancyId = null,
-  isAuthenticated,
-}: ApplyFormProps) {
+export function ApplyForm({ companyId, vacancyId = null, isAuthenticated }: ApplyFormProps) {
   const t = useTranslations("orgs");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -62,9 +58,7 @@ export function ApplyForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
       {error && (
-        <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
-          {error}
-        </div>
+        <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</div>
       )}
       <FormTextarea
         value={message}
@@ -73,11 +67,7 @@ export function ApplyForm({
         maxLength={2000}
       />
       <Button type="submit" size="sm" disabled={isPending}>
-        {isPending ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <Send className="h-4 w-4" />
-        )}
+        {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
         {t("apply")}
       </Button>
     </form>

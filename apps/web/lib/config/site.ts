@@ -95,11 +95,7 @@ const OG_LOCALE_BY_NEXTINTL: Record<string, string> = {
  *     };
  *   }
  */
-export function buildPageMeta(
-  title: string,
-  description: string,
-  locale: string = DEFAULT_LOCALE,
-) {
+export function buildPageMeta(title: string, description: string, locale: string = DEFAULT_LOCALE) {
   // No `images` here on purpose. /og-image.png does not exist in this repo, and
   // naming it explicitly OVERRODE the generated opengraph-image.tsx cards that
   // do — so the site advertised a preview file it had never shipped. Omitting

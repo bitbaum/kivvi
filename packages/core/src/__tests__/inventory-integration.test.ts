@@ -43,10 +43,8 @@ function makeDb(reads: unknown[][]) {
       leftJoin: () => b,
       groupBy: () => b,
       limit: () => b,
-      then: (
-        resolve: (v: unknown[]) => unknown,
-        reject?: (e: unknown) => unknown,
-      ) => Promise.resolve(rows).then(resolve, reject),
+      then: (resolve: (v: unknown[]) => unknown, reject?: (e: unknown) => unknown) =>
+        Promise.resolve(rows).then(resolve, reject),
     };
     return b;
   }
@@ -60,8 +58,7 @@ function makeDb(reads: unknown[][]) {
         // onConflictDoUpdate (for upserts).
         return {
           onConflictDoUpdate: async () => undefined,
-          then: (resolve: (v: unknown) => unknown) =>
-            Promise.resolve(undefined).then(resolve),
+          then: (resolve: (v: unknown) => unknown) => Promise.resolve(undefined).then(resolve),
         };
       },
     }),
@@ -113,11 +110,7 @@ describe("createStockMovementsForDocument", () => {
   });
 
   it("increases stock on a confirmed purchase invoice (purchase, positive qty)", async () => {
-    const { db, movements } = makeDb([
-      [WAREHOUSE],
-      [productItem("3")],
-      [{ total: "3" }],
-    ]);
+    const { db, movements } = makeDb([[WAREHOUSE], [productItem("3")], [{ total: "3" }]]);
     await createStockMovementsForDocument(
       db,
       COMPANY_ID,
@@ -135,11 +128,7 @@ describe("createStockMovementsForDocument", () => {
   });
 
   it("returns stock on a sent credit note (return, positive qty)", async () => {
-    const { db, movements } = makeDb([
-      [WAREHOUSE],
-      [productItem("2")],
-      [{ total: "2" }],
-    ]);
+    const { db, movements } = makeDb([[WAREHOUSE], [productItem("2")], [{ total: "2" }]]);
     await createStockMovementsForDocument(
       db,
       COMPANY_ID,

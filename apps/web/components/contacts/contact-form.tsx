@@ -6,10 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useAiForm } from "@fleet/ai-forms/react";
-import {
-  createContactAction,
-  updateContactAction,
-} from "@/app/actions/contacts";
+import { createContactAction, updateContactAction } from "@/app/actions/contacts";
 import type { Contact } from "@kivvi/database";
 import { toast } from "sonner";
 import { AiFormBar } from "@/components/ui/ai-form-bar";
@@ -22,9 +19,7 @@ import {
   ContactFormAdvancedSections,
 } from "./contact-form-sections";
 
-type ContactFormProps =
-  | { mode: "create"; contact?: never }
-  | { mode: "edit"; contact: Contact };
+type ContactFormProps = { mode: "create"; contact?: never } | { mode: "edit"; contact: Contact };
 
 export function ContactForm({ mode, contact }: ContactFormProps) {
   const router = useRouter();
@@ -103,9 +98,7 @@ export function ContactForm({ mode, contact }: ContactFormProps) {
       </Link>
 
       <div>
-        <h1 className="text-3xl font-bold">
-          {isEdit ? t("editContact") : t("newContact")}
-        </h1>
+        <h1 className="text-3xl font-bold">{isEdit ? t("editContact") : t("newContact")}</h1>
         <p className="text-muted-foreground">
           {isEdit
             ? `${contact.name}${contact.contactNumber ? ` (${contact.contactNumber})` : ""}`
@@ -131,21 +124,9 @@ export function ContactForm({ mode, contact }: ContactFormProps) {
           refinePlaceholder={t("aiRefinePlaceholder")}
         />
 
-        <ContactFormBasicSection
-          contact={contact}
-          isEdit={isEdit}
-          assist={assist}
-        />
-        <ContactFormContactSection
-          contact={contact}
-          isEdit={isEdit}
-          assist={assist}
-        />
-        <ContactFormAddressSection
-          contact={contact}
-          isEdit={isEdit}
-          assist={assist}
-        />
+        <ContactFormBasicSection contact={contact} isEdit={isEdit} assist={assist} />
+        <ContactFormContactSection contact={contact} isEdit={isEdit} assist={assist} />
+        <ContactFormAddressSection contact={contact} isEdit={isEdit} assist={assist} />
         <ContactFormAdvancedSections
           contact={contact}
           isEdit={isEdit}

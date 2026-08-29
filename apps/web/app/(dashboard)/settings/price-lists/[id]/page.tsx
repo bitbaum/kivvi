@@ -9,11 +9,7 @@ import { PriceListForm } from "../price-list-form";
 import { PriceRulesTable } from "../price-rules-table";
 import { AddRuleForm } from "../add-rule-form";
 
-export default async function PriceListDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default async function PriceListDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const session = await getSessionOrRedirect();
   const t = await getTranslations("priceLists");

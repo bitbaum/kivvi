@@ -1,18 +1,21 @@
-import { z } from 'zod';
-import Decimal from 'decimal.js';
-import type { Tool, ExecutionContext, ToolResult } from '../types';
-import { getDb } from './utils';
+import { z } from "zod";
+import Decimal from "decimal.js";
+import type { Tool, ExecutionContext, ToolResult } from "../types";
+import { getDb } from "./utils";
 
 const getBankSummarySchema = z.object({});
 
 export const getBankSummaryTool: Tool = {
-  name: 'get_bank_summary',
+  name: "get_bank_summary",
   description: `Get an overview of all bank accounts with balances and reconciliation status. Shows total balance across all accounts and how many transactions are unreconciled.`,
   parameters: getBankSummarySchema,
-  requiredPermissions: ['banking:read'],
-  execute: async (_params: z.infer<typeof getBankSummarySchema>, context: ExecutionContext): Promise<ToolResult> => {
+  requiredPermissions: ["banking:read"],
+  execute: async (
+    _params: z.infer<typeof getBankSummarySchema>,
+    context: ExecutionContext,
+  ): Promise<ToolResult> => {
     try {
-      const { listBankAccounts, getReconciliationSummary } = await import('@kivvi/core');
+      const { listBankAccounts, getReconciliationSummary } = await import("@kivvi/core");
       const db = getDb(context);
       const currency = context.defaultCurrency;
 
@@ -21,7 +24,7 @@ export const getBankSummaryTool: Tool = {
       if (accounts.length === 0) {
         return {
           success: true,
-          message: 'No bank accounts configured.',
+          message: "No bank accounts configured.",
           data: { accounts: [], count: 0 },
         };
       }
@@ -34,7 +37,7 @@ export const getBankSummaryTool: Tool = {
             name: account.name,
             iban: account.iban,
             bankName: account.bankName,
-            balance: `${currency} ${new Decimal(account.balance || '0').toFixed(2)}`,
+            balance: `${currency} ${new Decimal(account.balance || "0").toFixed(2)}`,
             reconciliation: {
               total: recon.totalTransactions,
               reconciled: recon.reconciled,
@@ -42,16 +45,13 @@ export const getBankSummaryTool: Tool = {
               unreconciledAmount: `${currency} ${new Decimal(recon.totalUnreconciledAmount).toFixed(2)}`,
             },
           };
-        })
+        }),
       );
 
-      const totalBalance = accounts.reduce(
-        (sum, a) => sum.plus(a.balance || '0'),
-        new Decimal(0)
-      );
+      const totalBalance = accounts.reduce((sum, a) => sum.plus(a.balance || "0"), new Decimal(0));
       const totalUnreconciled = accountSummaries.reduce(
         (sum, a) => sum + a.reconciliation.unreconciled,
-        0
+        0,
       );
 
       return {
@@ -67,7 +67,7 @@ export const getBankSummaryTool: Tool = {
     } catch (error) {
       return {
         success: false,
-        error: `Failed to get bank summary: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        error: `Failed to get bank summary: ${error instanceof Error ? error.message : "Unknown error"}`,
       };
     }
   },

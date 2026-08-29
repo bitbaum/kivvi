@@ -3,11 +3,7 @@ import { eq, and, or, ilike, desc, asc, count } from "drizzle-orm";
 import { products, manufacturers, productGroups } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
 import { DEFAULT_CURRENCY } from "../config/locale";
-import {
-  PRODUCT_TYPE_VALUES,
-  UNIT_TYPE_VALUES,
-  DEFAULT_UNIT,
-} from "../config/product";
+import { PRODUCT_TYPE_VALUES, UNIT_TYPE_VALUES, DEFAULT_UNIT } from "../config/product";
 import { getNextNumber } from "./number-sequences";
 import type { PaginatedResult } from "./contacts";
 import { AMOUNT_REGEX, WEIGHT_REGEX } from "../utils/validation-patterns";
@@ -25,41 +21,21 @@ export const createProductSchema = z.object({
   manufacturerId: z.string().uuid().optional().nullable(),
   productGroupId: z.string().uuid().optional().nullable(),
   unitPrice: z.string().regex(AMOUNT_REGEX, "Invalid price format"),
-  purchasePrice: z
-    .string()
-    .regex(AMOUNT_REGEX, "Invalid price format")
-    .optional()
-    .nullable(),
+  purchasePrice: z.string().regex(AMOUNT_REGEX, "Invalid price format").optional().nullable(),
   currency: z.string().default(DEFAULT_CURRENCY),
   vatRate: z.string().regex(AMOUNT_REGEX, "Invalid VAT rate"),
   unit: z.enum(UNIT_TYPE_VALUES).default(DEFAULT_UNIT),
-  weight: z
-    .string()
-    .regex(WEIGHT_REGEX, "Invalid weight")
-    .optional()
-    .nullable(),
+  weight: z.string().regex(WEIGHT_REGEX, "Invalid weight").optional().nullable(),
   width: z.string().regex(AMOUNT_REGEX, "Invalid width").optional().nullable(),
-  height: z
-    .string()
-    .regex(AMOUNT_REGEX, "Invalid height")
-    .optional()
-    .nullable(),
+  height: z.string().regex(AMOUNT_REGEX, "Invalid height").optional().nullable(),
   depth: z.string().regex(AMOUNT_REGEX, "Invalid depth").optional().nullable(),
   minStock: z.coerce.number().int().min(0).optional().nullable(),
   serialNumberTracking: z.boolean().default(false),
   shopVisible: z.boolean().default(false),
   // Flexible pricing (Richtpreis)
   isPriceFlexible: z.boolean().default(false),
-  minPrice: z
-    .string()
-    .regex(AMOUNT_REGEX, "Invalid price format")
-    .optional()
-    .nullable(),
-  maxPrice: z
-    .string()
-    .regex(AMOUNT_REGEX, "Invalid price format")
-    .optional()
-    .nullable(),
+  minPrice: z.string().regex(AMOUNT_REGEX, "Invalid price format").optional().nullable(),
+  maxPrice: z.string().regex(AMOUNT_REGEX, "Invalid price format").optional().nullable(),
   notes: z.string().max(5000).optional().nullable(),
 });
 
@@ -179,11 +155,7 @@ export async function listProducts(
 /**
  * Get a single product with its manufacturer, product group, and stock levels.
  */
-export async function getProduct(
-  db: Database,
-  companyId: string,
-  productId: string,
-) {
+export async function getProduct(db: Database, companyId: string, productId: string) {
   const result = await db.query.products.findFirst({
     where: and(eq(products.id, productId), eq(products.companyId, companyId)),
     with: {
@@ -214,12 +186,7 @@ async function validateProductFKs(
     const [mfg] = await db
       .select({ id: manufacturers.id })
       .from(manufacturers)
-      .where(
-        and(
-          eq(manufacturers.id, manufacturerId),
-          eq(manufacturers.companyId, companyId),
-        ),
-      )
+      .where(and(eq(manufacturers.id, manufacturerId), eq(manufacturers.companyId, companyId)))
       .limit(1);
     if (!mfg) throw new Error("Manufacturer not found");
   }
@@ -227,12 +194,7 @@ async function validateProductFKs(
     const [grp] = await db
       .select({ id: productGroups.id })
       .from(productGroups)
-      .where(
-        and(
-          eq(productGroups.id, productGroupId),
-          eq(productGroups.companyId, companyId),
-        ),
-      )
+      .where(and(eq(productGroups.id, productGroupId), eq(productGroups.companyId, companyId)))
       .limit(1);
     if (!grp) throw new Error("Product group not found");
   }
@@ -241,21 +203,12 @@ async function validateProductFKs(
 /**
  * Create a new product. Generates articleNumber automatically.
  */
-export async function createProduct(
-  db: Database,
-  companyId: string,
-  input: CreateProductInput,
-) {
+export async function createProduct(db: Database, companyId: string, input: CreateProductInput) {
   // Validate input
   const validated = createProductSchema.parse(input);
 
   // Verify FK ownership
-  await validateProductFKs(
-    db,
-    companyId,
-    validated.manufacturerId,
-    validated.productGroupId,
-  );
+  await validateProductFKs(db, companyId, validated.manufacturerId, validated.productGroupId);
 
   // Generate article number
   const articleNumber = await getNextNumber(db, companyId, "product");
@@ -316,12 +269,7 @@ export async function updateProduct(
   }
 
   // Verify FK ownership
-  await validateProductFKs(
-    db,
-    companyId,
-    validated.manufacturerId,
-    validated.productGroupId,
-  );
+  await validateProductFKs(db, companyId, validated.manufacturerId, validated.productGroupId);
 
   // Build update values, only including fields that were provided
   const updateValues: Record<string, unknown> = {
@@ -329,8 +277,7 @@ export async function updateProduct(
   };
 
   if (validated.name !== undefined) updateValues.name = validated.name;
-  if (validated.description !== undefined)
-    updateValues.description = validated.description;
+  if (validated.description !== undefined) updateValues.description = validated.description;
   if (validated.type !== undefined) updateValues.type = validated.type;
   if (validated.sku !== undefined) updateValues.sku = validated.sku;
   if (validated.ean !== undefined) updateValues.ean = validated.ean;
@@ -338,24 +285,19 @@ export async function updateProduct(
     updateValues.manufacturerId = validated.manufacturerId;
   if (validated.productGroupId !== undefined)
     updateValues.productGroupId = validated.productGroupId;
-  if (validated.unitPrice !== undefined)
-    updateValues.unitPrice = validated.unitPrice;
-  if (validated.purchasePrice !== undefined)
-    updateValues.purchasePrice = validated.purchasePrice;
-  if (validated.currency !== undefined)
-    updateValues.currency = validated.currency;
+  if (validated.unitPrice !== undefined) updateValues.unitPrice = validated.unitPrice;
+  if (validated.purchasePrice !== undefined) updateValues.purchasePrice = validated.purchasePrice;
+  if (validated.currency !== undefined) updateValues.currency = validated.currency;
   if (validated.vatRate !== undefined) updateValues.vatRate = validated.vatRate;
   if (validated.unit !== undefined) updateValues.unit = validated.unit;
   if (validated.weight !== undefined) updateValues.weight = validated.weight;
   if (validated.width !== undefined) updateValues.width = validated.width;
   if (validated.height !== undefined) updateValues.height = validated.height;
   if (validated.depth !== undefined) updateValues.depth = validated.depth;
-  if (validated.minStock !== undefined)
-    updateValues.minStock = validated.minStock;
+  if (validated.minStock !== undefined) updateValues.minStock = validated.minStock;
   if (validated.serialNumberTracking !== undefined)
     updateValues.serialNumberTracking = validated.serialNumberTracking;
-  if (validated.shopVisible !== undefined)
-    updateValues.shopVisible = validated.shopVisible;
+  if (validated.shopVisible !== undefined) updateValues.shopVisible = validated.shopVisible;
 
   const [updated] = await db
     .update(products)
@@ -369,11 +311,7 @@ export async function updateProduct(
 /**
  * Soft delete a product by setting isActive = false.
  */
-export async function deleteProduct(
-  db: Database,
-  companyId: string,
-  productId: string,
-) {
+export async function deleteProduct(db: Database, companyId: string, productId: string) {
   // Verify product belongs to company
   const existing = await db
     .select({ id: products.id })
@@ -398,11 +336,7 @@ export async function deleteProduct(
  * Quick search products by name, SKU, or article number.
  * Returns a simple list (no pagination) for autocomplete/search use cases.
  */
-export async function searchProducts(
-  db: Database,
-  companyId: string,
-  query: string,
-) {
+export async function searchProducts(db: Database, companyId: string, query: string) {
   if (!query || query.length < 1) return [];
 
   const results = await db

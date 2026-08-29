@@ -34,9 +34,7 @@ export default async function ForItRefurbishersPage() {
           <Monitor className="h-4 w-4" />
           {t("hero.badge")}
         </div>
-        <h1 className="mb-4 text-4xl font-bold sm:text-5xl">
-          {t("hero.title")}
-        </h1>
+        <h1 className="mb-4 text-4xl font-bold sm:text-5xl">{t("hero.title")}</h1>
         <p className="text-xl text-muted-foreground">{t("hero.description")}</p>
       </section>
 
@@ -56,9 +54,7 @@ export default async function ForItRefurbishersPage() {
       <section className="mx-auto max-w-3xl py-8">
         <div className="rounded-2xl border bg-card p-8">
           <h2 className="mb-3 text-xl font-bold">{t("migration.title")}</h2>
-          <p className="mb-6 text-muted-foreground">
-            {t("migration.description")}
-          </p>
+          <p className="mb-6 text-muted-foreground">{t("migration.description")}</p>
           <div className="space-y-3">
             {migrationSteps.map((step, i) => (
               <div key={step} className="flex items-center gap-3">
@@ -90,28 +86,16 @@ export default async function ForItRefurbishersPage() {
           <p className="text-muted-foreground mb-4">{t("proof.description")}</p>
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
-              <div className="text-2xl font-bold text-primary">
-                {t("proof.stat1Value")}
-              </div>
-              <div className="text-xs text-muted-foreground">
-                {t("proof.stat1Label")}
-              </div>
+              <div className="text-2xl font-bold text-primary">{t("proof.stat1Value")}</div>
+              <div className="text-xs text-muted-foreground">{t("proof.stat1Label")}</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-primary">
-                {t("proof.stat2Value")}
-              </div>
-              <div className="text-xs text-muted-foreground">
-                {t("proof.stat2Label")}
-              </div>
+              <div className="text-2xl font-bold text-primary">{t("proof.stat2Value")}</div>
+              <div className="text-xs text-muted-foreground">{t("proof.stat2Label")}</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-primary">
-                {t("proof.stat3Value")}
-              </div>
-              <div className="text-xs text-muted-foreground">
-                {t("proof.stat3Label")}
-              </div>
+              <div className="text-2xl font-bold text-primary">{t("proof.stat3Value")}</div>
+              <div className="text-xs text-muted-foreground">{t("proof.stat3Label")}</div>
             </div>
           </div>
         </div>
@@ -119,10 +103,7 @@ export default async function ForItRefurbishersPage() {
 
       <SeeAlsoSection current="it-refurbishers" />
 
-      <LandingCtaSection
-        title={t("ctaTitle")}
-        description={t("ctaDescription")}
-      />
+      <LandingCtaSection title={t("ctaTitle")} description={t("ctaDescription")} />
     </>
   );
 }

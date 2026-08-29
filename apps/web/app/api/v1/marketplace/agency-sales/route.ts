@@ -1,11 +1,6 @@
 import { NextRequest } from "next/server";
 import { db } from "@/lib/db";
-import {
-  authenticateApi,
-  apiError,
-  apiSuccess,
-  apiZodError,
-} from "@/lib/api-handler";
+import { authenticateApi, apiError, apiSuccess, apiZodError } from "@/lib/api-handler";
 import { withIdempotency } from "@/lib/api-idempotency";
 import {
   recordMarketplaceAgencySale,
@@ -33,11 +28,7 @@ export async function POST(request: NextRequest) {
         return apiZodError(parsed.error, "body");
       }
 
-      const entry = await recordMarketplaceAgencySale(
-        db,
-        ctx.companyId,
-        parsed.data,
-      );
+      const entry = await recordMarketplaceAgencySale(db, ctx.companyId, parsed.data);
 
       return apiSuccess({
         journalEntryId: entry.id,
@@ -45,8 +36,7 @@ export async function POST(request: NextRequest) {
         sourceType: entry.sourceType,
       });
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "Failed to record agency sale";
+      const message = error instanceof Error ? error.message : "Failed to record agency sale";
       return apiError(message, 400);
     }
   });

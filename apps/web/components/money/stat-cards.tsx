@@ -1,7 +1,7 @@
-import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { formatCurrency } from '@/lib/utils';
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 
 export function StatCard({
   label,
@@ -23,15 +23,17 @@ export function StatCard({
   return (
     <Link href={href} className="rounded-xl border bg-card p-4 transition-colors hover:bg-muted/50">
       <div className="flex items-center gap-2">
-        <div className={cn('rounded-md p-1.5', bgColor, color)}>{icon}</div>
+        <div className={cn("rounded-md p-1.5", bgColor, color)}>{icon}</div>
         <span className="text-sm text-muted-foreground">{label}</span>
         {count !== undefined && count > 0 && (
-          <span className={cn('ml-auto rounded-full px-2 py-0.5 text-xs font-medium', bgColor, color)}>
+          <span
+            className={cn("ml-auto rounded-full px-2 py-0.5 text-xs font-medium", bgColor, color)}
+          >
             {count}
           </span>
         )}
       </div>
-      <p className={cn('mt-2 text-xl font-bold', color)}>{value}</p>
+      <p className={cn("mt-2 text-xl font-bold", color)}>{value}</p>
     </Link>
   );
 }
@@ -52,12 +54,10 @@ export function MiniStat({
   return (
     <div className="rounded-xl border bg-background p-4">
       <div className="flex items-center gap-2">
-        <div className={cn('rounded-md p-1.5', bgColor, color)}>{icon}</div>
+        <div className={cn("rounded-md p-1.5", bgColor, color)}>{icon}</div>
         <span className="text-sm text-muted-foreground">{label}</span>
       </div>
-      <p className={cn('mt-2 text-xl font-bold', color)}>
-        {formatCurrency(value)}
-      </p>
+      <p className={cn("mt-2 text-xl font-bold", color)}>{formatCurrency(value)}</p>
     </div>
   );
 }

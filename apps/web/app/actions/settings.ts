@@ -9,17 +9,9 @@ import { AI_PROVIDER_VALUES } from "@kivvi/database/src/enums";
 import { eq, and } from "drizzle-orm";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
-import {
-  DEFAULT_CURRENCY,
-  DEFAULT_COUNTRY,
-} from "@kivvi/core/src/config/locale";
+import { DEFAULT_CURRENCY, DEFAULT_COUNTRY } from "@kivvi/core/src/config/locale";
 import { TOGGLEABLE_MODULE_KEYS } from "@kivvi/core/src/config/modules";
-import {
-  type ActionResult,
-  getSession,
-  requireRole,
-  safeErrorMessage,
-} from "./utils";
+import { type ActionResult, getSession, requireRole, safeErrorMessage } from "./utils";
 import { createAction } from "./action-factory";
 import { getTranslations } from "next-intl/server";
 import { MAX_UPLOAD_SIZE_BYTES } from "@/lib/config/uploads";
@@ -65,8 +57,7 @@ const updateCompanySchema = z.object({
 export const updateCompanyAction = createAction<unknown, Company | undefined>({
   handler: async (input, { companyId, db }) => {
     const parsed = updateCompanySchema.safeParse(input);
-    if (!parsed.success)
-      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
 
     // Read existing settings to merge (preserve AI config, plan, etc.)
     const [existing] = await db
@@ -82,8 +73,7 @@ export const updateCompanyAction = createAction<unknown, Company | undefined>({
       bankAccount: {
         ...existingSettings.bankAccount,
         iban: parsed.data.iban || existingSettings.bankAccount?.iban,
-        bankName:
-          parsed.data.bankName || existingSettings.bankAccount?.bankName,
+        bankName: parsed.data.bankName || existingSettings.bankAccount?.bankName,
       },
       defaultVatRate: parsed.data.defaultVatRate
         ? Number(parsed.data.defaultVatRate)
@@ -95,8 +85,7 @@ export const updateCompanyAction = createAction<unknown, Company | undefined>({
         ? parsed.data.defaultRepairHourlyRate
         : existingSettings.defaultRepairHourlyRate,
       defaultDocumentFooter:
-        parsed.data.defaultDocumentFooter ??
-        existingSettings.defaultDocumentFooter,
+        parsed.data.defaultDocumentFooter ?? existingSettings.defaultDocumentFooter,
       aiProvider: parsed.data.aiProvider || existingSettings.aiProvider,
       aiModel: parsed.data.aiModel || existingSettings.aiModel,
       // Only update API key if not the mask placeholder
@@ -125,8 +114,7 @@ export const updateCompanyAction = createAction<unknown, Company | undefined>({
     return company;
   },
   revalidate: ["/settings"],
-  errorMessage: () =>
-    getTranslations("settings").then((t) => t("errorUpdateCompany")),
+  errorMessage: () => getTranslations("settings").then((t) => t("errorUpdateCompany")),
   minRole: "admin",
 });
 
@@ -182,9 +170,7 @@ export async function updateCompanySlugAction(
 const MAX_IMAGE_SIZE = MAX_UPLOAD_SIZE_BYTES;
 const ALLOWED_LOGO_TYPES = ["image/png", "image/jpeg", "image/svg+xml"];
 
-export async function uploadLogoAction(
-  formData: FormData,
-): Promise<ActionResult> {
+export async function uploadLogoAction(formData: FormData): Promise<ActionResult> {
   const t = await getTranslations("settings");
   try {
     const { companyId } = await requireRole("admin");
@@ -250,8 +236,7 @@ export const removeLogoAction = createAction<void, void>({
       .where(eq(companies.id, companyId));
   },
   revalidate: ["/settings"],
-  errorMessage: () =>
-    getTranslations("settings").then((t) => t("errorRemoveLogo")),
+  errorMessage: () => getTranslations("settings").then((t) => t("errorRemoveLogo")),
   minRole: "admin",
 });
 
@@ -279,8 +264,7 @@ export async function updateProfileAction(
     const session = await getAuthSession();
     if (!session?.user?.id) throw new Error("Unauthorized");
     const parsed = updateProfileSchema.safeParse(input);
-    if (!parsed.success)
-      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
     const user = await updateUserProfile(db, session.user.id, {
       name: parsed.data.name,
       email: parsed.data.email,
@@ -307,9 +291,7 @@ export async function updateProfileAction(
 // CHANGE PASSWORD
 // ============================================================================
 
-export async function changePasswordAction(
-  input: unknown,
-): Promise<ActionResult<void>> {
+export async function changePasswordAction(input: unknown): Promise<ActionResult<void>> {
   const t = await getTranslations("settings.profile");
   try {
     const { userId } = await getSession();
@@ -338,10 +320,7 @@ export async function changePasswordAction(
 
     if (!user?.passwordHash) throw new Error("account_state_error");
 
-    const isValid = await bcrypt.compare(
-      parsed.data.currentPassword,
-      user.passwordHash,
-    );
+    const isValid = await bcrypt.compare(parsed.data.currentPassword, user.passwordHash);
     if (!isValid) {
       return { success: false, error: t("currentPasswordIncorrect") };
     }
@@ -382,9 +361,7 @@ export async function getUserAvatarAction(): Promise<string | null> {
 const MAX_AVATAR_SIZE = MAX_IMAGE_SIZE;
 const ALLOWED_AVATAR_TYPES = ALLOWED_LOGO_TYPES;
 
-export async function uploadAvatarAction(
-  formData: FormData,
-): Promise<ActionResult> {
+export async function uploadAvatarAction(formData: FormData): Promise<ActionResult> {
   const t = await getTranslations("settings");
   try {
     const { userId } = await getSession();
@@ -428,8 +405,7 @@ export const removeAvatarAction = createAction<void, void>({
       .where(eq(users.id, userId));
   },
   revalidate: ["/settings"],
-  errorMessage: () =>
-    getTranslations("settings").then((t) => t("errorRemoveAvatar")),
+  errorMessage: () => getTranslations("settings").then((t) => t("errorRemoveAvatar")),
 });
 
 // ============================================================================
@@ -448,8 +424,7 @@ export const updateNumberSequenceAction = createAction<
 >({
   handler: async ({ sequenceId, input }, { companyId, db }) => {
     const parsed = updateSequenceSchema.safeParse(input);
-    if (!parsed.success)
-      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
     const [seq] = await db
       .update(numberSequences)
       .set({
@@ -457,19 +432,13 @@ export const updateNumberSequenceAction = createAction<
         nextNumber: parsed.data.nextNumber,
         format: parsed.data.format,
       })
-      .where(
-        and(
-          eq(numberSequences.id, sequenceId),
-          eq(numberSequences.companyId, companyId),
-        ),
-      )
+      .where(and(eq(numberSequences.id, sequenceId), eq(numberSequences.companyId, companyId)))
       .returning();
     if (!seq) throw new Error("sequence_not_found");
     return seq;
   },
   revalidate: ["/settings"],
-  errorMessage: () =>
-    getTranslations("settings").then((t) => t("errorUpdateSequence")),
+  errorMessage: () => getTranslations("settings").then((t) => t("errorUpdateSequence")),
   minRole: "admin",
 });
 
@@ -477,10 +446,7 @@ export const updateNumberSequenceAction = createAction<
 // CO2 IMPACT FACTORS
 // ============================================================================
 
-export const updateCo2FactorsAction = createAction<
-  Record<string, number>,
-  void
->({
+export const updateCo2FactorsAction = createAction<Record<string, number>, void>({
   handler: async (factors, { companyId, db }) => {
     const [existing] = await db
       .select({ settings: companies.settings })
@@ -498,8 +464,7 @@ export const updateCo2FactorsAction = createAction<
       .where(eq(companies.id, companyId));
   },
   revalidate: ["/settings", "/reports/impact"],
-  errorMessage: () =>
-    getTranslations("settings").then((t) => t("errorUpdateCo2Factors")),
+  errorMessage: () => getTranslations("settings").then((t) => t("errorUpdateCo2Factors")),
   minRole: "admin",
 });
 
@@ -510,16 +475,13 @@ export const updateCo2FactorsAction = createAction<
 // Only known toggleable module keys may be persisted. Unknown keys are
 // rejected — the enum validates against the runtime SSOT registry.
 const updateEnabledModulesSchema = z.object({
-  enabledModules: z.array(
-    z.enum(TOGGLEABLE_MODULE_KEYS as [string, ...string[]]),
-  ),
+  enabledModules: z.array(z.enum(TOGGLEABLE_MODULE_KEYS as [string, ...string[]])),
 });
 
 export const updateEnabledModulesAction = createAction<unknown, void>({
   handler: async (input, { companyId, db }) => {
     const parsed = updateEnabledModulesSchema.safeParse(input);
-    if (!parsed.success)
-      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
 
     const [existing] = await db
       .select({ settings: companies.settings })
@@ -540,7 +502,6 @@ export const updateEnabledModulesAction = createAction<unknown, void>({
       .where(eq(companies.id, companyId));
   },
   revalidate: ["/settings", "/dashboard"],
-  errorMessage: () =>
-    getTranslations("settings").then((t) => t("errorUpdateCompany")),
+  errorMessage: () => getTranslations("settings").then((t) => t("errorUpdateCompany")),
   minRole: "admin",
 });

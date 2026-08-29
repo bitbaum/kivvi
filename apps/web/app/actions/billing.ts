@@ -14,17 +14,12 @@ import { logger } from "@/lib/logger";
  * Create a Stripe Checkout session for upgrading to premium.
  * Returns the checkout URL for client-side redirect.
  */
-export async function createCheckoutSessionAction(): Promise<
-  ActionResult<{ url: string }>
-> {
+export async function createCheckoutSessionAction(): Promise<ActionResult<{ url: string }>> {
   const t = await getTranslations("settings.billing");
   try {
     const { companyId } = await requireRole("owner");
 
-    const [company] = await db
-      .select()
-      .from(companies)
-      .where(eq(companies.id, companyId));
+    const [company] = await db.select().from(companies).where(eq(companies.id, companyId));
 
     if (!company) {
       return { success: false, error: t("errorCompanyNotFound") };
@@ -80,17 +75,12 @@ export async function createCheckoutSessionAction(): Promise<
  * Create a Stripe Customer Portal session for managing subscription.
  * Returns the portal URL for client-side redirect.
  */
-export async function createPortalSessionAction(): Promise<
-  ActionResult<{ url: string }>
-> {
+export async function createPortalSessionAction(): Promise<ActionResult<{ url: string }>> {
   const t = await getTranslations("settings.billing");
   try {
     const { companyId } = await requireRole("owner");
 
-    const [company] = await db
-      .select()
-      .from(companies)
-      .where(eq(companies.id, companyId));
+    const [company] = await db.select().from(companies).where(eq(companies.id, companyId));
 
     if (!company) {
       return { success: false, error: t("errorCompanyNotFound") };

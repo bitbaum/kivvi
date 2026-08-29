@@ -151,9 +151,7 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
                 accumulatedContent += data.content;
                 setMessages((prev) =>
                   prev.map((m) =>
-                    m.id === assistantId
-                      ? { ...m, content: accumulatedContent }
-                      : m,
+                    m.id === assistantId ? { ...m, content: accumulatedContent } : m,
                   ),
                 );
               } else if (data.type === "tool_result") {
@@ -176,9 +174,7 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
                 }
                 // Mark message as done streaming
                 setMessages((prev) =>
-                  prev.map((m) =>
-                    m.id === assistantId ? { ...m, isStreaming: false } : m,
-                  ),
+                  prev.map((m) => (m.id === assistantId ? { ...m, isStreaming: false } : m)),
                 );
                 // Call onFinish callback
                 const finalMessage = {
@@ -219,11 +215,9 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
           const errorMsg = error instanceof Error ? error.message : "";
           const isProviderError = errorMsg.includes("No AI provider available");
           const isApiKeyError =
-            errorMsg.includes("API key invalid") ||
-            errorMsg.includes("Invalid API Key");
+            errorMsg.includes("API key invalid") || errorMsg.includes("Invalid API Key");
           const isUnreachable =
-            errorMsg.includes("not reachable") ||
-            errorMsg.includes("unreachable");
+            errorMsg.includes("not reachable") || errorMsg.includes("unreachable");
           let displayError: string;
           if (isProviderError) {
             displayError = t("errorNoProvider");
@@ -246,9 +240,7 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
                 : m,
             ),
           );
-          options.onError?.(
-            error instanceof Error ? error : new Error("Unknown error"),
-          );
+          options.onError?.(error instanceof Error ? error : new Error("Unknown error"));
         }
       } finally {
         if (timeout) window.clearTimeout(timeout);
@@ -280,12 +272,7 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
         setConversationId(id);
         setMessages(
           data.messages.map(
-            (m: {
-              id: string;
-              role: string;
-              content: string;
-              createdAt: string;
-            }) => ({
+            (m: { id: string; role: string; content: string; createdAt: string }) => ({
               id: m.id,
               role: m.role,
               content: m.content || "",
@@ -297,9 +284,7 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
       } catch (error) {
         logger.warn("Failed to load conversation", error);
         options.onError?.(
-          error instanceof Error
-            ? error
-            : new Error("Failed to load conversation"),
+          error instanceof Error ? error : new Error("Failed to load conversation"),
         );
       } finally {
         setIsLoading(false);

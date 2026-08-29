@@ -7,20 +7,12 @@ import Papa from "papaparse";
 import { cleanHeaders } from "@kivvi/core/src/domain/import-mappings";
 
 interface CsvUploaderProps {
-  onParsed: (
-    headers: string[],
-    rows: Record<string, string>[],
-    rawArrayRows: string[][],
-  ) => void;
+  onParsed: (headers: string[], rows: Record<string, string>[], rawArrayRows: string[][]) => void;
   label?: string;
   accept?: string;
 }
 
-export function CsvUploader({
-  onParsed,
-  label = "Upload CSV",
-  accept = ".csv",
-}: CsvUploaderProps) {
+export function CsvUploader({ onParsed, label = "Upload CSV", accept = ".csv" }: CsvUploaderProps) {
   const t = useTranslations("onboarding");
   const tc = useTranslations("common");
   const [fileName, setFileName] = useState<string | null>(null);
@@ -116,9 +108,7 @@ export function CsvUploader({
         >
           <Upload className="mb-2 h-8 w-8 text-muted-foreground" />
           <span className="text-sm font-medium">{label}</span>
-          <span className="mt-1 text-xs text-muted-foreground">
-            {t("dragAndDrop")}
-          </span>
+          <span className="mt-1 text-xs text-muted-foreground">{t("dragAndDrop")}</span>
         </div>
       ) : (
         <div className="flex items-center gap-3 rounded-lg border bg-muted/30 p-3">

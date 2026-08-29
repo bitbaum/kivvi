@@ -51,12 +51,8 @@ export function PosCart({ cart, onRemove, onPriceChange }: PosCartProps) {
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <div className="truncate text-sm font-medium">
-                  {item.description}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  {item.itemNumber}
-                </div>
+                <div className="truncate text-sm font-medium">{item.description}</div>
+                <div className="text-xs text-muted-foreground">{item.itemNumber}</div>
               </div>
               {editingId === item.id ? (
                 <div className="flex items-center gap-1 shrink-0">
@@ -72,9 +68,7 @@ export function PosCart({ cart, onRemove, onPriceChange }: PosCartProps) {
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         const n = parseFloat(editValue);
-                        const min = item.minPrice
-                          ? parseFloat(item.minPrice)
-                          : 0;
+                        const min = item.minPrice ? parseFloat(item.minPrice) : 0;
                         const max = parseFloat(item.askingPrice);
                         if (!isNaN(n) && n >= min && n <= max) {
                           onPriceChange(item.id, n.toFixed(2));
@@ -113,11 +107,7 @@ export function PosCart({ cart, onRemove, onPriceChange }: PosCartProps) {
                     setEditValue(item.soldPrice);
                   }}
                   className="group flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 hover:bg-muted transition-colors"
-                  title={
-                    item.minPrice
-                      ? `Min: ${formatCurrency(item.minPrice)}`
-                      : undefined
-                  }
+                  title={item.minPrice ? `Min: ${formatCurrency(item.minPrice)}` : undefined}
                 >
                   <span className="text-sm font-semibold tabular-nums">
                     {formatCurrency(item.soldPrice)}

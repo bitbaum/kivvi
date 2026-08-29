@@ -4,11 +4,7 @@ import { useState, useTransition } from "react";
 import { CheckCircle2, Loader2, Plus, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import {
-  FormInput,
-  FormSelect,
-  FormTextarea,
-} from "@/components/ui/form-field";
+import { FormInput, FormSelect, FormTextarea } from "@/components/ui/form-field";
 import {
   acceptJoinRequestAction,
   createVacancyAction,
@@ -65,9 +61,7 @@ export function OrganizationProfileSection({
   const [success, setSuccess] = useState("");
   const [latestInviteUrl, setLatestInviteUrl] = useState("");
   const [isPending, startTransition] = useTransition();
-  const [slug, setSlug] = useState(
-    initialProfile?.publicSlug ?? toSlug(companyName),
-  );
+  const [slug, setSlug] = useState(initialProfile?.publicSlug ?? toSlug(companyName));
 
   function handleProfileSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -119,10 +113,7 @@ export function OrganizationProfileSection({
     });
   }
 
-  function handleStatus(
-    vacancyId: string,
-    status: "draft" | "published" | "closed",
-  ) {
+  function handleStatus(vacancyId: string, status: "draft" | "published" | "closed") {
     setError("");
     setSuccess("");
     setLatestInviteUrl("");
@@ -183,9 +174,7 @@ export function OrganizationProfileSection({
 
         <form onSubmit={handleProfileSubmit} className="space-y-5 p-5">
           {error && (
-            <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
-              {error}
-            </div>
+            <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</div>
           )}
           {success && (
             <div className="flex items-center gap-2 rounded-lg bg-success/5 p-3 text-sm text-success">
@@ -195,10 +184,7 @@ export function OrganizationProfileSection({
                 {latestInviteUrl && (
                   <div className="mt-2 flex items-center gap-2 rounded-md border border-success/20 bg-background px-2 py-1 text-foreground">
                     <span className="truncate text-xs">{latestInviteUrl}</span>
-                    <CopyButton
-                      value={latestInviteUrl}
-                      label={tj("copyInviteLink")}
-                    />
+                    <CopyButton value={latestInviteUrl} label={tj("copyInviteLink")} />
                   </div>
                 )}
               </div>
@@ -225,25 +211,15 @@ export function OrganizationProfileSection({
             </label>
             <label className="space-y-1.5 text-sm font-medium">
               {t("category")}
-              <FormInput
-                name="category"
-                defaultValue={initialProfile?.category ?? ""}
-              />
+              <FormInput name="category" defaultValue={initialProfile?.category ?? ""} />
             </label>
             <label className="space-y-1.5 text-sm font-medium">
               {t("location")}
-              <FormInput
-                name="location"
-                defaultValue={initialProfile?.location ?? ""}
-              />
+              <FormInput name="location" defaultValue={initialProfile?.location ?? ""} />
             </label>
             <label className="space-y-1.5 text-sm font-medium sm:col-span-2">
               {t("website")}
-              <FormInput
-                name="website"
-                type="url"
-                defaultValue={initialProfile?.website ?? ""}
-              />
+              <FormInput name="website" type="url" defaultValue={initialProfile?.website ?? ""} />
             </label>
             <label className="space-y-1.5 text-sm font-medium sm:col-span-2">
               {t("shortDescription")}
@@ -293,15 +269,11 @@ export function OrganizationProfileSection({
             <p className="p-5 text-sm text-muted-foreground">{tv("empty")}</p>
           ) : (
             vacancies.map((vacancy) => (
-              <div
-                key={vacancy.id}
-                className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center"
-              >
+              <div key={vacancy.id} className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center">
                 <div className="min-w-0 flex-1">
                   <p className="font-medium">{vacancy.title}</p>
                   <p className="text-sm text-muted-foreground">
-                    {tv(`type.${vacancy.type}`)} ·{" "}
-                    {tv(`locationMode.${vacancy.locationMode}`)} ·{" "}
+                    {tv(`type.${vacancy.type}`)} · {tv(`locationMode.${vacancy.locationMode}`)} ·{" "}
                     {tv(`status.${vacancy.status}`)}
                   </p>
                 </div>
@@ -325,10 +297,7 @@ export function OrganizationProfileSection({
             ))
           )}
         </div>
-        <form
-          onSubmit={handleVacancySubmit}
-          className="grid gap-4 border-t p-5 sm:grid-cols-2"
-        >
+        <form onSubmit={handleVacancySubmit} className="grid gap-4 border-t p-5 sm:grid-cols-2">
           <label className="space-y-1.5 text-sm font-medium sm:col-span-2">
             {tv("newTitle")}
             <FormInput name="title" required />
@@ -336,18 +305,13 @@ export function OrganizationProfileSection({
           <label className="space-y-1.5 text-sm font-medium">
             {tv("typeLabel")}
             <FormSelect name="type" defaultValue="volunteer">
-              {[
-                "employee",
-                "volunteer",
-                "internship",
-                "contractor",
-                "board",
-                "other",
-              ].map((type) => (
-                <option key={type} value={type}>
-                  {tv(`type.${type}`)}
-                </option>
-              ))}
+              {["employee", "volunteer", "internship", "contractor", "board", "other"].map(
+                (type) => (
+                  <option key={type} value={type}>
+                    {tv(`type.${type}`)}
+                  </option>
+                ),
+              )}
             </FormSelect>
           </label>
           <label className="space-y-1.5 text-sm font-medium">
@@ -401,9 +365,7 @@ export function OrganizationProfileSection({
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-medium">
-                        {request.userName || request.userEmail}
-                      </p>
+                      <p className="font-medium">{request.userName || request.userEmail}</p>
                       <span className="rounded-md bg-muted px-2 py-1 text-xs">
                         {tj(`status.${request.status}`)}
                       </span>
@@ -413,9 +375,7 @@ export function OrganizationProfileSection({
                       {request.vacancyTitle ? ` · ${request.vacancyTitle}` : ""}
                     </p>
                     {request.message && (
-                      <p className="mt-3 text-sm text-muted-foreground">
-                        {request.message}
-                      </p>
+                      <p className="mt-3 text-sm text-muted-foreground">{request.message}</p>
                     )}
                   </div>
                   {request.status === "pending" && (

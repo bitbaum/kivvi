@@ -19,15 +19,9 @@ import {
   vacancySchema,
 } from "@kivvi/core/src/domain/participation";
 import type { OrganizationProfile, Vacancy } from "@kivvi/database";
-import type {
-  JoinRequestStatusValue,
-  VacancyStatusValue,
-} from "@kivvi/database/src/enums";
+import type { JoinRequestStatusValue, VacancyStatusValue } from "@kivvi/database/src/enums";
 
-export const saveOrganizationProfileAction = createAction<
-  unknown,
-  OrganizationProfile
->({
+export const saveOrganizationProfileAction = createAction<unknown, OrganizationProfile>({
   minRole: "admin",
   handler: async (input, { companyId, db }) => {
     const parsed = organizationProfileSchema.safeParse(input);
@@ -37,8 +31,7 @@ export const saveOrganizationProfileAction = createAction<
     return upsertOrganizationProfile(db, companyId, parsed.data);
   },
   revalidate: ["/settings/company", "/orgs"],
-  errorMessage: () =>
-    getTranslations("settings").then((t) => t("organizationProfile.saveError")),
+  errorMessage: () => getTranslations("settings").then((t) => t("organizationProfile.saveError")),
 });
 
 export const createVacancyAction = createAction<unknown, Vacancy>({
@@ -51,8 +44,7 @@ export const createVacancyAction = createAction<unknown, Vacancy>({
     return createVacancy(db, companyId, parsed.data);
   },
   revalidate: ["/settings/company", "/orgs"],
-  errorMessage: () =>
-    getTranslations("settings").then((t) => t("vacancies.saveError")),
+  errorMessage: () => getTranslations("settings").then((t) => t("vacancies.saveError")),
 });
 
 export const updateVacancyStatusAction = createAction<
@@ -76,14 +68,11 @@ export const updateVacancyStatusAction = createAction<
     );
   },
   revalidate: ["/settings/company", "/orgs"],
-  errorMessage: () =>
-    getTranslations("settings").then((t) => t("vacancies.statusError")),
+  errorMessage: () => getTranslations("settings").then((t) => t("vacancies.statusError")),
   translateDomainErrors: true,
 });
 
-export async function createJoinRequestAction(
-  input: unknown,
-): Promise<ActionResult> {
+export async function createJoinRequestAction(input: unknown): Promise<ActionResult> {
   const t = await getTranslations("orgs");
   try {
     const session = await auth();
@@ -124,30 +113,20 @@ export const updateJoinRequestStatusAction = createAction<
     );
   },
   revalidate: ["/settings/company"],
-  errorMessage: () =>
-    getTranslations("settings").then((t) => t("joinRequests.statusError")),
+  errorMessage: () => getTranslations("settings").then((t) => t("joinRequests.statusError")),
   translateDomainErrors: true,
 });
 
-export const acceptJoinRequestAction = createAction<
-  { requestId: unknown },
-  { inviteUrl: string }
->({
+export const acceptJoinRequestAction = createAction<{ requestId: unknown }, { inviteUrl: string }>({
   minRole: "admin",
   handler: async ({ requestId }, { companyId, userId, db }) => {
     const parsed = z.string().uuid().safeParse(requestId);
     if (!parsed.success) throw new Error("Invalid join request");
-    const invitation = await createInvitationForAcceptedRequest(
-      db,
-      companyId,
-      parsed.data,
-      userId,
-    );
+    const invitation = await createInvitationForAcceptedRequest(db, companyId, parsed.data, userId);
     const baseUrl = process.env.NEXTAUTH_URL || "https://kivvi.ch";
     return { inviteUrl: `${baseUrl}/invite/${invitation.token}` };
   },
   revalidate: ["/settings/company"],
-  errorMessage: () =>
-    getTranslations("settings").then((t) => t("joinRequests.acceptError")),
+  errorMessage: () => getTranslations("settings").then((t) => t("joinRequests.acceptError")),
   translateDomainErrors: true,
 });

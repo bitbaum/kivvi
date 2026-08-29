@@ -9,12 +9,7 @@ import {
   repairPaidDates,
   getDataRepairStatus,
 } from "@kivvi/core/src/domain/data-repair";
-import {
-  type ActionResult,
-  getSession,
-  requireRole,
-  safeErrorMessage,
-} from "./utils";
+import { type ActionResult, getSession, requireRole, safeErrorMessage } from "./utils";
 import { getTranslations } from "next-intl/server";
 
 export async function repairNumberSequencesAction(): Promise<
@@ -36,17 +31,11 @@ export async function repairNumberSequencesAction(): Promise<
 
 export async function repairInvoiceStatusesAction(
   cutoffDate?: string,
-): Promise<
-  ActionResult<{ updatedInvoices: number; updatedPurchaseInvoices: number }>
-> {
+): Promise<ActionResult<{ updatedInvoices: number; updatedPurchaseInvoices: number }>> {
   const t = await getTranslations("settings.dataRepair");
   try {
     const { companyId } = await requireRole("admin");
-    const data = await repairHistoricalInvoiceStatuses(
-      db,
-      companyId,
-      cutoffDate,
-    );
+    const data = await repairHistoricalInvoiceStatuses(db, companyId, cutoffDate);
     revalidatePath("/");
     return { success: true, data };
   } catch (error) {
@@ -79,9 +68,7 @@ export async function generateMissingJournalEntriesAction(): Promise<
   }
 }
 
-export async function repairPaidDatesAction(): Promise<
-  ActionResult<{ updated: number }>
-> {
+export async function repairPaidDatesAction(): Promise<ActionResult<{ updated: number }>> {
   const t = await getTranslations("settings.dataRepair");
   try {
     const { companyId } = await requireRole("admin");

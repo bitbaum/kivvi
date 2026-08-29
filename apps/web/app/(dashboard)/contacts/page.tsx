@@ -26,9 +26,7 @@ interface ContactsPageProps {
   };
 }
 
-export default async function ContactsPage({
-  searchParams,
-}: ContactsPageProps) {
+export default async function ContactsPage({ searchParams }: ContactsPageProps) {
   const session = await getSessionOrRedirect();
   const t = await getTranslations("contacts");
   const tc = await getTranslations("common");
@@ -36,31 +34,22 @@ export default async function ContactsPage({
 
   const companyId = session.user.companyId;
   const search = searchParams.search || "";
-  const typeFilter = searchParams.type as
-    | "customer"
-    | "vendor"
-    | "both"
-    | undefined;
+  const typeFilter = searchParams.type as "customer" | "vendor" | "both" | undefined;
   const page = parseInt(searchParams.page || "1", 10);
-  const sort = (searchParams.sort || "name") as
-    | "name"
-    | "contactNumber"
-    | "createdAt"
-    | "city";
+  const sort = (searchParams.sort || "name") as "name" | "contactNumber" | "createdAt" | "city";
   const order = (searchParams.order || "asc") as "asc" | "desc";
 
-  const [result, { customerCount, vendorCount, newThisMonth }] =
-    await Promise.all([
-      listContacts(db, companyId, {
-        search: search || undefined,
-        type: typeFilter || undefined,
-        page,
-        pageSize: DEFAULT_PAGE_SIZE,
-        sortBy: sort,
-        sortOrder: order,
-      }),
-      getContactStats(db, companyId),
-    ]);
+  const [result, { customerCount, vendorCount, newThisMonth }] = await Promise.all([
+    listContacts(db, companyId, {
+      search: search || undefined,
+      type: typeFilter || undefined,
+      page,
+      pageSize: DEFAULT_PAGE_SIZE,
+      sortBy: sort,
+      sortOrder: order,
+    }),
+    getContactStats(db, companyId),
+  ]);
 
   // Pre-resolve translations for client component
   const bulkActionKeys = [
@@ -220,10 +209,7 @@ export default async function ContactsPage({
               totalPages={result.totalPages}
               buildHref={buildPageUrl}
               labels={{
-                showing: tc(
-                  "showing",
-                  paginationRange(result.page, result.pageSize, result.total),
-                ),
+                showing: tc("showing", paginationRange(result.page, result.pageSize, result.total)),
                 previous: tc("previous"),
                 next: tc("next"),
                 pageOf: tc("pageOf", {

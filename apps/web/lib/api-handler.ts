@@ -53,8 +53,7 @@ export async function authenticateApi(
       return NextResponse.json(
         {
           success: false,
-          error:
-            "Unauthorized. Provide a Bearer token or authenticate via session.",
+          error: "Unauthorized. Provide a Bearer token or authenticate via session.",
         },
         { status: 401 },
       );
@@ -94,10 +93,7 @@ export function apiInternalError(): NextResponse {
  * @param error - The ZodError from a failed safeParse
  * @param context - "query parameters" or "body" (default: "parameters")
  */
-export function apiZodError(
-  error: z.ZodError,
-  context: string = "parameters",
-): NextResponse {
+export function apiZodError(error: z.ZodError, context: string = "parameters"): NextResponse {
   const details = error.issues.map((i) => `${i.path}: ${i.message}`).join(", ");
   return apiError(`Invalid ${context}: ${details}`);
 }
@@ -105,10 +101,7 @@ export function apiZodError(
 /**
  * Standard API success response.
  */
-export function apiSuccess<T>(
-  data: T,
-  meta?: Record<string, unknown>,
-): NextResponse {
+export function apiSuccess<T>(data: T, meta?: Record<string, unknown>): NextResponse {
   return NextResponse.json({ success: true, data, ...(meta ? { meta } : {}) });
 }
 

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
 export interface KeyboardShortcut {
   key: string;
@@ -28,18 +28,23 @@ export function useKeyboardShortcuts(shortcuts: KeyboardShortcut[]) {
       // Don't trigger shortcuts when typing in input fields
       const target = event.target as HTMLElement;
       const isInput =
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.isContentEditable;
+        target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable;
 
       for (const shortcut of shortcuts) {
         const keyMatches = event.key.toLowerCase() === shortcut.key.toLowerCase();
         const ctrlMatches = shortcut.ctrlKey ? event.ctrlKey : true;
         const metaMatches = shortcut.metaKey ? event.metaKey || event.ctrlKey : true; // Ctrl on Windows/Linux, Cmd on Mac
-        const shiftMatches = shortcut.shiftKey !== undefined ? shortcut.shiftKey === event.shiftKey : true;
+        const shiftMatches =
+          shortcut.shiftKey !== undefined ? shortcut.shiftKey === event.shiftKey : true;
 
         // Skip if typing in input (unless it's Escape, /, or a meta/ctrl shortcut)
-        if (isInput && shortcut.key !== 'Escape' && shortcut.key !== '/' && !shortcut.metaKey && !shortcut.ctrlKey) {
+        if (
+          isInput &&
+          shortcut.key !== "Escape" &&
+          shortcut.key !== "/" &&
+          !shortcut.metaKey &&
+          !shortcut.ctrlKey
+        ) {
           continue;
         }
 
@@ -53,7 +58,7 @@ export function useKeyboardShortcuts(shortcuts: KeyboardShortcut[]) {
       }
     }
 
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [shortcuts]);
 }
