@@ -13,15 +13,15 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.9.0",
-    "drizzle-orm": "^0.30.10",
+    "drizzle-orm": "^0.45.2",
     "node-fetch": "2",
-    "postgres": "^3.4.4"
+    "postgres": "^3.4.9"
   },
   "devDependencies": {
     "@types/node-fetch": "2",
     "@types/ws": "^8.18.1",
-    "drizzle-kit": "^0.20.0",
+    "drizzle-kit": "^0.31.10",
     "typescript": "^5.3.3",
-    "ws": "^8.19.0"
+    "ws": "^8.21.3"
   }
 }
