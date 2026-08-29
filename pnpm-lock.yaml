@@ -62,7 +62,7 @@ importers:
         version: 3.2.2(react@18.3.1)
       '@fleet/ai-forms':
         specifier: github:catomean/ai-forms#v0.1.0
-        version: git+https://git@github.com:catomean/ai-forms.git#68087895ab9d46d73d03b91ebf5e648b969ebd76(react@18.3.1)
+        version: git+https://github.com/catomean/ai-forms.git#68087895ab9d46d73d03b91ebf5e648b969ebd76(react@18.3.1)
       '@kivvi/ai':
         specifier: workspace:*
         version: link:../../packages/ai
@@ -914,8 +914,8 @@ packages:
     resolution: {integrity: sha512-d9zaMRSTIKDLhctzH12MtXvJKSSUhaHcjV+2Z+GK+EEY7XKpP5yR4x+N3TAcHTcu963nIr+TMcCb4DBCYX1z6Q==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
 
-  '@fleet/ai-forms@git+https://git@github.com:catomean/ai-forms.git#68087895ab9d46d73d03b91ebf5e648b969ebd76':
-    resolution: {commit: 68087895ab9d46d73d03b91ebf5e648b969ebd76, repo: git@github.com:catomean/ai-forms.git, type: git}
+  '@fleet/ai-forms@git+https://github.com/catomean/ai-forms.git#68087895ab9d46d73d03b91ebf5e648b969ebd76':
+    resolution: {commit: 68087895ab9d46d73d03b91ebf5e648b969ebd76, repo: https://github.com/catomean/ai-forms.git, type: git}
     version: 0.1.0
     peerDependencies:
       react: '>=18'
@@ -6149,7 +6149,7 @@ snapshots:
 
   '@eslint/js@8.57.1': {}
 
-  '@fleet/ai-forms@git+https://git@github.com:catomean/ai-forms.git#68087895ab9d46d73d03b91ebf5e648b969ebd76(react@18.3.1)':
+  '@fleet/ai-forms@git+https://github.com/catomean/ai-forms.git#68087895ab9d46d73d03b91ebf5e648b969ebd76(react@18.3.1)':
     optionalDependencies:
       react: 18.3.1
 
