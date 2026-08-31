@@ -61,11 +61,7 @@ export default async function DocumentsPage({ searchParams }: PageProps) {
   const dateTo = params.dateTo;
   const page = parseInt(params.page || "1", 10);
   const sort = (params.sort || "issueDate") as
-    | "number"
-    | "issueDate"
-    | "dueDate"
-    | "total"
-    | "createdAt";
+    "number" | "issueDate" | "dueDate" | "total" | "createdAt";
   const order = (params.order || "desc") as "asc" | "desc";
 
   const result = await listDocuments(db, session.user.companyId, {
