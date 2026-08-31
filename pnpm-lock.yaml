@@ -238,6 +238,9 @@ importers:
       '@kivvi/database':
         specifier: workspace:*
         version: link:../database
+      ai-kit:
+        specifier: github:bitbaum/ai-kit#v0.5.0
+        version: https://codeload.github.com/bitbaum/ai-kit/tar.gz/8d7729a2c83df6376c5824bd7efda30cc68420f6(react@18.3.1)
       decimal.js:
         specifier: ^10.4.3
         version: 10.6.0
@@ -2637,6 +2640,25 @@ packages:
   agentkeepalive@4.6.0:
     resolution: {integrity: sha512-kja8j7PjmncONqaTsB8fQ+wE2mSU2DJ9D4XKoJ5PFWIdRMa6SLSN1ff4mOr4jCbfRSsxR4keIiySJU0N9T5hIQ==}
     engines: {node: '>= 8.0.0'}
+
+  ai-forms@0.1.2:
+    resolution: {integrity: sha512-agadca4pN0iGlZTlNy1Vo2SmnQB+0dNkrQSDE3wCJYeaVxKDs5KaxiwGj5+GL6mVYcI1xZ8pwnT9kL9WcxnBHA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      react: '>=18'
+    peerDependenciesMeta:
+      react:
+        optional: true
+
+  ai-kit@https://codeload.github.com/bitbaum/ai-kit/tar.gz/8d7729a2c83df6376c5824bd7efda30cc68420f6:
+    resolution: {tarball: https://codeload.github.com/bitbaum/ai-kit/tar.gz/8d7729a2c83df6376c5824bd7efda30cc68420f6}
+    version: 0.5.0
+    engines: {node: '>=20'}
+    peerDependencies:
+      react: '>=18'
+    peerDependenciesMeta:
+      react:
+        optional: true
 
   ajv-formats@2.1.1:
     resolution: {integrity: sha512-Wx0Kx52hxE7C18hkMEggYlEifqWZtYaRgouJor+WMdPnQyEK13vgEWyVNup7SoeeoLMsr4kf5h6dOW11I15MUA==}
@@ -7946,6 +7968,16 @@ snapshots:
   agentkeepalive@4.6.0:
     dependencies:
       humanize-ms: 1.2.1
+
+  ai-forms@0.1.2(react@18.3.1):
+    optionalDependencies:
+      react: 18.3.1
+
+  ai-kit@https://codeload.github.com/bitbaum/ai-kit/tar.gz/8d7729a2c83df6376c5824bd7efda30cc68420f6(react@18.3.1):
+    dependencies:
+      ai-forms: 0.1.2(react@18.3.1)
+    optionalDependencies:
+      react: 18.3.1
 
   ajv-formats@2.1.1(ajv@8.18.0):
     optionalDependencies:
