@@ -175,20 +175,18 @@ export async function bulkImportAction(
         const customersToImport = customersParsed.data
           .slice(0, batchSize)
           .filter((row: Record<string, string>) => row["Nummer"] && row["Firma / Kundenname"])
-          .map(
-            (row: Record<string, string>): Record<string, string | null> => ({
-              contactNumber: row["Nummer"],
-              name: row["Firma / Kundenname"],
-              email: row["E-Mail"] || null,
-              phone: row["Telefon"] || null,
-              type: "customer",
-              street: row["Straße"] || null,
-              city: row["Stadt"] || null,
-              postalCode: row["PLZ"] || null,
-              country: row["Land"] || DEFAULT_COUNTRY,
-              vatNumber: row["USt-IdNr."] || null,
-            }),
-          );
+          .map((row: Record<string, string>): Record<string, string | null> => ({
+            contactNumber: row["Nummer"],
+            name: row["Firma / Kundenname"],
+            email: row["E-Mail"] || null,
+            phone: row["Telefon"] || null,
+            type: "customer",
+            street: row["Straße"] || null,
+            city: row["Stadt"] || null,
+            postalCode: row["PLZ"] || null,
+            country: row["Land"] || DEFAULT_COUNTRY,
+            vatNumber: row["USt-IdNr."] || null,
+          }));
 
         const customerResults = await bulkInsertContacts(db, companyId, customersToImport);
         result.customersInserted = customerResults.inserted;
@@ -206,20 +204,18 @@ export async function bulkImportAction(
         const vendorsToImport = vendorsParsed.data
           .slice(0, batchSize)
           .filter((row: Record<string, string>) => row["Nummer"] && row["Firma / Lieferantenname"])
-          .map(
-            (row: Record<string, string>): Record<string, string | null> => ({
-              contactNumber: row["Nummer"],
-              name: row["Firma / Lieferantenname"],
-              email: row["E-Mail"] || null,
-              phone: row["Telefon"] || null,
-              type: "vendor",
-              street: row["Straße"] || null,
-              city: row["Stadt"] || null,
-              postalCode: row["PLZ"] || null,
-              country: row["Land"] || DEFAULT_COUNTRY,
-              vatNumber: row["USt-IdNr."] || null,
-            }),
-          );
+          .map((row: Record<string, string>): Record<string, string | null> => ({
+            contactNumber: row["Nummer"],
+            name: row["Firma / Lieferantenname"],
+            email: row["E-Mail"] || null,
+            phone: row["Telefon"] || null,
+            type: "vendor",
+            street: row["Straße"] || null,
+            city: row["Stadt"] || null,
+            postalCode: row["PLZ"] || null,
+            country: row["Land"] || DEFAULT_COUNTRY,
+            vatNumber: row["USt-IdNr."] || null,
+          }));
 
         const vendorResults = await bulkInsertContacts(db, companyId, vendorsToImport);
         result.vendorsInserted = vendorResults.inserted;
@@ -310,19 +306,17 @@ export async function bulkImportAction(
 
         const glRows = glParsed.data
           .filter((row) => row["Buchungsdatum"] && (row["Soll"] || row["Haben"]))
-          .map(
-            (row): Record<string, string | null> => ({
-              date: row["Buchungsdatum"] || null,
-              reference: row["Buchungsnummer"] || null,
-              description: row["Beschreibung"] || null,
-              notes: row["Bemerkungen"] || null,
-              debitAmount: parseAmount(row["Soll"]),
-              debitAccount: row["Sollkonto"] || null,
-              creditAmount: parseAmount(row["Haben"]),
-              creditAccount: row["Habenkonto"] || null,
-              voucher: row["Beleg"] || null,
-            }),
-          );
+          .map((row): Record<string, string | null> => ({
+            date: row["Buchungsdatum"] || null,
+            reference: row["Buchungsnummer"] || null,
+            description: row["Beschreibung"] || null,
+            notes: row["Bemerkungen"] || null,
+            debitAmount: parseAmount(row["Soll"]),
+            debitAccount: row["Sollkonto"] || null,
+            creditAmount: parseAmount(row["Haben"]),
+            creditAccount: row["Habenkonto"] || null,
+            voucher: row["Beleg"] || null,
+          }));
 
         const accountCodeMap = await buildAccountCodeMap(db, companyId);
         const glResults = await bulkInsertJournalEntries(db, companyId, glRows, accountCodeMap);
@@ -346,15 +340,13 @@ export async function bulkImportAction(
 
         const stockRows = stockParsed.data
           .filter((row) => row["Artikelnummer"] && row["Menge"])
-          .map(
-            (row): Record<string, string | null> => ({
-              articleNumber: row["Artikelnummer"] || null,
-              quantity: parseAmount(row["Menge"]),
-              warehouse: row["Lager"] || null,
-              location: row["Lagerplatz"] || null,
-              productName: row["Artikelbeschreibung"] || null,
-            }),
-          );
+          .map((row): Record<string, string | null> => ({
+            articleNumber: row["Artikelnummer"] || null,
+            quantity: parseAmount(row["Menge"]),
+            warehouse: row["Lager"] || null,
+            location: row["Lagerplatz"] || null,
+            productName: row["Artikelbeschreibung"] || null,
+          }));
 
         const { warehouses } = await import("@kivvi/database");
         const [defaultWarehouse] = await db

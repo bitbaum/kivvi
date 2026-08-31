@@ -117,13 +117,7 @@ export interface ExecutionContext {
 }
 
 export type VerticalType =
-  | "general"
-  | "financial-advisory"
-  | "legal"
-  | "medical"
-  | "nonprofit"
-  | "retail"
-  | "manufacturing";
+  "general" | "financial-advisory" | "legal" | "medical" | "nonprofit" | "retail" | "manufacturing";
 
 export type Permission =
   | "invoice:read"

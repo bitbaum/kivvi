@@ -113,9 +113,7 @@ export default auth((req) => {
       if (mod) {
         // Justified: next-auth middleware types don't include custom fields
         const enabledModules = (req.auth as any)?.user?.enabledModules as
-          | string[]
-          | null
-          | undefined;
+          string[] | null | undefined;
         if (!isModuleEnabled(enabledModules ?? undefined, mod)) {
           return NextResponse.redirect(new URL("/dashboard", req.url));
         }
