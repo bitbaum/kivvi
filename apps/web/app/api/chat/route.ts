@@ -9,6 +9,8 @@ import {
   getBusinessSnapshot,
   getPermissionsForRole,
   COMMAND_BAR_PROMPT,
+  recordAIHealthSuccess,
+  recordAIHealthFailure,
   type ExecutionContext,
   type Message,
   type ProviderType,
@@ -374,6 +376,8 @@ export async function POST(request: NextRequest) {
                 ),
               );
             } else if (chunk.type === "done") {
+              // Reached only on a stream that finished without throwing.
+              recordAIHealthSuccess();
               // Save assistant message to database (skip in command mode)
               if (fullContent && !isCommandMode) {
                 await db.insert(aiMessages).values({
@@ -394,6 +398,7 @@ export async function POST(request: NextRequest) {
           }
         } catch (error) {
           logger.error("Stream error", error);
+          recordAIHealthFailure(error);
           const fallback = await buildProviderFailureFallback({
             message,
             companyId: context.companyId,
@@ -442,6 +447,9 @@ export async function POST(request: NextRequest) {
     const message = error instanceof Error ? error.message : "Internal server error";
     const isProviderError =
       message.includes("No AI provider available") || message.includes("API key invalid");
+    // Only AI-provider failures move the tracker — a malformed request or a
+    // DB error building context is not evidence the AI layer is down.
+    if (isProviderError) recordAIHealthFailure(error);
     return NextResponse.json({ error: message }, { status: isProviderError ? 503 : 500 });
   }
 }
