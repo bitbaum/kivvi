@@ -9,6 +9,7 @@
     "declaration": true,
     "declarationMap": true,
     "outDir": "./dist",
+    "rootDir": "../..",
     "paths": {
       "@kivvi/core": ["../core/src"],
       "@kivvi/core/*": ["../core/*"],
