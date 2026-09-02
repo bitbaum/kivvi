@@ -1,150 +1,91 @@
 /**
- * Shared AI provider caller — SSOT for all server-side AI text extraction.
- *
- * Provider priority: GROQ → XAI → OPENROUTER → (ANTHROPIC, opt-in)
- * Falls back to null when no key is configured so callers can degrade gracefully.
+ * Shared AI provider caller — SSOT for all server-side, non-streaming AI text
+ * calls (form assistance, inventory-item extraction).
  *
  * Usage:
  *   const text = await callAIProvider(systemPrompt, userText);
  *   if (!text) { ...fallback... }
  *
- * ── This SELECTS one provider; it does not chain ─────────────────────────────
- * The header once read "GROQ → XAI → ANTHROPIC → OPENROUTER", which looks like a
- * fallback chain and is not one: `detectProvider` returns the FIRST provider
- * with a key and `callAIProvider` throws if that provider fails. A 429 ends the
- * call — nothing tries the next vendor. Named honestly here so the next reader
- * does not assume a resilience it never had; the real chain lives in
- * `createProviderWithFallback` (@kivvi/ai) and is what /api/chat uses.
+ * ── This now chains, same as /api/chat ────────────────────────────────────
+ * Used to pick a single provider (`detectProvider`: first with a key present)
+ * and throw on that provider's first failure — no retry to the next vendor.
+ * That was a documented non-chain: honest in its own docstring, but a real
+ * single point of failure for `form-assist` (the HTTP caller saw the failure
+ * immediately) and a silent AI-quality loss for `ai-extract` (one vendor
+ * hiccup dropped straight to the regex fallback that only exists for a total
+ * AI outage).
  *
- * Anthropic moved BELOW OpenRouter and behind ALLOW_PAID_AI. Ranked third with a
- * key present, it was selected ahead of the free OpenRouter model on every
- * single call — so a key added "just in case" silently became the default payer.
+ * `createProviderWithFallback` (@kivvi/ai) is the chain `/api/chat` already
+ * uses correctly: groq → xai → openrouter → ollama → anthropic (paid,
+ * opt-in behind ALLOW_PAID_AI). Routing through it here means a single
+ * vendor being down no longer takes either caller down with it, and success
+ * and failure are now reported to the same health tracker `/api/health`
+ * already reads — so this exact failure mode stops being invisible.
  *
- * ── Model ids come from @kivvi/ai, never from this file ──────────────────────
- * They used to be written inline in the request bodies below, duplicating ids
- * that `packages/ai` already owned. Both copies were retired by their vendors
- * and neither was updated, because a duplicate is only ever noticed by whoever
- * happens to edit the other one. The registry is the single answer now.
+ * ── Model ids come from @kivvi/ai, never from this file ──────────────────
+ * `createProviderWithFallback` owns model selection now; this file no longer
+ * duplicates provider request bodies or model ids at all.
  */
 
-import { ANTHROPIC_MODELS, GROQ_DEFAULT_MODEL, OPENROUTER_FALLBACK_MODEL } from "@kivvi/ai";
+import {
+  createProviderWithFallback,
+  recordAIHealthSuccess,
+  recordAIHealthFailure,
+} from "@kivvi/ai";
 
-type Provider = "groq" | "xai" | "anthropic" | "openrouter";
-
-function detectProvider(): { provider: Provider; apiKey: string } | null {
-  if (process.env.GROQ_API_KEY) return { provider: "groq", apiKey: process.env.GROQ_API_KEY };
-  if (process.env.XAI_API_KEY) return { provider: "xai", apiKey: process.env.XAI_API_KEY };
-  if (process.env.OPENROUTER_API_KEY)
-    return { provider: "openrouter", apiKey: process.env.OPENROUTER_API_KEY };
-  // Paid, and therefore last and opt-in: reaching it means every free option is
-  // absent, which is a decision to spend, not a fallback.
-  if (process.env.ANTHROPIC_API_KEY && process.env.ALLOW_PAID_AI?.trim())
-    return { provider: "anthropic", apiKey: process.env.ANTHROPIC_API_KEY };
-  return null;
+function envConfig() {
+  return {
+    GROQ_API_KEY: process.env.GROQ_API_KEY,
+    XAI_API_KEY: process.env.XAI_API_KEY,
+    OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
+    ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
+    OLLAMA_BASE_URL: process.env.OLLAMA_BASE_URL,
+    // Opt in to the paid link, same flag createProviderWithFallback itself
+    // gates on. Absent = free-only, same default as everywhere else.
+    ALLOW_PAID_AI: process.env.ALLOW_PAID_AI,
+  };
 }
 
 export function isAIConfigured(): boolean {
-  return detectProvider() !== null;
+  const env = envConfig();
+  return Boolean(
+    env.GROQ_API_KEY ||
+    env.XAI_API_KEY ||
+    env.OPENROUTER_API_KEY ||
+    env.OLLAMA_BASE_URL ||
+    (env.ANTHROPIC_API_KEY && env.ALLOW_PAID_AI?.trim()),
+  );
 }
 
 /**
- * Call the configured AI provider with a system prompt and user text.
- * Returns the raw response text, or null if no provider is configured.
- * Throws on network / API errors so callers can catch and fallback.
+ * Call the AI fallback chain with a system prompt and user text.
+ * Returns the raw response text, or null if no provider is configured at all.
+ * Throws only once every provider in the chain has failed, so callers can
+ * catch and degrade — that catch is now reached on a genuine full outage,
+ * not on the first vendor's hiccup.
  */
 export async function callAIProvider(
   systemPrompt: string,
   userText: string,
   maxTokens = 1000,
 ): Promise<string | null> {
-  const config = detectProvider();
-  if (!config) return null;
+  if (!isAIConfigured()) return null;
 
-  const { provider, apiKey } = config;
-
-  let url: string;
-  let headers: Record<string, string>;
-  let body: Record<string, unknown>;
-
-  const openaiMessages = [
-    { role: "system", content: systemPrompt },
-    { role: "user", content: userText },
-  ];
-
-  if (provider === "groq") {
-    url = "https://api.groq.com/openai/v1/chat/completions";
-    headers = {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    };
-    body = {
-      // From the registry in @kivvi/ai, not written out here. This line used to
-      // read "llama-3.1-8b-instant" — a copy of an id that lived in the
-      // registry too, and Groq retired it. Two places to update meant one place
-      // got updated.
-      model: GROQ_DEFAULT_MODEL,
-      messages: openaiMessages,
-      temperature: 0,
-      max_tokens: maxTokens,
-    };
-  } else if (provider === "xai") {
-    url = "https://api.x.ai/v1/chat/completions";
-    headers = {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    };
-    body = {
-      model: "grok-3-mini",
-      messages: openaiMessages,
-      temperature: 0,
-      max_tokens: maxTokens,
-    };
-  } else if (provider === "anthropic") {
-    url = "https://api.anthropic.com/v1/messages";
-    headers = {
-      "x-api-key": apiKey,
-      "Content-Type": "application/json",
-      "anthropic-version": "2023-06-01",
-    };
-    body = {
-      model: ANTHROPIC_MODELS.fast,
-      system: systemPrompt,
+  try {
+    const { provider, modelId } = await createProviderWithFallback(envConfig());
+    const response = await provider.chat({
+      model: modelId,
       messages: [{ role: "user", content: userText }],
-      max_tokens: maxTokens,
-    };
-  } else {
-    url = "https://openrouter.ai/api/v1/chat/completions";
-    headers = {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    };
-    body = {
-      // Likewise: "meta-llama/llama-3.1-8b-instruct:free", also retired. And
-      // this is the branch reached only when every free option above is gone,
-      // so a stale id here fails at the worst possible moment.
-      model: OPENROUTER_FALLBACK_MODEL,
-      messages: openaiMessages,
+      systemPrompt,
       temperature: 0,
-      max_tokens: maxTokens,
-    };
+      maxTokens,
+    });
+    recordAIHealthSuccess();
+    return response.content ?? null;
+  } catch (error) {
+    recordAIHealthFailure(error);
+    throw error;
   }
-
-  const response = await fetch(url, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(body),
-  });
-
-  if (!response.ok) {
-    throw new Error(`AI provider (${provider}) returned ${response.status}`);
-  }
-
-  const data = await response.json();
-
-  if (provider === "anthropic") {
-    return data.content?.[0]?.text ?? null;
-  }
-  return data.choices?.[0]?.message?.content ?? null;
 }
 
 /** Extract a JSON object from an AI response that may contain markdown fences. */
