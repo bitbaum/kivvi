@@ -6,7 +6,7 @@
 
 The operating system for the circular economy. Built for businesses that sell used, donated, and refurbished goods — refurbishers, Brockenhäuser, repair workshops, vintage shops.
 
-[![CI](https://github.com/g-but/kivvi/actions/workflows/ci.yml/badge.svg)](https://github.com/g-but/kivvi/actions/workflows/ci.yml)
+[![CI](https://github.com/bitbaum/kivvi/actions/workflows/ci.yml/badge.svg)](https://github.com/bitbaum/kivvi/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6.svg)](https://www.typescriptlang.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-14-black.svg)](https://nextjs.org/)
@@ -99,7 +99,7 @@ Full engineering bible in [`CLAUDE.md`](CLAUDE.md).
 
 ```bash
 # 1. Clone
-git clone https://github.com/g-but/kivvi.git && cd kivvi
+git clone https://github.com/bitbaum/kivvi.git && cd kivvi
 
 # 2. Install
 pnpm install
@@ -165,7 +165,7 @@ Practical consequences:
 
 ## Roadmap
 
-**Shipped** (used in production by [revamp-it](https://revampit.ch) and partner shops):
+**Shipped** (originated at [RevampIT](https://revampit.ch)):
 
 - ✅ Multi-tenant company model, role-based access, team invitations
 - ✅ Unified document model — quote, order, delivery note, invoice, credit note, dunning
@@ -204,7 +204,7 @@ Found a vulnerability? See [`SECURITY.md`](SECURITY.md). Do _not_ open a public 
 
 ## Who builds this
 
-Kivvi is built by [RevampIT](https://revampit.ch) (Zürich) — a nonprofit IT refurbisher running it in production — and the wider community of secondhand shops that want their software to fit their workflow, not the other way around.
+Kivvi originated at [RevampIT](https://revampit.ch) (Zürich) — founder overlap with that nonprofit IT refurbisher — for secondhand shops that want their software to fit their workflow, not the other way around.
 
 If you run a Brockenhaus, refurbishing workshop, or vintage shop and your ERP is fighting you, [get in touch](https://kivvi.ch).
 
