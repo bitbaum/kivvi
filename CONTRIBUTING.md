@@ -10,11 +10,11 @@ Thanks for considering a contribution. Kivvi is open source under MIT — the go
 ## Setup
 
 ```bash
-git clone https://github.com/g-but/kivvi.git && cd kivvi
+git clone https://github.com/bitbaum/kivvi.git && cd kivvi
 pnpm install
 docker compose up -d postgres
 cp .env.example .env.local   # edit DATABASE_URL + NEXTAUTH_SECRET
-pnpm db:push
+pnpm --filter @kivvi/database db:push
 pnpm dev
 ```
 
@@ -26,7 +26,7 @@ pnpm dev
    ```bash
    pnpm lint           # ESLint
    pnpm type-check     # tsc --noEmit across all packages
-   pnpm test           # Vitest, 880+ tests
+   pnpm test           # Vitest, 1,300+ tests
    ```
 4. **Commit.** Conventional Commits: `feat(scope): …`, `fix(scope): …`, `refactor(scope): …`, `docs(scope): …`.
 5. **PR.** Open against `main`. CI re-runs lint + type-check + tests + production build. A maintainer reviews.
@@ -75,4 +75,4 @@ Don't open public issues for vulnerabilities. See [`SECURITY.md`](SECURITY.md).
 
 ---
 
-Questions? Open a [discussion](https://github.com/g-but/kivvi/discussions) or drop us a line at [revampit.ch](https://revampit.ch).
+Questions? Open a [discussion](https://github.com/bitbaum/kivvi/discussions) or drop us a line at [revampit.ch](https://revampit.ch).

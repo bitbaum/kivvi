@@ -1,8 +1,8 @@
 # Kivvi ERP — Deployment Guide
 
 **created_date**: 2026-06-18
-**last_modified_date**: 2026-07-22
-**last_modified_summary**: Vercel is fully decommissioned — replaced the Vercel + Neon deploy option with the self-hosted Hetzner (Caddy + systemd) production reality; the Neon serverless driver remains available via `USE_NEON`.
+**last_modified_date**: 2026-09-04
+**last_modified_summary**: Truth-sweep against actual repo state — docker-compose.yml runs only `postgres` (+ optional `ollama`), the app image comes from the root Dockerfile and migrations are manual; AI env keys match the implemented providers (Groq/xAI/OpenRouter/Ollama/Anthropic — there is no OpenAI provider); migrations live in `packages/database/drizzle/`.
 
 Target audience: technical founder or DevOps engineer doing first deployment.
 
@@ -26,7 +26,7 @@ Target audience: technical founder or DevOps engineer doing first deployment.
 - **Node 20** and **pnpm 9** (local build) or Docker (container build)
 - **PostgreSQL 14+** — Neon serverless or self-hosted
 - **SMTP credentials** — Brevo free tier works (password resets, invoice emails)
-- **At least one AI API key** — OpenRouter free tier, Anthropic, or OpenAI (AI command bar requires this; all other ERP features work without it)
+- **At least one AI API key** — Groq, xAI, or OpenRouter free tier, Anthropic (paid), or a self-hosted Ollama (AI command bar requires this; all other ERP features work without it)
 - A domain name with DNS pointed at your deployment target
 
 ---
@@ -141,7 +141,7 @@ DATABASE_URL="postgresql://..." pnpm db:migrate
 If your staging flow uses schema push instead of migrations:
 
 ```bash
-DATABASE_URL="postgresql://..." pnpm db:push
+DATABASE_URL="postgresql://..." pnpm --filter @kivvi/database db:push
 ```
 
 **Verify:**
@@ -258,20 +258,20 @@ sudo usermod -aG docker $USER
 ### 2. Clone and configure
 
 ```bash
-git clone https://github.com/revamp-it/kivvi.git
+git clone https://github.com/bitbaum/kivvi.git
 cd kivvi
 cp apps/web/.env.example .env
 ```
 
 Edit `.env` — at minimum set `DATABASE_URL`, `NEXTAUTH_URL`, `NEXTAUTH_SECRET`.
 
-The `docker-compose.yml` at the repo root runs both `app` and `db` services. The `DATABASE_URL` for Docker Compose is:
+The `docker-compose.yml` at the repo root runs the `postgres` service (and an optional `ollama` service behind the `ai` profile) — the app itself is built from the root `Dockerfile`. For an app container on the same Docker network, the `DATABASE_URL` is:
 
 ```
-DATABASE_URL=postgresql://kivvi:STRONG_PASSWORD@db:5432/kivvi
+DATABASE_URL=postgresql://kivvi:STRONG_PASSWORD@postgres:5432/kivvi
 ```
 
-(`db` resolves to the PostgreSQL container inside the Docker network.)
+(`postgres` resolves to the PostgreSQL container inside the Docker network.)
 
 ### 3. Set a strong DB password
 
@@ -286,16 +286,20 @@ Match it in `DATABASE_URL`.
 ### 4. Start services
 
 ```bash
-docker compose up -d
+docker compose up -d postgres                    # start PostgreSQL
+docker build -t kivvi .                          # build the app image (root Dockerfile)
+DATABASE_URL="postgresql://kivvi:STRONG_PASSWORD@localhost:5432/kivvi" pnpm db:migrate   # migrations are NOT automatic
+docker run -d --name kivvi-app --network kivvi_default \
+  --env-file .env -p 3000:3000 kivvi             # run the app
 ```
 
-The first start pulls images, initialises PostgreSQL, and starts the app. Migrations run automatically via the container entrypoint.
+Migrations do not run automatically — run `pnpm db:migrate` before the first start and after every upgrade with schema changes (requires Node 20 + pnpm 9 on the machine running it).
 
 To verify:
 
 ```bash
 docker compose ps
-docker compose logs -f app
+docker logs -f kivvi-app
 ```
 
 ### 5. Configure a reverse proxy
@@ -361,7 +365,7 @@ Back up PostgreSQL daily. Minimal cron script:
 # /opt/kivvi-backup.sh
 BACKUP_DIR=/var/backups/kivvi
 mkdir -p "$BACKUP_DIR"
-docker compose -f /path/to/kivvi/docker-compose.yml exec -T db \
+docker compose -f /path/to/kivvi/docker-compose.yml exec -T postgres \
   pg_dump -U kivvi kivvi | gzip > "$BACKUP_DIR/$(date +%Y%m%d-%H%M).sql.gz"
 
 # Keep last 30 days
@@ -411,10 +415,12 @@ Both platforms support Docker deployments from a GitHub repo with minimal setup.
 | `NEXTAUTH_URL`        | Yes                  | Public HTTPS URL of the app (e.g. `https://app.kivvi.ch`)            |
 | `NEXTAUTH_SECRET`     | Yes                  | Random secret, min 32 chars. Generate: `openssl rand -hex 32`        |
 | `CRON_SECRET`         | Yes                  | Protects `/api/cron/*` endpoints. Any random string, min 32 chars    |
-| `ANTHROPIC_API_KEY`   | At least one AI key  | Claude models                                                        |
-| `OPENAI_API_KEY`      | At least one AI key  | GPT-4 models                                                         |
+| `GROQ_API_KEY`        | At least one AI key  | Groq models, free tier — first in the fallback chain                 |
+| `XAI_API_KEY`         | At least one AI key  | xAI Grok models                                                      |
 | `OPENROUTER_API_KEY`  | At least one AI key  | Multi-model access, has free tier                                    |
 | `OLLAMA_BASE_URL`     | At least one AI key  | Self-hosted models, e.g. `http://localhost:11434`                    |
+| `ANTHROPIC_API_KEY`   | At least one AI key  | Claude models (paid — used as fallback only with `ALLOW_PAID_AI`)    |
+| `ALLOW_PAID_AI`       | No                   | Set to allow paid providers (Anthropic) in the AI fallback chain     |
 | `EMAIL_HOST`          | Yes (email features) | SMTP host (e.g. `smtp-relay.brevo.com`)                              |
 | `EMAIL_PORT`          | Yes (email features) | SMTP port (587 for STARTTLS, 465 for SSL)                            |
 | `EMAIL_SECURE`        | Yes (email features) | `false` for port 587, `true` for port 465                            |
@@ -462,7 +468,7 @@ For an external managed PostgreSQL (DigitalOcean, Hetzner, Supabase):
 
 ### Migrations
 
-Migrations live in `packages/database/src/migrations/`. They are generated by Drizzle Kit and must never be edited manually.
+Migrations live in `packages/database/drizzle/`. They are generated by Drizzle Kit and must never be edited manually.
 
 ```bash
 # Apply all pending migrations
@@ -529,10 +535,11 @@ git push origin main
 ```bash
 cd /path/to/kivvi
 git pull
-docker compose build app
+docker build -t kivvi .
 # Run migrations before restarting (zero-downtime is not guaranteed across schema changes)
-docker compose run --rm app pnpm db:migrate
-docker compose up -d app
+DATABASE_URL="postgresql://kivvi:STRONG_PASSWORD@localhost:5432/kivvi" pnpm db:migrate
+docker rm -f kivvi-app
+docker run -d --name kivvi-app --network kivvi_default --env-file .env -p 3000:3000 kivvi
 ```
 
 ### Pre-upgrade steps
@@ -548,8 +555,9 @@ If something breaks after an upgrade:
 ```bash
 # Docker: roll back to previous image
 git stash
-docker compose build app
-docker compose up -d app
+docker build -t kivvi .
+docker rm -f kivvi-app
+docker run -d --name kivvi-app --network kivvi_default --env-file .env -p 3000:3000 kivvi
 ```
 
 Database migrations cannot be rolled back automatically. Keep a pre-upgrade backup and restore it if a rollback is needed.
@@ -559,10 +567,10 @@ Database migrations cannot be rolled back automatically. Keep a pre-upgrade back
 ## Troubleshooting
 
 **App won't start**  
-Check logs: `docker compose logs app`, or `journalctl -u kivvi` for the systemd service. The most common cause is a missing or malformed `DATABASE_URL`.
+Check logs: `docker logs kivvi-app`, or `journalctl -u kivvi` for the systemd service. The most common cause is a missing or malformed `DATABASE_URL`.
 
 **`DATABASE_URL` connection refused**  
-On Docker Compose: verify the `db` service is healthy (`docker compose ps`). The hostname must be `db`, not `localhost`.
+On Docker Compose: verify the `postgres` service is healthy (`docker compose ps`). From an app container on the compose network the hostname must be `postgres`, not `localhost`.
 
 **Migrations fail**  
 Ensure `DATABASE_URL` points to the correct database and the user has `CREATE TABLE` privileges. On Neon, check the database name matches the connection string.
@@ -571,9 +579,9 @@ Ensure `DATABASE_URL` points to the correct database and the user has `CREATE TA
 Test SMTP credentials:
 
 ```bash
-docker compose exec app node -e "
+docker exec kivvi-app node -e "
   const nodemailer = require('nodemailer');
-  const t = nodemailer.createTransporter({
+  const t = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: parseInt(process.env.EMAIL_PORT),
     auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
@@ -586,7 +594,7 @@ docker compose exec app node -e "
 The `onboardingComplete` flag may be inconsistent. Check:
 
 ```bash
-docker compose exec db psql -U kivvi kivvi \
+docker compose exec postgres psql -U kivvi kivvi \
   -c 'SELECT id, email, "onboardingComplete" FROM users;'
 ```
 

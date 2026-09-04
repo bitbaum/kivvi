@@ -2,7 +2,7 @@
 
 **Inherits**: `@~/.claude/CLAUDE.md` (global engineering standards)
 **Product Identity**: See `PRODUCT.md` for mission, vision, target customers, and positioning.
-**Last Updated**: 2026-04-03
+**Last Updated**: 2026-09-04
 
 ---
 
@@ -159,11 +159,10 @@ kivvi/
 │   │       ├── onboarding.ts       # Company initialization
 │   │       ├── import-mappings.ts  # CSV mapping profiles (pure, no DB)
 │   │       └── import-bulk.ts      # Bulk insert functions
-│   ├── ai/                         # AI tools + providers
-│   │   └── src/
-│   │       ├── tools/              # AI tool definitions
-│   │       └── providers/          # Anthropic, OpenAI, OpenRouter, Ollama
-│   └── events/                     # Event system (minimal)
+│   └── ai/                         # AI tools + providers
+│       └── src/
+│           ├── tools/              # AI tool definitions
+│           └── providers/          # Anthropic, Groq, xAI, OpenRouter, Ollama
 ```
 
 ### Data Flow
@@ -232,7 +231,7 @@ Each document type has: label, statuses, conversionTargets, hasDueDate, hasPayme
 | All mutations               | `apps/web/app/actions/*.ts`                             | Server Actions only. No API routes.        |
 | Document type config        | `apps/web/lib/config/document-types.ts`                 | Labels, statuses, conversion targets.      |
 | Number sequence formats     | `packages/core/src/domain/number-sequences.ts`          | Prefixes: RE, AN, AU, GU, LS, MA, BE, ER.  |
-| Chart of accounts seed      | `packages/database/src/seeds/swiss-kmu-kontenrahmen.ts` | 227 Swiss KMU accounts.                    |
+| Chart of accounts seed      | `packages/database/src/seeds/swiss-kmu-kontenrahmen.ts` | 139 Swiss KMU accounts.                    |
 | Auth config                 | `apps/web/lib/auth.ts`                                  | NextAuth v5, JWT strategy, credentials.    |
 | Middleware                  | `apps/web/middleware.ts`                                | Rate limiting, auth, onboarding redirects. |
 | AI tools                    | `packages/ai/src/tools/index.ts`                        | All AI capabilities registered here.       |
@@ -311,7 +310,9 @@ const SAFE_ERROR_PATTERNS = [
 
 ---
 
-## Database Schema (38 Tables)
+## Database Schema (50 Tables)
+
+The tables below are the core set — `packages/database/src/schema.ts` is the authoritative, complete list.
 
 ### Core Tables
 
@@ -462,7 +463,7 @@ Register → Step 1: Company Info → Step 2: Business Config → Step 3: Data I
 ```
 
 - **Step 1**: Company name, address, VAT number
-- **Step 2**: Default VAT rate, payment terms, bank IBAN → triggers: seed 227 accounts, create 11 number sequences, create default warehouse, create fiscal year
+- **Step 2**: Default VAT rate, payment terms, bank IBAN → triggers: seed 139 accounts, create 14 number sequences, create default warehouse, create fiscal year
 - **Step 3**: "Start fresh" or "Import from kivitendo" → CSV upload with auto-detection
 
 ### Kivitendo CSV Import
@@ -516,7 +517,7 @@ pnpm build                # Production build
 pnpm type-check           # TypeScript strict check
 pnpm lint                 # ESLint
 pnpm db:generate          # Generate Drizzle migrations after schema change
-pnpm db:push              # Push schema to DB (dev)
+pnpm --filter @kivvi/database db:push   # Push schema to DB (dev; no root db:push script)
 pnpm db:migrate           # Run migrations (production)
 pnpm db:studio            # Visual DB editor (Drizzle Studio)
 ```
@@ -530,10 +531,11 @@ NEXTAUTH_URL="http://localhost:3000"
 NEXTAUTH_SECRET="..."
 
 # AI (at least one)
-ANTHROPIC_API_KEY="sk-ant-..."
-OPENAI_API_KEY="sk-..."
+GROQ_API_KEY="gsk_..."
+XAI_API_KEY="xai-..."
 OPENROUTER_API_KEY="sk-or-..."
 OLLAMA_BASE_URL="http://localhost:11434"
+ANTHROPIC_API_KEY="sk-ant-..."   # paid; fallback only with ALLOW_PAID_AI set
 ```
 
 ### Database
@@ -595,7 +597,7 @@ Constants:       UPPER_SNAKE      (SEQUENCE_DEFAULTS, VALID_TRANSITIONS)
 ### Adding a new field to an entity?
 
 1. Add column to schema.ts
-2. Run `pnpm db:generate` + `pnpm db:push`
+2. Run `pnpm db:generate` + `pnpm --filter @kivvi/database db:push`
 3. Update Zod validation schema if needed
 4. UI picks it up via form config (if config-driven) or add to form
 5. **Target: 2-3 files. If it's 5+, the architecture is wrong.**
@@ -802,6 +804,8 @@ Stop and reconsider if you see:
 
 ### Available AI Tools
 
+30+ tools are registered — `packages/ai/src/tools/index.ts` is the authoritative list. Core examples:
+
 - `searchInvoicesTool` — Search by status, contact, date range
 - `searchCustomersTool` — Search contacts by name, email, type
 - `getInvoiceDetailsTool` — Full invoice with items and payments
@@ -813,12 +817,13 @@ Stop and reconsider if you see:
 
 ### AI Provider Support
 
-Configurable per company via `CompanySettings`:
+Configurable per company via `CompanySettings`. Without a per-company preference, the fallback chain is Groq → xAI → OpenRouter → Ollama → Anthropic (paid, only with `ALLOW_PAID_AI` set):
 
-- **Anthropic** (Claude) — recommended default
-- **OpenAI** (GPT-4)
-- **OpenRouter** — multi-model access
+- **Groq** — free tier, first in the fallback chain
+- **xAI** (Grok) — free tier
+- **OpenRouter** — multi-model access, free models by default
 - **Ollama** — self-hosted (llama, mistral, etc.)
+- **Anthropic** (Claude) — paid; requires `ALLOW_PAID_AI` to be used as fallback
 
 ### Adding an AI Tool
 
