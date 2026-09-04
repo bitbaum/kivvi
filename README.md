@@ -49,7 +49,7 @@ Full positioning in [`PRODUCT.md`](PRODUCT.md).
 | **Repair workflow**        | Per-item repair log, parts consumption, labour tracking, condition gates before sale.                                  |
 | **Sales documents**        | Unified document model — Angebot, Auftrag, Lieferschein, Rechnung, Gutschrift, Mahnung. Convert by changing one field. |
 | **Swiss QR-bills**         | Generated automatically. Legally compliant since 2022.                                                                 |
-| **Accounting**             | 227-account KMU Kontenrahmen, journal entries auto-generated, balance sheet + P&L + VAT report.                        |
+| **Accounting**             | 139-account KMU Kontenrahmen, journal entries auto-generated, balance sheet + P&L + VAT report.                        |
 | **Banking**                | CAMT.053/054 import, automatic payment matching via QR reference.                                                      |
 | **Impact reporting**       | Devices saved, kg diverted from landfill, CO2 avoided. Auto-generated annual Vereinsbericht.                           |
 | **AI command bar**         | Cmd+K. "50 laptops donated by UBS" → intake created. Same domain functions the UI uses.                                |
@@ -73,7 +73,7 @@ kivvi/
 │   │       ├── banking.ts            # CAMT import, payment matching
 │   │       ├── impact.ts             # CO2, devices saved, donation receipts
 │   │       └── ...
-│   └── ai/                   # AI providers + tool registry (Anthropic / OpenAI / Ollama)
+│   └── ai/                   # AI providers + tool registry (Groq / xAI / OpenRouter / Ollama / Anthropic)
 └── docs/                     # Deployment, self-hosting, audit reports, OpenAPI
 ```
 
@@ -90,7 +90,7 @@ Full engineering bible in [`CLAUDE.md`](CLAUDE.md).
 | Database   | PostgreSQL + Drizzle ORM                         | Full SQL control, best TS inference, no codegen                             |
 | Money      | `decimal.js`                                     | `0.1 + 0.2 !== 0.3` in IEEE 754; financial software cannot use floats       |
 | Auth       | NextAuth.js v5                                   | Credentials provider, JWT strategy                                          |
-| AI         | Anthropic Claude · OpenAI · Ollama (self-hosted) | Configurable per company; default Claude                                    |
+| AI         | Groq · xAI · OpenRouter · Ollama · Anthropic     | Configurable per company; free-tier chain first, Anthropic opt-in (paid)    |
 | UI         | Tailwind + shadcn/ui + Radix                     | CSS variables as the only design SSOT; semantic tokens everywhere           |
 | Validation | Zod                                              | Schema = SSOT for validation _and_ types                                    |
 | Hosting    | Self-hosted (Docker · any Linux VPS)             | Runs on our own Hetzner box behind Caddy; portable to any host              |
@@ -112,13 +112,13 @@ cp .env.example .env.local
 # edit DATABASE_URL, NEXTAUTH_SECRET, and an AI key
 
 # 5. Schema + seed
-pnpm db:push
+pnpm --filter @kivvi/database db:push
 
 # 6. Run
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). The onboarding wizard creates your company, seeds the 227-account Swiss KMU Kontenrahmen, and offers a kivitendo CSV import if you're migrating.
+Open [http://localhost:3000](http://localhost:3000). The onboarding wizard creates your company, seeds the 139-account Swiss KMU Kontenrahmen, and offers a kivitendo CSV import if you're migrating.
 
 ### Minimal `.env.local`
 
@@ -128,8 +128,8 @@ NEXTAUTH_URL="http://localhost:3000"
 NEXTAUTH_SECRET="$(openssl rand -base64 32)"
 
 # Pick one AI provider (or none — the app runs without AI)
-ANTHROPIC_API_KEY="sk-ant-..."          # recommended default
-# OPENAI_API_KEY="sk-..."
+GROQ_API_KEY="gsk_..."                  # free tier, tried first
+# OPENROUTER_API_KEY="sk-or-..."
 # OLLAMA_BASE_URL="http://localhost:11434"
 ```
 
@@ -172,10 +172,10 @@ Practical consequences:
 - ✅ Intake workflow with condition grading and donation receipts
 - ✅ Per-item inventory with repair lifecycle (testing → repair → ready_for_sale → sold/returned)
 - ✅ Swiss QR-bill generation, CAMT import, automatic payment matching
-- ✅ Accounting: 227-account KMU Kontenrahmen, journal entries, balance sheet + P&L + VAT report
+- ✅ Accounting: 139-account KMU Kontenrahmen, journal entries, balance sheet + P&L + VAT report
 - ✅ Recurring invoices with cron-driven generation
 - ✅ Impact reporting (devices saved, CO2 avoided)
-- ✅ AI command bar (Anthropic, OpenAI, OpenRouter, Ollama)
+- ✅ AI command bar (Groq, xAI, OpenRouter, Ollama, Anthropic)
 - ✅ Public REST API + webhooks for ERP-to-warehouse / ERP-to-shop integrations
 - ✅ Kivitendo CSV migration with auto-detection
 - ✅ German, French, English UI
@@ -195,7 +195,7 @@ git checkout -b feat/your-change
 pnpm install && pnpm dev
 # … make changes …
 pnpm lint && pnpm type-check && pnpm test
-# open a PR; CI runs lint + type-check + 880+ tests + production build
+# open a PR; CI runs lint + type-check + 1,300+ tests + production build
 ```
 
 ## Security

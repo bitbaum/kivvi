@@ -1,6 +1,6 @@
 # Self-Hosting Kivvi
 
-Kivvi is MIT-licensed and designed to run on your own infrastructure. This guide covers production deployment on a Linux server using Docker Compose.
+Kivvi is MIT-licensed and designed to run on your own infrastructure. This guide covers production deployment on a Linux server using Docker: the repo's `docker-compose.yml` provides PostgreSQL (and an optional Ollama service), and the app image is built from the root `Dockerfile`.
 
 ---
 
@@ -16,11 +16,15 @@ Kivvi is MIT-licensed and designed to run on your own infrastructure. This guide
 ## Quick Start
 
 ```bash
-git clone https://github.com/revamp-it/kivvi.git
+git clone https://github.com/bitbaum/kivvi.git
 cd kivvi
 cp .env.example .env
 # Edit .env — see Environment Variables section below
-docker compose up -d
+docker compose up -d postgres        # PostgreSQL 16
+pnpm install && pnpm db:migrate      # migrations are manual (Node 20 + pnpm 9)
+docker build -t kivvi .              # build the app image
+docker run -d --name kivvi-app --network kivvi_default \
+  --env-file .env -p 3000:3000 kivvi
 ```
 
 The app will be available on port 3000. Put a reverse proxy (nginx, Caddy) in front for HTTPS.
@@ -34,10 +38,10 @@ Copy `.env.example` to `.env` and fill in every value. Required variables:
 ### Database
 
 ```env
-DATABASE_URL=postgresql://kivvi:STRONG_PASSWORD@db:5432/kivvi
+DATABASE_URL=postgresql://kivvi:STRONG_PASSWORD@postgres:5432/kivvi
 ```
 
-Use a strong, random password. The `db` hostname refers to the PostgreSQL service in `docker-compose.yml`.
+Use a strong, random password. The `postgres` hostname refers to the PostgreSQL service in `docker-compose.yml` (use `localhost` when connecting from the host, e.g. for `pnpm db:migrate`).
 
 ### Authentication
 
@@ -67,17 +71,20 @@ Without these, the app runs but users cannot reset their passwords.
 ### AI features (optional — at least one required for AI command bar)
 
 ```env
-# Anthropic Claude (recommended)
-ANTHROPIC_API_KEY=sk-ant-...
+# Groq (free tier, first in the fallback chain)
+GROQ_API_KEY=gsk_...
 
-# OpenAI GPT-4 (alternative)
-OPENAI_API_KEY=sk-...
+# xAI Grok (free tier)
+XAI_API_KEY=xai-...
 
-# OpenRouter (multi-model, pay-per-use)
+# OpenRouter (multi-model, free models by default)
 OPENROUTER_API_KEY=sk-or-...
 
 # Ollama (self-hosted, no API key)
 OLLAMA_BASE_URL=http://ollama:11434
+
+# Anthropic Claude (paid — used as fallback only when ALLOW_PAID_AI is set)
+ANTHROPIC_API_KEY=sk-ant-...
 ```
 
 If no AI key is set, the AI command bar is disabled; all other ERP features work normally.
@@ -88,17 +95,20 @@ If no AI key is set, the AI command bar is disabled; all other ERP features work
 
 The included `docker-compose.yml` runs:
 
-| Service | Description                     |
-| ------- | ------------------------------- |
-| `app`   | Next.js application (port 3000) |
-| `db`    | PostgreSQL 16                   |
+| Service    | Description                                        |
+| ---------- | -------------------------------------------------- |
+| `postgres` | PostgreSQL 16 (port 5432)                          |
+| `ollama`   | Optional self-hosted AI (behind the `ai` profile)  |
+
+The Next.js app itself is not a compose service — build it from the root `Dockerfile` and run it with `docker run` (see Quick Start).
 
 ```bash
-# Start
-docker compose up -d
+# Start the database
+docker compose up -d postgres
 
 # View logs
-docker compose logs -f app
+docker compose logs -f postgres
+docker logs -f kivvi-app
 
 # Stop
 docker compose down
@@ -111,10 +121,10 @@ docker compose down -v
 
 ## Database Migrations
 
-Migrations run automatically on `docker compose up` via the container entrypoint. To run manually:
+Migrations do not run automatically — run them from the checkout (Node 20 + pnpm 9) before the first start and after every upgrade with schema changes:
 
 ```bash
-docker compose exec app pnpm db:migrate
+DATABASE_URL="postgresql://kivvi:STRONG_PASSWORD@localhost:5432/kivvi" pnpm db:migrate
 ```
 
 **Never edit existing migration files.** Always create new ones:
@@ -136,7 +146,7 @@ After the first `docker compose up`:
    - **Step 2**: Default VAT rate, payment terms, bank IBAN
    - **Step 3**: "Start fresh" or upload a Kivitendo CSV export
 
-The onboarding wizard seeds the 227-account Swiss KMU Kontenrahmen, all number sequences, and a default warehouse automatically.
+The onboarding wizard seeds the 139-account Swiss KMU Kontenrahmen, all number sequences, and a default warehouse automatically.
 
 ---
 
@@ -182,16 +192,16 @@ Back up the PostgreSQL database regularly. With Docker Compose:
 
 ```bash
 # Dump
-docker compose exec db pg_dump -U kivvi kivvi > backup-$(date +%Y%m%d).sql
+docker compose exec postgres pg_dump -U kivvi kivvi > backup-$(date +%Y%m%d).sql
 
 # Restore
-docker compose exec -T db psql -U kivvi kivvi < backup-20260101.sql
+docker compose exec -T postgres psql -U kivvi kivvi < backup-20260101.sql
 ```
 
 Automate with cron:
 
 ```cron
-0 2 * * * /path/to/kivvi/scripts/backup.sh
+0 2 * * * cd /path/to/kivvi && docker compose exec -T postgres pg_dump -U kivvi kivvi | gzip > /var/backups/kivvi-$(date +\%Y\%m\%d).sql.gz
 ```
 
 Store backups off-server (S3, Backblaze B2, etc.). The database contains all company data — losing it means losing everything.
@@ -202,11 +212,13 @@ Store backups off-server (S3, Backblaze B2, etc.). The database contains all com
 
 ```bash
 git pull
-docker compose build app
-docker compose up -d app
+DATABASE_URL="postgresql://kivvi:STRONG_PASSWORD@localhost:5432/kivvi" pnpm db:migrate
+docker build -t kivvi .
+docker rm -f kivvi-app
+docker run -d --name kivvi-app --network kivvi_default --env-file .env -p 3000:3000 kivvi
 ```
 
-Migrations run automatically on startup. Always read the release notes before upgrading across major versions.
+Run migrations before restarting the app. Always read the release notes before upgrading across major versions.
 
 ---
 
@@ -223,7 +235,7 @@ For a single company, this doesn't change anything. You still use the same setup
 ### App won't start
 
 ```bash
-docker compose logs app
+docker logs kivvi-app
 ```
 
 Check for missing environment variables or database connection errors.
@@ -231,8 +243,8 @@ Check for missing environment variables or database connection errors.
 ### Database connection refused
 
 ```bash
-docker compose ps   # is the db service running?
-docker compose logs db
+docker compose ps   # is the postgres service running?
+docker compose logs postgres
 ```
 
 ### Password reset emails not arriving
@@ -240,7 +252,7 @@ docker compose logs db
 Verify `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_USER`, `EMAIL_PASS` are set. Test SMTP credentials with:
 
 ```bash
-docker compose exec app node -e "
+docker exec kivvi-app node -e "
   const nodemailer = require('nodemailer');
   const t = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
@@ -256,7 +268,7 @@ docker compose exec app node -e "
 If you're stuck in the onboarding redirect, the `onboardingComplete` flag on your user record may be mismatched. Check:
 
 ```bash
-docker compose exec db psql -U kivvi kivvi -c "SELECT id, email, \"onboardingComplete\" FROM users;"
+docker compose exec postgres psql -U kivvi kivvi -c "SELECT id, email, \"onboardingComplete\" FROM users;"
 ```
 
 ---

@@ -1,8 +1,8 @@
 # Kivvi — Exemplary System Design: Architecture, Integration & Accounting
 
 **created_date**: 2026-07-02
-**last_modified_date**: 2026-07-09
-**last_modified_summary**: revamp-it boundary clarified: Kivvi is the ERP companion replacing kivitendo, not revamp-it's operational backend.
+**last_modified_date**: 2026-09-04
+**last_modified_summary**: Docs truth-sweep: `pnpm db:push` has no root script — the working command is `pnpm --filter @kivvi/database db:push`.
 **Status**: Design reference (living doc)
 **Audience**: Kivvi engineers + revamp-it ops + the Verein's Treuhänder (for the flagged VAT/NPO items)
 **Scope**: How Kivvi supports revamp-it as a modern ERP companion replacing kivitendo: accounting, documents, payments, banking, VAT, finance-relevant contacts, and ERP inventory records. revamp-it remains its own application, database, and workflow system.
@@ -75,7 +75,7 @@ See also: `docs/REVAMPIT_ERP_COMPANION_ROADMAP.md` for the strict "like kivitend
 
 ### 3.2 Go-live checklist (the ops wiring — makes the connection actually work)
 
-1. Deploy current **Kivvi `main`** (includes per-company modules, durable sync, repair-labor billing); run `pnpm db:push` or `pnpm db:migrate` so `api_idempotency_keys` exists.
+1. Deploy current **Kivvi `main`** (includes per-company modules, durable sync, repair-labor billing); run `pnpm --filter @kivvi/database db:push` or `pnpm db:migrate` so `api_idempotency_keys` exists.
 2. Deploy revamp-it **#206** → the receiver goes live at `https://revampit.orangecat.ch/api/webhooks/kivvi`.
 3. In Kivvi (revamp-it's tenant): **Settings → Webhooks → Add endpoint**
    - URL `https://revampit.orangecat.ch/api/webhooks/kivvi`

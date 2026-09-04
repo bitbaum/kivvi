@@ -39,7 +39,7 @@ Exportiere alle Stammdaten als CSV (UTF-8, Semikolon-getrennt):
 
 - [ ] **Schritt 1**: Firmenname, Adresse, MwSt-Nummer eingeben
 - [ ] **Schritt 2**: Standard-MwSt-Satz, Zahlungsfrist, IBAN konfigurieren
-  - Erstellt automatisch: 227 Konten (Swiss KMU Kontenrahmen), 11 Nummernkreise, Hauptlager, Geschäftsjahr
+  - Erstellt automatisch: 139 Konten (Swiss KMU Kontenrahmen), 14 Nummernkreise, Hauptlager, Geschäftsjahr
 - [ ] **Schritt 3**: «Daten importieren» wählen
 
 ### 2.3 Firmeneinstellungen vervollständigen
