@@ -23,7 +23,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: "20"
+  NODE_VERSION: "24"
 
 jobs:
   ci:
@@ -35,6 +35,11 @@ jobs:
       # pnpm version comes from "packageManager" in package.json (SSOT);
       # pnpm/action-setup@v6 errors if both are specified.
       - uses: pnpm/action-setup@v6
+
+      # pnpm 11 stores per-user by default; pin the store dir so
+      # setup-node's pnpm cache hits it.
+      - name: Pin pnpm store dir
+        run: pnpm config set store-dir ~/.pnpm-store --global
 
       - uses: actions/setup-node@v7
         with:

@@ -1,10 +1,10 @@
 # ---------- Stage 1: Install dependencies ----------
-FROM node:20-alpine AS deps
+FROM node:24-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Enable corepack so the correct pnpm version (from packageManager) is used
-RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
+RUN corepack enable && corepack prepare pnpm@11.25.0 --activate
 
 # Copy lockfile and workspace manifests first for layer caching
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
@@ -16,11 +16,11 @@ COPY packages/ai/package.json ./packages/ai/
 RUN pnpm install --frozen-lockfile
 
 # ---------- Stage 2: Build the application ----------
-FROM node:20-alpine AS builder
+FROM node:24-alpine AS builder
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
+RUN corepack enable && corepack prepare pnpm@11.25.0 --activate
 
 # Copy installed node_modules from deps stage
 COPY --from=deps /app/ ./
@@ -40,7 +40,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm build --filter=@kivvi/web
 
 # ---------- Stage 3: Production runner ----------
-FROM node:20-alpine AS runner
+FROM node:24-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production

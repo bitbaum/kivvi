@@ -1,3 +1,14 @@
 packages:
   - "apps/*"
   - "packages/*"
+
+# pnpm 11: install scripts run only for allow-listed packages.
+# true = native/binary deps that need their build scripts;
+# es5-ext's postinstall is non-functional advocacy output — kept off.
+allowBuilds:
+  "@parcel/watcher": true
+  "@sentry/cli": true
+  "@swc/core": true
+  es5-ext: false
+  esbuild: true
+  unrs-resolver: true
