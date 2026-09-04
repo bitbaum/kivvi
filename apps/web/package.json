@@ -18,7 +18,7 @@
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
-    "@fleet/ai-forms": "github:bitbaum/ai-forms#v0.1.0",
+    "@fleet/ai-forms": "npm:ai-forms@^0.1.2",
     "@kivvi/ai": "workspace:*",
     "@kivvi/core": "workspace:*",
     "@kivvi/database": "workspace:*",
