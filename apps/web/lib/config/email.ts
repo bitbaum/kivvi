@@ -20,6 +20,10 @@ export const EMAIL_CONFIG = {
  * Validates that required email configuration is present
  */
 export function validateEmailConfig(): void {
+  if (process.env.RESEND_API_KEY) {
+    // Resend transport needs only the key; sender has a verified default.
+    return;
+  }
   if (!EMAIL_CONFIG.USER) {
     throw new Error("EMAIL_USER is required for email functionality");
   }
@@ -29,8 +33,8 @@ export function validateEmailConfig(): void {
 }
 
 /**
- * Check if email is configured
+ * Check if email is configured (Resend key, or full SMTP credentials)
  */
 export function isEmailConfigured(): boolean {
-  return !!(EMAIL_CONFIG.USER && EMAIL_CONFIG.PASS);
+  return !!(process.env.RESEND_API_KEY || (EMAIL_CONFIG.USER && EMAIL_CONFIG.PASS));
 }
