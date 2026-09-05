@@ -219,3 +219,5 @@ MIT — see [`LICENSE`](LICENSE). Use it, fork it, sell it, embed it.
 _Every item that passes through your hands deserves to be tracked, valued, and given its best possible future._
 
 </div>
+
+<!-- docs-only rollup proof 2026-09-05: this PR exists to prove fleet#22 is fixed — a markdown-only diff must now produce a CI check rollup and be auto-merge-sweepable. -->
