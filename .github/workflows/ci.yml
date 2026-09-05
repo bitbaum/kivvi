@@ -11,11 +11,6 @@ on:
       - ".vscode/**"
   pull_request:
     branches: [main]
-    paths-ignore:
-      - "**.md"
-      - "docs/**"
-      - "LICENSE"
-      - ".vscode/**"
 
 # Cancel in-progress runs on new pushes to the same PR
 concurrency:
