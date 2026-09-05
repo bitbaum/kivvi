@@ -5,6 +5,11 @@ packages:
 # pnpm 11: install scripts run only for allow-listed packages.
 # true = native/binary deps that need their build scripts;
 # es5-ext's postinstall is non-functional advocacy output — kept off.
+# @bitbaum/mail-kit is our own just-published package; exempt it from the
+# minimum-release-age hold so it can install on day one.
+minimumReleaseAgeExclude:
+  - "@bitbaum/mail-kit"
+
 allowBuilds:
   "@parcel/watcher": true
   "@sentry/cli": true
