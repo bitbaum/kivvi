@@ -1,17 +1,25 @@
 /**
  * Email Transport
  *
- * Prefers the fleet-standard Resend API whenever RESEND_API_KEY is set,
- * falling back to Brevo SMTP via nodemailer otherwise. The Resend path exists
- * because the deployed Brevo credential answers "Login denied" (live-probed
- * 2026-09-05), which silently killed every invoice, dunning, invitation and
- * auth email in production.
+ * Prefers the fleet-standard Resend path via @bitbaum/mail-kit whenever it is
+ * configured (RESEND_API_KEY set and not a placeholder), falling back to Brevo
+ * SMTP via nodemailer otherwise. The Resend path exists because the deployed
+ * Brevo credential answers "Login denied" (live-probed 2026-09-05), which
+ * silently killed every invoice, dunning, invitation and auth email in
+ * production.
  *
- * The Resend transport mirrors nodemailer's sendMail/verify surface so the
+ * The mail-kit transport mirrors nodemailer's sendMail/verify surface so the
  * eight existing call sites need no changes.
  */
 
 import nodemailer, { type Transporter } from "nodemailer";
+import {
+  sendMail as mailKitSendMail,
+  mailHealth,
+  isMailConfigured,
+  fromAddress,
+  conventionalFrom,
+} from "@bitbaum/mail-kit";
 import { EMAIL_CONFIG } from "@/lib/config/email";
 
 /** The subset of nodemailer's mail options this app actually uses. */
@@ -31,67 +39,46 @@ export interface MailTransport {
   verify(): Promise<true>;
 }
 
-const RESEND_API_URL = "https://api.resend.com";
-
-/**
- * Default sender when Resend is active. Only fleetcrown.orangecat.ch is
- * verified in the shared Resend account, so like surf-your-life and vitareba
- * we send as <app>@fleetcrown.orangecat.ch until kivvi has its own domain.
- */
-const RESEND_DEFAULT_FROM = "kivvi@fleetcrown.orangecat.ch";
-
 function isResendActive(): boolean {
-  return Boolean(process.env.RESEND_API_KEY);
+  return isMailConfigured();
 }
 
 function createResendTransport(): MailTransport {
-  const apiKey = process.env.RESEND_API_KEY ?? "";
-
   return {
     async sendMail(message) {
-      const res = await fetch(`${RESEND_API_URL}/emails`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: message.from,
-          to: [message.to],
-          ...(message.cc ? { cc: [message.cc] } : {}),
-          ...(message.replyTo ? { reply_to: message.replyTo } : {}),
-          subject: message.subject,
-          html: message.html,
-          ...(message.text ? { text: message.text } : {}),
-          ...(message.attachments
-            ? {
-                attachments: message.attachments.map((a) => ({
-                  filename: a.filename,
-                  content: Buffer.isBuffer(a.content)
-                    ? a.content.toString("base64")
-                    : Buffer.from(a.content).toString("base64"),
-                  ...(a.contentType ? { content_type: a.contentType } : {}),
-                })),
-              }
-            : {}),
-        }),
+      // mail-kit never throws; the old transport did and every call site
+      // catches, so the adapter re-raises failures to preserve that contract.
+      const result = await mailKitSendMail({
+        from: message.from,
+        to: message.to,
+        subject: message.subject,
+        html: message.html,
+        ...(message.text ? { text: message.text } : {}),
+        ...(message.cc ? { cc: message.cc } : {}),
+        ...(message.replyTo ? { replyTo: message.replyTo } : {}),
+        ...(message.attachments
+          ? {
+              attachments: message.attachments.map((a) => ({
+                filename: a.filename,
+                // mail-kit treats string content as already-base64; our call
+                // sites pass raw bytes/strings, so hand it bytes explicitly.
+                content: typeof a.content === "string" ? Buffer.from(a.content) : a.content,
+                ...(a.contentType ? { contentType: a.contentType } : {}),
+              })),
+            }
+          : {}),
       });
 
-      if (!res.ok) {
-        const detail = await res.text().catch(() => "");
-        throw new Error(`Resend send failed (${res.status}): ${detail.slice(0, 200)}`);
+      if (!result.sent) {
+        throw new Error(`Resend send failed: ${result.error}`);
       }
-
-      const body = (await res.json()) as { id?: string };
-      return { messageId: body.id };
+      return { messageId: result.id };
     },
 
     async verify() {
-      const res = await fetch(`${RESEND_API_URL}/domains`, {
-        headers: { Authorization: `Bearer ${apiKey}` },
-      });
-      if (!res.ok) {
-        throw new Error(`Resend API returned ${res.status}`);
+      const health = await mailHealth();
+      if (!health.ok) {
+        throw new Error(`Resend health check failed: ${health.error ?? "unknown"}`);
       }
       return true;
     },
@@ -143,10 +130,15 @@ export async function testEmailConfig(): Promise<{ success: boolean; error?: str
  * Get the sender email address (bare address; callers wrap it in a
  * display name). With Resend active the sender must live on the verified
  * fleetcrown domain, so EMAIL_FROM — a plain mailbox in prod — cannot win.
+ * Env SSOT is RESEND_FROM (read via mail-kit); the fleet-conventional
+ * kivvi@fleetcrown.orangecat.ch is the fallback.
  */
 export function getFromEmail(): string {
   if (isResendActive()) {
-    return process.env.RESEND_FROM_EMAIL || RESEND_DEFAULT_FROM;
+    const configured = fromAddress() ?? conventionalFrom("Kivvi");
+    // RESEND_FROM may be `Name <addr>`; callers add their own display name.
+    const match = configured.match(/<([^>]+)>/);
+    return (match?.[1] ?? configured).trim();
   }
   return EMAIL_CONFIG.FROM || EMAIL_CONFIG.USER;
 }

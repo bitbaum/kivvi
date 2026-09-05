@@ -1,8 +1,11 @@
 /**
  * Email Configuration
  *
- * SSOT for email service configuration using Brevo SMTP via nodemailer.
+ * SSOT for email service configuration. Resend (via @bitbaum/mail-kit) is the
+ * preferred transport; Brevo SMTP via nodemailer is the fallback.
  */
+
+import { isMailConfigured } from "@bitbaum/mail-kit";
 
 /**
  * SMTP configuration for Brevo
@@ -20,8 +23,9 @@ export const EMAIL_CONFIG = {
  * Validates that required email configuration is present
  */
 export function validateEmailConfig(): void {
-  if (process.env.RESEND_API_KEY) {
-    // Resend transport needs only the key; sender has a verified default.
+  if (isMailConfigured()) {
+    // Resend transport needs only a real key; sender has a verified default.
+    // (mail-kit rejects placeholder keys, unlike a bare env-var check.)
     return;
   }
   if (!EMAIL_CONFIG.USER) {
@@ -36,5 +40,5 @@ export function validateEmailConfig(): void {
  * Check if email is configured (Resend key, or full SMTP credentials)
  */
 export function isEmailConfigured(): boolean {
-  return !!(process.env.RESEND_API_KEY || (EMAIL_CONFIG.USER && EMAIL_CONFIG.PASS));
+  return isMailConfigured() || !!(EMAIL_CONFIG.USER && EMAIL_CONFIG.PASS);
 }
