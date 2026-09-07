@@ -18,7 +18,18 @@
 
 import { createHealthTracker } from "@bitbaum/ai-kit";
 
-const tracker = createHealthTracker({ downAfter: 3 });
+/**
+ * Exported so the liveness probe can write into the SAME tracker the real chat
+ * writes into. Otherwise one probe proves the chain works and /api/health
+ * carries on saying it has never seen a call — the probe's knowledge would die
+ * with the request that made it.
+ *
+ * Prefer the record* helpers below in ordinary code; this exists for handing
+ * the tracker to something that records on your behalf.
+ */
+export const aiHealthTracker = createHealthTracker({ downAfter: 3 });
+
+const tracker = aiHealthTracker;
 
 /** Call after a chat turn that got a real answer from a provider. */
 export function recordAIHealthSuccess(): void {

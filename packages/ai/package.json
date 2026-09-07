@@ -13,7 +13,7 @@
     "@anthropic-ai/sdk": "^0.115.0",
     "@kivvi/core": "workspace:*",
     "@kivvi/database": "workspace:*",
-    "@bitbaum/ai-kit": "^0.6.2",
+    "@bitbaum/ai-kit": "^0.15.0",
     "decimal.js": "^10.4.3",
     "drizzle-orm": "^0.30.10",
     "openai": "^4.28.0",

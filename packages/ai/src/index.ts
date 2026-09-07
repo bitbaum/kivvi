@@ -9,3 +9,5 @@ export { getPermissionsForRole } from "./permissions";
 export { getAllModels, getProviderAvailability, createProviderWithFallback } from "./providers";
 export type { ModelConfig, ProviderType, ProviderAvailability } from "./providers";
 export { recordAIHealthSuccess, recordAIHealthFailure, getAIHealth, resetAIHealth } from "./health";
+export { aiHealthTracker } from "./health";
+export { aiLivenessHandler } from "./liveness";

@@ -14,6 +14,11 @@ minimumReleaseAgeExclude:
   # exit-1 with no annotation, which reads like a broken build rather than a
   # held-back dependency.
   - "bip-kit"
+  # Ours, published from this fleet minutes ago by its OIDC trusted publisher.
+  # Pinned to the exact version: a bare name would exempt every FUTURE version
+  # too, quietly disabling the gate for the package most likely to be installed
+  # the minute it is released.
+  - "@bitbaum/ai-kit@0.15.0"
 
 allowBuilds:
   "@parcel/watcher": true
