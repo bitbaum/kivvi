@@ -5,7 +5,7 @@ export { OpenRouterProvider } from "./openrouter";
 export { XaiProvider } from "./xai";
 export { OpenAICompatibleProvider } from "./openai-compatible";
 
-import type { AIProvider } from "../types";
+import type { AIProvider, ChatRequest, ChatResponse } from "../types";
 import { AnthropicProvider, ANTHROPIC_MODELS } from "./anthropic";
 import { GroqProvider } from "./groq";
 import { OllamaProvider } from "./ollama";
@@ -273,55 +273,40 @@ export function getProviderAvailability(env: {
  * chain is free-only and simply runs out — which is the honest outcome, and the
  * one the caller can report to the user.
  */
-export async function createProviderWithFallback(
-  env: {
-    GROQ_API_KEY?: string;
-    XAI_API_KEY?: string;
-    OPENROUTER_API_KEY?: string;
-    ANTHROPIC_API_KEY?: string;
-    OLLAMA_BASE_URL?: string;
-    /** Opt in to paid links. Absent = free-only, and that is the default. */
-    ALLOW_PAID_AI?: string;
-  },
+export interface AIEnv {
+  GROQ_API_KEY?: string;
+  XAI_API_KEY?: string;
+  OPENROUTER_API_KEY?: string;
+  ANTHROPIC_API_KEY?: string;
+  OLLAMA_BASE_URL?: string;
+  /** Opt in to paid links. Absent = free-only, and that is the default. */
+  ALLOW_PAID_AI?: string;
+}
+
+interface Candidate {
+  type: ProviderType;
+  apiKey?: string;
+  baseUrl?: string;
+  defaultModel: string;
+  /** An explicit caller preference, honoured over `defaultModel`. */
+  model?: string;
+}
+
+/**
+ * The chain, in order, with unusable links already dropped.
+ *
+ * ONE list, read by both walkers below. Two copies of a provider order drift —
+ * and the drift is invisible until the day the two disagree about which vendor
+ * is tried second, in the middle of an outage.
+ */
+function orderedCandidates(
+  env: AIEnv,
   preferred?: ProviderConfig,
-): Promise<{
-  provider: AIProvider;
-  providerId: ProviderType;
-  modelId: string;
-}> {
-  const errors: string[] = [];
-
-  // Try preferred provider first
-  if (preferred) {
-    try {
-      const provider = await createProvider(preferred);
-      if (
-        "validateConnection" in provider &&
-        typeof (provider as any).validateConnection === "function"
-      ) {
-        await (provider as any).validateConnection();
-      }
-      return {
-        provider,
-        providerId: preferred.type,
-        modelId: preferred.model || provider.models[0]?.id || "",
-      };
-    } catch (e) {
-      errors.push(`${preferred.type}: ${e instanceof Error ? e.message : "failed"}`);
-    }
-  }
-
+): { candidates: Candidate[]; skipped: string[] } {
   const allowPaid = Boolean(env.ALLOW_PAID_AI?.trim());
 
   // Fallback chain: groq → xai → openrouter → ollama → (anthropic, opt-in)
-  const chain: Array<{
-    type: ProviderType;
-    apiKey?: string;
-    baseUrl?: string;
-    defaultModel: string;
-    /** Costs money. Skipped entirely unless ALLOW_PAID_AI is set. */
-    paid?: boolean;
-  }> = [
+  const chain: Array<Candidate & { paid?: boolean }> = [
     {
       type: "groq",
       apiKey: env.GROQ_API_KEY,
@@ -349,21 +334,55 @@ export async function createProviderWithFallback(
     },
   ];
 
-  for (const candidate of chain) {
+  // Why a link was dropped travels WITH the list. A refusal that says only
+  // "no provider available" sends the reader hunting for a missing key that is
+  // in fact present and deliberately unused — the single most confusing way
+  // this chain can fail, and the reason it is pinned by a test.
+  const skipped: string[] = [];
+
+  const usable = chain.filter((candidate) => {
     // A paid link is invisible in normal operation and only reached when the
     // free ones are gone — so it must be opted into, never fallen into.
     if (candidate.paid && !allowPaid) {
-      errors.push(`${candidate.type}: skipped (paid; set ALLOW_PAID_AI to enable)`);
-      continue;
+      skipped.push(`${candidate.type}: skipped (paid; set ALLOW_PAID_AI to enable)`);
+      return false;
     }
+    return candidate.type === "ollama" ? Boolean(candidate.baseUrl) : Boolean(candidate.apiKey);
+  });
 
-    // Skip if no credentials
-    if (candidate.type === "ollama") {
-      if (!candidate.baseUrl) continue;
-    } else {
-      if (!candidate.apiKey) continue;
-    }
+  if (!preferred) return { candidates: usable, skipped };
 
+  // The caller's choice goes first and keeps its model; it is not duplicated
+  // further down, because trying the same link twice is not a fallback.
+  return {
+    candidates: [
+      {
+        type: preferred.type,
+        apiKey: preferred.apiKey,
+        baseUrl: preferred.baseUrl,
+        defaultModel: preferred.model || "",
+        model: preferred.model,
+      },
+      ...usable.filter((c) => c.type !== preferred.type),
+    ],
+    skipped,
+  };
+}
+
+export async function createProviderWithFallback(
+  env: AIEnv,
+  preferred?: ProviderConfig,
+): Promise<{
+  provider: AIProvider;
+  providerId: ProviderType;
+  modelId: string;
+}> {
+  const { candidates, skipped } = orderedCandidates(env, preferred);
+  // Seeded with the links that were never attempted and why, so the refusal
+  // below names them too.
+  const errors: string[] = [...skipped];
+
+  for (const candidate of candidates) {
     try {
       const provider = await createProvider({
         type: candidate.type,
@@ -371,7 +390,14 @@ export async function createProviderWithFallback(
         baseUrl: candidate.baseUrl,
       });
 
-      // Validate the connection (checks API key validity / server reachability)
+      // Validate the connection (checks API key validity / server reachability).
+      //
+      // Kept HERE, and only here. This function's job is to hand back a
+      // provider OBJECT — for streaming, where there is no single response to
+      // judge — so a cheap liveness check is the best signal available before
+      // returning one. `chatWithFallback` below does not need it: the
+      // completion it makes is a strictly better probe, and it is the call the
+      // caller wanted anyway.
       if (
         "validateConnection" in provider &&
         typeof (provider as any).validateConnection === "function"
@@ -382,16 +408,76 @@ export async function createProviderWithFallback(
       return {
         provider,
         providerId: candidate.type,
-        modelId: candidate.defaultModel,
+        modelId: candidate.model || candidate.defaultModel || provider.models[0]?.id || "",
       };
     } catch (e) {
       errors.push(`${candidate.type}: ${e instanceof Error ? e.message : "failed"}`);
-      continue;
     }
   }
 
   const detail = errors.length > 0 ? ` Tried: ${errors.join("; ")}` : "";
   throw new Error(
     `No AI provider available.${detail} Configure a valid API key for at least one provider: GROQ_API_KEY, XAI_API_KEY, OPENROUTER_API_KEY, OLLAMA_BASE_URL, or ANTHROPIC_API_KEY.`,
+  );
+}
+
+/**
+ * Walk the chain with the REAL request, and return the first provider that
+ * actually answers.
+ *
+ * ── Why this exists next to `createProviderWithFallback` ─────────────────────
+ * That function advances on `validateConnection()` — a `GET /models` probe. It
+ * is a chain in shape, and it advances on a signal unrelated to the failure it
+ * needs to survive: "can I list your models?" and "can this model answer right
+ * now?" are different questions. Once a provider passed its audition, its
+ * single `chat()` call was the end of the road, so a 429, a retired model id or
+ * an empty completion took the whole feature down with a healthy chain sitting
+ * underneath, untried.
+ *
+ * `call-provider.ts` says in its own docstring that routing through the chain
+ * means "a single vendor being down no longer takes either caller down with
+ * it". That was true of a vendor whose /models endpoint is down, and false of
+ * every other way a vendor fails — which is most of them. This closes the gap
+ * the docstring already promised.
+ *
+ * It also costs one round trip LESS per call than the audition did, because the
+ * completion answers the question the probe was asking.
+ *
+ * `createProviderWithFallback` stays for streaming, where the caller needs the
+ * provider object rather than one response.
+ */
+export async function chatWithFallback(
+  env: Parameters<typeof createProviderWithFallback>[0],
+  request: Omit<ChatRequest, "model"> & { model?: string },
+  preferred?: ProviderConfig,
+): Promise<{ response: ChatResponse; providerId: ProviderType; modelId: string }> {
+  const { candidates, skipped } = orderedCandidates(env, preferred);
+  // Seeded with the links that were never attempted and why, so the refusal
+  // below names them too.
+  const errors: string[] = [...skipped];
+
+  for (const candidate of candidates) {
+    try {
+      const provider = await createProvider({
+        type: candidate.type,
+        apiKey: candidate.apiKey,
+        baseUrl: candidate.baseUrl,
+      });
+      const modelId = candidate.model || candidate.defaultModel;
+      // No `validateConnection` here on purpose. The completion below is a
+      // strictly better probe than the one it replaces, and it is the call the
+      // caller actually wanted.
+      const response = await provider.chat({ ...request, model: modelId });
+      return { response, providerId: candidate.type, modelId };
+    } catch (e) {
+      // Every link's failure, not just the last: "the key is dead" and "one
+      // model id rotted" are different problems that used to read the same.
+      errors.push(`${candidate.type}: ${e instanceof Error ? e.message : "failed"}`);
+    }
+  }
+
+  const detail = errors.length > 0 ? ` Tried: ${errors.join("; ")}` : "";
+  throw new Error(
+    `No AI provider answered.${detail} Configure a valid API key for at least one provider: GROQ_API_KEY, XAI_API_KEY, OPENROUTER_API_KEY, OLLAMA_BASE_URL, or ANTHROPIC_API_KEY.`,
   );
 }
