@@ -6,12 +6,28 @@
  *
  * SSOT: the .md file. Metadata lives in frontmatter, content lives in the file body.
  * To add an article: create a new .md file. That's it.
+ *
+ * WHY TYPED BLOCKS, NOT HTML. This module used to run `marked` with a custom
+ * Renderer and hand the resulting HTML string to `dangerouslySetInnerHTML`.
+ * bip-kit parses the same markdown into a discriminated union of typed blocks
+ * that the renderer turns into React elements — which removes that raw-HTML
+ * surface by construction: there is no HTML passthrough left for content to
+ * hide in, and link hrefs are scheme-guarded at render.
+ *
+ * WHY THE HEADING IDS DID NOT MOVE. The old anchors came from a local German
+ * slugifier (umlauts → ae/oe/ue, ß → ss). bip-kit's `slugify` is umlaut-aware
+ * and produces the identical id for all 111 headings across the 19 committed
+ * articles — verified before the swap, and pinned by a test — so every existing
+ * `#anchor` link keeps working. If that ever stops being true the fix is a shim
+ * here, not a silent id change: a moved anchor breaks inbound links and search
+ * results with no error anywhere.
  */
 
 import { readFileSync, readdirSync } from "fs";
 import { join } from "path";
 import matter from "gray-matter";
-import { marked, Renderer } from "marked";
+import { extractToc, parseContentBlocks } from "bip-kit";
+import type { ContentBlock, TocEntry } from "bip-kit";
 
 const CONTENT_DIR = join(process.cwd(), "content/knowledge");
 
@@ -25,15 +41,6 @@ export type KnowledgeArticleMeta = {
   published: boolean;
   order?: number;
 };
-
-function slugifyHeading(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[äöüÄÖÜ]/g, (c) => ({ ä: "ae", ö: "oe", ü: "ue", Ä: "ae", Ö: "oe", Ü: "ue" })[c] ?? c)
-    .replace(/ß/g, "ss")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
-}
 
 /**
  * Returns all published articles sorted by `order` frontmatter field.
@@ -55,35 +62,31 @@ export function getAllArticles(): KnowledgeArticleMeta[] {
 }
 
 /**
- * Returns rendered HTML and metadata for a single article.
- * Headings get id attributes for the table-of-contents anchor links.
- * H2 headings are collected and returned as `sections` for the TOC.
+ * Returns typed content blocks and metadata for a single article.
+ *
+ * `sections` is the table of contents built from the heading blocks' own ids,
+ * so a TOC link and the heading it points at cannot drift — they are the same
+ * value. (The page used to re-derive the ids with a second copy of the
+ * slugifier, which is precisely the drift this removes.)
+ *
+ * `gray-matter` still owns the frontmatter: these files use real YAML — quoted
+ * titles containing colons, a boolean `published`, a numeric `order` — and a
+ * `key: value` scanner would turn `published: false` into a truthy string.
  */
 export async function getArticle(slug: string): Promise<{
   meta: KnowledgeArticleMeta;
-  html: string;
-  sections: string[];
+  blocks: ContentBlock[];
+  sections: TocEntry[];
 } | null> {
   try {
     const raw = readFileSync(join(CONTENT_DIR, `${slug}.md`), "utf8");
     const { data, content } = matter(raw);
-
-    const sections: string[] = [];
-    const renderer = new Renderer();
-
-    renderer.heading = ({ text, depth }: { text: string; depth: number }) => {
-      const id = slugifyHeading(text);
-      if (depth === 2) sections.push(text);
-      return `<h${depth} id="${id}" class="scroll-mt-20">${text}</h${depth}>\n`;
-    };
-
-    marked.use({ renderer });
-    const html = await marked.parse(content);
+    const blocks = parseContentBlocks(content);
 
     return {
       meta: { ...(data as Omit<KnowledgeArticleMeta, "slug">), slug },
-      html,
-      sections,
+      blocks,
+      sections: extractToc(blocks),
     };
   } catch {
     return null;

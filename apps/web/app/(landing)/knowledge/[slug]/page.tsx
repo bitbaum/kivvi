@@ -3,7 +3,13 @@ import Link from "next/link";
 import { ArrowLeft, ArrowRight, BookOpen } from "lucide-react";
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
+import { ReadingProgress } from "bip-kit/react";
+import "bip-kit/styles.css";
+// Loaded after bip-kit's own stylesheet on purpose — the Kivvi token mapping
+// wins on source order as well as specificity. @see lib/content/knowledge.css
+import "@/lib/content/knowledge.css";
 import { getArticle, getAllArticles } from "@/lib/content/knowledge";
+import { ArticleContent } from "@/lib/content/ArticleContent";
 import { Button } from "@/components/ui/button";
 import { buildPageMeta } from "@/lib/config/site";
 
@@ -49,13 +55,16 @@ export default async function KnowledgeArticlePage({
   if (!article) notFound();
 
   const t = await getTranslations("landing.knowledge.article");
-  const { meta, html, sections } = article;
+  const { meta, blocks, sections } = article;
   const allArticles = getAllArticles();
   const currentIndex = allArticles.findIndex((a) => a.slug === slug);
   const nextMeta = currentIndex >= 0 ? allArticles[currentIndex + 1] : undefined;
 
   return (
     <>
+      {/* A viewport-fixed hairline showing how far into the article the reader
+          is — the one piece of chrome a long read earns. */}
+      <ReadingProgress />
       <div className="mx-auto max-w-3xl py-8">
         {/* Back link */}
         <Link
@@ -86,46 +95,29 @@ export default async function KnowledgeArticlePage({
             <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               {t("tocHeader")}
             </p>
+            {/* Each entry's `id` is the heading block's own id, so a TOC link
+                and the heading it points at cannot drift apart. This used to
+                re-derive the id from the heading text with a second copy of
+                the slugifier — two sources of truth for one anchor. */}
             <ol className="space-y-1.5">
-              {sections.map((section, i) => {
-                const id = section
-                  .toLowerCase()
-                  .replace(
-                    /[äöüÄÖÜ]/g,
-                    (c) =>
-                      ({
-                        ä: "ae",
-                        ö: "oe",
-                        ü: "ue",
-                        Ä: "ae",
-                        Ö: "oe",
-                        Ü: "ue",
-                      })[c] ?? c,
-                  )
-                  .replace(/ß/g, "ss")
-                  .replace(/[^a-z0-9]+/g, "-")
-                  .replace(/^-|-$/g, "");
-                return (
-                  <li key={section}>
-                    <a
-                      href={`#${id}`}
-                      className="flex items-baseline gap-2.5 text-sm hover:text-primary transition-colors"
-                    >
-                      <span className="shrink-0 text-xs text-muted-foreground">{i + 1}.</span>
-                      <span>{section}</span>
-                    </a>
-                  </li>
-                );
-              })}
+              {sections.map((section, i) => (
+                <li key={section.id}>
+                  <a
+                    href={`#${section.id}`}
+                    className="flex items-baseline gap-2.5 text-sm hover:text-primary transition-colors"
+                  >
+                    <span className="shrink-0 text-xs text-muted-foreground">{i + 1}.</span>
+                    <span>{section.text}</span>
+                  </a>
+                </li>
+              ))}
             </ol>
           </nav>
         )}
 
-        {/* Content — rendered Markdown */}
-        <div
-          className="prose prose-slate dark:prose-invert max-w-none"
-          dangerouslySetInnerHTML={{ __html: html }}
-        />
+        {/* Content — typed blocks rendered as React elements. There is no HTML
+            string in this path any more, so nothing to set dangerously. */}
+        <ArticleContent blocks={blocks} />
 
         {/* Next article */}
         {nextMeta && (

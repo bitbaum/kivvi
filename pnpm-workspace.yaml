@@ -9,6 +9,11 @@ packages:
 # minimum-release-age hold so it can install on day one.
 minimumReleaseAgeExclude:
   - "@bitbaum/mail-kit"
+  # bip-kit is ours too (bitbaum/bip-kit); the 0.2.x line is days old. Without
+  # this entry `pnpm install --frozen-lockfile` refuses it in CI as a bare
+  # exit-1 with no annotation, which reads like a broken build rather than a
+  # held-back dependency.
+  - "bip-kit"
 
 allowBuilds:
   "@parcel/watcher": true
