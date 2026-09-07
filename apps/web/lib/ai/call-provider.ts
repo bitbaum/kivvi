@@ -6,32 +6,34 @@
  *   const text = await callAIProvider(systemPrompt, userText);
  *   if (!text) { ...fallback... }
  *
- * ── This now chains, same as /api/chat ────────────────────────────────────
- * Used to pick a single provider (`detectProvider`: first with a key present)
- * and throw on that provider's first failure — no retry to the next vendor.
- * That was a documented non-chain: honest in its own docstring, but a real
- * single point of failure for `form-assist` (the HTTP caller saw the failure
- * immediately) and a silent AI-quality loss for `ai-extract` (one vendor
- * hiccup dropped straight to the regex fallback that only exists for a total
- * AI outage).
+ * ── This chains on the REAL call now ──────────────────────────────────────
+ * Originally it picked a single provider (`detectProvider`: first with a key
+ * present) and threw on that provider's first failure — no retry to the next
+ * vendor. A single point of failure for `form-assist`, and a silent quality
+ * loss for `ai-extract`, which dropped straight to the regex fallback that
+ * only exists for a total AI outage.
  *
- * `createProviderWithFallback` (@kivvi/ai) is the chain `/api/chat` already
- * uses correctly: groq → xai → openrouter → ollama → anthropic (paid,
- * opt-in behind ALLOW_PAID_AI). Routing through it here means a single
- * vendor being down no longer takes either caller down with it, and success
- * and failure are now reported to the same health tracker `/api/health`
- * already reads — so this exact failure mode stops being invisible.
+ * Routing through `createProviderWithFallback` fixed less of that than this
+ * docstring used to claim. That function advances on `validateConnection()` —
+ * a `GET /models` probe — so it selected a vendor by asking "can I list your
+ * models?" and then made exactly ONE `chat()` call. The claim above, that "a
+ * single vendor being down no longer takes either caller down with it", held
+ * for a vendor whose /models endpoint is down and for no other way a vendor
+ * fails: a 429, a retired model id, or a 200 with empty content was still
+ * terminal, with a healthy chain sitting underneath, untried.
+ *
+ * `chatWithFallback` walks the same order with the real request, so the chain
+ * advances on the failure it exists to survive. It also costs one round trip
+ * LESS per call, because the completion answers the question the probe was
+ * asking. Success and failure still reach the health tracker `/api/health`
+ * reads.
  *
  * ── Model ids come from @kivvi/ai, never from this file ──────────────────
- * `createProviderWithFallback` owns model selection now; this file no longer
- * duplicates provider request bodies or model ids at all.
+ * The chain owns model selection; this file duplicates no provider request
+ * bodies and no model ids at all.
  */
 
-import {
-  createProviderWithFallback,
-  recordAIHealthSuccess,
-  recordAIHealthFailure,
-} from "@kivvi/ai";
+import { chatWithFallback, recordAIHealthSuccess, recordAIHealthFailure } from "@kivvi/ai";
 
 function envConfig() {
   return {
@@ -72,9 +74,7 @@ export async function callAIProvider(
   if (!isAIConfigured()) return null;
 
   try {
-    const { provider, modelId } = await createProviderWithFallback(envConfig());
-    const response = await provider.chat({
-      model: modelId,
+    const { response } = await chatWithFallback(envConfig(), {
       messages: [{ role: "user", content: userText }],
       systemPrompt,
       temperature: 0,

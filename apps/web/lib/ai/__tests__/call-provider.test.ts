@@ -5,19 +5,23 @@
  * `form-assist` a single point of failure and `ai-extract` drop to its regex
  * fallback on one vendor's hiccup, both invisible to `/api/health`.
  *
- * This pins the replacement behaviour: `callAIProvider` now delegates to
- * `createProviderWithFallback` (the same chain `/api/chat` uses) and reports
- * every outcome to the shared health tracker.
+ * This pins the replacement behaviour: `callAIProvider` delegates to
+ * `chatWithFallback` and reports every outcome to the shared health tracker.
+ *
+ * It used to delegate to `createProviderWithFallback`, which advances on a
+ * `GET /models` probe and then makes ONE `chat()` call — a chain in shape that
+ * could not survive a 429, a retired model id, or a 200 with empty content.
+ * These tests mock the walker, so what they hold is the WIRING; the walk itself
+ * is tested in @kivvi/ai.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
-const chat = vi.fn();
-const createProviderWithFallback = vi.fn();
+const chatWithFallback = vi.fn();
 const recordAIHealthSuccess = vi.fn();
 const recordAIHealthFailure = vi.fn();
 
 vi.mock("@kivvi/ai", () => ({
-  createProviderWithFallback: (...args: unknown[]) => createProviderWithFallback(...args),
+  chatWithFallback: (...args: unknown[]) => chatWithFallback(...args),
   recordAIHealthSuccess: (...args: unknown[]) => recordAIHealthSuccess(...args),
   recordAIHealthFailure: (...args: unknown[]) => recordAIHealthFailure(...args),
 }));
@@ -36,8 +40,7 @@ let savedEnv: Record<string, string | undefined>;
 beforeEach(() => {
   savedEnv = Object.fromEntries(ENV_KEYS.map((k) => [k, process.env[k]]));
   for (const key of ENV_KEYS) delete process.env[key];
-  chat.mockReset();
-  createProviderWithFallback.mockReset();
+  chatWithFallback.mockReset();
   recordAIHealthSuccess.mockReset();
   recordAIHealthFailure.mockReset();
 });
@@ -80,25 +83,27 @@ describe("callAIProvider", () => {
     const { callAIProvider } = await import("../call-provider");
     const result = await callAIProvider("system", "user text");
     expect(result).toBeNull();
-    expect(createProviderWithFallback).not.toHaveBeenCalled();
+    expect(chatWithFallback).not.toHaveBeenCalled();
   });
 
-  it("routes through createProviderWithFallback and returns the completion", async () => {
+  it("routes through chatWithFallback and returns the completion", async () => {
     process.env.GROQ_API_KEY = "gsk_test";
-    createProviderWithFallback.mockResolvedValue({
-      provider: { chat },
+    chatWithFallback.mockResolvedValue({
+      response: { content: "hello", model: "llama-test" },
       providerId: "groq",
       modelId: "llama-test",
     });
-    chat.mockResolvedValue({ content: "hello", model: "llama-test" });
 
     const { callAIProvider } = await import("../call-provider");
     const result = await callAIProvider("system prompt", "user text", 500);
 
     expect(result).toBe("hello");
-    expect(chat).toHaveBeenCalledWith(
+    // No `model` here on purpose: the chain owns model selection, and naming
+    // one at this call site would pin a single id in the one place a rotted id
+    // takes the whole feature down.
+    expect(chatWithFallback).toHaveBeenCalledWith(
+      expect.any(Object),
       expect.objectContaining({
-        model: "llama-test",
         systemPrompt: "system prompt",
         messages: [{ role: "user", content: "user text" }],
         maxTokens: 500,
@@ -111,9 +116,9 @@ describe("callAIProvider", () => {
   it("only throws once the WHOLE chain is exhausted, and records the failure", async () => {
     process.env.GROQ_API_KEY = "gsk_test";
     const chainError = new Error(
-      "No AI provider available. Tried: groq: 429; xai: 429; openrouter: 429",
+      "No AI provider answered. Tried: groq: 429; xai: 429; openrouter: 429",
     );
-    createProviderWithFallback.mockRejectedValue(chainError);
+    chatWithFallback.mockRejectedValue(chainError);
 
     const { callAIProvider } = await import("../call-provider");
     await expect(callAIProvider("system", "user text")).rejects.toThrow(chainError);
@@ -124,13 +129,8 @@ describe("callAIProvider", () => {
 
   it("reports a mid-chat failure to the health tracker too", async () => {
     process.env.GROQ_API_KEY = "gsk_test";
-    createProviderWithFallback.mockResolvedValue({
-      provider: { chat },
-      providerId: "groq",
-      modelId: "llama-test",
-    });
     const chatError = new Error("stream errored");
-    chat.mockRejectedValue(chatError);
+    chatWithFallback.mockRejectedValue(chatError);
 
     const { callAIProvider } = await import("../call-provider");
     await expect(callAIProvider("system", "user text")).rejects.toThrow(chatError);

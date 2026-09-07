@@ -287,8 +287,29 @@ export abstract class OpenAICompatibleProvider implements AIProvider {
       }
     }
 
+    const content: string = message?.content ?? "";
+
+    // An HTTP 200 carrying no content is a FAILURE, not an answer.
+    //
+    // `content || ""` handed the empty string back as though the model had
+    // spoken, so a caller stored it, showed it, or dropped to a regex fallback
+    // with no error to explain why. Models return exactly this shape after
+    // spending their whole token budget on hidden reasoning, and a vendor
+    // having a moment returns it too. Throwing is what lets the chain above
+    // demote to the next provider instead of accepting silence as a reply.
+    //
+    // The exception is a TOOL-CALL turn, where empty text is correct and
+    // expected: the model's output is the call, not prose.
+    if (content.trim() === "" && toolCalls.length === 0) {
+      const reason = data.choices?.[0]?.finish_reason;
+      throw new Error(
+        `${this.name}: 200 with empty content — the model produced no output` +
+          (reason ? ` (finish_reason: ${reason})` : ""),
+      );
+    }
+
     return {
-      content: message?.content || "",
+      content,
       toolCalls: toolCalls.length > 0 ? toolCalls : undefined,
       model: data.model,
       usage: {
