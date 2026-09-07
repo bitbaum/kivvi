@@ -1,0 +1,74 @@
+/**
+ * Kivvi design tokens → bip-kit's --bp-* theming contract, for the knowledge
+ * base only (imported by the article route, not by globals.css).
+ *
+ * Every value references the token SSOT (app/globals.css). Kivvi tokens are
+ * HSL channel triples, so each mapping wraps them in hsl().
+ *
+ * ONE mapping covers both themes: the underlying Kivvi tokens already flip
+ * under `.dark`, so the same declarations are correct in either scope. What
+ * the selector list has to do is WIN in every scope, and that is not free:
+ *
+ * - bip-kit/styles.css defines its neutral defaults on `:root`, on
+ *   `[data-theme="dark"]`, and — inside a prefers-color-scheme media query —
+ *   on `:root:not([data-theme="light"])`. That last selector is (0,2,0), so a
+ *   plain `:root` mapping (0,1,0) would lose to it whenever the OS is dark.
+ *   Matching that selector exactly, later in source order, takes it back.
+ * - Kivvi switches themes with a CLASS (next-themes `attribute="class"`),
+ *   not the `data-theme` attribute bip-kit's own dark scope keys on. `.dark`
+ *   is listed so the mapping is present in that scope too; because all four
+ *   selectors carry identical declarations, whichever one wins is right.
+ *
+ * This file must be imported AFTER `bip-kit/styles.css` for the source-order
+ * half of that argument to hold.
+ */
+:root,
+:root:not([data-theme="light"]),
+:root[data-theme="dark"],
+.dark {
+  --bp-font-sans: var(--font-sans);
+  --bp-font-mono: var(--font-mono);
+
+  --bp-radius: var(--radius);
+  --bp-radius-sm: calc(var(--radius) - 2px);
+
+  --bp-bg: hsl(var(--background));
+  --bp-surface: hsl(var(--surface-raised));
+  --bp-fg: hsl(var(--text-primary));
+  --bp-fg-muted: hsl(var(--text-secondary));
+  --bp-fg-faint: hsl(var(--text-tertiary));
+  --bp-border: hsl(var(--border-default));
+
+  /* Links carry the Kivvi green. It is the one chromatic token the design
+     system spends on identity, and a link is exactly the "this leads
+     somewhere" signal it is meant to mark. */
+  --bp-accent: hsl(var(--brand));
+  --bp-accent-contrast: hsl(var(--brand-foreground));
+
+  /* Callouts follow the status tier — the only other chromatic tokens. */
+  --bp-note: hsl(var(--info));
+  --bp-note-bg: hsl(var(--info) / 0.08);
+  --bp-tip: hsl(var(--success));
+  --bp-tip-bg: hsl(var(--success) / 0.08);
+  --bp-warn: hsl(var(--warning));
+  --bp-warn-bg: hsl(var(--warning) / 0.08);
+  --bp-danger: hsl(var(--destructive));
+  --bp-danger-bg: hsl(var(--destructive) / 0.08);
+
+  /* Categorical chart palette, from the status + tag tokens already defined. */
+  --bp-chart-1: hsl(var(--brand));
+  --bp-chart-2: hsl(var(--info));
+  --bp-chart-3: hsl(var(--warning));
+  --bp-chart-4: hsl(var(--tag-purple));
+  --bp-chart-5: hsl(var(--tag-rose));
+  --bp-chart-6: hsl(var(--neutral));
+}
+
+/* Headings take the display face and its tight tracking, the way every other
+   heading in the product does. */
+.bp-article .bp-h2,
+.bp-article .bp-h3,
+.bp-article .bp-h4 {
+  font-family: var(--font-display);
+  letter-spacing: var(--tracking-display);
+}
