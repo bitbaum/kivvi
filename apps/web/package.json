@@ -35,7 +35,7 @@
     "@radix-ui/react-tooltip": "^1.0.7",
     "@sentry/nextjs": "^8.0.0",
     "bcryptjs": "^3.0.3",
-    "bip-kit": "^0.2.6",
+    "bip-kit": "^0.2.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
     "decimal.js": "^10.4.3",
