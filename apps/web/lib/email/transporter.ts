@@ -129,7 +129,7 @@ export async function testEmailConfig(): Promise<{ success: boolean; error?: str
 /**
  * Get the sender email address (bare address; callers wrap it in a
  * display name). With Resend active the sender must live on the verified
- * fleetcrown domain, so EMAIL_FROM — a plain mailbox in prod — cannot win.
+ * loki domain, so EMAIL_FROM — a plain mailbox in prod — cannot win.
  * Env SSOT is RESEND_FROM (read via mail-kit); the fleet-conventional
  * kivvi@fleetcrown.orangecat.ch is the fallback.
  */
