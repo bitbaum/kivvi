@@ -11,7 +11,7 @@ import type { ContentBlock } from "bip-kit";
  * tracing cannot see. Under `output: "standalone"` that silently ships a build
  * with no highlighter and no error — code blocks just lose their colour. The
  * literal `() => import("shiki")` has to live in OUR module graph, where the
- * bundler and the tracer can both follow it. FleetCrown shipped that exact
+ * bundler and the tracer can both follow it. Loki shipped that exact
  * hole twice before this seam existed. Do not "clean up" this call.
  *
  * `mermaid` is the one heavyweight optional peer and lives on its own subpath,
