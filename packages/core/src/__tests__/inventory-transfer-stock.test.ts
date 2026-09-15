@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { transferStock } from "../domain/inventory";
-import { DomainError } from "../domain-error";
+import {} from "../domain-error";
 import type { Database } from "@kivvi/database";
 
 // transferStock moves stock between two warehouses. It must conserve quantity

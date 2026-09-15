@@ -1,0 +1,31 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module"
+  },
+  "plugins": ["@typescript-eslint"],
+  "extends": ["eslint:recommended"],
+  "rules": {
+    "no-console": ["error", { "allow": ["warn", "error"] }],
+    "no-undef": "off",
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_", "ignoreRestSiblings": true }
+    ],
+    "prefer-const": "error"
+  },
+  "ignorePatterns": ["node_modules", "dist", ".next", "drizzle", "kivitendo-export", "apps/web"],
+  "overrides": [
+    {
+      "files": ["**/*.ts", "**/*.tsx"],
+      "rules": {}
+    },
+    {
+      "files": ["scripts/**/*.ts"],
+      "rules": { "no-console": "off" }
+    }
+  ]
+}

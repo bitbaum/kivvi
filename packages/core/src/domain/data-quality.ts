@@ -10,9 +10,9 @@
  */
 
 import Decimal from "decimal.js";
-import { eq, and, sql, isNull, ne, lt, or, inArray } from "drizzle-orm";
+import { eq, and, sql, isNull, ne, inArray } from "drizzle-orm";
 import { contacts, contactAddresses, documents, documentItems, products } from "@kivvi/database";
-import type { Database, DocumentStatusValue } from "@kivvi/database";
+import type { Database } from "@kivvi/database";
 import { ACTIVE_STATUSES } from "../config/document-constants";
 
 // ============================================================================

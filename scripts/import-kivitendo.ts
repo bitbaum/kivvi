@@ -29,9 +29,7 @@ import type { Database } from "@kivvi/database";
 neonConfig.fetchFunction = nodeFetch as any;
 import {
   applyMapping,
-  cleanHeaders,
   parseSwissDate,
-  parseSwissNumber,
   parseKivitendoLineItems,
   stripBom,
   KIVITENDO_CUSTOMER_PROFILE,
@@ -47,7 +45,6 @@ import {
   bulkInsertContactAddresses,
   bulkInsertProducts,
   bulkInsertProjects,
-  bulkInsertDocuments,
   bulkInsertJournalEntries,
   bulkInsertStockLevels,
   buildContactLookup,
@@ -234,7 +231,7 @@ function parseHeaderMode(
     header: true,
     skipEmptyLines: true,
     transformHeader: (h: string, i: number) => {
-      let cleaned = i === 0 ? stripBom(h) : h;
+      const cleaned = i === 0 ? stripBom(h) : h;
       return cleaned.trim();
     },
   });

@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { companies } from "@kivvi/database";
 import type { Database, CompanySettings } from "@kivvi/database";
 import { seedChartOfAccounts, createFiscalYear } from "./accounting";

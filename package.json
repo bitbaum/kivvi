@@ -31,7 +31,7 @@
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
-    "lint": "turbo lint",
+    "lint": "turbo lint && eslint .",
     "test": "turbo test",
     "type-check": "turbo type-check",
     "verify": "npm run format:check && pnpm lint && pnpm type-check && pnpm test",
@@ -46,6 +46,9 @@
   },
   "devDependencies": {
     "@types/node": "^26.4.0",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "eslint": "^8.57.1",
     "husky": "^9.1.7",
     "lint-staged": "^16.3.3",
     "prettier": "3.9.6",

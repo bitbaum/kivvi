@@ -58,6 +58,7 @@ export const logger = {
   /** Debug output. Development only. */
   info(message: string, ...args: unknown[]) {
     if (process.env.NODE_ENV !== "production") {
+      // eslint-disable-next-line no-console -- this file IS the console boundary
       console.info(`[info] ${message}`, ...args);
     }
   },
