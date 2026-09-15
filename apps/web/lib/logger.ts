@@ -1,46 +1,20 @@
 import * as Sentry from "@sentry/nextjs";
+import { logger, setLogReporter } from "@kivvi/core/src/logger";
 
 /**
- * Structured logger with Sentry integration.
+ * The web app's binding of the one logger (`@kivvi/core/src/logger`) to Sentry.
  *
- * - error(): console.error + Sentry.captureException (unexpected failures)
- * - warn():  console.warn only (expected edge cases, client-side issues)
- * - info():  console.info in development only (debug output)
+ * Importing `logger` from here is what wires reporting, so app code keeps
+ * importing `@/lib/logger` — it runs in both the server and the client bundle,
+ * which is why the wiring lives in a module rather than in instrumentation.
  */
-export const logger = {
-  /**
-   * Log an unexpected error. Reports to Sentry in production.
-   * Use for: server errors, API failures, payment issues, cron failures.
-   */
-  error(message: string, error?: unknown, context?: Record<string, unknown>) {
-    console.error(`[error] ${message}`, error || "");
-    if (error instanceof Error) {
-      Sentry.captureException(error, { extra: { message, ...context } });
-    } else if (error !== undefined) {
-      Sentry.captureMessage(message, { level: "error", extra: { error, ...context } });
-    } else {
-      Sentry.captureMessage(message, { level: "error", extra: context });
-    }
+setLogReporter({
+  captureException: (error, context) => {
+    Sentry.captureException(error, { extra: context });
   },
+  captureMessage: (message, context) => {
+    Sentry.captureMessage(message, { level: "error", extra: context });
+  },
+});
 
-  /**
-   * Log a warning. Console only, no Sentry.
-   * Use for: parse failures, localStorage issues, non-critical client errors.
-   */
-  warn(message: string, error?: unknown) {
-    if (error !== undefined) {
-      console.warn(`[warn] ${message}`, error);
-    } else {
-      console.warn(`[warn] ${message}`);
-    }
-  },
-
-  /**
-   * Log info. Development only.
-   */
-  info(message: string, ...args: unknown[]) {
-    if (process.env.NODE_ENV !== "production") {
-      console.info(`[info] ${message}`, ...args);
-    }
-  },
-};
+export { logger };
