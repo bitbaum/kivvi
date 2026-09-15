@@ -41,6 +41,7 @@
     "decimal.js": "^10.4.3",
     "drizzle-orm": "^0.30.10",
     "gray-matter": "^4.0.3",
+    "limitkit": "^0.2.0",
     "lucide-react": "^0.363.0",
     "mermaid": "^11.17.2",
     "next": "14.2.35",

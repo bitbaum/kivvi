@@ -129,6 +129,9 @@ importers:
       gray-matter:
         specifier: ^4.0.3
         version: 4.0.3
+      limitkit:
+        specifier: ^0.2.0
+        version: 0.2.0
       lucide-react:
         specifier: ^0.363.0
         version: 0.363.0(react@18.3.1)
@@ -4451,6 +4454,10 @@ packages:
   lilconfig@3.1.3:
     resolution: {integrity: sha512-/vlFKAoH5Cgt3Ie+JLhRbwOsCQePABiU3tJ1egGvyQ+33R/vcwM2Zl2QR/LzjsBeItPt3oSVXapn+m4nQDvpzw==}
     engines: {node: '>=14'}
+
+  limitkit@0.2.0:
+    resolution: {integrity: sha512-x05857iOBGf04eRBAXWTtRTrGhRdBfW9fZa8rfJDx3rQNRBVQpwK2z9aiMYNWhRp71QoIjvA0rl4ZiL4+6O8rA==}
+    engines: {node: '>=20'}
 
   linebreak@1.1.0:
     resolution: {integrity: sha512-MHp03UImeVhB7XZtjd0E4n6+3xr5Dq/9xI/5FptGk5FrbDR3zagPa2DS6U8ks/3HjbKWG9Q1M2ufOzxV2qLYSQ==}
@@ -10372,6 +10379,8 @@ snapshots:
       type-check: 0.4.0
 
   lilconfig@3.1.3: {}
+
+  limitkit@0.2.0: {}
 
   linebreak@1.1.0:
     dependencies:
