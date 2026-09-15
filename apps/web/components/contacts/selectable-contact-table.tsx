@@ -1,18 +1,15 @@
 "use client";
 
-import { useCallback, useMemo, useState, useTransition } from "react";
+import { useCallback, useMemo } from "react";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import { BulkActionToolbar } from "@/components/bulk-action-toolbar";
-import { BulkResultBanner } from "@/components/bulk-result-banner";
-import { BulkConfirmDialog } from "@/components/bulk-confirm-dialog";
+import { BulkSelectionLayout } from "@/components/bulk-selection-layout";
 import {
   bulkDeleteContactsAction,
   bulkDeactivateContactsAction,
 } from "@/app/actions/bulk-operations";
-import type { BulkOperationResult } from "@/app/actions/bulk-operations";
-import { useSelection } from "@/hooks/use-selection";
+import { useBulkSelection, type BulkAction } from "@/hooks/use-bulk-selection";
 import { SortableHeader } from "@/components/sortable-header";
 import { ContactTableRow } from "./contact-table-row";
 import type { ContactItem, ContactTableTranslations } from "./contact-table-types";
@@ -35,61 +32,46 @@ interface SelectableContactTableProps {
 export function SelectableContactTable({ data, translations, sort }: SelectableContactTableProps) {
   const tc = useTranslations("common");
   const allIds = useMemo(() => data.map((c) => c.id), [data]);
-  const {
-    selectedIds,
-    toggle,
-    toggleAll,
-    clear,
-    isSelected,
-    isAllSelected,
-    isSomeSelected,
-    count,
-  } = useSelection(allIds);
-  const [bulkResult, setBulkResult] = useState<BulkOperationResult | null>(null);
-  const [isPending, startTransition] = useTransition();
-  const [confirmAction, setConfirmAction] = useState<"delete" | "deactivate" | null>(null);
 
-  const handleComplete = useCallback(
-    (result: BulkOperationResult) => {
-      setBulkResult(result);
-      clear();
-    },
-    [clear],
+  const runBulkAction = useCallback(
+    (action: BulkAction, contactIds: string[]) =>
+      action === "delete"
+        ? bulkDeleteContactsAction({ contactIds })
+        : bulkDeactivateContactsAction({ contactIds }),
+    [],
   );
 
-  const dismissBanner = useCallback(() => setBulkResult(null), []);
-
-  function executeAction(action: "delete" | "deactivate") {
-    if (!confirmAction) {
-      setConfirmAction(action);
-      return;
-    }
-    setConfirmAction(null);
-    startTransition(async () => {
-      const result =
-        action === "delete"
-          ? await bulkDeleteContactsAction({ contactIds: selectedIds })
-          : await bulkDeactivateContactsAction({ contactIds: selectedIds });
-      if (result.success && result.data) {
-        handleComplete(result.data);
-      } else {
-        handleComplete({
-          successCount: 0,
-          failureCount: selectedIds.length,
-          results: [],
-        });
-      }
-    });
-  }
+  const bulk = useBulkSelection(allIds, runBulkAction);
+  const { selection, isPending, executeAction } = bulk;
+  const { toggle, toggleAll, isSelected, isAllSelected, isSomeSelected } = selection;
 
   return (
-    <>
-      <BulkResultBanner
-        result={bulkResult}
-        labels={translations.bulkLabels}
-        onDismiss={dismissBanner}
-      />
-
+    <BulkSelectionLayout
+      bulk={bulk}
+      labels={translations.bulkLabels}
+      actions={
+        <>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => executeAction("deactivate")}
+            disabled={isPending}
+          >
+            {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+            {translations.bulkLabels.deactivate}
+          </Button>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => executeAction("delete")}
+            disabled={isPending}
+          >
+            {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+            {translations.bulkLabels.delete}
+          </Button>
+        </>
+      }
+    >
       {/* Table header — hidden on mobile */}
       <div className="hidden border-b px-6 py-3 text-xs font-medium uppercase tracking-wider text-muted-foreground sm:grid sm:grid-cols-[auto_1fr_2fr_auto_auto] sm:gap-4 lg:grid-cols-[auto_1fr_2fr_auto_1.5fr_1fr_1fr_1fr_auto_auto]">
         <div className="flex items-center">
@@ -163,51 +145,6 @@ export function SelectableContactTable({ data, translations, sort }: SelectableC
           />
         ))}
       </div>
-
-      {/* Bulk action toolbar */}
-      <BulkActionToolbar
-        count={count}
-        selectedLabel={translations.bulkLabels.selected}
-        clearLabel={translations.bulkLabels.clearSelection}
-        onClear={clear}
-      >
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => executeAction("deactivate")}
-          disabled={isPending}
-        >
-          {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-          {translations.bulkLabels.deactivate}
-        </Button>
-        <Button
-          variant="destructive"
-          size="sm"
-          onClick={() => executeAction("delete")}
-          disabled={isPending}
-        >
-          {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-          {translations.bulkLabels.delete}
-        </Button>
-      </BulkActionToolbar>
-
-      {/* Confirmation dialog */}
-      {confirmAction && (
-        <BulkConfirmDialog
-          title={translations.bulkLabels.confirmTitle}
-          message={(confirmAction === "delete"
-            ? translations.bulkLabels.confirmDelete
-            : translations.bulkLabels.confirmDeactivate
-          ).replace("{count}", String(selectedIds.length))}
-          confirmLabel={
-            isPending ? translations.bulkLabels.processing : translations.bulkLabels.confirmAction
-          }
-          cancelLabel={translations.bulkLabels.cancel}
-          isLoading={isPending}
-          onConfirm={() => executeAction(confirmAction)}
-          onCancel={() => setConfirmAction(null)}
-        />
-      )}
-    </>
+    </BulkSelectionLayout>
   );
 }

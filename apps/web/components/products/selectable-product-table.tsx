@@ -1,17 +1,14 @@
 "use client";
 
-import { useCallback, useMemo, useState, useTransition } from "react";
+import { useCallback, useMemo } from "react";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useSelection } from "@/hooks/use-selection";
-import { BulkActionToolbar } from "@/components/bulk-action-toolbar";
-import { BulkResultBanner } from "@/components/bulk-result-banner";
-import { BulkConfirmDialog } from "@/components/bulk-confirm-dialog";
+import { BulkSelectionLayout } from "@/components/bulk-selection-layout";
 import {
   bulkDeleteProductsAction,
   bulkDeactivateProductsAction,
 } from "@/app/actions/bulk-operations";
-import type { BulkOperationResult } from "@/app/actions/bulk-operations";
+import { useBulkSelection, type BulkAction } from "@/hooks/use-bulk-selection";
 import { SortableHeader } from "@/components/sortable-header";
 import { ProductTableRow } from "./product-table-row";
 import type { ProductItem, ProductTableTranslations } from "./product-table-types";
@@ -34,60 +31,44 @@ interface SelectableProductTableProps {
 export function SelectableProductTable({ data, translations, sort }: SelectableProductTableProps) {
   const tc = useTranslations("common");
   const allIds = useMemo(() => data.map((p) => p.id), [data]);
-  const {
-    selectedIds,
-    toggle,
-    toggleAll,
-    clear,
-    isSelected,
-    isAllSelected,
-    isSomeSelected,
-    count,
-  } = useSelection(allIds);
-  const [bulkResult, setBulkResult] = useState<BulkOperationResult | null>(null);
-  const [isPending, startTransition] = useTransition();
-  const [confirmAction, setConfirmAction] = useState<"delete" | "deactivate" | null>(null);
-  const handleComplete = useCallback(
-    (result: BulkOperationResult) => {
-      setBulkResult(result);
-      clear();
-    },
-    [clear],
+
+  const runBulkAction = useCallback(
+    (action: BulkAction, productIds: string[]) =>
+      action === "delete"
+        ? bulkDeleteProductsAction({ productIds })
+        : bulkDeactivateProductsAction({ productIds }),
+    [],
   );
 
-  const dismissBanner = useCallback(() => setBulkResult(null), []);
-
-  function executeAction(action: "delete" | "deactivate") {
-    if (!confirmAction) {
-      setConfirmAction(action);
-      return;
-    }
-    setConfirmAction(null);
-    startTransition(async () => {
-      const result =
-        action === "delete"
-          ? await bulkDeleteProductsAction({ productIds: selectedIds })
-          : await bulkDeactivateProductsAction({ productIds: selectedIds });
-      if (result.success && result.data) {
-        handleComplete(result.data);
-      } else {
-        handleComplete({
-          successCount: 0,
-          failureCount: selectedIds.length,
-          results: [],
-        });
-      }
-    });
-  }
+  const bulk = useBulkSelection(allIds, runBulkAction);
+  const { selection, isPending, executeAction } = bulk;
+  const { toggle, toggleAll, isSelected, isAllSelected, isSomeSelected } = selection;
 
   return (
-    <>
-      <BulkResultBanner
-        result={bulkResult}
-        labels={translations.bulkLabels}
-        onDismiss={dismissBanner}
-      />
-
+    <BulkSelectionLayout
+      bulk={bulk}
+      labels={translations.bulkLabels}
+      actions={
+        <>
+          <button
+            onClick={() => executeAction("deactivate")}
+            disabled={isPending}
+            className="inline-flex items-center gap-1.5 rounded-lg border bg-background px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted disabled:opacity-50"
+          >
+            {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+            {translations.bulkLabels.deactivate}
+          </button>
+          <button
+            onClick={() => executeAction("delete")}
+            disabled={isPending}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-destructive px-3 py-1.5 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
+          >
+            {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+            {translations.bulkLabels.delete}
+          </button>
+        </>
+      }
+    >
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
@@ -170,49 +151,6 @@ export function SelectableProductTable({ data, translations, sort }: SelectableP
           </tbody>
         </table>
       </div>
-
-      {/* Bulk action toolbar */}
-      <BulkActionToolbar
-        count={count}
-        selectedLabel={translations.bulkLabels.selected}
-        clearLabel={translations.bulkLabels.clearSelection}
-        onClear={clear}
-      >
-        <button
-          onClick={() => executeAction("deactivate")}
-          disabled={isPending}
-          className="inline-flex items-center gap-1.5 rounded-lg border bg-background px-3 py-1.5 text-sm font-medium text-foreground hover:bg-muted disabled:opacity-50"
-        >
-          {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-          {translations.bulkLabels.deactivate}
-        </button>
-        <button
-          onClick={() => executeAction("delete")}
-          disabled={isPending}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-destructive px-3 py-1.5 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
-        >
-          {isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-          {translations.bulkLabels.delete}
-        </button>
-      </BulkActionToolbar>
-
-      {/* Confirmation dialog */}
-      {confirmAction && (
-        <BulkConfirmDialog
-          title={translations.bulkLabels.confirmTitle}
-          message={(confirmAction === "delete"
-            ? translations.bulkLabels.confirmDelete
-            : translations.bulkLabels.confirmDeactivate
-          ).replace("{count}", String(selectedIds.length))}
-          confirmLabel={
-            isPending ? translations.bulkLabels.processing : translations.bulkLabels.confirmAction
-          }
-          cancelLabel={translations.bulkLabels.cancel}
-          isLoading={isPending}
-          onConfirm={() => executeAction(confirmAction)}
-          onCancel={() => setConfirmAction(null)}
-        />
-      )}
-    </>
+    </BulkSelectionLayout>
   );
 }
