@@ -11,10 +11,10 @@ if git symbolic-ref --short HEAD 2>/dev/null | grep -qxE 'main|master'; then
   ( sleep 5
     _sha=$(git rev-parse HEAD)
     _nwo=$(git remote get-url origin 2>/dev/null | sed -E 's#(git@github.com:|https://github.com/)##; s#\.git$##')
-    if [ -n "$_nwo" ] && ! bash "/home/g/dev/loki/scripts/hetzner/ci-gate.sh" "$_nwo" "$_sha"; then
+    if [ -n "$_nwo" ] && ! bash "${DEV_ROOT:-$HOME/dev}/loki/scripts/hetzner/ci-gate.sh" "$_nwo" "$_sha"; then
       echo "[push-deploy] kivvi: BLOCKED by CI gate for ${_sha} — fix CI, then re-push or deploy manually"
     else
-      env -u CI bash /home/g/dev/loki/scripts/hetzner/deploy.sh kivvi
+      env -u CI bash "${DEV_ROOT:-$HOME/dev}/loki/scripts/hetzner/deploy.sh" kivvi
     fi
   ) >> /tmp/push-deploy-kivvi.log 2>&1 & disown 2>/dev/null || true
   echo "[push-deploy] kivvi: CI-gated deploy started in background → /tmp/push-deploy-kivvi.log"
