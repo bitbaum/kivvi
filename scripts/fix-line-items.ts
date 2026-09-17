@@ -40,7 +40,7 @@ import { DEFAULT_VAT_RATE } from "@kivvi/core/src/config/vat-rates";
 // ============================================================================
 
 const COMPANY_ID = process.env.COMPANY_ID || "f713b82b-babb-46c1-aa67-95760fc00f7e";
-const EXPORT_DIR = "/home/g/dev/kivvi/kivitendo-export";
+const EXPORT_DIR = process.env.KIVITENDO_EXPORT_DIR ?? resolve(__dirname, "..", "kivitendo-export");
 const DRY_RUN = process.argv.includes("--dry-run");
 
 // CSV file configs
