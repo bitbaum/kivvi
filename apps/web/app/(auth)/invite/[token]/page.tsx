@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect, useTransition, use } from "react";
 import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -12,10 +12,11 @@ import type { InvitationWithCompany } from "@kivvi/core/src/domain/invitations";
 import { InviteRegisterForm } from "./invite-register-form";
 
 interface InvitePageProps {
-  params: { token: string };
+  params: Promise<{ token: string }>;
 }
 
-export default function InvitePage({ params }: InvitePageProps) {
+export default function InvitePage(props: InvitePageProps) {
+  const params = use(props.params);
   const { token } = params;
   const { data: session, status: sessionStatus, update: updateSession } = useSession();
   const router = useRouter();

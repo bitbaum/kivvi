@@ -51,6 +51,10 @@ export default async function JournalPage({ searchParams }: PageProps) {
         subtitle={t("viewJournalEntries")}
         actions={
           <>
+            {/* A CSV download served by a Route Handler, not a page. <Link> would
+                client-side navigate instead of downloading, so the plain <a> is
+                correct; eslint-config-next 15 resolves app routes and flags it. */}
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a
               href="/api/export/journal"
               className="inline-flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2.5 text-sm font-medium hover:bg-accent transition-colors"

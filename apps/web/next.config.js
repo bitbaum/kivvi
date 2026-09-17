@@ -6,9 +6,9 @@ const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 const nextConfig = {
   output: "standalone",
   transpilePackages: ["@kivvi/core", "@kivvi/database", "@kivvi/ai"],
-  experimental: {
-    serverComponentsExternalPackages: ["@anthropic-ai/sdk", "pdfkit", "swissqrbill"],
-  },
+  // Next 15 promoted this out of `experimental` under the name
+  // `serverExternalPackages`; the old key is ignored there.
+  serverExternalPackages: ["@anthropic-ai/sdk", "pdfkit", "swissqrbill"],
   async headers() {
     return [
       // CORS for the public REST API — allows server-to-server calls from

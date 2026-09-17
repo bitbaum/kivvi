@@ -5,8 +5,8 @@ export const locales = ["de-CH", "en", "fr"] as const;
 export type Locale = (typeof locales)[number];
 export const defaultLocale: Locale = "de-CH";
 
-function getLocaleFromHeaders(): Locale {
-  const acceptLanguage = headers().get("Accept-Language") || "";
+async function getLocaleFromHeaders(): Promise<Locale> {
+  const acceptLanguage = (await headers()).get("Accept-Language") || "";
   // Check for French first (fr-CH, fr-FR, fr)
   if (/\bfr\b/i.test(acceptLanguage)) return "fr";
   // Check for English (en-GB, en-US, en)
@@ -17,11 +17,11 @@ function getLocaleFromHeaders(): Locale {
 
 export default getRequestConfig(async () => {
   // Priority: 1. Cookie  2. Accept-Language header  3. Default (de-CH)
-  const cookieLocale = cookies().get("NEXT_LOCALE")?.value;
+  const cookieLocale = (await cookies()).get("NEXT_LOCALE")?.value;
   const locale: Locale =
     cookieLocale && locales.includes(cookieLocale as Locale)
       ? (cookieLocale as Locale)
-      : getLocaleFromHeaders();
+      : await getLocaleFromHeaders();
 
   return {
     locale,

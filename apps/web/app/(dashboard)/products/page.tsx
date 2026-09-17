@@ -27,7 +27,8 @@ interface PageProps {
   }>;
 }
 
-export default async function ProductsPage({ searchParams }: PageProps) {
+export default async function ProductsPage(props: PageProps) {
+  const searchParams = await props.searchParams;
   const session = await getSessionOrRedirect();
   const t = await getTranslations("products");
   const tc = await getTranslations("common");

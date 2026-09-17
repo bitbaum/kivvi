@@ -12,16 +12,18 @@ import { ITEM_CONDITION_CONFIG } from "@/lib/config/inventory-items";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
-  params: { slug: string };
-  searchParams: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{
     category?: string;
     condition?: string;
     search?: string;
     page?: string;
-  };
+  }>;
 }
 
-export default async function ShopPage({ params, searchParams }: PageProps) {
+export default async function ShopPage(props: PageProps) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const company = await getPublicCompanyBySlug(db, params.slug);
   if (!company) notFound();
 
