@@ -73,6 +73,24 @@ export function checkRateLimit(
 }
 
 /**
+ * The address every rate limit is counted against.
+ *
+ * Take the LAST `X-Forwarded-For` hop, never the first. Caddy sits in front and
+ * APPENDS the real peer address to whatever header arrived, so the rightmost
+ * entry is the only one we wrote — every entry to its left is a string the
+ * caller typed. Reading `[0]` meant a caller could send a different leading
+ * value on each request, land in a fresh bucket every time and never be
+ * limited. It lives here rather than in middleware.ts so a test can reach it.
+ */
+export function getClientIp(req: { headers: Headers }): string {
+  return (
+    req.headers.get("x-forwarded-for")?.split(",").at(-1)?.trim() ||
+    req.headers.get("x-real-ip") ||
+    "unknown"
+  );
+}
+
+/**
  * Get the rate limit config for a given pathname.
  */
 export function getRateLimitConfig(pathname: string): RateLimitConfig {
