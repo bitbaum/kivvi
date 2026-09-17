@@ -32,10 +32,11 @@ import { ContactDonatedItems } from "./contact-donated-items";
 import { RecentItemTracker } from "@/components/recent-item-tracker";
 
 interface ContactDetailPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export default async function ContactDetailPage({ params }: ContactDetailPageProps) {
+export default async function ContactDetailPage(props: ContactDetailPageProps) {
+  const params = await props.params;
   const session = await getSessionOrRedirect();
 
   const t = await getTranslations("contacts");

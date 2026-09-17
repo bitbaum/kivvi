@@ -8,7 +8,8 @@ import { SettingsSubpageHeader } from "@/components/settings-subpage-header";
 import { RecurringConfigForm } from "../recurring-config-form";
 import { isValidUUID } from "@/lib/utils";
 
-export default async function EditRecurringInvoicePage({ params }: { params: { id: string } }) {
+export default async function EditRecurringInvoicePage(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getSessionOrRedirect();
   if (!isValidUUID(params.id)) notFound();
 

@@ -27,3 +27,11 @@ allowBuilds:
   es5-ext: false
   esbuild: true
   unrs-resolver: true
+
+# @auth/drizzle-adapter still pins @auth/core 0.41.1, which is inside the
+# vulnerable range for the next-auth advisory (first patched 0.41.3). The
+# adapter only uses @auth/core for its types — next-auth itself resolves 0.41.3
+# — but a second, older copy in the tree is still a copy an audit will find and
+# a bundler could reach. Patch-level lift, same minor.
+overrides:
+  "@auth/core": ">=0.41.3"

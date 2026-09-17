@@ -23,7 +23,8 @@ const patchSchema = updateInventoryItemSchema.extend({
   status: z.enum(ITEM_STATUS_VALUES).optional(),
 });
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const ctx = await authenticateApi(request);
     if (ctx instanceof Response) return ctx;
@@ -37,7 +38,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const ctx = await authenticateApi(request, "member");
     if (ctx instanceof Response) return ctx;

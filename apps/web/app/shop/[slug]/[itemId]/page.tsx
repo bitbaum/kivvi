@@ -11,10 +11,11 @@ import { ShopInquiryForm } from "./inquiry-form";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
-  params: { slug: string; itemId: string };
+  params: Promise<{ slug: string; itemId: string }>;
 }
 
-export default async function ShopItemPage({ params }: PageProps) {
+export default async function ShopItemPage(props: PageProps) {
+  const params = await props.params;
   const company = await getPublicCompanyBySlug(db, params.slug);
   if (!company) notFound();
 

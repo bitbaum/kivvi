@@ -17,16 +17,17 @@ import { ContactExportButton } from "@/components/contacts/contact-export-button
 import { ContactsFilterBar } from "./contacts-filter-bar";
 
 interface ContactsPageProps {
-  searchParams: {
+  searchParams: Promise<{
     search?: string;
     type?: string;
     page?: string;
     sort?: string;
     order?: string;
-  };
+  }>;
 }
 
-export default async function ContactsPage({ searchParams }: ContactsPageProps) {
+export default async function ContactsPage(props: ContactsPageProps) {
+  const searchParams = await props.searchParams;
   const session = await getSessionOrRedirect();
   const t = await getTranslations("contacts");
   const tc = await getTranslations("common");

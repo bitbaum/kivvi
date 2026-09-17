@@ -9,10 +9,11 @@ import { and, eq } from "drizzle-orm";
 import { ApplyForm } from "./apply-form";
 
 interface PageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
-export default async function OrganizationProfilePage({ params }: PageProps) {
+export default async function OrganizationProfilePage(props: PageProps) {
+  const params = await props.params;
   const t = await getTranslations("orgs");
   const tv = await getTranslations("settings.vacancies");
   const session = await auth();
