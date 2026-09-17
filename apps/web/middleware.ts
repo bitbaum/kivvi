@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
-import { checkRateLimit, getRateLimitConfig } from "@/lib/rate-limit";
+import { checkRateLimit, getClientIp, getRateLimitConfig } from "@/lib/rate-limit";
 import { moduleForPath, isModuleEnabled } from "@kivvi/core/src/config/modules";
 
 // Only these routes are accessible without authentication
@@ -25,14 +25,6 @@ const PUBLIC_PREFIXES = [
   "/datenschutz",
   "/shop",
 ];
-
-function getClientIp(req: { headers: Headers }): string {
-  return (
-    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    req.headers.get("x-real-ip") ||
-    "unknown"
-  );
-}
 
 export default auth((req) => {
   const { pathname } = req.nextUrl;
