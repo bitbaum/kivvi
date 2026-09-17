@@ -1,6 +1,6 @@
 import Decimal from "decimal.js";
 import { eq, desc, and, notInArray, inArray } from "drizzle-orm";
-import { documents, inventoryItems, contacts } from "@kivvi/database";
+import { documents, inventoryItems } from "@kivvi/database";
 import type { Database, DocumentType } from "@kivvi/database";
 
 // ============================================================================

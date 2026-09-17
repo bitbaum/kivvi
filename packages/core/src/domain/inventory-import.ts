@@ -389,11 +389,9 @@ export function analyzeInventoryImportRows(
     }
 
     // (3) Duplicates ----------------------------------------------------------
-    let duplicate = false;
     if (serialNumber) {
       const key = serialNumber.toLowerCase();
       if (existing.has(key)) {
-        duplicate = true;
         issues.push({
           code: "DUPLICATE_SERIAL_EXISTING",
           severity: "error",
@@ -401,7 +399,6 @@ export function analyzeInventoryImportRows(
           message: "An item with this serial already exists — will be skipped.",
         });
       } else if ((serialCounts.get(key) ?? 0) > 1) {
-        duplicate = true;
         issues.push({
           code: "DUPLICATE_SERIAL_IN_FILE",
           severity: "warning",

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import Decimal from "decimal.js";
-import { eq, and, asc, desc, sql, ilike, between, inArray, lte, gte, isNotNull } from "drizzle-orm";
+import { eq, and, asc, desc, sql, between, inArray, lte, gte, isNotNull } from "drizzle-orm";
 import {
   accounts,
   journalEntries,

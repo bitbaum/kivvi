@@ -214,7 +214,7 @@ export async function bulkInsertContacts(
 
     if (values.length > 0) {
       try {
-        const result = await db.insert(contacts).values(values).onConflictDoNothing();
+        await db.insert(contacts).values(values).onConflictDoNothing();
         inserted += values.length;
       } catch (err) {
         errors.push(`Batch ${Math.floor(i / BATCH_SIZE) + 1}: ${(err as Error).message}`);

@@ -26,9 +26,8 @@ import { readFileSync, existsSync } from "fs";
 import { join, resolve } from "path";
 import Papa from "papaparse";
 import Decimal from "decimal.js";
-import { eq, and, sql, inArray, ne, lt, desc, count } from "drizzle-orm";
+import { eq, and, sql, inArray } from "drizzle-orm";
 import {
-  createDb,
   createPostgresClient,
   documents,
   documentItems,
@@ -291,7 +290,6 @@ async function fixInvoiceLineItems(db: Database, companyId: string): Promise<Ste
   }>) {
     try {
       const docTotal = new Decimal(doc.total);
-      const itemCount = parseInt(doc.item_count, 10);
 
       // Get line items for this document
       const items = await db
@@ -323,7 +321,7 @@ async function fixInvoiceLineItems(db: Database, companyId: string): Promise<Ste
       } else {
         // Multiple line items: try product price lookup first
         let resolvedTotal = new Decimal(0);
-        let unresolvedItems: Array<{ id: string; quantity: string }> = [];
+        const unresolvedItems: Array<{ id: string; quantity: string }> = [];
 
         for (const item of items) {
           if (item.productId && productPriceMap.has(item.productId)) {

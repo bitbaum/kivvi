@@ -14,6 +14,9 @@ import { PIPELINE_THRESHOLDS } from "@kivvi/core/src/config/pipeline-thresholds"
 import { RepairQueueAssignButton } from "@/components/inventory/repair-queue-assign-button";
 import { RepairQueueDoneButton } from "@/components/inventory/repair-queue-done-button";
 
+type RepairItem = Awaited<ReturnType<typeof listInventoryItems>>["data"][number];
+type UserOption = { id: string; label: string };
+
 function daysAgo(date: Date | string): number {
   const d = typeof date === "string" ? new Date(date) : date;
   return Math.floor((Date.now() - d.getTime()) / 86_400_000);
@@ -73,139 +76,111 @@ export default async function RepairQueuePage() {
         </div>
       ) : (
         <div className="space-y-6">
-          {/* Unassigned */}
-          {unassignedItems.length > 0 && (
-            <section>
-              <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-warning/10 text-warning text-xs font-bold">
-                  {unassignedItems.length}
-                </span>
-                {ti("unassignedItems")}
-              </h2>
-              <div className="rounded-xl border bg-card divide-y">
-                {unassignedItems.map((item) => {
-                  const days = daysAgo(item.createdAt);
-                  return (
-                    <div
-                      key={item.id}
-                      className="relative flex items-center gap-4 px-4 py-3 transition-colors hover:bg-muted/50"
-                    >
-                      <Link
-                        href={`/intake/items/${item.id}`}
-                        className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
-                        aria-label={item.description}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-sm font-medium">{item.itemNumber}</span>
-                          <span
-                            className={cn(
-                              "rounded-full px-2 py-0.5 text-xs font-medium",
-                              getConditionStyle(item.condition),
-                            )}
-                          >
-                            {ti(getConditionLabelKey(item.condition))}
-                          </span>
-                        </div>
-                        <p className="mt-0.5 truncate text-sm text-muted-foreground">
-                          {item.description}
-                        </p>
-                      </div>
-                      <div className="shrink-0 text-right">
-                        <span className={cn("text-xs", ageClass(days))}>
-                          {ti("ageInRepair", { days })}
-                        </span>
-                        {item.effectiveCost && new Decimal(item.effectiveCost).gt(0) && (
-                          <p className="text-xs text-muted-foreground">
-                            {formatCurrency(item.effectiveCost)}
-                          </p>
-                        )}
-                      </div>
-                      <div className="relative z-10">
-                        <RepairQueueDoneButton itemId={item.id} />
-                      </div>
-                      <div className="relative z-10">
-                        <RepairQueueAssignButton
-                          itemId={item.id}
-                          assignedToUserId={item.assignedToUserId ?? null}
-                          assignedToName={item.assignedToName ?? null}
-                          companyUsers={userOptions}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-          )}
-
-          {/* Assigned */}
-          {assignedItems.length > 0 && (
-            <section>
-              <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-info/10 text-info text-xs font-bold">
-                  {assignedItems.length}
-                </span>
-                {ti("assignedTo")}
-              </h2>
-              <div className="rounded-xl border bg-card divide-y">
-                {assignedItems.map((item) => {
-                  const days = daysAgo(item.createdAt);
-                  return (
-                    <div
-                      key={item.id}
-                      className="relative flex items-center gap-4 px-4 py-3 transition-colors hover:bg-muted/50"
-                    >
-                      <Link
-                        href={`/intake/items/${item.id}`}
-                        className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
-                        aria-label={item.description}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-sm font-medium">{item.itemNumber}</span>
-                          <span
-                            className={cn(
-                              "rounded-full px-2 py-0.5 text-xs font-medium",
-                              getConditionStyle(item.condition),
-                            )}
-                          >
-                            {ti(getConditionLabelKey(item.condition))}
-                          </span>
-                        </div>
-                        <p className="mt-0.5 truncate text-sm text-muted-foreground">
-                          {item.description}
-                        </p>
-                      </div>
-                      <div className="shrink-0 text-right">
-                        <span className={cn("text-xs", ageClass(days))}>
-                          {ti("ageInRepair", { days })}
-                        </span>
-                        {item.effectiveCost && new Decimal(item.effectiveCost).gt(0) && (
-                          <p className="text-xs text-muted-foreground">
-                            {formatCurrency(item.effectiveCost)}
-                          </p>
-                        )}
-                      </div>
-                      <div className="relative z-10">
-                        <RepairQueueDoneButton itemId={item.id} />
-                      </div>
-                      <div className="relative z-10">
-                        <RepairQueueAssignButton
-                          itemId={item.id}
-                          assignedToUserId={item.assignedToUserId ?? null}
-                          assignedToName={item.assignedToName ?? null}
-                          companyUsers={userOptions}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-          )}
+          <RepairQueueSection
+            items={unassignedItems}
+            labelKey="unassignedItems"
+            badgeClass="bg-warning/10 text-warning"
+            userOptions={userOptions}
+          />
+          <RepairQueueSection
+            items={assignedItems}
+            labelKey="assignedTo"
+            badgeClass="bg-info/10 text-info"
+            userOptions={userOptions}
+          />
         </div>
       )}
+    </div>
+  );
+}
+
+/** One titled group of repair items. Renders nothing when the group is empty. */
+async function RepairQueueSection({
+  items,
+  labelKey,
+  badgeClass,
+  userOptions,
+}: {
+  items: RepairItem[];
+  labelKey: "unassignedItems" | "assignedTo";
+  badgeClass: string;
+  userOptions: UserOption[];
+}) {
+  const ti = await getTranslations("inventory");
+
+  if (items.length === 0) return null;
+
+  return (
+    <section>
+      <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+        <span
+          className={cn(
+            "inline-flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold",
+            badgeClass,
+          )}
+        >
+          {items.length}
+        </span>
+        {ti(labelKey)}
+      </h2>
+      <div className="rounded-xl border bg-card divide-y">
+        {items.map((item) => (
+          <RepairQueueRow key={item.id} item={item} userOptions={userOptions} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+/** A single repair item row: identity, condition, age, cost, and the two actions. */
+async function RepairQueueRow({
+  item,
+  userOptions,
+}: {
+  item: RepairItem;
+  userOptions: UserOption[];
+}) {
+  const ti = await getTranslations("inventory");
+  const days = daysAgo(item.createdAt);
+
+  return (
+    <div className="relative flex items-center gap-4 px-4 py-3 transition-colors hover:bg-muted/50">
+      <Link
+        href={`/intake/items/${item.id}`}
+        className="absolute inset-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+        aria-label={item.description}
+      />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-sm font-medium">{item.itemNumber}</span>
+          <span
+            className={cn(
+              "rounded-full px-2 py-0.5 text-xs font-medium",
+              getConditionStyle(item.condition),
+            )}
+          >
+            {ti(getConditionLabelKey(item.condition))}
+          </span>
+        </div>
+        <p className="mt-0.5 truncate text-sm text-muted-foreground">{item.description}</p>
+      </div>
+      <div className="shrink-0 text-right">
+        <span className={cn("text-xs", ageClass(days))}>{ti("ageInRepair", { days })}</span>
+        {item.effectiveCost && new Decimal(item.effectiveCost).gt(0) && (
+          <p className="text-xs text-muted-foreground">{formatCurrency(item.effectiveCost)}</p>
+        )}
+      </div>
+      <div className="relative z-10">
+        <RepairQueueDoneButton itemId={item.id} />
+      </div>
+      <div className="relative z-10">
+        <RepairQueueAssignButton
+          itemId={item.id}
+          assignedToUserId={item.assignedToUserId ?? null}
+          assignedToName={item.assignedToName ?? null}
+          companyUsers={userOptions}
+        />
+      </div>
     </div>
   );
 }

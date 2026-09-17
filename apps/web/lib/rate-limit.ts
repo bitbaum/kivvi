@@ -1,81 +1,66 @@
+import { slidingWindow, clientIp, MemoryStore, toHeaders, type Limiter } from "limitkit";
+
 /**
- * Simple in-memory token bucket rate limiter.
- * No external dependencies (KISS/YAGNI). Swap for Redis-backed later if needed.
+ * Rate limiting — the algorithm is owned by `limitkit` (see fleet/SHARED.md),
+ * the numbers are ours.
+ *
+ * The hand-rolled token bucket this replaced kept an unbounded Map keyed by
+ * client IP: every stranger who ever hit the site left an entry until the
+ * process restarted. limitkit's MemoryStore is bounded (LRU past 5 000 keys),
+ * so that leak is impossible by construction.
+ *
+ * Keep this a shim. A local re-implementation "just for one tweak" is how the
+ * shared version becomes the stale version.
  */
 
-interface RateLimitEntry {
-  tokens: number;
-  lastRefill: number;
+export type { LimitResult } from "limitkit";
+
+const MINUTE_MS = 60_000;
+
+export interface RateLimitRule {
+  /** Max requests inside the window. */
+  limit: number;
+  /** Window length in milliseconds. */
+  windowMs: number;
 }
 
-const store = new Map<string, RateLimitEntry>();
-
-// Clean up stale entries every 5 minutes
-const CLEANUP_INTERVAL = 5 * 60 * 1000;
-let lastCleanup = Date.now();
-
-function cleanup() {
-  const now = Date.now();
-  if (now - lastCleanup < CLEANUP_INTERVAL) return;
-  lastCleanup = now;
-
-  const staleThreshold = now - 60 * 1000;
-  for (const [key, entry] of store) {
-    if (entry.lastRefill < staleThreshold) {
-      store.delete(key);
-    }
-  }
-}
-
-export interface RateLimitConfig {
-  maxTokens: number;
-  refillRate: number; // tokens per second
-}
-
+/**
+ * How many requests each surface allows. App semantics — deliberately local;
+ * limitkit ships no limit values.
+ */
 export const RATE_LIMITS = {
-  auth: { maxTokens: 5, refillRate: 5 / 60 } satisfies RateLimitConfig,
-  login: { maxTokens: 10, refillRate: 10 / 60 } satisfies RateLimitConfig,
-  chat: { maxTokens: 30, refillRate: 30 / 60 } satisfies RateLimitConfig,
-  default: { maxTokens: 100, refillRate: 100 / 60 } satisfies RateLimitConfig,
+  /** Registration and password reset: they send email, so they stay tight. */
+  auth: { limit: 5, windowMs: MINUTE_MS } satisfies RateLimitRule,
+  login: { limit: 10, windowMs: MINUTE_MS } satisfies RateLimitRule,
+  chat: { limit: 30, windowMs: MINUTE_MS } satisfies RateLimitRule,
+  default: { limit: 100, windowMs: MINUTE_MS } satisfies RateLimitRule,
 };
 
-/**
- * Check if a request should be rate limited.
- * Returns { allowed: true } or { allowed: false, retryAfterMs }.
- */
-export function checkRateLimit(
-  key: string,
-  config: RateLimitConfig,
-): { allowed: true } | { allowed: false; retryAfterMs: number } {
-  cleanup();
+const store = new MemoryStore();
 
-  const now = Date.now();
-  let entry = store.get(key);
+/** One limiter per distinct rule; the rules are a handful of constants. */
+const limiters = new Map<string, Limiter>();
 
-  if (!entry) {
-    entry = { tokens: config.maxTokens, lastRefill: now };
-    store.set(key, entry);
+function limiterFor(rule: RateLimitRule): Limiter {
+  const ruleKey = `${rule.limit}/${rule.windowMs}`;
+  let limiter = limiters.get(ruleKey);
+  if (!limiter) {
+    limiter = slidingWindow(rule, store);
+    limiters.set(ruleKey, limiter);
   }
-
-  // Refill tokens based on elapsed time
-  const elapsed = (now - entry.lastRefill) / 1000;
-  entry.tokens = Math.min(config.maxTokens, entry.tokens + elapsed * config.refillRate);
-  entry.lastRefill = now;
-
-  if (entry.tokens >= 1) {
-    entry.tokens -= 1;
-    return { allowed: true };
-  }
-
-  const deficit = 1 - entry.tokens;
-  const retryAfterMs = Math.ceil((deficit / config.refillRate) * 1000);
-  return { allowed: false, retryAfterMs };
+  return limiter;
 }
 
 /**
- * Get the rate limit config for a given pathname.
+ * Count a request against `key` and say whether it may proceed.
+ * The key is namespaced by the caller (`"<ip>:<pathname>"`).
  */
-export function getRateLimitConfig(pathname: string): RateLimitConfig {
+export function checkRateLimit(key: string, rule: RateLimitRule) {
+  return limiterFor(rule).check(key);
+}
+
+/** The rule that applies to a pathname. */
+export function getRateLimitConfig(pathname: string): RateLimitRule {
   // Strict auth limits: registration and password-reset trigger side-effects (email)
   if (pathname === "/register" || pathname === "/forgot-password") {
     return RATE_LIMITS.auth;
@@ -88,3 +73,19 @@ export function getRateLimitConfig(pathname: string): RateLimitConfig {
   }
   return RATE_LIMITS.default;
 }
+
+/**
+ * Who to count this request against.
+ *
+ * A reverse proxy APPENDS to `X-Forwarded-For`, so the header reads
+ * `<what the client sent>, <what the proxy saw>` and only the LAST hop is
+ * unforgeable. This used to read the first one, which meant a caller could
+ * send a random `X-Forwarded-For` per request, mint a fresh bucket every time
+ * and never trip the limit at all. One proxy (Caddy) sits in front of this
+ * app, which is limitkit's default `trustedProxies: 1`.
+ */
+export function getClientIp(headers: Headers): string {
+  return clientIp(headers);
+}
+
+export { toHeaders };

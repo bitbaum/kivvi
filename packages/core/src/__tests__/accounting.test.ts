@@ -2,7 +2,6 @@ import { describe, it, expect } from "vitest";
 import {
   createAccountSchema,
   updateAccountSchema,
-  journalLineSchema,
   createJournalEntrySchema,
   createFiscalYearSchema,
   validateJournalBalance,

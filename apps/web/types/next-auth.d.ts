@@ -9,6 +9,9 @@ declare module "next-auth" {
       companyName: string | null;
       role: string;
       onboardingComplete: boolean;
+      // Set by the session callback in lib/auth.ts; middleware gates modules on
+      // it, and declaring it here is what lets that read be typed instead of `any`.
+      enabledModules: string[] | null;
     } & DefaultSession["user"];
   }
 

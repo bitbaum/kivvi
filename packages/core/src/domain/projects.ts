@@ -1,6 +1,6 @@
 import { z } from "zod";
 import Decimal from "decimal.js";
-import { eq, and, asc, desc, sql, ilike } from "drizzle-orm";
+import { eq, and, desc, sql, ilike } from "drizzle-orm";
 import { projects, documents, contacts } from "@kivvi/database";
 import type { Database, Project } from "@kivvi/database";
 import { PROJECT_STATUS_VALUES } from "../config/project";

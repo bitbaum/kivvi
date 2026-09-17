@@ -9,7 +9,7 @@
  * No manual inventory item creation after confirming an intake.
  */
 
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { documentItems, inventoryItems } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
 import { getNextNumber } from "./number-sequences";

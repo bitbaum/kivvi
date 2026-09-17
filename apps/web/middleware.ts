@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
-import { checkRateLimit, getRateLimitConfig } from "@/lib/rate-limit";
+import { checkRateLimit, getRateLimitConfig, getClientIp, toHeaders } from "@/lib/rate-limit";
 import { moduleForPath, isModuleEnabled } from "@kivvi/core/src/config/modules";
 
 // Only these routes are accessible without authentication
@@ -26,14 +26,6 @@ const PUBLIC_PREFIXES = [
   "/shop",
 ];
 
-function getClientIp(req: { headers: Headers }): string {
-  return (
-    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    req.headers.get("x-real-ip") ||
-    "unknown"
-  );
-}
-
 export default auth((req) => {
   const { pathname } = req.nextUrl;
   const isAuthenticated = !!req.auth;
@@ -52,16 +44,14 @@ export default auth((req) => {
   }
 
   // Rate limiting
-  const ip = getClientIp(req);
+  const ip = getClientIp(req.headers);
   const rateLimitConfig = getRateLimitConfig(pathname);
   const rateLimitResult = checkRateLimit(`${ip}:${pathname}`, rateLimitConfig);
 
   if (!rateLimitResult.allowed) {
     return new NextResponse("Too Many Requests", {
       status: 429,
-      headers: {
-        "Retry-After": Math.ceil(rateLimitResult.retryAfterMs / 1000).toString(),
-      },
+      headers: toHeaders(rateLimitResult),
     });
   }
 
@@ -72,9 +62,8 @@ export default auth((req) => {
 
   // Redirect authenticated users away from auth pages
   if (isAuthenticated && (pathname === "/login" || pathname === "/register")) {
-    // Justified: next-auth middleware types don't include custom session fields
-    const companyId = (req.auth as any)?.user?.companyId;
-    const onboardingComplete = (req.auth as any)?.user?.onboardingComplete;
+    const companyId = req.auth?.user?.companyId;
+    const onboardingComplete = req.auth?.user?.onboardingComplete;
     let dest = "/onboarding";
     if (!companyId) dest = "/join";
     else if (onboardingComplete) dest = "/dashboard";
@@ -83,9 +72,8 @@ export default auth((req) => {
 
   // Routing for authenticated users based on company + onboarding state
   if (isAuthenticated) {
-    // Justified: next-auth middleware types don't include custom session fields
-    const companyId = (req.auth as any)?.user?.companyId;
-    const onboardingComplete = (req.auth as any)?.user?.onboardingComplete;
+    const companyId = req.auth?.user?.companyId;
+    const onboardingComplete = req.auth?.user?.onboardingComplete;
     const isOnboardingPath = pathname.startsWith("/onboarding");
     // /join and /invite are the valid holding areas for no-company users
     const isJoinPath = pathname.startsWith("/join") || pathname.startsWith("/invite");
@@ -111,9 +99,7 @@ export default auth((req) => {
     if (companyId && onboardingComplete && !pathname.startsWith("/api/")) {
       const mod = moduleForPath(pathname);
       if (mod) {
-        // Justified: next-auth middleware types don't include custom fields
-        const enabledModules = (req.auth as any)?.user?.enabledModules as
-          string[] | null | undefined;
+        const enabledModules = req.auth?.user?.enabledModules;
         if (!isModuleEnabled(enabledModules ?? undefined, mod)) {
           return NextResponse.redirect(new URL("/dashboard", req.url));
         }

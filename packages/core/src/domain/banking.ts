@@ -7,7 +7,7 @@ import { bankAccounts, bankTransactions, documents, contacts } from "@kivvi/data
 import type { Database, BankAccount, BankTransaction } from "@kivvi/database";
 import { recordPayment } from "./documents";
 import { logger } from "../logger";
-import { parseCamtXml, normalizeIban, type CamtStatement } from "./camt-parser";
+import { parseCamtXml, normalizeIban } from "./camt-parser";
 import { DomainError } from "../domain-error";
 
 // ============================================================================

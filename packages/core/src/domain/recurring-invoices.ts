@@ -1,17 +1,11 @@
 import { z } from "zod";
 import { eq, and, lte, desc, inArray } from "drizzle-orm";
-import {
-  recurringInvoiceConfigs,
-  documents,
-  documentItems,
-  contacts,
-  users,
-} from "@kivvi/database";
+import { recurringInvoiceConfigs, documents, contacts } from "@kivvi/database";
 import { DEFAULT_LOCALE } from "../config/locale";
 import type { Database, RecurringInvoiceConfig, RecurringPeriodicity } from "@kivvi/database";
 import { RECURRING_PERIODICITY_VALUES } from "@kivvi/database/src/enums";
 import { convertDocument } from "./documents";
-import { buildInvoiceEmailSubject } from "./email";
+import {} from "./email";
 import { logger } from "../logger";
 import { DATE_REGEX } from "../utils/validation-patterns";
 

@@ -240,7 +240,6 @@ describe("reconciliation state logic", () => {
 
   it("reconciled → unreconciled is valid", () => {
     // Unreconciliation resets state
-    const state = { isReconciled: true, reconciledDocumentId: "doc-1" };
     const newState = {
       isReconciled: false,
       reconciledDocumentId: null,

@@ -48,7 +48,7 @@ export function stripBom(str: string): string {
 /** Clean CSV headers: strip BOM, trim whitespace */
 export function cleanHeaders(headers: string[]): string[] {
   return headers.map((h, i) => {
-    let cleaned = i === 0 ? stripBom(h) : h;
+    const cleaned = i === 0 ? stripBom(h) : h;
     return cleaned.trim();
   });
 }

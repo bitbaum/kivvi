@@ -1,5 +1,5 @@
 import Decimal from "decimal.js";
-import { eq, and, lt, sql, desc, count, inArray, ne } from "drizzle-orm";
+import { eq, and, lt, sql, desc, inArray } from "drizzle-orm";
 import { DEFAULT_LOCALE, DEFAULT_CURRENCY } from "../config/locale";
 import {
   documents,

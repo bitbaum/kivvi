@@ -13,7 +13,6 @@ import {
   parseSwissDate,
   parseSwissNumber,
   parseKivitendoLineItems,
-  isSubtotalRow,
 } from "../packages/core/src/domain/import-mappings";
 
 const EXPORT_DIR = path.join(__dirname, "../kivitendo-export");
@@ -101,7 +100,6 @@ function validateFile(csvConfig: {
   const issues: string[] = [];
 
   // Track data quality
-  let emptyNames = 0;
   let badDates = 0;
   let badNumbers = 0;
   let negativeAmounts = 0;
@@ -198,7 +196,7 @@ function validateFile(csvConfig: {
   const sample: Record<string, string> = {};
   if (dataRows.length > 0) {
     const firstData =
-      dataRows.find((r, i) => {
+      dataRows.find((r) => {
         if (r[0] === rawHeaders[0] || r[0] === "Position") return false;
         if (csvConfig.keyColumn) {
           const ki = headers.indexOf(csvConfig.keyColumn);

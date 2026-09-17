@@ -48,7 +48,11 @@ import { searchRepairOrdersTool } from "./search-repair-orders";
 import { classifyPaymentTool } from "./classify-payment";
 import { findUninvoicedRepairLaborTool } from "./find-uninvoiced-repair-labor";
 
-export {
+/**
+ * THE registry of AI capabilities. Written once — `getDefaultTools()` and
+ * `getToolsForPermissions()` both derive from this list.
+ */
+const ALL_TOOLS: Tool[] = [
   searchInvoicesTool,
   searchCustomersTool,
   getInvoiceDetailsTool,
@@ -97,59 +101,10 @@ export {
   searchRepairOrdersTool,
   classifyPaymentTool,
   findUninvoicedRepairLaborTool,
-};
+];
 
 export function getDefaultTools(): Tool[] {
-  return [
-    searchInvoicesTool,
-    searchCustomersTool,
-    getInvoiceDetailsTool,
-    getCustomerDetailsTool,
-    createDocumentTool,
-    updateDocumentStatusTool,
-    convertDocumentTool,
-    searchProductsTool,
-    getFinancialSummaryTool,
-    getReportTool,
-    recordPaymentTool,
-    listOverdueInvoicesTool,
-    getStockLevelsTool,
-    getBankSummaryTool,
-    searchProjectsTool,
-    getProjectDetailsTool,
-    createContactTool,
-    updateContactTool,
-    createProductTool,
-    updateProductTool,
-    getAccountBalancesTool,
-    createJournalEntryTool,
-    recordStockMovementTool,
-    getRecurringInvoicesTool,
-    processDunningTool,
-    reconcileTransactionTool,
-    getDashboardSummaryTool,
-    prepareDocumentTool,
-    searchInventoryTool,
-    getInventoryDashboardTool,
-    recordRepairTool,
-    recordRepairPartTool,
-    updateItemStatusTool,
-    updateItemConditionTool,
-    recordDataErasureTool,
-    getItemDetailsTool,
-    recordChecklistTool,
-    intakeInventoryItemTool,
-    returnInventoryItemTool,
-    updateInventoryItemTool,
-    bulkUpdateItemStatusTool,
-    getPriceListsTool,
-    resolveProductPriceTool,
-    createPriceRuleTool,
-    createPriceListTool,
-    searchRepairOrdersTool,
-    classifyPaymentTool,
-    findUninvoicedRepairLaborTool,
-  ];
+  return [...ALL_TOOLS];
 }
 
 export function getToolsForPermissions(permissions: string[]): Tool[] {

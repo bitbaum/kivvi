@@ -1,8 +1,8 @@
 import { z } from "zod";
 import Decimal from "decimal.js";
-import { eq } from "drizzle-orm";
+import {} from "drizzle-orm";
 import type { Database } from "@kivvi/database";
-import { documentItems, products } from "@kivvi/database";
+import {} from "@kivvi/database";
 import { createAutoJournalEntry } from "./accounting";
 import { resolveLineRevenueAccounts } from "./posting-groups";
 import { ACCOUNT_MAPPINGS } from "../config/account-mappings";
