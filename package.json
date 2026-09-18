@@ -45,12 +45,12 @@
     "format:check": "prettier --check ."
   },
   "devDependencies": {
-    "@types/node": "^26.4.0",
+    "@types/node": "^26.6.1",
     "husky": "^9.1.7",
-    "lint-staged": "^16.3.3",
+    "lint-staged": "^16.4.0",
     "prettier": "3.9.6",
-    "tsx": "^4.21.0",
-    "turbo": "^2.0.0",
+    "tsx": "^4.23.13",
+    "turbo": "^2.10.13",
     "typescript": "^6.0.3"
   },
   "packageManager": "pnpm@11.25.0",
@@ -70,9 +70,9 @@
     ]
   },
   "dependencies": {
-    "@types/pdfkit": "^0.17.4",
+    "@types/pdfkit": "^0.17.6",
     "pdfkit": "^0.17.2",
-    "recharts": "^3.7.0",
-    "swissqrbill": "^4.2.1"
+    "recharts": "^3.10.1",
+    "swissqrbill": "^4.4.1"
   }
 }

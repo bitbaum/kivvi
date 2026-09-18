@@ -11,13 +11,13 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.115.0",
+    "@bitbaum/ai-kit": "^0.15.0",
     "@kivvi/core": "workspace:*",
     "@kivvi/database": "workspace:*",
-    "@bitbaum/ai-kit": "^0.15.0",
-    "decimal.js": "^10.4.3",
+    "decimal.js": "^10.6.0",
     "drizzle-orm": "^0.30.10",
-    "openai": "^4.28.0",
-    "zod": "^3.22.4"
+    "openai": "^4.104.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "typescript": "^6.0.3",
