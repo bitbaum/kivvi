@@ -35,3 +35,39 @@ allowBuilds:
 # a bundler could reach. Patch-level lift, same minor.
 overrides:
   "@auth/core": ">=0.41.3"
+  # Transitive-only advisories. 58 of this repo's 62 high alerts were against
+  # pnpm-lock.yaml with no direct dependency to bump, and Dependabot has never
+  # opened a PR for any of them -- a transitive advisory in a pnpm workspace is
+  # outside what it can compute, so they accumulate with nothing to merge.
+  #
+  # Each pin is the advisory's own first_patched_version and is BOUNDED to one
+  # major: an open-ended ">=3.1.6" on fast-uri resolves to 4.x, which is a major
+  # upgrade wearing a security patch's clothes. The @N in the key selects which
+  # requests to override; it does not bound the result.
+  #
+  # drizzle-orm and serialize-javascript are deliberately absent: their patched
+  # versions cross a breaking boundary and belong in their own PR.
+  "@hono/node-server@1": "^1.19.10"
+  "brace-expansion@1": "^1.1.18"
+  "brace-expansion@2": "^2.1.4"
+  "browserslist@4": "^4.28.7"
+  "fast-uri@3": "^3.1.6"
+  "fast-xml-builder@1": "^1.1.7"
+  "fast-xml-parser@5": "^5.5.6"
+  "flatted@3": "^3.4.2"
+  "form-data@4": "^4.0.6"
+  "hono@4": "^4.12.25"
+  "js-yaml@3": "^3.15.2"
+  "js-yaml@4": "^4.3.2"
+  "minimatch@3": "^3.1.4"
+  "minimatch@5": "^5.1.8"
+  "minimatch@7": "^7.4.8"
+  "minimatch@8": "^8.0.6"
+  "minimatch@9": "^9.0.7"
+  "nanoid@3": "^3.3.18"
+  "picomatch@4": "^4.0.4"
+  "postcss@8": "^8.5.18"
+  "rollup@3": "^3.30.0"
+  "rollup@4": "^4.59.0"
+  "vite@7": "^7.3.5"
+  "ws@8": "^8.21.0"
