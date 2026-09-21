@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { db } from "@/lib/db";
 import { companies } from "@kivvi/database";
+import { mergeCompanySettings } from "@kivvi/core/src/domain/companies";
 import type { CompanySettings } from "@kivvi/database";
-import { eq, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import type Stripe from "stripe";
 import { logger } from "@/lib/logger";
 
@@ -130,21 +131,12 @@ async function findCompanyByCustomerId(stripeCustomerId: string): Promise<string
   return company?.id ?? null;
 }
 
+/**
+ * Stripe delivers `checkout.session.completed` and `customer.subscription.updated`
+ * for a new subscription within milliseconds of each other, and they are served
+ * as concurrent requests. Merging in Postgres keeps both writes — see
+ * `mergeCompanySettings`.
+ */
 async function updateCompanyBilling(companyId: string, updates: Partial<CompanySettings>) {
-  const [company] = await db
-    .select({ settings: companies.settings })
-    .from(companies)
-    .where(eq(companies.id, companyId));
-
-  if (!company) return;
-
-  const existing = (company.settings as CompanySettings) || {};
-
-  await db
-    .update(companies)
-    .set({
-      settings: { ...existing, ...updates },
-      updatedAt: new Date(),
-    })
-    .where(eq(companies.id, companyId));
+  await mergeCompanySettings(db, companyId, updates);
 }
