@@ -58,7 +58,7 @@ export function MobileNavPanel({
   onClose,
 }: MobileNavPanelProps) {
   return (
-    <div className="absolute left-0 right-0 top-full z-50 border-b bg-background shadow-lg md:hidden">
+    <div className="absolute left-0 right-0 top-full z-50 border-b bg-background shadow-lg lg:hidden">
       <nav className="container mx-auto flex flex-col px-4 py-4 gap-0.5 max-h-[80dvh] overflow-y-auto">
         {/* Solutions */}
         <p className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">

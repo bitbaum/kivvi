@@ -114,7 +114,7 @@ export function LandingNav({
   return (
     <>
       {/* ── Desktop nav ────────────────────────────────── */}
-      <div ref={navRef} className="hidden md:flex items-center gap-1">
+      <div ref={navRef} className="hidden lg:flex items-center gap-1">
         {/* Solutions dropdown */}
         <div className="relative">
           <Button
@@ -262,7 +262,7 @@ export function LandingNav({
       <Button
         variant="ghost"
         size="icon"
-        className="md:hidden"
+        className="lg:hidden"
         onClick={() => setMobileOpen((p) => !p)}
         aria-label={mobileOpen ? menuCloseLabel : menuOpenLabel}
       >
