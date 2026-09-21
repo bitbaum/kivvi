@@ -6,6 +6,7 @@ import { db } from "@/lib/db";
 import { companies } from "@kivvi/database";
 import type { CompanySettings } from "@kivvi/database";
 import { eq } from "drizzle-orm";
+import { mergeCompanySettings } from "@kivvi/core/src/domain/companies";
 import { getSession, requireRole, type ActionResult } from "./utils";
 import { getTranslations } from "next-intl/server";
 import { logger } from "@/lib/logger";
@@ -36,14 +37,9 @@ export async function createCheckoutSessionAction(): Promise<ActionResult<{ url:
       });
       customerId = customer.id;
 
-      // Save Stripe customer ID immediately
-      await db
-        .update(companies)
-        .set({
-          settings: { ...settings, stripeCustomerId: customerId },
-          updatedAt: new Date(),
-        })
-        .where(eq(companies.id, companyId));
+      // Save Stripe customer ID immediately. Merged in Postgres so a webhook
+      // landing concurrently cannot be erased by this write.
+      await mergeCompanySettings(db, companyId, { stripeCustomerId: customerId });
     }
 
     const priceId = process.env.STRIPE_PRICE_ID;
