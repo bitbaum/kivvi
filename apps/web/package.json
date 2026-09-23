@@ -45,7 +45,7 @@
     "mermaid": "^11.17.2",
     "next": "15.5.24",
     "next-auth": "^5.0.0-beta.32",
-    "next-intl": "^4.8.2",
+    "next-intl": "^4.9.2",
     "next-themes": "^0.3.0",
     "nodemailer": "^9.1.1",
     "papaparse": "^5.4.1",
