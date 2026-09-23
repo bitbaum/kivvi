@@ -66,4 +66,7 @@ export function createDb(connectionString: string) {
   return createPostgresClient(connectionString);
 }
 
-export type Database = ReturnType<typeof createPostgresClient>;
+// Accept both the root client and `db.transaction()` callbacks. Drizzle 0.45
+// narrowed ReturnType<typeof drizzle> to include `$client`, which made
+// PgTransaction unassignable to Database and broke every nested helper call.
+export type Database = import("drizzle-orm/postgres-js").PostgresJsDatabase<typeof schema>;

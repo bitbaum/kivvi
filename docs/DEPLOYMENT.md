@@ -1,8 +1,8 @@
 # Kivvi ERP — Deployment Guide
 
 **created_date**: 2026-06-18
-**last_modified_date**: 2026-09-04
-**last_modified_summary**: Truth-sweep against actual repo state — docker-compose.yml runs only `postgres` (+ optional `ollama`), the app image comes from the root Dockerfile and migrations are manual; AI env keys match the implemented providers (Groq/xAI/OpenRouter/Ollama/Anthropic — there is no OpenAI provider); migrations live in `packages/database/drizzle/`.
+**last_modified_date**: 2026-09-24
+**last_modified_summary**: Bumped drizzle-orm to 0.45; `Database` is now `PostgresJsDatabase<typeof schema>` so transaction callbacks type-check. Hetzner/self-hosted Postgres remains the production path (`USE_NEON` unset).
 
 Target audience: technical founder or DevOps engineer doing first deployment.
 
@@ -100,10 +100,12 @@ Cron endpoints are protected by `CRON_SECRET`, sent as an `Authorization: Bearer
 
 `createDb()` in `packages/database/src/index.ts` picks the driver from the environment:
 
-- **Self-hosted / persistent server (default)**: `postgres-js` with connection pooling and full ACID `db.transaction()` support. This is what our hosted production (self-hosted Postgres on a Hetzner box) uses.
-- **Serverless (`USE_NEON=true`)**: the Neon **WebSocket** driver (`drizzle-orm/neon-serverless`), which also supports native ACID transactions. Single pool queries are routed via HTTPS fetch (`neonConfig.poolQueryViaFetch`) to avoid a webpack `ws` bundling issue.
+- **Self-hosted / persistent server (default)**: `postgres-js` with connection pooling and full ACID `db.transaction()` support. This is what production uses (Postgres on Hetzner **bitbaum**). Leave `USE_NEON` unset.
+- **Serverless leftover (`USE_NEON=true`)**: Neon WebSocket driver path still exists in code for historical local experiments. Do not enable it against production — Neon was decommissioned for studio apps in 2026-06.
 
-No configuration is required — set `USE_NEON=true` only if you deploy to a serverless host that needs the Neon driver.
+`Database` is typed as `PostgresJsDatabase<typeof schema>` (not `ReturnType<typeof createPostgresClient>`), so helpers accept both the root client and `db.transaction()` callbacks under drizzle-orm 0.45+.
+
+No configuration is required for Hetzner — set `DATABASE_URL` at `/opt/kivvi/shared/.env` on the box.
 
 ---
 
