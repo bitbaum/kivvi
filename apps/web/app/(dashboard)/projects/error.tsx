@@ -1,6 +1,6 @@
 "use client";
 
-import * as Sentry from "@sentry/nextjs";
+import { logger } from "@/lib/logger";
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { AlertTriangle } from "lucide-react";
@@ -16,7 +16,7 @@ export default function ProjectsError({
   const t = useTranslations("common");
 
   useEffect(() => {
-    Sentry.captureException(error);
+    logger.error("render error (projects)", error);
   }, [error]);
 
   return (

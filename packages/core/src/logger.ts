@@ -1,7 +1,7 @@
 /**
  * Minimal logger for the core package.
- * Does not depend on Sentry — the web app's error boundaries and
- * Server Action catch blocks handle Sentry reporting.
+ * Error boundaries and Server Action catch blocks in the web app log through
+ * apps/web/lib/logger, which writes to the console.
  *
  * These log calls exist in domain functions that intentionally swallow
  * errors (e.g., QR-bill failure continues PDF generation, email failure

@@ -1,6 +1,6 @@
 "use client";
 
-import * as Sentry from "@sentry/nextjs";
+import { logger } from "@/lib/logger";
 import { useEffect } from "react";
 import { AlertTriangle } from "lucide-react";
 import Link from "next/link";
@@ -16,7 +16,7 @@ export default function AuthError({
   const t = useTranslations("auth");
 
   useEffect(() => {
-    Sentry.captureException(error);
+    logger.error("render error (auth)", error);
   }, [error]);
 
   return (

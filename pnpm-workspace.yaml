@@ -71,3 +71,16 @@ overrides:
   "rollup@4": "^4.59.0"
   "vite@7": "^7.3.5"
   "ws@8": "^8.21.0"
+  # 2026-09-25: the medium/low remainder, same rule -- first_patched_version,
+  # bounded to one major (or one minor on 0.x).
+  # tsx carries esbuild; drizzle-kit pins its own tsx ^4.21 (esbuild ~0.27,
+  # vulnerable). ^4.23.15 is inside every declared range and brings ~0.28.
+  "tsx@4": "^4.23.15"
+  "@babel/core@7": "^7.29.6"
+  "@opentelemetry/core@2": "^2.8.0"
+  "ajv@6": "^6.14.0"
+  "picomatch@2": "^2.3.2"
+  "postcss-selector-parser@6": "^6.1.3"
+  "qs@6": "^6.16.0"
+  "serialize-javascript@7": "^7.0.5"
+  "uuid@11": "^11.1.1"

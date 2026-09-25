@@ -7,7 +7,6 @@ import { SessionProvider } from "@/components/session-provider";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { ThemedToaster } from "@/components/themed-toaster";
-import { SentryUserContext } from "@/components/sentry-user-context";
 import { SITE_URL } from "@/lib/config/site";
 import { auth } from "@/lib/auth";
 
@@ -98,7 +97,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               enableSystem
               disableTransitionOnChange
             >
-              <SentryUserContext />
               {children}
               <ThemedToaster />
             </ThemeProvider>

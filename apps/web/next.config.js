@@ -1,4 +1,3 @@
-const { withSentryConfig } = require("@sentry/nextjs");
 const createNextIntlPlugin = require("next-intl/plugin");
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 
@@ -41,7 +40,7 @@ const nextConfig = {
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: blob:",
               "font-src 'self' data:",
-              "connect-src 'self' *.sentry.io *.ingest.sentry.io https://api.anthropic.com https://openrouter.ai https://api.openai.com https://api.groq.com https://api.x.ai https://loki.orangecat.ch",
+              "connect-src 'self' https://api.anthropic.com https://openrouter.ai https://api.openai.com https://api.groq.com https://api.x.ai https://loki.orangecat.ch",
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",
@@ -53,10 +52,4 @@ const nextConfig = {
   },
 };
 
-module.exports = withSentryConfig(withNextIntl(nextConfig), {
-  org: process.env.SENTRY_ORG,
-  project: process.env.SENTRY_PROJECT,
-  silent: !process.env.CI,
-  widenClientFileUpload: true,
-  disableLogger: true,
-});
+module.exports = withNextIntl(nextConfig);
