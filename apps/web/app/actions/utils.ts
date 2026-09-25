@@ -1,8 +1,8 @@
 import { z } from "zod";
-import * as Sentry from "@sentry/nextjs";
 import { auth } from "@/lib/auth";
 import type { MembershipRole } from "@kivvi/database";
 import { DomainError } from "@kivvi/core/src/domain-error";
+import { logger } from "@/lib/logger";
 
 export interface ActionResult<T = unknown> {
   success: boolean;
@@ -88,7 +88,7 @@ const SAFE_ERROR_PATTERNS = [
  * Sanitize error messages for user-facing responses.
  * - DomainError: translated via the provided t function (or English message as fallback)
  * - Known English patterns: passed through verbatim (legacy path for non-migrated errors)
- * - Unknown errors: logged to Sentry, generic fallback returned
+ * - Unknown errors: logged to the server journal, generic fallback returned
  */
 export function safeErrorMessage(
   error: unknown,
@@ -109,7 +109,7 @@ export function safeErrorMessage(
   if (SAFE_ERROR_PATTERNS.some((pattern) => msg.toLowerCase().includes(pattern.toLowerCase()))) {
     return msg;
   }
-  Sentry.captureException(error);
+  logger.error("server action failed unexpectedly", error);
   return fallback;
 }
 

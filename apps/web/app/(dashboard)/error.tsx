@@ -1,6 +1,6 @@
 "use client";
 
-import * as Sentry from "@sentry/nextjs";
+import { logger } from "@/lib/logger";
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { AlertTriangle } from "lucide-react";
@@ -15,7 +15,7 @@ export default function DashboardError({
   const t = useTranslations("errors");
 
   useEffect(() => {
-    Sentry.captureException(error);
+    logger.error("render error (dashboard)", error);
   }, [error]);
 
   return (

@@ -1,30 +1,24 @@
-import * as Sentry from "@sentry/nextjs";
-
 /**
- * Structured logger with Sentry integration.
+ * Structured logger. Errors go to the console, which is the server journal
+ * in production and the browser console on the client.
  *
- * - error(): console.error + Sentry.captureException (unexpected failures)
+ * - error(): console.error (unexpected failures)
  * - warn():  console.warn only (expected edge cases, client-side issues)
  * - info():  console.info in development only (debug output)
  */
 export const logger = {
   /**
-   * Log an unexpected error. Reports to Sentry in production.
+   * Log an unexpected error.
    * Use for: server errors, API failures, payment issues, cron failures.
    */
   error(message: string, error?: unknown, context?: Record<string, unknown>) {
-    console.error(`[error] ${message}`, error || "");
-    if (error instanceof Error) {
-      Sentry.captureException(error, { extra: { message, ...context } });
-    } else if (error !== undefined) {
-      Sentry.captureMessage(message, { level: "error", extra: { error, ...context } });
-    } else {
-      Sentry.captureMessage(message, { level: "error", extra: context });
-    }
+    // context used to go ONLY to Sentry, which had no DSN, so it was discarded.
+    // It belongs in the same line as the error it explains.
+    console.error(`[error] ${message}`, error ?? "", ...(context ? [context] : []));
   },
 
   /**
-   * Log a warning. Console only, no Sentry.
+   * Log a warning.
    * Use for: parse failures, localStorage issues, non-critical client errors.
    */
   warn(message: string, error?: unknown) {

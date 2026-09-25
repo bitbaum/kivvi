@@ -1,6 +1,6 @@
 "use client";
 
-import * as Sentry from "@sentry/nextjs";
+import { logger } from "@/lib/logger";
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { AlertTriangle } from "lucide-react";
@@ -12,7 +12,7 @@ import Link from "next/link";
  * Each section's error.tsx (sales, contacts, reports, …) used to render
  * an identical 50-line block that differed only in `backHref` and the
  * label of the back button. This component centralises the layout, the
- * Sentry capture, and the translation keys; per-section files become a
+ * error logging, and the translation keys; per-section files become a
  * thin wrapper that hands in the destination of the "back" button.
  */
 export function SectionErrorBoundary({
@@ -27,7 +27,7 @@ export function SectionErrorBoundary({
   const t = useTranslations("common");
 
   useEffect(() => {
-    Sentry.captureException(error);
+    logger.error("render error (section)", error);
   }, [error]);
 
   return (

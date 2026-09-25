@@ -1,7 +1,7 @@
 /**
  * Structured domain error that carries a machine-readable code for i18n.
  * Throw this instead of plain Error for user-facing business rule violations.
- * The English .message serves as a fallback for logging and Sentry.
+ * The English .message serves as a fallback for logging.
  */
 export class DomainError extends Error {
   constructor(
