@@ -87,6 +87,9 @@ importers:
       '@auth/drizzle-adapter':
         specifier: ^1.0.0
         version: 1.11.1(nodemailer@9.1.1)
+      '@bitbaum/ai-kit':
+        specifier: ^1.18.0
+        version: 1.18.0(react@18.3.1)
       '@bitbaum/mail-kit':
         specifier: ^0.1.0
         version: 0.1.0
@@ -467,6 +470,15 @@ packages:
 
   '@bitbaum/ai-kit@0.15.0':
     resolution: {integrity: sha512-anYal45ZeoyF10HbtLVv3o1DPJGDNetbVjtdC6wHHVRW/IQIep4Y95tCKUW+Ftr5Gd6tLRalFfgZAsRdBewqUw==}
+    engines: {node: '>=20'}
+    peerDependencies:
+      react: '>=18'
+    peerDependenciesMeta:
+      react:
+        optional: true
+
+  '@bitbaum/ai-kit@1.18.0':
+    resolution: {integrity: sha512-zY7QN6FEGaSg5FeZs0/ElsztxbV5/TM9IPK78vOh62V/T4PblRQJxEim6me2HP/yySWxlGvu+obPptywdWuT+A==}
     engines: {node: '>=20'}
     peerDependencies:
       react: '>=18'
@@ -5698,6 +5710,12 @@ snapshots:
     optional: true
 
   '@bitbaum/ai-kit@0.15.0(react@18.3.1)':
+    dependencies:
+      ai-forms: 0.1.2(react@18.3.1)
+    optionalDependencies:
+      react: 18.3.1
+
+  '@bitbaum/ai-kit@1.18.0(react@18.3.1)':
     dependencies:
       ai-forms: 0.1.2(react@18.3.1)
     optionalDependencies:
