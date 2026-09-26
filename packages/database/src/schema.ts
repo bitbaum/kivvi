@@ -2106,7 +2106,7 @@ export interface CompanySettings {
   logoMimeType?: string; // image/png, image/jpeg, image/svg+xml
   aiProvider?: AiProviderValue;
   aiModel?: string;
-  aiApiKey?: string; // encrypted
+  aiApiKey?: string; // encrypted (apps/web/lib/company-ai-key.ts; older rows plaintext, still read)
   onboardingCompletedAt?: string; // ISO date, null = not done
   onboardingStep?: number; // 1-4, for resume
   /**

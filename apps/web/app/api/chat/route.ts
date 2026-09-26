@@ -1,4 +1,5 @@
 // Chat API route
+import { openCompanyAiKey } from "@/lib/company-ai-key";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { aiConversations, aiMessages } from "@kivvi/database";
@@ -287,8 +288,9 @@ export async function POST(request: NextRequest) {
 
     const getApiKey = (provider: ProviderType): string | undefined => {
       // Per-company API key takes priority for matching provider
-      if (settings.aiApiKey && settings.aiProvider === provider) {
-        return settings.aiApiKey;
+      const companyKey = openCompanyAiKey(settings.aiApiKey);
+      if (companyKey && settings.aiProvider === provider) {
+        return companyKey;
       }
       switch (provider) {
         case "groq":

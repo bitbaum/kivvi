@@ -17,8 +17,8 @@ minimumReleaseAgeExclude:
   # Ours, published from this fleet minutes ago by its OIDC trusted publisher.
   # Pinned to the exact version: a bare name would exempt every FUTURE version
   # too, quietly disabling the gate for the package most likely to be installed
-  # the minute it is released.
-  - "@bitbaum/ai-kit@0.15.0"
+  # the minute it is released. 1.18.0 is apps/web's (the own-key check).
+  - "@bitbaum/ai-kit@0.15.0 || 1.18.0"
 
 allowBuilds:
   "@parcel/watcher": true
