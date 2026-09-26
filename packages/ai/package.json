@@ -10,7 +10,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.115.0",
+    "@anthropic-ai/sdk": "^0.128.0",
     "@kivvi/core": "workspace:*",
     "@kivvi/database": "workspace:*",
     "@bitbaum/ai-kit": "^0.15.0",
