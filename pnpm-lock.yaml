@@ -86,7 +86,7 @@ importers:
         version: 0.115.0(zod@3.25.76)
       '@auth/drizzle-adapter':
         specifier: ^1.0.0
-        version: 1.11.1(nodemailer@9.1.1)
+        version: 1.11.1(nodemailer@10.1.2)
       '@bitbaum/mail-kit':
         specifier: ^0.1.0
         version: 0.1.0
@@ -173,7 +173,7 @@ importers:
         version: 15.5.27(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.9.0)(@playwright/test@1.58.2)(@types/node@26.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       next-auth:
         specifier: ^5.0.0-beta.32
-        version: 5.0.0-beta.32(next@15.5.27(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.9.0)(@playwright/test@1.58.2)(@types/node@26.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(nodemailer@9.1.1)(react@18.3.1)
+        version: 5.0.0-beta.32(next@15.5.27(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.9.0)(@playwright/test@1.58.2)(@types/node@26.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(nodemailer@10.1.2)(react@18.3.1)
       next-intl:
         specifier: ^4.9.2
         version: 4.14.6(@swc/helpers@0.5.18)(next@15.5.27(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.9.0)(@playwright/test@1.58.2)(@types/node@26.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
@@ -181,8 +181,8 @@ importers:
         specifier: ^0.3.0
         version: 0.3.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       nodemailer:
-        specifier: ^9.1.1
-        version: 9.1.1
+        specifier: ^10.0.9
+        version: 10.1.2
       papaparse:
         specifier: ^5.4.1
         version: 5.5.3
@@ -4350,9 +4350,9 @@ packages:
     resolution: {integrity: sha512-x0InOIyzgdk+eyaWaRJFH5snEtiImgBgblZ2CyPrLmqqcuMQkEvcDPHbzqbD8eDsSeJbVOjn+crzyzHaM4D+/A==}
     engines: {node: '>=18'}
 
-  nodemailer@9.1.1:
-    resolution: {integrity: sha512-izw9mVKFix6YSnC9eLgV6g1opl9DUlRio9ZNcq+Wu9Ujn2UwF+8Nl0B8nz22kEC+CTZCvinkxwJ0DeFbb6NwcQ==}
-    engines: {node: '>=6.0.0'}
+  nodemailer@10.1.2:
+    resolution: {integrity: sha512-rnQn9Rzh8RAwcp42MVsIvxbsv6YZ2a2/av+uyJ/LPU1+2QSlrRgFsWWZTKenyRUqkIl8urOI0c4+CEcmFdsvQw==}
+    engines: {node: '>=20.0.0'}
 
   normalize-path@3.0.0:
     resolution: {integrity: sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==}
@@ -5561,7 +5561,7 @@ snapshots:
     optionalDependencies:
       zod: 3.25.76
 
-  '@auth/core@0.41.3(nodemailer@9.1.1)':
+  '@auth/core@0.41.3(nodemailer@10.1.2)':
     dependencies:
       '@panva/hkdf': 1.2.1
       jose: 6.1.3
@@ -5569,11 +5569,11 @@ snapshots:
       preact: 10.24.3
       preact-render-to-string: 6.5.11(preact@10.24.3)
     optionalDependencies:
-      nodemailer: 9.1.1
+      nodemailer: 10.1.2
 
-  '@auth/drizzle-adapter@1.11.1(nodemailer@9.1.1)':
+  '@auth/drizzle-adapter@1.11.1(nodemailer@10.1.2)':
     dependencies:
-      '@auth/core': 0.41.3(nodemailer@9.1.1)
+      '@auth/core': 0.41.3(nodemailer@10.1.2)
     transitivePeerDependencies:
       - '@simplewebauthn/browser'
       - '@simplewebauthn/server'
@@ -9437,13 +9437,13 @@ snapshots:
 
   negotiator@1.0.0: {}
 
-  next-auth@5.0.0-beta.32(next@15.5.27(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.9.0)(@playwright/test@1.58.2)(@types/node@26.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(nodemailer@9.1.1)(react@18.3.1):
+  next-auth@5.0.0-beta.32(next@15.5.27(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.9.0)(@playwright/test@1.58.2)(@types/node@26.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(nodemailer@10.1.2)(react@18.3.1):
     dependencies:
-      '@auth/core': 0.41.3(nodemailer@9.1.1)
+      '@auth/core': 0.41.3(nodemailer@10.1.2)
       next: 15.5.27(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.9.0)(@playwright/test@1.58.2)(@types/node@26.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react: 18.3.1
     optionalDependencies:
-      nodemailer: 9.1.1
+      nodemailer: 10.1.2
 
   next-intl-swc-plugin-extractor@4.14.6: {}
 
@@ -9505,7 +9505,7 @@ snapshots:
 
   node-releases@2.0.56: {}
 
-  nodemailer@9.1.1: {}
+  nodemailer@10.1.2: {}
 
   normalize-path@3.0.0: {}
 
