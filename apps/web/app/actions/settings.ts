@@ -16,6 +16,8 @@ import { createAction } from "./action-factory";
 import { getTranslations } from "next-intl/server";
 import { MAX_UPLOAD_SIZE_BYTES } from "@/lib/config/uploads";
 import { updateUserProfile } from "@kivvi/core/src/domain/profiles";
+import { DomainError } from "@kivvi/core/src/domain-error";
+import { checkCompanyAiKey, sealCompanyAiKey } from "@/lib/company-ai-key";
 
 // ============================================================================
 // COMPANY SETTINGS
@@ -67,6 +69,20 @@ export const updateCompanyAction = createAction<unknown, Company | undefined>({
 
     const existingSettings = (existing?.settings as CompanySettings) ?? {};
 
+    // A newly entered key is checked with its provider, then stored encrypted.
+    const newApiKey =
+      parsed.data.aiApiKey && parsed.data.aiApiKey !== "********"
+        ? parsed.data.aiApiKey.trim()
+        : null;
+    if (newApiKey) {
+      const verdict = await checkCompanyAiKey(
+        parsed.data.aiProvider || existingSettings.aiProvider,
+        newApiKey,
+        parsed.data.aiModel || existingSettings.aiModel,
+      );
+      if (!verdict.ok) throw new DomainError("AI_KEY_REJECTED", undefined, verdict.message);
+    }
+
     // Merge new values into settings JSONB
     const updatedSettings: CompanySettings = {
       ...existingSettings,
@@ -89,9 +105,7 @@ export const updateCompanyAction = createAction<unknown, Company | undefined>({
       aiProvider: parsed.data.aiProvider || existingSettings.aiProvider,
       aiModel: parsed.data.aiModel || existingSettings.aiModel,
       // Only update API key if not the mask placeholder
-      ...(parsed.data.aiApiKey && parsed.data.aiApiKey !== "********"
-        ? { aiApiKey: parsed.data.aiApiKey }
-        : {}),
+      ...(newApiKey ? { aiApiKey: sealCompanyAiKey(newApiKey) } : {}),
     };
 
     const [company] = await db
