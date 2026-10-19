@@ -17,7 +17,7 @@ account-mappings.ts → invoiceSent.revenueAccount = "3000" (product)
 accounting-integration.ts → buildInvoiceRevenueLines(): item.productType === "service" ? 3200 : 3000
 ```
 
-revamp-it's real accounting identity has **many** revenue streams, each to its own Erlöskonto. From their live Kivitendo export (`revampit/daten/buchungsgruppen_posting_groups.csv`), which their live app still reads (`src/config/analyse/metrics.ts`, tagged `source: 'kivitendo'`):
+revamp-it's real accounting identity has **many** revenue streams, each to its own Erlöskonto. From their live Kivitendo export (`revampit/daten/buchungsgruppen_posting_groups.csv`), which their live app (`bitbaum/evig`) still reads (`src/config/analyse/metrics.ts`, tagged `source: 'kivitendo'`):
 
 | Buchungsgruppe                 | Erlöskonto Inland | Aufwandskonto Inland |
 | ------------------------------ | ----------------- | -------------------- |

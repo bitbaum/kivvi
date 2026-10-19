@@ -35,7 +35,7 @@ The high-volume core revamp-it runs daily (5,803 customers, 4,134 articles, full
 
 ## 2. TIER 1 — revamp-it's accounting identity (the real build)
 
-These are the revamp-it-specific things a generic ERP lacks. They come straight from `daten/buchungsgruppen_posting_groups.csv` and are confirmed as **ongoing** (their live app's `src/config/analyse/metrics.ts` maps the same streams, tagged `source: 'kivitendo'`).
+These are the revamp-it-specific things a generic ERP lacks. They come straight from `daten/buchungsgruppen_posting_groups.csv` and are confirmed as **ongoing** (their live app, `bitbaum/evig`, maps the same streams in `src/config/analyse/metrics.ts`, tagged `source: 'kivitendo'`).
 
 ### 1.1 Revenue routing by posting group → Erlöskonto **[biggest gap]**
 
@@ -86,7 +86,7 @@ Journal list exists, but there's **no drill-into-one-account view** with opening
 
 ## 4. TIER 3 — operational robustness (daily-use quality)
 
-- **Email delivery**: send is **synchronous, no retry/queue/delivery-tracking** (`actions/email.ts`, `lib/email/transporter.ts`). A slow Brevo call hangs the request; a failure is only logged. Add a queue + retry + a BCC-to-self archive. **Effort: M.**
+- **Email delivery**: send is **synchronous, no retry/queue/delivery-tracking** (`apps/web/app/actions/email.ts`, `apps/web/lib/email/transporter.ts`). A slow Brevo call hangs the request; a failure is only logged. Add a queue + retry + a BCC-to-self archive. **Effort: M.**
 - **Payment edge cases**: reconciliation has **no partial-payment split, no one-payment-across-multiple-invoices, no overpayment handling** (`banking.ts`). Common in practice. **Effort: M.**
 - **Donation/grant triage wired to reconciliation**: `payment-classification.ts` (classifies Spende/Subvention/pass-through) **exists but isn't wired into the bank-reconciliation UI** — and revamp-it books Spenden (3500) + grants, so incoming non-invoice money needs this at the point of matching. **Effort: S–M.** _(Also the Art. 33 Subvention-vs-Spende VAT nuance — but moot while 0 % VAT.)_
 - **Dunning polish**: no dunning **fee / Verzugszins / PDF letter** (text only); wiki wants batch ODT dunning templates. **Effort: M.**
