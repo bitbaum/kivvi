@@ -50,7 +50,7 @@ _Why first:_ it's the property that makes a Treuhänder trust the books and an E
 
 ### A2 — Zefix + UID/VAT-register enrichment **[R+P]**
 
-The two genuinely public APIs in this whole domain. One server-side domain module (`packages/core/src/domain/uid-register.ts`), cached on the contact, best-effort (never a hard transaction dependency):
+The two genuinely public APIs in this whole domain. One planned server-side domain module (`packages/core/src/domain/uid-register.ts`, not yet built), cached on the contact, best-effort (never a hard transaction dependency):
 
 - **Zefix REST** (`zefix.admin.ch/ZefixPublicREST/api/v1`, HTTP Basic — free creds by emailing zefix@bj.admin.ch): search by name / `GET /company/uid/{CHE-…}` → legal name, form, seat/canton, address, **HR status** (ACTIVE/CANCELLED). Autofill `contacts` on entry.
 - **UID Web Service** (`uid-wse.admin.ch/V5.0/PublicServices.svc`, SOAP, free, **20 req/min**): `ValidateUID` + `GetByUID` expose **VAT-registration status** (`vatStatus`, `vatEntryDate`) — _this_ is the VAT lookup (no separate public ESTV VAT API). Show a "MWST-registriert seit …" badge; **on purchase invoices where Vorsteuer is claimed, warn if the vendor isn't VAT-registered** (guards invalid input-VAT deduction). ⚠️ SOAP V5 retires ~2028 → isolate behind the one module so migration is a one-file change.

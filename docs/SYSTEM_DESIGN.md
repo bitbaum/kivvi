@@ -76,9 +76,9 @@ See also: `docs/REVAMPIT_ERP_COMPANION_ROADMAP.md` for the strict "like kivitend
 ### 3.2 Go-live checklist (the ops wiring — makes the connection actually work)
 
 1. Deploy current **Kivvi `main`** (includes per-company modules, durable sync, repair-labor billing); run `pnpm --filter @kivvi/database db:push` or `pnpm db:migrate` so `api_idempotency_keys` exists.
-2. Deploy revamp-it **#206** → the receiver goes live at `https://revampit.orangecat.ch/api/webhooks/kivvi`.
+2. Deploy revamp-it **#206** → the receiver goes live at `https://evig.orangecat.ch/api/webhooks/kivvi`.
 3. In Kivvi (revamp-it's tenant): **Settings → Webhooks → Add endpoint**
-   - URL `https://revampit.orangecat.ch/api/webhooks/kivvi`
+   - URL `https://evig.orangecat.ch/api/webhooks/kivvi`
    - Events `inventory_item.updated`, `inventory_item.status_changed`
    - Generate a shared secret.
 4. Set revamp-it env: `KIVVI_WEBHOOK_SECRET` (= step 3 secret), `KIVVI_API_URL`, `KIVVI_API_TOKEN`, `KIVVI_DEFAULT_WAREHOUSE_ID`.
