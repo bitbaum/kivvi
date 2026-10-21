@@ -75,4 +75,4 @@ Don't open public issues for vulnerabilities. See [`SECURITY.md`](SECURITY.md).
 
 ---
 
-Questions? Open a [discussion](https://github.com/bitbaum/kivvi/discussions) or drop us a line at [revampit.ch](https://revampit.ch).
+Questions? Open a [discussion](https://github.com/bitbaum/kivvi/discussions) or get in touch via [kivvi.ch](https://kivvi.ch).
