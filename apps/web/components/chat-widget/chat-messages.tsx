@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Bot, User, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTranslations } from "next-intl";
-import ReactMarkdown from "react-markdown";
+import { Markdown } from "@bitbaum/chatkit/react";
 import type { ChatMessage } from "@/hooks/use-chat";
 
 interface ChatMessagesProps {
@@ -12,6 +12,7 @@ interface ChatMessagesProps {
   isLoading: boolean;
   scrollRef: React.RefObject<HTMLDivElement>;
   compact?: boolean;
+  onReply?: (text: string) => void;
 }
 
 export function ChatMessages({
@@ -19,6 +20,7 @@ export function ChatMessages({
   isLoading,
   scrollRef,
   compact = false,
+  onReply,
 }: ChatMessagesProps) {
   const t = useTranslations("chat");
 
@@ -59,7 +61,10 @@ export function ChatMessages({
               {message.content ? (
                 message.role === "assistant" ? (
                   <div className="prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_table]:text-xs [&_th]:px-2 [&_th]:py-1 [&_td]:px-2 [&_td]:py-1">
-                    <ReactMarkdown>{message.content}</ReactMarkdown>
+                    <Markdown
+                      text={message.content}
+                      onReply={!isLoading && message === messages.at(-1) ? onReply : undefined}
+                    />
                   </div>
                 ) : (
                   <p className="whitespace-pre-wrap text-sm">{message.content}</p>

@@ -207,7 +207,15 @@ export function ChatWidget() {
             </div>
           </div>
         ) : (
-          <ChatMessages messages={messages} isLoading={isLoading} scrollRef={scrollRef} compact />
+          <ChatMessages
+            onReply={(text) => {
+              void sendMessage(text);
+            }}
+            messages={messages}
+            isLoading={isLoading}
+            scrollRef={scrollRef}
+            compact
+          />
         )}
 
         {/* Input */}
