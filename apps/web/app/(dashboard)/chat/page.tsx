@@ -95,7 +95,14 @@ export default function ChatPage() {
           </div>
         </div>
       ) : (
-        <ChatMessages messages={messages} isLoading={isLoading} scrollRef={scrollRef} />
+        <ChatMessages
+          onReply={(text) => {
+            void sendMessage(text);
+          }}
+          messages={messages}
+          isLoading={isLoading}
+          scrollRef={scrollRef}
+        />
       )}
 
       {/* Input area */}

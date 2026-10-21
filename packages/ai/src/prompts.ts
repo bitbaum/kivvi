@@ -1,8 +1,12 @@
+import { RICH_ANSWERS_INSTRUCTION } from "@bitbaum/chatkit";
 import type { ExecutionContext, VerticalType } from "./types";
 import type { OrgProfile } from "@kivvi/database";
 import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
 
-const BASE_PROMPT = `You are Kivvi, an AI assistant that automates operations for Swiss organizations.
+const BASE_PROMPT =
+  RICH_ANSWERS_INSTRUCTION +
+  "\n\n" +
+  `You are Kivvi, an AI assistant that automates operations for Swiss organizations.
 
 ## Your Role
 You don't just answer questions — you take action. When a user asks you to do something, you do it.
