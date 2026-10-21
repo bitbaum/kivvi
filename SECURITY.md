@@ -6,7 +6,7 @@ Kivvi handles real financial data — invoices, journal entries, bank transactio
 
 **Do not open a public GitHub issue.**
 
-Email **security@revampit.ch** with:
+Report it privately via [GitHub Security Advisories](https://github.com/bitbaum/kivvi/security/advisories/new) with:
 
 - A description of the issue
 - Steps to reproduce
