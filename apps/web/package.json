@@ -59,11 +59,11 @@
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.22.4",
     "zustand": "^4.5.2",
-    "@bitbaum/chatkit": "^0.15.3",
+    "@bitbaum/chatkit": "^0.16.0",
     "limitkit": "^0.2.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.58.2",
+    "@playwright/test": "^1.63.0",
     "@types/bcryptjs": "^3.0.0",
     "@types/node": "^26.4.0",
     "@types/nodemailer": "^7.0.9",
