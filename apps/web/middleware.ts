@@ -52,7 +52,7 @@ export default auth((req) => {
     return new NextResponse("Too Many Requests", {
       status: 429,
       headers: {
-        "Retry-After": Math.ceil(rateLimitResult.retryAfterMs / 1000).toString(),
+        "Retry-After": String(rateLimitResult.retryAfterSeconds),
       },
     });
   }
@@ -60,7 +60,10 @@ export default auth((req) => {
   // Check if public
   const isPublic =
     PUBLIC_PATHS.includes(pathname) ||
-    PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+    PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix)) ||
+    (process.env.NODE_ENV !== "production" &&
+      process.env.KIVVI_CHATKIT_SMOKE === "true" &&
+      pathname === "/smoke/chatkit");
 
   // Redirect authenticated users away from auth pages
   if (isAuthenticated && (pathname === "/login" || pathname === "/register")) {

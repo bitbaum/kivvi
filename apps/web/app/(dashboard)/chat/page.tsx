@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -34,8 +34,6 @@ export default function ChatPage() {
     },
   });
 
-  const scrollRef = useRef<HTMLDivElement>(null);
-
   // Fetch available models
   useEffect(() => {
     getAvailableModelsAction()
@@ -53,18 +51,6 @@ export default function ChatPage() {
       sendMessage(q);
     }
   }, [searchParams, initialQuerySent, isLoaded, sendMessage]);
-
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || isLoading) return;
-    await sendMessage();
-  };
 
   const handleSuggestion = (suggestion: string) => {
     sendMessage(suggestion);
@@ -101,7 +87,6 @@ export default function ChatPage() {
           }}
           messages={messages}
           isLoading={isLoading}
-          scrollRef={scrollRef}
         />
       )}
 
@@ -123,12 +108,7 @@ export default function ChatPage() {
             </p>
           )}
         </div>
-        <ChatInput
-          input={input}
-          setInput={setInput}
-          onSubmit={handleSubmit}
-          isLoading={isLoading}
-        />
+        <ChatInput input={input} setInput={setInput} onSend={sendMessage} isLoading={isLoading} />
         <p className="mt-2 text-center text-xs text-muted-foreground">{t("canMakeMistakes")}</p>
       </div>
     </div>

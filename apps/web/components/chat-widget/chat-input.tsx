@@ -1,38 +1,41 @@
 "use client";
 
-import { Send, Loader2 } from "lucide-react";
+import { Composer } from "@bitbaum/chatkit/react";
 import { useTranslations } from "next-intl";
 
 interface ChatInputProps {
   input: string;
   setInput: (value: string) => void;
-  onSubmit: (e: React.FormEvent) => void;
+  onSend: (text: string) => void | Promise<void>;
   isLoading: boolean;
-  inputRef?: React.RefObject<HTMLInputElement>;
+  inputRef?: React.RefObject<HTMLTextAreaElement | null>;
+  compact?: boolean;
+  autoFocus?: boolean;
 }
 
-export function ChatInput({ input, setInput, onSubmit, isLoading, inputRef }: ChatInputProps) {
+export function ChatInput({
+  input,
+  setInput,
+  onSend,
+  isLoading,
+  inputRef,
+  compact = false,
+  autoFocus = false,
+}: ChatInputProps) {
   const t = useTranslations("chat");
 
   return (
-    <form onSubmit={onSubmit} className="flex gap-2">
-      <input
-        ref={inputRef}
-        type="text"
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        placeholder={t("askKivvi")}
-        className="flex-1 rounded-lg border bg-background px-4 py-2 focus:outline-none focus:ring-2 focus:ring-ring"
-        disabled={isLoading}
-      />
-      <button
-        type="submit"
-        disabled={!input.trim() || isLoading}
-        className="flex items-center justify-center rounded-lg bg-primary min-h-[44px] min-w-[44px] text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-        aria-label={t("sendMessage")}
-      >
-        {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
-      </button>
-    </form>
+    <Composer
+      value={input}
+      onValueChange={setInput}
+      onSend={(text) => onSend(text)}
+      placeholder={t("askKivvi")}
+      ariaLabel={t("askKivvi")}
+      sending={isLoading}
+      inputRef={inputRef}
+      voice={false}
+      density={compact ? "compact" : "comfortable"}
+      autoFocus={autoFocus}
+    />
   );
 }
