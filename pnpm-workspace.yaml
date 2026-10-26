@@ -15,7 +15,7 @@ minimumReleaseAgeExclude:
   # exit-1 with no annotation, which reads like a broken build rather than a
   # held-back dependency.
   - "bip-kit"
-  - '@bitbaum/ai-kit@0.15.0 || 1.21.4'
+  - "@bitbaum/ai-kit@1.21.4"
 
 allowBuilds:
   "@parcel/watcher": true
