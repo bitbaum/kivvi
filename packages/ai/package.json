@@ -18,7 +18,7 @@
     "drizzle-orm": "^0.45.2",
     "openai": "^4.28.0",
     "zod": "^3.22.4",
-    "@bitbaum/chatkit": "^0.16.0"
+    "@bitbaum/chatkit": "^0.17.0"
   },
   "devDependencies": {
     "typescript": "^6.0.3",
