@@ -51,14 +51,24 @@ describe("a spoofed leading hop cannot buy extra login attempts", () => {
     const config = getRateLimitConfig("/login");
     const verdicts: boolean[] = [];
 
-    for (let i = 0; i <= RATE_LIMITS.login.maxTokens; i++) {
+    for (let i = 0; i <= RATE_LIMITS.login.limit; i++) {
       const ip = getClientIp(reqWith({ "x-forwarded-for": `10.0.0.${i}, ${peer}` }));
-      verdicts.push(checkRateLimit(ip, config).allowed);
+      verdicts.push(checkRateLimit(ip, config, 1_000_000 + i).allowed);
     }
 
-    expect(verdicts.slice(0, RATE_LIMITS.login.maxTokens)).toEqual(
-      Array(RATE_LIMITS.login.maxTokens).fill(true),
+    expect(verdicts.slice(0, RATE_LIMITS.login.limit)).toEqual(
+      Array(RATE_LIMITS.login.limit).fill(true),
     );
     expect(verdicts.at(-1)).toBe(false);
+  });
+
+  it("uses a sliding window and refusals do not extend a lockout", () => {
+    const key = `window:${Math.random()}`;
+    const config = { limit: 2, windowMs: 60_000 };
+    expect(checkRateLimit(key, config, 1_000_000).allowed).toBe(true);
+    expect(checkRateLimit(key, config, 1_000_001).allowed).toBe(true);
+    expect(checkRateLimit(key, config, 1_001_000).allowed).toBe(false);
+    expect(checkRateLimit(key, config, 1_059_999).allowed).toBe(false);
+    expect(checkRateLimit(key, config, 1_060_000).allowed).toBe(true);
   });
 });

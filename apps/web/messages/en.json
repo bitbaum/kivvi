@@ -2754,6 +2754,23 @@
       "openrouter": "OpenRouter",
       "ollama": "Local (Ollama)",
       "anthropic": "Anthropic"
+    },
+    "thread": {
+      "copy": "Copy",
+      "copied": "Copied",
+      "listen": "Listen",
+      "stop": "Stop",
+      "share": "Share",
+      "retry": "Retry",
+      "thoughtFor": "Thought for {time}",
+      "thought": "Thought",
+      "thinking": "Thinking…",
+      "working": "Working…",
+      "stopped": "Stopped",
+      "jump": "Jump to latest",
+      "failed": "Response failed",
+      "loading": "Loading response…",
+      "replies": "Suggested replies"
     }
   },
   "landing": {

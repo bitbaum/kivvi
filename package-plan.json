@@ -1,0 +1,66 @@
+{
+  "blocks": {
+    "ai-chat": {
+      "package": "@bitbaum/chatkit",
+      "bindings": [
+        { "file": "apps/web/components/chat-widget/chat-messages.tsx", "symbols": ["ChatThread"] },
+        { "file": "apps/web/components/chat-widget/chat-input.tsx", "symbols": ["Composer"] }
+      ]
+    },
+    "ai-runtime": {
+      "package": "@bitbaum/ai-kit",
+      "bindings": [
+        { "file": "packages/ai/src/health.ts", "symbols": ["createHealthTracker"] },
+        { "file": "packages/ai/src/liveness.ts", "symbols": ["createAiHealthHandler"] }
+      ]
+    },
+    "ai-forms": {
+      "package": "ai-forms",
+      "bindings": [
+        {
+          "file": "apps/web/app/api/ai/form-assist/route.ts",
+          "symbols": ["createFormAssistHandler"]
+        },
+        { "file": "apps/web/lib/config/ai-forms.ts", "symbols": ["defineFields"] },
+        { "file": "apps/web/components/contacts/contact-form.tsx", "symbols": ["useAiForm"] }
+      ]
+    },
+    "mail": {
+      "package": "@bitbaum/mail-kit",
+      "bindings": [
+        { "file": "apps/web/lib/email/transporter.ts", "symbols": ["mailKitSendMail"] },
+        { "file": "apps/web/lib/config/email.ts", "symbols": ["isMailConfigured"] }
+      ]
+    },
+    "publishing": {
+      "package": "bip-kit",
+      "bindings": [
+        {
+          "file": "apps/web/lib/content/ArticleContent.tsx",
+          "symbols": ["ArticleBody", "MermaidBlock"]
+        },
+        {
+          "file": "apps/web/lib/content/knowledge.ts",
+          "symbols": ["parseContentBlocks", "extractToc"]
+        },
+        {
+          "file": "apps/web/app/(landing)/knowledge/[slug]/page.tsx",
+          "symbols": ["ReadingProgress"]
+        }
+      ]
+    },
+    "rate-limits": {
+      "package": "limitkit",
+      "bindings": [
+        { "file": "apps/web/lib/rate-limit.ts", "symbols": ["slidingWindow", "clientIp"] }
+      ]
+    }
+  },
+  "exceptions": {
+    "authentication": {
+      "package": "next-auth",
+      "status": "product-owned",
+      "reason": "Kivvi's tenant-aware ERP auth is integrated with its own account, invitation, and authorization workflows; the fleet migration must retain this app-specific boundary until the full lifecycle is proven against Kivvi's financial and tenant-isolation requirements."
+    }
+  }
+}

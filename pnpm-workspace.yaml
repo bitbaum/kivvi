@@ -19,7 +19,7 @@ minimumReleaseAgeExclude:
   # Pinned to the exact version: a bare name would exempt every FUTURE version
   # too, quietly disabling the gate for the package most likely to be installed
   # the minute it is released.
-  - "@bitbaum/ai-kit@0.15.0"
+  - "@bitbaum/ai-kit@1.21.4"
 
 allowBuilds:
   "@parcel/watcher": true

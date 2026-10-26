@@ -52,7 +52,7 @@ export default auth((req) => {
     return new NextResponse("Too Many Requests", {
       status: 429,
       headers: {
-        "Retry-After": Math.ceil(rateLimitResult.retryAfterMs / 1000).toString(),
+        "Retry-After": String(rateLimitResult.retryAfterSeconds),
       },
     });
   }
