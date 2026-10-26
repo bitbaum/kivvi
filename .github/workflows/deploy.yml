@@ -16,4 +16,5 @@ jobs:
     with:
       app: kivvi
       receipt-projects: apps/web,packages/ai
+      receipt-visibility: public
     secrets: inherit
