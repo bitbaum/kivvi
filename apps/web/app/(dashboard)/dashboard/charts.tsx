@@ -28,8 +28,8 @@ export function RevenueChart({ data, revenueLabel }: RevenueChartProps) {
           <XAxis dataKey="month" className="text-xs" />
           <YAxis className="text-xs" />
           <Tooltip
-            formatter={(value: number | undefined) => [
-              formatCurrency(value ?? 0),
+            formatter={(value) => [
+              formatCurrency(typeof value === "number" ? value : 0),
               revenueLabel || "Revenue",
             ]}
             contentStyle={{
@@ -67,7 +67,7 @@ export function AgingChart({ data }: AgingChartProps) {
             ))}
           </Pie>
           <Tooltip
-            formatter={(value: number | undefined) => [formatCurrency(value ?? 0)]}
+            formatter={(value) => formatCurrency(typeof value === "number" ? value : 0)}
             contentStyle={{
               backgroundColor: "hsl(var(--background))",
               border: "1px solid hsl(var(--border))",
