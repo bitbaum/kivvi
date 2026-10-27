@@ -88,8 +88,8 @@ importers:
         specifier: ^1.0.0
         version: 1.11.1(nodemailer@9.1.1)
       '@bitbaum/chatkit':
-        specifier: ^0.17.1
-        version: 0.17.1(react@18.3.1)
+        specifier: ^0.18.0
+        version: 0.18.0(react@18.3.1)
       '@bitbaum/mail-kit':
         specifier: ^0.2.0
         version: 0.2.0
@@ -284,8 +284,8 @@ importers:
         specifier: ^1.21.4
         version: 1.21.4(react@18.3.1)
       '@bitbaum/chatkit':
-        specifier: ^0.17.1
-        version: 0.17.1(react@18.3.1)
+        specifier: ^0.18.0
+        version: 0.18.0(react@18.3.1)
       '@kivvi/core':
         specifier: workspace:*
         version: link:../core
@@ -486,8 +486,8 @@ packages:
       react:
         optional: true
 
-  '@bitbaum/chatkit@0.17.1':
-    resolution: {integrity: sha512-obLB5G0sjgPlSrmjX18ln8LAuXJeLFetIT+/7TvXT94ZID6HcICuptdW+r/zUE7ZXPsZbghSzHG9aB47JNyJ+g==}
+  '@bitbaum/chatkit@0.18.0':
+    resolution: {integrity: sha512-1vwvWPe8/QldESe2HPHkRxKxdunljWRafdi2jIhbbz+mM7WdAi8lwr4GkcRgoFUgVWZDWII6mqoEkuqAla7fpg==}
     engines: {node: '>=20'}
     hasBin: true
     peerDependencies:
@@ -5806,7 +5806,7 @@ snapshots:
     transitivePeerDependencies:
       - canvas
 
-  '@bitbaum/chatkit@0.17.1(react@18.3.1)':
+  '@bitbaum/chatkit@0.18.0(react@18.3.1)':
     dependencies:
       react: 18.3.1
 
