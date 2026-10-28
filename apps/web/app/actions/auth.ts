@@ -19,6 +19,7 @@ import { getTranslations } from "next-intl/server";
 import { getTransporter, getFromEmail } from "@/lib/email/transporter";
 import { isEmailConfigured } from "@/lib/config/email";
 import { logger } from "@/lib/logger";
+import { passwordSchema } from "@/lib/password";
 
 // ============================================================================
 // VALIDATION SCHEMAS
@@ -52,7 +53,7 @@ export async function registerAction(input: unknown): Promise<ActionResult<Regis
     const registerSchema = z.object({
       name: z.string().min(2, t("nameMinLength")),
       email: z.string().email(t("emailInvalid")),
-      password: z.string().min(8, t("passwordMinLength")),
+      password: passwordSchema,
       companyName: createCompanySchema.shape.companyName.optional(),
     });
     const parsed = registerSchema.safeParse(input);
@@ -179,7 +180,7 @@ export async function registerAndAcceptInviteAction(
     const joinSchema = z.object({
       name: z.string().min(2, t("nameMinLength")),
       email: z.string().email(t("emailInvalid")),
-      password: z.string().min(8, t("passwordMinLength")),
+      password: passwordSchema,
     });
     const parsed = joinSchema.safeParse(input);
     if (!parsed.success) {

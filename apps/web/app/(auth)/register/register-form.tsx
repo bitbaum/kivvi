@@ -210,7 +210,6 @@ export function RegisterForm({ prefillEmail, callbackUrl }: RegisterFormProps) {
               onChange={handleChange}
               placeholder="••••••••"
               required
-              minLength={8}
               autoComplete="new-password"
               className="w-full rounded-lg border bg-background px-4 py-2.5 pr-11 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/20"
             />
@@ -224,7 +223,6 @@ export function RegisterForm({ prefillEmail, callbackUrl }: RegisterFormProps) {
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
-          <p className="mt-1.5 text-xs text-muted-foreground">{t("passwordMinLength")}</p>
         </div>
 
         <Button type="submit" disabled={isLoading} className="w-full shadow-sm">

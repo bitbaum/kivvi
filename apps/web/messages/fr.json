@@ -1995,7 +1995,6 @@
       "passwordMismatch": "Les mots de passe ne correspondent pas",
       "currentPasswordIncorrect": "Le mot de passe actuel est incorrect",
       "currentPasswordRequired": "Le mot de passe actuel est requis",
-      "passwordMinLength": "Au moins 8 caractères",
       "avatar": "Photo de profil",
       "uploadAvatar": "Télécharger une photo",
       "removeAvatar": "Supprimer la photo",
@@ -2569,7 +2568,6 @@
     "invalidResetToken": "Lien invalide ou expiré",
     "invalidResetTokenMessage": "Ce lien de réinitialisation est invalide ou a expiré. Veuillez en demander un nouveau.",
     "passwordMismatch": "Les mots de passe ne correspondent pas",
-    "passwordTooShort": "Le mot de passe doit contenir au moins 8 caractères",
     "businessOnAutopilot": "L'ERP pour l'économie circulaire",
     "features": {
       "aiInvoices": "Saisie IA : «50 laptops don UBS» — c'est fait",
@@ -2580,7 +2578,6 @@
     },
     "errorGeneric": "Une erreur est survenue. Veuillez réessayer.",
     "termsAndPrivacy": "En continuant, vous acceptez nos <terms>Conditions d'utilisation</terms> et notre <privacy>Politique de confidentialité</privacy>.",
-    "passwordMinLength": "Au moins 8 caractères",
     "nameMinLength": "Le nom doit comporter au moins 2 caractères",
     "emailInvalid": "Adresse e-mail invalide",
     "showPassword": "Afficher le mot de passe",

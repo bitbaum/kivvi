@@ -20,6 +20,7 @@ minimumReleaseAgeExclude:
   # too, quietly disabling the gate for the package most likely to be installed
   # the minute it is released.
   - "@bitbaum/ai-kit@1.21.4"
+  - "@bitbaum/accountkit@0.9.0"
 
 allowBuilds:
   "@parcel/watcher": true
