@@ -88,8 +88,8 @@ importers:
         specifier: ^0.9.0
         version: 0.9.0(@bitbaum/mail-kit@0.2.0)(drizzle-orm@0.45.3(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(postgres@3.4.8))(next@15.5.28(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.9.0)(@playwright/test@1.64.1)(@types/node@26.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
       '@bitbaum/chartkit':
-        specifier: ^0.4.0
-        version: 0.4.0(react@18.3.1)
+        specifier: ^0.5.0
+        version: 0.5.0(react@18.3.1)
       '@bitbaum/chatkit':
         specifier: ^0.21.1
         version: 0.21.1(react@18.3.1)
@@ -511,11 +511,11 @@ packages:
       react:
         optional: true
 
-  '@bitbaum/chartkit@0.4.0':
-    resolution: {integrity: sha512-ngZ9NP6PLL4wqoYUX5xuYtySZ1NIgH9btcqJfTJczbCOIG/LCBkEKHn8Kfs1RWfsPkOYXg9FFLnu1lbYrjAm5Q==}
+  '@bitbaum/chartkit@0.5.0':
+    resolution: {integrity: sha512-0qf8Ib72tXz3EsbPULzeKWMvw+2sOb0+Uc39d1qiXDcTDttMjWTCPMGIthdj4zYM6IjNXfujEb8m0x42yWwp9Q==}
     engines: {node: '>=20'}
     peerDependencies:
-      react: ^19
+      react: '>=18'
 
   '@bitbaum/chatkit@0.21.1':
     resolution: {integrity: sha512-4zTtBHEDJV3oTh8j8DlCGDpiIHC7jHlbhCgBip0QEFy+Py88P9+ZqVZWEeCvYi3IDt3X0WiBCLsM8B6PZRGKNw==}
@@ -5862,7 +5862,7 @@ snapshots:
     transitivePeerDependencies:
       - canvas
 
-  '@bitbaum/chartkit@0.4.0(react@18.3.1)':
+  '@bitbaum/chartkit@0.5.0(react@18.3.1)':
     dependencies:
       react: 18.3.1
 
