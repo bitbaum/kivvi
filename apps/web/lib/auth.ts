@@ -7,10 +7,11 @@ import { users, companies } from "@kivvi/database";
 import type { CompanySettings } from "@kivvi/database";
 import { eq } from "drizzle-orm";
 import { findMembership } from "@kivvi/core/src/domain/memberships";
+import { passwordSchema } from "./password";
 
 const loginSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(8),
+  password: passwordSchema,
 });
 
 export const { handlers, signIn, signOut, auth } = NextAuth({

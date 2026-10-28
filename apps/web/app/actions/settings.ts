@@ -16,6 +16,7 @@ import { createAction } from "./action-factory";
 import { getTranslations } from "next-intl/server";
 import { MAX_UPLOAD_SIZE_BYTES } from "@/lib/config/uploads";
 import { updateUserProfile } from "@kivvi/core/src/domain/profiles";
+import { passwordSchema } from "@/lib/password";
 
 // ============================================================================
 // COMPANY SETTINGS
@@ -298,7 +299,7 @@ export async function changePasswordAction(input: unknown): Promise<ActionResult
     const schema = z
       .object({
         currentPassword: z.string().min(1, t("currentPasswordRequired")),
-        newPassword: z.string().min(8, t("passwordMinLength")),
+        newPassword: passwordSchema,
         confirmPassword: z.string(),
       })
       .refine((data) => data.newPassword === data.confirmPassword, {

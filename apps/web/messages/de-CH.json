@@ -1995,7 +1995,6 @@
       "passwordMismatch": "Passwörter stimmen nicht überein",
       "currentPasswordIncorrect": "Aktuelles Passwort ist falsch",
       "currentPasswordRequired": "Aktuelles Passwort ist erforderlich",
-      "passwordMinLength": "Mindestens 8 Zeichen",
       "avatar": "Profilbild",
       "uploadAvatar": "Bild hochladen",
       "removeAvatar": "Bild entfernen",
@@ -2569,7 +2568,6 @@
     "invalidResetToken": "Ungültiger oder abgelaufener Link",
     "invalidResetTokenMessage": "Dieser Link zum Zurücksetzen des Passworts ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen an.",
     "passwordMismatch": "Passwörter stimmen nicht überein",
-    "passwordTooShort": "Passwort muss mindestens 8 Zeichen lang sein",
     "businessOnAutopilot": "Das ERP für die Kreislaufwirtschaft",
     "features": {
       "aiInvoices": "KI-Schnelleingabe: «50 Laptops aus UBS-Spende» — fertig",
@@ -2580,7 +2578,6 @@
     },
     "errorGeneric": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
     "termsAndPrivacy": "Durch Fortfahren stimmen Sie unseren <terms>Nutzungsbedingungen</terms> und der <privacy>Datenschutzrichtlinie</privacy> zu.",
-    "passwordMinLength": "Mindestens 8 Zeichen",
     "nameMinLength": "Name muss mindestens 2 Zeichen lang sein",
     "emailInvalid": "Ungültige E-Mail-Adresse",
     "showPassword": "Passwort anzeigen",

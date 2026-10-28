@@ -40,11 +40,6 @@ export function ResetPasswordForm() {
       return;
     }
 
-    if (password.length < 8) {
-      setError(t("passwordTooShort"));
-      return;
-    }
-
     if (!token) {
       setError(t("invalidResetToken"));
       return;
@@ -159,7 +154,6 @@ export function ResetPasswordForm() {
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••"
                       required
-                      minLength={8}
                       autoComplete="new-password"
                       className="w-full rounded-lg border bg-background px-4 py-2.5 pr-11 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/20"
                     />
@@ -173,7 +167,6 @@ export function ResetPasswordForm() {
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
-                  <p className="mt-1.5 text-xs text-muted-foreground">{t("passwordMinLength")}</p>
                 </div>
 
                 <div>
@@ -188,7 +181,6 @@ export function ResetPasswordForm() {
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="••••••••"
                       required
-                      minLength={8}
                       autoComplete="new-password"
                       className="w-full rounded-lg border bg-background px-4 py-2.5 pr-11 text-sm transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/20"
                     />

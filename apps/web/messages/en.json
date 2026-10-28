@@ -1995,7 +1995,6 @@
       "passwordMismatch": "Passwords do not match",
       "currentPasswordIncorrect": "Current password is incorrect",
       "currentPasswordRequired": "Current password is required",
-      "passwordMinLength": "At least 8 characters",
       "avatar": "Profile Picture",
       "uploadAvatar": "Upload picture",
       "removeAvatar": "Remove picture",
@@ -2569,7 +2568,6 @@
     "invalidResetToken": "Invalid or Expired Link",
     "invalidResetTokenMessage": "This password reset link is invalid or has expired. Please request a new one.",
     "passwordMismatch": "Passwords do not match",
-    "passwordTooShort": "Password must be at least 8 characters long",
     "businessOnAutopilot": "ERP for the Circular Economy",
     "features": {
       "aiInvoices": "AI intake: «50 laptops from UBS donation» — done",
@@ -2580,7 +2578,6 @@
     },
     "errorGeneric": "Something went wrong. Please try again.",
     "termsAndPrivacy": "By continuing, you agree to our <terms>Terms of Service</terms> and <privacy>Privacy Policy</privacy>.",
-    "passwordMinLength": "Must be at least 8 characters",
     "nameMinLength": "Name must be at least 2 characters",
     "emailInvalid": "Invalid email address",
     "showPassword": "Show password",

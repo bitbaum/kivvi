@@ -10,6 +10,7 @@ import type { ActionResult } from "./utils";
 import { sendPasswordResetEmail } from "./email";
 import { getTranslations } from "next-intl/server";
 import type { PasswordResetEmailStrings } from "@kivvi/core/src/domain/email";
+import { passwordSchema } from "@/lib/password";
 
 const requestResetSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -17,7 +18,7 @@ const requestResetSchema = z.object({
 
 const resetPasswordSchema = z.object({
   token: z.string().min(1, "Token is required"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  password: passwordSchema,
 });
 
 /**
