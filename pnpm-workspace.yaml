@@ -22,6 +22,7 @@ minimumReleaseAgeExclude:
   - "@bitbaum/ai-kit@1.21.4"
   - "@bitbaum/accountkit@0.9.0"
   - "@bitbaum/chartkit@0.3.0"
+  - limitkit@0.2.1
 
 allowBuilds:
   "@parcel/watcher": true
