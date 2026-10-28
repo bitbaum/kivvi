@@ -795,6 +795,7 @@
       "over90": ">90 Tage"
     },
     "charts": {
+      "period": "Zeitraum",
       "revenue": "Umsatzentwicklung",
       "revenueLabel": "Umsatz",
       "aging": "Fälligkeitsanalyse",
