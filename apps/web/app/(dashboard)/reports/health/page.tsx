@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { getSessionOrRedirect } from "@/lib/session";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { db } from "@/lib/db";
 import { getBusinessHealthMetrics } from "@kivvi/core/src/domain/dashboard";
 import { getSalesReport, getAgingReport } from "@kivvi/core/src/domain/reports";
@@ -167,6 +167,7 @@ async function HealthMetricsSection() {
 }
 
 async function ChartsSection() {
+  const locale = await getLocale();
   const session = await getSessionOrRedirect();
   const companyId = session.user.companyId;
   const t = await getTranslations("dashboard");
@@ -215,6 +216,8 @@ async function ChartsSection() {
         <h3 className="mb-4 font-semibold">{t("charts.revenue")}</h3>
         {revenuePoints.length > 0 ? (
           <ColumnChart
+            locale={locale}
+            periodLabel={t("charts.period")}
             series={[{ id: "revenue", label: t("charts.revenueLabel"), points: revenuePoints }]}
             unit={DEFAULT_CURRENCY}
             caption={t("charts.revenue")}
@@ -228,6 +231,8 @@ async function ChartsSection() {
         <h3 className="mb-4 font-semibold">{t("charts.aging")}</h3>
         {agingData.length > 0 ? (
           <ColumnChart
+            locale={locale}
+            periodLabel={t("charts.period")}
             series={[
               {
                 id: "open",

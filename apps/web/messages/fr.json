@@ -795,6 +795,7 @@
       "over90": ">90 Jours"
     },
     "charts": {
+      "period": "Période",
       "revenue": "Évolution du chiffre d'affaires",
       "revenueLabel": "Chiffre d'affaires",
       "aging": "Analyse d'échéance",

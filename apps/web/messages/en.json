@@ -795,6 +795,7 @@
       "over90": ">90 Days"
     },
     "charts": {
+      "period": "Period",
       "revenue": "Revenue Trend",
       "revenueLabel": "Revenue",
       "aging": "Aging Analysis",
