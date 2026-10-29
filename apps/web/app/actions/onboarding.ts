@@ -10,6 +10,7 @@ import { z } from "zod";
 import { type ActionResult, getSession, safeErrorMessage } from "./utils";
 import { createAction } from "./action-factory";
 import { getTranslations } from "next-intl/server";
+import { redactCompanySettings } from "@/lib/security/company-settings";
 import {
   initializeCompany,
   completeOnboarding,
@@ -354,7 +355,8 @@ export const getCompanyDetailsAction = createAction<
       city: company.city,
       country: company.country ?? DEFAULT_COUNTRY,
       vatNumber: company.vatNumber,
-      settings: (company.settings as CompanySettings) || {},
+      // Any member reaches this, viewers included: never the AI key itself.
+      settings: redactCompanySettings(company.settings as CompanySettings),
     };
   },
   errorMessage: () => getTranslations("onboarding").then((t) => t("errorGetCompanyDetails")),

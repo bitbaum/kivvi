@@ -9,6 +9,7 @@ import { SettingsSubpageHeader } from "@/components/settings-subpage-header";
 import { DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
 import { DEFAULT_CURRENCY, DEFAULT_COUNTRY } from "@kivvi/core/src/config/locale";
 import { DEFAULT_PAYMENT_TERMS_DAYS } from "@/lib/config/document-types";
+import { redactCompanySettings } from "@/lib/security/company-settings";
 import { CompanyForm } from "./company-form";
 import { Co2FactorsSection } from "./co2-factors-section";
 import { ShopUrlSection } from "./shop-url-section";
@@ -75,7 +76,7 @@ export default async function CompanySettingsPage() {
           logoBase64: settings.logoBase64 || null,
           aiProvider: settings.aiProvider || "",
           aiModel: settings.aiModel || "",
-          aiApiKey: settings.aiApiKey ? "********" : "",
+          aiApiKey: redactCompanySettings(settings).aiApiKey ?? "",
         }}
       />
 
