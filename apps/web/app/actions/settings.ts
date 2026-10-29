@@ -17,6 +17,7 @@ import { getTranslations } from "next-intl/server";
 import { MAX_UPLOAD_SIZE_BYTES } from "@/lib/config/uploads";
 import { updateUserProfile } from "@kivvi/core/src/domain/profiles";
 import { passwordSchema } from "@/lib/password";
+import { AI_KEY_MASK, redactCompanySettings } from "@/lib/security/company-settings";
 
 // ============================================================================
 // COMPANY SETTINGS
@@ -90,7 +91,7 @@ export const updateCompanyAction = createAction<unknown, Company | undefined>({
       aiProvider: parsed.data.aiProvider || existingSettings.aiProvider,
       aiModel: parsed.data.aiModel || existingSettings.aiModel,
       // Only update API key if not the mask placeholder
-      ...(parsed.data.aiApiKey && parsed.data.aiApiKey !== "********"
+      ...(parsed.data.aiApiKey && parsed.data.aiApiKey !== AI_KEY_MASK
         ? { aiApiKey: parsed.data.aiApiKey }
         : {}),
     };
@@ -112,7 +113,13 @@ export const updateCompanyAction = createAction<unknown, Company | undefined>({
       .where(eq(companies.id, companyId))
       .returning();
 
-    return company;
+    // The result goes back to the browser: the AI key stays on the server.
+    return (
+      company && {
+        ...company,
+        settings: redactCompanySettings(company.settings as CompanySettings),
+      }
+    );
   },
   revalidate: ["/settings"],
   errorMessage: () => getTranslations("settings").then((t) => t("errorUpdateCompany")),
