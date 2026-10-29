@@ -16,7 +16,7 @@ minimumReleaseAgeExclude:
   # held-back dependency.
   - "bip-kit"
   - "@bitbaum/ai-kit@1.21.4 || 1.21.5"
-  - "@bitbaum/accountkit@0.9.0 || 0.9.1 || 0.10.0 || 0.11.0"
+  - "@bitbaum/accountkit@0.9.0 || 0.9.1 || 0.10.0 || 0.11.0 || 0.12.0"
   - "@bitbaum/chartkit@0.5.0 || 0.6.0"
   - limitkit@0.2.1
 
