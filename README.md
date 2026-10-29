@@ -79,7 +79,7 @@ kivvi/
 
 **Data flow.** Server Action → domain function (transactional) → Drizzle → Postgres → `revalidatePath` → UI. The AI command bar calls the _same_ domain functions through tool definitions, so every AI action is auditable in `aiActionAudit`.
 
-Full engineering bible in [`CLAUDE.md`](CLAUDE.md).
+Engineering contract in [`AGENTS.md`](AGENTS.md).
 
 ## Tech stack
 
@@ -147,7 +147,7 @@ Same AI tools, same UX, zero data egress.
 
 ## Engineering principles
 
-Six ground truths, applied ruthlessly. Full reasoning in [`CLAUDE.md`](CLAUDE.md).
+Six ground truths, applied ruthlessly. Full reasoning in [`AGENTS.md`](AGENTS.md).
 
 1. **Software exists to serve humans.** Complexity must earn its place.
 2. **State defines behavior — one source of truth.** Types derived from schema. Constants centralized.

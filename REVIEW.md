@@ -2,7 +2,7 @@
 
 Judge the DIFF against these gates, in order. Flag correctness and requirement
 gaps only — lint owns style. Demand evidence (test output), not assertions.
-Global standards are loaded via CLAUDE.md; this file is ONLY kivvi's scars.
+Global standards are loaded via AGENTS.md; this file is ONLY kivvi's scars.
 
 ## Fatal invariants (one violation = block)
 
@@ -28,5 +28,5 @@ Global standards are loaded via CLAUDE.md; this file is ONLY kivvi's scars.
 ## Process gates
 
 - `verify`/`pnpm test` green before review; CI must pass on the PR.
-- Diff updates CLAUDE.md if it changes documented structure/behavior.
+- Diff updates AGENTS.md if it changes documented structure/behavior.
 - Second fix of the same bug class ships the rule/test that ends the class.
