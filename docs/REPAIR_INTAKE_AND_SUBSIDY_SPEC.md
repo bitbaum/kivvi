@@ -85,7 +85,7 @@ subsidyClaims
   createdAt / updatedAt
 ```
 
-> **Design note (unified document model, CLAUDE.md):** we do **not** create a per-type document table. `documents` stays the single doc table; `subsidyClaims` is an _extension detail_ table keyed by `documentId` — the same relationship `documentPayments` / `documentItems` already have to `documents`.
+> **Design note (unified document model, AGENTS.md):** we do **not** create a per-type document table. `documents` stays the single doc table; `subsidyClaims` is an _extension detail_ table keyed by `documentId` — the same relationship `documentPayments` / `documentItems` already have to `documents`.
 
 ### 3.2 Config SSOT — `packages/core/src/config/subsidy-programs.ts` (new)
 

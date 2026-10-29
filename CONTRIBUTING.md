@@ -5,7 +5,7 @@ Thanks for considering a contribution. Kivvi is open source under MIT — the go
 ## Before you start
 
 - Read [`PRODUCT.md`](PRODUCT.md) to understand what Kivvi is for. Generic "would be nice in any ERP" features are not in scope; secondhand-specific workflows are.
-- Read [`CLAUDE.md`](CLAUDE.md) for the engineering principles. They're not negotiable — they're why the code stays simple.
+- Read [`AGENTS.md`](AGENTS.md) for the engineering principles. They're not negotiable — they're why the code stays simple.
 
 ## Setup
 
