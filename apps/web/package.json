@@ -15,7 +15,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.115.0",
     "@auth/drizzle-adapter": "^1.0.0",
-    "@bitbaum/accountkit": "github:bitbaum/accountkit#4d62ab8ebed295a9b0af8bda0838fb01bd336418",
+    "@bitbaum/accountkit": "^0.10.0",
     "@bitbaum/chartkit": "^0.6.0",
     "@bitbaum/chatkit": "^0.21.2",
     "@bitbaum/mail-kit": "^0.2.0",
