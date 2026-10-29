@@ -1,7 +1,13 @@
 "use client";
 
 import { useState, useCallback, useRef } from "react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import {
+  AI_SETTINGS_PATH,
+  companyAiKeyRefusalText,
+  isCompanyAiKeyRefusal,
+  type CompanyAiKeyRefusal,
+} from "@/lib/company-ai-key-refusal";
 
 export interface CommandBarAction {
   label: string;
@@ -35,6 +41,7 @@ interface UseCommandBarAIReturn {
 
 export function useCommandBarAI(): UseCommandBarAIReturn {
   const locale = useLocale();
+  const t = useTranslations("ai");
   const [isProcessing, setIsProcessing] = useState(false);
   const [message, setMessage] = useState("");
   const [actions, setActions] = useState<CommandBarAction[]>([]);
@@ -52,6 +59,27 @@ export function useCommandBarAI(): UseCommandBarAIReturn {
     setToolResults([]);
     setError(null);
   }, []);
+
+  // The company's own AI key cannot be used: say so, and give an admin the way to fix it.
+  const showRefusal = useCallback(
+    (refusal: CompanyAiKeyRefusal) => {
+      setError(companyAiKeyRefusalText(refusal, t, { link: false }));
+      setActions(
+        refusal.canFix
+          ? [
+              {
+                label: t("companyKey.openSettings"),
+                action: "navigate",
+                params: { url: AI_SETTINGS_PATH },
+                variant: "primary",
+              },
+            ]
+          : [],
+      );
+      setIsProcessing(false);
+    },
+    [t],
+  );
 
   const cancel = useCallback(() => {
     abortRef.current?.abort();
@@ -89,6 +117,10 @@ export function useCommandBarAI(): UseCommandBarAIReturn {
 
           if (!response.ok) {
             const data = await response.json();
+            if (isCompanyAiKeyRefusal(data)) {
+              showRefusal(data);
+              return;
+            }
             throw new Error(data.error || "Request failed");
           }
 
@@ -126,6 +158,10 @@ export function useCommandBarAI(): UseCommandBarAIReturn {
                 } else if (data.type === "done") {
                   setIsProcessing(false);
                 } else if (data.type === "error") {
+                  if (isCompanyAiKeyRefusal(data)) {
+                    showRefusal(data);
+                    continue;
+                  }
                   throw new Error(data.error);
                 }
               } catch {
@@ -142,7 +178,7 @@ export function useCommandBarAI(): UseCommandBarAIReturn {
         }
       })();
     },
-    [isProcessing, locale],
+    [isProcessing, locale, showRefusal],
   );
 
   return {

@@ -1955,6 +1955,9 @@
       "aiModel": "Modell",
       "aiApiKey": "API-Schlüssel",
       "aiApiKeyHint": "Ihr API-Schlüssel wird verschlüsselt gespeichert und nie im Klartext angezeigt.",
+      "aiApiKeyUnreadable": "Der gespeicherte API-Schlüssel lässt sich nicht mehr lesen (das App-Geheimnis wurde geändert). Der Chat ist für diese Firma pausiert, bis Sie den Schlüssel neu eingeben.",
+      "aiApiKeyPlaintext": "Der gespeicherte API-Schlüssel ist noch nicht verschlüsselt. Speichern Sie ihn erneut, um ihn zu verschlüsseln.",
+      "aiApiKeyUnverified": "Gespeichert, aber noch nicht geprüft: Der Anbieter war beim Speichern nicht erreichbar.",
       "streetAddress": "Strasse",
       "postalCode": "PLZ",
       "city": "Ort",
@@ -4526,6 +4529,15 @@
     "errorReactivateContact": "Kontakt konnte nicht reaktiviert werden"
   },
   "ai": {
+    "companyKey": {
+      "unreadable": "Der eigene AI-Schlüssel dieser Firma lässt sich nicht mehr lesen.",
+      "noProvider": "Diese Firma hat einen eigenen AI-Schlüssel, aber keinen Anbieter dafür gewählt.",
+      "rejected": "Der Anbieter hat den eigenen AI-Schlüssel dieser Firma abgelehnt.",
+      "unavailable": "Der Anbieter für den eigenen AI-Schlüssel dieser Firma ist nicht erreichbar.",
+      "askAdmin": "Bitte bitten Sie eine Administratorin oder einen Administrator, die AI-Einstellungen zu prüfen.",
+      "fixAdmin": "Der Chat bleibt aus, bis der Schlüssel behoben ist; er wechselt nicht auf das gemeinsame AI-Konto.",
+      "openSettings": "AI-Einstellungen öffnen"
+    },
     "errorTextRequired": "Text ist erforderlich.",
     "errorNoProvider": "Kein AI-Anbieter verfügbar. Bitte konfigurieren Sie einen gültigen API-Schlüssel in den Einstellungen (Anthropic, OpenAI, OpenRouter oder Ollama).",
     "errorApiKeyInvalid": "Der API-Schlüssel ist ungültig oder abgelaufen. Bitte aktualisieren Sie ihn in der .env.local Datei.",

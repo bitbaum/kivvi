@@ -2,7 +2,8 @@ import { createCipheriv, createDecipheriv, createHash, randomBytes } from "crypt
 
 const PREFIX = "enc:v1:";
 
-function encryptionKey() {
+/** The app secret every at-rest encryption here starts from. Throws when none is configured. */
+export function applicationSecret(): string {
   const secret =
     process.env.INTEGRATION_SECRET || process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET;
 
@@ -10,7 +11,11 @@ function encryptionKey() {
     throw new Error("No application secret configured for integration secrets");
   }
 
-  return createHash("sha256").update(secret).digest();
+  return secret;
+}
+
+function encryptionKey() {
+  return createHash("sha256").update(applicationSecret()).digest();
 }
 
 export function encryptIntegrationSecret(value: string | undefined): string | undefined {

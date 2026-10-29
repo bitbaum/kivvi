@@ -2106,7 +2106,10 @@ export interface CompanySettings {
   logoMimeType?: string; // image/png, image/jpeg, image/svg+xml
   aiProvider?: AiProviderValue;
   aiModel?: string;
-  aiApiKey?: string; // encrypted
+  /** Sealed per company (apps/web/lib/security/company-ai-key-crypto.ts); a pre-encryption plaintext value is sealed on its next read. */
+  aiApiKey?: string;
+  /** Whether the provider confirmed the key when it was saved. `verified: false` = it could not be asked yet. */
+  aiApiKeyCheck?: { verified: boolean; checkedAt: string; note?: string };
   onboardingCompletedAt?: string; // ISO date, null = not done
   onboardingStep?: number; // 1-4, for resume
   /**

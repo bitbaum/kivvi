@@ -10,6 +10,8 @@ import { DEFAULT_VAT_RATE } from "@/lib/config/vat-rates";
 import { DEFAULT_CURRENCY, DEFAULT_COUNTRY } from "@kivvi/core/src/config/locale";
 import { DEFAULT_PAYMENT_TERMS_DAYS } from "@/lib/config/document-types";
 import { redactCompanySettings } from "@/lib/security/company-settings";
+import { sealStoredCompanyAiKey } from "@/lib/company-ai-key";
+import { openCompanyAiKey } from "@/lib/security/company-ai-key-crypto";
 import { CompanyForm } from "./company-form";
 import { Co2FactorsSection } from "./co2-factors-section";
 import { ShopUrlSection } from "./shop-url-section";
@@ -27,6 +29,10 @@ export default async function CompanySettingsPage() {
   if (!company) redirect("/settings");
 
   const settings = (company.settings as CompanySettings) ?? {};
+  // A key saved before encryption is sealed now, so the screen's "stored
+  // encrypted" is true by the time it is shown. What it is now decides the hint.
+  settings.aiApiKey = await sealStoredCompanyAiKey(db, company.id, settings.aiApiKey);
+  const aiKeyStatus = openCompanyAiKey(company.id, settings.aiApiKey).status;
   const [organizationProfile, companyVacancies, companyJoinRequests] = await Promise.all([
     db.query.organizationProfiles.findFirst({
       where: eq(organizationProfiles.companyId, company.id),
@@ -77,6 +83,11 @@ export default async function CompanySettingsPage() {
           aiProvider: settings.aiProvider || "",
           aiModel: settings.aiModel || "",
           aiApiKey: redactCompanySettings(settings).aiApiKey ?? "",
+        }}
+        aiKeyState={{
+          status: aiKeyStatus,
+          unverifiedNote:
+            settings.aiApiKeyCheck?.verified === false ? (settings.aiApiKeyCheck.note ?? "") : null,
         }}
       />
 

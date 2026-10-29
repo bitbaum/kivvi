@@ -1955,6 +1955,9 @@
       "aiModel": "Modèle",
       "aiApiKey": "Clé API",
       "aiApiKeyHint": "Votre clé API est stockée de manière chiffrée et jamais affichée en clair.",
+      "aiApiKeyUnreadable": "La clé API enregistrée ne peut plus être lue (le secret de l'application a changé). Le chat est suspendu pour cette entreprise jusqu'à ce que vous saisissiez à nouveau la clé.",
+      "aiApiKeyPlaintext": "La clé API enregistrée n'est pas encore chiffrée. Enregistrez-la à nouveau pour la chiffrer.",
+      "aiApiKeyUnverified": "Enregistrée, mais pas encore vérifiée : le fournisseur était injoignable au moment de l'enregistrement.",
       "streetAddress": "Rue",
       "postalCode": "Code postal",
       "city": "Ville",
@@ -4526,6 +4529,15 @@
     "errorReactivateContact": "Impossible de réactiver le contact"
   },
   "ai": {
+    "companyKey": {
+      "unreadable": "La clé IA propre à cette entreprise ne peut plus être lue.",
+      "noProvider": "Cette entreprise a sa propre clé IA, mais aucun fournisseur n'est choisi pour elle.",
+      "rejected": "Le fournisseur a refusé la clé IA propre à cette entreprise.",
+      "unavailable": "Le fournisseur de la clé IA propre à cette entreprise est injoignable.",
+      "askAdmin": "Veuillez demander à un administrateur de vérifier les paramètres IA.",
+      "fixAdmin": "Le chat reste désactivé jusqu'à ce que la clé soit corrigée ; il ne bascule pas sur le compte IA partagé.",
+      "openSettings": "Ouvrir les paramètres IA"
+    },
     "errorTextRequired": "Le texte est requis.",
     "errorNoProvider": "Aucun fournisseur d'IA disponible. Veuillez configurer une clé API valide dans les paramètres (Anthropic, OpenAI, OpenRouter ou Ollama).",
     "errorApiKeyInvalid": "La clé API est invalide ou expirée. Veuillez la mettre à jour dans votre fichier .env.local.",

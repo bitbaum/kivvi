@@ -5,8 +5,10 @@ import { Loader2, CheckCircle2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { updateCompanyAction } from "@/app/actions/settings";
 import { cn } from "@/lib/utils";
+import { AI_KEY_MASK } from "@/lib/security/company-settings";
+import type { CompanySettings } from "@kivvi/database";
 import { LogoUpload } from "./logo-upload";
-import { AIConfigSection } from "./ai-config-section";
+import { AIConfigSection, type AiKeyState } from "./ai-config-section";
 import {
   CompanyInfoSection,
   AddressSection,
@@ -36,14 +38,16 @@ interface CompanyFormProps {
     aiModel: string;
     aiApiKey: string;
   };
+  aiKeyState: AiKeyState;
 }
 
-export function CompanyForm({ initialData }: CompanyFormProps) {
+export function CompanyForm({ initialData, aiKeyState }: CompanyFormProps) {
   const t = useTranslations("settings");
   const tc = useTranslations("common");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [keyState, setKeyState] = useState(aiKeyState);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -76,6 +80,14 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
       const result = await updateCompanyAction(input);
 
       if (result.success) {
+        const check = (result.data?.settings as CompanySettings | null | undefined)?.aiApiKeyCheck;
+        if (input.aiApiKey && input.aiApiKey !== AI_KEY_MASK && check) {
+          // A new key was saved: it is sealed now, and verified or not yet.
+          setKeyState({
+            status: "sealed",
+            unverifiedNote: check.verified ? null : (check.note ?? ""),
+          });
+        }
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
       } else {
@@ -129,7 +141,7 @@ export function CompanyForm({ initialData }: CompanyFormProps) {
 
       <DocumentFooterSection defaultDocumentFooter={initialData.defaultDocumentFooter} />
 
-      <AIConfigSection initialData={initialData} />
+      <AIConfigSection initialData={initialData} keyState={keyState} />
 
       <div className="flex items-center justify-end">
         <button

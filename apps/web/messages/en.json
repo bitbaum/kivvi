@@ -1955,6 +1955,9 @@
       "aiModel": "Model",
       "aiApiKey": "API Key",
       "aiApiKeyHint": "Your API key is stored encrypted and never shown in plain text.",
+      "aiApiKeyUnreadable": "The saved API key can no longer be read (the app's secret has changed). Chat is paused for this company until you enter the key again.",
+      "aiApiKeyPlaintext": "The saved API key is not encrypted yet. Save it again to encrypt it.",
+      "aiApiKeyUnverified": "Saved, but not verified yet: the provider could not be reached when you saved it.",
       "streetAddress": "Street Address",
       "postalCode": "Postal Code",
       "city": "City",
@@ -4526,6 +4529,15 @@
     "errorReactivateContact": "Failed to reactivate contact"
   },
   "ai": {
+    "companyKey": {
+      "unreadable": "This company's own AI key can no longer be read.",
+      "noProvider": "This company has its own AI key, but no provider is chosen for it.",
+      "rejected": "The provider refused this company's own AI key.",
+      "unavailable": "The provider for this company's own AI key could not be reached.",
+      "askAdmin": "Please ask an admin to check the AI settings.",
+      "fixAdmin": "Chat stays off until the key is fixed; it does not switch to the shared AI account.",
+      "openSettings": "Open AI settings"
+    },
     "errorTextRequired": "Text is required.",
     "errorNoProvider": "No AI provider available. Please configure a valid API key in Settings (Anthropic, OpenAI, OpenRouter, or Ollama).",
     "errorApiKeyInvalid": "The API key is invalid or expired. Please update it in your .env.local file.",

@@ -18,6 +18,9 @@ import { MAX_UPLOAD_SIZE_BYTES } from "@/lib/config/uploads";
 import { updateUserProfile } from "@kivvi/core/src/domain/profiles";
 import { passwordSchema } from "@/lib/password";
 import { AI_KEY_MASK, redactCompanySettings } from "@/lib/security/company-settings";
+import { DomainError } from "@kivvi/core/src/domain-error";
+import { checkCompanyAiKey } from "@/lib/company-ai-key";
+import { sealCompanyAiKey } from "@/lib/security/company-ai-key-crypto";
 
 // ============================================================================
 // COMPANY SETTINGS
@@ -69,6 +72,28 @@ export const updateCompanyAction = createAction<unknown, Company | undefined>({
 
     const existingSettings = (existing?.settings as CompanySettings) ?? {};
 
+    // A newly entered key is checked with its provider, then stored sealed.
+    // A provider that cannot be asked right now (down, rate-limited) does not
+    // block the save: the key is stored and marked as not verified yet.
+    const newApiKey =
+      parsed.data.aiApiKey && parsed.data.aiApiKey !== AI_KEY_MASK
+        ? parsed.data.aiApiKey.trim()
+        : null;
+    let keyCheck: CompanySettings["aiApiKeyCheck"];
+    if (newApiKey) {
+      const verdict = await checkCompanyAiKey(
+        parsed.data.aiProvider || existingSettings.aiProvider,
+        newApiKey,
+        parsed.data.aiModel || existingSettings.aiModel,
+      );
+      if (!verdict.ok) throw new DomainError("AI_KEY_REJECTED", undefined, verdict.message);
+      keyCheck = {
+        verified: verdict.verified,
+        checkedAt: new Date().toISOString(),
+        ...(verdict.note ? { note: verdict.note } : {}),
+      };
+    }
+
     // Merge new values into settings JSONB
     const updatedSettings: CompanySettings = {
       ...existingSettings,
@@ -91,8 +116,8 @@ export const updateCompanyAction = createAction<unknown, Company | undefined>({
       aiProvider: parsed.data.aiProvider || existingSettings.aiProvider,
       aiModel: parsed.data.aiModel || existingSettings.aiModel,
       // Only update API key if not the mask placeholder
-      ...(parsed.data.aiApiKey && parsed.data.aiApiKey !== AI_KEY_MASK
-        ? { aiApiKey: parsed.data.aiApiKey }
+      ...(newApiKey
+        ? { aiApiKey: sealCompanyAiKey(companyId, newApiKey), aiApiKeyCheck: keyCheck }
         : {}),
     };
 
