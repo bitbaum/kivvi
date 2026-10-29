@@ -85,8 +85,8 @@ importers:
         specifier: ^1.0.0
         version: 1.11.1(nodemailer@9.1.1)
       '@bitbaum/accountkit':
-        specifier: github:bitbaum/accountkit#c9fb1e59e124638ca7a1c36e00a76fef8aba20c7
-        version: https://codeload.github.com/bitbaum/accountkit/tar.gz/c9fb1e59e124638ca7a1c36e00a76fef8aba20c7(@bitbaum/mail-kit@0.2.0)(drizzle-orm@0.45.3(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(postgres@3.4.8))(next@15.5.28(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.9.0)(@playwright/test@1.64.1)(@types/node@26.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
+        specifier: github:bitbaum/accountkit#4d62ab8ebed295a9b0af8bda0838fb01bd336418
+        version: https://codeload.github.com/bitbaum/accountkit/tar.gz/4d62ab8ebed295a9b0af8bda0838fb01bd336418(@bitbaum/mail-kit@0.2.0)(drizzle-orm@0.45.3(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(postgres@3.4.8))(next@15.5.28(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.9.0)(@playwright/test@1.64.1)(@types/node@26.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
       '@bitbaum/chartkit':
         specifier: ^0.6.0
         version: 0.6.0(react@18.3.1)
@@ -480,9 +480,9 @@ packages:
     resolution: {integrity: sha512-Vj1jF3cPfxg7OAfoI7QnVKLoILlm2JF9pnVHrX8qx7AHMiYWT+NDAA7jChlNgRS4WTLc/fD1lXLmPixluj+3Gg==}
     engines: {node: '>=6.9.0'}
 
-  '@bitbaum/accountkit@https://codeload.github.com/bitbaum/accountkit/tar.gz/c9fb1e59e124638ca7a1c36e00a76fef8aba20c7':
-    resolution: {gitHosted: true, integrity: sha512-3alEPLbzqhOr2Z/yefgT4vtt7YG9FKt1JJUwV0Co9zAJmC4G9jjoJ4mzO+I551IF0FD9eojxQ+pKReGgCmtunQ==, tarball: https://codeload.github.com/bitbaum/accountkit/tar.gz/c9fb1e59e124638ca7a1c36e00a76fef8aba20c7}
-    version: 0.9.2
+  '@bitbaum/accountkit@https://codeload.github.com/bitbaum/accountkit/tar.gz/4d62ab8ebed295a9b0af8bda0838fb01bd336418':
+    resolution: {gitHosted: true, integrity: sha512-yCKFPpUx/gIMuBn/d75LXG086lFr4N5EtryiJBP+ArgA5dkhSryupRQaHX78sRDRXeB+Pkeg4vIX8cY0MMpX6g==, tarball: https://codeload.github.com/bitbaum/accountkit/tar.gz/4d62ab8ebed295a9b0af8bda0838fb01bd336418}
+    version: 0.10.0
     engines: {node: '>=20'}
     peerDependencies:
       '@better-auth/passkey': ^1.7.10
@@ -5672,6 +5672,9 @@ packages:
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
+  zod@4.6.7:
+    resolution: {integrity: sha512-g8W2D2kU6a8untc053fX1uVBKzM7yqAxW/3zwk83+6RyF2+SKOuV+c0wBDhUwzV1PaGapmZH+rmcUzPf+3CGwg==}
+
   zustand@4.5.7:
     resolution: {integrity: sha512-CHOUy7mu3lbD6o6LJLfllpjkzhHXSBlX8B9+qPddUsIfeF5S/UZ5q0kmCsnRqT1UHFQZchNFDDzMbQsuesHWlw==}
     engines: {node: '>=12.7.0'}
@@ -5844,10 +5847,11 @@ snapshots:
       '@babel/helper-validator-identifier': 7.29.7
     optional: true
 
-  '@bitbaum/accountkit@https://codeload.github.com/bitbaum/accountkit/tar.gz/c9fb1e59e124638ca7a1c36e00a76fef8aba20c7(@bitbaum/mail-kit@0.2.0)(drizzle-orm@0.45.3(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(postgres@3.4.8))(next@15.5.28(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.9.0)(@playwright/test@1.64.1)(@types/node@26.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)':
+  '@bitbaum/accountkit@https://codeload.github.com/bitbaum/accountkit/tar.gz/4d62ab8ebed295a9b0af8bda0838fb01bd336418(@bitbaum/mail-kit@0.2.0)(drizzle-orm@0.45.3(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(postgres@3.4.8))(next@15.5.28(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.9.0)(@playwright/test@1.64.1)(@types/node@26.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)':
     dependencies:
       limitkit: 0.2.1
       react: 18.3.1
+      zod: 4.6.7
     optionalDependencies:
       '@bitbaum/mail-kit': 0.2.0
       drizzle-orm: 0.45.3(@neondatabase/serverless@0.9.5)(@opentelemetry/api@1.9.0)(@types/pg@8.11.6)(postgres@3.4.8)
@@ -11059,6 +11063,8 @@ snapshots:
   yocto-queue@0.1.0: {}
 
   zod@3.25.76: {}
+
+  zod@4.6.7: {}
 
   zustand@4.5.7(@types/react@18.3.27)(immer@11.1.4)(react@18.3.1):
     dependencies:
