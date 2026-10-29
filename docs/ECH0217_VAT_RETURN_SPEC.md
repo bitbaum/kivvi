@@ -54,7 +54,7 @@ The return needs both a **base (Entgelt)** and **tax per rate** — which live a
 
 ## 5. Ziffern mapping (effective method) — the config SSOT `‹verify numbers vs current ESTV form›`
 
-Encoded in `packages/core/src/config/vat-return.ts` (never hardcoded in the report):
+Will be encoded in `packages/core/src/config/vat-return.ts` (planned, not yet built; never hardcoded in the report):
 
 **Turnover / Umsatz**
 | Ziffer | Meaning | Kivvi source |
@@ -121,7 +121,7 @@ v1: implement **effektiv** end-to-end; build the config + XML block for Saldo/Pa
 - `generalInformation`: UID, reporting period (from/to), method, and **`sendingApplication` = Kivvi** (name/version).
 - Method block: **`effectiveReportingMethod`** (or `netTaxRateMethod` for Saldo) containing `turnoverComputation`, per-rate tax, **`acquisitionTax`** (Bezugsteuer), `inputTaxMaterialAndServices` (400), `inputTaxInvestments` (405), `payableTax`.
 - Serialize deterministically; **validate against the official XSD** at build/test time (fixture-based) and at generation time (fail loudly on a non-conformant document — a rejected upload is worse than a blocked export).
-- New `packages/core/src/domain/vat-return.ts`: `computeVatReturn(db, companyId, period)` → the Ziffern object (reused by the review screen); `serializeECH0217(vatReturn, company)` → validated XML string. Route: `GET /api/documents/vat-return/[period]/xml` (auth, tenant-scoped), returns the file for download.
+- New, planned `packages/core/src/domain/vat-return.ts` (not yet built): `computeVatReturn(db, companyId, period)` → the Ziffern object (reused by the review screen); `serializeECH0217(vatReturn, company)` → validated XML string. Route: `GET /api/documents/vat-return/[period]/xml` (auth, tenant-scoped), returns the file for download.
 
 ---
 

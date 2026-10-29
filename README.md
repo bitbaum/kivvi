@@ -10,7 +10,7 @@ The operating system for the circular economy. Built for businesses that sell us
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6.svg)](https://www.typescriptlang.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-14-black.svg)](https://nextjs.org/)
-[![Made in Switzerland](https://img.shields.io/badge/Made%20in-Switzerland-D52B1E.svg)](https://revampit.ch)
+[![Made in Switzerland](https://img.shields.io/badge/Made%20in-Switzerland-D52B1E.svg)](https://kivvi.ch)
 
 [**Live demo**](https://kivvi.ch) · [**Product brief**](PRODUCT.md) · [**Docs**](docs/) · [**Architecture**](#architecture)
 
@@ -79,7 +79,7 @@ kivvi/
 
 **Data flow.** Server Action → domain function (transactional) → Drizzle → Postgres → `revalidatePath` → UI. The AI command bar calls the _same_ domain functions through tool definitions, so every AI action is auditable in `aiActionAudit`.
 
-Full engineering bible in [`CLAUDE.md`](CLAUDE.md).
+Engineering contract in [`AGENTS.md`](AGENTS.md).
 
 ## Tech stack
 
@@ -147,7 +147,7 @@ Same AI tools, same UX, zero data egress.
 
 ## Engineering principles
 
-Six ground truths, applied ruthlessly. Full reasoning in [`CLAUDE.md`](CLAUDE.md).
+Six ground truths, applied ruthlessly. Full reasoning in [`AGENTS.md`](AGENTS.md).
 
 1. **Software exists to serve humans.** Complexity must earn its place.
 2. **State defines behavior — one source of truth.** Types derived from schema. Constants centralized.
@@ -165,7 +165,7 @@ Practical consequences:
 
 ## Roadmap
 
-**Shipped** (originated at [RevampIT](https://revampit.ch)):
+**Shipped**:
 
 - ✅ Multi-tenant company model, role-based access, team invitations
 - ✅ Unified document model — quote, order, delivery note, invoice, credit note, dunning
@@ -204,7 +204,7 @@ Found a vulnerability? See [`SECURITY.md`](SECURITY.md). Do _not_ open a public 
 
 ## Who builds this
 
-Kivvi originated at [RevampIT](https://revampit.ch) (Zürich) — founder overlap with that nonprofit IT refurbisher — for secondhand shops that want their software to fit their workflow, not the other way around.
+Kivvi is built by [bitbaum](https://github.com/bitbaum) in Zürich for secondhand shops that want their software to fit their workflow, not the other way around.
 
 If you run a Brockenhaus, refurbishing workshop, or vintage shop and your ERP is fighting you, [get in touch](https://kivvi.ch).
 

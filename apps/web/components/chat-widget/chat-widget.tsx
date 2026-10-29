@@ -32,8 +32,7 @@ export function ChatWidget() {
     modelDisplayName,
   } = useChatWidget();
 
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   // Cmd/Ctrl+J to toggle, Escape to close
   useKeyboardShortcuts([
@@ -51,13 +50,6 @@ export function ChatWidget() {
     },
   ]);
 
-  // Auto-scroll on new messages
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages]);
-
   // Auto-focus input when opened
   useEffect(() => {
     if (isOpen) {
@@ -69,12 +61,6 @@ export function ChatWidget() {
 
   // Hide on /chat page
   if (pathname === "/chat") return null;
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || isLoading) return;
-    await sendMessage();
-  };
 
   const handleSuggestion = (suggestion: string) => {
     sendMessage(suggestion);
@@ -207,7 +193,14 @@ export function ChatWidget() {
             </div>
           </div>
         ) : (
-          <ChatMessages messages={messages} isLoading={isLoading} scrollRef={scrollRef} compact />
+          <ChatMessages
+            onReply={(text) => {
+              void sendMessage(text);
+            }}
+            messages={messages}
+            isLoading={isLoading}
+            compact
+          />
         )}
 
         {/* Input */}
@@ -215,9 +208,10 @@ export function ChatWidget() {
           <ChatInput
             input={input}
             setInput={setInput}
-            onSubmit={handleSubmit}
+            onSend={sendMessage}
             isLoading={isLoading}
             inputRef={inputRef}
+            compact
           />
         </div>
       </div>

@@ -8,17 +8,17 @@ packages:
 # @bitbaum/mail-kit is our own just-published package; exempt it from the
 # minimum-release-age hold so it can install on day one.
 minimumReleaseAgeExclude:
+  - "@bitbaum/chatkit"
   - "@bitbaum/mail-kit"
   # bip-kit is ours too (bitbaum/bip-kit); the 0.2.x line is days old. Without
   # this entry `pnpm install --frozen-lockfile` refuses it in CI as a bare
   # exit-1 with no annotation, which reads like a broken build rather than a
   # held-back dependency.
   - "bip-kit"
-  # Ours, published from this fleet minutes ago by its OIDC trusted publisher.
-  # Pinned to the exact version: a bare name would exempt every FUTURE version
-  # too, quietly disabling the gate for the package most likely to be installed
-  # the minute it is released. 1.18.0 is apps/web's (the own-key check).
-  - "@bitbaum/ai-kit@0.15.0 || 1.18.0"
+  - "@bitbaum/ai-kit@1.21.4 || 1.21.5"
+  - "@bitbaum/accountkit@0.9.0 || 0.9.1 || 0.10.0 || 0.11.0 || 0.12.0 || 0.13.0 || 0.14.0"
+  - "@bitbaum/chartkit@0.5.0 || 0.6.0"
+  - limitkit@0.2.1
 
 allowBuilds:
   "@parcel/watcher": true

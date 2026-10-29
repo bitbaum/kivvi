@@ -1,5 +1,15 @@
 // Chat API route
-import { openCompanyAiKey } from "@/lib/company-ai-key";
+import {
+  classifyOwnKeyFailure,
+  looksLikeKeyRejection,
+  resolveCompanyAiRoute,
+  sealStoredCompanyAiKey,
+} from "@/lib/company-ai-key";
+import {
+  COMPANY_AI_KEY_REFUSAL,
+  type CompanyAiKeyProblem,
+  type CompanyAiKeyRefusal,
+} from "@/lib/company-ai-key-refusal";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { aiConversations, aiMessages } from "@kivvi/database";
@@ -194,6 +204,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Message is required" }, { status: 400 });
     }
 
+    const companyId = session.user.companyId;
+
+    // Load company settings for vertical, org profile and the AI route.
+    const settings = await getCompanySettings(db, companyId);
+    // Read-and-rewrite: a key saved before encryption is sealed on this read.
+    settings.aiApiKey = await sealStoredCompanyAiKey(db, companyId, settings.aiApiKey);
+
+    // A company that chose its own AI key is served by that key or not at all:
+    // when it cannot be used, chat refuses instead of using the shared keys.
+    const aiRoute = resolveCompanyAiRoute(companyId, settings);
+    const refusal = (problem: CompanyAiKeyProblem): CompanyAiKeyRefusal => ({
+      code: COMPANY_AI_KEY_REFUSAL,
+      problem,
+      canFix: session.user.role === "admin" || session.user.role === "owner",
+    });
+    const refuse = (problem: CompanyAiKeyProblem) =>
+      NextResponse.json(
+        { error: "The company's own AI key cannot be used.", ...refusal(problem) },
+        { status: 409 },
+      );
+    if (aiRoute.kind === "refuse") return refuse(aiRoute.problem);
+
     // Get or create conversation (skip persistence in command mode)
     let conversation: { id: string } | undefined;
     let previousMessages: Message[] = [];
@@ -234,7 +266,7 @@ export async function POST(request: NextRequest) {
         .insert(aiConversations)
         .values({
           userId: session.user.id,
-          companyId: session.user.companyId,
+          companyId,
           title: message.slice(0, 100),
         })
         .returning();
@@ -251,13 +283,18 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Load company settings for vertical and org profile
-    const settings = await getCompanySettings(db, session.user.companyId);
-
-    // Determine provider and model — user selection > company settings > env fallback
-    const selectedProvider = (providerId || settings.aiProvider || process.env.AI_PROVIDER) as
-      ProviderType | undefined;
-    const selectedModel = (modelId || settings.aiModel) as string | undefined;
+    // Determine provider and model. With the company's own key, its provider is
+    // fixed and a picked model applies only to that provider. Otherwise: user
+    // selection > company settings > env fallback.
+    const ownKey = aiRoute.kind === "own" ? aiRoute : null;
+    const selectedProvider = (
+      ownKey ? ownKey.provider : providerId || settings.aiProvider || process.env.AI_PROVIDER
+    ) as ProviderType | undefined;
+    const selectedModel = (
+      ownKey
+        ? (providerId === ownKey.provider && modelId) || settings.aiModel
+        : modelId || settings.aiModel
+    ) as string | undefined;
 
     // Build execution context
     const context: ExecutionContext = {
@@ -277,21 +314,20 @@ export async function POST(request: NextRequest) {
     // Build business snapshot for system prompt context
     const snapshot = await getBusinessSnapshot(db, session.user.companyId, context.defaultCurrency);
 
-    // Initialize AI provider with fallback chain
-    const env = {
-      GROQ_API_KEY: process.env.GROQ_API_KEY,
-      XAI_API_KEY: process.env.XAI_API_KEY,
-      OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
-      ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
-      OLLAMA_BASE_URL: process.env.OLLAMA_BASE_URL,
-    };
+    // Initialize AI provider with fallback chain. With the company's own key the
+    // chain is empty: there is nothing to fall back to, by design.
+    const env = ownKey
+      ? {}
+      : {
+          GROQ_API_KEY: process.env.GROQ_API_KEY,
+          XAI_API_KEY: process.env.XAI_API_KEY,
+          OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
+          ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
+          OLLAMA_BASE_URL: process.env.OLLAMA_BASE_URL,
+        };
 
     const getApiKey = (provider: ProviderType): string | undefined => {
-      // Per-company API key takes priority for matching provider
-      const companyKey = openCompanyAiKey(settings.aiApiKey);
-      if (companyKey && settings.aiProvider === provider) {
-        return companyKey;
-      }
+      if (ownKey) return ownKey.apiKey;
       switch (provider) {
         case "groq":
           return process.env.GROQ_API_KEY;
@@ -306,21 +342,26 @@ export async function POST(request: NextRequest) {
       }
     };
 
-    const {
-      provider,
-      providerId: activeProviderId,
-      modelId: fallbackModelId,
-    } = await createProviderWithFallback(
-      env,
-      selectedProvider
-        ? {
-            type: selectedProvider,
-            apiKey: getApiKey(selectedProvider),
-            baseUrl: selectedProvider === "ollama" ? process.env.OLLAMA_BASE_URL : undefined,
-            model: selectedModel,
-          }
-        : undefined,
-    );
+    let chain: Awaited<ReturnType<typeof createProviderWithFallback>>;
+    try {
+      chain = await createProviderWithFallback(
+        env,
+        selectedProvider
+          ? {
+              type: selectedProvider,
+              apiKey: getApiKey(selectedProvider),
+              baseUrl: selectedProvider === "ollama" ? process.env.OLLAMA_BASE_URL : undefined,
+              model: selectedModel,
+            }
+          : undefined,
+      );
+    } catch (error) {
+      // The company's own provider refused or is down. Not evidence about the
+      // shared AI layer, so the health tracker is left alone.
+      if (ownKey) return refuse(classifyOwnKeyFailure(error));
+      throw error;
+    }
+    const { provider, providerId: activeProviderId, modelId: fallbackModelId } = chain;
 
     // Only use the user-selected model if the provider didn't change via fallback
     const activeModel =
@@ -399,6 +440,14 @@ export async function POST(request: NextRequest) {
           }
         } catch (error) {
           logger.error("Stream error", error);
+          if (ownKey && looksLikeKeyRejection(error)) {
+            controller.enqueue(
+              encoder.encode(
+                `data: ${JSON.stringify({ type: "error", error: "The company's own AI key cannot be used.", ...refusal("rejected") })}\n\n`,
+              ),
+            );
+            return;
+          }
           recordAIHealthFailure(error);
           const fallback = await buildProviderFailureFallback({
             message,

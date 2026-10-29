@@ -795,6 +795,7 @@
       "over90": ">90 Days"
     },
     "charts": {
+      "period": "Period",
       "revenue": "Revenue Trend",
       "revenueLabel": "Revenue",
       "aging": "Aging Analysis",
@@ -1954,6 +1955,9 @@
       "aiModel": "Model",
       "aiApiKey": "API Key",
       "aiApiKeyHint": "Your API key is stored encrypted and never shown in plain text.",
+      "aiApiKeyUnreadable": "The saved API key can no longer be read (the app's secret has changed). Chat is paused for this company until you enter the key again.",
+      "aiApiKeyPlaintext": "The saved API key is not encrypted yet. Save it again to encrypt it.",
+      "aiApiKeyUnverified": "Saved, but not verified yet: the provider could not be reached when you saved it.",
       "streetAddress": "Street Address",
       "postalCode": "Postal Code",
       "city": "City",
@@ -1995,7 +1999,6 @@
       "passwordMismatch": "Passwords do not match",
       "currentPasswordIncorrect": "Current password is incorrect",
       "currentPasswordRequired": "Current password is required",
-      "passwordMinLength": "At least 8 characters",
       "avatar": "Profile Picture",
       "uploadAvatar": "Upload picture",
       "removeAvatar": "Remove picture",
@@ -2569,7 +2572,6 @@
     "invalidResetToken": "Invalid or Expired Link",
     "invalidResetTokenMessage": "This password reset link is invalid or has expired. Please request a new one.",
     "passwordMismatch": "Passwords do not match",
-    "passwordTooShort": "Password must be at least 8 characters long",
     "businessOnAutopilot": "ERP for the Circular Economy",
     "features": {
       "aiInvoices": "AI intake: «50 laptops from UBS donation» — done",
@@ -2580,7 +2582,6 @@
     },
     "errorGeneric": "Something went wrong. Please try again.",
     "termsAndPrivacy": "By continuing, you agree to our <terms>Terms of Service</terms> and <privacy>Privacy Policy</privacy>.",
-    "passwordMinLength": "Must be at least 8 characters",
     "nameMinLength": "Name must be at least 2 characters",
     "emailInvalid": "Invalid email address",
     "showPassword": "Show password",
@@ -2754,6 +2755,23 @@
       "openrouter": "OpenRouter",
       "ollama": "Local (Ollama)",
       "anthropic": "Anthropic"
+    },
+    "thread": {
+      "copy": "Copy",
+      "copied": "Copied",
+      "listen": "Listen",
+      "stop": "Stop",
+      "share": "Share",
+      "retry": "Retry",
+      "thoughtFor": "Thought for {time}",
+      "thought": "Thought",
+      "thinking": "Thinking…",
+      "working": "Working…",
+      "stopped": "Stopped",
+      "jump": "Jump to latest",
+      "failed": "Response failed",
+      "loading": "Loading response…",
+      "replies": "Suggested replies"
     }
   },
   "landing": {
@@ -4511,6 +4529,15 @@
     "errorReactivateContact": "Failed to reactivate contact"
   },
   "ai": {
+    "companyKey": {
+      "unreadable": "This company's own AI key can no longer be read.",
+      "noProvider": "This company has its own AI key, but no provider is chosen for it.",
+      "rejected": "The provider refused this company's own AI key.",
+      "unavailable": "The provider for this company's own AI key could not be reached.",
+      "askAdmin": "Please ask an admin to check the AI settings.",
+      "fixAdmin": "Chat stays off until the key is fixed; it does not switch to the shared AI account.",
+      "openSettings": "Open AI settings"
+    },
     "errorTextRequired": "Text is required.",
     "errorNoProvider": "No AI provider available. Please configure a valid API key in Settings (Anthropic, OpenAI, OpenRouter, or Ollama).",
     "errorApiKeyInvalid": "The API key is invalid or expired. Please update it in your .env.local file.",

@@ -795,6 +795,7 @@
       "over90": ">90 Tage"
     },
     "charts": {
+      "period": "Zeitraum",
       "revenue": "Umsatzentwicklung",
       "revenueLabel": "Umsatz",
       "aging": "Fälligkeitsanalyse",
@@ -1954,6 +1955,9 @@
       "aiModel": "Modell",
       "aiApiKey": "API-Schlüssel",
       "aiApiKeyHint": "Ihr API-Schlüssel wird verschlüsselt gespeichert und nie im Klartext angezeigt.",
+      "aiApiKeyUnreadable": "Der gespeicherte API-Schlüssel lässt sich nicht mehr lesen (das App-Geheimnis wurde geändert). Der Chat ist für diese Firma pausiert, bis Sie den Schlüssel neu eingeben.",
+      "aiApiKeyPlaintext": "Der gespeicherte API-Schlüssel ist noch nicht verschlüsselt. Speichern Sie ihn erneut, um ihn zu verschlüsseln.",
+      "aiApiKeyUnverified": "Gespeichert, aber noch nicht geprüft: Der Anbieter war beim Speichern nicht erreichbar.",
       "streetAddress": "Strasse",
       "postalCode": "PLZ",
       "city": "Ort",
@@ -1995,7 +1999,6 @@
       "passwordMismatch": "Passwörter stimmen nicht überein",
       "currentPasswordIncorrect": "Aktuelles Passwort ist falsch",
       "currentPasswordRequired": "Aktuelles Passwort ist erforderlich",
-      "passwordMinLength": "Mindestens 8 Zeichen",
       "avatar": "Profilbild",
       "uploadAvatar": "Bild hochladen",
       "removeAvatar": "Bild entfernen",
@@ -2569,7 +2572,6 @@
     "invalidResetToken": "Ungültiger oder abgelaufener Link",
     "invalidResetTokenMessage": "Dieser Link zum Zurücksetzen des Passworts ist ungültig oder abgelaufen. Bitte fordern Sie einen neuen an.",
     "passwordMismatch": "Passwörter stimmen nicht überein",
-    "passwordTooShort": "Passwort muss mindestens 8 Zeichen lang sein",
     "businessOnAutopilot": "Das ERP für die Kreislaufwirtschaft",
     "features": {
       "aiInvoices": "KI-Schnelleingabe: «50 Laptops aus UBS-Spende» — fertig",
@@ -2580,7 +2582,6 @@
     },
     "errorGeneric": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
     "termsAndPrivacy": "Durch Fortfahren stimmen Sie unseren <terms>Nutzungsbedingungen</terms> und der <privacy>Datenschutzrichtlinie</privacy> zu.",
-    "passwordMinLength": "Mindestens 8 Zeichen",
     "nameMinLength": "Name muss mindestens 2 Zeichen lang sein",
     "emailInvalid": "Ungültige E-Mail-Adresse",
     "showPassword": "Passwort anzeigen",
@@ -2754,6 +2755,23 @@
       "openrouter": "OpenRouter",
       "ollama": "Lokal (Ollama)",
       "anthropic": "Anthropic"
+    },
+    "thread": {
+      "copy": "Kopieren",
+      "copied": "Kopiert",
+      "listen": "Vorlesen",
+      "stop": "Stopp",
+      "share": "Teilen",
+      "retry": "Erneut versuchen",
+      "thoughtFor": "Gedankenzeit: {time}",
+      "thought": "Gedanken",
+      "thinking": "Denke nach…",
+      "working": "Arbeite…",
+      "stopped": "Gestoppt",
+      "jump": "Zu den neuesten Nachrichten",
+      "failed": "Antwort fehlgeschlagen",
+      "loading": "Antwort wird geladen…",
+      "replies": "Antwortvorschläge"
     }
   },
   "landing": {
@@ -4511,6 +4529,15 @@
     "errorReactivateContact": "Kontakt konnte nicht reaktiviert werden"
   },
   "ai": {
+    "companyKey": {
+      "unreadable": "Der eigene AI-Schlüssel dieser Firma lässt sich nicht mehr lesen.",
+      "noProvider": "Diese Firma hat einen eigenen AI-Schlüssel, aber keinen Anbieter dafür gewählt.",
+      "rejected": "Der Anbieter hat den eigenen AI-Schlüssel dieser Firma abgelehnt.",
+      "unavailable": "Der Anbieter für den eigenen AI-Schlüssel dieser Firma ist nicht erreichbar.",
+      "askAdmin": "Bitte bitten Sie eine Administratorin oder einen Administrator, die AI-Einstellungen zu prüfen.",
+      "fixAdmin": "Der Chat bleibt aus, bis der Schlüssel behoben ist; er wechselt nicht auf das gemeinsame AI-Konto.",
+      "openSettings": "AI-Einstellungen öffnen"
+    },
     "errorTextRequired": "Text ist erforderlich.",
     "errorNoProvider": "Kein AI-Anbieter verfügbar. Bitte konfigurieren Sie einen gültigen API-Schlüssel in den Einstellungen (Anthropic, OpenAI, OpenRouter oder Ollama).",
     "errorApiKeyInvalid": "Der API-Schlüssel ist ungültig oder abgelaufen. Bitte aktualisieren Sie ihn in der .env.local Datei.",

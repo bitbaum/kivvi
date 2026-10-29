@@ -1,12 +1,12 @@
 import { Suspense } from "react";
 import { getSessionOrRedirect } from "@/lib/session";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { db } from "@/lib/db";
 import { getBusinessHealthMetrics } from "@kivvi/core/src/domain/dashboard";
 import { getSalesReport, getAgingReport } from "@kivvi/core/src/domain/reports";
 import { formatCurrency } from "@/lib/utils";
-import { AGING_BUCKET_COLORS } from "@/lib/config/chart-colors";
-import { RevenueChart, AgingChart } from "../../dashboard/charts";
+import { ColumnChart } from "@bitbaum/chartkit/react";
+import { DEFAULT_CURRENCY } from "@kivvi/core/src/config/locale";
 import { Skeleton } from "@/components/ui/skeleton";
 import { logger } from "@/lib/logger";
 import { TrendingUp, Target, Wallet, Clock, DollarSign, Users, ArrowLeft } from "lucide-react";
@@ -167,6 +167,7 @@ async function HealthMetricsSection() {
 }
 
 async function ChartsSection() {
+  const locale = await getLocale();
   const session = await getSessionOrRedirect();
   const companyId = session.user.companyId;
   const t = await getTranslations("dashboard");
@@ -184,36 +185,28 @@ async function ChartsSection() {
     getAgingReport(db, companyId, new Date().toISOString().split("T")[0]),
   ]);
 
-  const revenueData = salesReport.rows.map((r) => ({
-    month: r.month,
-    revenue: Number(r.revenue),
-  }));
+  const revenuePoints = salesReport.rows.map((r) => ({ x: r.month, y: Number(r.revenue) }));
 
   const agingData = [
     {
       name: t("aging.current"),
       value: Number(agingReport.totals.current),
-      color: AGING_BUCKET_COLORS.current,
     },
     {
       name: t("aging.days30"),
       value: Number(agingReport.totals.days30),
-      color: AGING_BUCKET_COLORS.days30,
     },
     {
       name: t("aging.days60"),
       value: Number(agingReport.totals.days60),
-      color: AGING_BUCKET_COLORS.days60,
     },
     {
       name: t("aging.days90"),
       value: Number(agingReport.totals.days90),
-      color: AGING_BUCKET_COLORS.days90,
     },
     {
       name: t("aging.over90"),
       value: Number(agingReport.totals.over90),
-      color: AGING_BUCKET_COLORS.over90,
     },
   ].filter((d) => d.value > 0);
 
@@ -221,8 +214,15 @@ async function ChartsSection() {
     <div className="grid gap-6 md:grid-cols-2">
       <div className="rounded-xl border bg-card p-6">
         <h3 className="mb-4 font-semibold">{t("charts.revenue")}</h3>
-        {revenueData.length > 0 ? (
-          <RevenueChart data={revenueData} revenueLabel={t("charts.revenueLabel")} />
+        {revenuePoints.length > 0 ? (
+          <ColumnChart
+            locale={locale}
+            periodLabel={t("charts.period")}
+            series={[{ id: "revenue", label: t("charts.revenueLabel"), points: revenuePoints }]}
+            unit={DEFAULT_CURRENCY}
+            caption={t("charts.revenue")}
+            height={260}
+          />
         ) : (
           <p className="py-12 text-center text-muted-foreground">{t("charts.noRevenue")}</p>
         )}
@@ -230,7 +230,20 @@ async function ChartsSection() {
       <div className="rounded-xl border bg-card p-6">
         <h3 className="mb-4 font-semibold">{t("charts.aging")}</h3>
         {agingData.length > 0 ? (
-          <AgingChart data={agingData} />
+          <ColumnChart
+            locale={locale}
+            periodLabel={t("charts.period")}
+            series={[
+              {
+                id: "open",
+                label: t("charts.aging"),
+                points: agingData.map((d) => ({ x: d.name, y: d.value })),
+              },
+            ]}
+            unit={DEFAULT_CURRENCY}
+            caption={t("charts.aging")}
+            height={260}
+          />
         ) : (
           <p className="py-12 text-center text-muted-foreground">{t("charts.noInvoices")}</p>
         )}

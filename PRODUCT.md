@@ -46,7 +46,7 @@ AI fills forms, suggests prices, and handles routine work. But it never makes ir
 
 ### Persona 1: The Computer Refurbisher
 
-**Example**: revamp-it (Zürich), Büro Mühle, TechInTheBox
+**Example**: Büro Mühle, TechInTheBox
 
 ~20-person nonprofit. Receives donated computers from companies and individuals. Tests, repairs, installs Linux, sells at flexible prices. Ships to social projects (Linuxola, Compirat). Uses Kivitendo today — unreliable stock counts, no condition tracking, no intake workflow.
 

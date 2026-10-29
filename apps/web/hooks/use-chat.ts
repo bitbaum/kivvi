@@ -3,6 +3,19 @@
 import { useState, useCallback, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { logger } from "@/lib/logger";
+import {
+  companyAiKeyRefusalText,
+  isCompanyAiKeyRefusal,
+  type CompanyAiKeyRefusal,
+} from "@/lib/company-ai-key-refusal";
+
+/** Chat was refused because the company's own AI key cannot be used. */
+class CompanyAiKeyRefusedError extends Error {
+  constructor(readonly refusal: CompanyAiKeyRefusal) {
+    super("The company's own AI key cannot be used.");
+    this.name = "CompanyAiKeyRefusedError";
+  }
+}
 
 const CHAT_REQUEST_TIMEOUT_MS = 45_000;
 
@@ -108,6 +121,7 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
 
         if (!response.ok) {
           const errorData = await response.json();
+          if (isCompanyAiKeyRefusal(errorData)) throw new CompanyAiKeyRefusedError(errorData);
           throw new Error(errorData.error || "Failed to send message");
         }
 
@@ -186,6 +200,7 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
                 };
                 options.onFinish?.(finalMessage);
               } else if (data.type === "error") {
+                if (isCompanyAiKeyRefusal(data)) throw new CompanyAiKeyRefusedError(data);
                 throw new Error(data.error || "Failed to send message");
               }
             }
@@ -219,7 +234,9 @@ export function useChat(options: UseChatOptions = {}): UseChatReturn {
           const isUnreachable =
             errorMsg.includes("not reachable") || errorMsg.includes("unreachable");
           let displayError: string;
-          if (isProviderError) {
+          if (error instanceof CompanyAiKeyRefusedError) {
+            displayError = companyAiKeyRefusalText(error.refusal, t, { link: true });
+          } else if (isProviderError) {
             displayError = t("errorNoProvider");
           } else if (isApiKeyError) {
             displayError = t("errorApiKeyInvalid");

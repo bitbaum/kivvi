@@ -15,4 +15,6 @@ jobs:
     uses: bitbaum/loki/.github/workflows/selfhost-deploy.yml@main
     with:
       app: kivvi
+      receipt-projects: apps/web,packages/ai
+      receipt-visibility: public
     secrets: inherit

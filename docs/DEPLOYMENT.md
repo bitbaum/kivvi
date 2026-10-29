@@ -483,6 +483,22 @@ pnpm db:migrate    # applies it
 
 Run `pnpm db:migrate` before first start and after every upgrade that includes schema changes.
 
+### Company AI keys (one-off, after upgrading past plaintext keys)
+
+A company's own AI key is stored encrypted per company. A key saved by an older
+version is plaintext; it is encrypted the next time chat or the company settings
+page reads it. To encrypt the ones nobody opens, run once, with the same
+`DATABASE_URL` and app secret (`INTEGRATION_SECRET`, else `NEXTAUTH_SECRET`) as
+the web app. It is idempotent and prints counts only:
+
+```bash
+pnpm --filter @kivvi/web exec tsx scripts/seal-company-ai-keys.ts
+```
+
+Changing the app secret makes every stored company key unreadable. Chat then
+refuses for those companies and tells their admins to enter the key again; it
+does not fall back to the shared AI keys.
+
 ---
 
 ## Post-deployment checklist

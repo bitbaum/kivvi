@@ -92,7 +92,6 @@ export function InviteRegisterForm({
                   value={form.password}
                   onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
                   required
-                  minLength={8}
                   autoComplete="new-password"
                   className="w-full rounded-lg border bg-background px-4 py-2.5 pr-11 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/20"
                 />

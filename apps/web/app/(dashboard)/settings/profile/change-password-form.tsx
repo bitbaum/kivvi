@@ -92,12 +92,8 @@ export function ChangePasswordForm() {
               id="newPassword"
               name="newPassword"
               required
-              minLength={8}
               autoComplete="new-password"
             />
-            <p className="mt-1 text-xs text-muted-foreground">
-              {t("profileSection.passwordMinLength")}
-            </p>
           </div>
 
           <div>
@@ -109,7 +105,6 @@ export function ChangePasswordForm() {
               id="confirmPassword"
               name="confirmPassword"
               required
-              minLength={8}
               autoComplete="new-password"
             />
           </div>

@@ -16,8 +16,11 @@ import { createAction } from "./action-factory";
 import { getTranslations } from "next-intl/server";
 import { MAX_UPLOAD_SIZE_BYTES } from "@/lib/config/uploads";
 import { updateUserProfile } from "@kivvi/core/src/domain/profiles";
+import { passwordSchema } from "@/lib/password";
+import { AI_KEY_MASK, redactCompanySettings } from "@/lib/security/company-settings";
 import { DomainError } from "@kivvi/core/src/domain-error";
-import { checkCompanyAiKey, sealCompanyAiKey } from "@/lib/company-ai-key";
+import { checkCompanyAiKey } from "@/lib/company-ai-key";
+import { sealCompanyAiKey } from "@/lib/security/company-ai-key-crypto";
 
 // ============================================================================
 // COMPANY SETTINGS
@@ -69,11 +72,14 @@ export const updateCompanyAction = createAction<unknown, Company | undefined>({
 
     const existingSettings = (existing?.settings as CompanySettings) ?? {};
 
-    // A newly entered key is checked with its provider, then stored encrypted.
+    // A newly entered key is checked with its provider, then stored sealed.
+    // A provider that cannot be asked right now (down, rate-limited) does not
+    // block the save: the key is stored and marked as not verified yet.
     const newApiKey =
-      parsed.data.aiApiKey && parsed.data.aiApiKey !== "********"
+      parsed.data.aiApiKey && parsed.data.aiApiKey !== AI_KEY_MASK
         ? parsed.data.aiApiKey.trim()
         : null;
+    let keyCheck: CompanySettings["aiApiKeyCheck"];
     if (newApiKey) {
       const verdict = await checkCompanyAiKey(
         parsed.data.aiProvider || existingSettings.aiProvider,
@@ -81,6 +87,11 @@ export const updateCompanyAction = createAction<unknown, Company | undefined>({
         parsed.data.aiModel || existingSettings.aiModel,
       );
       if (!verdict.ok) throw new DomainError("AI_KEY_REJECTED", undefined, verdict.message);
+      keyCheck = {
+        verified: verdict.verified,
+        checkedAt: new Date().toISOString(),
+        ...(verdict.note ? { note: verdict.note } : {}),
+      };
     }
 
     // Merge new values into settings JSONB
@@ -105,7 +116,9 @@ export const updateCompanyAction = createAction<unknown, Company | undefined>({
       aiProvider: parsed.data.aiProvider || existingSettings.aiProvider,
       aiModel: parsed.data.aiModel || existingSettings.aiModel,
       // Only update API key if not the mask placeholder
-      ...(newApiKey ? { aiApiKey: sealCompanyAiKey(newApiKey) } : {}),
+      ...(newApiKey
+        ? { aiApiKey: sealCompanyAiKey(companyId, newApiKey), aiApiKeyCheck: keyCheck }
+        : {}),
     };
 
     const [company] = await db
@@ -125,7 +138,13 @@ export const updateCompanyAction = createAction<unknown, Company | undefined>({
       .where(eq(companies.id, companyId))
       .returning();
 
-    return company;
+    // The result goes back to the browser: the AI key stays on the server.
+    return (
+      company && {
+        ...company,
+        settings: redactCompanySettings(company.settings as CompanySettings),
+      }
+    );
   },
   revalidate: ["/settings"],
   errorMessage: () => getTranslations("settings").then((t) => t("errorUpdateCompany")),
@@ -312,7 +331,7 @@ export async function changePasswordAction(input: unknown): Promise<ActionResult
     const schema = z
       .object({
         currentPassword: z.string().min(1, t("currentPasswordRequired")),
-        newPassword: z.string().min(8, t("passwordMinLength")),
+        newPassword: passwordSchema,
         confirmPassword: z.string(),
       })
       .refine((data) => data.newPassword === data.confirmPassword, {

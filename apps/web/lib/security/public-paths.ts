@@ -1,0 +1,43 @@
+const PUBLIC_PATHS = [
+  "/",
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+  // Fleet's release receipt contains only the deployed source SHA, lockfile
+  // digest, and immutable first-party artifact identities. Rollout automation
+  // needs this exact static file to verify what the canary serves.
+  "/.well-known/fleet-release.json",
+];
+
+const PUBLIC_PREFIXES = [
+  "/api/auth",
+  "/api/health",
+  "/api/v1",
+  "/api/cron", // cron routes self-authenticate via CRON_SECRET (box systemd timers)
+  "/onboarding",
+  "/invite",
+  "/circular-economy",
+  "/how-it-works",
+  "/why-kivvi",
+  "/for",
+  "/knowledge",
+  "/faq",
+  "/about",
+  "/orgs",
+  "/impressum",
+  "/datenschutz",
+  "/shop",
+];
+
+export function isPublicPath(
+  pathname: string,
+  nodeEnv: string | undefined,
+  chatkitSmokeEnabled: string | undefined,
+): boolean {
+  return (
+    PUBLIC_PATHS.includes(pathname) ||
+    PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix)) ||
+    (nodeEnv !== "production" && chatkitSmokeEnabled === "true" && pathname === "/smoke/chatkit")
+  );
+}

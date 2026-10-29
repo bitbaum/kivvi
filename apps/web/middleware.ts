@@ -2,29 +2,7 @@ import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { checkRateLimit, getClientIp, getRateLimitConfig } from "@/lib/rate-limit";
 import { moduleForPath, isModuleEnabled } from "@kivvi/core/src/config/modules";
-
-// Only these routes are accessible without authentication
-const PUBLIC_PATHS = ["/", "/login", "/register", "/forgot-password", "/reset-password"];
-// Landing pages are public — all start with these prefixes
-const PUBLIC_PREFIXES = [
-  "/api/auth",
-  "/api/health",
-  "/api/v1",
-  "/api/cron", // cron routes self-authenticate via CRON_SECRET (box systemd timers)
-  "/onboarding",
-  "/invite",
-  "/circular-economy",
-  "/how-it-works",
-  "/why-kivvi",
-  "/for",
-  "/knowledge",
-  "/faq",
-  "/about",
-  "/orgs",
-  "/impressum",
-  "/datenschutz",
-  "/shop",
-];
+import { isPublicPath } from "@/lib/security/public-paths";
 
 export default auth((req) => {
   const { pathname } = req.nextUrl;
@@ -52,15 +30,13 @@ export default auth((req) => {
     return new NextResponse("Too Many Requests", {
       status: 429,
       headers: {
-        "Retry-After": Math.ceil(rateLimitResult.retryAfterMs / 1000).toString(),
+        "Retry-After": String(rateLimitResult.retryAfterSeconds),
       },
     });
   }
 
   // Check if public
-  const isPublic =
-    PUBLIC_PATHS.includes(pathname) ||
-    PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+  const isPublic = isPublicPath(pathname, process.env.NODE_ENV, process.env.KIVVI_CHATKIT_SMOKE);
 
   // Redirect authenticated users away from auth pages
   if (isAuthenticated && (pathname === "/login" || pathname === "/register")) {
