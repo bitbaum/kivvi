@@ -35,3 +35,66 @@ jobs:
       - run: pnpm --filter @kivvi/web exec playwright install --with-deps chromium
       - name: Exercise shared ChatKit thread and composer
         run: pnpm --filter @kivvi/web exec playwright test --config=playwright.chatkit.config.ts
+
+  # An account can be made and used, in real Chromium against the production
+  # build (the standalone server the Dockerfile ships) and a PostgreSQL built
+  # from the committed migrations: sign-up and onboarding, sign-out, wrong
+  # credentials refused, sign-in, the dashboard, and the company AI key never
+  # sent back to the browser (#185). Synthetic people only; no mail is sent.
+  account:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app
+          POSTGRES_DB: kivvi_smoke
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U app -d kivvi_smoke"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgres://app:app@127.0.0.1:5432/kivvi_smoke
+      DB_SSL: disable
+      NEXTAUTH_URL: http://localhost:3000
+      NEXTAUTH_SECRET: synthetic-browser-smoke-secret-not-for-production
+      AUTH_TRUST_HOST: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+      BASE_URL: http://localhost:3000
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - run: pnpm config set store-dir ~/.pnpm-store --global
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Apply the committed migrations
+        run: scripts/ci/apply-migrations.sh
+
+      - run: pnpm --filter @kivvi/web exec playwright install --with-deps chromium
+      - run: pnpm --filter @kivvi/web build
+      - name: Assemble the standalone server, as the Dockerfile does
+        run: cp -r apps/web/.next/static apps/web/.next/standalone/apps/web/.next/static
+
+      - name: Account journey
+        run: |
+          (cd apps/web/.next/standalone && PORT=3000 HOSTNAME=127.0.0.1 node apps/web/server.js > "$GITHUB_WORKSPACE/server.log" 2>&1 &)
+          for i in $(seq 60); do curl -sf -o /dev/null http://localhost:3000/login && break; sleep 1; done
+          pnpm --filter @kivvi/web exec playwright test --config=playwright.journey.config.ts
+
+      - name: Keep the report, traces and server log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kivvi-account-journey
+          path: |
+            apps/web/playwright-report/
+            apps/web/test-results/
+            server.log
+          retention-days: 14
+          if-no-files-found: warn
