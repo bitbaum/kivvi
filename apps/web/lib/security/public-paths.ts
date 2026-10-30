@@ -8,9 +8,13 @@ const PUBLIC_PATHS = [
   // digest, and immutable first-party artifact identities. Rollout automation
   // needs this exact static file to verify what the canary serves.
   "/.well-known/fleet-release.json",
+  // The install manifest and the tab icon: a browser fetches them signed out.
+  "/manifest.webmanifest",
+  "/icon.svg",
 ];
 
 const PUBLIC_PREFIXES = [
+  "/app-icons/", // install icons named by the manifest
   "/api/auth",
   "/api/health",
   "/api/v1",
