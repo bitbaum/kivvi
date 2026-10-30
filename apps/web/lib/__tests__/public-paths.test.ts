@@ -7,6 +7,12 @@ describe("public middleware paths", () => {
     expect(isPublicPath("/dashboard", "production", undefined)).toBe(false);
   });
 
+  it("lets a signed-out visitor read the legal pages the sign-in forms link to", () => {
+    for (const path of ["/terms", "/privacy", "/datenschutz", "/impressum"]) {
+      expect(isPublicPath(path, "production", undefined)).toBe(true);
+    }
+  });
+
   it("keeps the ChatKit smoke page limited to guarded non-production runs", () => {
     expect(isPublicPath("/smoke/chatkit", "test", "true")).toBe(true);
     expect(isPublicPath("/smoke/chatkit", "production", "true")).toBe(false);
