@@ -7,6 +7,8 @@ dotenv.config({ path: path.resolve(__dirname, ".env.local") });
 
 export default defineConfig({
   testDir: "./e2e",
+  // Runs against the production build in browser-smoke.yml (playwright.journey.config.ts).
+  testIgnore: "account-journey.spec.ts",
   globalTeardown: "./e2e/global-teardown.ts",
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
