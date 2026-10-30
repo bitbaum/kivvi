@@ -69,7 +69,7 @@ overrides:
   "postcss@8": "^8.5.18"
   "rollup@3": "^3.30.0"
   "rollup@4": "^4.59.0"
-  "vite@7": "^7.3.5"
+  "vite@7": "^7.3.7"
   "ws@8": "^8.21.0"
   # 2026-09-25: the medium/low remainder, same rule -- first_patched_version,
   # bounded to one major (or one minor on 0.x).
