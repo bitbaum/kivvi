@@ -126,18 +126,18 @@ CREATE TABLE IF NOT EXISTS "vacancies" (
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-ALTER TABLE "invitations" ADD COLUMN "permission_preset" text DEFAULT 'sales' NOT NULL;--> statement-breakpoint
+ALTER TABLE "invitations" ADD COLUMN IF NOT EXISTS "permission_preset" text DEFAULT 'sales' NOT NULL;--> statement-breakpoint
 ALTER TABLE "journal_entries" ADD COLUMN "posted_at" timestamp;--> statement-breakpoint
 ALTER TABLE "journal_entries" ADD COLUMN "sequence_no" bigint;--> statement-breakpoint
 ALTER TABLE "journal_entries" ADD COLUMN "entry_hash" text;--> statement-breakpoint
 ALTER TABLE "journal_entries" ADD COLUMN "prev_hash" text;--> statement-breakpoint
 ALTER TABLE "journal_entries" ADD COLUMN "reverses_entry_id" uuid;--> statement-breakpoint
 ALTER TABLE "journal_entries" ADD COLUMN "reversed_by_entry_id" uuid;--> statement-breakpoint
-ALTER TABLE "memberships" ADD COLUMN "permission_preset" text DEFAULT 'sales' NOT NULL;--> statement-breakpoint
-ALTER TABLE "users" ADD COLUMN "location" text;--> statement-breakpoint
-ALTER TABLE "users" ADD COLUMN "languages" text[] DEFAULT ARRAY[]::text[] NOT NULL;--> statement-breakpoint
-ALTER TABLE "users" ADD COLUMN "skills" text[] DEFAULT ARRAY[]::text[] NOT NULL;--> statement-breakpoint
-ALTER TABLE "users" ADD COLUMN "availability_type" "availability_type";--> statement-breakpoint
+ALTER TABLE "memberships" ADD COLUMN IF NOT EXISTS "permission_preset" text DEFAULT 'sales' NOT NULL;--> statement-breakpoint
+ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "location" text;--> statement-breakpoint
+ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "languages" text[] DEFAULT ARRAY[]::text[] NOT NULL;--> statement-breakpoint
+ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "skills" text[] DEFAULT ARRAY[]::text[] NOT NULL;--> statement-breakpoint
+ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "availability_type" "availability_type";--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "audit_log_company_at_idx" ON "audit_log" ("company_id","at");--> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "audit_log_entity_idx" ON "audit_log" ("entity_type","entity_id");--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "external_integration_items_company_source_external_idx" ON "external_integration_items" ("company_id","source","external_id");--> statement-breakpoint
