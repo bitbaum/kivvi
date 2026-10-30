@@ -4,6 +4,11 @@ const PUBLIC_PATHS = [
   "/register",
   "/forgot-password",
   "/reset-password",
+  // Linked from every sign-in and sign-up page ("you agree to our Terms and
+  // Privacy Policy"). Guarded, a signed-out visitor got the login form instead,
+  // and the page's own prefetch of each link spent the /login rate limit.
+  "/terms",
+  "/privacy",
   // Fleet's release receipt contains only the deployed source SHA, lockfile
   // digest, and immutable first-party artifact identities. Rollout automation
   // needs this exact static file to verify what the canary serves.

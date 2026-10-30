@@ -8,6 +8,11 @@ const nextConfig = {
   // Next 15 promoted this out of `experimental` under the name
   // `serverExternalPackages`; the old key is ignored there.
   serverExternalPackages: ["@anthropic-ai/sdk", "pdfkit", "swissqrbill"],
+  // The sign-in forms link "Privacy Policy" to /privacy; the policy itself is
+  // the Datenschutzerklärung at /datenschutz.
+  async redirects() {
+    return [{ source: "/privacy", destination: "/datenschutz", permanent: true }];
+  },
   async headers() {
     return [
       // CORS for the public REST API — allows server-to-server calls from

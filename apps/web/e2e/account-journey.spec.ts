@@ -46,8 +46,31 @@ async function sessionEmail(page: Page): Promise<string | null> {
 test("an account is made, signed out, refused a wrong password, signed in, and keeps its AI key secret", async ({
   page,
 }) => {
-  await test.step("sign up as a new organisation", async () => {
+  await test.step("signed out, the legal links on the sign-up page open, not the login form", async () => {
+    // /register allows 5 requests a minute (lib/rate-limit.ts): both links are
+    // opened in their own tabs from this one load, and sign-up happens here.
     await page.goto("/register");
+    const open = async (name: string) => {
+      const opened = page.context().waitForEvent("page");
+      await page.getByRole("link", { name }).click({ modifiers: ["ControlOrMeta"] });
+      const tab = await opened;
+      await tab.waitForLoadState();
+      return tab;
+    };
+
+    const terms = await open("Terms of Service");
+    await expect(terms).toHaveURL(/\/terms$/);
+    await expect(terms.locator("#password"), "Terms is not the login form").toHaveCount(0);
+    await terms.close();
+
+    const privacy = await open("Privacy Policy");
+    await expect(privacy).toHaveURL(/\/datenschutz$/);
+    await expect(privacy.getByRole("heading", { level: 1, name: "Privacy policy" })).toBeVisible();
+    await expect(privacy.locator("#password"), "Privacy is not the login form").toHaveCount(0);
+    await privacy.close();
+  });
+
+  await test.step("sign up as a new organisation", async () => {
     await page.locator("#name").fill(NAME);
     await page.locator("#companyName").fill(COMPANY);
     await page.locator("#email").fill(EMAIL);
