@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { signOutAndLeave } from "@/lib/sign-out";
 import { ArrowRight, Building2, Clock, Loader2, Mail, Search, UserCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { KivviLogo } from "@/components/kivvi-logo";
@@ -71,7 +72,7 @@ export function JoinHome({ title, description, user, pendingInvites }: JoinHomeP
             <KivviLogo size={36} />
             <span className="text-xl font-bold">Kivvi</span>
           </Link>
-          <Button type="button" variant="ghost" onClick={() => signOut({ callbackUrl: "/login" })}>
+          <Button type="button" variant="ghost" onClick={() => void signOutAndLeave()}>
             {t("signOut")}
           </Button>
         </div>
