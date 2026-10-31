@@ -222,21 +222,6 @@ export function ResetPasswordForm() {
             </>
           )}
         </div>
-
-        <p className="mt-6 text-center text-xs text-muted-foreground">
-          {t.rich("termsAndPrivacy", {
-            terms: (chunks) => (
-              <Link href="/terms" className="hover:underline">
-                {chunks}
-              </Link>
-            ),
-            privacy: (chunks) => (
-              <Link href="/privacy" className="hover:underline">
-                {chunks}
-              </Link>
-            ),
-          })}
-        </p>
       </div>
     </div>
   );
