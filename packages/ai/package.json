@@ -12,7 +12,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.115.0",
     "@bitbaum/ai-kit": "^1.21.5",
-    "@bitbaum/chatkit": "github:bitbaum/chatkit#5cf792198ba09ff214593e7c3cce75fa4ad905e0",
+    "@bitbaum/chatkit": "^0.21.5",
     "@kivvi/core": "workspace:*",
     "@kivvi/database": "workspace:*",
     "decimal.js": "^10.4.3",
