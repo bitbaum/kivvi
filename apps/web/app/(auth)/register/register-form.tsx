@@ -237,21 +237,6 @@ export function RegisterForm({ prefillEmail, callbackUrl }: RegisterFormProps) {
           {t("signIn")}
         </Link>
       </div>
-
-      <p className="mt-8 text-center text-xs text-muted-foreground">
-        {t.rich("termsAndPrivacy", {
-          terms: (chunks) => (
-            <Link href="/terms" className="hover:underline">
-              {chunks}
-            </Link>
-          ),
-          privacy: (chunks) => (
-            <Link href="/privacy" className="hover:underline">
-              {chunks}
-            </Link>
-          ),
-        })}
-      </p>
     </>
   );
 }

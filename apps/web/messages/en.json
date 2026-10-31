@@ -2581,7 +2581,6 @@
       "selfHostAI": "Open Source, MIT licence — no vendor lock-in"
     },
     "errorGeneric": "Something went wrong. Please try again.",
-    "termsAndPrivacy": "By continuing, you agree to our <terms>Terms of Service</terms> and <privacy>Privacy Policy</privacy>.",
     "nameMinLength": "Name must be at least 2 characters",
     "emailInvalid": "Invalid email address",
     "showPassword": "Show password",
