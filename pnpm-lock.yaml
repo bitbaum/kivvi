@@ -94,8 +94,8 @@ importers:
         specifier: ^0.7.0
         version: 0.7.0(react@18.3.1)
       '@bitbaum/chatkit':
-        specifier: ^0.21.3
-        version: 0.21.3(react@18.3.1)
+        specifier: github:bitbaum/chatkit#3cfe0bdadd9aad68f40779186027594478ab8f6d
+        version: https://codeload.github.com/bitbaum/chatkit/tar.gz/3cfe0bdadd9aad68f40779186027594478ab8f6d(react@18.3.1)
       '@bitbaum/mail-kit':
         specifier: ^0.2.0
         version: 0.2.0
@@ -287,8 +287,8 @@ importers:
         specifier: ^1.21.5
         version: 1.21.5(react@18.3.1)
       '@bitbaum/chatkit':
-        specifier: ^0.21.3
-        version: 0.21.3(react@18.3.1)
+        specifier: github:bitbaum/chatkit#3cfe0bdadd9aad68f40779186027594478ab8f6d
+        version: https://codeload.github.com/bitbaum/chatkit/tar.gz/3cfe0bdadd9aad68f40779186027594478ab8f6d(react@18.3.1)
       '@kivvi/core':
         specifier: workspace:*
         version: link:../core
@@ -517,8 +517,9 @@ packages:
     peerDependencies:
       react: '>=18'
 
-  '@bitbaum/chatkit@0.21.3':
-    resolution: {integrity: sha512-41WN8SNWXxS5YUaXGWuNexaQ4/LYU012TnLew9fGJt+ogwTrlQ8DOrNH9D7DSgJ9ggPxah/jaWWDMyXxrtI75Q==}
+  '@bitbaum/chatkit@https://codeload.github.com/bitbaum/chatkit/tar.gz/3cfe0bdadd9aad68f40779186027594478ab8f6d':
+    resolution: {gitHosted: true, integrity: sha512-W/QQwUE3P5WVznO/xuMzZiu3CTznciYOkQur4kUc/2u4JC6xKtCcPowNhUVi6thEGqEYXEGEyGJ3IjJiWsYJig==, tarball: https://codeload.github.com/bitbaum/chatkit/tar.gz/3cfe0bdadd9aad68f40779186027594478ab8f6d}
+    version: 0.21.4
     engines: {node: '>=20'}
     hasBin: true
     peerDependencies:
@@ -5864,7 +5865,7 @@ snapshots:
     dependencies:
       react: 18.3.1
 
-  '@bitbaum/chatkit@0.21.3(react@18.3.1)':
+  '@bitbaum/chatkit@https://codeload.github.com/bitbaum/chatkit/tar.gz/3cfe0bdadd9aad68f40779186027594478ab8f6d(react@18.3.1)':
     dependencies:
       pdfjs-dist: 6.4.299
       react: 18.3.1
