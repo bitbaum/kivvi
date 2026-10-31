@@ -36,7 +36,7 @@ export const createWebhookEndpointAction = createAction<unknown, { id: string }>
   handler: async (input, { companyId, db }) => {
     const t = await getTranslations("settings.webhooks");
     const parsed = (await getEndpointSchema()).safeParse(input);
-    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || t("errorInvalidInput"));
+    if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || t("errorInvalidInput"));
     const endpoint = await createWebhookEndpoint(db, companyId, {
       name: parsed.data.name,
       url: parsed.data.url,
@@ -57,7 +57,7 @@ export const updateWebhookEndpointAction = createAction<
   handler: async ({ endpointId, input }, { companyId, db }) => {
     const t = await getTranslations("settings.webhooks");
     const parsed = (await getEndpointSchema()).partial().safeParse(input);
-    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || t("errorInvalidInput"));
+    if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || t("errorInvalidInput"));
     await updateWebhookEndpoint(db, companyId, endpointId, {
       ...parsed.data,
       events: parsed.data.events as WebhookEvent[] | undefined,

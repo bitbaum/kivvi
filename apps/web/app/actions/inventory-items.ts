@@ -155,7 +155,7 @@ export const updateItemConditionAction = createAction<
 >({
   handler: async ({ itemId, input }, { companyId, db }) => {
     const parsed = updateConditionSchema.safeParse(input);
-    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Invalid input");
     const item = await db.transaction(async (tx) =>
       updateItemCondition(tx, companyId, itemId, parsed.data.condition),
     );
@@ -178,7 +178,7 @@ export const bulkUpdateItemStatusAction = createAction<
 >({
   handler: async (input, { companyId, db }) => {
     const parsed = bulkStatusSchema.safeParse(input);
-    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Invalid input");
     return bulkUpdateStatus(db, companyId, parsed.data.itemIds, parsed.data.newStatus);
   },
   revalidate: ["/intake"],
@@ -280,7 +280,7 @@ export const recordRepairAction = createAction<
 >({
   handler: async ({ itemId, input }, { companyId, db }) => {
     const parsed = recordRepairSchema.safeParse(input);
-    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Invalid input");
     const item = await db.transaction(async (tx) =>
       recordRepair(tx, companyId, itemId, {
         cost: parsed.data.cost,
@@ -299,7 +299,7 @@ export const addRepairPartAction = createAction<{ itemId: string; input: unknown
   {
     handler: async ({ itemId, input }, { companyId, userId, db }) => {
       const parsed = addRepairPartSchema.safeParse(input);
-      if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+      if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Invalid input");
       const part = await db.transaction(async (tx) =>
         addRepairPart(tx, companyId, itemId, parsed.data, userId),
       );
@@ -331,7 +331,7 @@ export const bulkUpdateItemConditionAction = createAction<
 >({
   handler: async (input, { companyId, db }) => {
     const parsed = bulkConditionSchema.safeParse(input);
-    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Invalid input");
     let succeeded = 0;
     let failed = 0;
     for (const id of parsed.data.itemIds) {
@@ -360,7 +360,7 @@ export const bulkUpdateItemAskingPriceAction = createAction<
 >({
   handler: async (input, { companyId, db }) => {
     const parsed = bulkPriceSchema.safeParse(input);
-    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Invalid input");
     let succeeded = 0;
     let failed = 0;
     for (const id of parsed.data.itemIds) {
@@ -390,7 +390,7 @@ export const assignItemTechnicianAction = createAction<
 >({
   handler: async ({ itemId, input }, { companyId, db }) => {
     const parsed = assignTechnicianSchema.safeParse(input);
-    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Invalid input");
     const item = await db.transaction(async (tx) =>
       updateInventoryItem(tx, companyId, itemId, {
         assignedToUserId: parsed.data.assignedToUserId,
@@ -468,7 +468,7 @@ export const recordChecklistAction = createAction<
 >({
   handler: async ({ itemId, input }, { companyId, userId, db }) => {
     const parsed = checklistSchema.safeParse(input);
-    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Invalid input");
     const item = await db.transaction(async (tx) =>
       recordChecklist(tx, companyId, itemId, {
         ...parsed.data,
@@ -500,7 +500,7 @@ export const recordDataErasureAction = createAction<
 >({
   handler: async ({ itemId, input }, { companyId, userId, db }) => {
     const parsed = dataErasureSchema.safeParse(input);
-    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Invalid input");
     const item = await db.transaction(async (tx) =>
       recordDataErasure(tx, companyId, itemId, { ...parsed.data, userId }),
     );

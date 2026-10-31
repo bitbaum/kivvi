@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { updateSchemaOf } from "../utils/update-schema";
 import { and, asc, eq } from "drizzle-orm";
 import { costCenters } from "@kivvi/database";
 import type { CostCenter, Database } from "@kivvi/database";
@@ -18,7 +19,7 @@ export const createCostCenterSchema = z.object({
   isActive: z.boolean().default(true),
 });
 
-export const updateCostCenterSchema = createCostCenterSchema.partial();
+export const updateCostCenterSchema = updateSchemaOf(createCostCenterSchema);
 
 export type CreateCostCenterInput = z.input<typeof createCostCenterSchema>;
 export type UpdateCostCenterInput = z.input<typeof updateCostCenterSchema>;

@@ -26,7 +26,7 @@ export const createWarehouseAction = createAction<
 >({
   handler: async (input, { companyId, db }) => {
     const parsed = createWarehouseSchema.safeParse(input);
-    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Invalid input");
     return createWarehouse(db, companyId, parsed.data);
   },
   revalidate: ["/inventory"],
@@ -40,7 +40,7 @@ export const updateWarehouseAction = createAction<
 >({
   handler: async ({ warehouseId, input }, { companyId, db }) => {
     const parsed = createWarehouseSchema.safeParse(input);
-    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Invalid input");
     return updateWarehouse(db, companyId, warehouseId, parsed.data);
   },
   revalidate: ["/inventory"],
@@ -68,7 +68,7 @@ export const createStockMovementAction = createAction<
 >({
   handler: async (input, { companyId, db }) => {
     const parsed = createStockMovementSchema.safeParse(input);
-    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Invalid input");
     return createStockMovement(db, companyId, parsed.data);
   },
   revalidate: ["/inventory"],
@@ -80,7 +80,7 @@ export const transferStockAction = createAction<unknown, Awaited<ReturnType<type
   {
     handler: async (input, { companyId, db }) => {
       const parsed = transferStockSchema.safeParse(input);
-      if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+      if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Invalid input");
       return transferStock(db, companyId, parsed.data);
     },
     revalidate: ["/inventory"],
@@ -100,7 +100,7 @@ export const createSerialNumberAction = createAction<
 >({
   handler: async (input, { companyId, db }) => {
     const parsed = createSerialNumberSchema.safeParse(input);
-    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Invalid input");
     return createSerialNumber(db, companyId, parsed.data);
   },
   revalidate: ["/inventory"],

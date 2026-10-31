@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { updateSchemaOf } from "../utils/update-schema";
 import { eq, and, or, ilike, desc, asc, count } from "drizzle-orm";
 import { products, manufacturers, productGroups } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
@@ -39,7 +40,7 @@ export const createProductSchema = z.object({
   notes: z.string().max(5000).optional().nullable(),
 });
 
-export const updateProductSchema = createProductSchema.partial();
+export const updateProductSchema = updateSchemaOf(createProductSchema);
 
 export type CreateProductInput = z.infer<typeof createProductSchema>;
 export type UpdateProductInput = z.infer<typeof updateProductSchema>;

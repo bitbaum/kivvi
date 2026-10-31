@@ -132,7 +132,7 @@ export const createCompanyAction = createAction<
   authOnly: true,
   handler: async (input, { userId, db }) => {
     const parsed = createCompanySchema.safeParse(input);
-    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Validation failed");
+    if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Validation failed");
     return createCompanyForUser(db, userId, parsed.data.companyName);
   },
   errorMessage: () => getTranslations("team").then((t) => t("errorCreateCompany")),

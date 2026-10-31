@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { updateSchemaOf } from "../utils/update-schema";
 import Decimal from "decimal.js";
 import { eq, and, asc, desc, sql, ilike } from "drizzle-orm";
 import { projects, documents, contacts } from "@kivvi/database";
@@ -19,7 +20,7 @@ export const createProjectSchema = z.object({
   endDate: z.string().optional().nullable(),
 });
 
-export const updateProjectSchema = createProjectSchema.partial().extend({
+export const updateProjectSchema = updateSchemaOf(createProjectSchema).extend({
   isActive: z.boolean().optional(),
 });
 

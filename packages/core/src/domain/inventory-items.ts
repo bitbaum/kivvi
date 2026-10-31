@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { updateSchemaOf } from "../utils/update-schema";
 import Decimal from "decimal.js";
 import { eq, and, ilike, desc, asc, sql, count, inArray } from "drizzle-orm";
 import { DomainError } from "../domain-error";
@@ -72,13 +73,13 @@ export const createInventoryItemSchema = z.object({
   minPrice: z.string().optional().nullable(),
   consignmentRate: z.string().optional().nullable(),
   notes: z.string().max(5000).optional().nullable(),
-  specs: z.record(z.string()).optional().nullable(),
+  specs: z.record(z.string(), z.string()).optional().nullable(),
   serialNumber: z.string().max(200).optional().nullable(),
   location: z.string().max(200).optional().nullable(),
   photoBase64: z.string().optional().nullable(),
 });
 
-export const updateInventoryItemSchema = createInventoryItemSchema.partial();
+export const updateInventoryItemSchema = updateSchemaOf(createInventoryItemSchema);
 
 export type CreateInventoryItemInput = z.infer<typeof createInventoryItemSchema>;
 export type UpdateInventoryItemInput = z.infer<typeof updateInventoryItemSchema>;
@@ -99,9 +100,7 @@ export const importInventoryItemSchema = z.object({
   estimatedValue: z.string().optional().nullable(),
   location: z.string().max(200).optional().nullable(),
   notes: z.string().max(5000).optional().nullable(),
-  presenceConfirmed: z.literal(true, {
-    errorMap: () => ({ message: "Item presence must be confirmed" }),
-  }),
+  presenceConfirmed: z.literal(true, { error: "Item presence must be confirmed" }),
 });
 
 export type ImportInventoryItemInput = z.infer<typeof importInventoryItemSchema>;
@@ -277,7 +276,7 @@ export async function bulkImportInventoryItems(
     const parsed = importInventoryItemSchema.safeParse(rows[i]);
     if (!parsed.success) {
       result.skippedInvalid++;
-      result.errors.push(`Row ${i + 1}: ${parsed.error.errors.map((e) => e.message).join(", ")}`);
+      result.errors.push(`Row ${i + 1}: ${parsed.error.issues.map((e) => e.message).join(", ")}`);
       continue;
     }
 

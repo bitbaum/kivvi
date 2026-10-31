@@ -21,7 +21,7 @@ export const createApiTokenAction = createAction<
     });
     const parsed = createTokenSchema.safeParse(input);
     if (!parsed.success) {
-      throw new Error(parsed.error.errors[0]?.message || t("errorCreateFailed"));
+      throw new Error(parsed.error.issues[0]?.message || t("errorCreateFailed"));
     }
 
     const { rawToken, tokenHash, tokenPrefix } = generateApiToken();

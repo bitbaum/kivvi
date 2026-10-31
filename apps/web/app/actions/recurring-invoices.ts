@@ -19,7 +19,7 @@ export const createRecurringConfigAction = createAction<unknown, { id: string }>
   handler: async (input, { companyId, db }) => {
     const parsed = createRecurringConfigSchema.safeParse(input);
     if (!parsed.success) {
-      const firstError = parsed.error.errors[0];
+      const firstError = parsed.error.issues[0];
       throw new Error(`${firstError.path.join(".")}: ${firstError.message}`);
     }
     const config = await createRecurringConfig(db, companyId, parsed.data);
@@ -37,7 +37,7 @@ export const updateRecurringConfigAction = createAction<
   handler: async ({ configId, input }, { companyId, db }) => {
     const parsed = updateRecurringConfigSchema.safeParse(input);
     if (!parsed.success) {
-      const firstError = parsed.error.errors[0];
+      const firstError = parsed.error.issues[0];
       throw new Error(`${firstError.path.join(".")}: ${firstError.message}`);
     }
     const config = await updateRecurringConfig(db, companyId, configId, parsed.data);

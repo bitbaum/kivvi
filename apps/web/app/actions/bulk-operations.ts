@@ -113,7 +113,7 @@ async function runBulkOperation<T = unknown>(
 function parseInput<T>(schema: z.ZodType<T>, input: unknown): ActionResult<T> | T {
   const parsed = schema.safeParse(input);
   if (!parsed.success) {
-    const firstError = parsed.error.errors[0];
+    const firstError = parsed.error.issues[0];
     return {
       success: false,
       error: `${firstError.path.join(".")}: ${firstError.message}`,

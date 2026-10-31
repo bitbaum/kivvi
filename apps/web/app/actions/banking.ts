@@ -31,7 +31,7 @@ export const createBankAccountAction = createAction<
 >({
   handler: async (input, { companyId, db }) => {
     const parsed = createBankAccountSchema.safeParse(input);
-    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Invalid input");
     return createBankAccount(db, companyId, parsed.data);
   },
   revalidate: ["/banking"],
@@ -45,7 +45,7 @@ export const updateBankAccountAction = createAction<
 >({
   handler: async ({ bankAccountId, input }, { companyId, db }) => {
     const parsed = createBankAccountSchema.safeParse(input);
-    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Invalid input");
     return updateBankAccount(db, companyId, bankAccountId, parsed.data);
   },
   revalidate: ["/banking"],

@@ -1,3 +1,4 @@
+import { toolParametersJsonSchema } from "./tool-schema";
 import type {
   AIProvider,
   AIModel,
@@ -220,7 +221,7 @@ export abstract class OpenAICompatibleProvider implements AIProvider {
   }
 
   protected formatTool(tool: Tool): any {
-    const jsonSchema = this.zodToJsonSchema(tool.parameters);
+    const jsonSchema = toolParametersJsonSchema(tool.parameters);
     return {
       type: "function",
       function: {
@@ -229,48 +230,6 @@ export abstract class OpenAICompatibleProvider implements AIProvider {
         parameters: jsonSchema,
       },
     };
-  }
-
-  protected zodToJsonSchema(schema: any): Record<string, unknown> {
-    if (schema._def) {
-      const def = schema._def;
-      if (def.typeName === "ZodObject") {
-        const properties: Record<string, unknown> = {};
-        const required: string[] = [];
-
-        for (const [key, value] of Object.entries(def.shape())) {
-          properties[key] = this.zodToJsonSchema(value as any);
-          if (!(value as any).isOptional?.()) {
-            required.push(key);
-          }
-        }
-
-        return {
-          type: "object",
-          properties,
-          required: required.length > 0 ? required : undefined,
-        };
-      }
-      if (def.typeName === "ZodString") {
-        return { type: "string", description: def.description };
-      }
-      if (def.typeName === "ZodNumber") {
-        return { type: "number", description: def.description };
-      }
-      if (def.typeName === "ZodBoolean") {
-        return { type: "boolean", description: def.description };
-      }
-      if (def.typeName === "ZodArray") {
-        return { type: "array", items: this.zodToJsonSchema(def.type) };
-      }
-      if (def.typeName === "ZodEnum") {
-        return { type: "string", enum: def.values };
-      }
-      if (def.typeName === "ZodOptional") {
-        return this.zodToJsonSchema(def.innerType);
-      }
-    }
-    return { type: "string" };
   }
 
   protected parseResponse(data: any): ChatResponse {

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { updateSchemaOf } from "../utils/update-schema";
 import Decimal from "decimal.js";
 import { eq, and, asc, desc, sql, ilike, between, inArray, lte, gte, isNotNull } from "drizzle-orm";
 import {
@@ -40,7 +41,7 @@ export const createAccountSchema = z.object({
   parentId: z.string().uuid().optional().nullable(),
 });
 
-export const updateAccountSchema = createAccountSchema.partial();
+export const updateAccountSchema = updateSchemaOf(createAccountSchema);
 
 export const journalLineSchema = z.object({
   accountId: z.string().uuid(),

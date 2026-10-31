@@ -13,7 +13,7 @@ export const createProjectAction = createAction<unknown, Awaited<ReturnType<type
   {
     handler: async (input, { companyId, db }) => {
       const parsed = createProjectSchema.safeParse(input);
-      if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+      if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Invalid input");
       return createProject(db, companyId, parsed.data);
     },
     revalidate: ["/projects"],
@@ -28,7 +28,7 @@ export const updateProjectAction = createAction<
 >({
   handler: async ({ projectId, input }, { companyId, db }) => {
     const parsed = updateProjectSchema.safeParse(input);
-    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Invalid input");
     return updateProject(db, companyId, projectId, parsed.data);
   },
   revalidate: ["/projects", "/projects/[id]"],

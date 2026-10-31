@@ -8,49 +8,35 @@
  */
 
 import { describe, it, expect } from "vitest";
-import type { ZodTypeAny } from "zod";
+import { z } from "zod";
 import { CONTACT_FORM } from "../ai-forms";
 import { createContactSchema } from "@kivvi/core/src/domain/contacts";
 import { CONTACT_TYPE_VALUES } from "@kivvi/database/src/enums";
 
 /**
- * Zod keeps its metadata on `_def`, which is deliberately not public API. This
- * is the smallest shape this test needs; reaching for it here is the price of
- * checking the schema instead of restating it.
+ * Read the schema through zod's public JSON Schema export rather than its
+ * `_def` internals, which changed shape between zod 3 and 4. `io: "input"` is
+ * what a caller (the model) must send.
  */
-interface ZodInternals {
-  _def?: {
-    typeName?: string;
-    innerType?: ZodTypeAny;
-    schema?: ZodTypeAny;
-    shape?: () => Record<string, ZodTypeAny>;
-    checks?: Array<{ kind: string; value?: number }>;
-  };
+interface JsonField {
+  type?: string;
+  maxLength?: number;
+  maximum?: number;
+  anyOf?: JsonField[];
 }
 
-const internals = (schema: unknown): ZodInternals["_def"] => (schema as ZodInternals)?._def;
+const jsonSchema = z.toJSONSchema(createContactSchema, {
+  io: "input",
+  unrepresentable: "any",
+}) as { properties?: Record<string, JsonField> };
 
-/** Peel optional/nullable/effects wrappers until the underlying type shows. */
-function unwrap(schema: ZodTypeAny): ZodTypeAny {
-  let current = schema;
-  for (let i = 0; i < 10; i++) {
-    const def = internals(current);
-    const inner = def?.innerType ?? def?.schema;
-    if (!inner) return current;
-    current = inner;
-  }
-  return current;
-}
-
-function shapeOf(schema: ZodTypeAny): Record<string, ZodTypeAny> {
-  const def = internals(schema);
-  if (def?.shape) return def.shape();
-  if (def?.schema) return shapeOf(def.schema);
-  return {};
+/** A nullable field is `anyOf: [T, null]`; the bounds live on T. */
+function valueBranch(field: JsonField): JsonField {
+  return field.anyOf?.find((branch) => branch.type !== "null") ?? field;
 }
 
 describe("CONTACT_FORM mirrors the contact domain schema", () => {
-  const shape = shapeOf(createContactSchema);
+  const shape = jsonSchema.properties ?? {};
 
   it("declares only fields the schema actually accepts", () => {
     const schemaFields = Object.keys(shape);
@@ -67,19 +53,21 @@ describe("CONTACT_FORM mirrors the contact domain schema", () => {
 
   it("uses the same bounds as the validator", () => {
     const mismatches: string[] = [];
+    let compared = 0;
 
     for (const field of CONTACT_FORM.fields) {
       const entry = shape[field.name];
       if (!entry) continue;
 
-      const def = internals(unwrap(entry));
-      const schemaMax = def?.checks?.find((c) => c.kind === "max")?.value;
-      if (typeof schemaMax !== "number") continue;
-
+      const value = valueBranch(entry);
       // A string's max is a LENGTH; a number's max is a VALUE. Comparing the
       // two would be a category error — paymentTermsDays caps at 365 days, not
       // 365 characters.
-      const isNumeric = def?.typeName === "ZodNumber";
+      const isNumeric = value.type === "number" || value.type === "integer";
+      const schemaMax = isNumeric ? value.maximum : value.maxLength;
+      if (typeof schemaMax !== "number") continue;
+      compared++;
+
       const declared = isNumeric ? field.max : field.maxLength;
       const kind = isNumeric ? "max" : "maxLength";
 
@@ -90,6 +78,8 @@ describe("CONTACT_FORM mirrors the contact domain schema", () => {
       }
     }
 
+    // Guards the reader above: if it stopped finding bounds, this test would pass vacuously.
+    expect(compared).toBeGreaterThan(0);
     expect(mismatches).toEqual([]);
   });
 
