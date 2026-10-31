@@ -18,7 +18,7 @@
     "@bitbaum/accountkit": "^0.14.0",
     "@bitbaum/ai-kit": "^1.21.5",
     "@bitbaum/chartkit": "^0.7.0",
-    "@bitbaum/chatkit": "github:bitbaum/chatkit#3cfe0bdadd9aad68f40779186027594478ab8f6d",
+    "@bitbaum/chatkit": "^0.21.4",
     "@bitbaum/mail-kit": "^0.2.0",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
