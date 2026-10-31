@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { updateSchemaOf } from "../utils/update-schema";
 import { eq, and, or, isNull, lte, gte } from "drizzle-orm";
 import { priceLists, priceRules, products } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
@@ -18,7 +19,7 @@ export const createPriceListSchema = z.object({
   isDefault: z.boolean().default(false),
 });
 
-export const updatePriceListSchema = createPriceListSchema.partial();
+export const updatePriceListSchema = updateSchemaOf(createPriceListSchema);
 
 export const createPriceRuleSchema = z.object({
   productId: z.string().uuid().optional().nullable(),
@@ -30,7 +31,7 @@ export const createPriceRuleSchema = z.object({
   validTo: z.string().date().optional().nullable(),
 });
 
-export const updatePriceRuleSchema = createPriceRuleSchema.partial();
+export const updatePriceRuleSchema = updateSchemaOf(createPriceRuleSchema);
 
 export type CreatePriceListInput = z.infer<typeof createPriceListSchema>;
 export type UpdatePriceListInput = z.infer<typeof updatePriceListSchema>;

@@ -45,7 +45,7 @@ export const getPriceListAction = createAction<string, PriceListWithRules>({
 export const createPriceListAction = createAction<unknown, { id: string }>({
   handler: async (input, { companyId, db }) => {
     const parsed = createPriceListSchema.safeParse(input);
-    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Invalid input");
     const list = await createPriceList(db, companyId, parsed.data);
     return { id: list.id };
   },
@@ -57,7 +57,7 @@ export const createPriceListAction = createAction<unknown, { id: string }>({
 export const updatePriceListAction = createAction<{ id: string; input: unknown }, { id: string }>({
   handler: async ({ id, input }, { companyId, db }) => {
     const parsed = updatePriceListSchema.safeParse(input);
-    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Invalid input");
     const list = await updatePriceList(db, companyId, id, parsed.data);
     revalidatePath(`/settings/price-lists/${id}`);
     return { id: list.id };
@@ -86,7 +86,7 @@ export const createPriceRuleAction = createAction<
 >({
   handler: async ({ priceListId, input }, { companyId, db }) => {
     const parsed = createPriceRuleSchema.safeParse(input);
-    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Invalid input");
     const rule = await createPriceRule(db, companyId, priceListId, parsed.data);
     revalidatePath(`/settings/price-lists/${priceListId}`);
     return { id: rule.id };
@@ -101,7 +101,7 @@ export const updatePriceRuleAction = createAction<
 >({
   handler: async ({ ruleId, priceListId, input }, { companyId, db }) => {
     const parsed = updatePriceRuleSchema.safeParse(input);
-    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Invalid input");
     const rule = await updatePriceRule(db, companyId, ruleId, parsed.data);
     revalidatePath(`/settings/price-lists/${priceListId}`);
     return { id: rule.id };

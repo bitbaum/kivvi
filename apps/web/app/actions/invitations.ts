@@ -59,7 +59,7 @@ export const inviteMemberAction = createAction<
       .safeParse(input);
 
     if (!parsed.success) {
-      throw new Error(parsed.error.errors[0]?.message || t("errorSendInvitation"));
+      throw new Error(parsed.error.issues[0]?.message || t("errorSendInvitation"));
     }
 
     const invitation = await createInvitation(

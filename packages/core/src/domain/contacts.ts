@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { updateSchemaOf } from "../utils/update-schema";
 import { eq, and, or, ilike, sql, desc, asc, count, gte } from "drizzle-orm";
 import { contacts, contactAddresses, documents } from "@kivvi/database";
 import type { Database } from "@kivvi/database";
@@ -54,7 +55,7 @@ export const createContactSchema = contactBaseSchema.superRefine((data, ctx) => 
 });
 
 // Update allows partial fields — no name requirement (patch semantics)
-export const updateContactSchema = contactBaseSchema.partial();
+export const updateContactSchema = updateSchemaOf(contactBaseSchema);
 
 export type CreateContactInput = z.infer<typeof createContactSchema>;
 export type UpdateContactInput = z.infer<typeof updateContactSchema>;
@@ -426,7 +427,7 @@ export const createAddressSchema = z.object({
   isDefault: z.boolean().optional().default(false),
 });
 
-export const updateAddressSchema = createAddressSchema.partial();
+export const updateAddressSchema = updateSchemaOf(createAddressSchema);
 
 export type CreateAddressInput = z.infer<typeof createAddressSchema>;
 export type UpdateAddressInput = z.infer<typeof updateAddressSchema>;

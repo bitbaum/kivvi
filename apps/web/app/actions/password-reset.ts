@@ -31,7 +31,7 @@ export async function requestPasswordResetAction(input: unknown): Promise<Action
     if (!parsed.success) {
       return {
         success: false,
-        error: parsed.error.errors[0]?.message || "Invalid email",
+        error: parsed.error.issues[0]?.message || "Invalid email",
       };
     }
 
@@ -105,7 +105,7 @@ export async function resetPasswordAction(input: unknown): Promise<ActionResult>
     if (!parsed.success) {
       return {
         success: false,
-        error: parsed.error.errors[0]?.message || "Invalid input",
+        error: parsed.error.issues[0]?.message || "Invalid input",
       };
     }
 

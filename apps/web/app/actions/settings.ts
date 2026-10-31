@@ -62,7 +62,7 @@ const updateCompanySchema = z.object({
 export const updateCompanyAction = createAction<unknown, Company | undefined>({
   handler: async (input, { companyId, db }) => {
     const parsed = updateCompanySchema.safeParse(input);
-    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Invalid input");
 
     // Read existing settings to merge (preserve AI config, plan, etc.)
     const [existing] = await db
@@ -297,7 +297,7 @@ export async function updateProfileAction(
     const session = await getAuthSession();
     if (!session?.user?.id) throw new Error("Unauthorized");
     const parsed = updateProfileSchema.safeParse(input);
-    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Invalid input");
     const user = await updateUserProfile(db, session.user.id, {
       name: parsed.data.name,
       email: parsed.data.email,
@@ -342,7 +342,7 @@ export async function changePasswordAction(input: unknown): Promise<ActionResult
     if (!parsed.success) {
       return {
         success: false,
-        error: parsed.error.errors[0]?.message || "Validation failed",
+        error: parsed.error.issues[0]?.message || "Validation failed",
       };
     }
 
@@ -457,7 +457,7 @@ export const updateNumberSequenceAction = createAction<
 >({
   handler: async ({ sequenceId, input }, { companyId, db }) => {
     const parsed = updateSequenceSchema.safeParse(input);
-    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Invalid input");
     const [seq] = await db
       .update(numberSequences)
       .set({
@@ -514,7 +514,7 @@ const updateEnabledModulesSchema = z.object({
 export const updateEnabledModulesAction = createAction<unknown, void>({
   handler: async (input, { companyId, db }) => {
     const parsed = updateEnabledModulesSchema.safeParse(input);
-    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Invalid input");
 
     const [existing] = await db
       .select({ settings: companies.settings })

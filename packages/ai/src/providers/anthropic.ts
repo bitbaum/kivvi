@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { z } from "zod";
+import { toolParametersJsonSchema } from "./tool-schema";
 import type {
   AIProvider,
   AIModel,
@@ -135,60 +135,13 @@ export class AnthropicProvider implements AIProvider {
 
   private formatTool(tool: Tool): Anthropic.Tool {
     // Convert Zod schema to JSON Schema
-    const jsonSchema = this.zodToJsonSchema(tool.parameters);
+    const jsonSchema = toolParametersJsonSchema(tool.parameters);
 
     return {
       name: tool.name,
       description: tool.description,
       input_schema: jsonSchema as Anthropic.Tool.InputSchema,
     };
-  }
-
-  private zodToJsonSchema(schema: z.ZodTypeAny): Record<string, unknown> {
-    if (schema instanceof z.ZodObject) {
-      const properties: Record<string, unknown> = {};
-      const required: string[] = [];
-
-      for (const [key, value] of Object.entries(schema.shape as z.ZodRawShape)) {
-        properties[key] = this.zodToJsonSchema(value);
-        if (!value.isOptional()) {
-          required.push(key);
-        }
-      }
-
-      return {
-        type: "object",
-        properties,
-        required: required.length > 0 ? required : undefined,
-      };
-    }
-    if (schema instanceof z.ZodString) {
-      return { type: "string", description: schema.description };
-    }
-    if (schema instanceof z.ZodNumber) {
-      return { type: "number", description: schema.description };
-    }
-    if (schema instanceof z.ZodBoolean) {
-      return { type: "boolean", description: schema.description };
-    }
-    if (schema instanceof z.ZodArray) {
-      return {
-        type: "array",
-        items: this.zodToJsonSchema(schema.element),
-        description: schema.description,
-      };
-    }
-    if (schema instanceof z.ZodEnum) {
-      return {
-        type: "string",
-        enum: schema.options,
-        description: schema.description,
-      };
-    }
-    if (schema instanceof z.ZodOptional) {
-      return this.zodToJsonSchema(schema.unwrap());
-    }
-    return { type: "string" };
   }
 
   private parseResponse(response: Anthropic.Message): ChatResponse {

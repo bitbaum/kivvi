@@ -108,7 +108,7 @@ export async function bulkImportAction(
     if (!parsed.success) {
       return {
         success: false,
-        error: `Validation failed: ${parsed.error.errors.map((e) => e.message).join(", ")}`,
+        error: `Validation failed: ${parsed.error.issues.map((e) => e.message).join(", ")}`,
       };
     }
 

@@ -62,7 +62,7 @@ export async function sendDocumentEmailAction(
       ccSender,
     });
     if (!parsed.success) {
-      const firstError = parsed.error.errors[0];
+      const firstError = parsed.error.issues[0];
       return { success: false, error: firstError.message };
     }
 

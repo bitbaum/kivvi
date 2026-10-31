@@ -30,7 +30,7 @@ export const createAccountAction = createAction<unknown, Awaited<ReturnType<type
   {
     handler: async (input, { companyId, db }) => {
       const parsed = createAccountSchema.safeParse(input);
-      if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+      if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Invalid input");
       return createAccount(db, companyId, parsed.data);
     },
     revalidate: ["/accounting"],
@@ -46,7 +46,7 @@ export const updateAccountAction = createAction<
 >({
   handler: async ({ accountId, input }, { companyId, db }) => {
     const parsed = updateAccountSchema.safeParse(input);
-    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Invalid input");
     return updateAccount(db, companyId, accountId, parsed.data);
   },
   revalidate: ["/accounting"],
@@ -84,7 +84,7 @@ export const createJournalEntryAction = createAction<
 >({
   handler: async (input, { companyId, userId, db }) => {
     const parsed = createJournalEntrySchema.safeParse(input);
-    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Invalid input");
     return createJournalEntry(db, companyId, userId, parsed.data);
   },
   revalidate: ["/accounting/journal"],
@@ -127,7 +127,7 @@ export const createFiscalYearAction = createAction<
 >({
   handler: async (input, { companyId, db }) => {
     const parsed = createFiscalYearSchema.safeParse(input);
-    if (!parsed.success) throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+    if (!parsed.success) throw new Error(parsed.error.issues[0]?.message || "Invalid input");
     return createFiscalYear(db, companyId, parsed.data);
   },
   revalidate: ["/accounting/fiscal-years"],

@@ -26,7 +26,7 @@ export const saveOrganizationProfileAction = createAction<unknown, OrganizationP
   handler: async (input, { companyId, db }) => {
     const parsed = organizationProfileSchema.safeParse(input);
     if (!parsed.success) {
-      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+      throw new Error(parsed.error.issues[0]?.message || "Invalid input");
     }
     return upsertOrganizationProfile(db, companyId, parsed.data);
   },
@@ -39,7 +39,7 @@ export const createVacancyAction = createAction<unknown, Vacancy>({
   handler: async (input, { companyId, db }) => {
     const parsed = vacancySchema.safeParse(input);
     if (!parsed.success) {
-      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+      throw new Error(parsed.error.issues[0]?.message || "Invalid input");
     }
     return createVacancy(db, companyId, parsed.data);
   },
@@ -79,7 +79,7 @@ export async function createJoinRequestAction(input: unknown): Promise<ActionRes
     if (!session?.user?.id) throw new Error("Unauthorized");
     const parsed = joinRequestSchema.safeParse(input);
     if (!parsed.success) {
-      throw new Error(parsed.error.errors[0]?.message || "Invalid input");
+      throw new Error(parsed.error.issues[0]?.message || "Invalid input");
     }
     await createJoinRequest(db, session.user.id, parsed.data);
     revalidatePath("/join");
