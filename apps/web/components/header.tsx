@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useTranslations, useLocale } from "next-intl";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -14,6 +14,7 @@ import { usePopover } from "@/hooks/use-popover";
 import type { Locale } from "@/i18n/request";
 import { LOCALE_CONFIG } from "@/lib/config/locales";
 import { cn } from "@/lib/utils";
+import { signOutAndLeave } from "@/lib/sign-out";
 
 interface HeaderProps {
   onMenuClick?: () => void;
@@ -231,7 +232,7 @@ export function Header({ onMenuClick, onCommandPalette }: HeaderProps) {
 
               <div className="border-t py-1">
                 <button
-                  onClick={() => signOut({ callbackUrl: "/login" })}
+                  onClick={() => void signOutAndLeave()}
                   className="flex w-full items-center gap-2 rounded px-3 py-2 text-sm text-destructive hover:bg-destructive/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   role="menuitem"
                 >

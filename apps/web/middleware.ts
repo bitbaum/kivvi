@@ -1,10 +1,11 @@
 import { auth } from "@/lib/auth";
-import { NextResponse } from "next/server";
+import { NextResponse, type NextFetchEvent, type NextRequest } from "next/server";
 import { checkRateLimit, getClientIp, getRateLimitConfig } from "@/lib/rate-limit";
 import { moduleForPath, isModuleEnabled } from "@kivvi/core/src/config/modules";
 import { isPublicPath } from "@/lib/security/public-paths";
+import { isPrefetchRequest, withoutSessionRefresh } from "@/lib/security/session-refresh";
 
-export default auth((req) => {
+const authMiddleware = auth((req) => {
   const { pathname } = req.nextUrl;
   const isAuthenticated = !!req.auth;
 
@@ -101,6 +102,18 @@ export default auth((req) => {
 
   return NextResponse.next();
 });
+
+// A prefetch in flight at sign-out must not write the session back
+// (lib/security/session-refresh.ts).
+export default async function middleware(req: NextRequest, event: NextFetchEvent) {
+  // auth()'s wrapper is typed for route handlers too; as middleware it receives (request, event).
+  const response = await authMiddleware(
+    req,
+    event as unknown as Parameters<typeof authMiddleware>[1],
+  );
+  if (response && isPrefetchRequest(req.headers)) return withoutSessionRefresh(response);
+  return response;
+}
 
 export const config = {
   // `opengraph-image` and `twitter-image` are Next's generated metadata routes.
