@@ -483,13 +483,23 @@ pnpm db:migrate    # applies it
 
 Run `pnpm db:migrate` before first start and after every upgrade that includes schema changes.
 
-### Company AI keys (one-off, after upgrading past plaintext keys)
+### Company AI keys (sealed at every start)
 
 A company's own AI key is stored encrypted per company. A key saved by an older
-version is plaintext; it is encrypted the next time chat or the company settings
-page reads it. To encrypt the ones nobody opens, run once, with the same
+version is plaintext. It is encrypted the next time chat or the company settings
+page reads it. The web app also seals every plaintext key once each time the
+server starts (`apps/web/instrumentation.ts` → `apps/web/lib/seal-company-ai-keys.ts`).
+It does this in the background, so start-up never waits for it, and a failure
+is logged, never thrown. It is idempotent and logs one line of counts, never a
+key. Look for it in the server log (on the box: `journalctl -u kivvi-app`):
+
+```
+[seal-company-ai-keys] Company AI keys: N sealed now, M already sealed, 0 unreadable (an admin must enter them again), 0 changed by someone else meanwhile (run again).
+```
+
+You can run the same sealing by hand from a checkout. Use the same
 `DATABASE_URL` and app secret (`INTEGRATION_SECRET`, else `NEXTAUTH_SECRET`) as
-the web app. It is idempotent and prints counts only:
+the web app:
 
 ```bash
 pnpm --filter @kivvi/web exec tsx scripts/seal-company-ai-keys.ts
