@@ -2619,7 +2619,9 @@
     "passwordResetButton": "Reset password",
     "passwordResetExpiry": "This link is valid for 1 hour. If you did not request a password reset, you can ignore this email.",
     "passwordResetFallback": "If the button doesn't work, copy this link into your browser:",
-    "passwordResetFooterAuto": "This email was automatically sent by Kivvi."
+    "passwordResetFooterAuto": "This email was automatically sent by Kivvi.",
+    "recoveryUnavailable": "Password recovery by email is not available here yet. Sign in another way, or ask your organisation's owner for help.",
+    "otherWaysIn": "Back to all ways to sign in"
   },
   "onboarding": {
     "welcome": "Welcome to Kivvi",

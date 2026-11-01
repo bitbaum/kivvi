@@ -7,11 +7,7 @@ import { companies, users, numberSequences } from "@kivvi/database";
 import type { CompanySettings, Company } from "@kivvi/database";
 import { AI_PROVIDER_VALUES } from "@kivvi/database/src/enums";
 import { eq, and, sql } from "drizzle-orm";
-import { headers } from "next/headers";
-import { sharedRuntimeEnabled } from "@bitbaum/accountkit/auth/switch";
-import { compat } from "@/lib/accountkit/compat";
 import { z } from "zod";
-import bcrypt from "bcryptjs";
 import { DEFAULT_CURRENCY, DEFAULT_COUNTRY } from "@kivvi/core/src/config/locale";
 import { TOGGLEABLE_MODULE_KEYS } from "@kivvi/core/src/config/modules";
 import { type ActionResult, getSession, requireRole, safeErrorMessage } from "./utils";
@@ -19,7 +15,6 @@ import { createAction } from "./action-factory";
 import { getTranslations } from "next-intl/server";
 import { MAX_UPLOAD_SIZE_BYTES } from "@/lib/config/uploads";
 import { updateUserProfile } from "@kivvi/core/src/domain/profiles";
-import { passwordSchema } from "@/lib/password";
 import { AI_KEY_MASK, redactCompanySettings } from "@/lib/security/company-settings";
 import { DomainError } from "@kivvi/core/src/domain-error";
 import { checkCompanyAiKey } from "@/lib/company-ai-key";
@@ -319,73 +314,6 @@ export async function updateProfileAction(
     return {
       success: false,
       error: safeErrorMessage(error, t("errorUpdateProfile")),
-    };
-  }
-}
-
-// ============================================================================
-// CHANGE PASSWORD
-// ============================================================================
-
-export async function changePasswordAction(input: unknown): Promise<ActionResult<void>> {
-  const t = await getTranslations("settings.profile");
-  try {
-    const { userId } = await getSession();
-    const schema = z
-      .object({
-        currentPassword: z.string().min(1, t("currentPasswordRequired")),
-        newPassword: passwordSchema,
-        confirmPassword: z.string(),
-      })
-      .refine((data) => data.newPassword === data.confirmPassword, {
-        message: t("passwordMismatch"),
-        path: ["confirmPassword"],
-      });
-    const parsed = schema.safeParse(input);
-    if (!parsed.success) {
-      return {
-        success: false,
-        error: parsed.error.issues[0]?.message || "Validation failed",
-      };
-    }
-
-    const [user] = await db
-      .select({ passwordHash: users.passwordHash })
-      .from(users)
-      .where(eq(users.id, userId));
-
-    if (!user?.passwordHash) throw new Error("account_state_error");
-
-    const isValid = await bcrypt.compare(parsed.data.currentPassword, user.passwordHash);
-    if (!isValid) {
-      return { success: false, error: t("currentPasswordIncorrect") };
-    }
-
-    const newHash = await bcrypt.hash(parsed.data.newPassword, 12);
-    // On the shared runtime the mirror trigger ends every other session of
-    // this person; the one changing the password stays signed in.
-    const keep = sharedRuntimeEnabled() ? await compat.sessionIdFor(await headers()) : null;
-    if (keep) {
-      await db.transaction(async (tx) => {
-        await tx.execute(sql`SELECT set_config('kivvi.keep_session', ${keep}, true)`);
-        await tx
-          .update(users)
-          .set({ passwordHash: newHash, updatedAt: new Date() })
-          .where(eq(users.id, userId));
-      });
-    } else {
-      await db
-        .update(users)
-        .set({ passwordHash: newHash, updatedAt: new Date() })
-        .where(eq(users.id, userId));
-    }
-
-    revalidatePath("/settings");
-    return { success: true };
-  } catch (error) {
-    return {
-      success: false,
-      error: safeErrorMessage(error, t("errorChangePasswordFailed")),
     };
   }
 }

@@ -19,11 +19,8 @@ import {
   buildInvoiceEmailSubject,
   buildDonationReceiptEmailHtml,
   buildDonationReceiptEmailSubject,
-  buildPasswordResetEmailHtml,
-  buildPasswordResetEmailSubject,
   type DonationReceiptEmailStrings,
   type InvoiceEmailStrings,
-  type PasswordResetEmailStrings,
 } from "@kivvi/core/src/domain/email";
 import { escapeHtml } from "@kivvi/core/src/utils/html";
 import Decimal from "decimal.js";
@@ -375,41 +372,4 @@ export async function sendDonationReceiptEmailAction(
       error: safeErrorMessage(error, t("errorReceiptCouldNotBeSent")),
     };
   }
-}
-
-// ============================================================================
-// PASSWORD RESET EMAIL
-// ============================================================================
-
-/**
- * Sends a password reset email with a secure token link.
- * Used by password-reset.ts server action.
- */
-export async function sendPasswordResetEmail(
-  recipientEmail: string,
-  recipientName: string,
-  resetUrl: string,
-  strings?: PasswordResetEmailStrings,
-): Promise<void> {
-  if (!isEmailConfigured()) {
-    throw new Error(
-      "Email sending is not configured. Please set EMAIL_USER and EMAIL_PASS in the environment variables or contact the administrator.",
-    );
-  }
-
-  const transporter = getTransporter();
-
-  const emailData = {
-    recipientEmail,
-    recipientName,
-    resetUrl,
-    companyName: "Kivvi",
-  };
-
-  await transporter.sendMail({
-    from: `Kivvi <${getFromEmail()}>`,
-    to: recipientEmail,
-    subject: buildPasswordResetEmailSubject(emailData, strings),
-    html: buildPasswordResetEmailHtml(emailData, strings),
-  });
 }

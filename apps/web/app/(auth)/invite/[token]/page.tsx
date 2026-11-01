@@ -1,15 +1,13 @@
 "use client";
 
-import { useState, useEffect, useTransition, use } from "react";
-import { useSession, signIn } from "next-auth/react";
+import { useState, useEffect, use } from "react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Loader2, Building2, CheckCircle2, XCircle, Clock } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { getInvitationDetailsAction, acceptInvitationAction } from "@/app/actions/invitations";
-import { registerAndAcceptInviteAction } from "@/app/actions/auth";
 import type { InvitationWithCompany } from "@kivvi/core/src/domain/invitations";
-import { InviteRegisterForm } from "./invite-register-form";
 
 interface InvitePageProps {
   params: Promise<{ token: string }>;
@@ -28,8 +26,6 @@ export default function InvitePage(props: InvitePageProps) {
   const [accepting, setAccepting] = useState(false);
   const [error, setError] = useState("");
   const [accepted, setAccepted] = useState(false);
-  const [showRegisterForm, setShowRegisterForm] = useState(false);
-  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     async function loadInvitation() {
@@ -59,32 +55,6 @@ export default function InvitePage(props: InvitePageProps) {
       setError(result.error || t("acceptFailed"));
     }
     setAccepting(false);
-  };
-
-  const handleRegisterAndAccept = async (form: {
-    name: string;
-    email: string;
-    password: string;
-  }) => {
-    setError("");
-    startTransition(async () => {
-      const result = await registerAndAcceptInviteAction(token, form);
-      if (!result.success) {
-        setError(result.error || t("acceptFailed"));
-        return;
-      }
-      const signInResult = await signIn("credentials", {
-        email: form.email,
-        password: form.password,
-        redirect: false,
-      });
-      if (signInResult?.error) {
-        setError(t("acceptFailed"));
-        return;
-      }
-      setAccepted(true);
-      setTimeout(() => router.push("/dashboard"), 1500);
-    });
   };
 
   if (loading || sessionStatus === "loading") {
@@ -149,23 +119,6 @@ export default function InvitePage(props: InvitePageProps) {
     );
   }
 
-  // Not logged in — inline register form
-  if (!session?.user && showRegisterForm) {
-    return (
-      <InviteRegisterForm
-        companyName={invitation?.companyName}
-        invitationEmail={invitation?.email}
-        error={error}
-        isPending={isPending}
-        onSubmit={handleRegisterAndAccept}
-        onBack={() => {
-          setShowRegisterForm(false);
-          setError("");
-        }}
-      />
-    );
-  }
-
   // Not logged in — login or register options
   if (!session?.user) {
     return (
@@ -186,13 +139,13 @@ export default function InvitePage(props: InvitePageProps) {
               >
                 {t("loginToAccept")}
               </Link>
-              <button
-                type="button"
-                onClick={() => setShowRegisterForm(true)}
+              {/* AccountKit's sign-up brings the new person back here to accept. */}
+              <Link
+                href={`/register?callbackUrl=/invite/${token}`}
                 className="flex w-full items-center justify-center rounded-lg border px-4 py-2.5 text-sm font-medium hover:bg-muted/50"
               >
                 {t("registerToAccept")}
-              </button>
+              </Link>
             </div>
           </div>
         </div>

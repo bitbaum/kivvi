@@ -1,8 +1,9 @@
 /**
- * Kivvi's screens on the shared runtime, unchanged: AccountKit's
- * next-auth/react compat layer, given what is Kivvi's own — the session with
- * its company, role and onboarding claims, re-read on every request, and the
- * password form (docs/ACCOUNTKIT-MIGRATION.md).
+ * /api/auth/*: AccountKit's own endpoints (its sign-in, sign-up, recovery and
+ * account screens call them), plus the next-auth/react protocol that
+ * `useSession` and `signOut` on Kivvi's other pages still speak, answered with
+ * Kivvi's session: company, role and onboarding claims, re-read on every
+ * request (docs/ACCOUNTKIT-MIGRATION.md).
  */
 import type { Session } from "next-auth";
 import { createNextAuthCompat } from "@bitbaum/accountkit/auth/nextauth-compat";
@@ -30,4 +31,6 @@ export const compat = createNextAuthCompat<Session>({
   },
   // The login page shows one sentence for every refusal it can explain.
   codes: { missing: "credentials" },
+  // Kivvi renders AccountKit's screens and has no credential writer of its own.
+  screens: "accountkit",
 });

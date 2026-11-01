@@ -84,7 +84,7 @@ serves; "that's how other ERPs do it" is not an answer.
   per domain — never in components or actions.
 - **DB**: Drizzle ORM + PostgreSQL. Schema SSOT: `packages/database/src/schema.ts`;
   enum values in `packages/database/src/enums.ts`.
-- **Auth**: NextAuth v5 (`apps/web/lib/auth.ts`); `@bitbaum/accountkit` answers sign-in since 2026-11-01 (`AUTH_RUNTIME=accountkit` on the box; `docs/ACCOUNTKIT-MIGRATION.md`).
+- **Auth**: `@bitbaum/accountkit` on its own screens (`apps/web/lib/accountkit/`, `docs/ACCOUNTKIT-MIGRATION.md`); `apps/web/lib/auth.ts` reads the session in Kivvi's shape, and pages keep `next-auth/react`'s `useSession` through AccountKit's compat layer.
 - **AI**: `packages/ai` — tools in `packages/ai/src/tools/`, providers in `packages/ai/src/providers/`.
 - **Deploy**: push to the default branch (`main`) → CI-gated background deploy to a self-hosted Hetzner PostgreSQL box (behind Caddy) via the Loki push-deploy hook. Prod only receives commits CI verified green.
 

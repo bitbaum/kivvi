@@ -23,11 +23,12 @@ vi.hoisted(() => {
     Object.assign(process.env, {
       DATABASE_URL: url,
       NEXTAUTH_URL: "https://kivvi.example.test",
-      AUTH_RUNTIME: "accountkit",
       NEXTAUTH_SECRET: "synthetic-kivvi-journey-secret-at-least-32-chars",
     });
     delete process.env.RESEND_API_KEY;
     delete process.env.BETTER_AUTH_SECRET;
+    delete process.env.ORANGECAT_OAUTH_CLIENT_ID;
+    delete process.env.SIGNIN_CLIENT_ID;
   }
 });
 
@@ -60,6 +61,7 @@ describe.skipIf(!URL_)("Kivvi on AccountKit (real PostgreSQL)", () => {
     browser = createCompatClient({ compat: (await import("../compat")).compat, site: SITE });
     await sql(`DROP TRIGGER IF EXISTS kivvi_accountkit_from_users ON users;
       DROP TRIGGER IF EXISTS kivvi_accountkit_to_users ON auth_users;
+      DROP TRIGGER IF EXISTS kivvi_accountkit_delete_users ON auth_users;
       TRUNCATE auth_users, auth_accounts, auth_sessions, auth_verifications,
         auth_passkeys, auth_two_factors, users, companies CASCADE`);
     await sql(
@@ -98,6 +100,40 @@ describe.skipIf(!URL_)("Kivvi on AccountKit (real PostgreSQL)", () => {
   const signIn = (email: string, password: string) =>
     browser.signIn("credentials", { email, password }, `${SITE}/dashboard`);
   const session = () => browser.session<any>();
+
+  // What AccountKit's screens send: JSON to its own endpoints, same cookie jar.
+  let hop = 0;
+  async function native(route: string, body: Record<string, unknown>) {
+    const { compat } = await import("../compat");
+    hop += 1;
+    const res = await compat.route.POST(
+      new Request(`${SITE}/api/auth${route}`, {
+        method: "POST",
+        headers: {
+          origin: SITE,
+          "content-type": "application/json",
+          "x-forwarded-for": `203.0.113.${hop % 250}`,
+          cookie: browser.cookie,
+        },
+        body: JSON.stringify(body),
+      }) as never,
+    );
+    const jar = new Map(
+      browser.cookie
+        .split("; ")
+        .filter(Boolean)
+        .map((part) => [part.slice(0, part.indexOf("=")), part.slice(part.indexOf("=") + 1)]),
+    );
+    for (const set of res.headers.getSetCookie()) {
+      const [pair] = set.split(";");
+      const name = pair.slice(0, pair.indexOf("="));
+      const value = pair.slice(pair.indexOf("=") + 1);
+      if (/max-age=0/i.test(set) || value === "") jar.delete(name);
+      else jar.set(name, value);
+    }
+    browser.cookie = [...jar].map(([name, value]) => `${name}=${value}`).join("; ");
+    return res;
+  }
 
   test("an imported bcrypt account signs in, in any letter case, with its company claims", async () => {
     const result = await signIn("OWNER@example.test", PASSWORD);
@@ -155,7 +191,7 @@ describe.skipIf(!URL_)("Kivvi on AccountKit (real PostgreSQL)", () => {
     expect(Number((await sql("SELECT count(*) FROM auth_users"))[0].count)).toBe(1);
   });
 
-  test("Kivvi's own sign-up writer reaches the shared row, so the new person signs in", async () => {
+  test("a users row written outside AccountKit (Loki's live proof) reaches the shared row", async () => {
     const hash = await bcrypt.hash("a brand new password", 4);
     await sql(
       `INSERT INTO users (email, name, password_hash) VALUES ('fresh@example.test', 'Fresh', $1)`,
@@ -166,49 +202,142 @@ describe.skipIf(!URL_)("Kivvi on AccountKit (real PostgreSQL)", () => {
     expect((await session()).user).toMatchObject({ email: "fresh@example.test", companyId: null });
   });
 
-  test("changing your own password keeps your session and ends every other one", async () => {
-    await signIn("owner@example.test", PASSWORD);
-    const mine = browser.cookie;
-    browser.cookie = "";
-    await signIn("owner@example.test", PASSWORD);
-    const other = browser.cookie;
-
-    const { compat } = await import("../compat");
-    const keep = await compat.sessionIdFor(new Headers({ cookie: mine }));
-    expect(keep).toBeTruthy();
-    const hash = await bcrypt.hash("the new password", 4);
-    const { db } = await import("@/lib/db");
-    await (db as any).$client.begin(async (tx: any) => {
-      await tx.unsafe("SELECT set_config('kivvi.keep_session', $1, true)", [keep]);
-      await tx.unsafe("UPDATE users SET password_hash = $1 WHERE id = $2", [hash, OWNER]);
+  test("a sign-up through AccountKit makes a Kivvi person under the same id, with no company yet", async () => {
+    const res = await native("/sign-up/email", {
+      name: "",
+      email: "Fresh@Example.test",
+      password: "a brand new password",
     });
-
-    browser.cookie = mine;
-    expect((await session())?.user?.id, "the changing session stays").toBe(OWNER);
-    browser.cookie = other;
-    expect(await session(), "every other session ends").toBeNull();
-
+    expect(res.status).toBe(200);
+    const { user } = await res.json();
+    const [row] = await sql(
+      "SELECT email, name, company_id, password_hash FROM users WHERE id = $1",
+      [user.id],
+    );
+    expect(row).toMatchObject({
+      email: "fresh@example.test",
+      name: null,
+      company_id: null,
+      password_hash: null,
+    });
+    expect((await session()).user).toMatchObject({ id: user.id, companyId: null });
     browser.cookie = "";
-    const old = await signIn("owner@example.test", PASSWORD);
-    expect(new URL(old.url).searchParams.get("error")).toBe("CredentialsSignin");
-    const fresh = await signIn("owner@example.test", "the new password");
-    expect(new URL(fresh.url).searchParams.get("error")).toBeNull();
+    const again = await native("/sign-in/email", {
+      email: "fresh@example.test",
+      password: "a brand new password",
+    });
+    expect(again.status).toBe(200);
   });
 
-  test("a reset through Kivvi's link ends every session", async () => {
-    await signIn("owner@example.test", PASSWORD);
-    await sql("UPDATE users SET password_hash = $1 WHERE id = $2", [
-      await bcrypt.hash("reset password", 4),
-      OWNER,
+  test("an imported bcrypt account signs in through AccountKit's form, wrong password refused", async () => {
+    expect(
+      (await native("/sign-in/email", { email: "owner@example.test", password: "nope" })).status,
+    ).toBe(401);
+    expect(await session()).toBeNull();
+    const res = await native("/sign-in/email", { email: "OWNER@example.test", password: PASSWORD });
+    expect(res.status).toBe(200);
+    expect((await session()).user).toMatchObject({ id: OWNER, companyId: COMPANY, role: "owner" });
+  });
+
+  test("a password change through AccountKit replaces the imported hash", async () => {
+    await native("/sign-in/email", { email: "owner@example.test", password: PASSWORD });
+    const res = await native("/change-password", {
+      currentPassword: PASSWORD,
+      newPassword: "the new password",
+      revokeOtherSessions: true,
+    });
+    expect(res.status).toBe(200);
+    browser.cookie = "";
+    expect(
+      (await native("/sign-in/email", { email: "owner@example.test", password: PASSWORD })).status,
+    ).toBe(401);
+    expect(
+      (
+        await native("/sign-in/email", {
+          email: "owner@example.test",
+          password: "the new password",
+        })
+      ).status,
+    ).toBe(200);
+  });
+
+  test("a rename through AccountKit's panel reaches Kivvi's row", async () => {
+    await native("/sign-in/email", { email: "owner@example.test", password: PASSWORD });
+    expect((await native("/update-user", { name: "Panel Name" })).status).toBe(200);
+    expect((await session()).user.name).toBe("Panel Name");
+    expect((await sql("SELECT name FROM users WHERE id = $1", [OWNER]))[0].name).toBe("Panel Name");
+  });
+
+  test("deleting an account through AccountKit deletes the Kivvi person and their memberships", async () => {
+    await sql("INSERT INTO memberships (user_id, company_id, role) VALUES ($1, $2, 'member')", [
+      NEWCOMER,
+      OTHER_COMPANY,
     ]);
+    await native("/sign-in/email", { email: "newcomer@example.test", password: PASSWORD });
+    const res = await native("/delete-user", { password: PASSWORD });
+    expect(res.status).toBe(200);
+    expect(await sql("SELECT 1 FROM users WHERE id = $1", [NEWCOMER])).toHaveLength(0);
+    expect(await sql("SELECT 1 FROM memberships WHERE user_id = $1", [NEWCOMER])).toHaveLength(0);
+    expect(await sql("SELECT 1 FROM auth_users WHERE id = $1", [NEWCOMER])).toHaveLength(0);
     expect(await session()).toBeNull();
   });
 
-  test("AccountKit's own credential writers stay closed until Kivvi adopts its screens", async () => {
-    for (const route of ["/sign-up/email", "/change-password", "/request-password-reset"]) {
-      const res = await answer(request(route, { form: { email: "x@example.test" } }));
-      expect(res.status, route).toBe(404);
-    }
+  test("a person named on kept records is refused deletion, and keeps every way in", async () => {
+    await sql(
+      `INSERT INTO audit_log (company_id, actor_user_id, action, entity_type) VALUES ($1, $2, 'journal.posted', 'journal_entry')`,
+      [OTHER_COMPANY, NEWCOMER],
+    );
+    await native("/sign-in/email", { email: "newcomer@example.test", password: PASSWORD });
+    const res = await native("/delete-user", { password: PASSWORD });
+    expect(res.status).toBe(403);
+    expect((await res.json()).message).toMatch(/business records|Geschäftsbelegen/);
+    expect((await session())?.user?.id).toBe(NEWCOMER);
+    expect(await sql("SELECT 1 FROM auth_accounts WHERE user_id = $1", [NEWCOMER])).toHaveLength(1);
+    browser.cookie = "";
+    expect(
+      (await native("/sign-in/email", { email: "newcomer@example.test", password: PASSWORD }))
+        .status,
+    ).toBe(200);
+  });
+
+  test("the only owner of a company others work in is refused deletion", async () => {
+    await sql("INSERT INTO memberships (user_id, company_id, role) VALUES ($1, $2, 'member')", [
+      NEWCOMER,
+      COMPANY,
+    ]);
+    await native("/sign-in/email", { email: "owner@example.test", password: PASSWORD });
+    const res = await native("/delete-user", { password: PASSWORD });
+    expect(res.status).toBe(403);
+    expect(await sql("SELECT 1 FROM users WHERE id = $1", [OWNER])).toHaveLength(1);
+  });
+
+  test("a person AccountKit creates itself (OrangeCat, an email link) gets a Kivvi row once", async () => {
+    const { ensureKivviUser } = await import("../accounts");
+    const id = "00000000-0000-4000-8000-0000000000aa";
+    await sql(
+      `INSERT INTO auth_users (id, name, email) VALUES ($1, 'New', 'abc@orangecat.invalid')`,
+      [id],
+    );
+    await ensureKivviUser({ userId: id });
+    await ensureKivviUser({ userId: id });
+    expect(await sql("SELECT email, name, company_id FROM users WHERE id = $1", [id])).toEqual([
+      { email: "abc@orangecat.invalid", name: "New", company_id: null },
+    ]);
+  });
+
+  test("OrangeCat and the bitbaum sign-in are offered only with their clients configured", async () => {
+    const { kivviMethods } = await import("../methods");
+    expect(kivviMethods()).toMatchObject({ orangecat: false, signin: false, password: true });
+    expect(
+      kivviMethods({
+        ...process.env,
+        ORANGECAT_OAUTH_CLIENT_ID: "kivvi",
+        ORANGECAT_OAUTH_CLIENT_SECRET: "s",
+        SIGNIN_ISSUER: "https://signin.example.test",
+        SIGNIN_CLIENT_ID: "kivvi",
+        SIGNIN_CLIENT_SECRET: "s",
+      }),
+    ).toMatchObject({ orangecat: true, signin: true, passkey: true, twoFactor: true });
   });
 
   test("the import is a no-op for the same snapshot and refuses drift", async () => {

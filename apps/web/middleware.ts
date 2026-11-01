@@ -1,7 +1,5 @@
-import { authJsMiddleware } from "@/lib/auth";
-import { sharedRuntimeEnabled } from "@bitbaum/accountkit/auth/switch";
 import { compat } from "@/lib/accountkit/compat";
-import { NextResponse, type NextFetchEvent, type NextRequest } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import type { Session } from "next-auth";
 import { checkRateLimit, getClientIp, getRateLimitConfig } from "@/lib/rate-limit";
 import { moduleForPath, isModuleEnabled } from "@kivvi/core/src/config/modules";
@@ -104,17 +102,12 @@ function route(req: NextRequest, session: Session | null) {
   return NextResponse.next();
 }
 
-const authJsRoute = authJsMiddleware((req) => route(req, req.auth));
-
 // A prefetch in flight at sign-out must not write the session back
 // (lib/security/session-refresh.ts).
-export default async function middleware(req: NextRequest, event: NextFetchEvent) {
-  // With AUTH_RUNTIME=accountkit the session lives in the database, read here
-  // through AccountKit (docs/ACCOUNTKIT-MIGRATION.md); otherwise the Auth.js JWT.
-  const response = sharedRuntimeEnabled()
-    ? route(req, await compat.sessionFor(req.headers))
-    : // auth()'s wrapper is typed for route handlers too; as middleware it receives (request, event).
-      await authJsRoute(req, event as unknown as Parameters<typeof authJsRoute>[1]);
+export default async function middleware(req: NextRequest) {
+  // The session is a database row, read here through AccountKit
+  // (docs/ACCOUNTKIT-MIGRATION.md).
+  const response = route(req, await compat.sessionFor(req.headers));
   if (response && isPrefetchRequest(req.headers)) return withoutSessionRefresh(response);
   return response;
 }

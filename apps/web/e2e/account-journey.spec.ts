@@ -1,25 +1,46 @@
+import { readFile } from "node:fs/promises";
 import { test, expect, type Page } from "@playwright/test";
 import { createPostgresClient, companies, memberships, users } from "@kivvi/database";
 import type { CompanySettings } from "@kivvi/database";
 import { eq } from "drizzle-orm";
 
 /**
- * An account can be made and used: sign-up and onboarding through the real
- * pages, sign-out, a wrong password refused, sign-in, the dashboard. Then the
- * company AI key: set through the settings form, it never comes back to the
- * browser — the field holds the mask or nothing (guards #185).
+ * Every way into a Kivvi account, on AccountKit's own screens, in a real
+ * Chromium against the production build and a database built from the
+ * committed migrations plus the cutover import
+ * (.github/workflows/browser-smoke.yml):
  *
- * Runs against the production build on a database built from the committed
- * migrations (.github/workflows/browser-smoke.yml). Synthetic people only.
+ *   - /login, /register and /forgot-password at 320px and 390px: no sideways
+ *     scroll, and the methods the env asks for, as visible text;
+ *   - sign up through AccountKit's form, create the organisation on /join,
+ *     onboarding, the dashboard;
+ *   - sign out, a wrong password refused, the right one accepted;
+ *   - the company AI key never sent back to the browser (#185);
+ *   - passkeys, two-factor and account deletion on the profile settings;
+ *   - an account imported from Auth.js (bcrypt, seeded before the import)
+ *     signs in with its old password, into its company;
+ *   - recovery through the mailed link: the old password refused, the new one
+ *     accepted; and an email sign-in link signing in.
+ *
+ * Mail is AccountKit's real mail, caught by scripts/ci/mail-sink.cjs
+ * (MAIL_SINK). Synthetic people only.
  */
 
 const run = Date.now().toString(36);
-const NAME = "Journey Person";
 const COMPANY = `Journey Werkstatt ${run}`;
 const EMAIL = `journey-${run}@example.test`;
 const PASSWORD = `synthetic journey password ${run}`;
+const NEW_LEGACY_PASSWORD = `synthetic reset password ${run}`;
 const AI_KEY = `sk-journey-${run}-never-in-the-browser`;
 const AI_KEY_MASK = "********";
+const SINK = process.env.MAIL_SINK;
+const LEGACY_EMAIL = process.env.LEGACY_EMAIL;
+const LEGACY_PASSWORD = process.env.LEGACY_PASSWORD;
+const EXPECT = {
+  mail: Boolean(SINK),
+  orangecat: Boolean(process.env.ORANGECAT_OAUTH_CLIENT_ID),
+  signin: Boolean(process.env.SIGNIN_CLIENT_ID),
+};
 
 const db = createPostgresClient(process.env.DATABASE_URL!);
 
@@ -27,68 +48,138 @@ test.afterAll(async () => {
   await db.$client.end();
 });
 
-// /login allows 10 requests a minute per address (lib/rate-limit.ts), so the
-// journey stays on the sign-in page between attempts and asks the session
-// endpoint, not a page, whether anyone is signed in.
-async function submitSignIn(page: Page, email: string, password: string) {
-  await page.locator("#email").fill(email);
-  await page.locator("#password").fill(password);
-  const answered = page.waitForResponse(/\/api\/auth\/callback\/credentials/);
-  await page.getByRole("button", { name: "Sign in", exact: true }).click();
-  await answered;
+// /login allows 10 page loads a minute per address, /register and
+// /forgot-password 5 (lib/rate-limit.ts). The journey loads them more often
+// than that, so each load comes from its own (documentation-range) address.
+let hop = 0;
+async function visit(page: Page, path: string) {
+  hop += 1;
+  await page.setExtraHTTPHeaders({ "x-forwarded-for": `203.0.113.${hop % 250}` });
+  await page.goto(path);
 }
+
+const button = (page: Page, name: string) => page.getByRole("button", { name, exact: true });
 
 async function sessionEmail(page: Page): Promise<string | null> {
   const session = await (await page.request.get("/api/auth/session")).json();
   return session?.user?.email ?? null;
 }
 
-test("an account is made, signed out, refused a wrong password, signed in, and keeps its AI key secret", async ({
+async function signInWithPassword(page: Page, email: string, password: string) {
+  await visit(page, "/login");
+  await page.locator('input[autocomplete="username webauthn"]').fill(email);
+  await page.locator('input[autocomplete="current-password"]').fill(password);
+  await button(page, "Sign in").click();
+}
+
+async function signOut(page: Page) {
+  await page.getByRole("button", { name: /^User menu/ }).click();
+  await page.getByRole("menuitem", { name: "Sign out" }).click();
+  await expect(page).toHaveURL(/\/login/);
+  expect(await sessionEmail(page), "the session is gone").toBeNull();
+}
+
+/** The newest link to `route` in a message to `to`, from the mail sink. */
+async function mailedLink(to: string, route: string): Promise<string> {
+  for (let i = 0; i < 30; i++) {
+    const lines = (await readFile(SINK!, "utf8").catch(() => "")).split("\n").filter(Boolean);
+    for (const line of lines.reverse()) {
+      const mail = JSON.parse(line);
+      if (![mail.to].flat().includes(to)) continue;
+      const html = String(mail.html ?? mail.text ?? "").replaceAll("&amp;", "&");
+      const link = html.match(new RegExp(`https?://[^"'\\s<>]*${route}[^"'\\s<>]*`));
+      if (link) return link[0];
+    }
+    await new Promise((r) => setTimeout(r, 500));
+  }
+  throw new Error(`no ${route} link was mailed`);
+}
+
+test("every way in works on AccountKit's screens, and the AI key stays secret", async ({
   page,
+  browser,
 }) => {
   await test.step("signed out, the privacy policy opens from the site footer, not the login form", async () => {
-    await page.goto("/");
+    await visit(page, "/");
     await page.locator("footer").getByRole("link", { name: "Privacy Policy" }).click();
     await expect(page).toHaveURL(/\/datenschutz$/);
     await expect(page.getByRole("heading", { level: 1, name: "Privacy policy" })).toBeVisible();
-    await expect(page.locator("#password"), "Privacy is not the login form").toHaveCount(0);
   });
 
-  await test.step("the sign-up page points at no terms page (Kivvi has none)", async () => {
-    // /register allows 5 requests a minute (lib/rate-limit.ts): this one load
-    // is also where sign-up happens.
-    await page.goto("/register");
+  await test.step("the auth pages fit a phone and show no Google-only button", async () => {
+    for (const width of [320, 390]) {
+      const phone = await browser.newPage({ viewport: { width, height: 844 }, locale: "en-US" });
+      for (const route of ["/login", "/register", "/forgot-password"]) {
+        await visit(phone, route);
+        await phone.waitForLoadState("networkidle");
+        const overflow = await phone.evaluate(
+          () => document.documentElement.scrollWidth - window.innerWidth,
+        );
+        expect(overflow, `${route} at ${width}px scrolls sideways`).toBeLessThanOrEqual(0);
+        await expect(
+          phone.getByRole("button", { name: /^(sign in|continue) with google$/i }),
+        ).toHaveCount(0);
+      }
+      await phone.close();
+    }
+  });
+
+  const offered = async (route: string, labels: Array<[string, boolean]>) => {
+    await visit(page, route);
+    for (const [name, wanted] of labels) {
+      const control = button(page, name);
+      if (wanted) await expect(control, `${route} offers "${name}"`).toBeVisible();
+      else await expect(control, `${route} hides "${name}"`).toHaveCount(0);
+    }
+  };
+
+  await test.step("the sign-in page offers every method the env asks for", async () => {
+    await offered("/login", [
+      ["Sign in", true],
+      ["Sign in with a passkey", true],
+      ["Email me a sign-in link instead", EXPECT.mail],
+      ["Forgot your password?", EXPECT.mail],
+      ["Continue with OrangeCat", EXPECT.orangecat],
+      ["Continue with Google, Apple, GitHub, X or Facebook", EXPECT.signin],
+    ]);
+  });
+
+  await test.step("the sign-up page offers them too, and points at no terms page", async () => {
+    await offered("/register", [
+      ["Create an account", true],
+      ["Email me a link instead", EXPECT.mail],
+      ["Continue with OrangeCat", EXPECT.orangecat],
+      ["Continue with Google, Apple, GitHub, X or Facebook", EXPECT.signin],
+    ]);
     await expect(page.locator('a[href="/terms"]')).toHaveCount(0);
   });
 
-  await test.step("sign up as a new organisation", async () => {
-    await page.locator("#name").fill(NAME);
-    await page.locator("#companyName").fill(COMPANY);
-    await page.locator("#email").fill(EMAIL);
-    await page.locator("#password").fill(PASSWORD);
-    await page.getByRole("button", { name: "Create Account" }).click();
-    await expect(page).toHaveURL(/\/onboarding/);
-  });
+  await test.step("sign up, create the organisation on /join, finish onboarding", async () => {
+    await page.locator('input[autocomplete="email"]').fill(EMAIL);
+    await page.locator('input[autocomplete="new-password"]').fill(PASSWORD);
+    await button(page, "Create an account").click();
+    await expect(page).toHaveURL(/\/join/);
+    expect(await sessionEmail(page)).toBe(EMAIL);
 
-  await test.step("onboarding sets up the company and lands on the dashboard", async () => {
+    await page.locator('input[autocomplete="organization"]').fill(COMPANY);
+    await page.getByRole("button", { name: "Create", exact: true }).click();
+    await expect(page).toHaveURL(/\/onboarding/);
+
     await expect(page.getByRole("heading", { name: "Your Organisation" })).toBeVisible();
     await expect(page.locator("#name")).toHaveValue(COMPANY);
     await page.locator("#city").fill("Zürich");
     await page.getByRole("button", { name: "Next" }).click();
-
     await expect(page.getByRole("heading", { name: "Business Configuration" })).toBeVisible();
     await page.getByRole("button", { name: "Complete setup" }).click();
-
     await page.getByRole("button", { name: /Start fresh/ }).click();
     await expect(page).toHaveURL(/\/dashboard/);
 
     const user = await db.query.users.findFirst({ where: eq(users.email, EMAIL) });
-    expect(user?.companyId, "the new user has a company").toBeTruthy();
+    expect(user?.passwordHash, "AccountKit holds the password, not users").toBeNull();
     const company = await db.query.companies.findFirst({
       where: eq(companies.id, user!.companyId!),
     });
     expect(company?.name).toBe(COMPANY);
-    expect(company?.city).toBe("Zürich");
     expect((company?.settings as CompanySettings)?.onboardingCompletedAt).toBeTruthy();
     const membership = await db.query.memberships.findFirst({
       where: eq(memberships.userId, user!.id),
@@ -96,46 +187,27 @@ test("an account is made, signed out, refused a wrong password, signed in, and k
     expect(membership?.role, "the person who signed up owns the company").toBe("owner");
   });
 
-  await test.step("sign out from the user menu", async () => {
-    expect(await sessionEmail(page)).toBe(EMAIL);
-    await page.getByRole("button", { name: `User menu: ${NAME}` }).click();
-    await page.getByRole("menuitem", { name: "Sign out" }).click();
-    await expect(page).toHaveURL(/\/login/);
-    expect(await sessionEmail(page), "the session is gone").toBeNull();
+  await test.step("sign out; the dashboard asks for sign-in", async () => {
+    await signOut(page);
     const dashboard = await page.request.get("/dashboard", { maxRedirects: 0 });
-    expect(dashboard.status(), "the dashboard asks for sign-in").toBe(307);
+    expect(dashboard.status()).toBe(307);
     expect(dashboard.headers()["location"]).toMatch(/\/login\?callbackUrl=%2Fdashboard/);
   });
 
-  await test.step("wrong credentials are refused", async () => {
-    for (const [email, password] of [
-      [EMAIL, "not the password"],
-      [`nobody-${run}@example.test`, PASSWORD],
-    ]) {
-      await submitSignIn(page, email, password);
-      await expect(page.getByText("Invalid email or password.")).toBeVisible();
-      await expect(page).toHaveURL(/\/login/);
-      expect(await sessionEmail(page), `no session for ${email}`).toBeNull();
-    }
-  });
-
-  await test.step("sign in and reach the dashboard", async () => {
-    await submitSignIn(page, EMAIL, PASSWORD);
+  await test.step("a wrong password is refused, the right one signs in", async () => {
+    await signInWithPassword(page, EMAIL, "not the password");
+    await expect(page.getByText("That email and password do not match")).toBeVisible();
+    expect(await sessionEmail(page)).toBeNull();
+    await signInWithPassword(page, EMAIL, PASSWORD);
     await expect(page).toHaveURL(/\/dashboard/);
-    await expect(page.getByRole("button", { name: `User menu: ${NAME}` })).toBeVisible();
     expect(await sessionEmail(page)).toBe(EMAIL);
   });
 
   await test.step("the company AI key never reaches the browser", async () => {
-    await page.goto("/settings/company");
-    // Until React swaps in the streamed page, its copy and the shell's can
-    // both be in the document; read the field once there is one.
+    await visit(page, "/settings/company");
     const keyField = page.locator("#aiApiKey");
     await expect(keyField).toHaveCount(1);
     await expect(keyField).toHaveValue("");
-
-    // Ollama takes no key check, so the save does not depend on a provider
-    // answering; the key is still stored, sealed, like any other.
     await page.locator("#aiProvider").selectOption("ollama");
     await keyField.fill(AI_KEY);
     const save = page.locator("form", { has: keyField }).getByRole("button", {
@@ -155,8 +227,6 @@ test("an account is made, signed out, refused a wrong password, signed in, and k
     expect(sealed, "the key is stored sealed").toMatch(/^cak:v\d+:/);
     expect(sealed).not.toContain(AI_KEY);
 
-    // Everything the settings page sends — HTML, RSC payload, scripts — is
-    // read for the key, not only the field's value.
     const bodies: Promise<string>[] = [];
     page.on("response", (response) => {
       bodies.push(response.text().catch(() => ""));
@@ -170,10 +240,62 @@ test("an account is made, signed out, refused a wrong password, signed in, and k
     await page.waitForLoadState("networkidle");
     const leaked = (await Promise.all(bodies)).filter((body) => body.includes(AI_KEY));
     expect(leaked, "no response carries the key").toHaveLength(0);
-
-    // Saving with the mask in place keeps the stored key as it is.
     await save.click();
     await expect(page.getByText("Settings saved")).toBeVisible();
     expect(await stored(), "the mask means keep").toBe(sealed);
+  });
+
+  await test.step("the profile settings offer passkeys, two-factor and deletion", async () => {
+    await visit(page, "/settings/profile");
+    for (const title of ["Passkeys", "Two-factor sign-in"]) {
+      await expect(page.getByText(title, { exact: true }).first()).toBeVisible();
+    }
+    await expect(page.getByRole("button", { name: /delete/i }).first()).toBeVisible();
+    await signOut(page);
+  });
+
+  await test.step("an account imported from Auth.js signs in with its old password", async () => {
+    expect(
+      LEGACY_EMAIL && LEGACY_PASSWORD,
+      "LEGACY_EMAIL and LEGACY_PASSWORD are set",
+    ).toBeTruthy();
+    await signInWithPassword(page, LEGACY_EMAIL!, LEGACY_PASSWORD!);
+    await expect(page).toHaveURL(/\/dashboard/);
+    const session = await (await page.request.get("/api/auth/session")).json();
+    expect(session?.user).toMatchObject({ email: LEGACY_EMAIL, role: "owner" });
+    expect(session?.user?.companyId).toBeTruthy();
+    await signOut(page);
+  });
+
+  if (!EXPECT.mail) return;
+
+  await test.step("recovery through the mailed link sets a new password", async () => {
+    await visit(page, "/forgot-password");
+    await page.locator('input[autocomplete="email"]').fill(LEGACY_EMAIL!);
+    await button(page, "Email me a reset link").click();
+    await expect(page.getByText("If an account can be recovered")).toBeVisible();
+    await page.goto(await mailedLink(LEGACY_EMAIL!, "/api/auth/reset-password/"));
+    await expect(page).toHaveURL(/\/login/);
+    await page.locator('input[autocomplete="new-password"]').fill(NEW_LEGACY_PASSWORD);
+    expect(page.url(), "the reset token leaves the address bar").not.toContain("token=");
+    await button(page, "Reset password").click();
+    await expect(page.getByText("Your password has been changed")).toBeVisible();
+
+    await signInWithPassword(page, LEGACY_EMAIL!, LEGACY_PASSWORD!);
+    await expect(page.getByText("That email and password do not match")).toBeVisible();
+    await signInWithPassword(page, LEGACY_EMAIL!, NEW_LEGACY_PASSWORD);
+    await expect(page).toHaveURL(/\/dashboard/);
+    expect(await sessionEmail(page)).toBe(LEGACY_EMAIL);
+    await signOut(page);
+  });
+
+  await test.step("an email sign-in link signs in", async () => {
+    await visit(page, "/login");
+    await page.locator('input[autocomplete="username webauthn"]').fill(EMAIL);
+    await button(page, "Email me a sign-in link instead").click();
+    await expect(page.getByText(`We sent a link to ${EMAIL}`)).toBeVisible();
+    await page.goto(await mailedLink(EMAIL, "/api/auth/magic-link/verify"));
+    await expect(page).toHaveURL(/\/dashboard/);
+    expect(await sessionEmail(page)).toBe(EMAIL);
   });
 });

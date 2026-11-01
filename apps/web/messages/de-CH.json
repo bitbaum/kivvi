@@ -2619,7 +2619,9 @@
     "passwordResetButton": "Passwort zurücksetzen",
     "passwordResetExpiry": "Dieser Link ist 1 Stunde gültig. Falls Sie keine Anfrage zum Zurücksetzen Ihres Passworts gestellt haben, können Sie diese E-Mail ignorieren.",
     "passwordResetFallback": "Falls der Button nicht funktioniert, kopieren Sie diesen Link in Ihren Browser:",
-    "passwordResetFooterAuto": "Diese E-Mail wurde automatisch von Kivvi versendet."
+    "passwordResetFooterAuto": "Diese E-Mail wurde automatisch von Kivvi versendet.",
+    "recoveryUnavailable": "Passwort-Wiederherstellung per E-Mail ist hier noch nicht verfügbar. Melden Sie sich auf einem anderen Weg an oder fragen Sie die Inhaberin oder den Inhaber Ihrer Organisation.",
+    "otherWaysIn": "Zurück zu allen Anmeldewegen"
   },
   "onboarding": {
     "welcome": "Willkommen bei Kivvi",

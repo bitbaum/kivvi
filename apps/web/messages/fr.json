@@ -2619,7 +2619,9 @@
     "passwordResetButton": "Réinitialiser le mot de passe",
     "passwordResetExpiry": "Ce lien est valable 1 heure. Si vous n'avez pas demandé de réinitialisation de mot de passe, vous pouvez ignorer cet e-mail.",
     "passwordResetFallback": "Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :",
-    "passwordResetFooterAuto": "Cet e-mail a été envoyé automatiquement par Kivvi."
+    "passwordResetFooterAuto": "Cet e-mail a été envoyé automatiquement par Kivvi.",
+    "recoveryUnavailable": "La récupération du mot de passe par e-mail n'est pas encore disponible ici. Connectez-vous autrement ou demandez de l'aide au propriétaire de votre organisation.",
+    "otherWaysIn": "Retour à toutes les façons de se connecter"
   },
   "onboarding": {
     "welcome": "Bienvenue sur Kivvi",

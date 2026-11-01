@@ -274,6 +274,13 @@
       "when": 1793520000000,
       "tag": "0038_accountkit_staging",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "5",
+      "when": 1793606400000,
+      "tag": "0039_accountkit_screens",
+      "breakpoints": true
     }
   ]
 }
