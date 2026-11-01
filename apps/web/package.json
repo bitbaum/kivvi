@@ -16,7 +16,7 @@
     "@anthropic-ai/sdk": "^0.115.0",
     "@auth/drizzle-adapter": "^1.0.0",
     "@better-auth/passkey": "^1.7.14",
-    "@bitbaum/accountkit": "^0.19.0",
+    "@bitbaum/accountkit": "github:bitbaum/accountkit#d49b6170cdca98f30a03e6f3e7000f633b61ab38",
     "@bitbaum/ai-kit": "^1.22.0",
     "@bitbaum/chartkit": "^0.7.0",
     "@bitbaum/chatkit": "^0.22.1",
