@@ -9,6 +9,13 @@ const PUBLIC_PATHS = [
   // and the page's own prefetch of each link spent the /login rate limit.
   "/terms",
   "/privacy",
+  // Landing pages in the sitemap and linked from the home page. Guarded, a
+  // signed-out visitor was sent to sign in, and the home page's prefetch of
+  // /contact followed that redirect. Exact paths: "/contact" as a prefix
+  // would open the dashboard's /contacts.
+  "/contact",
+  "/pricing",
+  "/roadmap",
   // Fleet's release receipt contains only the deployed source SHA, lockfile
   // digest, and immutable first-party artifact identities. Rollout automation
   // needs this exact static file to verify what the canary serves.

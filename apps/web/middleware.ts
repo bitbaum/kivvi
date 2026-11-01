@@ -6,6 +6,7 @@ import type { Session } from "next-auth";
 import { checkRateLimit, getClientIp, getRateLimitConfig } from "@/lib/rate-limit";
 import { moduleForPath, isModuleEnabled } from "@kivvi/core/src/config/modules";
 import { isPublicPath } from "@/lib/security/public-paths";
+import { publicUrl } from "@/lib/security/public-url";
 import { isPrefetchRequest, withoutSessionRefresh } from "@/lib/security/session-refresh";
 
 /** Kivvi's routing for one request, given who (if anyone) is signed in. */
@@ -50,7 +51,7 @@ function route(req: NextRequest, session: Session | null) {
     let dest = "/onboarding";
     if (!companyId) dest = "/join";
     else if (onboardingComplete) dest = "/dashboard";
-    return NextResponse.redirect(new URL(dest, req.url));
+    return NextResponse.redirect(publicUrl(dest));
   }
 
   // Routing for authenticated users based on company + onboarding state
@@ -63,17 +64,17 @@ function route(req: NextRequest, session: Session | null) {
 
     // No active company → must join or create one before using the app
     if (!companyId && !isJoinPath && !pathname.startsWith("/api/")) {
-      return NextResponse.redirect(new URL("/join", req.url));
+      return NextResponse.redirect(publicUrl("/join"));
     }
 
     // Has company but hasn't finished onboarding
     if (companyId && !onboardingComplete && !isOnboardingPath && !pathname.startsWith("/api/")) {
-      return NextResponse.redirect(new URL("/onboarding", req.url));
+      return NextResponse.redirect(publicUrl("/onboarding"));
     }
 
     // Finished onboarding + still on onboarding page → go to dashboard
     if (companyId && onboardingComplete && isOnboardingPath) {
-      return NextResponse.redirect(new URL("/dashboard", req.url));
+      return NextResponse.redirect(publicUrl("/dashboard"));
     }
 
     // Per-tenant module gating: a disabled module's routes are unreachable by
@@ -84,7 +85,7 @@ function route(req: NextRequest, session: Session | null) {
       if (mod) {
         const enabledModules = session?.user?.enabledModules;
         if (!isModuleEnabled(enabledModules ?? undefined, mod)) {
-          return NextResponse.redirect(new URL("/dashboard", req.url));
+          return NextResponse.redirect(publicUrl("/dashboard"));
         }
       }
     }
@@ -95,7 +96,7 @@ function route(req: NextRequest, session: Session | null) {
     if (pathname.startsWith("/api/")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    const loginUrl = new URL("/login", req.url);
+    const loginUrl = publicUrl("/login");
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
   }
