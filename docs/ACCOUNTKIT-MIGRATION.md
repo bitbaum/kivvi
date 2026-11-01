@@ -17,7 +17,7 @@ Against an isolated database holding an authorised snapshot, after every
 migration:
 
 ```sh
-DATABASE_URL=postgres://… node scripts/db/accountkit-import-rehearse.mjs
+DATABASE_URL=postgres://… pnpm --filter @kivvi/database run db:rehearse-import
 ```
 
 It runs `scripts/db/accountkit-import.sql` in one transaction, always rolls
@@ -52,11 +52,13 @@ production it must be at least 32 characters.
   (`apps/web/lib/session-claims.ts`, the same rule the Auth.js jwt callback
   uses). A company switch, a finished onboarding, a role change or a deleted
   person applies on the next request.
-- The pages keep `next-auth/react`. `/api/auth` answers its calls (`session`
-  GET and POST, `csrf`, `providers`, `signout`, `callback/credentials`) from
-  AccountKit. Of AccountKit's own endpoints only session, sign-in and sign-out
-  are open. Its sign-up, reset and password endpoints stay closed until Kivvi
-  adopts its screens, so there is no second credential writer.
+- The pages keep `next-auth/react`. AccountKit's compat layer
+  (`@bitbaum/accountkit/auth/nextauth-compat`, configured in
+  `apps/web/lib/accountkit/compat.ts`) answers its calls from the shared
+  runtime: `session` GET and POST, `csrf`, `providers`, `signout` and
+  `callback/credentials`. Of AccountKit's own endpoints only session, sign-in
+  and sign-out are open. Its sign-up, reset and password endpoints stay closed
+  until Kivvi adopts its screens, so there is no second credential writer.
 - The middleware reads the shared session from the database, so it runs on
   Node (`runtime: "nodejs"`, stable in Next 15.5) on both runtimes.
 

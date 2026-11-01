@@ -4,15 +4,11 @@
  * switch (docs/ACCOUNTKIT-MIGRATION.md).
  */
 import bcrypt from "bcryptjs";
+import { sharedRuntimeEnabled } from "@bitbaum/accountkit/auth/switch";
 import { createAuthRuntime } from "@bitbaum/accountkit/auth/next";
 import { createAuthMailer } from "@bitbaum/accountkit/auth/mail";
 import { authTables } from "@kivvi/database";
 import { db } from "@/lib/db";
-
-/** Whether the shared runtime answers. Auth.js answers otherwise. */
-export function sharedAuthEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
-  return env.AUTH_RUNTIME === "accountkit";
-}
 
 /** The public origin every redirect and every AccountKit origin check uses. */
 export function siteUrl(env: NodeJS.ProcessEnv = process.env): string {
@@ -34,7 +30,7 @@ export const sharedAuth = createAuthRuntime({
         ? env.BETTER_AUTH_SECRET || env.NEXTAUTH_SECRET
         : env[key as string],
   }),
-  isDatabaseConfigured: (env) => sharedAuthEnabled(env) && Boolean(env.DATABASE_URL),
+  isDatabaseConfigured: (env) => sharedRuntimeEnabled(env) && Boolean(env.DATABASE_URL),
   getDatabase: () => db,
   schema: authTables,
   // Imported bcrypt hashes (users.password_hash) keep working, and Kivvi's own
