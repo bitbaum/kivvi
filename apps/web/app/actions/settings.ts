@@ -6,7 +6,10 @@ import { db } from "@/lib/db";
 import { companies, users, numberSequences } from "@kivvi/database";
 import type { CompanySettings, Company } from "@kivvi/database";
 import { AI_PROVIDER_VALUES } from "@kivvi/database/src/enums";
-import { eq, and } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
+import { headers } from "next/headers";
+import { sharedAuthEnabled } from "@/lib/accountkit/runtime";
+import { sharedSessionId } from "@/lib/accountkit/session";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { DEFAULT_CURRENCY, DEFAULT_COUNTRY } from "@kivvi/core/src/config/locale";
@@ -359,10 +362,23 @@ export async function changePasswordAction(input: unknown): Promise<ActionResult
     }
 
     const newHash = await bcrypt.hash(parsed.data.newPassword, 12);
-    await db
-      .update(users)
-      .set({ passwordHash: newHash, updatedAt: new Date() })
-      .where(eq(users.id, userId));
+    // On the shared runtime the mirror trigger ends every other session of
+    // this person; the one changing the password stays signed in.
+    const keep = sharedAuthEnabled() ? await sharedSessionId(await headers()) : null;
+    if (keep) {
+      await db.transaction(async (tx) => {
+        await tx.execute(sql`SELECT set_config('kivvi.keep_session', ${keep}, true)`);
+        await tx
+          .update(users)
+          .set({ passwordHash: newHash, updatedAt: new Date() })
+          .where(eq(users.id, userId));
+      });
+    } else {
+      await db
+        .update(users)
+        .set({ passwordHash: newHash, updatedAt: new Date() })
+        .where(eq(users.id, userId));
+    }
 
     revalidatePath("/settings");
     return { success: true };

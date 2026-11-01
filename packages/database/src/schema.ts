@@ -43,6 +43,7 @@ import {
 
 // Re-export enums for consumer convenience (client-safe, no DB deps)
 export * from "./enums";
+export * from "./accountkit";
 
 // ============================================================================
 // ENUMS
