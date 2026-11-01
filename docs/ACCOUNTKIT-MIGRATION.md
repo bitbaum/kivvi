@@ -1,10 +1,10 @@
-# AccountKit migration staging
+# AccountKit migration
 
-Kivvi still signs in through Auth.js (`apps/web/lib/auth.ts`). Migration
+Kivvi signs in through AccountKit since 2026-11-01 (`AUTH_RUNTIME=accountkit`).
+Auth.js (`apps/web/lib/auth.ts`) stays in the tree for a rollback. Migration
 `packages/database/drizzle/0038_accountkit_staging.sql` adds AccountKit's
 tables beside it under the `auth_` prefix (`createAuthTables("auth_")` in
-`packages/database/src/accountkit.ts`), because Kivvi already owns `users`.
-Nothing reads or writes them yet. The fleet's acceptance queue is
+`packages/database/src/accountkit.ts`), because Kivvi already owns `users`. The fleet's acceptance queue is
 [Fleet's checkpoint](https://github.com/bitbaum/fleet/blob/main/docs/remediation-resume-2026-10-29.md).
 
 The migration was written by hand: this repository's Drizzle snapshots are in
@@ -40,7 +40,7 @@ credential row in step. A password change ends every other shared session; the
 settings action names its own session in `kivvi.keep_session`, so the person
 changing it stays signed in, and a reset ends everything.
 
-## Shared runtime (built, off)
+## Shared runtime (on since 2026-11-01)
 
 With `AUTH_RUNTIME=accountkit` the runtime in `apps/web/lib/accountkit/`
 answers every sign-in; unset, Auth.js answers as today. The secret is
@@ -68,13 +68,28 @@ real handlers on the real migration chain and the real import. CI's
 the whole browser account journey (sign-up, onboarding, sign-out, wrong
 password, sign-in, settings) once per runtime. That is not deployed evidence.
 
-## Before switching
+## Switched (2026-11-01)
 
-1. Stop Kivvi's credential writes, import once under locks, then set
-   `AUTH_RUNTIME=accountkit`. Everyone signed in under Auth.js signs in again
-   once. To roll back, unset `AUTH_RUNTIME` and drop the two triggers. Every
-   hash stays bcrypt in `users.password_hash`, so nothing needs a reset.
-2. Prove sign-in, recovery, a company switch and revocation on the deployed
-   artifact with an approved test identity.
-3. Later, and separately: AccountKit's screens (passkeys, sign-in links, its
-   own recovery), which need Kivvi's writers to move to AccountKit first.
+The switch ran from Loki's `accountkit-switch.yml`
+(`scripts/hetzner/accountkit-switch.sh`, see Loki's
+`docs/architecture/accountkit-migration.md`):
+
+1. A survey counted 4 accounts and nobody whose only way in would be
+   lost.
+2. The import ran once, under locks, and attached the mirror triggers.
+3. `AUTH_RUNTIME=accountkit` was set and the app restarted.
+4. A live proof ran on the public site. A throwaway account signed in through
+   the product's own sign-in route, read its session back, signed out, and
+   was deleted.
+
+Everyone signed in under Auth.js signs in again once.
+
+To roll back, run the same workflow with `rollback`. It unsets `AUTH_RUNTIME`,
+restarts on Auth.js, drops the mirrors and empties the shared tables.
+Every hash stays bcrypt in `users.password_hash`, so nothing needs a reset.
+
+Still to prove with an approved test identity on the deployed artifact:
+recovery, a company switch and revocation.
+
+Later, and separately: AccountKit's screens (passkeys, sign-in links, its own
+recovery), which need Kivvi's writers to move to AccountKit first.
