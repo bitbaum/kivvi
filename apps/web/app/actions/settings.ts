@@ -365,13 +365,20 @@ export async function changePasswordAction(input: unknown): Promise<ActionResult
     // On the shared runtime the mirror trigger ends every other session of
     // this person; the one changing the password stays signed in.
     const keep = sharedAuthEnabled() ? await sharedSessionId(await headers()) : null;
-    await db.transaction(async (tx) => {
-      if (keep) await tx.execute(sql`SELECT set_config('kivvi.keep_session', ${keep}, true)`);
-      await tx
+    if (keep) {
+      await db.transaction(async (tx) => {
+        await tx.execute(sql`SELECT set_config('kivvi.keep_session', ${keep}, true)`);
+        await tx
+          .update(users)
+          .set({ passwordHash: newHash, updatedAt: new Date() })
+          .where(eq(users.id, userId));
+      });
+    } else {
+      await db
         .update(users)
         .set({ passwordHash: newHash, updatedAt: new Date() })
         .where(eq(users.id, userId));
-    });
+    }
 
     revalidatePath("/settings");
     return { success: true };
