@@ -267,6 +267,13 @@
       "when": 1784051129799,
       "tag": "0037_rare_ego",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "5",
+      "when": 1793520000000,
+      "tag": "0038_accountkit_staging",
+      "breakpoints": true
     }
   ]
 }

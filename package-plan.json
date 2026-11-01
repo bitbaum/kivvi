@@ -3,15 +3,27 @@
     "ai-chat": {
       "package": "@bitbaum/chatkit",
       "bindings": [
-        { "file": "apps/web/components/chat-widget/chat-messages.tsx", "symbols": ["ChatThread"] },
-        { "file": "apps/web/components/chat-widget/chat-input.tsx", "symbols": ["Composer"] }
+        {
+          "file": "apps/web/components/chat-widget/chat-messages.tsx",
+          "symbols": ["ChatThread"]
+        },
+        {
+          "file": "apps/web/components/chat-widget/chat-input.tsx",
+          "symbols": ["Composer"]
+        }
       ]
     },
     "ai-runtime": {
       "package": "@bitbaum/ai-kit",
       "bindings": [
-        { "file": "packages/ai/src/health.ts", "symbols": ["createHealthTracker"] },
-        { "file": "packages/ai/src/liveness.ts", "symbols": ["createAiHealthHandler"] }
+        {
+          "file": "packages/ai/src/health.ts",
+          "symbols": ["createHealthTracker"]
+        },
+        {
+          "file": "packages/ai/src/liveness.ts",
+          "symbols": ["createAiHealthHandler"]
+        }
       ]
     },
     "ai-forms": {
@@ -21,15 +33,27 @@
           "file": "apps/web/app/api/ai/form-assist/route.ts",
           "symbols": ["createFormAssistHandler"]
         },
-        { "file": "apps/web/lib/config/ai-forms.ts", "symbols": ["defineFields"] },
-        { "file": "apps/web/components/contacts/contact-form.tsx", "symbols": ["useAiForm"] }
+        {
+          "file": "apps/web/lib/config/ai-forms.ts",
+          "symbols": ["defineFields"]
+        },
+        {
+          "file": "apps/web/components/contacts/contact-form.tsx",
+          "symbols": ["useAiForm"]
+        }
       ]
     },
     "mail": {
       "package": "@bitbaum/mail-kit",
       "bindings": [
-        { "file": "apps/web/lib/email/transporter.ts", "symbols": ["mailKitSendMail"] },
-        { "file": "apps/web/lib/config/email.ts", "symbols": ["isMailConfigured"] }
+        {
+          "file": "apps/web/lib/email/transporter.ts",
+          "symbols": ["mailKitSendMail"]
+        },
+        {
+          "file": "apps/web/lib/config/email.ts",
+          "symbols": ["isMailConfigured"]
+        }
       ]
     },
     "publishing": {
@@ -52,15 +76,18 @@
     "rate-limits": {
       "package": "limitkit",
       "bindings": [
-        { "file": "apps/web/lib/rate-limit.ts", "symbols": ["slidingWindow", "clientIp"] }
+        {
+          "file": "apps/web/lib/rate-limit.ts",
+          "symbols": ["slidingWindow", "clientIp"]
+        }
       ]
     }
   },
   "exceptions": {
     "authentication": {
-      "package": "next-auth",
-      "status": "product-owned",
-      "reason": "Kivvi's tenant-aware ERP auth is integrated with its own account, invitation, and authorization workflows; the fleet migration must retain this app-specific boundary until the full lifecycle is proven against Kivvi's financial and tenant-isolation requirements."
+      "package": "@bitbaum/accountkit",
+      "status": "staged",
+      "reason": "AccountKit's runtime is staged behind AUTH_RUNTIME=accountkit (off). Auth.js answers until the import under locks and deployed proof with an approved test identity; Kivvi keeps companies, memberships and roles as its own authorization. See docs/ACCOUNTKIT-MIGRATION.md."
     }
   }
 }

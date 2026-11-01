@@ -9,6 +9,7 @@ declare module "next-auth" {
       companyName: string | null;
       role: string;
       onboardingComplete: boolean;
+      enabledModules?: string[] | null;
     } & DefaultSession["user"];
   }
 

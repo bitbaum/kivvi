@@ -84,7 +84,7 @@ serves; "that's how other ERPs do it" is not an answer.
   per domain — never in components or actions.
 - **DB**: Drizzle ORM + PostgreSQL. Schema SSOT: `packages/database/src/schema.ts`;
   enum values in `packages/database/src/enums.ts`.
-- **Auth**: NextAuth v5 (`apps/web/lib/auth.ts`).
+- **Auth**: NextAuth v5 (`apps/web/lib/auth.ts`); `@bitbaum/accountkit` is staged behind `AUTH_RUNTIME=accountkit`, off (`docs/ACCOUNTKIT-MIGRATION.md`).
 - **AI**: `packages/ai` — tools in `packages/ai/src/tools/`, providers in `packages/ai/src/providers/`.
 - **Deploy**: push to the default branch (`main`) → CI-gated background deploy to a self-hosted Hetzner PostgreSQL box (behind Caddy) via the Loki push-deploy hook. Prod only receives commits CI verified green.
 

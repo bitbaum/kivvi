@@ -1,13 +1,17 @@
-import { auth } from "@/lib/auth";
+import { authJsMiddleware } from "@/lib/auth";
+import { sharedAuthEnabled } from "@/lib/accountkit/runtime";
+import { sharedSessionFor } from "@/lib/accountkit/session";
 import { NextResponse, type NextFetchEvent, type NextRequest } from "next/server";
+import type { Session } from "next-auth";
 import { checkRateLimit, getClientIp, getRateLimitConfig } from "@/lib/rate-limit";
 import { moduleForPath, isModuleEnabled } from "@kivvi/core/src/config/modules";
 import { isPublicPath } from "@/lib/security/public-paths";
 import { isPrefetchRequest, withoutSessionRefresh } from "@/lib/security/session-refresh";
 
-const authMiddleware = auth((req) => {
+/** Kivvi's routing for one request, given who (if anyone) is signed in. */
+function route(req: NextRequest, session: Session | null) {
   const { pathname } = req.nextUrl;
-  const isAuthenticated = !!req.auth;
+  const isAuthenticated = !!session;
 
   // Handle CORS preflight for the public REST API
   if (req.method === "OPTIONS" && pathname.startsWith("/api/v1")) {
@@ -41,9 +45,8 @@ const authMiddleware = auth((req) => {
 
   // Redirect authenticated users away from auth pages
   if (isAuthenticated && (pathname === "/login" || pathname === "/register")) {
-    // Justified: next-auth middleware types don't include custom session fields
-    const companyId = (req.auth as any)?.user?.companyId;
-    const onboardingComplete = (req.auth as any)?.user?.onboardingComplete;
+    const companyId = session?.user?.companyId;
+    const onboardingComplete = session?.user?.onboardingComplete;
     let dest = "/onboarding";
     if (!companyId) dest = "/join";
     else if (onboardingComplete) dest = "/dashboard";
@@ -52,9 +55,8 @@ const authMiddleware = auth((req) => {
 
   // Routing for authenticated users based on company + onboarding state
   if (isAuthenticated) {
-    // Justified: next-auth middleware types don't include custom session fields
-    const companyId = (req.auth as any)?.user?.companyId;
-    const onboardingComplete = (req.auth as any)?.user?.onboardingComplete;
+    const companyId = session?.user?.companyId;
+    const onboardingComplete = session?.user?.onboardingComplete;
     const isOnboardingPath = pathname.startsWith("/onboarding");
     // /join and /invite are the valid holding areas for no-company users
     const isJoinPath = pathname.startsWith("/join") || pathname.startsWith("/invite");
@@ -80,9 +82,7 @@ const authMiddleware = auth((req) => {
     if (companyId && onboardingComplete && !pathname.startsWith("/api/")) {
       const mod = moduleForPath(pathname);
       if (mod) {
-        // Justified: next-auth middleware types don't include custom fields
-        const enabledModules = (req.auth as any)?.user?.enabledModules as
-          string[] | null | undefined;
+        const enabledModules = session?.user?.enabledModules;
         if (!isModuleEnabled(enabledModules ?? undefined, mod)) {
           return NextResponse.redirect(new URL("/dashboard", req.url));
         }
@@ -101,21 +101,27 @@ const authMiddleware = auth((req) => {
   }
 
   return NextResponse.next();
-});
+}
+
+const authJsRoute = authJsMiddleware((req) => route(req, req.auth));
 
 // A prefetch in flight at sign-out must not write the session back
 // (lib/security/session-refresh.ts).
 export default async function middleware(req: NextRequest, event: NextFetchEvent) {
-  // auth()'s wrapper is typed for route handlers too; as middleware it receives (request, event).
-  const response = await authMiddleware(
-    req,
-    event as unknown as Parameters<typeof authMiddleware>[1],
-  );
+  // With AUTH_RUNTIME=accountkit the session lives in the database, read here
+  // through AccountKit (docs/ACCOUNTKIT-MIGRATION.md); otherwise the Auth.js JWT.
+  const response = sharedAuthEnabled()
+    ? route(req, await sharedSessionFor(req.headers))
+    : // auth()'s wrapper is typed for route handlers too; as middleware it receives (request, event).
+      await authJsRoute(req, event as unknown as Parameters<typeof authJsRoute>[1]);
   if (response && isPrefetchRequest(req.headers)) return withoutSessionRefresh(response);
   return response;
 }
 
 export const config = {
+  // Node, not the edge: the AccountKit session is a database read. Next 15.5
+  // runs Node middleware in the same server process as the app.
+  runtime: "nodejs",
   // `opengraph-image` and `twitter-image` are Next's generated metadata routes.
   // They were caught by this matcher, so /opengraph-image ran through the app
   // and answered with 243 KB of HTML instead of a PNG — the site advertised a
