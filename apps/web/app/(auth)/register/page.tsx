@@ -1,29 +1,36 @@
-import { LanguageSwitcher } from "@/components/language-switcher";
-import { RegisterForm } from "./register-form";
-import { RegisterFeaturesPanel } from "./register-features-panel";
+import { connection } from "next/server";
+import { getLocale, getTranslations } from "next-intl/server";
+import { authLabelsFor } from "@bitbaum/accountkit/auth";
+import { AuthShell, landingPath } from "@/components/auth/auth-shell";
+import { SignUpForm } from "@/components/auth/auth-forms";
+import { kivviMethods } from "@/lib/accountkit/methods";
 
+/**
+ * AccountKit's sign-up: an email and a password, or any other method. A new
+ * person lands on /join, where they create their organisation or accept an
+ * invitation; an invitation link brings them back to it (callbackUrl).
+ */
 export default async function RegisterPage({
   searchParams,
 }: {
-  searchParams: Promise<{ email?: string; callbackUrl?: string }>;
+  searchParams: Promise<{ callbackUrl?: string }>;
 }) {
-  const { email, callbackUrl } = await searchParams;
-
+  await connection();
+  const [{ callbackUrl }, t, locale] = await Promise.all([
+    searchParams,
+    getTranslations("auth"),
+    getLocale(),
+  ]);
+  const next = landingPath(callbackUrl, "/join");
   return (
-    <div className="flex min-h-screen bg-muted/30">
-      {/* Language switcher */}
-      <div className="fixed right-4 top-4 z-10">
-        <LanguageSwitcher />
-      </div>
-
-      {/* Left side - Form */}
-      <div className="flex flex-1 items-center justify-center px-4 py-12">
-        <div className="w-full max-w-md">
-          <RegisterForm prefillEmail={email} callbackUrl={callbackUrl} />
-        </div>
-      </div>
-
-      <RegisterFeaturesPanel />
-    </div>
+    <AuthShell title={t("register")} subtitle={t("registerSubtitle")}>
+      <SignUpForm
+        labels={authLabelsFor(locale)}
+        methods={kivviMethods()}
+        next={next}
+        signIn={t("signIn")}
+        signInHref={next === "/join" ? "/login" : `/login?callbackUrl=${encodeURIComponent(next)}`}
+      />
+    </AuthShell>
   );
 }

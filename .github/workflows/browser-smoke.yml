@@ -36,21 +36,22 @@ jobs:
       - name: Exercise shared ChatKit thread and composer
         run: pnpm --filter @kivvi/web exec playwright test --config=playwright.chatkit.config.ts
 
-  # An account can be made and used, in real Chromium against the production
-  # build (the standalone server the Dockerfile ships) and a PostgreSQL built
-  # from the committed migrations: sign-up and onboarding, sign-out, wrong
-  # credentials refused, sign-in, the dashboard, and the company AI key never
-  # sent back to the browser (#185). Synthetic people only; no mail is sent.
-  #
-  # Twice: on Auth.js (what production runs) and on the staged AccountKit
-  # runtime (AUTH_RUNTIME=accountkit, off in production until the switch;
-  # docs/ACCOUNTKIT-MIGRATION.md), after the cutover import on the same chain.
+  # Every way into an account, on AccountKit's own screens, in real Chromium
+  # against the production build (the standalone server the Dockerfile ships)
+  # and a PostgreSQL built from the committed migrations plus the cutover
+  # import (apps/web/e2e/account-journey.spec.ts): the method set on /login,
+  # /register and /forgot-password at 320px and 390px; sign-up, the
+  # organisation on /join, onboarding, sign-out, a wrong password refused,
+  # sign-in; the company AI key never sent back to the browser (#185);
+  # passkeys, two-factor and deletion on the profile settings; an account
+  # imported from Auth.js (bcrypt, seeded before the import) signing in with
+  # its old password; recovery through the mailed link; an email sign-in link.
+  # Mail is AccountKit's real mail, caught by apps/web/scripts/ci/mail-sink.cjs
+  # instead of being sent. Synthetic people only; the OrangeCat and bitbaum
+  # sign-in client values below exist only so their buttons render, and are
+  # never used to sign in.
   account:
-    name: account (${{ matrix.runtime }})
-    strategy:
-      fail-fast: false
-      matrix:
-        runtime: [authjs, accountkit]
+    name: account (AccountKit)
     runs-on: ubuntu-latest
     timeout-minutes: 25
     services:
@@ -70,9 +71,19 @@ jobs:
       NEXTAUTH_URL: http://localhost:3000
       NEXTAUTH_SECRET: synthetic-browser-smoke-secret-not-for-production
       AUTH_TRUST_HOST: "true"
-      AUTH_RUNTIME: ${{ matrix.runtime == 'accountkit' && 'accountkit' || '' }}
       NEXT_TELEMETRY_DISABLED: "1"
       BASE_URL: http://localhost:3000
+      LEGACY_EMAIL: legacy-journey@example.test
+      LEGACY_PASSWORD: synthetic legacy journey password
+      # Outside the uploaded artifacts: it holds (synthetic) reset tokens.
+      MAIL_SINK: /tmp/kivvi-ci-mail.jsonl
+      RESEND_API_KEY: re_ci_sink_only
+      RESEND_FROM: Kivvi <kivvi@example.test>
+      ORANGECAT_OAUTH_CLIENT_ID: kivvi-ci
+      ORANGECAT_OAUTH_CLIENT_SECRET: ci-only
+      SIGNIN_ISSUER: https://morulia.orangecat.ch
+      SIGNIN_CLIENT_ID: kivvi-ci
+      SIGNIN_CLIENT_SECRET: ci-only
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -86,16 +97,18 @@ jobs:
       - name: Apply the committed migrations
         run: scripts/ci/apply-migrations.sh
 
-      # The rehearsal must pass on the chain, then the real-database journeys
-      # (they leave the tables empty), then the import for the browser journey.
+      # The rehearsal must pass on the empty chain, then the real-database
+      # journeys (they leave the tables empty), then one Auth.js-era account,
+      # the rehearsal again (counts only) and the import, for the browser.
       - name: AccountKit import and journeys on the chain
-        if: matrix.runtime == 'accountkit'
         env:
           KIVVI_JOURNEY_DATABASE_URL: postgres://app:app@127.0.0.1:5432/kivvi_smoke
         run: |
           pnpm --filter @kivvi/database run db:rehearse-import
           pnpm --filter @kivvi/web exec vitest run lib/accountkit
           psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -X -c "TRUNCATE users, companies, auth_users CASCADE"
+          (cd apps/web && node scripts/ci/seed-legacy-account.mjs) | psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -X
+          pnpm --filter @kivvi/database run db:rehearse-import
           psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -X -1 -f scripts/db/accountkit-import.sql
 
       - run: pnpm --filter @kivvi/web exec playwright install --with-deps chromium
@@ -105,7 +118,7 @@ jobs:
 
       - name: Account journey
         run: |
-          (cd apps/web/.next/standalone && PORT=3000 HOSTNAME=127.0.0.1 node apps/web/server.js > "$GITHUB_WORKSPACE/server.log" 2>&1 &)
+          (cd apps/web/.next/standalone && NODE_OPTIONS="--require $GITHUB_WORKSPACE/apps/web/scripts/ci/mail-sink.cjs" PORT=3000 HOSTNAME=127.0.0.1 node apps/web/server.js > "$GITHUB_WORKSPACE/server.log" 2>&1 &)
           for i in $(seq 60); do curl -sf -o /dev/null http://localhost:3000/login && break; sleep 1; done
           pnpm --filter @kivvi/web exec playwright test --config=playwright.journey.config.ts
 
@@ -113,7 +126,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: kivvi-account-journey-${{ matrix.runtime }}
+          name: kivvi-account-journey
           path: |
             apps/web/playwright-report/
             apps/web/test-results/

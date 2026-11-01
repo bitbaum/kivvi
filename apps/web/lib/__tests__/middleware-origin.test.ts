@@ -6,16 +6,14 @@ import { isPublicPath } from "../security/public-paths";
 
 /**
  * Behind Caddy the app sees itself as localhost:4005. On the shared runtime
- * (AUTH_RUNTIME=accountkit) the middleware built its redirects from that, so a
+ * the middleware built its redirects from that, so a
  * signed-out prefetch of /contact answered 307 to https://localhost:4005/login,
  * the CSP blocked it, and every deploy since the switch failed its page check.
  */
 const session = vi.hoisted(() => ({ value: null as unknown }));
-vi.mock("@bitbaum/accountkit/auth/switch", () => ({ sharedRuntimeEnabled: () => true }));
 vi.mock("@/lib/accountkit/compat", () => ({
   compat: { sessionFor: async () => session.value },
 }));
-vi.mock("@/lib/auth", () => ({ authJsMiddleware: () => () => undefined }));
 
 const PUBLIC = "https://kivvi.example.test";
 
@@ -38,7 +36,7 @@ describe("middleware redirects stay on the public origin", () => {
 
   it("sends a signed-out visitor to the public /login", async () => {
     const { default: middleware } = await import("../../middleware");
-    const res = await middleware(proxied("/dashboard"), {} as never);
+    const res = await middleware(proxied("/dashboard"));
     expect(res?.status).toBe(307);
     expect(res?.headers.get("location")).toBe(`${PUBLIC}/login?callbackUrl=%2Fdashboard`);
   });
@@ -46,7 +44,7 @@ describe("middleware redirects stay on the public origin", () => {
   it("sends a signed-in person without a company to the public /join", async () => {
     session.value = { user: { id: "u1", companyId: null }, expires: "" };
     const { default: middleware } = await import("../../middleware");
-    const res = await middleware(proxied("/dashboard"), {} as never);
+    const res = await middleware(proxied("/dashboard"));
     expect(res?.headers.get("location")).toBe(`${PUBLIC}/join`);
   });
 
