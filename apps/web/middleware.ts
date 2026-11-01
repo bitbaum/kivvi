@@ -1,6 +1,6 @@
 import { authJsMiddleware } from "@/lib/auth";
-import { sharedAuthEnabled } from "@/lib/accountkit/runtime";
-import { sharedSessionFor } from "@/lib/accountkit/session";
+import { sharedRuntimeEnabled } from "@bitbaum/accountkit/auth/switch";
+import { compat } from "@/lib/accountkit/compat";
 import { NextResponse, type NextFetchEvent, type NextRequest } from "next/server";
 import type { Session } from "next-auth";
 import { checkRateLimit, getClientIp, getRateLimitConfig } from "@/lib/rate-limit";
@@ -110,8 +110,8 @@ const authJsRoute = authJsMiddleware((req) => route(req, req.auth));
 export default async function middleware(req: NextRequest, event: NextFetchEvent) {
   // With AUTH_RUNTIME=accountkit the session lives in the database, read here
   // through AccountKit (docs/ACCOUNTKIT-MIGRATION.md); otherwise the Auth.js JWT.
-  const response = sharedAuthEnabled()
-    ? route(req, await sharedSessionFor(req.headers))
+  const response = sharedRuntimeEnabled()
+    ? route(req, await compat.sessionFor(req.headers))
     : // auth()'s wrapper is typed for route handlers too; as middleware it receives (request, event).
       await authJsRoute(req, event as unknown as Parameters<typeof authJsRoute>[1]);
   if (response && isPrefetchRequest(req.headers)) return withoutSessionRefresh(response);

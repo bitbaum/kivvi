@@ -9,7 +9,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push:pg",
     "db:studio": "drizzle-kit studio",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "db:rehearse-import": "accountkit-rehearse-import ../../scripts/db/accountkit-import.sql"
   },
   "dependencies": {
     "@bitbaum/accountkit": "^0.18.0",

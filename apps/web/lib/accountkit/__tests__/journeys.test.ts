@@ -12,12 +12,12 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import bcrypt from "bcryptjs";
-import { NextRequest } from "next/server";
+import { createCompatClient } from "@bitbaum/accountkit/auth/compat-testing";
 import { afterAll, beforeEach, describe, expect, test, vi } from "vitest";
 
 const URL_ = process.env.KIVVI_JOURNEY_DATABASE_URL;
 const SITE = "https://kivvi.example.test";
-const state = vi.hoisted(() => {
+vi.hoisted(() => {
   const url = process.env.KIVVI_JOURNEY_DATABASE_URL;
   if (url) {
     Object.assign(process.env, {
@@ -29,11 +29,10 @@ const state = vi.hoisted(() => {
     delete process.env.RESEND_API_KEY;
     delete process.env.BETTER_AUTH_SECRET;
   }
-  return { cookie: "" };
 });
 
 vi.mock("next/headers", () => ({
-  headers: async () => new Headers({ cookie: state.cookie }),
+  headers: async () => new Headers(),
   cookies: async () => ({ get: () => undefined, delete: () => undefined }),
 }));
 
@@ -43,14 +42,9 @@ const NEWCOMER = "00000000-0000-4000-8000-000000000002";
 const COMPANY = "00000000-0000-4000-8000-0000000000c1";
 const OTHER_COMPANY = "00000000-0000-4000-8000-0000000000c2";
 const IMPORT_SQL = path.resolve(__dirname, "../../../../../scripts/db/accountkit-import.sql");
-let ip = 0;
 
 describe.skipIf(!URL_)("Kivvi on AccountKit (real PostgreSQL)", () => {
-  const load = async () => ({
-    ...(await import("../bridge")),
-    ...(await import("../runtime")),
-    ...(await import("../session")),
-  });
+  let browser: ReturnType<typeof createCompatClient>;
 
   async function sql(text: string, params: unknown[] = []) {
     const { db } = await import("@/lib/db");
@@ -63,7 +57,7 @@ describe.skipIf(!URL_)("Kivvi on AccountKit (real PostgreSQL)", () => {
   });
 
   beforeEach(async () => {
-    state.cookie = "";
+    browser = createCompatClient({ compat: (await import("../compat")).compat, site: SITE });
     await sql(`DROP TRIGGER IF EXISTS kivvi_accountkit_from_users ON users;
       DROP TRIGGER IF EXISTS kivvi_accountkit_to_users ON auth_users;
       TRUNCATE auth_users, auth_accounts, auth_sessions, auth_verifications,
@@ -95,53 +89,15 @@ describe.skipIf(!URL_)("Kivvi on AccountKit (real PostgreSQL)", () => {
     await (db as any).$client.begin((tx: any) => tx.unsafe(script));
   }
 
-  function request(route: string, init: { form?: Record<string, string>; get?: boolean } = {}) {
-    ip += 1;
-    const headers = new Headers({
-      origin: SITE,
-      "x-forwarded-for": `198.51.100.${ip % 250}`,
-      cookie: state.cookie,
-    });
-    if (init.form) headers.set("content-type", "application/x-www-form-urlencoded");
-    return new NextRequest(`${SITE}/api/auth${route}`, {
-      method: init.get ? "GET" : "POST",
-      headers,
-      body: init.form ? new URLSearchParams(init.form) : undefined,
-    });
-  }
-
-  async function answer(req: NextRequest) {
-    const { nextAuthClientCompat, sharedAuth } = await load();
-    const res =
-      (await nextAuthClientCompat(req)) ??
-      (await (req.method === "GET" ? sharedAuth.GET(req) : sharedAuth.POST(req)));
-    const jar = new Map(
-      state.cookie
-        .split("; ")
-        .filter(Boolean)
-        .map((c) => {
-          const [name, ...value] = c.split("=");
-          return [name, value.join("=")] as [string, string];
-        }),
-    );
-    for (const cookie of res.headers.getSetCookie()) {
-      const [pair] = cookie.split(";");
-      const [name, ...value] = pair.split("=");
-      if (/max-age=0/i.test(cookie) || value.join("=") === "") jar.delete(name);
-      else jar.set(name, value.join("="));
-    }
-    state.cookie = [...jar].map(([k, v]) => `${k}=${v}`).join("; ");
-    return res;
-  }
-
-  const signIn = async (email: string, password: string) =>
-    (await answer(
-      request("/callback/credentials", {
-        form: { email, password, csrfToken: "x", callbackUrl: `${SITE}/dashboard` },
-      }),
-    ).then((r) => r.json())) as { url: string };
-
-  const session = async () => (await answer(request("/session", { get: true }))).json();
+  // The shared test client, in this file's request/answer shape.
+  const request = (route: string, init: { form?: Record<string, string>; get?: boolean } = {}) => ({
+    route,
+    form: init.form,
+  });
+  const answer = (req: ReturnType<typeof request>) => browser.call(req.route, req.form);
+  const signIn = (email: string, password: string) =>
+    browser.signIn("credentials", { email, password }, `${SITE}/dashboard`);
+  const session = () => browser.session<any>();
 
   test("an imported bcrypt account signs in, in any letter case, with its company claims", async () => {
     const result = await signIn("OWNER@example.test", PASSWORD);
@@ -212,13 +168,13 @@ describe.skipIf(!URL_)("Kivvi on AccountKit (real PostgreSQL)", () => {
 
   test("changing your own password keeps your session and ends every other one", async () => {
     await signIn("owner@example.test", PASSWORD);
-    const mine = state.cookie;
-    state.cookie = "";
+    const mine = browser.cookie;
+    browser.cookie = "";
     await signIn("owner@example.test", PASSWORD);
-    const other = state.cookie;
+    const other = browser.cookie;
 
-    const { sharedSessionId } = await load();
-    const keep = await sharedSessionId(new Headers({ cookie: mine }));
+    const { compat } = await import("../compat");
+    const keep = await compat.sessionIdFor(new Headers({ cookie: mine }));
     expect(keep).toBeTruthy();
     const hash = await bcrypt.hash("the new password", 4);
     const { db } = await import("@/lib/db");
@@ -227,12 +183,12 @@ describe.skipIf(!URL_)("Kivvi on AccountKit (real PostgreSQL)", () => {
       await tx.unsafe("UPDATE users SET password_hash = $1 WHERE id = $2", [hash, OWNER]);
     });
 
-    state.cookie = mine;
+    browser.cookie = mine;
     expect((await session())?.user?.id, "the changing session stays").toBe(OWNER);
-    state.cookie = other;
+    browser.cookie = other;
     expect(await session(), "every other session ends").toBeNull();
 
-    state.cookie = "";
+    browser.cookie = "";
     const old = await signIn("owner@example.test", PASSWORD);
     expect(new URL(old.url).searchParams.get("error")).toBe("CredentialsSignin");
     const fresh = await signIn("owner@example.test", "the new password");
