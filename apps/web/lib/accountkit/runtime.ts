@@ -9,11 +9,10 @@ import { createAuthRuntime } from "@bitbaum/accountkit/auth/next";
 import { createAuthMailer } from "@bitbaum/accountkit/auth/mail";
 import { authTables } from "@kivvi/database";
 import { db } from "@/lib/db";
+import { siteUrl } from "@/lib/security/public-url";
 
 /** The public origin every redirect and every AccountKit origin check uses. */
-export function siteUrl(env: NodeJS.ProcessEnv = process.env): string {
-  return (env.NEXTAUTH_URL || env.AUTH_URL || "http://localhost:3000").replace(/\/$/, "");
-}
+export { siteUrl };
 
 const site = { url: siteUrl(), title: "Kivvi", slug: "kivvi" };
 
