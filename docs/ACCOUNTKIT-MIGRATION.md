@@ -88,8 +88,18 @@ To roll back, run the same workflow with `rollback`. It unsets `AUTH_RUNTIME`,
 restarts on Auth.js, drops the mirrors and empties the shared tables.
 Every hash stays bcrypt in `users.password_hash`, so nothing needs a reset.
 
-Still to prove with an approved test identity on the deployed artifact:
-recovery, a company switch and revocation.
+Proven live on 2026-11-01 by Loki's `accountkit-switch.yml` `prove` action,
+using throwaway accounts that it deleted again:
+
+- two sessions at once;
+- a change to the person's row, read on the next request (the path a role,
+  staff or company change takes);
+- a password write, which is what a reset and a password change do. It ended
+  both sessions, the old password was refused and the new one signed in;
+- sign-out, and deleting the person ending their session.
+
+Not proven by a machine: a reset mail arriving in a real inbox. The reset
+code is the product's own and did not change in the switch.
 
 Later, and separately: AccountKit's screens (passkeys, sign-in links, its own
 recovery), which need Kivvi's writers to move to AccountKit first.
