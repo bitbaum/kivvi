@@ -5,7 +5,8 @@ import { describe, expect, it } from "vitest";
 
 // A build must not depend on Google Fonts answering: `next/font/google`
 // downloads the faces at build time, and a failed download fails the build.
-// The faces are vendored in `apps/web/fonts/` and loaded by `lib/fonts.ts`.
+// The faces ship in @bitbaum/design-tokens, and `lib/fonts.ts` is the
+// next/font/local module its `design-tokens-next-fonts` command writes.
 const WEB = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const FONTS_MODULE = join(WEB, "lib", "fonts.ts");
 
@@ -18,7 +19,7 @@ function sourceFiles(dir: string): string[] {
   });
 }
 
-describe("fonts are served from the repo", () => {
+describe("fonts are served from @bitbaum/design-tokens", () => {
   it("no source file imports next/font/google", () => {
     const offenders = ["app", "components", "lib"]
       .flatMap((d) => sourceFiles(join(WEB, d)))
@@ -28,10 +29,12 @@ describe("fonts are served from the repo", () => {
   });
 
   const paths = [
-    ...readFileSync(FONTS_MODULE, "utf8").matchAll(/"(\.\.\/fonts\/[^"]+\.woff2)"/g),
+    ...readFileSync(FONTS_MODULE, "utf8").matchAll(
+      /"(\.\.\/node_modules\/@bitbaum\/design-tokens\/fonts\/[^"]+\.woff2)"/g,
+    ),
   ].map((m) => m[1]);
 
-  it("lib/fonts.ts loads the vendored faces", () => {
+  it("lib/fonts.ts loads the package's faces", () => {
     expect(paths.length).toBeGreaterThan(0);
   });
 
