@@ -7,19 +7,17 @@
  *   cleanly: the person is named on business records that must be kept (a
  *   document, a journal entry, an audit row), or is the only owner of a
  *   company that other people work in. The refusal says what to do instead.
- * - An email sign-in link to a new address creates the person without a
- *   sign-in method, so AccountKit's onAccountCreated never runs; the link's
- *   landing makes the Kivvi row instead.
+ *
+ * A new person's Kivvi row, however they came in (an email sign-in link
+ * included), comes from AccountKit's onAccountCreated (runtime.ts).
  */
 import type { BetterAuthPlugin } from "better-auth";
 import { APIError, createAuthMiddleware, getSessionFromCtx } from "better-auth/api";
 import { and, eq, sql } from "drizzle-orm";
 import { memberships, users } from "@kivvi/database";
 import { db } from "@/lib/db";
-import { ensureKivviUser } from "./accounts";
 
 const DELETE_PATHS = ["/delete-user", "/delete-user/callback"];
-const CREATING_PATHS = ["/magic-link/verify"];
 
 export type DeletionRefusal = "records" | "soleOwner";
 
@@ -114,20 +112,6 @@ export function kivviPlugin(): BetterAuthPlugin {
                 message: refusalText(reason, ctx.request?.headers ?? ctx.headers),
               });
             }
-          }),
-        },
-      ],
-      after: [
-        {
-          matcher: ({ path }) => Boolean(path && CREATING_PATHS.includes(path)),
-          handler: createAuthMiddleware(async (ctx) => {
-            const userId = ctx.context.newSession?.user.id;
-            if (!userId) return;
-            await ensureKivviUser({ userId }).catch((error) =>
-              console.error("[auth] Kivvi user for an email-link sign-up failed", {
-                error: error instanceof Error ? error.message : String(error),
-              }),
-            );
           }),
         },
       ],
