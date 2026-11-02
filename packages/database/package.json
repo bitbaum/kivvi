@@ -13,7 +13,7 @@
     "db:rehearse-import": "accountkit-rehearse-import ../../scripts/db/accountkit-import.sql"
   },
   "dependencies": {
-    "@bitbaum/accountkit": "^0.23.0",
+    "@bitbaum/accountkit": "^0.23.1",
     "@neondatabase/serverless": "^0.9.0",
     "drizzle-orm": "^0.45.2",
     "node-fetch": "2",
