@@ -23,14 +23,16 @@ export default async function LoginPage({
     getLocale(),
   ]);
   const next = landingPath(callbackUrl, "/dashboard");
+  // Title and the link to sign-up are AccountKit's words, as on every fleet app.
+  const labels = authLabelsFor(locale);
   return (
-    <AuthShell title={t("signIn")} subtitle={t("signInSubtitle")}>
+    <AuthShell title={labels.signIn} subtitle={t("signInSubtitle")}>
       <SignInForm
-        labels={authLabelsFor(locale)}
+        labels={labels}
         methods={kivviMethods()}
         next={next}
         initialError={Boolean(error)}
-        signUp={t("createAccount")}
+        signUp={labels.createAccount}
         signUpHref={
           next === "/dashboard" ? "/register" : `/register?callbackUrl=${encodeURIComponent(next)}`
         }
