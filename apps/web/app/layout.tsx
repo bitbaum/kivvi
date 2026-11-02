@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Script from "next/script";
-import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SessionProvider } from "@/components/session-provider";
@@ -9,30 +8,7 @@ import { getLocale, getMessages } from "next-intl/server";
 import { ThemedToaster } from "@/components/themed-toaster";
 import { SITE_URL } from "@/lib/config/site";
 import { auth } from "@/lib/auth";
-
-// Body font — Space Grotesk for x.ai-aligned aesthetic.
-// Inter stays loaded as fallback for any explicit `font-['Inter']` references.
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-space-grotesk",
-  display: "swap",
-});
-
-// Display variant — used for h1/h2/h3 via the font-display Tailwind utility.
-// Same family, different CSS variable so we can swap to a true display face
-// later without touching markup.
-const spaceGroteskDisplay = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-space-grotesk-display",
-  display: "swap",
-  weight: ["500", "600", "700"],
-});
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
+import { inter, spaceGrotesk, spaceGroteskDisplay } from "@/lib/fonts";
 
 const ORGANIZATION_LD = {
   "@context": "https://schema.org",
