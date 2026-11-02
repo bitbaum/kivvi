@@ -111,7 +111,8 @@ AI provider (`GROQ_API_KEY`, `XAI_API_KEY`, `OPENROUTER_API_KEY`,
 
 - **Location**: `packages/database/drizzle/*.sql` (+ `meta/` snapshots). Config: `packages/database/drizzle.config.ts`.
 - **Generate** after a schema change: `pnpm db:generate`. **Never edit an applied migration file — always create a new, forward-only one.**
-- **Application is MANUAL and intentionally not in the CI/deploy pipeline.** Migrations are applied by hand against production (`pnpm db:migrate` → `drizzle-kit migrate`) by an operator, separately from code deploys. Do not add automatic migration application to CI or the deploy path without an explicit design decision by the owner — this is a financial system-of-record.
+- **The deploy applies them.** `.github/workflows/deploy.yml` calls loki's `selfhost-deploy.yml`, whose forward-only applier (`bitbaum/loki` `scripts/hetzner/apply-schema.sh`) runs every migration not yet in the database's `_deploy_schema_history` ledger, in one transaction. It refuses any migration with a destructive statement. Such a migration is applied by hand, then its tag is recorded in the ledger (the script's header shows how). This is a financial system-of-record, so keep migrations additive.
+- **CI replays the chain** from zero on a throwaway database (`scripts/ci/apply-migrations.sh`, in `browser-smoke.yml`). A migration that only replays with help fails there first. Never point that script at a shared database.
 
 ## Non-negotiables
 
