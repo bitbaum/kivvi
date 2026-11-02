@@ -139,4 +139,8 @@ using throwaway accounts that it deleted again:
   both sessions, the old password was refused and the new one signed in;
 - sign-out, and deleting the person ending their session.
 
-Not proven by a machine: a reset mail arriving in a real inbox.
+A real password reset is proven live too (2026-11-02, the same `prove`). The
+product's own forgot-password page sent the mail, and it arrived in a real
+throwaway inbox. Its link opened the product's reset page, a new password was
+set there, and that password signed in. The inbox and the account were deleted
+again.
