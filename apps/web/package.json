@@ -20,7 +20,7 @@
     "@bitbaum/ai-kit": "^1.24.0",
     "@bitbaum/chartkit": "^0.7.0",
     "@bitbaum/chatkit": "^0.22.1",
-    "@bitbaum/design-tokens": "^1.3.1",
+    "@bitbaum/design-tokens": "github:bitbaum/design-tokens#07a4380e8cf076db3906732a7aa39aaee8d47ccb",
     "@bitbaum/mail-kit": "^0.2.0",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
