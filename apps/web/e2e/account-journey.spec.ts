@@ -39,7 +39,9 @@ const LEGACY_PASSWORD = process.env.LEGACY_PASSWORD;
 const EXPECT = {
   mail: Boolean(SINK),
   orangecat: Boolean(process.env.ORANGECAT_OAUTH_CLIENT_ID),
-  signin: Boolean(process.env.SIGNIN_CLIENT_ID),
+  // AccountKit 0.24+ shows the shared sign-in only once its service publishes
+  // a provider (<SIGNIN_ISSUER>/api/providers); the synthetic issuer has none.
+  signin: false,
 };
 
 const db = createPostgresClient(process.env.DATABASE_URL!);
@@ -58,7 +60,8 @@ async function visit(page: Page, path: string) {
   await page.goto(path);
 }
 
-const button = (page: Page, name: string) => page.getByRole("button", { name, exact: true });
+const button = (page: Page, name: string | RegExp) =>
+  page.getByRole("button", { name, exact: true });
 
 async function sessionEmail(page: Page): Promise<string | null> {
   const session = await (await page.request.get("/api/auth/session")).json();
@@ -124,7 +127,7 @@ test("every way in works on AccountKit's screens, and the AI key stays secret", 
     }
   });
 
-  const offered = async (route: string, labels: Array<[string, boolean]>) => {
+  const offered = async (route: string, labels: Array<[string | RegExp, boolean]>) => {
     await visit(page, route);
     for (const [name, wanted] of labels) {
       const control = button(page, name);
@@ -140,7 +143,7 @@ test("every way in works on AccountKit's screens, and the AI key stays secret", 
       ["Email me a sign-in link instead", EXPECT.mail],
       ["Forgot your password?", EXPECT.mail],
       ["Continue with OrangeCat", EXPECT.orangecat],
-      ["Continue with Google, Apple, GitHub, X or Facebook", EXPECT.signin],
+      [/^Continue with (Google|Apple|GitHub|X|Facebook|Microsoft)/, EXPECT.signin],
     ]);
   });
 
@@ -149,7 +152,7 @@ test("every way in works on AccountKit's screens, and the AI key stays secret", 
       ["Create an account", true],
       ["Email me a link instead", EXPECT.mail],
       ["Continue with OrangeCat", EXPECT.orangecat],
-      ["Continue with Google, Apple, GitHub, X or Facebook", EXPECT.signin],
+      [/^Continue with (Google|Apple|GitHub|X|Facebook|Microsoft)/, EXPECT.signin],
     ]);
     await expect(page.locator('a[href="/terms"]')).toHaveCount(0);
   });
