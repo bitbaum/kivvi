@@ -337,7 +337,9 @@ describe.skipIf(!URL_)("Kivvi on AccountKit (real PostgreSQL)", () => {
         SIGNIN_CLIENT_ID: "kivvi",
         SIGNIN_CLIENT_SECRET: "s",
       }),
-    ).toMatchObject({ orangecat: true, signin: true, passkey: true, twoFactor: true });
+      // The shared sign-in shows only once its service publishes a provider
+      // (AccountKit 0.24+); this synthetic issuer publishes none.
+    ).toMatchObject({ orangecat: true, signin: false, passkey: true, twoFactor: true });
   });
 
   test("the import is a no-op for the same snapshot and refuses drift", async () => {
