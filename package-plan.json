@@ -27,7 +27,7 @@
       ]
     },
     "ai-forms": {
-      "package": "ai-forms",
+      "package": "@bitbaum/ai-forms",
       "bindings": [
         {
           "file": "apps/web/app/api/ai/form-assist/route.ts",
@@ -57,7 +57,7 @@
       ]
     },
     "publishing": {
-      "package": "bip-kit",
+      "package": "@bitbaum/bip-kit",
       "bindings": [
         {
           "file": "apps/web/lib/content/ArticleContent.tsx",
@@ -74,7 +74,7 @@
       ]
     },
     "rate-limits": {
-      "package": "limitkit",
+      "package": "@bitbaum/limitkit",
       "bindings": [
         {
           "file": "apps/web/lib/rate-limit.ts",

@@ -26,8 +26,8 @@
 import { readFileSync, readdirSync } from "fs";
 import { join } from "path";
 import matter from "gray-matter";
-import { extractToc, parseContentBlocks } from "bip-kit";
-import type { ContentBlock, TocEntry } from "bip-kit";
+import { extractToc, parseContentBlocks } from "@bitbaum/bip-kit";
+import type { ContentBlock, TocEntry } from "@bitbaum/bip-kit";
 
 const CONTENT_DIR = join(process.cwd(), "content/knowledge");
 
