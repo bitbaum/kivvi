@@ -3,7 +3,7 @@ title: "revamp-it Zürich: Das Referenzmodell für IT-Kreislaufwirtschaft"
 tag: "Kundentypen"
 readTime: "9 min"
 excerpt: "Wie Zürichs bekanntester IT-Refurbisher jährlich tausende Geräte rettet, Freiwillige koordiniert und Impact transparent macht — und warum revamp-it das Referenzmodell für Kivvi ist."
-lead: "revamp-it ist Zürichs bekanntester IT-Refurbisher: seit über 20 Jahren retten Freiwillige und bezahlte Mitarbeitende tausende Geräte vor der Entsorgung, statten sie mit Linux aus und geben sie zu fairen Preisen weiter. revamp-it ist auch das erste Unternehmen, das Kivvi einsetzt — und damit das lebende Referenzmodell dafür, wie ein modernes ERP für die Kreislaufwirtschaft aussehen muss."
+lead: "revamp-it ist Zürichs bekanntester IT-Refurbisher: seit über 20 Jahren retten Freiwillige und bezahlte Mitarbeitende tausende Geräte vor der Entsorgung, statten sie mit Linux aus und geben sie zu fairen Preisen weiter. revamp-it ist neben evig einer der zwei Kunden von Kivvi — und das Referenzmodell dafür, wie ein modernes ERP für die Kreislaufwirtschaft aussehen muss."
 published: true
 order: 8
 ---
@@ -70,7 +70,7 @@ Die Anforderung war klar: ein System, das den gesamten Gerätefluss von der Anna
 
 Hinzu kam der Schweizer Kontext: QR-Rechnungen, MWST-Besonderheiten für gemeinnützige Betriebe, Spendenquittungen nach Schweizer Recht, CHF mit Rappen-Rundung, KMU-Kontenrahmen. Eine ausländische Software passt hier einfach nicht.
 
-Kivvi wurde mit revamp-it gebaut und an revamp-it erprobt. Jeder Workflow — Intake, Triage, Reparaturzuweisung, Preisgebung, Verkauf, Spendenquittung, Impact-Report — wurde gegen die reale Praxis entwickelt und validiert.
+Kivvis Workflows — Intake, Triage, Reparaturzuweisung, Preisgebung, Verkauf, Spendenquittung, Impact-Report — folgen dieser Praxis.
 
 ## Revamp-it als Blaupause
 

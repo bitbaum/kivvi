@@ -2793,7 +2793,7 @@
     "for5": "Upcycling studios",
     "for6": "All circular economy businesses",
     "originTitle": "Proven in real operations.",
-    "originStory": "Kivvi was built at revamp-it — one of Switzerland's largest IT refurbishers. Since 2003 they take in electronics, test, repair, and resell them. After years with ERPs that were never designed for secondhand, they built their own. Now it's open source — for all circular economy businesses.",
+    "originStory": "Kivvi is an open-source ERP for circular-economy businesses: intake without a purchase price, condition grading, repair queues and resale. It has two customers today: revamp-it, one of Switzerland's largest IT refurbishers (taking in, testing, repairing and reselling electronics since 2003), and evig.",
     "originStat1": "Since 2003",
     "originStat1Label": "Hands-on experience",
     "originStat2": "5,000+",
@@ -2821,9 +2821,9 @@
     "cap6": "Swiss QR-bills, VAT, CAMT bank import",
     "ctaTitle": "Kivvi for your business?",
     "ctaDescription": "Write to us — whether you run a thrift store, refurbisher, repair café, or vintage shop.",
-    "ctaEmail": "info@revamp-it.ch",
+    "ctaEmail": "cato@orangecat.ch",
     "ctaTryIt": "Try Kivvi",
-    "footerBuiltBy": "Built by revamp-it",
+    "footerBuiltBy": "Built by bitbaum",
     "footerOpenSource": "Open Source",
     "footerImpressum": "Legal Notice",
     "footerPrivacy": "Privacy Policy",
@@ -2883,7 +2883,7 @@
           "badge": "Recommended",
           "tagline": "Ideal for businesses without their own IT infrastructure",
           "bullets": [
-            "Hosted by revamp-it, data in Switzerland",
+            "Hosted in Switzerland",
             "Automatic updates, backups and monitoring",
             "Email support within 48 hours",
             "30-day free trial, no credit card required"
@@ -2955,7 +2955,7 @@
       "ctaDescription": "Reach out — we'll help you find the right option for your business.",
       "metadata": {
         "title": "Pricing — Kivvi ERP",
-        "description": "Kivvi is fully open source and free to self-host. Or use our managed cloud for CHF 49/month — hosted in Switzerland, operated by revamp-it."
+        "description": "Kivvi is fully open source and free to self-host. Or use our managed cloud for CHF 49/month — hosted in Switzerland."
       }
     },
     "faq": {
@@ -3076,7 +3076,7 @@
             },
             {
               "q": "Is there support?",
-              "a": "Kivvi is open source — primary support runs through GitHub Issues and the community. For businesses that deploy Kivvi, we offer direct email support. Reach us at info@revamp-it.ch. For complex setups or migrations we can offer dedicated support."
+              "a": "Kivvi is open source — primary support runs through GitHub Issues and the community. For businesses that deploy Kivvi, we offer direct email support. Reach us at cato@orangecat.ch. For complex setups or migrations we can offer dedicated support."
             },
             {
               "q": "Can I manage multiple sites or warehouses?",
@@ -3126,7 +3126,7 @@
         "linkHowItWorks": "How it works →",
         "linkKnowledge": "Knowledge base →"
       },
-      "organizationDescription": "IT refurbisher and developer of Kivvi ERP",
+      "organizationDescription": "Open-source ERP for circular-economy businesses",
       "metadata": {
         "title": "FAQ — Frequently asked questions about Kivvi",
         "description": "Answers to the most common questions about Kivvi: cost, self-hosting, the difference vs. Bexio and Kivitendo, circular economy, QR invoices, data protection, and more."
@@ -3145,7 +3145,7 @@
       ],
       "ctaCloud": {
         "title": "Get started right away",
-        "description": "The cloud version is available — hosted in Switzerland, operated by revamp-it. Or self-host with full data control.",
+        "description": "The cloud version is available — hosted in Switzerland. Or self-host with full data control.",
         "tryFree": "Try free",
         "viewPricing": "See pricing"
       },
@@ -3396,8 +3396,8 @@
       },
       "proof": {
         "label": "Proven in production",
-        "title": "Built by revamp-it — one of Switzerland's largest IT refurbishers",
-        "description": "Since 2003 revamp-it has accepted, tested, repaired, and resold electronics. Kivvi was developed out of real operational problems — not as a software project that happened to land in secondhand.",
+        "title": "Used by revamp-it — one of Switzerland's largest IT refurbishers",
+        "description": "Since 2003 revamp-it has accepted, tested, repaired, and resold electronics. It is one of Kivvi's two customers, with evig; Kivvi's intake, triage and resale workflows follow that kind of operation.",
         "stat1Value": "23+",
         "stat1Label": "Years of experience",
         "stat2Value": "5'000+",
@@ -3959,12 +3959,6 @@
           "desc": "Run on your own infrastructure — no dependence"
         }
       ],
-      "donate": {
-        "title": "Support development",
-        "description": "Kivvi is open source and developed by revamp-it, a non-profit IT refurbisher in Zürich. Every donation flows directly into new features and platform operations.",
-        "button": "Donate now",
-        "footnote": "Redirects to revamp-it Zürich · non-profit per Art. 56 lit. g DBG"
-      },
       "pipelineHeader": {
         "title": "What we're building",
         "intro": "We build Kivvi in public — no surprises."

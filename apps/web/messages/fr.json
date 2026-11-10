@@ -2793,7 +2793,7 @@
     "for5": "Ateliers d'upcycling",
     "for6": "Toutes les entreprises de l'économie circulaire",
     "originTitle": "Éprouvé en conditions réelles.",
-    "originStory": "Kivvi est né chez revamp-it — l'un des plus grands recycleurs informatiques de Suisse. Depuis 2003, ils collectent des appareils électroniques, les testent, les réparent et les revendent. Après des années avec des ERP jamais conçus pour la seconde main, ils en ont développé un eux-mêmes. Il est maintenant open source — pour toutes les entreprises de l'économie circulaire.",
+    "originStory": "Kivvi est un ERP open source pour les entreprises de l'économie circulaire : réception sans prix d'achat, évaluation de l'état, file de réparation et revente. Il compte aujourd'hui deux clients : revamp-it, l'un des plus grands recycleurs informatiques de Suisse (qui collecte, teste, répare et revend des appareils électroniques depuis 2003), et evig.",
     "originStat1": "Depuis 2003",
     "originStat1Label": "d'expérience terrain",
     "originStat2": "5'000+",
@@ -2821,9 +2821,9 @@
     "cap6": "QR-factures suisses, TVA, import bancaire CAMT",
     "ctaTitle": "Kivvi pour votre entreprise ?",
     "ctaDescription": "Écrivez-nous — brocante, recycleur, repair café ou boutique vintage.",
-    "ctaEmail": "info@revamp-it.ch",
+    "ctaEmail": "cato@orangecat.ch",
     "ctaTryIt": "Essayer Kivvi",
-    "footerBuiltBy": "Développé par revamp-it",
+    "footerBuiltBy": "Développé par bitbaum",
     "footerOpenSource": "Open Source",
     "footerImpressum": "Mentions légales",
     "footerPrivacy": "Politique de confidentialité",
@@ -2883,7 +2883,7 @@
           "badge": "Recommandé",
           "tagline": "Idéal pour les entreprises sans infrastructure IT propre",
           "bullets": [
-            "Hébergé par revamp-it, données en Suisse",
+            "Hébergé en Suisse",
             "Mises à jour, sauvegardes et monitoring automatiques",
             "Support email sous 48 heures",
             "Essai gratuit de 30 jours, sans carte de crédit"
@@ -2955,7 +2955,7 @@
       "ctaDescription": "Contactez-nous — nous vous aiderons à trouver la bonne option pour votre entreprise.",
       "metadata": {
         "title": "Tarifs — Kivvi ERP",
-        "description": "Kivvi est entièrement open source et gratuit en auto-hébergement. Ou utilisez notre cloud géré pour 49 CHF/mois — hébergé en Suisse, exploité par revamp-it."
+        "description": "Kivvi est entièrement open source et gratuit en auto-hébergement. Ou utilisez notre cloud géré pour 49 CHF/mois — hébergé en Suisse."
       }
     },
     "faq": {
@@ -3076,7 +3076,7 @@
             },
             {
               "q": "Y a-t-il du support ?",
-              "a": "Kivvi est open source — le support principal passe par les issues GitHub et la communauté. Pour les entreprises qui déploient Kivvi, nous offrons un support direct par e-mail. Écrivez-nous à info@revamp-it.ch. Pour des installations ou migrations complexes nous pouvons proposer un accompagnement individuel."
+              "a": "Kivvi est open source — le support principal passe par les issues GitHub et la communauté. Pour les entreprises qui déploient Kivvi, nous offrons un support direct par e-mail. Écrivez-nous à cato@orangecat.ch. Pour des installations ou migrations complexes nous pouvons proposer un accompagnement individuel."
             },
             {
               "q": "Puis-je gérer plusieurs sites ou entrepôts ?",
@@ -3126,7 +3126,7 @@
         "linkHowItWorks": "Comment ça marche →",
         "linkKnowledge": "Base de connaissances →"
       },
-      "organizationDescription": "Reconditionneur IT et développeur de Kivvi ERP",
+      "organizationDescription": "ERP open source pour l'économie circulaire",
       "metadata": {
         "title": "FAQ — Questions fréquentes sur Kivvi",
         "description": "Réponses aux questions les plus fréquentes sur Kivvi : coûts, auto-hébergement, différence avec Bexio et Kivitendo, économie circulaire, factures QR, protection des données, et plus."
@@ -3145,7 +3145,7 @@
       ],
       "ctaCloud": {
         "title": "Démarrer tout de suite",
-        "description": "La version cloud est disponible — hébergée en Suisse, exploitée par revamp-it. Ou auto-hébergement avec contrôle complet des données.",
+        "description": "La version cloud est disponible — hébergée en Suisse. Ou auto-hébergement avec contrôle complet des données.",
         "tryFree": "Essayer gratuitement",
         "viewPricing": "Voir les tarifs"
       },
@@ -3396,8 +3396,8 @@
       },
       "proof": {
         "label": "Éprouvé en production",
-        "title": "Construit par revamp-it — l'un des plus grands reconditionneurs IT de Suisse",
-        "description": "Depuis 2003, revamp-it accepte, teste, répare et revend de l'électronique. Kivvi a été développé à partir de vrais problèmes opérationnels — pas comme un projet logiciel qui aurait par hasard atterri dans la seconde main.",
+        "title": "Utilisé par revamp-it — l'un des plus grands reconditionneurs IT de Suisse",
+        "description": "Depuis 2003, revamp-it accepte, teste, répare et revend de l'électronique. revamp-it est, avec evig, l'un des deux clients de Kivvi ; la réception, le tri et la revente dans Kivvi suivent ce type d'exploitation.",
         "stat1Value": "23+",
         "stat1Label": "années d'expérience",
         "stat2Value": "5'000+",
@@ -3959,12 +3959,6 @@
           "desc": "Faire tourner sur sa propre infrastructure — sans dépendance"
         }
       ],
-      "donate": {
-        "title": "Soutenir le développement",
-        "description": "Kivvi est open source et est développé par revamp-it, un reconditionneur IT à but non lucratif de Zurich. Chaque don est directement investi dans de nouvelles fonctionnalités et dans l'exploitation de la plateforme.",
-        "button": "Faire un don",
-        "footnote": "Redirection vers revamp-it Zürich · à but non lucratif selon art. 56 lit. g LIFD"
-      },
       "pipelineHeader": {
         "title": "Ce que nous construisons",
         "intro": "Nous construisons Kivvi en public — sans surprises."

@@ -31,8 +31,8 @@ function buildSoftwareLd(description: string) {
     offers: { "@type": "Offer", price: "0", priceCurrency: "CHF" },
     creator: {
       "@type": "Organization",
-      name: "revamp-it",
-      url: "https://revamp-it.ch",
+      name: "bitbaum",
+      url: "https://github.com/bitbaum",
     },
     license: "https://opensource.org/licenses/MIT",
   };

@@ -1,3 +1,4 @@
+import { SITE_URL } from "@/lib/config/site";
 /**
  * Schema.org JSON-LD generators for the FAQ page.
  *
@@ -21,9 +22,8 @@ export function buildOrganizationLd(description: string) {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "revamp-it",
-    url: "https://revamp-it.ch",
-    foundingDate: "2003",
+    name: "Kivvi",
+    url: SITE_URL,
     description,
   };
 }
