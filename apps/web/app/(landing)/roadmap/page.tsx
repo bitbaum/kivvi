@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Check, Minus, X, Heart, ArrowRight, ExternalLink } from "lucide-react";
+import { Check, Minus, X, ArrowRight } from "lucide-react";
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { buildPageMeta } from "@/lib/config/site";
@@ -158,28 +158,6 @@ export default async function RoadmapPage() {
           </Link>
         </div>
       </section>
-
-      {/* ── Donate CTA ──────────────────────────────────────────────────────── */}
-      <div className="rounded-2xl border bg-card p-8 text-center space-y-4">
-        <div className="flex justify-center">
-          <div className="rounded-full bg-destructive/10 p-3">
-            <Heart className="h-6 w-6 text-destructive" />
-          </div>
-        </div>
-        <h2 className="text-xl font-semibold">{t("donate.title")}</h2>
-        <p className="mx-auto max-w-lg text-muted-foreground">{t("donate.description")}</p>
-        <a
-          href="https://revamp-it.ch"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 rounded-lg bg-destructive px-6 py-3 text-sm font-semibold text-destructive-foreground shadow-sm hover:bg-destructive/90 transition-colors"
-        >
-          <Heart className="h-4 w-4" />
-          {t("donate.button")}
-          <ExternalLink className="h-3.5 w-3.5 opacity-70" />
-        </a>
-        <p className="text-xs text-muted-foreground">{t("donate.footnote")}</p>
-      </div>
 
       {/* ── Pipeline ────────────────────────────────────────────────────────── */}
       <section id="pipeline" className="space-y-4">

@@ -64,7 +64,7 @@ Förderanträge und Jahresberichte brauchen Impact-Zahlen: Geräte gerettet, CO�
 
 ## Was Kivvi für IT-Refurbisher bedeutet
 
-Kivvi wurde für genau diesen Betriebstyp gebaut — revamp-it in Zürich ist der erste Kunde und das lebende Referenzmodell. Jede Funktion wurde gegen reale Workflows getestet.
+Kivvi wurde für genau diesen Betriebstyp gebaut. revamp-it in Zürich ist neben evig einer der zwei Kunden und das Referenzmodell.
 
 - **Intake-Workflow:** Gerät erfassen, Spendende zuordnen, Spendenquittung automatisch generieren — in unter zwei Minuten.
 - **Reparaturqueue:** Geräte werden einem Techniker zugewiesen. Status (in Test, in Reparatur, bereit) ist für alle sichtbar. Reparaturkosten und Stunden akkumulieren pro Gerät.

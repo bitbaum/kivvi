@@ -3,7 +3,8 @@ import { DEFAULT_LOCALE } from "@kivvi/core/src/config/locale";
 // derived from this — metadataBase, canonical URLs, the social preview — named
 // a host that does not resolve. Point it back only once that domain is live.
 export const SITE_URL = "https://kivvi.orangecat.ch";
-export const CONTACT_EMAIL = "info@revamp-it.ch";
+// The operator's address: contact-form mail and the imprint go here.
+export const CONTACT_EMAIL = "cato@orangecat.ch";
 
 /**
  * Marketing verticals (target customer segments). Holds only structural

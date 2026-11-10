@@ -6,7 +6,7 @@ import { SessionProvider } from "@/components/session-provider";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { ThemedToaster } from "@/components/themed-toaster";
-import { SITE_URL } from "@/lib/config/site";
+import { CONTACT_EMAIL, SITE_URL } from "@/lib/config/site";
 import { auth } from "@/lib/auth";
 import { inter, spaceGrotesk, spaceGroteskDisplay } from "@/lib/fonts";
 
@@ -18,10 +18,10 @@ const ORGANIZATION_LD = {
   logo: `${SITE_URL}/logo.png`,
   description:
     "Das Open-Source-ERP für Kreislaufbetriebe — Brockenhäuser, IT-Refurbisher, Repair Cafés und Vintage-Shops.",
-  sameAs: ["https://github.com/g-but/kivvi"],
+  sameAs: ["https://github.com/bitbaum/kivvi"],
   contactPoint: {
     "@type": "ContactPoint",
-    email: "info@revamp-it.ch",
+    email: CONTACT_EMAIL,
     contactType: "customer support",
   },
 };

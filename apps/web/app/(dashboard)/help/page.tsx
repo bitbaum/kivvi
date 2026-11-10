@@ -1,6 +1,7 @@
 import { BookOpen, MessageSquare, Keyboard, Mail, ExternalLink } from "lucide-react";
 import { getSessionOrRedirect } from "@/lib/session";
 import { getTranslations } from "next-intl/server";
+import { CONTACT_EMAIL } from "@/lib/config/site";
 
 export default async function HelpPage() {
   const session = await getSessionOrRedirect();
@@ -55,8 +56,8 @@ export default async function HelpPage() {
           <h2 className="mt-4 font-semibold">{t("support")}</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {t("supportDesc")}{" "}
-            <a href="mailto:support@revamp-it.ch" className="text-primary hover:underline">
-              support@revamp-it.ch
+            <a href={`mailto:${CONTACT_EMAIL}`} className="text-primary hover:underline">
+              {CONTACT_EMAIL}
             </a>
           </p>
         </div>
