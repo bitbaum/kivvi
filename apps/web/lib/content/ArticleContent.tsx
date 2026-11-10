@@ -1,6 +1,6 @@
-import { ArticleBody, setHighlighterLoader } from "bip-kit/react";
-import { MermaidBlock } from "bip-kit/react/mermaid";
-import type { ContentBlock } from "bip-kit";
+import { ArticleBody, setHighlighterLoader } from "@bitbaum/bip-kit/react";
+import { MermaidBlock } from "@bitbaum/bip-kit/react/mermaid";
+import type { ContentBlock } from "@bitbaum/bip-kit";
 
 /**
  * The knowledge-base body renderer — bip-kit's reference renderer with Kivvi's

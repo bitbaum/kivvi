@@ -3,8 +3,8 @@ import Link from "next/link";
 import { ArrowLeft, ArrowRight, BookOpen } from "lucide-react";
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
-import { ReadingProgress } from "bip-kit/react";
-import "bip-kit/styles.css";
+import { ReadingProgress } from "@bitbaum/bip-kit/react";
+import "@bitbaum/bip-kit/styles.css";
 // Loaded after bip-kit's own stylesheet on purpose — the Kivvi token mapping
 // wins on source order as well as specificity. @see lib/content/knowledge.css
 import "@/lib/content/knowledge.css";

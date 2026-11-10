@@ -1,4 +1,4 @@
-import { clientIp, slidingWindow, type LimitRule, type Limiter } from "limitkit";
+import { clientIp, slidingWindow, type LimitRule, type Limiter } from "@bitbaum/limitkit";
 
 export type RateLimitConfig = LimitRule;
 
