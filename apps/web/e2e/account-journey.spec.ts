@@ -40,9 +40,26 @@ const EXPECT = {
   mail: Boolean(SINK),
   orangecat: Boolean(process.env.ORANGECAT_OAUTH_CLIENT_ID),
   // AccountKit 0.24+ shows the shared sign-in only once its service publishes
-  // a provider (<SIGNIN_ISSUER>/api/providers); the synthetic issuer has none.
+  // a provider (<SIGNIN_ISSUER>/api/providers). CI points at the real issuer
+  // (Morulia), so whether the button belongs on the page is read from it
+  // below, not assumed: Morulia began publishing Google and GitHub on
+  // 2026-11-10 and the hard-coded `false` turned main red.
   signin: false,
 };
+
+test.beforeAll(async () => {
+  const issuer = process.env.SIGNIN_ISSUER;
+  if (!issuer || !process.env.SIGNIN_CLIENT_ID) return;
+  try {
+    const response = await fetch(new URL("/api/providers", issuer), {
+      signal: AbortSignal.timeout(10_000),
+    });
+    const body = (await response.json()) as { providers?: unknown[] };
+    EXPECT.signin = response.ok && (body.providers?.length ?? 0) > 0;
+  } catch {
+    EXPECT.signin = false;
+  }
+});
 
 const db = createPostgresClient(process.env.DATABASE_URL!);
 
@@ -119,9 +136,12 @@ test("every way in works on AccountKit's screens, and the AI key stays secret", 
           () => document.documentElement.scrollWidth - window.innerWidth,
         );
         expect(overflow, `${route} at ${width}px scrolls sideways`).toBeLessThanOrEqual(0);
-        await expect(
-          phone.getByRole("button", { name: /^(sign in|continue) with google$/i }),
-        ).toHaveCount(0);
+        // The app's own Google-only button is gone; the shared sign-in may
+        // legitimately read "Continue with Google" when that is all it offers.
+        if (!EXPECT.signin)
+          await expect(
+            phone.getByRole("button", { name: /^(sign in|continue) with google$/i }),
+          ).toHaveCount(0);
       }
       await phone.close();
     }
