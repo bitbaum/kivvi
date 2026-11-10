@@ -27,7 +27,7 @@
       ]
     },
     "ai-forms": {
-      "package": "ai-forms",
+      "package": "@bitbaum/ai-forms",
       "bindings": [
         {
           "file": "apps/web/app/api/ai/form-assist/route.ts",
