@@ -5,21 +5,15 @@ packages:
 # pnpm 11: install scripts run only for allow-listed packages.
 # true = native/binary deps that need their build scripts;
 # es5-ext's postinstall is non-functional advocacy output — kept off.
-# @bitbaum/mail-kit is our own just-published package; exempt it from the
-# minimum-release-age hold so it can install on day one.
+# Our own packages are published by our own tagged workflows; minimumReleaseAge
+# would refuse each fresh publish until it ages. One scope glob covers every
+# @bitbaum package; the four unscoped ones are named (fleet SHARED.md).
 minimumReleaseAgeExclude:
-  - "@bitbaum/chatkit"
-  - "@bitbaum/mail-kit"
-  # bip-kit is ours too (bitbaum/bip-kit); the 0.2.x line is days old. Without
-  # this entry `pnpm install --frozen-lockfile` refuses it in CI as a bare
-  # exit-1 with no annotation, which reads like a broken build rather than a
-  # held-back dependency.
-  - "bip-kit"
-  - "@bitbaum/ai-kit@1.21.4 || 1.21.5 || 1.22.0 || 1.23.0 || 1.24.0"
-  - "@bitbaum/accountkit@0.9.0 || 0.9.1 || 0.10.0 || 0.11.0 || 0.12.0 || 0.13.0 || 0.14.0 || 0.15.0 || 0.16.0 || 0.18.0 || 0.18.1 || 0.19.0 || 0.20.0 || 0.23.0 || 0.23.1 || 0.27.0"
-  - "@bitbaum/chartkit@0.5.0 || 0.6.0 || 0.7.0"
-  - limitkit@0.2.1
-  - "@bitbaum/design-tokens@1.3.1 || 1.5.1 || 1.5.2"
+  - "@bitbaum/*"
+  - limitkit
+  - bip-kit
+  - threadkit
+  - ai-forms
 
 allowBuilds:
   "@parcel/watcher": true
