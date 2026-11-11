@@ -100,8 +100,8 @@ importers:
         specifier: ^0.7.0
         version: 0.7.0(react@18.3.1)
       '@bitbaum/chatkit':
-        specifier: ^0.23.0
-        version: 0.23.0(react@18.3.1)
+        specifier: ^0.25.0
+        version: 0.25.0(react@18.3.1)
       '@bitbaum/design-tokens':
         specifier: ^1.5.2
         version: 1.5.2
@@ -296,8 +296,8 @@ importers:
         specifier: ^1.24.0
         version: 1.24.0(react@18.3.1)
       '@bitbaum/chatkit':
-        specifier: ^0.23.0
-        version: 0.23.0(react@18.3.1)
+        specifier: ^0.25.0
+        version: 0.25.0(react@18.3.1)
       '@kivvi/core':
         specifier: workspace:*
         version: link:../core
@@ -641,8 +641,8 @@ packages:
     peerDependencies:
       react: '>=18'
 
-  '@bitbaum/chatkit@0.23.0':
-    resolution: {integrity: sha512-iI7tyLcN7Zj3tXN9xZsb7Ixa2VPoDnuMX2taEzb2S1wMtV1A2A7tKfCJsqZp2GELrBCJTH9j59f6djbBF1H1RA==}
+  '@bitbaum/chatkit@0.25.0':
+    resolution: {integrity: sha512-SVhGRltxG2a860pGawFAb1FdY0mr5ZGk0aOMoNT5FEmeczgZwlEfEzR5o8DQO7np8g26LiBpgqGRNEfp3AiNWw==}
     engines: {node: '>=20'}
     hasBin: true
     peerDependencies:
@@ -6273,7 +6273,7 @@ snapshots:
     dependencies:
       react: 18.3.1
 
-  '@bitbaum/chatkit@0.23.0(react@18.3.1)':
+  '@bitbaum/chatkit@0.25.0(react@18.3.1)':
     dependencies:
       pdfjs-dist: 6.4.299
       react: 18.3.1
