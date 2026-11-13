@@ -238,9 +238,12 @@ test("every way in works on AccountKit's screens, and the AI key stays secret", 
     await expect(keyField).toHaveValue("");
     await page.locator("#main-content #aiProvider").selectOption("ollama");
     await keyField.fill(AI_KEY);
-    const save = page.locator("form", { has: keyField }).getByRole("button", {
-      name: "Save Changes",
-    });
+    // `has` is matched inside the form, so it names the field, not its <main>.
+    const save = page
+      .locator("#main-content form", { has: page.locator("#aiApiKey") })
+      .getByRole("button", {
+        name: "Save Changes",
+      });
     await save.click();
     await expect(page.getByText("Settings saved")).toBeVisible();
 
