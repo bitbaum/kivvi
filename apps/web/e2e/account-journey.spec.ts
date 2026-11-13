@@ -228,14 +228,22 @@ test("every way in works on AccountKit's screens, and the AI key stays secret", 
 
   await test.step("the company AI key never reaches the browser", async () => {
     await visit(page, "/settings/company");
-    const keyField = page.locator("#aiApiKey");
+    // The live form, inside <main>. React streams each piece of a page into a
+    // hidden <div id="S:n"> at the end of <body> and moves it into place on the
+    // next animation frame; in CI's headless browser that frame can fail to come,
+    // and React draws the form itself, so the parked copy stays hidden beside the
+    // real one and an unscoped `#aiApiKey` matched both (kivvi CI, 2026-11-13).
+    const keyField = page.locator("#main-content #aiApiKey");
     await expect(keyField).toHaveCount(1);
     await expect(keyField).toHaveValue("");
-    await page.locator("#aiProvider").selectOption("ollama");
+    await page.locator("#main-content #aiProvider").selectOption("ollama");
     await keyField.fill(AI_KEY);
-    const save = page.locator("form", { has: keyField }).getByRole("button", {
-      name: "Save Changes",
-    });
+    // `has` is matched inside the form, so it names the field, not its <main>.
+    const save = page
+      .locator("#main-content form", { has: page.locator("#aiApiKey") })
+      .getByRole("button", {
+        name: "Save Changes",
+      });
     await save.click();
     await expect(page.getByText("Settings saved")).toBeVisible();
 
